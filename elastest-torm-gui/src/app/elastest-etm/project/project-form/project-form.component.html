@@ -11,7 +11,7 @@
           <div layout="row">
             <md-input-container flex>
               <input mdInput #projectNameInput #nameControl="ngModel" type="text" placeholder="Project Name" [(ngModel)]="project.name"
-                name="project.name" maxlength="20" required>
+                name="project.name" maxlength="80" required>
               <md-hint align="start">
                 <span [hidden]="nameControl.pristine || !nameControl.errors?.required" class="tc-red-600">Required</span>
               </md-hint>

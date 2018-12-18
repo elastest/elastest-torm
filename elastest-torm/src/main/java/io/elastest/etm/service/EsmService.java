@@ -43,6 +43,7 @@ import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SupportServiceInstance.SSIStatusEnum;
+import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecutionFile;
@@ -139,7 +140,7 @@ public class EsmService {
     public String etProxyPort;
 
     @Value("${et.etm.incontainer}")
-    private String inContainer;
+    private boolean etmInContainer;
 
     @Value("${api.context.path:#{null}}")
     private String eusApiPath;
@@ -266,11 +267,12 @@ public class EsmService {
             if (!utilsService.isDefaultEtPublicHost()) {
                 serviceIp = utilsService.getEtPublicHostValue();
                 eusInstance.setBindedServiceIp(serviceIp);
-                if ("true".equals(inContainer)) {
+                if (etmInContainer) {
                     servicePort = bindedServicePort;
                 }
             }
             eusInstance.setServiceIp(serviceIp);
+            eusInstance.setEndpointName("elastest-eus");
             eusInstance = buildTssInstanceUrls(eusInstance);
 
             // Set ports after buildTssInstanceUrls to update
@@ -314,7 +316,7 @@ public class EsmService {
                     .getContextInfo().getLogstashSSLHttpUrl());
 
             servicesInstances.put(tssInstanceId, eusInstance);
-
+            etmContextAuxService.getContextInfo().setEusSSInstance(eusInstance);
         } catch (Exception e) {
             logger.error("Error on start integrated EUS:", e);
         }
@@ -639,9 +641,9 @@ public class EsmService {
             this.setTSSFilesConfig(newServiceInstance);
             this.fillEnvVariablesToTSS(newServiceInstance);
 
+            servicesInstances.put(instanceId, newServiceInstance);
             newServiceInstance = this.provisionServiceInstanceByObject(
                     newServiceInstance, instanceId);
-            servicesInstances.put(instanceId, newServiceInstance);
         } catch (Exception e) {
             if (newServiceInstance != null) {
                 deprovisionServiceInstance(newServiceInstance.getInstanceId(),
@@ -719,14 +721,63 @@ public class EsmService {
         }
     }
 
+    public void waitForTJobExecServicesAreReady(TJobExecution tJobExec) {
+        Map<String, SupportServiceInstance> tSSInstAssocToTJob = getTJobExecServicesInstancesMap(
+                tJobExec);
+
+        String resultMsg = "Waiting for the Test Support Services to be ready";
+        logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
+        dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                ResultEnum.WAITING_TSS, resultMsg);
+        while (!tSSInstAssocToTJob.isEmpty()) {
+            tJobExec.getServicesInstances().forEach((tSSInstId) -> {
+                SupportServiceInstance mainSubService = getTJobServiceInstancesById(
+                        tSSInstId);
+                logger.debug("Wait for TSS {} in TJob Execution {}",
+                        mainSubService.getEndpointName(), tJobExec.getId());
+                waitForServiceIsReady(mainSubService);
+                tSSInstAssocToTJob.remove(tSSInstId);
+            });
+        }
+        logger.info("TSSs availables!");
+    }
+
+    public void waitForServiceIsReady(SupportServiceInstance service) {
+        while (!checkInstanceUrlIsUp(service)) {
+            logger.debug("Wait for service {}", service.getEndpointName());
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ie) {
+                logger.error("Interrupted Exception {}: " + ie.getMessage());
+            }
+        }
+        service.getSubServices().forEach((subService) -> {
+            waitForServiceIsReady(subService);
+        });
+    }
+
     public void waitForTssStartedInMini(TJobExecution tJobExec,
             String instanceId, String serviceName) {
+        String resultMsg = "Waiting for the Test Support Services to be ready";
+        dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                ResultEnum.WAITING_TSS, resultMsg);
+
+        logger.debug("Wait for TSS {} in TJob Execution {}", serviceName,
+                tJobExec.getId());
 
         if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
             logger.debug(
                     "Service {} is loaded on init. It's not necessary to wait for the service",
                     serviceName);
+
+            if (servicesInstances.containsKey(instanceId)) {
+                // Put is carried out in the method provision, but we put it
+                // here also in case async is executed
+                tJobServicesInstances.put(instanceId,
+                        servicesInstances.get(instanceId));
+            }
+
             // TSS Loaded on init
             return;
         }
@@ -792,13 +843,14 @@ public class EsmService {
     public String getTJobExecFolderPath(TJobExecution tJobExec) {
         return getTJobExecFolderPath(tJobExec, false);
     }
-    
-    public String getTJobExecFolderPath(TJobExecution tJobExec, boolean relativePath) {
+
+    public String getTJobExecFolderPath(TJobExecution tJobExec,
+            boolean relativePath) {
         String fileSeparator = "/";
-        String path = (relativePath ? "": etSharedFolder) + fileSeparator + tJobsFolder
-                + fileSeparator + tJobFolderPrefix + tJobExec.getTjob().getId()
-                + fileSeparator + tJobExecFolderPefix + tJobExec.getId()
-                + fileSeparator;
+        String path = (relativePath ? "" : etSharedFolder) + fileSeparator
+                + tJobsFolder + fileSeparator + tJobFolderPrefix
+                + tJobExec.getTjob().getId() + fileSeparator
+                + tJobExecFolderPefix + tJobExec.getId() + fileSeparator;
         logger.info("TJob Workspace: {}", path);
         return path;
     }
@@ -910,8 +962,8 @@ public class EsmService {
     public void registerExternalTJobExecutionInEus(String tssInstanceId,
             String serviceName, ExternalTJobExecution exTJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
-            String folderPath = this.getExternalTJobExecFolderPath(exTJobExec, true)
-                    + serviceName.toLowerCase() + "/";
+            String folderPath = this.getExternalTJobExecFolderPath(exTJobExec,
+                    true) + serviceName.toLowerCase() + "/";
             EusExecutionData eusExecutionData = new EusExecutionData(exTJobExec,
                     folderPath);
             String response = "";
@@ -1060,109 +1112,85 @@ public class EsmService {
 
     private SupportServiceInstance buildTssInstanceUrls(
             SupportServiceInstance serviceInstance) throws Exception {
+        logger.info("Building TSSs URLs for {}",
+                serviceInstance.getEndpointName());
         TssManifest manifest = supportServiceClient
                 .getManifestById(serviceInstance.getManifestId());
+        createSubserviceUrls(serviceInstance, manifest);
+        for (SupportServiceInstance subService : serviceInstance
+                .getSubServices()) {
+            logger.debug("Sub-services names: {}",
+                    subService.getEndpointName());
+            if (subService.getContainerIp() == null) {
+                throw new Exception("Field ip not found for "
+                        + subService.getEndpointName() + " instance.");
+            } else {
+                createSubserviceUrls(subService, manifest);
+            }
+        }
+
+        return serviceInstance;
+    }
+
+    private void createSubserviceUrls(SupportServiceInstance serviceInstance,
+            TssManifest manifest) throws Exception {
         JsonNode manifestEndpoints = manifest.getEndpoints();
-
-        Iterator<String> subServicesNames = manifestEndpoints.fieldNames();
-        String serviceName = subServicesNames.next();
-
-        JsonNode manifestEndpointService = manifestEndpoints.get(serviceName);
+        logger.debug("Endpoints for the service: {}",
+                manifestEndpoints.toString());
+        logger.debug("Endpoints name: {}", serviceInstance.getEndpointName());
+        JsonNode manifestEndpointService = manifestEndpoints
+                .get(serviceInstance.getEndpointName());
+        logger.debug("Endpoints defined insite the manifest: {}",
+                manifestEndpointService.toString());
         JsonNode manifestEndpointServiceApi = manifestEndpointService
                 .get("api");
         JsonNode manifestEndpointServiceGui = manifestEndpointService
                 .get("gui");
 
-        if (serviceInstance.getContainerIp() == null) {
+        String networkName = etDockerNetwork;
+        logger.debug("Network name: " + networkName);
+
+        try {
+            String tssContainerName = serviceInstance.getContainerName();
+
+            if (manifestEndpointServiceApi != null) {
+                if (!manifestEndpointServiceApi.isArray()) {
+                    getEndpointsInfo(serviceInstance,
+                            manifestEndpointServiceApi, tssContainerName,
+                            networkName, "api");
+                } else {
+                    for (final JsonNode apiNode : manifestEndpointServiceApi) {
+                        getEndpointsInfo(serviceInstance, apiNode,
+                                tssContainerName, networkName,
+                                apiNode.get("name") != null
+                                        ? apiNode.get("name").toString()
+                                                .replaceAll("\"", "") + "api"
+                                        : "api");
+                    }
+                }
+            }
+
+            if (manifestEndpointServiceGui != null) {
+                if (!manifestEndpointServiceGui.isArray()) {
+                    getEndpointsInfo(serviceInstance,
+                            manifestEndpointServiceGui, tssContainerName,
+                            networkName, "gui");
+                } else {
+                    for (final JsonNode guiNode : manifestEndpointServiceGui) {
+                        getEndpointsInfo(serviceInstance, guiNode,
+                                tssContainerName, networkName,
+                                guiNode.get("name") != null
+                                        ? guiNode.get("name").toString()
+                                                .replaceAll("\"", "") + "gui"
+                                        : "gui");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error building endpoints info: {}", e.getMessage());
             throw new Exception(
-                    "Field ip not found for " + serviceName + " instance.");
-        } else {
-
-            String networkName = etDockerNetwork;
-            logger.info("Network name: " + networkName);
-
-            SupportServiceInstance auxServiceInstance = null;
-
-            // Main instance
-            if (manifestEndpointService.get("main") != null
-                    && manifestEndpointService.get("main").booleanValue()) {
-                logger.info("Principal instance {}:" + serviceName);
-                auxServiceInstance = serviceInstance;
-            } else { // Subservice
-                auxServiceInstance = new SupportServiceInstance();
-                auxServiceInstance.setEndpointName(serviceName);
-
-                // SetIp ports
-                auxServiceInstance
-                        .setContainerIp(serviceInstance.getContainerIp());
-                auxServiceInstance.setServiceIp(serviceInstance.getServiceIp());
-                auxServiceInstance
-                        .setServicePort(serviceInstance.getServicePort());
-
-                auxServiceInstance.setInternalServiceIp(
-                        serviceInstance.getInternalServiceIp());
-                auxServiceInstance.setInternalServicePort(
-                        serviceInstance.getInternalServicePort());
-
-                auxServiceInstance.setBindedServiceIp(
-                        serviceInstance.getBindedServiceIp());
-                auxServiceInstance.setBindedServicePort(
-                        serviceInstance.getBindedServicePort());
-
-                auxServiceInstance
-                        .setParameters(serviceInstance.getParameters());
-                serviceInstance.getSubServices().add(auxServiceInstance);
-            }
-
-            auxServiceInstance.setEndpointName(serviceName);
-
-            try {
-                String tssContainerName = serviceInstance.getContainerName();
-
-                if (manifestEndpointServiceApi != null) {
-                    if (!manifestEndpointServiceApi.isArray()) {
-                        getEndpointsInfo(auxServiceInstance,
-                                manifestEndpointServiceApi, tssContainerName,
-                                networkName, "api");
-                    } else {
-                        for (final JsonNode apiNode : manifestEndpointServiceApi) {
-                            getEndpointsInfo(auxServiceInstance, apiNode,
-                                    tssContainerName, networkName,
-                                    apiNode.get("name") != null
-                                            ? apiNode.get("name").toString()
-                                                    .replaceAll("\"", "")
-                                                    + "api"
-                                            : "api");
-                        }
-                    }
-                }
-
-                if (manifestEndpointServiceGui != null) {
-                    if (!manifestEndpointServiceGui.isArray()) {
-                        getEndpointsInfo(auxServiceInstance,
-                                manifestEndpointServiceGui, tssContainerName,
-                                networkName, "gui");
-                    } else {
-                        for (final JsonNode guiNode : manifestEndpointServiceGui) {
-                            getEndpointsInfo(auxServiceInstance, guiNode,
-                                    tssContainerName, networkName,
-                                    guiNode.get("name") != null
-                                            ? guiNode.get("name").toString()
-                                                    .replaceAll("\"", "")
-                                                    + "gui"
-                                            : "gui");
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Error building endpoints info: {}",
-                        e.getMessage());
-                throw new Exception(
-                        "Error building endpoints info: " + e.getMessage());
-            }
+                    "Error building endpoints info: " + e.getMessage());
         }
-
-        return serviceInstance;
     }
 
     private SupportServiceInstance getEndpointsInfo(
@@ -1180,6 +1208,7 @@ public class EsmService {
             // If server address, binded
             if (!utilsService.isDefaultEtPublicHost()) {
                 int bindedPort;
+                logger.debug("");
                 if (serviceInstance.getEndpointsBindingsPorts()
                         .containsKey(nodePort)) {
                     bindedPort = Integer.parseInt(serviceInstance
@@ -1192,9 +1221,9 @@ public class EsmService {
                                         networkName,
                                         epmService.etMasterSlaveMode);
                         serviceInstance.getPortBindingContainers()
-                                .add(socatBindedPortObj.getBindedPort());
+                                .add(socatBindedPortObj.getContainerId());
                         bindedPort = Integer
-                                .parseInt(socatBindedPortObj.getListenPort());
+                                .parseInt(socatBindedPortObj.getBindedPort());
                         serviceInstance.getEndpointsBindingsPorts()
                                 .put(nodePort, String.valueOf(bindedPort));
                     } catch (Exception e) {
@@ -1357,6 +1386,7 @@ public class EsmService {
 
             for (String containerId : serviceInstance
                     .getPortBindingContainers()) {
+                logger.debug("Socat container to remove: {}", containerId);
                 try {
                     dockerEtmService.dockerService
                             .stopDockerContainer(containerId);
@@ -1467,16 +1497,27 @@ public class EsmService {
         this.servicesInstances = servicesInstances;
     }
 
-    public Map<String, SupportServiceInstance> gettJobServicesInstances() {
+    public Map<String, SupportServiceInstance> getTJobServicesInstances() {
         return tJobServicesInstances;
     }
 
-    public void settJobServicesInstances(
-            Map<String, SupportServiceInstance> tJobsServicesInstances) {
-        this.tJobServicesInstances = tJobsServicesInstances;
+    public SupportServiceInstance getTJobServiceInstancesById(
+            String tSSInstId) {
+        return tJobServicesInstances.get(tSSInstId);
     }
 
-    public List<SupportServiceInstance> getTSSInstByTJobExecId(
+    public Map<String, SupportServiceInstance> getTJobExecServicesInstancesMap(
+            TJobExecution tJobExec) {
+        Map<String, SupportServiceInstance> tSSInstAssocToTJobExec = new HashMap<>();
+        tJobExec.getServicesInstances().forEach((tSSInstId) -> {
+            tSSInstAssocToTJobExec.put(tSSInstId,
+                    getTJobServiceInstancesById(tSSInstId));
+        });
+
+        return tSSInstAssocToTJobExec;
+    }
+
+    public List<SupportServiceInstance> getTJobExecServicesInstancesList(
             Long tJobExecId) {
         logger.debug("Get ready TSS by TJobExecId {}", tJobExecId);
         List<SupportServiceInstance> tSSInstanceList = new ArrayList<>();
@@ -1498,14 +1539,17 @@ public class EsmService {
                     && !tSSInstance.getUrls().isEmpty()) {
                 // First check if internal api url exists
                 String urlValue = tSSInstance.getInternalApiUrlIfExist();
+                logger.debug("Internal url {} ", urlValue);
                 if (urlValue == null) {
 
                     // else if api status url exist (for integrated EUS)
                     urlValue = tSSInstance.getApiStatusUrlIfExist();
+                    logger.debug("Api status url {} ", urlValue);
 
                     // else normal url
                     if (urlValue == null) {
                         urlValue = tSSInstance.getApiUrlIfExist();
+                        logger.debug("Normal url {} ", urlValue);
                     }
                 }
 
@@ -1626,7 +1670,8 @@ public class EsmService {
         if (etSharedFolder.endsWith("/") && relativePath.startsWith("/")) {
             absolutePath = etSharedFolder + relativePath.replaceFirst("/", "");
         } else {
-            if (!etSharedFolder.endsWith("/") && !relativePath.startsWith("/")) {
+            if (!etSharedFolder.endsWith("/")
+                    && !relativePath.startsWith("/")) {
                 absolutePath = etSharedFolder + "/" + relativePath;
             }
         }
@@ -1696,7 +1741,7 @@ public class EsmService {
                 etSharedFolder);
         supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
                 etDataInHost);
-        
+
     }
 
     private void fillEnvVariablesToTSS(
@@ -1813,6 +1858,7 @@ public class EsmService {
 
     public Map<String, String> getTSSInstanceEnvVars(SupportServiceInstance ssi,
             boolean publicEnvVars, boolean withPublicPrefix) {
+        logger.debug("Creating env vars from TSSs");
         Map<String, String> envVars = new HashMap<String, String>();
         String servicePrefix = ssi.getServiceName().toUpperCase()
                 .replaceAll("-", "_");
@@ -1837,13 +1883,14 @@ public class EsmService {
                         envNamePrefixSubSSI, entry, publicEnvVars));
             }
         }
-
+        logger.debug("TJob and Sut env vars: {}", envVars.keySet().toString());
         return envVars;
     }
 
     private Map<String, String> setTssEnvVarByEndpoint(
             SupportServiceInstance ssi, String prefix,
             Map.Entry<String, JsonNode> entry, boolean publicEnvVars) {
+        logger.debug("Creating env vars from a TSS endpoint");
         Map<String, String> envVars = new HashMap<>();
         if (!entry.getKey().toLowerCase().contains("gui")) {
             try {

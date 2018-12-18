@@ -42,6 +42,9 @@ public class MonitoringQuery {
     @JsonProperty("message")
     String message;
 
+    @JsonProperty("rawData")
+    StreamType rawData;
+
     public MonitoringQuery() {
         this.indices = new ArrayList<>();
         this.selectedTerms = new ArrayList<>();
@@ -162,6 +165,9 @@ public class MonitoringQuery {
         case "message":
             return QueryBuilders.termQuery("message", message);
 
+        case "rawData":
+            return QueryBuilders.termQuery("raw_data", rawData);
+
         default:
             return null;
         }
@@ -214,6 +220,10 @@ public class MonitoringQuery {
         case "units":
             return QTrace.trace.units;
 
+        case "rawData":
+        case "raw_data":
+            return QTrace.trace.rawData;
+
         default:
             return null;
         }
@@ -245,6 +255,9 @@ public class MonitoringQuery {
 
         case "message":
             return message;
+
+        case "rawData":
+            return rawData;
 
         default:
             return null;

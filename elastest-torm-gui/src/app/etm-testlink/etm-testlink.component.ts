@@ -5,10 +5,11 @@ import { TitlesService } from '../shared/services/titles.service';
 import { TestProjectModel } from './models/test-project-model';
 import { Component, Input, OnInit, ViewContainerRef, HostListener, OnDestroy } from '@angular/core';
 import { TestLinkService } from './testlink.service';
-import { MdDialog } from '@angular/material';
+import { MdDialog, MdDialogRef } from '@angular/material';
 import { EtPluginsService } from '../elastest-test-engines/et-plugins.service';
 import { EtPluginModel } from '../elastest-test-engines/et-plugin-model';
 import { Subscription, Observable } from 'rxjs';
+import { CredentialsDialogComponent } from '../shared/credentials-dialog/credentials-dialog.component';
 
 @Component({
   selector: 'etm-testlink',
@@ -173,5 +174,17 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
         console.log(error);
       },
     );
+  }
+
+  openDialog(): void {
+    let dialogRef:MdDialogRef<CredentialsDialogComponent> = this.dialog.open(CredentialsDialogComponent, {
+      height: '30%',
+      width: '40%',
+      data: this.testLinkModel,
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog closed: ${result}`);
+      
+    });
   }
 }

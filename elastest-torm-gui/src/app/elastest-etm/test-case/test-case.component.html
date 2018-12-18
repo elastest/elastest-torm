@@ -69,10 +69,10 @@
                 </a>
               </div>
             </div>
-            <div *ngIf="testCase && testCase.files.length === 0" class="push-top-important messageEmptyCard">
+            <centered-element *ngIf="testCase && testCase.files.length === 0" class="push-top-important messageEmptyCard">
               <md-icon>assignment</md-icon>
               <p>No Files found</p>
-            </div>
+            </centered-element>
           </md-tab>
           <md-tab *ngFor="let file of getMP4Files()">
             <ng-template md-tab-label>

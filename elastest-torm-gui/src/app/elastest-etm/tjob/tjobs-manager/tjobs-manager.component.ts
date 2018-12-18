@@ -26,6 +26,7 @@ export class TJobsManagerComponent implements OnInit {
   showSpinner: boolean = true;
 
   deletingInProgress: boolean = false;
+  duplicateInProgress: boolean = false;
 
   // TJob Data
   tjobColumns: any[] = [
@@ -35,6 +36,7 @@ export class TJobsManagerComponent implements OnInit {
     { name: 'lastExecutionDate', label: 'Last Execution' },
     { name: 'result', label: 'Result' },
     { name: 'sut', label: 'Sut' },
+    { name: 'multi', label: 'Multi Axis' },
     { name: 'options', label: 'Options' },
   ];
 
@@ -82,6 +84,7 @@ export class TJobsManagerComponent implements OnInit {
         this.showSpinner = false;
         this.addLastTJob();
       }
+      this.duplicateInProgress = false;
     });
   }
 
@@ -89,8 +92,12 @@ export class TJobsManagerComponent implements OnInit {
     this.tJobService.getTJobs().subscribe(
       (tJobs: TJobModel[]) => {
         this.tJobs = tJobs;
+        this.duplicateInProgress = false;
       },
-      (error) => console.log(error),
+      (error) => {
+        this.duplicateInProgress = false;
+        console.log(error);
+      },
     );
   }
 
@@ -103,17 +110,19 @@ export class TJobsManagerComponent implements OnInit {
       tJob.project = project;
       this.dialog.open(RunTJobModalComponent, {
         data: tJob.cloneTJob(),
+        height: '85%',
+        width: '65%',
       });
     } else {
-      this.tJobExecService.runTJob(tJob.id, tJob.parameters).subscribe(
+      this.tJobExecService.runTJob(tJob.id, undefined, undefined, tJob.multiConfigurations).subscribe(
         (tjobExecution: TJobExecModel) => {
-          this.router.navigate(['/projects', this.project.id, 'tjob', tJob.id, 'tjob-exec', tjobExecution.id, 'live']);
+          this.router.navigate(['/projects', this.project.id, 'tjob', tJob.id, 'tjob-exec', tjobExecution.id]);
         },
         (error) => console.error('Error:' + error),
       );
     }
   }
-  
+
   editTJob(tJob: TJobModel): void {
     if (tJob.external && tJob.getExternalEditPage()) {
       window.open(tJob.getExternalEditPage());
@@ -169,5 +178,23 @@ export class TJobsManagerComponent implements OnInit {
         tjob['result'] = lastExecution.getResultIcon();
       }
     }
+  }
+
+  duplicateTJob(tJob: TJobModel): void {
+    this.duplicateInProgress = true;
+    if (!tJob.project) {
+      let project: ProjectModel = new ProjectModel();
+      project.id = this.project.id;
+      tJob.project = project;
+    }
+    this.tJobService.duplicateTJob(tJob).subscribe(
+      (tJob: any) => {
+        this.init();
+      },
+      (error: Error) => {
+        console.log(error);
+        this.duplicateInProgress = false;
+      },
+    );
   }
 }

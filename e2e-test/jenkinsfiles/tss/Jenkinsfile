@@ -1,0 +1,57 @@
+node {
+    @Library('ciElastestConnect@fullyconfigurable') _
+    elastest_lib.setVersion('dev')
+    //initialization of the context for the library
+    elastest_lib.setContext(this)
+    elastest_lib.setMode('experimental-lite')
+    elastest_lib.setOptionals('-sa='+env.SA)
+    elastest_lib.setShared( env.SHARED_ELASTEST == 'true')
+    //elastest_lib.setTestLink(true)
+    elastest_lib.setAuthenticatedElastest(true)
+    //initialization of the runnable object to access elastest methods inside the pipeline
+    def elastest= elastest_lib.getElastestMethods()
+    def elastest_network = env.NETWORK
+
+    //definition of nodes is managed by the library. Just declare the steps of your pipeline
+    //inside the elastest_lib.pipeline({...})
+    elastest_lib.pipeline({
+        
+        stage ('docker container')
+            def mycontainer = elastest.ctx.docker.image('elastest/ci-docker-e2e:latest')
+            mycontainer.pull()
+            mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw -v /dev/shm:/dev/shm")  {
+                sh '/usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf &'
+
+                try {
+                    echo 'Clean exited containers'        
+                    sh 'docker ps -a; docker ps -a -f name=elastest | grep Exited |  awk "{print $1}" | xargs docker rm -f'
+                    sh 'docker ps -a -f name=test | grep Exited |  awk "{print $1}" | xargs docker rm -f'
+                }catch (err) {
+                    echo 'No containers in Exited state'
+                }
+                                    
+                stage ('prepare test')
+                    git 'https://github.com/elastest/elastest-torm.git'
+                                    
+                    echo 'Prepare network'
+                    elastest.connect2ElastestNetwork()
+                    def elastestURL = elastest.getEtmUrl()
+                    
+                stage ("Run tests")
+                    try {                        
+                        sh "cd e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.tss.** -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+elastest_network
+                    } catch(e) {
+                        echo 'Err: ' + e.toString()
+                        sh '''\
+                        docker ps --all
+                        docker ps --filter name=etm -q
+                        docker ps --filter name=etm -q | xargs -L 1 docker logs || true
+                        docker ps --filter name=etm -q | xargs -L 1 docker inspect || true
+                        '''
+                    } finally {
+                        step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
+                    }
+            }
+
+    })
+}

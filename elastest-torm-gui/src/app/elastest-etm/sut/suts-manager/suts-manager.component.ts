@@ -2,14 +2,10 @@ import { TitlesService } from '../../../shared/services/titles.service';
 import { SutModel } from '../../sut/sut-model';
 import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { SutService } from '../../sut/sut.service';
-import { TJobExecService } from '../../tjob-exec/tjobExec.service';
-import { TJobService } from '../../tjob/tjob.service';
 import { IConfirmConfig } from '@covalent/core';
-import { TJobModel } from '../../tjob/tjob-model';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 import { MdDialog } from '@angular/material';
-import { RunTJobModalComponent } from '../../tjob/run-tjob-modal/run-tjob-modal.component';
 import { ProjectService } from '../../project/project.service';
 import { ProjectModel } from '../../project/project-model';
 import { ExternalProjectModel } from '../../external/external-project/external-project-model';
@@ -21,8 +17,10 @@ import { ExternalService } from '../../external/external.service';
   styleUrls: ['./suts-manager.component.scss'],
 })
 export class SutsManagerComponent implements OnInit {
-  @Input() projectId: string;
-  @Input() exProjectId: string;
+  @Input()
+  projectId: string;
+  @Input()
+  exProjectId: string;
 
   project: ProjectModel;
   exProject: ExternalProjectModel;
@@ -32,6 +30,7 @@ export class SutsManagerComponent implements OnInit {
   showSpinner: boolean = true;
 
   deletingInProgress: boolean = false;
+  duplicateInProgress: boolean = false;
 
   // SuT Data
   sutColumns: any[] = [
@@ -92,6 +91,7 @@ export class SutsManagerComponent implements OnInit {
         this.suts = this.project.suts;
         this.showSpinner = false;
       }
+      this.duplicateInProgress = false;
     });
   }
 
@@ -103,6 +103,7 @@ export class SutsManagerComponent implements OnInit {
         this.suts = this.exProject.suts;
         this.showSpinner = false;
       }
+      this.duplicateInProgress = false;
     });
   }
 
@@ -110,8 +111,12 @@ export class SutsManagerComponent implements OnInit {
     this.sutService.getSuts().subscribe(
       (suts: SutModel[]) => {
         this.suts = suts;
+        this.duplicateInProgress = false;
       },
-      (error) => console.log(error),
+      (error) => {
+        this.duplicateInProgress = false;
+        console.log(error);
+      },
     );
   }
 
@@ -169,5 +174,28 @@ export class SutsManagerComponent implements OnInit {
           );
         }
       });
+  }
+
+  duplicateSut(sut: SutModel): void {
+    this.duplicateInProgress = true;
+    if (this.project && !sut.project) {
+      let project: ProjectModel = new ProjectModel();
+      project.id = this.project.id;
+      sut.project = project;
+    } else if (this.exProject && !sut.exProject) {
+      let exProject: ExternalProjectModel = new ExternalProjectModel();
+      exProject.id = this.exProject.id;
+      sut.exProject = exProject;
+    }
+    
+    this.sutService.duplicateSut(sut).subscribe(
+      (tJob: any) => {
+        this.init();
+      },
+      (error: Error) => {
+        console.log(error);
+        this.duplicateInProgress = false;
+      },
+    );
   }
 }

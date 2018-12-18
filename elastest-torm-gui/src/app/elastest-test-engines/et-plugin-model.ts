@@ -6,6 +6,7 @@ export class EtPluginModel extends DockerServiceStatus {
   imagesList: string[];
   user: string;
   pass: string;
+  displayName: string;
 
   constructor() {
     super();
@@ -14,5 +15,6 @@ export class EtPluginModel extends DockerServiceStatus {
     this.imagesList = [];
     this.user = '';
     this.pass = '';
+    this.displayName = '';
   }
 }

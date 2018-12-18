@@ -28,15 +28,21 @@ export class TestCaseModel {
       name: '',
       color: '',
     };
+    let result: defaultResult = this.getResult();
+    icon = getResultIconByString(result);
+
+    return icon;
+  }
+
+  public getResult(): defaultResult {
     let result: defaultResult = 'FAIL';
     if (this.isSuccess()) {
       result = 'SUCCESS';
     } else if (this.isSkipped()) {
       result = 'SKIPPED';
     }
-    icon = getResultIconByString(result);
 
-    return icon;
+    return result;
   }
 
   public isSuccess(): boolean {
@@ -86,7 +92,8 @@ export class TestCaseModel {
   setTestCaseFiles(tJobExecFiles: FileModel[]): FileModel[] {
     let newExecFiles: FileModel[] = [];
     for (let file of tJobExecFiles) {
-      if (file.name.startsWith(this.name + '_')) {
+      // If testCase.name has spaces, replace with -
+      if (file.name.startsWith(this.name.replace(/\s+/g, '-') + '_')) {
         this.files.push(file);
       } else {
         newExecFiles.push(file);

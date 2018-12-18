@@ -29,8 +29,7 @@ import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.service.SutService;
 import io.elastest.etm.test.extensions.MockitoExtension;
 
-@RunWith(JUnitPlatform.class)
-@ExtendWith({ MockitoExtension.class })
+@ExtendWith(MockitoExtension.class)
 public class SutServiceTest {
 
     @Mock

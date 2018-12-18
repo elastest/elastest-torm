@@ -2,9 +2,10 @@
   <div id="content" layout-fill>
     <md-card id="logCard" class="push-none">
       <md-card-content class="push-bottom-none pad-bottom-none pad-top-none">
-        <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows" [columnDefs]="logColumns"
-          [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)" (componentStateChanged)="componentStateChanged($event)"
-          (rowSelected)="switchRowSelection($event)" (columnResized)="saveColumnsConfig($event, false)" (columnMoved)="saveColumnsConfig(undefined,false)"
+        <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows"
+          [columnDefs]="logColumns" [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)"
+          (componentStateChanged)="componentStateChanged($event)" (rowSelected)="switchRowSelection($event)"
+          (columnResized)="saveColumnsConfig($event, false)" (columnMoved)="saveColumnsConfig(undefined,false)"
           (rowDoubleClicked)="openMessageModal($event)" style="width: 100%; height: 80%;">
         </ag-grid-angular>
       </md-card-content>
@@ -45,13 +46,15 @@
                     <div id="logDate" layout="column" class="push-top">
                       <div layout="row" class="">
                         <md-input-container flex="90" class="oveflowHidden">
-                          <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date (GMT+0)" required>
+                          <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date (GMT+0)"
+                            required>
                         </md-input-container>
                       </div>
                       <div layout="row" class="">
                         <div flex-xl="75">
                           <md-input-container class="overflowHidden">
-                            <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date (GMT+0)" required [disabled]="tail.checked">
+                            <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date (GMT+0)"
+                              required [disabled]="tail.checked">
                           </md-input-container>
                         </div>
                         <div flex-xl="25" id="tail">
@@ -71,8 +74,9 @@
                     <md-card-subtitle class="pad-left-none">Components/Streams</md-card-subtitle>
                     <tree-root #componentsTree [nodes]="logAnalyzer.componentsStreams.tree">
                       <ng-template #treeNodeTemplate let-node="node" let-index="index">
-                        <md-checkbox (change)="logAnalyzer.componentsStreams.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate"
-                          [checked]="node.data.checked" title="{{ node.data.name }}"> {{ node.data.name }}</md-checkbox>
+                        <md-checkbox (change)="logAnalyzer.componentsStreams.check(node, !node.data.checked)" type="checkbox"
+                          [indeterminate]="node.data.indeterminate" [checked]="node.data.checked" title="{{ node.data.name }}">
+                          {{ node.data.name }}</md-checkbox>
                       </ng-template>
                     </tree-root>
                   </div>
@@ -80,8 +84,8 @@
                     <md-card-subtitle class="pad-left-none">Levels</md-card-subtitle>
                     <tree-root #levelsTree [nodes]="logAnalyzer.levels.tree">
                       <ng-template #treeNodeTemplate let-node="node" let-index="index">
-                        <md-checkbox (change)="logAnalyzer.levels.check(node, !node.data.checked)" type="checkbox" [indeterminate]="node.data.indeterminate"
-                          [checked]="node.data.checked"> {{ node.data.name }}</md-checkbox>
+                        <md-checkbox (change)="logAnalyzer.levels.check(node, !node.data.checked)" type="checkbox"
+                          [indeterminate]="node.data.indeterminate" [checked]="node.data.checked"> {{ node.data.name }}</md-checkbox>
                       </ng-template>
                     </tree-root>
                   </div>
@@ -94,8 +98,9 @@
 
                 <div class="" layout="column">
                   <md-input-container class="noMarginInput">
-                    <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value="" [(ngModel)]="logAnalyzer.messageFilter"
-                      placeholder="Message" title="Search and filter by message" (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)">
+                    <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value=""
+                      [(ngModel)]="logAnalyzer.messageFilter" placeholder="Message" title="Search and filter by message"
+                      (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)">
                   </md-input-container>
                 </div>
               </div>
@@ -107,9 +112,10 @@
                 <div layout="row">
                   <div flex="25">
                     <md-input-container class="noMarginInput noPaddingInput">
-                      <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1" max="10000" [(ngModel)]="logAnalyzer.maxResults"
-                        name="max_results" placeholder="Nº Entries" #logAnalyzerFormElement #logAnalyzerFormControl="ngModel"
-                        (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)" required>
+                      <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1"
+                        max="10000" [(ngModel)]="logAnalyzer.maxResults" name="max_results" placeholder="Nº Entries"
+                        #logAnalyzerFormElement #logAnalyzerFormControl="ngModel" (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)"
+                        required>
                     </md-input-container>
                   </div>
                   <div flex="20" id="loadLogButton">
@@ -127,7 +133,8 @@
                     </button>
                   </div>
                   <div flex="50" id="addFromSelected" *ngIf="showLoadMore && !showPauseTail">
-                    <button md-button (click)="moreFromSelected()" [disabled]="logAnalyzer.selectedRow === undefined || disableBtns" title="Add more from selected trace">
+                    <button md-button (click)="moreFromSelected()" [disabled]="logAnalyzer.selectedRow === undefined || disableBtns"
+                      title="Add more from selected trace">
                       <md-icon>vertical_align_center</md-icon>
                     </button>
                   </div>
@@ -135,7 +142,8 @@
                   <md-icon>link</md-icon> Share link
                 </button>  -->
                   <div flex="90" id="pauseTail" *ngIf="showPauseTail">
-                    <md-checkbox #pauseTail name="pauseTail" (change)="logAnalyzer.switchPauseTail(pauseTail.checked)" title="Pause Tail">Pause Tail</md-checkbox>
+                    <md-checkbox #pauseTail name="pauseTail" (change)="logAnalyzer.switchPauseTail(pauseTail.checked)"
+                      title="Pause Tail">Pause Tail</md-checkbox>
                   </div>
 
                 </div>
@@ -160,13 +168,16 @@
                 class="iconBtn push-top-sm">
                 <md-icon>save</md-icon> Save
               </button>
-              <button md-raised-button color="accent" (click)="loadSavedColumnsConfig()" title="Load Saved Columns Configuration" class="iconBtn push-top-sm">
+              <button md-raised-button color="accent" (click)="loadSavedColumnsConfig()" title="Load Saved Columns Configuration"
+                class="iconBtn push-top-sm">
                 <md-icon>settings_backup_restore</md-icon> Load Saved
               </button>
-              <button md-raised-button color="accent" (click)="loadDefaultColumnsConfig()" title="Load Default Columns Configuration" class="iconBtn push-top-sm">
+              <button md-raised-button color="accent" (click)="loadDefaultColumnsConfig()" title="Load Default Columns Configuration"
+                class="iconBtn push-top-sm">
                 <md-icon>restore</md-icon> Load Default
               </button>
-              <md-slide-toggle [(ngModel)]="autoRowHeight" id="toggleRowHeight" (click)="toggleRowHeight()">Auto row height</md-slide-toggle>
+              <md-checkbox #autoRowHeight id="toggleRowHeight" name="toggleRowHeightCheckbox" [checked]="autoRowHeight" (change)="toggleRowHeight(autoRowHeight.checked)">Auto
+                row height</md-checkbox>
             </div>
           </md-tab>
         </md-tab-group>

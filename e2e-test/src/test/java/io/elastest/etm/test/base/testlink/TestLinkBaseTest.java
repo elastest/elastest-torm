@@ -131,10 +131,16 @@ public class TestLinkBaseTest extends EtmBaseTest {
     protected TestCase getTLTestCase(WebDriver driver, String caseName,
             Integer suiteId)
             throws JsonParseException, JsonMappingException, IOException {
-        ResponseEntity<String> response = this.restClient.get(tlApiPath
-                + "/project/suite/" + suiteId + "/case/name/" + caseName);
-
-        return this.getTestCaseFromJson(response.getBody());
+        try {
+            ResponseEntity<String> response = this.restClient.get(tlApiPath
+                    + "/project/suite/" + suiteId + "/case/name/" + caseName);
+    
+                return this.getTestCaseFromJson(response.getBody());
+        } catch (Exception e) {
+            log.error("Error requesting to ElasTest for a test case");
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     protected TestCase getTLTestCase(WebDriver driver, TestCase testCase)
@@ -156,14 +162,23 @@ public class TestLinkBaseTest extends EtmBaseTest {
 
     protected TestCase createTlTestCase(WebDriver driver, TestCase testCase)
             throws IOException {
+        log.info("Creating TL test case");
         if (this.tlTestCaseExists(driver, testCase)) {
+            log.info("TL test case exists");
             return this.getTLTestCase(driver, testCase);
         } else {
+            log.info("Creating TL test case");
             String jsonCase = this.objectToJson(testCase);
-            ResponseEntity<String> response = this.restClient.post(tlApiPath
-                    + "/project/suite/" + testCase.getTestSuiteId() + "/case",
-                    jsonCase);
-            return this.getTestCaseFromJson(response.getBody());
+            try {
+                ResponseEntity<String> response = this.restClient.post(tlApiPath
+                        + "/project/suite/" + testCase.getTestSuiteId() + "/case",
+                        jsonCase);
+                return this.getTestCaseFromJson(response.getBody());
+            } catch (Exception ioe) {
+                log.info("Error creating Test Case");
+                ioe.printStackTrace();
+                throw ioe;
+            }
         }
     }
 

@@ -26,7 +26,9 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -145,6 +147,34 @@ public class TJobExecution {
     @JsonProperty("monitoringStorageType")
     private MonitoringStorageType monitoringStorageType;
 
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @Column(name = "type")
+    @JsonProperty("type")
+    private TypeEnum type = TypeEnum.SIMPLE;
+
+    /* *** Multi *** */
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "execParent")
+    @JsonBackReference
+    private TJobExecution execParent;
+
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @OneToMany(mappedBy = "execParent", cascade = CascadeType.REMOVE)
+    @JsonManagedReference
+    private List<TJobExecution> execChilds;
+
+    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
+            BasicAttProject.class })
+    @ElementCollection
+    @CollectionTable(name = "TJobExecMultiConfiguration", joinColumns = @JoinColumn(name = "TJobExec"))
+    @MapKeyColumn(name = "NAME")
+    @Column(name = "VALUES", length = 16777215)
+    private List<MultiConfig> multiConfigurations = new ArrayList<MultiConfig>();
+
     // Constructors
     public TJobExecution() {
         this.id = (long) 0;
@@ -154,6 +184,9 @@ public class TJobExecution {
         this.envVars = new HashMap<>();
         this.testSuites = new ArrayList<>();
         this.externalUrls = new HashMap<>();
+        this.type = TypeEnum.SIMPLE;
+        this.execChilds = new ArrayList<>();
+        this.multiConfigurations = new ArrayList<MultiConfig>();
     }
 
     public TJobExecution(Long id, Long duration, ResultEnum result) {
@@ -164,6 +197,9 @@ public class TJobExecution {
         this.envVars = new HashMap<>();
         this.testSuites = new ArrayList<>();
         this.externalUrls = new HashMap<>();
+        this.type = TypeEnum.SIMPLE;
+        this.execChilds = new ArrayList<>();
+        this.multiConfigurations = new ArrayList<MultiConfig>();
     }
 
     /**
@@ -458,7 +494,100 @@ public class TJobExecution {
         this.monitoringStorageType = monitoringStorageType;
     }
 
-    // Others
+    /*
+     * type get/set
+     */
+
+    public enum TypeEnum {
+
+        SIMPLE("SIMPLE"),
+
+        PARENT("PARENT"),
+
+        CHILD("CHILD");
+
+        private String value;
+
+        TypeEnum(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static TypeEnum fromValue(String text) {
+            for (TypeEnum b : TypeEnum.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+
+        public static boolean isSimple(TypeEnum result) {
+            return result.equals(SIMPLE);
+        }
+
+        public static boolean isParent(TypeEnum result) {
+            return result.equals(PARENT);
+        }
+
+        public static boolean isChild(TypeEnum result) {
+            return result.equals(CHILD);
+        }
+    }
+
+    public TypeEnum getType() {
+        return type;
+    }
+
+    public void setType(TypeEnum type) {
+        this.type = type;
+    }
+
+    /*
+     * execParent
+     */
+
+    public TJobExecution getExecParent() {
+        return execParent;
+    }
+
+    public void setExecParent(TJobExecution execParent) {
+        this.execParent = execParent;
+    }
+
+    /*
+     * execChilds
+     */
+
+    public List<TJobExecution> getExecChilds() {
+        return execChilds;
+    }
+
+    public void setExecChilds(List<TJobExecution> execChilds) {
+        this.execChilds = execChilds;
+    }
+
+    /*
+     * multiConfigurations
+     */
+
+    public List<MultiConfig> getMultiConfigurations() {
+        return multiConfigurations;
+    }
+
+    public void setMultiConfigurations(List<MultiConfig> multiConfigurations) {
+        this.multiConfigurations = multiConfigurations;
+    }
+
+    /* ************** */
+    /* *** Others *** */
+    /* ************** */
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -481,14 +610,19 @@ public class TJobExecution {
                 && Objects.equals(this.startDate, tjobExecution.startDate)
                 && Objects.equals(this.endDate, tjobExecution.endDate)
                 && Objects.equals(this.monitoringStorageType,
-                        tjobExecution.monitoringStorageType);
+                        tjobExecution.monitoringStorageType)
+                && Objects.equals(this.execParent, tjobExecution.execParent)
+                && Objects.equals(this.execChilds, tjobExecution.execChilds)
+                && Objects.equals(this.multiConfigurations,
+                        tjobExecution.multiConfigurations);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, duration, result, sutExecution, error,
                 testSuites, parameters, resultMsg, startDate, endDate,
-                monitoringStorageType);
+                monitoringStorageType, execParent, execChilds,
+                multiConfigurations);
     }
 
     @Override
@@ -517,17 +651,27 @@ public class TJobExecution {
                 .append("\n");
         sb.append("    monitoringStorageType: ")
                 .append(toIndentedString(monitoringStorageType)).append("\n");
+        sb.append("    execParent: ").append(toIndentedString(execParent))
+                .append("\n");
+        sb.append("    execChilds: ").append(toIndentedString(execChilds))
+                .append("\n");
+        sb.append("    multiConfigurations: ")
+                .append(toIndentedString(multiConfigurations)).append("\n");
         sb.append("}");
         return sb.toString();
     }
 
     public void generateMonitoringIndex() {
         SutSpecification sut = this.getTjob().getSut();
-        String monitoringIndex = this.getId().toString();
+        String monitoringIndex = getOnlyTJobExecMonitoringIndex();
         if (sut != null && sut.getSutType() == SutTypeEnum.DEPLOYED) {
             monitoringIndex += "," + sut.getSutMonitoringIndex();
         }
         this.setMonitoringIndex(monitoringIndex);
+    }
+
+    public String getOnlyTJobExecMonitoringIndex() {
+        return this.getId().toString();
     }
 
     public String[] getMonitoringIndicesList() {
@@ -544,5 +688,17 @@ public class TJobExecution {
 
     public boolean isWithSut() {
         return this.tJob != null && this.tJob.isWithSut();
+    }
+
+    public boolean isMultiExecutionParent() {
+        return this.getTjob().isMulti() && this.type == TypeEnum.PARENT;
+    }
+
+    public boolean isMultiExecutionChild() {
+        return this.getTjob().isMulti() && this.type == TypeEnum.CHILD;
+    }
+
+    public boolean isSimpleExecution() {
+        return !this.getTjob().isMulti() || this.type == TypeEnum.SIMPLE;
     }
 }

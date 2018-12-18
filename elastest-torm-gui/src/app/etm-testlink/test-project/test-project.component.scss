@@ -1,7 +1,12 @@
-:host /deep/ .mat-card md-card-content{
-    padding-top: 0px !important;
+:host /deep/ .mat-card md-card-content {
+  padding-top: 0px !important;
 }
 
-#testProjectBottomInfo{
-    text-align: center;
+#testProjectBottomInfo {
+  text-align: center;
+}
+
+:host /deep/ #dataTable > div,
+:host /deep/ .scroll_table div {
+  max-height: 45vh !important;
 }

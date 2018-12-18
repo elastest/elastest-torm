@@ -25,6 +25,43 @@ node('docker'){
                         sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
                         testetmalpinegitjavaimage.push()
                     }
+
+                stage "Test-etm-alpinegitjavagauge image build"
+        
+                "Create test-etm-alpinegitjavagauge docker image"
+                
+                    echo ("Creating elastest/test-etm-alpinegitjavagauge image..")                
+                    sh 'cd ./docker/services/examples/test-etm-alpinegitjavagauge; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-alpinegitjavagauge:latest .'
+        
+                stage "Publish Test-etm-alpinegitjavagauge docker image"
+        
+                    echo ("Publish elastest/test-etm-alpinegitjavagauge image")
+                    def testetmalpinegitjavagaugeimage = docker.image('elastest/test-etm-alpinegitjavagauge:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        testetmalpinegitjavagaugeimage.push()
+                    }
+                    
+
+                stage "Test-etm-alpinegitnode image build"
+        
+                "Create test-etm-alpinegitnode docker image"
+                
+                    echo ("Creating elastest/test-etm-alpinegitnode image..")                
+                    sh 'cd ./docker/services/examples/test-etm-alpinegitnode; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-alpinegitnode:latest .'
+        
+                stage "Publish Test-etm-alpinegitnode docker image"
+        
+                    echo ("Publish elastest/test-etm-alpinegitnode image")
+                    def testetmalpinegitnodeimage = docker.image('elastest/test-etm-alpinegitnode:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        testetmalpinegitnodeimage.push()
+                    }
                     
                 stage "Test-etm-alpinedockerjava image build"
         
@@ -43,6 +80,25 @@ node('docker'){
                         sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
                         testetmalpinedockerjava.push()
                     }
+
+                stage "Test-etm-alpinegitpython image build"
+        
+                "Create test-etm-alpinegitpython docker image"
+                
+                    echo ("Creating elastest/test-etm-alpinegitpython image..")                
+                    sh 'cd ./docker/services/examples/test-etm-alpinegitpython; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-alpinegitpython:latest .'
+        
+                stage "Publish Test-etm-alpinegitpython docker image"
+        
+                    echo ("Publish elastest/test-etm-alpinegitpython image")
+                    def testetmalpinegitpythonimage = docker.image('elastest/test-etm-alpinegitpython:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        testetmalpinegitpythonimage.push()
+                    }
+                    
                 
                 stage "Test-etm-test1 image build"
         
@@ -154,6 +210,11 @@ node('docker'){
                     }
             }
         } catch (err) {
+        	if (currentBuild.result != "UNSTABLE") {
+                def errString = err.toString()
+		        echo 'Error: ' + errString
+		       	currentBuild.result = getJobStatus(errString)
+            }
             echo 'Error!!! Send email to the people responsible for the builds.'
             emailext body: 'Please go to  ${BUILD_URL}  and verify the build',
             replyTo: '${BUILD_USER_EMAIL}', 
@@ -162,4 +223,14 @@ node('docker'){
 
             throw err
         }
+}
+
+def getJobStatus(exceptionString) {
+	def status = 'SUCCESS'
+	if (exceptionString.contains('FlowInterruptedException') || exceptionString.contains('AbortException')) {
+	    status = 'ABORTED'
+	} else {
+	    status = 'FAILURE'
+	}
+    return status;
 }

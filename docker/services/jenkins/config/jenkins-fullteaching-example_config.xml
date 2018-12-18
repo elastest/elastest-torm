@@ -7,7 +7,7 @@
   <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.45">
     <script>node{
     def sutIp
-    elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true) {
+    elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true, project: &apos;Jenkins Examples&apos;) {
         stage(&quot;Setting environment&quot;) {
             echo &apos;Environment variables&apos;
             sh &quot;env&quot;
@@ -26,7 +26,7 @@
         	stage(&quot;Run Tests&quot;) {
                 echo &apos;Running test&apos;
                 mvnHome = tool &apos;M3.3.9&apos;
-                sh &quot;&apos;${mvnHome}/bin/mvn&apos; -Dapp.url=https://&quot; + sutIp +&quot;:5001/ -Dtest=FullTeachingTestE2EREST,FullTeachingTestE2EVideoSession,FullTeachingTestE2EChat -B test&quot;
+                sh &quot;&apos;${mvnHome}/bin/mvn&apos; -Dapp.url=https://&quot; + sutIp +&quot;:5001/ -Dtest=FullTeachingTestE2EREST,FullTeachingTestE2EVideoSession,FullTeachingTestE2EChat -B -DforkCount=0 test&quot;
                 step([$class: &apos;JUnitResultArchiver&apos;, testResults: &apos;**/target/surefire-reports/TEST-*.xml&apos;])
         	}
         } finally {

@@ -1,0 +1,40 @@
+node('dev-docker-64-slave-3'){
+    try {
+        elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'Monitoring') {
+            def elastest_url = ''
+            stage ('docker container')
+                def mycontainer = docker.image('elastest/ci-docker-e2e:latest')
+                mycontainer.pull()
+                mycontainer.inside()  {
+                    sh 'env'
+                    stage ('prepare test')
+                        git 'https://github.com/elastest/elastest-torm.git'
+                        elastest_url = '${ELASTEST_URL}'//'http://stable.elastest.io:37000'
+                        
+                    stage ("Run tests")
+                        try {                        
+                            sh "cd e2e-test; mvn -B clean test -Dtest=StableMonitorTest -DetEtmApi=" + elastest_url + " -DeUser=elastest -DePass=ElasCode1217 -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports"
+                        } catch(e) {
+                            echo 'Err: ' + e.toString()
+                            throw e
+                        } finally {
+                            step([$class: 'JUnitResultArchiver', testDataPublishers: [[$class: 'AttachmentPublisher']], testResults: '**/target/surefire-reports/TEST-*.xml'])
+                        }
+                }
+        }
+    } catch (err) {
+        def errString = err.toString()
+        echo 'Error: ' + errString
+        if (errString.contains('FlowInterruptedException') || errString.contains('AbortException')) {
+            currentBuild.result = 'ABORTED'
+        } else {
+            currentBuild.result = 'FAILURE'
+        }
+        echo 'Error!!! Send email to people responsible for the builds.'
+        emailext body: 'Please go to ${BUILD_URL} and verify the build status',
+        replyTo: '${BUILD_USER_EMAIL}', 
+        subject: 'Job ${JOB_NAME} - ${BUILD_NUMBER} RESULT: ${BUILD_STATUS}', 
+        to: '${MAIL_LIST}'
+        throw err
+    }
+}

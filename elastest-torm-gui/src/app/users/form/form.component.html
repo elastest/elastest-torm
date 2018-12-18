@@ -2,13 +2,15 @@
   <div td-toolbar-content layout="row" layout-align="center center" flex>
     <span>Product Name</span>
     <span flex></span>
-    <a md-icon-button mdTooltip="Docs" href="https://teradata.github.io/covalent/" target="_blank"><md-icon>chrome_reader_mode</md-icon></a>
-    <a md-icon-button mdTooltip="Github" href="https://github.com/teradata/covalent" target="_blank"><md-icon svgIcon="assets:github"></md-icon></a>
+    <a md-icon-button mdTooltip="Docs" href="https://teradata.github.io/covalent/" target="_blank">
+      <md-icon>chrome_reader_mode</md-icon>
+    </a>
+    <a md-icon-button mdTooltip="Github" href="https://github.com/teradata/covalent" target="_blank">
+      <md-icon svgIcon="assets:github"></md-icon>
+    </a>
   </div>
-  <td-layout-manage-list #manageList
-                        [opened]="media.registerQuery('gt-sm') | async"
-                        [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
-                        [sidenavWidth]="(media.registerQuery('gt-xs') | async) ? '257px' : '100%'">
+  <td-layout-manage-list #manageList [opened]="media.registerQuery('gt-sm') | async" [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
+    [sidenavWidth]="(media.registerQuery('gt-xs') | async) ? '257px' : '100%'">
     <md-toolbar td-sidenav-content>
       <span>Users</span>
     </md-toolbar>
@@ -43,16 +45,9 @@
       <md-card-content class="push-bottom-none">
         <form #userForm="ngForm">
           <div layout="row">
-            <md-input-container flex> 
-              <input mdInput
-                      #displayNameElement
-                      #displayNameControl="ngModel"
-                      type="text" 
-                      placeholder="Display Name" 
-                      [(ngModel)]="displayName" 
-                      name="displayName" 
-                      maxlength="20" 
-                      required>
+            <md-input-container flex>
+              <input mdInput #displayNameElement #displayNameControl="ngModel" type="text" placeholder="Display Name"
+                [(ngModel)]="displayName" name="displayName" maxlength="20" required>
               <md-hint align="start">
                 <span [hidden]="displayNameControl.pristine" class="tc-red-600">
                   <span [hidden]="!displayNameControl.errors?.required">Required</span>
@@ -62,17 +57,10 @@
             </md-input-container>
           </div>
           <div layout="row" class="push-top">
-            <md-input-container flex> 
-              <input mdInput
-                      #emailElement
-                      #emailControl="ngModel"
-                      type="text" 
-                      placeholder="Email" 
-                      [(ngModel)]="email" 
-                      name="email"
-                      maxlength="30"
-                      pattern="^[a-zA-Z0-9]+(\.[_a-zA-Z0-9]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,15})$"
-                      required>
+            <md-input-container flex>
+              <input mdInput #emailElement #emailControl="ngModel" type="text" placeholder="Email" [(ngModel)]="email"
+                name="email" maxlength="30" pattern="^[a-zA-Z0-9]+(\.[_a-zA-Z0-9]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\.[a-zA-Z]{2,15})$"
+                required>
               <md-hint align="start">
                 <span [hidden]="emailControl.pristine" class="tc-red-600">
                   <span [hidden]="!emailControl.errors?.required">Required</span>
@@ -83,7 +71,7 @@
             </md-input-container>
           </div>
           <div layout="row">
-            <md-slide-toggle [(ngModel)]="admin" name="admin">Admin</md-slide-toggle>
+            <md-checkbox [(ngModel)]="admin" name="admin">Admin</md-checkbox>
           </div>
         </form>
       </md-card-content>

@@ -30,7 +30,7 @@ import { TjobExecManagerComponent } from './elastest-etm/tjob-exec/tjob-exec-man
 import { ElastestEusComponent } from './elastest-eus/elastest-eus.component';
 import { LoginComponent } from './login/login.component';
 import { UsersFormComponent } from './users/form/form.component';
-import { RefreshComponent } from './shared/refresh/refresh.component';
+import { RedirectComponent } from './shared/redirect/redirect.component';
 import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
 import { TestProjectFormComponent } from './etm-testlink/test-project/test-project-form/test-project-form.component';
 import { TestProjectComponent } from './etm-testlink/test-project/test-project.component';
@@ -53,6 +53,7 @@ import { TestSuiteComponent } from './elastest-etm/test-suite/test-suite.compone
 import { TestCaseComponent } from './elastest-etm/test-case/test-case.component';
 import { EtmJenkinsComponent } from './etm-jenkins/etm-jenkins.component';
 import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component';
+import { TjobExecViewComponent } from './elastest-etm/tjob-exec/tjob-exec-view/tjob-exec-view.component';
 
 const routes: Routes = [
   {
@@ -119,7 +120,7 @@ const routes: Routes = [
                             children: [
                               {
                                 path: '',
-                                component: TjobExecManagerComponent,
+                                component: TjobExecViewComponent,
                               },
                               {
                                 path: 'loganalyzer',
@@ -156,10 +157,6 @@ const routes: Routes = [
                                     ],
                                   },
                                 ],
-                              },
-                              {
-                                path: 'live',
-                                component: LiveTjobExecManagerComponent,
                               },
                             ],
                           },
@@ -276,8 +273,8 @@ const routes: Routes = [
         component: ElastestEusComponent,
       },
       {
-        path: 'refresh',
-        component: RefreshComponent,
+        path: 'redirect',
+        component: RedirectComponent,
       },
       {
         path: 'help',
@@ -633,6 +630,7 @@ export const routedComponents: any[] = [
   TjobManagerComponent,
   TJobFormComponent,
   TjobExecManagerComponent,
+  TjobExecViewComponent,
   SutFormComponent,
   ElastestEusComponent,
   InstancesManagerComponent,

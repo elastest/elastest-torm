@@ -260,6 +260,12 @@ public class DockerService {
             hostConfigBuilder.capAdd(capAdd.get());
         }
 
+        Optional<Map<String, String>> labels = dockerContainer.getLabels();
+        if (labels.isPresent()) {
+            logger.trace("Using labels: {}", labels.get());
+            containerConfigBuilder.labels(labels.get());
+        }
+
         Optional<List<String>> exposedPorts = dockerContainer.getExposedPorts();
         if (exposedPorts.isPresent()) {
             logger.trace("Using exposed Ports: {}", exposedPorts.get());
@@ -366,12 +372,11 @@ public class DockerService {
     /* **** End execution methods **** */
     /* ******************************* */
 
-    public void endContainer(String containerName, boolean removeVolumes)
-            throws Exception {
+    public void endContainer(String containerName, boolean removeVolumes,
+            int timeout) throws Exception {
         DockerClient dockerClient = this.getDockerClient(true);
         if (existsContainer(containerName)) {
             String containerId = getContainerIdByName(containerName);
-            int timeout = 60;
             // try {
             logger.info("Stopping " + containerName + " container");
             dockerClient.stopContainer(containerId, timeout);
@@ -385,6 +390,11 @@ public class DockerService {
             logger.info("Could not end " + containerName
                     + " container -> Not started.");
         }
+    }
+
+    public void endContainer(String containerName, boolean removeVolumes)
+            throws Exception {
+        endContainer(containerName, removeVolumes, 60);
     }
 
     public void endContainer(String containerName) throws Exception {
@@ -532,11 +542,11 @@ public class DockerService {
         }
         return response;
     }
-    
-    
-    public ImageInfo getImageInfoByContainerId(String containerId) throws Exception {
+
+    public ImageInfo getImageInfoByContainerId(String containerId)
+            throws Exception {
         ContainerInfo container = getContainerInfoByName(containerId);
-        String imageName = container.config().image();       
+        String imageName = container.config().image();
         return getImageInfoByName(imageName);
     }
 
@@ -1131,13 +1141,15 @@ public class DockerService {
                     ExecCreateParam.tty(), ExecCreateParam.attachStdin(true),
                     ExecCreateParam.attachStdout(true),
                     ExecCreateParam.attachStderr(true),
-                    ExecCreateParam.detach(false));
+                    ExecCreateParam.detach(awaitCompletion));
             logger.debug("Command executed. Exec id: {}", exec.id());
 
             LogStream startResultCallback = dockerClient.execStart(exec.id(),
                     ExecStartParameter.TTY);
 
-            // output = startResultCallback.readFully(); //TODO not working...
+            if (awaitCompletion) {
+                output = startResultCallback.readFully();
+            }
 
             logger.trace("Callback terminated. Result: {}", output);
 

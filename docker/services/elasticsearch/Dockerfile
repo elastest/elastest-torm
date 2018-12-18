@@ -1,5 +1,7 @@
 FROM docker.elastic.co/elasticsearch/elasticsearch:6.2.3
 
+LABEL io.elastest.type=monitoring
+
 ADD elasticsearch.yml /usr/share/elasticsearch/config/
 
 # Set Image Labels

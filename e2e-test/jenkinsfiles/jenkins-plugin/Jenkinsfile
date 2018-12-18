@@ -7,13 +7,18 @@ node {
     if (env.WITH_SA == 'true') {
         elastest_lib.setOptionals('-sa='+env.SA)
     }
-    elastest_lib.setShared( env.SHARED_ELASTEST == 'true')
+    def shared_elastest = false
+    if (env.SHARED_ELASTEST != null && env.SHARED_ELASTEST == true) {
+        shared_elastest = env.SHARED_ELASTEST 
+    } else {
+        elastest_lib.setShared(shared_elastest)
+    }
+    
     //elastest_lib.setTestLink(true)
     elastest_lib.setAuthenticatedElastest(true)
     //initialization of the runnable object to access elastest methods inside the pipeline
     def elastest= elastest_lib.getElastestMethods()
     def elastest_network = env.NETWORK
-    def shared_elastest = env.SHARED_ELASTEST
 
     //definition of nodes is managed by the library. Just declare the steps of your pipeline
     //inside the elastest_lib.pipeline({...})
@@ -67,6 +72,7 @@ node {
                     echo 'Prepare network'
                     elastest.connect2ElastestNetwork()
                     def elastestURL = elastest.getEtmUrl()
+                    echo 'ElasTest URL: ' + elastestURL
                     
                     echo 'Prepare Jenkins'
                     def etCustmizedJenkinsImage = elastest.ctx.docker.image('elastest/etm-jenkins:latest')
@@ -79,8 +85,9 @@ node {
                     }
 
                     def test_network =  shared_elastest ? "bridge" : elastest_network
+                    echo 'Test network: ' + test_network
                     
-                    etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0 --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network='+test_network) { c1 ->
+                    etCustmizedJenkinsImage.withRun('--name elastest_etm-jenkins_1 -u 0  -v /var/run/docker.sock:/var/run/docker.sock --env JAVA_OPTS="-Djenkins.install.runSetupWizard=false" --network='+test_network) { c1 ->
                         stage ("E2E tests")
                                                             
                                 echo "${c1.id}"                        
@@ -89,7 +96,7 @@ node {
                                 
                                 try {
                                     echo "Run tests"
-                                    sh "cd elastest/e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.plugin.** -DePluginPath=" + pluginPath + " -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+test_network
+                                    sh "cd elastest/e2e-test; mvn -B clean test -Dtest=ElasTestPluginE2ETest -DePluginPath=" + pluginPath + " -DetEtmApi=" + elastest.getEtmUrl() + " -DeUser=" + elastest.getElasTestUser() + " -DePass=" + elastest.getElasTestPassword() + " -DciUrl=" + ciUrl + " -Dsel.jup.recording=true -Dsel.jup.screenshot.at.the.end.of.tests=true -Dsel.jup.screenshot.format=png -Dsel.jup.output.folder=surefire-reports -Dsel.jup.docker.network="+test_network
                                 } catch(e) {                                    
                                     sh '''\
                                     docker ps --all

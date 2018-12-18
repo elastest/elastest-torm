@@ -25,8 +25,8 @@
                 maxlength="50">
             </md-input-container>
 
-            <md-slide-toggle [(ngModel)]="testSuite.checkDuplicatedName" name="checkDuplicatedName" flex-gt-md="5" flex-md="5" flex-offset-md="5"
-              flex-offset-gt-md="5">Check Duplicated Name</md-slide-toggle>
+            <md-checkbox [(ngModel)]="testSuite.checkDuplicatedName" name="checkDuplicatedName" flex-gt-md="5" flex-md="5" flex-offset-md="5"
+              flex-offset-gt-md="5">Check Duplicated Name</md-checkbox>
 
             <md-input-container flex-gt-md="10" flex-md="10" flex-offset-md="5" flex-offset-gt-md="5">
               <input mdInput #suiteNameInput #nameControl="ngModel" type="text" placeholder="Action On Duplicated Name" [(ngModel)]="testSuite.actionOnDuplicatedName"

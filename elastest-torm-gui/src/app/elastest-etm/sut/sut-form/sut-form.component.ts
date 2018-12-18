@@ -10,6 +10,8 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DoCheck } from '@angular/core/src/metadata/lifecycle_hooks';
 import { ExternalService } from '../../external/external.service';
 import { ExternalProjectModel } from '../../external/external-project/external-project-model';
+import { ParameterModel } from '../../parameter/parameter-model';
+import { ParametersViewComponent } from '../../../shared/parameters-view/parameters-view.component';
 
 @Component({
   selector: 'etm-sut-form',
@@ -17,7 +19,8 @@ import { ExternalProjectModel } from '../../external/external-project/external-p
   styleUrls: ['./sut-form.component.scss'],
 })
 export class SutFormComponent implements OnInit, DoCheck {
-  @ViewChild('sutNameInput') sutNameInput: ElementRef;
+  @ViewChild('sutNameInput')
+  sutNameInput: ElementRef;
 
   alreadyFocusedSutNameInput: boolean = false;
 
@@ -35,6 +38,7 @@ export class SutFormComponent implements OnInit, DoCheck {
   withoutInsCheck: boolean = true;
   elastestInsCheck: boolean = false;
   adminInsCheck: boolean = false;
+  extElasticsearchInsCheck: boolean = false;
 
   // Managed Docker Type
   commands: boolean = true;
@@ -79,6 +83,10 @@ export class SutFormComponent implements OnInit, DoCheck {
   eimDockerContainerLogsPathHelpDesc: string =
     'The path where docker writes the containers logs. By default it is /var/lib/docker/containers/';
   eimDockerSockPathHelpDesc: string = 'The path of docker.sock. By default it is /var/run/docker.sock';
+
+  // External Elasticsearch
+  useESIndicesByExecutionCheck: boolean = false;
+  esIndicesParamName: string = 'EXT_ELASTICSEARCH_INDICES';
 
   constructor(
     private titlesService: TitlesService,
@@ -166,6 +174,15 @@ export class SutFormComponent implements OnInit, DoCheck {
     this.withoutInsCheck = this.sut.instrumentedBy === 'WITHOUT';
     this.elastestInsCheck = this.sut.instrumentedBy === 'ELASTEST';
     this.adminInsCheck = this.sut.instrumentedBy === 'ADMIN';
+    this.extElasticsearchInsCheck = this.sut.instrumentedBy === 'EXTERNAL_ELASTICSEARCH';
+
+    if (this.extElasticsearchInsCheck && this.sut.parameters) {
+      for (let param of this.sut.parameters) {
+        if (param.name === this.esIndicesParamName) {
+          this.useESIndicesByExecutionCheck = true;
+        }
+      }
+    }
   }
 
   initInstrumentalized(): void {
@@ -202,31 +219,26 @@ export class SutFormComponent implements OnInit, DoCheck {
     }
   }
 
-  instrumentalize($event): void {
-    this.sut.instrumentalize = $event.checked;
-  }
-
-  deinstrumentalize($event): void {
-    this.sut.instrumentalize = !$event.checked;
-  }
-
   deployedType(selected: string): void {
     // Reset
     this.withoutInsCheck = false;
     this.elastestInsCheck = false;
     this.adminInsCheck = false;
+    this.extElasticsearchInsCheck = false;
 
     if (selected === 'withoutIns') {
       this.sut.instrumentedBy = 'WITHOUT';
       this.withoutInsCheck = true;
+    } else if (selected === 'elastestIns') {
+      this.sut.instrumentedBy = 'ELASTEST';
+      this.elastestInsCheck = true;
+    } else if (selected === 'adminIns') {
+      this.sut.instrumentedBy = 'ADMIN';
+      this.adminInsCheck = true;
     } else {
-      if (selected === 'elastestIns') {
-        this.sut.instrumentedBy = 'ELASTEST';
-        this.elastestInsCheck = true;
-      } else {
-        this.sut.instrumentedBy = 'ADMIN';
-        this.adminInsCheck = true;
-      }
+      this.sut.instrumentedBy = 'EXTERNAL_ELASTICSEARCH';
+      console.log(this.sut.instrumentedBy);
+      this.extElasticsearchInsCheck = true;
     }
   }
 
@@ -321,6 +333,8 @@ export class SutFormComponent implements OnInit, DoCheck {
       );
     } else {
       this.sut.eimConfig = undefined;
+      this.sut.externalElasticsearch = undefined;
+      this.switchUseESIndicesByExecution(false);
       if (!this.sut.isInstrumentedByElastest()) {
         this.sut.eimMonitoringConfig = undefined;
       }
@@ -358,9 +372,34 @@ export class SutFormComponent implements OnInit, DoCheck {
     window.history.back();
   }
 
-  switchDockerized($event): void {
-    if (this.sut.eimMonitoringConfig !== undefined) {
-      this.sut.eimMonitoringConfig.dockerized = $event.checked;
+  switchUseESIndicesByExecution($event): void {
+    this.useESIndicesByExecutionCheck = $event.checked;
+
+    if (
+      this.sut.parameters === undefined ||
+      this.sut.parameters === null ||
+      this.sut.externalElasticsearch === undefined ||
+      this.sut.externalElasticsearch === null
+    ) {
+      return;
+    }
+
+    let index: number = 0;
+    for (let param of this.sut.parameters) {
+      if (param.name === this.esIndicesParamName) {
+        this.sut.parameters.splice(index, 1);
+        this.sut.parameters = [...this.sut.parameters];
+
+        break;
+      }
+      index += 1;
+    }
+
+    if (this.useESIndicesByExecutionCheck) {
+      let indiceParam: ParameterModel = new ParameterModel();
+      indiceParam.name = this.esIndicesParamName;
+      indiceParam.value = this.sut.externalElasticsearch.indices;
+      this.sut.parameters.push(indiceParam);
     }
   }
 }

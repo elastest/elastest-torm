@@ -1,14 +1,6 @@
 version: '3'
 
 services:
-  postgres:
-    image: postgres:9.6-alpine
-    ports:
-      - 5432:5432
-    environment:
-      - POSTGRES_USER=elastest
-      - POSTGRES_PASSWORD=elastestpassword
-      - POSTGRES_DB=ece
   ece:
     image: elastest/ece:latest
     ports:
@@ -16,5 +8,10 @@ services:
     environment:
       - ET_ETM_API=http://etm:8091/
       - ET_ESM_API=http://esm:37005/
-      - HIBERNATEURL=jdbc:postgresql://postgres/ece
-      - ESTIMATIONRANGE=1,4,20,60
+      - ET_EMP_API=http://emp:9100/v1/extension/elastest/tjobstat/
+      - ET_EMP_APIKEY=480f410f-f506-4b7d-ac2b-dc51758d8d15
+      - ET_EMP_USER=elastest
+      - ET_EMP_TOPIC=user-1-elastest_core
+      - ET_EMP_SERIES=docker-stats
+    labels:
+      - io.elastest.type=te

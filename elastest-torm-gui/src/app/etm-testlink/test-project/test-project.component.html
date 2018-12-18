@@ -1,6 +1,6 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
-    <md-card tdMediaToggle="gt-xs">
+<auto-height-grid layout="column">
+  <normal-height-row>
+    <md-card>
       <md-card-title>
         Test Project {{testProject.name}}
       </md-card-title>
@@ -55,16 +55,16 @@
             </md-list>
           </div>
           <!-- <span flex-gt-xs="25">
-            <md-card-subtitle>Options</md-card-subtitle>
-            <div class="optionsColumn" layout="column" layout-gt-xs="row">
-              <button md-button [routerLink]="['/testlink/projects/edit', testProject.id]" class="iconBtn-lg" title="Edit Test Project">
-                <md-icon>mode_edit</md-icon>
-              </button>
-              <button md-button (click)="deleteProject()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Project">
-                <md-icon>delete</md-icon>
-              </button>
-            </div>
-          </span> -->
+              <md-card-subtitle>Options</md-card-subtitle>
+              <div class="optionsColumn" layout="column" layout-gt-xs="row">
+                <button md-button [routerLink]="['/testlink/projects/edit', testProject.id]" class="iconBtn-lg" title="Edit Test Project">
+                  <md-icon>mode_edit</md-icon>
+                </button>
+                <button md-button (click)="deleteProject()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Project">
+                  <md-icon>delete</md-icon>
+                </button>
+              </div>
+            </span> -->
         </div>
         <md-divider></md-divider>
         <div layout="column" class="push-top-sm" id="testProjectBottomInfo">
@@ -75,77 +75,93 @@
         </div>
       </md-card-content>
     </md-card>
-  </div>
-</div>
+  </normal-height-row>
 
-
-<div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testProject">
-  <div flex-gt-lg="50" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        <div layout="row">
-          <span>Test Suites</span>
-          <span flex></span>
-          <!-- <button md-raised-button color="accent" [routerLink]="['/testlink/projects',testProject.id, 'suites','new']">New Test Suite</button> -->
-        </div>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content #scrollMeTest>
-        <md-spinner strokeWidth="6" *ngIf="showSpinnerSuites" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-        <div *ngIf="!showSpinnerSuites && testSuites.length === 0" class="push-top-important messageEmptyCard">
-          <md-icon>assignment</md-icon>
-          <p>No Test Suites created</p>
-        </div>
-        <td-data-table #suiteTable id="tlTestSuites" *ngIf="testSuites.length > 0" class="scroll_table" [data]="testSuites" [columns]="suiteColumns"
-          [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-          <ng-template *ngFor="let column of suiteColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
-            <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProject.id, 'suites', row.id]" class="hover-pointer">{{value}}</div>
-          </ng-template>
-        </td-data-table>
-      </md-card-content>
-    </md-card>
-  </div>
-
-  <div flex-gt-lg="50" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        <div layout="row">
-          <span>Test Plans</span>
-          <span flex></span>
-          <!-- <button md-raised-button color="accent" [routerLink]="['/testlink/projects',testProject.id, 'plans','new']">New Test Plan</button> -->
-        </div>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content #scrollMeTest>
-        <md-spinner strokeWidth="6" *ngIf="showSpinnerPlans" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-        <div *ngIf="!showSpinnerPlans && testPlans.length === 0" class="push-top-important messageEmptyCard">
-          <md-icon>assignment</md-icon>
-          <p>No Test Plans created</p>
-        </div>
-        <td-data-table #planTable id="tlTestPlans" *ngIf="testPlans.length > 0" class="scroll_table" [data]="testPlans" [columns]="planColumns"
-          [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-          <ng-template *ngFor="let column of planColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
-            <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProject.id, 'plans', row.id]" class="hover-pointer">
-              <div *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
-              <div *ngIf="column.name !== 'notes'">{{value}}</div>
+  <!-- Test Suites/Plans -->
+  <normal-height-row *ngIf="testProject">
+    <div layout="column" layout-gt-xl="row">
+      <div flex-gt-lg="50" layout-gt-sm="column">
+        <self-adjustable-card>
+          <sa-card-title>
+            <div layout="row">
+              <span>Test Suites</span>
+              <span flex></span>
+              <!-- <button md-raised-button color="accent" [routerLink]="['/testlink/projects',testProject.id, 'suites','new']">New Test Suite</button> -->
             </div>
-          </ng-template>
-          <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row" class="optionsColumn">
-              <button md-button (click)="runTestPlan(row)" class="iconBtn" mdTooltip="Run Test Plan">
-                <md-icon>play_circle_outline</md-icon>
-              </button>
-              <button *ngIf="exProject" md-button (click)="editTestPlan(row)" class="iconBtn" mdTooltip="Edit Test Plan">
-                <md-icon>mode_edit</md-icon>
-              </button>
-            </div>
-          </ng-template>
-        </td-data-table>
-      </md-card-content>
-    </md-card>
-  </div>
-</div>
+          </sa-card-title>
+          <sa-card-content #scrollMeTest>
+            <md-spinner strokeWidth="6" *ngIf="showSpinnerSuites" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+            <centered-element *ngIf="!showSpinnerSuites && testSuites.length === 0" class="push-top-important messageEmptyCard">
+              <md-icon>assignment</md-icon>
+              <p>No Test Suites created</p>
+            </centered-element>
+            <td-data-table #suiteTable id="tlTestSuites" *ngIf="testSuites.length > 0" class="scroll_table" [data]="testSuites"
+              [columns]="suiteColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy"
+              [sortOrder]="sortOrder">
+              <ng-template *ngFor="let column of suiteColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+                let-row="row">
+                <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProject.id, 'suites', row.id]"
+                  class="hover-pointer">{{value}}</div>
+              </ng-template>
+            </td-data-table>
+          </sa-card-content>
+        </self-adjustable-card>
+      </div>
 
-<div layout="column" *ngIf="exProject">
-  <etm-suts-manager [exProjectId]="exProject.id"></etm-suts-manager>
-</div>
+      <div flex-gt-lg="50" layout-gt-sm="column">
+        <self-adjustable-card>
+          <sa-card-title>
+            <div layout="row">
+              <span>Test Plans</span>
+              <span flex></span>
+              <!-- <button md-raised-button color="accent" [routerLink]="['/testlink/projects',testProject.id, 'plans','new']">New Test Plan</button> -->
+            </div>
+          </sa-card-title>
+          <sa-card-content #scrollMeTest>
+            <md-spinner strokeWidth="6" *ngIf="showSpinnerPlans" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+            <centered-element *ngIf="!showSpinnerPlans && testPlans.length === 0" class="push-top-important messageEmptyCard">
+              <md-icon>assignment</md-icon>
+              <p>No Test Plans created</p>
+            </centered-element>
+            <td-data-table #planTable id="tlTestPlans" *ngIf="testPlans.length > 0" class="scroll_table" [data]="testPlans"
+              [columns]="planColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy"
+              [sortOrder]="sortOrder">
+              <ng-template *ngFor="let column of planColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+                let-row="row">
+                <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProject.id, 'plans', row.id]"
+                  class="hover-pointer">
+                  <div *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
+                  <div *ngIf="column.name !== 'notes'">{{value}}</div>
+                </div>
+              </ng-template>
+              <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+                <div layout="row" class="optionsColumn">
+                  <button md-button (click)="runTestPlan(row)" class="iconBtn" mdTooltip="Run Test Plan">
+                    <md-icon>play_circle_outline</md-icon>
+                  </button>
+                  <button *ngIf="exProject" md-button (click)="editTestPlan(row)" class="iconBtn" mdTooltip="Edit Test Plan">
+                    <md-icon>mode_edit</md-icon>
+                  </button>
+                </div>
+              </ng-template>
+            </td-data-table>
+          </sa-card-content>
+        </self-adjustable-card>
+      </div>
+    </div>
+
+  </normal-height-row>
+
+
+  <!-- Suts -->
+  <auto-height-row>
+    <!-- Suts Grid -->
+    <auto-height-grid *ngIf="exProject">
+      <auto-height-row>
+        <etm-suts-manager [exProjectId]="exProject.id"></etm-suts-manager>
+      </auto-height-row>
+    </auto-height-grid>
+
+  </auto-height-row>
+
+</auto-height-grid>

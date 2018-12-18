@@ -32,18 +32,15 @@ export class RunTJobModalComponent implements OnInit {
 
   runTJob(): void {
     this.tJobExecService
-      .runTJob(this.tJob.id, this.tJob.parameters, this.hasSut() ? this.tJob.sut.parameters : undefined)
+      .runTJob(
+        this.tJob.id,
+        this.tJob.parameters,
+        this.hasSut() ? this.tJob.sut.parameters : undefined,
+        this.tJob.multiConfigurations,
+      )
       .subscribe(
         (tjobExecution: TJobExecModel) => {
-          this.router.navigate([
-            '/projects',
-            this.tJob.project.id,
-            'tjob',
-            this.tJob.id,
-            'tjob-exec',
-            tjobExecution.id,
-            'live',
-          ]);
+          this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id]);
         },
         (error) => console.error('Error:' + error),
       );

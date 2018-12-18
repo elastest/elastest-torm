@@ -1,5 +1,7 @@
 FROM docker.elastic.co/beats/filebeat:6.2.1
 
+LABEL io.elastest.type=monitoring
+
 # Set Image Labels
 ARG GIT_COMMIT=unspecified
 LABEL git_commit=$GIT_COMMIT

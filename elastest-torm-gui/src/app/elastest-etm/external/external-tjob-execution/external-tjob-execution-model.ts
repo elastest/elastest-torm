@@ -29,7 +29,7 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
   getSutIndex(): string {
     let sutIndex: string = '';
     if (this.exTJob && this.exTJob.hasSut()) {
-      sutIndex = this.monitoringIndex.split(',')[1];
+      sutIndex = this.getMonitoringIndexAsList()[1];
       if (!sutIndex) {
         sutIndex = this.getTJobIndex();
       }

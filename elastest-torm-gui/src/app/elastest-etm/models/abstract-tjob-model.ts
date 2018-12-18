@@ -10,11 +10,18 @@ export class AbstractTJobModel {
   execDashboardConfig: string;
   execDashboardConfigModel: DashboardConfigModel;
 
-  constructor() {
-    this.id = 0;
-    this.name = '';
-    this.execDashboardConfig = '';
-    this.execDashboardConfigModel = new DashboardConfigModel();
+  constructor(absTJob?: AbstractTJobModel) {
+    if (absTJob === undefined) {
+      this.id = 0;
+      this.name = '';
+      this.execDashboardConfig = '';
+      this.execDashboardConfigModel = new DashboardConfigModel();
+    } else {
+      this.id = absTJob.id;
+      this.name = absTJob.name;
+      this.execDashboardConfig = absTJob.execDashboardConfig;
+      this.execDashboardConfigModel = absTJob.execDashboardConfigModel;
+    }
   }
 
   public generateExecDashboardConfig(): void {

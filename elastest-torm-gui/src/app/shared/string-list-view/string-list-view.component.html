@@ -1,7 +1,7 @@
 <button md-raised-button color="accent" (click)="addField()" mdTooltip="Add {{fieldName}}" class="iconBtn push-top-sm">
   <md-icon>add</md-icon>Add {{fieldName}}</button>
 
-<div *ngFor="let field of model; let i = index" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
+<div *ngFor="let field of model; let i = index; trackBy:trackByFn" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
   <md-list-item flex-gt-xs="100">
     <div layout="row" layout-align="center center">
       <md-input-container>

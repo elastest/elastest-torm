@@ -12,6 +12,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -44,14 +51,19 @@ public class EtPluginsService {
     final Logger logger = getLogger(lookup().lookupClass());
 
     private static final String TESTLINK_NAME = "testlink";
+    private static final String TESTLINK_DISPLAY_NAME = "TestLink";
 
     private static final String ERE_NAME = "ere";
+    private static final String ERE_DISPLAY_NAME = "Recommendation Engine";
 
     private static final String ECE_NAME = "ece";
+    private static final String ECE_DISPLAY_NAME = "Cost Engine";
 
     private static final String EIM_NAME = "eim";
+    private static final String EIM_DISPLAY_NAME = "Instrumentation Manager";
 
     private static final String JENKINS_NAME = "jenkins";
+    private static final String JENKINS_DISPLAY_NAME = "Jenkins";
 
     public DockerComposeService dockerComposeService;
     public DockerEtmService dockerEtmService;
@@ -124,14 +136,17 @@ public class EtPluginsService {
     }
 
     public void registerEngines() {
-        this.enginesMap.put(ECE_NAME, new EtPlugin(ECE_NAME));
+        this.enginesMap.put(ECE_NAME, new EtPlugin(ECE_NAME, ECE_DISPLAY_NAME));
         // It's necessary to auth:
         // https://docs.google.com/document/d/1RMMnJO3rA3KRg-q_LRgpmmvSTpaCPsmfAQjs9obVNeU
-        this.enginesMap.put(ERE_NAME, new EtPlugin(ERE_NAME));
+        this.enginesMap.put(ERE_NAME, new EtPlugin(ERE_NAME, ERE_DISPLAY_NAME));
 
-        this.uniqueEtPluginsMap.put(EIM_NAME, new EtPlugin(EIM_NAME));
-        this.uniqueEtPluginsMap.put(TESTLINK_NAME, new EtPlugin(TESTLINK_NAME));
-        this.uniqueEtPluginsMap.put(JENKINS_NAME, new EtPlugin(JENKINS_NAME));
+        this.uniqueEtPluginsMap.put(EIM_NAME,
+                new EtPlugin(EIM_NAME, EIM_DISPLAY_NAME));
+        this.uniqueEtPluginsMap.put(TESTLINK_NAME,
+                new EtPlugin(TESTLINK_NAME, TESTLINK_DISPLAY_NAME));
+        this.uniqueEtPluginsMap.put(JENKINS_NAME,
+                new EtPlugin(JENKINS_NAME, JENKINS_DISPLAY_NAME));
     }
 
     @PostConstruct
@@ -320,7 +335,6 @@ public class EtPluginsService {
             logger.debug("Starting {} plugin...", projectName);
             dockerComposeService.startProject(projectName, false);
             insertIntoETNetwork(projectName);
-            this.checkIfEtPluginUrlIsUp(projectName);
         } catch (Exception e) {
             logger.error("Cannot start {} plugin", projectName, e);
             logger.error("Stopping service {}", projectName);
@@ -340,11 +354,9 @@ public class EtPluginsService {
         if (!isRunning(projectName)) {
             this.startEtPlugin(projectName);
         }
-
-        this.waitForReady(projectName, 2500);
         url = getEtPluginUrl(projectName);
+        this.waitForReady(projectName, 2500);
         this.getEtPlugin(projectName).setUrl(url);
-
         return this.getEtPlugin(projectName);
     }
 
@@ -598,14 +610,29 @@ public class EtPluginsService {
     }
 
     public boolean waitForReady(String projectName, int interval) {
-        while (!this.getEtPlugin(projectName).getStatus()
-                .equals(DockerServiceStatusEnum.NOT_INITIALIZED)
-                && !this.checkIfEtPluginUrlIsUp(projectName)) {
-            // Wait
-            try { // TODO timeout
-                Thread.sleep(interval);
-            } catch (InterruptedException e) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<String> future = executor.submit(new Callable<String>() {
+
+            @Override
+            public String call() throws Exception {
+                while (!getEtPlugin(projectName).getStatus()
+                        .equals(DockerServiceStatusEnum.NOT_INITIALIZED)
+                        && !checkIfEtPluginUrlIsUp(projectName)) {
+                    // Wait
+                    Thread.sleep(interval);
+                }
+                return "OK";
             }
+        });
+        try {
+            System.out.println(future.get(2, TimeUnit.MINUTES)); // timeout is
+                                                                 // in 2 seconds
+        } catch (TimeoutException | InterruptedException
+                | ExecutionException e) {
+            System.err.println("Timeout waiting for a service to be ready");
+            return false;
+        } finally {
+            executor.shutdownNow();
         }
         return true;
     }
@@ -828,6 +855,14 @@ public class EtPluginsService {
                 try {
                     dockerEtmService.dockerService.insertIntoNetwork(network,
                             container.getName());
+                    try {
+                        // Insert into bridge too
+                        dockerEtmService.dockerService.insertIntoNetwork(
+                                "bridge", container.getName());
+                    } catch (Exception e) {
+                        logger.error("Error on insert container "
+                                + container.getName() + " into bridge network");
+                    }
                 } catch (DockerException | InterruptedException
                         | DockerCertificateException e) {
                     throw new Exception(

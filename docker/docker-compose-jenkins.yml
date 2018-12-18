@@ -1,7 +1,7 @@
 version: '3'
 services:        
     etm-jenkins:
-      image: 'elastest/etm-jenkins:latest'
+      image: 'elastest/etm-jenkins:1.0.0-beta4'
       expose:
             - 8080
       environment:

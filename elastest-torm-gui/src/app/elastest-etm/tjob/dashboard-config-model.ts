@@ -60,8 +60,4 @@ export class DashboardConfigModel {
       }
     }
   }
-
-  changeShowAllInOneActive($event): void {
-    this.showAllInOne = $event.checked;
-  }
 }

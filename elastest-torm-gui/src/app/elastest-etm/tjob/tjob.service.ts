@@ -32,7 +32,7 @@ export class TJobService {
     });
   }
 
-  public createTJob(tJob: TJobModel, action: string): Observable<any> {
+  public createTJob(tJob: TJobModel, action: string = 'new'): Observable<any> {
     if (!tJob.hasSut()) {
       tJob.sut = undefined;
     }
@@ -48,6 +48,13 @@ export class TJobService {
 
   public modifyTJob(tJob: TJobModel): Observable<any> {
     return this.createTJob(tJob, 'edit');
+  }
+
+  public duplicateTJob(tJob: TJobModel): Observable<any> {
+    let newTJob: TJobModel = new TJobModel(tJob);
+    newTJob.id = 0;
+    newTJob.tjobExecs = [];
+    return this.createTJob(newTJob);
   }
 
   public deleteTJob(tJob: TJobModel): Observable<any> {

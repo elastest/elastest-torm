@@ -25,6 +25,7 @@ import io.elastest.etm.dao.external.ExternalTestCaseRepository;
 import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
 import io.elastest.etm.model.EusExecutionData;
 import io.elastest.etm.model.HelpInfo;
+import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SutSpecification;
@@ -77,9 +78,9 @@ public class ExternalService {
 
     @Value("${et.etm.internal.host}")
     private String etEtmInternalHost;
-
-    @Value("${enable.et.mini}")
-    private boolean enableEtMini;
+    
+    @Value("${et.etm.logstash.service}")
+    private String etLogstashService;
 
     private Map<Long, ExternalJob> runningExternalJobs;
 
@@ -149,18 +150,17 @@ public class ExternalService {
                             : "http://localhost" + ":" + etEtmDevGuiPort)
                             + "/#/projects/" + tJob.getProject().getId()
                             + "/tjob/" + tJob.getId() + "/tjob-exec/"
-                            + tJobExec.getId() + "/dashboard");
+                            + tJobExec.getId());
             externalJob.setLogAnalyzerUrl(
                     (etInProd ? "http://" + etPublicHost + ":" + etProxyPort
                             : "http://localhost" + ":" + etEtmDevGuiPort)
                             + "/#/logmanager?indexName=" + tJobExec.getId());
-            externalJob.setServicesIp(
-                    (externalJob.isFromIntegratedJenkins() && enableEtMini)
-                            ? etEtmInternalHost
-                            : etPublicHost);
+            externalJob.setServicesIp((externalJob.isFromIntegratedJenkins()
+                    ? (utilsService.isElastestMini() ? etEtmInternalHost
+                            : etLogstashService)
+                    : etPublicHost));
             externalJob.setLogstashPort(
-                    (externalJob.isFromIntegratedJenkins() && enableEtMini)
-                            ? etEtmLsHttpPort
+                    externalJob.isFromIntegratedJenkins() ? etEtmLsHttpPort
                             : etProxyPort);
             externalJob.settJobExecId(tJobExec.getId());
 
@@ -187,12 +187,10 @@ public class ExternalService {
         TJobExecution tJobExecution = tJobService
                 .getTJobExecById(externalJob.gettJobExecId());
         if (tJobExecution.getResult() != (ResultEnum.ERROR)) {
-            if (tJobExecution.getEnvVars() != null
-                    && !tJobExecution.getEnvVars().isEmpty()) {
+            if (tJobExecution.getResult() == ResultEnum.EXECUTING_TEST) {
                 externalJob.setEnvVars(tJobExecution.getEnvVars());
                 externalJob.setReady(true);
                 externalJob.setStatus(ExternalJobStatusEnum.READY);
-
             } else {
                 externalJob.setReady(false);
             }
@@ -241,12 +239,6 @@ public class ExternalService {
                     project = projectService
                             .getProjectByName(externalJob.getProject());
                 }
-
-                if (project == null) {
-                    throw new Exception(
-                            "No projects with this name or id have been found.");
-                }
-
             } else {
                 logger.debug(
                         "Retrieve the Project from the ElasTest DB if it exists : {}",
@@ -259,11 +251,15 @@ public class ExternalService {
                 logger.debug("Creating Project.");
                 project = new Project();
                 project.setId(0L);
-                project.setName(externalJob.getJobName());
-                project = projectService.createProject(project);
+                project.setName(externalJob.getProject() != null
+                        && !externalJob.getProject().isEmpty()
+                                ? externalJob.getProject()
+                                : externalJob.getJobName());
+                project = projectService.saveProject(project);
             }
 
-            // If a SUT is required, retrieved to associate it with both the
+            // If a SUT is required, it is retrieved to associate it with both
+            // the
             // Project and the TJob
             SutSpecification sutAux = null;
             if (externalJob.getSut() != null
@@ -282,14 +278,28 @@ public class ExternalService {
                         sutAux = sutService
                                 .getSutSpecById(externalJob.getSut().getId());
                         project.getSuts().add(sutAux);
-                        projectService.createProject(project);
                     } catch (Exception e) {
                         throw new Exception(
                                 "There isn't Sut with the provided id: "
                                         + externalJob.getSut().getId());
                     }
                 }
+
+                // Set parameters received from Jenkins
+                if (externalJob.getSut().getParameters().size() > 0) {
+                    logger.debug("Setting parameters received from Jenkins");
+                    List<Parameter> parameters = new ArrayList<>();
+                    externalJob.getSut().getParameters()
+                            .forEach((parameter, value) -> {
+                                logger.debug("External Sut parameter: {}:{}",
+                                        parameter, value);
+                                parameters.add(new Parameter(parameter, value));
+                            });
+                    sutAux.setParameters(parameters);
+                }
             }
+
+            projectService.saveProject(project);
 
             logger.debug("Creating TJob or retrieving a TJob.");
             TJob tJob = null;
@@ -439,14 +449,13 @@ public class ExternalService {
 
     public ExternalTJobExecution createExternalTJobExecution(
             ExternalTJobExecution exec) {
-        
+
         if (utilsService.isElastestMini()) {
             exec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
         } else {
-            exec.setMonitoringStorageType(
-                    MonitoringStorageType.ELASTICSEARCH);
+            exec.setMonitoringStorageType(MonitoringStorageType.ELASTICSEARCH);
         }
-        
+
         exec = this.externalTJobExecutionRepository.save(exec);
         if (exec.getMonitoringIndex().isEmpty()
                 || "".equals(exec.getMonitoringIndex())) {
@@ -467,14 +476,13 @@ public class ExternalService {
         ExternalTJob exTJob = this.externalTJobRepository.findById(exTJobId)
                 .get();
         ExternalTJobExecution exec = new ExternalTJobExecution();
-        
+
         if (utilsService.isElastestMini()) {
             exec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
         } else {
-            exec.setMonitoringStorageType(
-                    MonitoringStorageType.ELASTICSEARCH);
+            exec.setMonitoringStorageType(MonitoringStorageType.ELASTICSEARCH);
         }
-        
+
         exec.setExTJob(exTJob);
         exec.setStartDate(new Date());
 

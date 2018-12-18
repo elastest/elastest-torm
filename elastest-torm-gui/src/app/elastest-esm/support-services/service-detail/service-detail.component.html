@@ -70,7 +70,7 @@
     <div *ngIf="standaloneService">
       <md-card *ngFor="let subService of serviceInstance.subServices" tdMediaToggle="gt-xs">
         <md-card-title>
-          {{subService.serviceName}}
+          {{serviceInstance.serviceName}} - {{subService.endpointName}}
         </md-card-title>
         <md-divider></md-divider>
         <md-card-content class="push-bottom-none">

@@ -48,4 +48,12 @@ export class SutService {
   public getLogstashInfo(): any {
     return this.configurationService.getLogstashInfo();
   }
+
+  public duplicateSut(sut: SutModel): Observable<any> {
+    let newSut: SutModel = new SutModel(sut);
+    newSut.id = 0;
+    newSut.currentSutExec = undefined;
+    newSut.instrumentalize = false;
+    return this.createSut(newSut);
+  }
 }

@@ -6,11 +6,12 @@
           <span>Test Plan {{testPlan.name}}</span>
           <span flex></span>
           <div *ngIf="exTJob != undefined">
-            <button md-button [routerLink]="['/external/projects/', exTJob.exProject.id ,'tjob', 'edit',exTJob.id]" class="iconBtn-lg"
-              mdTooltip="Edit Test Plan">
+            <button md-button id="btnEditPlan" [routerLink]="['/external/projects/', exTJob.exProject.id ,'tjob', 'edit',exTJob.id]"
+              class="iconBtn-lg" mdTooltip="Edit Test Plan">
               <md-icon>mode_edit</md-icon>
             </button>
-            <button md-raised-button id="runTestPlan" color="accent" (click)="runTestPlan()" mdTooltip="Run Test Plan" [disabled]="testPlanCases.length === 0">
+            <button md-raised-button id="runTestPlan" color="accent" (click)="runTestPlan()" mdTooltip="Run Test Plan"
+              [disabled]="testPlanCases.length === 0">
               <md-icon>play_circle_outline</md-icon>
               Execute Test Plan
             </button>
@@ -76,14 +77,15 @@
       <md-divider></md-divider>
       <md-card-content #scrollMeTest>
         <md-spinner strokeWidth="6" *ngIf="showSpinnerBuilds" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-        <div *ngIf="!showSpinnerBuilds && builds.length === 0; else showBuilds" class="push-top-important messageEmptyCard">
+        <centered-element *ngIf="!showSpinnerBuilds && builds.length === 0; else showBuilds" class="push-top-important messageEmptyCard">
           <md-icon>assignment</md-icon>
           <p>No Builds created</p>
-        </div>
+        </centered-element>
         <ng-template #showBuilds>
-          <td-data-table #buildTable id="tlBuilds" class="scroll_table" [data]="builds" [columns]="buildColumns" [selectable]="false" [clickable]="true"
-            [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-            <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+          <td-data-table #buildTable id="tlBuilds" class="scroll_table" [data]="builds" [columns]="buildColumns"
+            [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+            <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+              let-row="row">
               <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProjectId, 'plans', testPlan.id, 'builds', row.id]"
                 class="hover-pointer">
                 <div *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
@@ -116,14 +118,15 @@
       <md-divider></md-divider>
       <md-spinner strokeWidth="6" *ngIf="showSpinnerCases" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
       <md-card-content #scrollMeTest>
-        <div *ngIf="!showSpinnerCases && testPlanCases.length === 0; else showTestCases" class="push-top-important messageEmptyCard">
+        <centered-element *ngIf="!showSpinnerCases && testPlanCases.length === 0; else showTestCases" class="push-top-important messageEmptyCard">
           <md-icon>assignment</md-icon>
           <p>No Test Cases associated</p>
-        </div>
+        </centered-element>
         <ng-template #showTestCases>
-          <td-data-table #tcTable id="tlCases" class="scroll_table" [data]="testPlanCases" [columns]="testCaseColumns" [selectable]="false" [clickable]="false"
-            [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-            <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+          <td-data-table #tcTable id="tlCases" class="scroll_table" [data]="testPlanCases" [columns]="testCaseColumns"
+            [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+            <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+              let-row="row">
               <div *ngIf="column.name !== 'options'" class="">
                 <div *ngIf="column.name === 'summary' || column.name === 'preconditions'; else normalValue" [innerHTML]="value"></div>
                 <ng-template #normalValue>

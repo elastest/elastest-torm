@@ -13,10 +13,6 @@ export class EsmServiceModel {
     this.manifest = manifest;
   }
 
-  changeServiceSelection($event): void {
-    this.selected = $event.checked;
-  }
-
   public getConfigKeys(): string[] {
     if (this.manifest && this.manifest.config) {
       return this.manifest.getConfigKeys();

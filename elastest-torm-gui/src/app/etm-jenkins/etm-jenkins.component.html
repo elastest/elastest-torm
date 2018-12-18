@@ -31,19 +31,13 @@
               </a>
               <span class="push-left-sm">
                 <div layout="column" class="md-caption">
-                  <div><b>user:</b> {{ jenkinsModel.user }}</div>
-                  <div><b>password:</b> {{ jenkinsModel.pass }}</div>
+                    <button md-raised-button color="accent" (click)="openDialog()">Show credentials</button>                    
                 </div>
               </span>
             </div>
           </md-card-title>
-          <!-- 
-          <md-divider></md-divider>
-          <md-card-content class="push-bottom-none">
-
-          </md-card-content> -->
         </md-card>
       </div>
-    </div>
+    </div>    
   </ng-template>
 </div>

@@ -2,6 +2,8 @@ FROM openjdk:8-jdk
 
 USER root
 
+LABEL io.elastest.type=tool
+
 RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
 
 ARG user=jenkins
@@ -29,9 +31,9 @@ RUN mkdir -p $JENKINS_HOME \
 VOLUME $JENKINS_HOME
 
 # Set the jobs names
-ARG job_name_1="jenkins-junit-example"
-ARG job_name_2="jenkins-web-example"
-ARG job_name_3="jenkins-rest-example"
+ARG job_name_1="jenkins-junit5-unit-test"
+ARG job_name_2="jenkins-junit5-multi-browser-test"
+ARG job_name_3="jenkins-junit5-rest-test"
 ARG job_name_4="jenkins-openvidu-example"
 ARG job_name_5="jenkins-fullteaching-example"
 
@@ -80,7 +82,7 @@ ARG TINI_VERSION=v0.16.1
 COPY tini_pub.gpg ${JENKINS_HOME}/tini_pub.gpg
 RUN curl -fsSL https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static-$(dpkg --print-architecture) -o /sbin/tini \
   && curl -fsSL https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static-$(dpkg --print-architecture).asc -o /sbin/tini.asc \
-  && gpg --import ${JENKINS_HOME}/tini_pub.gpg \
+  && gpg --no-tty --import ${JENKINS_HOME}/tini_pub.gpg \
   && gpg --verify /sbin/tini.asc \
   && rm -rf /sbin/tini.asc /root/.gnupg \
   && chmod +x /sbin/tini
@@ -89,10 +91,10 @@ COPY init.groovy /usr/share/jenkins/ref/init.groovy.d/tcp-slave-agent-port.groov
 
 # jenkins version being bundled in this docker image
 ARG JENKINS_VERSION
-ENV JENKINS_VERSION ${JENKINS_VERSION:-2.121.1}
+ENV JENKINS_VERSION ${JENKINS_VERSION:-2.138.3}
 
 # jenkins.war checksum, download will be validated using it
-ARG JENKINS_SHA=5bb075b81a3929ceada4e960049e37df5f15a1e3cfc9dc24d749858e70b48919
+ARG JENKINS_SHA=953e4dda2d3065284c0016b3e8279e097f830c128b1f712d84780ff2b0751e7d
 
 # Can be used to customize where jenkins.war get downloaded from
 ARG JENKINS_URL=https://repo.jenkins-ci.org/public/org/jenkins-ci/main/jenkins-war/${JENKINS_VERSION}/jenkins-war-${JENKINS_VERSION}.war
@@ -162,7 +164,8 @@ COPY plugins.sh /usr/local/bin/plugins.sh
 COPY install-plugins.sh /usr/local/bin/install-plugins.sh
 
 # Install necessary plugins
-COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+ARG plugins_list=plugins.txt
+COPY $plugins_list /usr/share/jenkins/ref/plugins.txt
 RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
 COPY tini-shim.sh /bin/tini
 ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/jenkins.sh"]

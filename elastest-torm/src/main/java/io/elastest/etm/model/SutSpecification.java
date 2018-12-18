@@ -35,6 +35,7 @@ import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.TJob.BasicAttTJob;
 import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.elastest.etm.model.external.ExternalElasticsearch;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 import io.elastest.etm.model.external.ExternalTJob;
@@ -173,6 +174,13 @@ public class SutSpecification {
     @JsonProperty("commandsOption")
     private CommandsOptionEnum commandsOption;
 
+    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
+            ExternalTJobView.class, BasicAttTJob.class })
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "externalElasticsearch")
+    @JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)
+    private ExternalElasticsearch externalElasticsearch;
+
     /* ** External ** */
 
     @JsonView({ SutView.class })
@@ -282,7 +290,9 @@ public class SutSpecification {
 
         ELASTEST("ELASTEST"),
 
-        ADMIN("ADMIN");
+        ADMIN("ADMIN"),
+
+        EXTERNAL_ELASTICSEARCH("EXTERNAL_ELASTICSEARCH");
 
         private String value;
 
@@ -675,6 +685,11 @@ public class SutSpecification {
         this.commands = commands;
     }
 
+    /**
+     * Get exProject
+     * 
+     * @return exProject
+     **/
     public ExternalProject getExProject() {
         return exProject;
     }
@@ -683,6 +698,11 @@ public class SutSpecification {
         this.exProject = exProject;
     }
 
+    /**
+     * Get exTJobs
+     * 
+     * @return exTJobs
+     **/
     public List<ExternalTJob> getExTJobs() {
         return exTJobs;
     }
@@ -691,12 +711,32 @@ public class SutSpecification {
         this.exTJobs = exTJobs;
     }
 
+    /**
+     * Get commandsOption
+     * 
+     * @return commandsOption
+     **/
     public CommandsOptionEnum getCommandsOption() {
         return commandsOption;
     }
 
     public void setCommandsOption(CommandsOptionEnum commandsOption) {
         this.commandsOption = commandsOption;
+    }
+
+    /**
+     * Get externalElasticsearch
+     * 
+     * @return externalElasticsearch
+     **/
+
+    public ExternalElasticsearch getExternalElasticsearch() {
+        return externalElasticsearch;
+    }
+
+    public void setExternalElasticsearch(
+            ExternalElasticsearch externalElasticsearch) {
+        this.externalElasticsearch = externalElasticsearch;
     }
 
     // TODO tmp
@@ -733,6 +773,11 @@ public class SutSpecification {
     public boolean isInstrumentedByElastest() {
         return this.isDeployedOutside()
                 && this.getInstrumentedBy() == InstrumentedByEnum.ELASTEST;
+    }
+
+    public boolean isUsingExternalElasticsearch() {
+        return this.isDeployedOutside() && this
+                .getInstrumentedBy() == InstrumentedByEnum.EXTERNAL_ELASTICSEARCH;
     }
 
     @Override
@@ -772,7 +817,9 @@ public class SutSpecification {
                 && Objects.equals(this.exProject, sutSpecification.exProject)
                 && Objects.equals(this.exTJobs, sutSpecification.exTJobs)
                 && Objects.equals(this.commandsOption,
-                        sutSpecification.commandsOption);
+                        sutSpecification.commandsOption)
+                && Objects.equals(this.externalElasticsearch,
+                        sutSpecification.externalElasticsearch);
     }
 
     @Override
@@ -780,7 +827,7 @@ public class SutSpecification {
         return Objects.hash(id, name, specification, description, project,
                 sutType, eimConfig, eimMonitoringConfig, instrumentedBy, port,
                 managedDockerType, mainService, parameters, commands, exProject,
-                exTJobs, commandsOption, protocol);
+                exTJobs, commandsOption, protocol, externalElasticsearch);
     }
 
     @Override
@@ -824,6 +871,8 @@ public class SutSpecification {
                 .append("\n");
         sb.append("    commandsOption: ")
                 .append(toIndentedString(commandsOption)).append("\n");
+        sb.append("    commandsOption: ")
+                .append(toIndentedString(externalElasticsearch)).append("\n");
         sb.append("}");
         return sb.toString();
     }

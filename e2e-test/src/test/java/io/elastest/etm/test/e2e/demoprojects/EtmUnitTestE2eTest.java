@@ -17,19 +17,19 @@
 package io.elastest.etm.test.e2e.demoprojects;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
-import static java.lang.invoke.MethodHandles.lookup;
 
-import static org.slf4j.LoggerFactory.getLogger;
+import java.io.IOException;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmBaseTest;
+import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
@@ -43,8 +43,6 @@ import io.github.bonigarcia.SeleniumExtension;
 @DisplayName("ETM E2E test of Unit Test project")
 @ExtendWith(SeleniumExtension.class)
 public class EtmUnitTestE2eTest extends EtmBaseTest {
-
-    final Logger log = getLogger(lookup().lookupClass());
     String projectName = "Unit Tests";
 
     void createProject(WebDriver driver) throws InterruptedException {
@@ -57,28 +55,25 @@ public class EtmUnitTestE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create Unit Test project Test")
     void testCreateUnitTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
-        this.driver = driver;
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo)
+            throws InterruptedException, IOException, SecurityException {
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
 
+        // Setting up the TJob used in the test
         this.createProject(driver);
-
         navigateToETProject(driver, projectName);
-
-        String tJobName = "Unit Test";
+        String tJobName = "JUnit5 Unit Test";
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
-            String tJobTestResultPath = "/demo-projects/unit-java-test/target/surefire-reports/";
+            String tJobTestResultPath = "/demo-projects/unit/junit5-unit-test/target/surefire-reports";
             String sutName = null;
             String tJobImage = "elastest/test-etm-alpinegitjava";
-            String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/unit-java-test; mvn -B test;";
-
+            String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/unit/junit5-unit-test; mvn -B test;";
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, null);
+                    tJobImage, false, commands, null, null, null);
         }
-
-        // Run TJob
+        // Run the TJob and check its result
         runTJobFromProjectPage(driver, tJobName);
-
         this.checkFinishTJobExec(driver, 240, "SUCCESS", false);
     }
 

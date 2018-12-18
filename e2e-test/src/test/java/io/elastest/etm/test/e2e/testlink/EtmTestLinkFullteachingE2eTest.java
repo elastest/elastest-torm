@@ -28,6 +28,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -47,21 +49,24 @@ import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
- * E2E ETM TestLink test.
- *
+ * Test that creates sample data in TestLink, syncs them with ElasTest and
+ * executes Test Plan. Requirements tested: ETM9, ETM12, ETM13
+ * 
  * @author EduJG(https://github.com/EduJGURJC)
  * @since 0.1.1
  */
 @Tag("e2e")
 @DisplayName("ETM E2E test of TestLink")
 @ExtendWith(SeleniumExtension.class)
+@TestInstance(Lifecycle.PER_CLASS)
 public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
 
     static String fullteachingUrl = null;
 
     @BeforeAll
     public void init() {
-        // TODO create SuT managed by ElasTest instead of start FT from Jenkinsfile
+        // TODO create SuT managed by ElasTest instead of start FT from
+        // Jenkinsfile
         // Get FullTeaching URL
         String fullteachingIp = getProperty("fullteachingIp");
         String fullteachingPort = getProperty("fullteachingPort");
@@ -76,7 +81,7 @@ public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
             throws InterruptedException, IOException {
         this.driver = driver;
         this.startTestLinkIfNecessaryWithNavigate(driver);
-        
+
         log.info("Creating Fullteaching Data in TestLink...");
         SampleTLData fullteachingTLData = this
                 .createFullteachingTLDataTest(driver);
@@ -217,7 +222,7 @@ public class EtmTestLinkFullteachingE2eTest extends EtmTestLinkBaseTest {
         testCase.setName(caseName);
         testCase.setTestSuiteId(suite.getId());
         testCase.setTestProjectId(project.getId());
-        testCase.setAuthorLogin("admin");
+        testCase.setAuthorLogin("elastest");
         testCase.setSummary("Open FullTeaching and LogIn");
         testCase.setPreconditions("FullTeaching app should be started");
 

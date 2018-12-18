@@ -30,46 +30,54 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElem
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import io.elastest.etm.test.utils.RestClient;
+import io.github.bonigarcia.BrowserType;
 import io.github.bonigarcia.DriverCapabilities;
+import io.github.bonigarcia.wdm.ChromeDriverManager;
+import io.github.bonigarcia.wdm.FirefoxDriverManager;
 
 public class EtmBaseTest {
-
-    final Logger log = getLogger(lookup().lookupClass());
+    protected final Logger log = getLogger(lookup().lookupClass());
 
     protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
     protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
-
     protected String apiPath = "api";
     protected String tormApiUrl;
-
     protected String eUser = null;
     protected String ePassword = null;
-
     protected boolean secureElastest = false;
-
-    protected WebDriver driver;
-
+    public WebDriver driver;
     protected RestClient restClient;
+    protected String eusURL;
 
     @DriverCapabilities
     DesiredCapabilities capabilities = chrome();
@@ -80,7 +88,10 @@ public class EtmBaseTest {
     }
 
     @BeforeEach
-    void setup() {
+    void setup(TestInfo testInfo) {
+        String testName = testInfo.getTestMethod().get().getName();
+        log.info("##### Start test: {}", testName);
+
         String etmApi = getProperty("etEtmApi");
         if (etmApi != null) {
             tormUrl = etmApi;
@@ -119,28 +130,47 @@ public class EtmBaseTest {
 
         this.restClient = new RestClient(this.tormApiUrl, eUser, ePassword,
                 secureElastest);
-    }
 
-    @AfterEach
-    void teardown() throws IOException {
-        if (driver != null) {
-            log.info("Browser console at the end of the test");
-            LogEntries logEntries = driver.manage().logs().get(BROWSER);
-            logEntries.forEach((entry) -> log.info("[{}] {} {}",
-                    new Date(entry.getTimestamp()), entry.getLevel(),
-                    entry.getMessage()));
+        eusURL = System.getenv("ET_EUS_API");
+
+        if (eusURL == null) {
+            // Outside ElasTest
+            ChromeDriverManager.getInstance().setup();
+            FirefoxDriverManager.getInstance().setup();
         }
     }
 
+    @AfterEach
+    void teardown(TestInfo testInfo) throws IOException {
+        String testName = testInfo.getTestMethod().get().getName();
+        log.info("##### Finish test: {}", testName);
+        if (driver != null) {
+            if (eusURL != null) {
+                log.info("Clearing Messages...");
+                driver.quit();
+            } else {
+                log.info("Browser console at the end of the test");
+                LogEntries logEntries = driver.manage().logs().get(BROWSER);
+                logEntries.forEach((entry) -> log.info("[{}] {} {}",
+                        new Date(entry.getTimestamp()), entry.getLevel(),
+                        entry.getMessage()));
+            }
+        }
+    }
+
+    /* ******************************** */
+    /* *********** Navigate *********** */
+    /* ******************************** */
+
     protected void navigateTo(WebDriver driver, String url) {
-        log.info("Navigate to: {}", url);
+        log.info("Navigating to: {}", url);
         driver.manage().window().setSize(new Dimension(1024, 1024));
         driver.manage().timeouts().implicitlyWait(5, SECONDS);
         driver.get(url);
     }
 
     protected void navigateToTorm(WebDriver driver) {
-        log.info("Navigate to TORM");
+        log.info("Navigating to TORM");
         driver.manage().window().setSize(new Dimension(1024, 1024));
         driver.manage().timeouts().implicitlyWait(5, SECONDS);
         if (secureElastest) {
@@ -151,30 +181,48 @@ public class EtmBaseTest {
     }
 
     protected void navigateToRoot(WebDriver driver) {
-        log.info("Navigate to Root Path (/)");
+        log.info("Navigating to Root Path (/)");
         driver.findElement(By.xpath(
                 "//*[@id='main_nav']/div/md-toolbar/div/md-toolbar-row/span"))
                 .click();
     }
 
     protected void navigateToProjects(WebDriver driver) {
-        log.info("Navigate to Projects Path (/project)");
-        this.getElementByXpath(driver, "//*[@id=\"nav_projects\"]").get(0)
-                .click();
+        log.info("Navigating to Projects Path (/project)");
+        this.getElementById(driver, "nav_projects").click();
+    }
+
+    protected void navigateToHelpPage(WebDriver driver) {
+        log.debug("Navigating to Help page");
+        getElementById(driver, "help").click();
+    }
+
+    protected void navigateToTestEnginesPage(WebDriver driver) {
+        log.debug("Navigating to Test Engines page");
+        getElementById(driver, "nav_test_engines").click();
+    }
+
+    protected void navigateToTssPage(WebDriver driver) {
+        log.debug("Navigating to Test Support Services page");
+        getElementById(driver, "nav_support_services").click();
     }
 
     protected void navigateToElementByIdXpath(WebDriver driver, String id,
             String xpath) {
-        this.getElementByIdXpath(driver, id, xpath).get(0).click();
+        this.getElementByIdXpath(driver, id, xpath).click();
     }
 
     protected void navigateToElementByXpath(WebDriver driver, String xpath) {
-        this.getElementByXpath(driver, xpath).get(0).click();
+        this.getElementByXpath(driver, xpath).click();
     }
+
+    /* ******************************** */
+    /* ************ Exists ************ */
+    /* ******************************** */
 
     protected boolean elementExistsByIdXpath(WebDriver driver, String id,
             String xpath) {
-        return this.getElementByIdXpath(driver, id, xpath).size() != 0;
+        return this.getElementByIdXpath(driver, id, xpath) != null;
     }
 
     protected boolean elementExistsByXpath(WebDriver driver, String xpath) {
@@ -182,48 +230,96 @@ public class EtmBaseTest {
         return driver.findElements(elementAvailable).size() != 0;
     }
 
-    protected List<WebElement> getElementById(WebDriver driver, String id,
-            int secondsTimeout) {
+    /* *********************************** */
+    /* *********** Get Element *********** */
+    /* *********************************** */
+
+    protected WebElement getElementById(WebDriver driver, String id,
+            int secondsTimeout, boolean withScroll) {
         String xpath = "//*[@id='" + id + "']";
-        return this.getElementByIdXpath(driver, id, xpath, secondsTimeout);
+        return this.getElementByXpath(driver, xpath, secondsTimeout,
+                withScroll);
     }
 
-    protected List<WebElement> getElementById(WebDriver driver, String id) {
+    protected WebElement getElementById(WebDriver driver, String id,
+            int secondsTimeout) {
+        return this.getElementById(driver, id, secondsTimeout, false);
+    }
+
+    protected WebElement getElementById(WebDriver driver, String id) {
         return this.getElementById(driver, id, 30);
     }
 
-    protected List<WebElement> getElementByIdXpath(WebDriver driver, String id,
+    protected WebElement getElementById(WebDriver driver, String id,
+            boolean withScroll) {
+        return this.getElementById(driver, id, 30, withScroll);
+    }
+
+    protected WebElement getElementByName(WebDriver driver, String name,
+            int secondsTimeout, boolean withScroll) {
+        String xpath = "//*[@name='" + name + "']";
+        return this.getElementByXpath(driver, xpath, secondsTimeout,
+                withScroll);
+    }
+
+    protected WebElement getElementByName(WebDriver driver, String name) {
+        return this.getElementByName(driver, name, 30, false);
+    }
+
+    protected WebElement getElementByName(WebDriver driver, String name,
+            boolean withScroll) {
+        return this.getElementByName(driver, name, 30, withScroll);
+    }
+
+    protected WebElement getElementByName(WebDriver driver, String name,
+            int secondsTimeout) {
+        return this.getElementByName(driver, name, secondsTimeout, false);
+    }
+
+    protected WebElement getElementByIdXpath(WebDriver driver, String id,
             String xpath) {
         return this.getElementByIdXpath(driver, id, xpath, 30);
     }
 
-    protected List<WebElement> getElementByIdXpath(WebDriver driver, String id,
+    protected WebElement getElementByIdXpath(WebDriver driver, String id,
             String xpath, int secondsTimeout) {
         WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
         By elementAvailable = By.id(id);
         waitService.until(presenceOfElementLocated(elementAvailable));
 
-        return driver.findElements(By.xpath(xpath));
+        return driver.findElement(By.xpath(xpath));
     }
 
-    protected List<WebElement> getElementByXpath(WebDriver driver,
-            String xpath) {
-        return this.getElementByXpath(driver, xpath, 30);
+    protected WebElement getElementByXpath(WebDriver driver, String xpath,
+            int secondsTimeout, boolean withScroll) {
+        WebElement element = getElementsByXpath(driver, xpath, secondsTimeout)
+                .get(0);
+
+        if (withScroll) {
+            JavascriptExecutor jse2 = (JavascriptExecutor) driver;
+            jse2.executeScript("arguments[0].scrollIntoView()", element);
+        }
+
+        return element;
     }
 
-    protected List<WebElement> getElementByXpath(WebDriver driver, String xpath,
+    protected WebElement getElementByXpath(WebDriver driver, String xpath,
             int secondsTimeout) {
-        WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
-        By elementAvailable = By.xpath(xpath);
-        waitService.until(presenceOfElementLocated(elementAvailable));
-
-        return driver.findElements(elementAvailable);
+        return this.getElementByXpath(driver, xpath, secondsTimeout, false);
     }
 
-    protected List<WebElement> getElementsByTagName(WebDriver driver,
-            String tagName) {
-        return this.getElementsByTagName(driver, tagName, 30);
+    protected WebElement getElementByXpath(WebDriver driver, String xpath) {
+        return this.getElementByXpath(driver, xpath, 30, false);
     }
+
+    protected WebElement getElementByXpath(WebDriver driver, String xpath,
+            boolean withScroll) {
+        return this.getElementByXpath(driver, xpath, 30, withScroll);
+    }
+
+    /* ************************************ */
+    /* *********** Get Elements *********** */
+    /* ************************************ */
 
     protected List<WebElement> getElementsByName(WebDriver driver, String name,
             int secondsTimeout) {
@@ -246,14 +342,42 @@ public class EtmBaseTest {
         return driver.findElements(By.tagName(tagName));
     }
 
-    /* *************** */
-    /* *** Project *** */
-    /* *************** */
+    protected List<WebElement> getElementsByTagName(WebDriver driver,
+            String tagName) {
+        return this.getElementsByTagName(driver, tagName, 30);
+    }
+
+    protected List<WebElement> getElementsByXpath(WebDriver driver,
+            String xpath) {
+        return this.getElementsByXpath(driver, xpath, 30);
+    }
+
+    protected List<WebElement> getElementsByXpath(WebDriver driver,
+            String xpath, int secondsTimeout) {
+        WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
+        By elementAvailable = By.xpath(xpath);
+        waitService.until(presenceOfElementLocated(elementAvailable));
+
+        return driver.findElements(elementAvailable);
+    }
+
+    protected List<WebElement> getElementsById(WebDriver driver, String id,
+            int secondsTimeout) {
+        String xpath = "//*[@id='" + id + "']";
+        return this.getElementsByXpath(driver, xpath, secondsTimeout);
+    }
+
+    protected List<WebElement> getElementsById(WebDriver driver, String id) {
+        return this.getElementsById(driver, id, 30);
+    }
+
+    /* ***************************************************************** */
+    /* **************************** Project **************************** */
+    /* ***************************************************************** */
+
     protected void createNewETProject(WebDriver driver, String projectName) {
         log.info("Create project");
-        driver.findElement(
-                By.xpath("//button[contains(string(), 'New Project')]"))
-                .click();
+        getElementById(driver, "newProjectBtn").click();
         driver.findElement(By.name("project.name")).sendKeys(projectName);
         driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]"))
                 .click();
@@ -279,7 +403,7 @@ public class EtmBaseTest {
 
     protected void navigateToETProject(WebDriver driver, String projectName) {
         this.navigateToProjects(driver);
-        log.info("Navigate to {} project", projectName);
+        log.info("Navigating to {} project", projectName);
 
         String xpath = getProjectXpathFromProjectPage(projectName);
         this.navigateToElementByXpath(driver, xpath);
@@ -302,74 +426,126 @@ public class EtmBaseTest {
         }
     }
 
-    /* *************** */
-    /* ***** Sut ***** */
-    /* *************** */
+    /* ***************************************************************** */
+    /* ****************************** Sut ****************************** */
+    /* ***************************************************************** */
+
     protected void createSutAndInsertCommonFields(WebDriver driver,
-            String sutName, String desc) {
+            String sutName, String desc, Map<String, String> params) {
         log.info("Creating new SuT");
-        this.getElementByXpath(driver,
-                "//button[contains(string(), 'New SuT')]").get(0).click();
+        this.getElementById(driver, "newSutBtn").click();
         this.getElementsByName(driver, "sutName").get(0).sendKeys(sutName);
         this.getElementsByName(driver, "sutDesc").get(0).sendKeys(desc);
+
+        // TODO params
     }
 
-    protected void createNewSutDeployedByElastestWithCommands(
-            WebDriver driver) {
+    /* ******************************** */
+    /* *********** ElasTest *********** */
+    /* ******************************** */
 
+    protected void insertDeployedByElastestCommonFields(
+            SutDeployedByElastestType type, String specification, String port,
+            boolean https) {
+        this.getElementsByName(driver, "managedSut").get(0).click();
+
+        switch (type) {
+        case IMAGE:
+            this.getElementsByName(driver, "dockerImageRadio").get(0).click();
+            break;
+        case COMPOSE:
+            this.getElementsByName(driver, "dockerComposeRadio").get(0).click();
+            break;
+        case COMMANDS:
+        default:
+            this.getElementsByName(driver, "commandsRadio").get(0).click();
+        }
+
+        this.getElementByName(driver, "specification").sendKeys(specification);
+
+        if (https) {
+            selectItem(driver, "https", "Select a protocol");
+        }
+        if (port != null && !"".equals(port)) {
+            this.getElementsByName(driver, "port").get(0).sendKeys(port);
+        }
+    }
+
+    protected void createNewSutDeployedByElastestWithCommands(WebDriver driver,
+            String commands, SutCommandsOptionEnum option, String sutName,
+            String desc, String image, String port, Map<String, String> params,
+            boolean https) throws InterruptedException {
+        this.createSutAndInsertCommonFields(driver, sutName, desc, params);
+        insertDeployedByElastestCommonFields(SutDeployedByElastestType.COMMANDS,
+                image, port, https);
+
+        getElementById(driver, "commands").sendKeys(commands);
+
+        switch (option) {
+        case IN_DOCKER_COMPOSE:
+            this.getElementsByName(driver, "defaultRadio").get(0).click();
+            break;
+        case IN_NEW_CONTAINER:
+            this.getElementsByName(driver, "inNewContainerRadio").get(0)
+                    .click();
+            break;
+        case DEFAULT:
+        default:
+            this.getElementsByName(driver, "inDockerComposeRadio").get(0)
+                    .click();
+        }
+
+        // Save
+        this.clickSaveSut(driver);
+    }
+
+    protected void createNewSutDeployedByElastestWithImage(WebDriver driver,
+            String sutName, String desc, String image, String port,
+            Map<String, String> params, boolean https)
+            throws InterruptedException {
+        this.createSutAndInsertCommonFields(driver, sutName, desc, params);
+
+        insertDeployedByElastestCommonFields(SutDeployedByElastestType.IMAGE,
+                image, port, https);
+
+        // Save
+        this.clickSaveSut(driver);
     }
 
     protected void createNewSutDeployedByElastestWithImage(WebDriver driver,
             String sutName, String desc, String image, String port,
             Map<String, String> params) throws InterruptedException {
-        this.createSutAndInsertCommonFields(driver, sutName, desc);
-
-        this.getElementsByName(driver, "managedSut").get(0).click();
-        this.getElementsByName(driver, "dockerImageRadio").get(0).click();
-        this.getElementsByName(driver, "specification").get(0).sendKeys(image);
-
-        if (port != null && !"".equals(port)) {
-            this.getElementsByName(driver, "port").get(0).sendKeys(port);
-        }
-
-        // Parameters TODO
-
-        // Save
-        this.clickSaveSut(driver);
+        createNewSutDeployedByElastestWithImage(driver, sutName, desc, image,
+                port, params, false);
     }
 
     protected void createNewSutDeployedByElastestWithCompose(WebDriver driver,
             String sutName, String desc, String compose, String mainServiceName,
-            String port, Map<String, String> params)
+            String port, Map<String, String> params, boolean https)
             throws InterruptedException {
-        this.createSutAndInsertCommonFields(driver, sutName, desc);
+        this.createSutAndInsertCommonFields(driver, sutName, desc, params);
+        insertDeployedByElastestCommonFields(SutDeployedByElastestType.COMPOSE,
+                compose, port, https);
 
-        this.getElementsByName(driver, "managedSut").get(0).click();
-        this.getElementsByName(driver, "dockerComposeRadio").get(0).click();
-        this.getElementById(driver, "composeSpec").get(0).sendKeys(compose);
         this.getElementsByName(driver, "mainService").get(0)
                 .sendKeys(mainServiceName);
-
-        if (port != null && !"".equals(port)) {
-            this.getElementsByName(driver, "port").get(0).sendKeys(port);
-        }
-
-        // Parameters TODO
 
         // Save
         this.clickSaveSut(driver);
     }
 
+    /* ******************************* */
+    /* *********** Outside *********** */
+    /* ******************************* */
+
     protected void createNewSutDeployedOutsideWithManualInstrumentation(
             WebDriver driver, String sutName, String desc, String ip,
             Map<String, String> params) throws InterruptedException {
-        this.createSutAndInsertCommonFields(driver, sutName, desc);
+        this.createSutAndInsertCommonFields(driver, sutName, desc, params);
 
-        this.getElementsByName(driver, "managedSut").get(0).click();
-        this.getElementsByName(driver, "dockerImageRadio").get(0).click();
+        this.getElementsByName(driver, "deployedSut").get(0).click();
+        this.getElementsByName(driver, "adminIns").get(0).click();
         this.getElementsByName(driver, "specification").get(0).sendKeys(ip);
-
-        // Parameters TODO
 
         // Save
         this.clickSaveSut(driver);
@@ -379,7 +555,7 @@ public class EtmBaseTest {
         Thread.sleep(2000);
         log.debug("Saving Sut");
         this.getElementByXpath(driver, "//button[contains(string(), 'SAVE')]")
-                .get(0).click();
+                .click();
         Thread.sleep(1000);
     }
 
@@ -424,9 +600,108 @@ public class EtmBaseTest {
         }
     }
 
-    /* ************** */
-    /* **** TJob **** */
-    /* ************** */
+    protected boolean etSutExistsIntoTLProject(WebDriver driver,
+            String projectName, String sutName) {
+        log.info("Checking if Sut {} exists into Project TL {}", sutName,
+                projectName);
+        try {
+            // Sleep for wait to load tables
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+        }
+
+        String sutsTableXpath = getSutsTableXpathFromProjectPage();
+
+        // If sut table exist
+        if (this.driver.findElements(By.xpath(sutsTableXpath)).size() > 0) {
+            String sutXpath = getSutXpathFromProjectPage(sutName);
+            boolean sutExist = this.elementExistsByXpath(driver, sutXpath);
+            String existStr = sutExist ? "already exist" : "does not exist";
+            log.info("Sut {} {} into TL Project {}", sutName, existStr,
+                    projectName);
+            return sutExist;
+        } else {
+            log.warn("Sut table does not exist");
+            return false;
+        }
+    }
+
+    protected void selectItem(WebDriver driver, String item,
+            String selectDesc) {
+        String sutSelectXpath = "//md-select/div/span[contains(string(), '"
+                + selectDesc + "')]";
+        this.getElementByXpath(driver, sutSelectXpath).click();
+
+        if (item != null) {
+            this.getElementByXpath(driver,
+                    "//md-option[contains(string(), '" + item + "')]").click();
+        }
+    }
+
+    public enum SutDeployedByElastestType {
+        IMAGE("IMAGE"),
+
+        COMPOSE("COMPOSE"),
+
+        COMMANDS("COMMANDS");
+
+        private String value;
+
+        SutDeployedByElastestType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static SutDeployedByElastestType fromValue(String text) {
+            for (SutDeployedByElastestType b : SutDeployedByElastestType
+                    .values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+    }
+
+    public enum SutCommandsOptionEnum {
+        DEFAULT("DEFAULT"),
+
+        IN_NEW_CONTAINER("IN_NEW_CONTAINER"),
+
+        IN_DOCKER_COMPOSE("IN_DOCKER_COMPOSE");
+
+        private String value;
+
+        SutCommandsOptionEnum(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static SutCommandsOptionEnum fromValue(String text) {
+            for (SutCommandsOptionEnum b : SutCommandsOptionEnum.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+    }
+
+    /* **************************************************************** */
+    /* ***************************** TJob ***************************** */
+    /* **************************************************************** */
 
     protected String getTJobsTableXpathFromProjectPage() {
         String id = "tJobs";
@@ -472,15 +747,12 @@ public class EtmBaseTest {
     protected void createNewTJob(WebDriver driver, String tJobName,
             String testResultPath, String sutName, String dockerImage,
             boolean imageCommands, String commands,
-            Map<String, String> parameters, List<String> tssList) {
-        log.info("Wait for the \"New TJob\" button ");
+            Map<String, String> parameters, Map<String, List<String>> tssMap,
+            Map<String, List<String>> multiConfigurations) {
+        log.info("Wait for the \"New TJob\" button");
+        getElementById(driver, "newTJobBtn").click();
 
-        WebDriverWait waitService = new WebDriverWait(driver, 10); // seconds
-        By serviceDetailButton = By
-                .xpath("//button[contains(string(), 'New TJob')]");
-        waitService.until(visibilityOfElementLocated(serviceDetailButton));
-        driver.findElement(serviceDetailButton).click();
-
+        log.info("Creating TJob...");
         WebDriverWait waitService2 = new WebDriverWait(driver, 20); //
         By serviceFieldTJobName = By.name("tJobName");
         waitService2.until(visibilityOfElementLocated(serviceFieldTJobName));
@@ -492,15 +764,15 @@ public class EtmBaseTest {
 
         // Select SuT
         String sutSelectXpath = "//md-select/div/span[contains(string(), 'Select a SuT')]";
-        this.getElementByXpath(driver, sutSelectXpath).get(0).click();
+        this.getElementByXpath(driver, sutSelectXpath).click();
 
         if (sutName != null) {
             this.getElementByXpath(driver,
-                    "//md-option[contains(string(), '" + sutName + "')]").get(0)
+                    "//md-option[contains(string(), '" + sutName + "')]")
                     .click();
         } else {
             this.getElementByXpath(driver,
-                    "//md-option[contains(string(), 'None')]").get(0).click();
+                    "//md-option[contains(string(), 'None')]").click();
         }
 
         // Image and commands
@@ -512,14 +784,81 @@ public class EtmBaseTest {
             driver.findElement(By.name("commands")).sendKeys(commands);
         }
 
-        // Parameters TODO
+        // Parameters TODO id=addParameter
+
+        if (parameters != null) {
+            int currentParam = 0;
+
+            for (HashMap.Entry<String, String> param : parameters.entrySet()) {
+                // Add new param
+                driver.findElement(By.id("addNewParameter")).click();
+
+                // Set name
+                driver.findElement(By.id("parameterName" + currentParam))
+                        .sendKeys(param.getKey());
+
+                // Set value
+                driver.findElement(By.id("parameterValue" + currentParam))
+                        .sendKeys(param.getValue());
+            }
+        }
+
+        // MultiConfigurations
+        if (multiConfigurations != null && multiConfigurations.size() > 0) {
+            getElementById(driver, "input-multiConfigCheckbox")
+                    .sendKeys(Keys.SPACE);
+
+            int currentMultiConfig = 0;
+            for (HashMap.Entry<String, List<String>> multiConfig : multiConfigurations
+                    .entrySet()) {
+                if (multiConfig.getValue().size() > 0) {
+                    // Add new multi config
+                    getElementById(driver, "addNewMultiConfiguration").click();
+
+                    // Set name
+                    getElementById(driver,
+                            "multiConfigName" + currentMultiConfig)
+                                    .sendKeys(multiConfig.getKey());
+
+                    int currentValue = 0;
+                    for (String value : multiConfig.getValue()) {
+                        if (currentValue > 0) {
+                            getElementById(driver, "addValueToMultiConfig"
+                                    + currentMultiConfig).click();
+                        }
+                        // Set value
+                        driver.findElement(By.id("multiConfig"
+                                + currentMultiConfig + "Value" + currentValue))
+                                .sendKeys(value);
+                        currentValue++;
+
+                    }
+
+                    currentMultiConfig++;
+                }
+            }
+        }
 
         // TSS
-        if (tssList != null) {
-            for (String tss : tssList) {
-                driver.findElement(
-                        By.xpath("//md-checkbox[@title='Select " + tss + "']"))
-                        .click();
+        if (tssMap != null) {
+            // Tss Map has a TSS name in the key and subconfigs into value list
+            // (only EUS at moment has a subconfig: webRtcStats)
+
+            for (Entry<String, List<String>> tss : tssMap.entrySet()) {
+                this.getElementById(driver, "input-service" + tss.getKey(),
+                        true).sendKeys(Keys.SPACE);
+
+                if (tss.getValue() != null && tss.getValue().size() > 0) {
+                    // Expand TSS panel first
+                    this.getElementById(driver,
+                            "service" + tss.getKey() + "Expansion").click();
+
+                    for (String subConfig : tss.getValue()) {
+                        this.getElementById(driver,
+                                "input-config" + subConfig + "Checkbox", true)
+                                .sendKeys(Keys.SPACE);
+                    }
+                }
             }
         }
 
@@ -543,8 +882,7 @@ public class EtmBaseTest {
             Thread.sleep(1200);
         } catch (InterruptedException e) {
         }
-        this.getElementByXpath(driver, "//button[@title='Run TJob']").get(0)
-                .click();
+        this.getElementByXpath(driver, "//button[@title='Run TJob']").click();
     }
 
     protected void startTestSupportService(WebDriver driver,
@@ -590,27 +928,10 @@ public class EtmBaseTest {
         driver.findElement(serviceDetailButton).click();
     }
 
-    protected void executeJob(WebDriver driver) throws InterruptedException {
-        log.info("Run Job");
-        driver.findElement(By.xpath("//a[contains(string(), 'Build Now')]"))
-                .click();
-
-        log.info("Waiting for the start of Job execution");
-        By newBuildHistory = By
-                .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]");
-        WebDriverWait waitService = new WebDriverWait(driver, 10);
-        waitService.until(visibilityOfElementLocated(newBuildHistory));
-        driver.findElement(By.xpath(
-                "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
-                .click();
-
-    }
-
     protected void checkFinishTJobExec(WebDriver driver, int timeout,
             String expectedResult, boolean waitForMetrics) {
 
         log.info("Wait for the execution page to show");
-        this.getElementsByTagName(driver, "etm-dashboard");
 
         WebDriverWait waitEnd = new WebDriverWait(driver, timeout);
 
@@ -628,11 +949,46 @@ public class EtmBaseTest {
         log.info("Check finish Execution status. Expected result {}",
                 expectedResult);
         waitResult.until(textToBePresentInElementLocated(By.id("resultMsgText"),
-                "Finished: " + expectedResult));
+                expectedResult));
     }
 
-    protected void deleteJob(WebDriver drive, String jobName) {
+    protected void deleteJob(WebDriver driver, String jobName) {
         // http://172.17.0.2:8080/job/FJob1/doDelete
+    }
+
+    protected void openTJobExecMonitoringConfigModal(WebDriver driver) {
+        getElementById(driver, "openMonitoringConfigBtn").click();
+    }
+
+    // Test Cases
+    protected WebElement expandExecTestSuite(WebDriver driver, int position) {
+        // Real position starts from 1 instead of 0
+        String suiteExpansionXpath = "//*[@id=\"testSuitesView\"]/etm-test-suites-view//td-expansion-panel["
+                + position + "]";
+        log.debug("Expanding Test Suite in position {}", position);
+
+        WebElement suiteExpansionElement = getElementByXpath(driver,
+                suiteExpansionXpath);
+        suiteExpansionElement.click();
+        return suiteExpansionElement;
+    }
+
+    protected void navigateToExecTestCase(WebDriver driver, int suitePosition,
+            int casePosition, boolean withSuiteExpand) {
+        if (withSuiteExpand) {
+            expandExecTestSuite(driver, suitePosition);
+        }
+
+        // Real position starts from 1 instead of 0
+        String xpath = "//*[@id=\"testSuitesView\"]/etm-test-suites-view//td-expansion-panel["
+                + suitePosition + "]//td-data-table//tr[" + casePosition
+                + "]/td[3]/div";
+
+        log.debug(
+                "Navigating to Test Case in position {} of Test Suite in position {}",
+                casePosition, suitePosition);
+
+        getElementByXpath(driver, xpath).click();
     }
 
     public By byDom(String domExpression) {
@@ -656,6 +1012,39 @@ public class EtmBaseTest {
         } else {
             return null;
         }
+    }
+
+    public void setupTestBrowser(TestInfo testInfo, BrowserType browser,
+            WebDriver driver) throws MalformedURLException {
+        String testName = testInfo.getTestMethod().get().getName();
+
+        log.info("EUS hub URL: {}", eusURL);
+        if (eusURL != null) {
+            DesiredCapabilities caps = new DesiredCapabilities();
+            if (browser.equals(BrowserType.CHROME)) {
+                DesiredCapabilities.chrome();
+                caps.setBrowserName("chrome");
+            } else {
+                DesiredCapabilities.firefox();
+                caps.setBrowserName("firefox");
+            }
+            caps.setCapability("testName", testName);
+            this.driver = new RemoteWebDriver(new URL(eusURL), caps);
+            driver = this.driver;
+        } else {
+            this.driver = driver;
+        }
+    }
+
+    public void setupTestBrowser(TestInfo testInfo, BrowserType browser)
+            throws MalformedURLException {
+        String testName = testInfo.getTestMethod().get().getName();
+
+        DesiredCapabilities caps;
+        caps = browser.equals(BrowserType.CHROME) ? DesiredCapabilities.chrome()
+                : DesiredCapabilities.firefox();
+        caps.setCapability("testName", testName);
+        driver = new RemoteWebDriver(new URL(eusURL), caps);
     }
 
 }

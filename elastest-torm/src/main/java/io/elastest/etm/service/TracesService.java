@@ -16,10 +16,13 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
 
 import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.model.Enums.LevelEnum;
@@ -49,7 +52,7 @@ public class TracesService {
     String componentExecAndComponentServiceExpression = "^(?<component>(test|sut|dynamic))_?(?<exec>"
             + monitoringExecExpression
             + ")(_(?<componentService>[^_]*(?=_\\d*)?))?";
-    
+
     String cleanMessageExpression = "^([<]\\d*[>].*)?(?>test_"
             + monitoringExecExpression + "|sut_" + monitoringExecExpression
             + "|dynamic_" + monitoringExecExpression
@@ -160,8 +163,7 @@ public class TracesService {
     /* *********** */
 
     public void processTcpTrace(String message, Date timestamp) {
-        // TODO change debug to trace
-        logger.trace("Processing trace {} with timestamp {}", message,
+        logger.trace("Processing TCP trace {} with timestamp {}", message,
                 timestamp);
 
         if (message != null && !message.isEmpty()) {
@@ -237,23 +239,40 @@ public class TracesService {
         trace.setTimestamp(
                 utilsService.getIso8601UTCDateFromStr(timestampAsStr));
         trace.setUnit((String) dataMap.get("unit"));
-        trace.setUnits((String) dataMap.get("units"));
+
+        
+        // Units
+        String units = null;
+        try {
+            units = (String) dataMap.get("units");
+        } catch (Exception e) {
+            units = new JSONObject(dataMap.get("units")).toString();
+        }
+        trace.setUnits(units);
 
         return trace;
     }
 
     @SuppressWarnings("unchecked")
-    public void processBeatTrace(Map<String, Object> dataMap,
+    public boolean processBeatTrace(Map<String, Object> dataMap,
             boolean fromDockbeat) {
-        logger.trace("Processing trace {}", dataMap.toString());
+        logger.trace("Processing BEATS trace {}", dataMap.toString());
+        boolean procesed = false;
+
         if (dataMap != null && !dataMap.isEmpty()) {
 
             try {
                 Trace trace = setInitialBeatTraceData(dataMap);
+
+                try {
+                    trace.setRawData(dataMap.get("raw_data").toString());
+                } catch (Exception e) {
+                }
+
                 // Ignore Packetbeat from EIM temporally
                 if (trace.getStream() != null
                         && "et_packetbeat".equals(trace.getStream())) {
-                    return;
+                    return false;
                 }
 
                 if (fromDockbeat) {
@@ -262,6 +281,16 @@ public class TracesService {
                 // If message, set level and container name
                 trace = this.matchesLevelAndContainerNameFromMessage(trace,
                         (String) dataMap.get("message"));
+
+                if (trace.getLevel() == null && dataMap.containsKey("level")) {
+                    try {
+                        LevelEnum level = LevelEnum
+                                .fromValue(dataMap.get("level").toString());
+                        trace.setLevel(level);
+                    } catch (Exception e) {
+                    }
+
+                }
 
                 String component = trace.getComponent();
 
@@ -286,7 +315,7 @@ public class TracesService {
                                 logger.error(
                                         "Filebeat trace without component and container name {} does not matches sut/test, discarding",
                                         containerName);
-                                return;
+                                return false;
                             }
                         } else {
                             trace.setComponent(component + "_" + containerName);
@@ -342,7 +371,7 @@ public class TracesService {
                         || !trace.getStreamType().equals(StreamType.LOG)) {
                     // Dockbeat
                     if (trace.getStream() == null) {
-                        return;
+                        return false;
                     }
                     if (trace.getStream().equals(dockbeatStream)) {
                         if (trace.getContainerName() != null
@@ -363,7 +392,7 @@ public class TracesService {
                             logger.trace(
                                     "Dockbeat trace container name {} does not matches sut/test, discarding",
                                     trace.getContainerName());
-                            return;
+                            return false;
                         }
                     } else {
                         if (dataMap.get("metricset") != null) {
@@ -397,6 +426,19 @@ public class TracesService {
                                         StreamType.COMPOSED_METRICS);
                             }
 
+                        } else {
+                            // HTTP custom metrics
+                            try {
+                                trace.setContentFromLinkedHashMap(
+                                        (LinkedHashMap<Object, Object>) dataMap
+                                                .get(trace.getEtType()));
+                            } catch (ClassCastException cce) {
+                                try {
+                                    trace.setContent((String) dataMap
+                                            .get(trace.getEtType()));
+                                } catch (Exception e) {
+                                }
+                            }
                         }
                     }
                 } else { // log
@@ -414,11 +456,13 @@ public class TracesService {
 
                 logger.trace("Trace: {}", trace);
                 this.saveTrace(trace);
+                procesed = true;
                 this.queueService.sendTrace(trace);
             } catch (Exception e) {
                 logger.error("Error on processing Beat trace {}: ", dataMap, e);
             }
         }
+        return procesed;
     }
 
     /* ************ */
@@ -445,5 +489,62 @@ public class TracesService {
                 this.processBeatTrace(dataMap, false);
             }
         }
+    }
+
+    /* ********************* */
+    /* *** Elasticsearch *** */
+    /* ********************* */
+    public Map<String, Object> convertExternalElasticsearchTrace(
+            Map<String, Object> dataMap) {
+        logger.trace("Converting external Elasticsearch trace {}",
+                dataMap.toString());
+        if (dataMap != null && !dataMap.isEmpty()) {
+
+            // Add raw data
+            try {
+                Gson gson = new Gson();
+                String json = gson.toJson(dataMap);
+                dataMap.put("raw_data", json);
+            } catch (Exception e) {
+            }
+
+            // Stream
+            if (dataMap.containsKey("log_type")) {
+                dataMap.put("stream", dataMap.get("log_type"));
+                dataMap.put("stream_type", StreamType.LOG.toString());
+            } else if (dataMap.containsKey("type")) {
+                dataMap.put("stream", dataMap.get("log_type"));
+            } else {
+                return dataMap;
+            }
+
+            // Message
+            if (dataMap.containsKey("description")) {
+                dataMap.put("stream_type", StreamType.LOG.toString());
+                dataMap.put("message", dataMap.get("description"));
+            } else if (dataMap.containsKey("description_clean")) {
+                dataMap.put("stream_type", StreamType.LOG.toString());
+                dataMap.put("message", dataMap.get("description_clean"));
+            }
+
+            // Level
+            if (dataMap.containsKey("severity")) {
+                dataMap.put("stream_type", StreamType.LOG.toString());
+                LevelEnum level = LevelEnum
+                        .fromValue(dataMap.get("severity").toString());
+                if (level != null) {
+                    dataMap.put("level", level.toString());
+                }
+            } else if (dataMap.containsKey("severity_unified")) {
+                dataMap.put("stream_type", StreamType.LOG.toString());
+                LevelEnum level = LevelEnum
+                        .fromValue(dataMap.get("severity_unified").toString());
+                if (level != null) {
+                    dataMap.put("level", level.toString());
+                }
+            }
+
+        }
+        return dataMap;
     }
 }

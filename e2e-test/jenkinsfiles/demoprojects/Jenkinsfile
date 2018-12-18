@@ -55,14 +55,3 @@ node {
 
     })
 }
-  
-  def containerIp(containerName, network) {
-    echo "Inside containerIp function"
-    containerIp = sh (
-        script: "docker inspect --format=\"{{.NetworkSettings.Networks."+network+".IPAddress}}\" "+ containerName,
-        returnStdout: true
-    ).trim()
-    
-    echo containerName+" IP = " + containerIp;
-    return containerIp;
-}

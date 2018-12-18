@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   etm-testlink:
-    image: elastest/etm-testlink:latest
+    image: elastest/etm-testlink:1.0.0-beta1
     expose:
     - 80
     - 443

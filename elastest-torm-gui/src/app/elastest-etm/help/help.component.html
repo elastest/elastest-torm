@@ -9,7 +9,8 @@
           </span>
           <span flex></span>
           <span *ngIf="etCurrentVersion" class="md-subhead tc-grey-600 pad-right-sm">
-            <span>ElasTest version: {{etCurrentVersion}}</span>
+            <span>ElasTest version:&nbsp;</span>
+            <span id="etVersion">{{etCurrentVersion}}</span>
           </span>
         </div>
       </md-card-title>
@@ -34,7 +35,7 @@
             </div>
           </span>
         </div>
-        <td-data-table #versionsInfo id="coreServicesInfo" class="without_scroll_table" [data]="coreServices" [columns]="coreServiceColumns"
+        <td-data-table #versionsInfo id="coreServicesInfo" [data]="coreServices" [columns]="coreServiceColumns"
           [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of coreServiceColumns" let-value="value" let-row="row" tdDataTableTemplate="{{column.name}}">
             <ng-container *ngIf="column.name !== 'status' && column.name !== 'imageDate' && column.name !== 'versionInfo.commitDate' && column.name !== 'containerNames' && column.name !== 'networks' && column.name !== 'options'; else specialFields">

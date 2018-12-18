@@ -12,6 +12,10 @@ import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
 import { TJobModel } from '../tjob/tjob-model';
 import { ExternalTJobModel } from '../external/external-tjob/external-tjob-model';
 import { MonitoringService } from '../../shared/services/monitoring.service';
+import { TJobExecModel } from '../tjob-exec/tjobExec-model';
+import { LogAnalyzerService } from '../../elastest-log-analyzer/log-analyzer.service';
+import { MonitorMarkModel } from './monitor-mark.model';
+import { sleep, asyncSleep } from '../../shared/utils';
 
 @Component({
   selector: 'etm-monitoring-view',
@@ -19,23 +23,32 @@ import { MonitoringService } from '../../shared/services/monitoring.service';
   styleUrls: ['./etm-monitoring-view.component.scss'],
 })
 export class EtmMonitoringViewComponent implements OnInit {
-  @ViewChild('metricsGroup') metricsGroup: EtmChartGroupComponent;
-  @ViewChild('logsGroup') logsGroup: EtmLogsGroupComponent;
+  @ViewChild('metricsGroup')
+  metricsGroup: EtmChartGroupComponent;
+  @ViewChild('logsGroup')
+  logsGroup: EtmLogsGroupComponent;
 
-  @Input() public live: boolean;
+  @Input()
+  public live: boolean;
 
-  @Input() public showConfigBtn: boolean;
+  @Input()
+  public showConfigBtn: boolean;
 
   tJob: AbstractTJobModel;
   tJobExec: AbstractTJobExecModel;
+  isInitialized: boolean = false;
+  isMultiParentTJobExec: boolean = false;
 
   component: string = '';
   stream: string = '';
   metricName: string = '';
+  etMonitorMarkPrefix: string = '##elastest-monitor-mark: ';
+  lockForMarkPrefix: boolean = false;
 
   constructor(
     private monitoringService: MonitoringService,
     private externalService: ExternalService,
+    private logAnalyzerService: LogAnalyzerService,
     private tJobService: TJobService,
     public dialog: MdDialog,
   ) {}
@@ -46,11 +59,34 @@ export class EtmMonitoringViewComponent implements OnInit {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
-    // Load logs
-    this.logsGroup.initLogsView(tJob, tJobExec);
+    this.isMultiParentTJobExec =
+      tJobExec !== undefined &&
+      tJobExec.finished() &&
+      tJobExec instanceof TJobExecModel &&
+      tJobExec.isParent() &&
+      tJobExec.execChilds.length > 0;
 
-    // Load metrics
-    this.metricsGroup.initMetricsView(tJob, tJobExec);
+    // Init Monitor Marks first if there are
+    this.initMonitorMarks();
+
+    // If !Multi Parent init directly. Else, init after monitor marks loaded
+    if (!this.isMultiParentTJobExec) {
+      this.initLogAndMetricViews();
+    }
+  }
+
+  initLogAndMetricViews(parentTJobExec: AbstractTJobExecModel = this.tJobExec): void {
+    this.tJobExec = parentTJobExec;
+
+    if (!this.isInitialized) {
+      // Load logs
+      this.logsGroup.initLogsView(this.tJob, this.tJobExec);
+
+      // Load metrics
+      this.metricsGroup.initMetricsView(this.tJob, this.tJobExec);
+
+      this.isInitialized = true;
+    }
   }
 
   timelineEvent($event): void {
@@ -69,6 +105,7 @@ export class EtmMonitoringViewComponent implements OnInit {
     this.logsGroup.unselectTraces();
   }
 
+  // Adds new monitoring card
   addMore(withSave: boolean = false, showPopup: boolean = true): void {
     this.addMoreSubscribe().subscribe(
       (obj: any) => {
@@ -88,6 +125,43 @@ export class EtmMonitoringViewComponent implements OnInit {
     );
   }
 
+  // Gets data of the new monitoring card to be added
+  addMoreSubscribe(): Observable<any> {
+    let _addMoreSubject: Subject<any> = new Subject<any>();
+    let addMoreObs: Observable<any> = _addMoreSubject.asObservable();
+
+    if (this.isInit()) {
+      let monitoringIndex: string = this.tJobExec.monitoringIndex;
+
+      let searchAllObs: Observable<any>;
+      // If Multi Parent
+      if (this.tJobExec instanceof TJobExecModel && this.tJobExec.isParent()) {
+        monitoringIndex = this.tJobExec.getChildsMonitoringIndices();
+        searchAllObs = this.monitoringService.searchAllDynamic(
+          monitoringIndex,
+          this.stream,
+          this.component,
+          this.metricName,
+          this.tJobExec,
+        );
+      } else {
+        searchAllObs = this.monitoringService.searchAllDynamic(monitoringIndex, this.stream, this.component, this.metricName);
+      }
+
+      searchAllObs.subscribe(
+        (obj: any) => {
+          _addMoreSubject.next(obj);
+        },
+        (error: Error) => _addMoreSubject.error('Could not load more: ' + error),
+      );
+    } else {
+      _addMoreSubject.error('Could not load more. EtmMonitoringViewComponent has not been init yet');
+    }
+
+    return addMoreObs;
+  }
+
+  // Adds data of the new monitoring card to be added
   addMoreFromObj(obj: any): boolean {
     let added: boolean = false;
     if (obj.streamType === 'log') {
@@ -102,31 +176,11 @@ export class EtmMonitoringViewComponent implements OnInit {
 
     return added;
   }
-
-  addMoreSubscribe(): Observable<any> {
-    let _addMoreSubject: Subject<any> = new Subject<any>();
-    let addMoreObs: Observable<any> = _addMoreSubject.asObservable();
-
-    if (this.isInit()) {
-      this.monitoringService
-        .searchAllDynamic(this.tJobExec.monitoringIndex, this.stream, this.component, this.metricName)
-        .subscribe(
-          (obj: any) => {
-            _addMoreSubject.next(obj);
-          },
-          (error: Error) => _addMoreSubject.error('Could not load more: ' + error),
-        );
-    } else {
-      _addMoreSubject.error('Could not load more. EtmMonitoringViewComponent has not been init yet');
-    }
-
-    return addMoreObs;
-  }
-
   isInit(): boolean {
     return this.tJobExec !== undefined;
   }
 
+  // Persists monitoring config into tJob
   saveMonitoringConfig(showPopup: boolean = true): void {
     switch (this.tJob.getAbstractTJobClass()) {
       case 'TJobModel':
@@ -248,6 +302,84 @@ export class EtmMonitoringViewComponent implements OnInit {
         break;
       }
       position++;
+    }
+  }
+
+  /* ********************** */
+  /* *** Monitor Marks ***  */
+  /* ********************** */
+
+  waitForUnlock(functionsToExec: Function[], parentTJobExec: AbstractTJobExecModel): void {
+    // sleep
+    sleep(500)
+      .then(() => {
+        if (this.lockForMarkPrefix) {
+          this.waitForUnlock(functionsToExec, parentTJobExec);
+        } else {
+          if (functionsToExec.length > 0) {
+            functionsToExec.shift()();
+            this.waitForUnlock(functionsToExec, parentTJobExec);
+          } else {
+            this.initLogAndMetricViews(parentTJobExec);
+          }
+        }
+      })
+      .catch((e) => {
+        this.waitForUnlock(functionsToExec, parentTJobExec);
+      });
+  }
+
+  initMonitorMarks(tJobExec: AbstractTJobExecModel = this.tJobExec): AbstractTJobExecModel {
+    if (tJobExec !== undefined && tJobExec.finished()) {
+      if (tJobExec instanceof TJobExecModel && tJobExec.isParent() && tJobExec.execChilds.length > 0) {
+        let childPos: number = 0;
+        let functionsToExec: Function[] = [];
+        for (let child of tJobExec.execChilds) {
+          let currentChildPos: number = childPos;
+          functionsToExec.push(() => {
+            tJobExec.execChilds[currentChildPos] = this.initMonitorMarks(child) as TJobExecModel;
+          });
+
+          childPos++;
+        }
+        this.waitForUnlock(functionsToExec, tJobExec);
+      } else {
+        this.lockForMarkPrefix = true;
+        this.logAnalyzerService
+          .searchTraceByGivenMsg(
+            this.etMonitorMarkPrefix,
+            tJobExec.getMonitoringIndexAsList(),
+            tJobExec.startDate,
+            tJobExec.endDate,
+          )
+          .subscribe(
+            (monitorMarkTraces: any[]) => {
+              for (let markTrace of monitorMarkTraces) {
+                let msg: string = markTrace.message;
+                let timestamp: string = markTrace['@timestamp'];
+                let markModel: MonitorMarkModel = new MonitorMarkModel();
+                markModel.initByGivenMsg(msg, timestamp);
+
+                if (!markModel.isEmpty()) {
+                  // Use addMonitoringMark instead of push
+                  tJobExec.addMonitoringMark(markModel);
+                }
+              }
+              this.lockForMarkPrefix = false;
+            },
+            (error: Error) => {
+              console.log(error);
+              this.lockForMarkPrefix = false;
+            },
+          );
+      }
+
+      if (tJobExec instanceof TJobExecModel && tJobExec.isChild()) {
+        // Do nothing
+      } else {
+        this.tJobExec = tJobExec;
+      }
+      return tJobExec;
     }
   }
 }

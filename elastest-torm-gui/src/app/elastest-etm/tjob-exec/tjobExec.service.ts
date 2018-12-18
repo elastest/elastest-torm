@@ -1,3 +1,4 @@
+import { MultiConfigModel } from '../../shared/multi-config-view/multi-config-view.component';
 import { PopupService } from '../../shared/services/popup.service';
 import { ETModelsTransformServices } from '../../shared/services/et-models-transform.service';
 import { ConfigurationService } from '../../config/configuration-service.service';
@@ -24,7 +25,12 @@ export class TJobExecService {
   ) {}
 
   //  TJobExecution functions
-  public runTJob(tJobId: number, parameters?: any[], sutParams?: any[]): Observable<TJobExecModel> {
+  public runTJob(
+    tJobId: number,
+    parameters?: any[],
+    sutParams?: any[],
+    multiConfigs?: MultiConfigModel[],
+  ): Observable<TJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec';
     let body: any = {};
     if (parameters) {
@@ -33,6 +39,10 @@ export class TJobExecService {
 
     if (sutParams) {
       body['sutParams'] = sutParams;
+    }
+
+    if (multiConfigs) {
+      body['multiConfigurations'] = multiConfigs;
     }
 
     return this.http.post(url, body).map((response: Response) => {
@@ -57,6 +67,11 @@ export class TJobExecService {
   // Get all Executions of a TJob
   public getTJobsExecutions(tJob: TJobModel): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec';
+    return this.http.get(url).map((response) => this.eTModelsTransformServices.jsonToTJobExecsList(response.json()));
+  }
+
+  public getTJobsExecutionsWithoutChilds(tJob: TJobModel): Observable<TJobExecModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/withoutchilds';
     return this.http.get(url).map((response) => this.eTModelsTransformServices.jsonToTJobExecsList(response.json()));
   }
 
@@ -100,6 +115,18 @@ export class TJobExecService {
     });
   }
 
+  public getLastNTJobExecutionsWithoutChilds(n: number): Observable<TJobExecModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/last/withoutchilds/' + n;
+    return this.http.get(url).map((response) => {
+      let data: any = response.json();
+      if (data !== undefined && data !== null) {
+        return this.eTModelsTransformServices.jsonToTJobExecsList(data);
+      } else {
+        throw new Error("Empty response. There are not TJobExecutions or you don't have permissions to access them");
+      }
+    });
+  }
+
   public getAllRunningTJobExecutions(): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/running';
     return this.http.get(url).map((response) => {
@@ -112,8 +139,32 @@ export class TJobExecService {
     });
   }
 
+  public getAllRunningTJobExecutionsWithoutChilds(): Observable<TJobExecModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/running/withoutchilds';
+    return this.http.get(url).map((response) => {
+      let data: any = response.json();
+      if (data !== undefined && data !== null) {
+        return this.eTModelsTransformServices.jsonToTJobExecsList(data);
+      } else {
+        throw new Error("Empty response. There are not TJobExecutions or you don't have permissions to access them");
+      }
+    });
+  }
+
   public getLastNRunningTJobExecutions(n: number): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/running/last/' + n;
+    return this.http.get(url).map((response) => {
+      let data: any = response.json();
+      if (data !== undefined && data !== null) {
+        return this.eTModelsTransformServices.jsonToTJobExecsList(data);
+      } else {
+        throw new Error("Empty response. There are not TJobExecutions or you don't have permissions to access them");
+      }
+    });
+  }
+
+  public getLastNRunningTJobExecutionsWithoutChilds(n: number): Observable<TJobExecModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/running/last/withoutchilds/' + n;
     return this.http.get(url).map((response) => {
       let data: any = response.json();
       if (data !== undefined && data !== null) {
@@ -138,6 +189,18 @@ export class TJobExecService {
 
   public getLastNFinishedOrNotExecutedTJobExecutions(n: number): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/finished/last/' + n;
+    return this.http.get(url).map((response) => {
+      let data: any = response.json();
+      if (data !== undefined && data !== null) {
+        return this.eTModelsTransformServices.jsonToTJobExecsList(data);
+      } else {
+        throw new Error("Empty response. There are not TJobExecutions or you don't have permissions to access them");
+      }
+    });
+  }
+
+  public getLastNFinishedOrNotExecutedTJobExecutionsWithoutChilds(n: number): Observable<TJobExecModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/finished/last/withoutchilds/' + n;
     return this.http.get(url).map((response) => {
       let data: any = response.json();
       if (data !== undefined && data !== null) {
@@ -177,10 +240,37 @@ export class TJobExecService {
     return this.http.delete(url).map((response) => response.json());
   }
 
-  public getResultStatus(tJob: TJobModel, tJobExecution: TJobExecModel): Observable<any> {
-    let url: string =
-      this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id + '/result';
+  public getResultStatus(tJobId: string | number, tJobExecution: TJobExecModel): Observable<any> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecution.id + '/result';
     return this.http.get(url).map((response) => response.json());
+  }
+  
+  public getResultStatusByTJob(tJob: TJobModel, tJobExecution: TJobExecModel): Observable<any> {
+    return this.getResultStatus(tJob.id, tJobExecution);
+  }
+
+  public getChildTJobExecParent(tJobExecutionId: string | number): Observable<TJobExecModel> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/exec/' + tJobExecutionId + '/parent';
+    return this.http.get(url).map((response) => {
+      let data: any = response.json();
+      if (data !== undefined && data !== null) {
+        return this.eTModelsTransformServices.jsonToTJobExecModel(data);
+      } else {
+        throw new Error("Empty response. TJob Execution not exist or you don't have permissions to access it");
+      }
+    });
+  }
+
+  public getParentTJobExecChilds(tJobExecutionId: string | number): Observable<TJobExecModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/exec/' + tJobExecutionId + '/childs';
+    return this.http.get(url).map((response) => {
+      let data: any = response.json();
+      if (data !== undefined && data !== null) {
+        return this.eTModelsTransformServices.jsonToTJobExecsList(data);
+      } else {
+        throw new Error("Empty response. TJob Execution not exist or you don't have permissions to access it");
+      }
+    });
   }
 
   /* ************* */

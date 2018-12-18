@@ -2,7 +2,7 @@ import { TitlesService } from '../../../shared/services/titles.service';
 import { Router } from '@angular/router';
 import { ProjectModel } from '../project-model';
 import { ProjectService } from '../project.service';
-import { TdDataTableService, TdDataTableSortingOrder, TdDialogService, IConfirmConfig } from '@covalent/core';
+import { TdDataTableSortingOrder, TdDialogService, IConfirmConfig } from '@covalent/core';
 import { AfterViewInit, Component, Input, OnInit, ViewContainerRef } from '@angular/core';
 import { MdDialog } from '@angular/material';
 
@@ -12,7 +12,8 @@ import { MdDialog } from '@angular/material';
   styleUrls: ['./projects-manager.component.scss'],
 })
 export class ProjectsManagerComponent implements OnInit, AfterViewInit {
-  @Input() isNested: boolean = false;
+  @Input()
+  isNested: boolean = false;
   tableStyle: string = 'without_scroll_table';
 
   // Project data
@@ -23,7 +24,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   ];
 
   projectData: ProjectModel[] = [];
-  showSpinner: boolean = true;
+  loading: boolean = true;
 
   sortBy: string = 'name';
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
@@ -31,11 +32,10 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   projectChildsActived: boolean = false;
   projectSelected: ProjectModel = undefined;
 
-  deletingInProgress: boolean = false;
+  public deletingInProgress: boolean = false;
 
   constructor(
     private titlesService: TitlesService,
-    private _dataTableService: TdDataTableService,
     private projectService: ProjectService,
     private router: Router,
     private _dialogService: TdDialogService,
@@ -54,20 +54,21 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     this.loadProjects();
   }
 
-  loadProjects() {
-    this.projectService.getProjects().subscribe((projects) => {
+  loadProjects(): void {
+    this.loading = true;
+    this.projectService.getProjects().subscribe((projects: ProjectModel[]) => {
       this.projectData = projects;
-      this.showSpinner = false;
+      this.loading = false;
     });
   }
 
   ngAfterViewInit(): void {}
 
-  editProject(project: ProjectModel) {
+  editProject(project: ProjectModel): void {
     this.router.navigate(['/projects/edit', project.id]);
   }
 
-  deleteProject(project: ProjectModel) {
+  deleteProject(project: ProjectModel): void {
     let iConfirmConfig: IConfirmConfig = {
       message: 'Project ' + project.id + ':' + project.name + ' will be deleted, do you want to continue?',
       disableClose: false, // defaults to false
@@ -83,7 +84,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
         if (accept) {
           this.deletingInProgress = true;
           this.projectService.deleteProject(project).subscribe(
-            (project) => {
+            (project: ProjectModel) => {
               this.loadProjects();
               this.deletingInProgress = false;
             },
@@ -96,7 +97,18 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
       });
   }
 
-  viewProject(project: ProjectModel) {
+  viewProject(project: ProjectModel): void {
     this.router.navigate(['/projects', project.id]);
+  }
+
+  restoreDemoProjects(): void {
+    this.projectService.restoreDemoProjects().subscribe(
+      (restored: boolean) => {
+        if (restored) {
+          this.loadProjects();
+        }
+      },
+      (error: Error) => console.log(error),
+    );
   }
 }

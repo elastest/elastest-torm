@@ -4,7 +4,7 @@ import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbi
 import { LogFieldModel } from '../../../shared/logs-view/models/log-field-model';
 import { components, defaultStreamMap } from '../../../shared/defaultESData-model';
 import { Component, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { Subject, Subscription } from 'rxjs/Rx';
+import { Subscription } from 'rxjs/Rx';
 import { AbstractTJobModel } from '../../models/abstract-tjob-model';
 import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 import { ExternalTJobExecModel } from '../../external/external-tjob-execution/external-tjob-execution-model';
@@ -43,37 +43,43 @@ export class EtmLogsGroupComponent implements OnInit {
 
   ngAfterViewInit(): void {}
 
+  // When a log card is already activated
   initLogsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
-    for (let log of this.tJob.execDashboardConfigModel.allLogsTypes.logsList) {
-      if (log.activated) {
-        let individualLogs: ESRabLogModel = new ESRabLogModel(this.monitoringService);
-        individualLogs.name = this.capitalize(log.component) + ' Logs';
-        individualLogs.etType = log.component + 'logs';
-        individualLogs.component = log.component;
-        if (log.stream === undefined || log.stream === null || log.stream === '') {
-          log.stream = defaultStreamMap.log;
-        }
-        individualLogs.stream = log.stream;
-        individualLogs.hidePrevBtn = !this.live;
-        individualLogs.monitoringIndex = this.tJobExec.monitoringIndex;
-        if (!this.live) {
-          individualLogs.getAllLogs();
-        } else {
-          if (log.component !== 'sut') {
-            this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);
-          } else if (tJob.hasSut() || (tJob instanceof TJobModel && tJob.external && !tJob.hasSut())) {
-            this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);
+    if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
+      // Do nothing
+    } else {
+      for (let log of this.tJob.execDashboardConfigModel.allLogsTypes.logsList) {
+        if (log.activated) {
+          let individualLogs: ESRabLogModel = new ESRabLogModel(this.monitoringService);
+          individualLogs.name = this.capitalize(log.component) + ' Logs';
+          individualLogs.etType = log.component + 'logs';
+          individualLogs.component = log.component;
+          if (log.stream === undefined || log.stream === null || log.stream === '') {
+            log.stream = defaultStreamMap.log;
           }
+          individualLogs.stream = log.stream;
+          individualLogs.hidePrevBtn = !this.live;
+          individualLogs.monitoringIndex = this.tJobExec.monitoringIndex;
+          if (!this.live) {
+            individualLogs.getAllLogs();
+          } else {
+            if (log.component !== 'sut') {
+              this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);
+            } else if (tJob.hasSut() || (tJob instanceof TJobModel && tJob.external && !tJob.hasSut())) {
+              this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);
+            }
+          }
+          this.logsList.push(individualLogs);
         }
-        this.logsList.push(individualLogs);
       }
     }
     this.createGroupedLogsList();
   }
 
+  // Added manually
   addMoreLogs(obj: any): boolean {
     let individualLogs: ESRabLogModel = new ESRabLogModel(this.monitoringService);
     individualLogs.name = this.capitalize(obj.component) + ' ' + this.capitalize(obj.stream) + ' Logs';

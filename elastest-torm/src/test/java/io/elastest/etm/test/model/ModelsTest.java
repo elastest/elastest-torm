@@ -79,19 +79,19 @@ public class ModelsTest {
                 "execDashboardConfig", null);
 
         List<Parameter> params = new ArrayList<>();
-        params.add(new Parameter(45l, "param1", "value1", tjob, null));
+        params.add(new Parameter("param1", "value1"));
         tjob.setParameters(params);
 
         TJobExecution exec = new TJobExecution(45l, 34543534l,
                 ResultEnum.SUCCESS);
         List<Parameter> paramsExec = new ArrayList<>();
-        paramsExec.add(new Parameter(45l, "param1", "value1", tjob, exec));
+        paramsExec.add(new Parameter("param1", "value1"));
         exec.setParameters(paramsExec);
 
         TJobExecution exec2 = new TJobExecution(45l, 34543534l,
                 ResultEnum.SUCCESS);
         List<Parameter> paramsExec2 = new ArrayList<>();
-        paramsExec2.add(new Parameter(45l, "param1", "value1", tjob, exec2));
+        paramsExec2.add(new Parameter("param1", "value1"));
         exec2.setParameters(paramsExec2);
 
         exec.setTjob(tjob);
@@ -113,7 +113,8 @@ public class ModelsTest {
     public void testCreateExternalJob() {
         ExternalJob extJob = new ExternalJob("Job1", "htt://localhost:8090",
                 "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null,
-                0, false, null, null, null, null, null, false, null, null, null);
+                0, false, null, null, null, null, null, false, null, null,
+                null);
         assertTrue(extJob.getJobName().equals("Job1"));
     }
 
@@ -121,10 +122,12 @@ public class ModelsTest {
     public void testEqualsExternalJobs() {
         ExternalJob extJob1 = new ExternalJob("Job1", "htt://localhost:8090",
                 "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null,
-                0, false, null, null, null, null, null, false, null, null, null);
+                0, false, null, null, null, null, null, false, null, null,
+                null);
         ExternalJob extJob2 = new ExternalJob("Job1", "htt://localhost:8090",
                 "http://localhost:8090", 1L, "9200", "192.168.1.1", null, null,
-                0, false, null, null, null, null, null, false, null, null, null);
+                0, false, null, null, null, null, null, false, null, null,
+                null);
         assertTrue(extJob1.equals(extJob2));
         assertEquals(extJob1.hashCode(), extJob2.hashCode());
     }

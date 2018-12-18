@@ -8,14 +8,18 @@ import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.remote.LocalFileDetector;
+import org.openqa.selenium.remote.RemoteWebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class EtmPluginBaseTest extends EtmBaseTest {
 
     protected String jenkinsPluginManagerAd = "/pluginManager/advanced";
+    protected String jenkinsRestartRelPath = "/restart";
     protected String jenkinsCIUrl = "http://172.17.0.1:8080";
     protected String pluginPath = "/home/ubuntu/workspace/elastest-torm/e2e-test-with-plugin/elastest-plugin/target/elastest.hpi";
     protected String pluginSettings = "/configureTools/";
@@ -38,6 +42,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
 
         jenkinsPluginManagerAd = this.jenkinsCIUrl + jenkinsPluginManagerAd;
         pluginSettings = this.jenkinsCIUrl + pluginSettings;
+        jenkinsRestartRelPath = this.jenkinsCIUrl + jenkinsRestartRelPath;
 
         // Setup Jenkins credentials
         String jenkinsUser = getProperty("ciUser");
@@ -49,7 +54,6 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         if (jenkinsPass != null) {
             this.jenkinsPass = jenkinsPass;
         }
-
     }
 
     protected void installElasTestPlugin(WebDriver webDriver)
@@ -57,17 +61,38 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         WebDriverWait waitService = new WebDriverWait(driver, 60);
 
         // Install plugin
-        log.info("Installing plugin");
+        log.info("Installing plugin from: {}", pluginPath);
         By inputFileName = By.name("name");
-        webDriver.findElement(inputFileName).sendKeys(pluginPath);
+        WebElement uploadFile = webDriver.findElement(inputFileName);
+        ((RemoteWebElement) uploadFile).setFileDetector(new LocalFileDetector()); 
+        uploadFile.sendKeys(pluginPath);
         By uploadButton = By.xpath("//button[contains(string(), 'Upload')]");
         webDriver.findElement(uploadButton).click();
 
         // Check the plugin installation is ok
         log.info("Checking installation status");
+        boolean pluginAlreadyInstalled = false;
         By installationStatus = By
                 .xpath("//table/tbody/tr/td[contains(string(), 'Success')]");
-        waitService.until(visibilityOfElementLocated(installationStatus));
+        try {
+            waitService.until(visibilityOfElementLocated(installationStatus));
+        } catch (TimeoutException te) {
+            By alreadyInstalledMessage = By
+                    .xpath("//table/tbody/tr/td[contains(string(), 'elastest plugin is already installed')]");
+            waitService.until(visibilityOfElementLocated(alreadyInstalledMessage));
+            pluginAlreadyInstalled = true;
+        }
+        
+        if (pluginAlreadyInstalled) {
+            navigateTo(webDriver, jenkinsRestartRelPath);
+            By yesButton = By.xpath("//button[contains(string(), 'Yes')]");
+            webDriver.findElement(yesButton).click();
+            WebDriverWait waitForLogin = new WebDriverWait(driver, 180);
+            //wait for login form
+            By userField = By.id("j_username");
+            waitForLogin.until(visibilityOfElementLocated(userField));
+            loginOnJenkins(webDriver);
+        }
         log.info("Plugin installation finished");
 
         log.info("Navigate to main page");
@@ -148,6 +173,15 @@ public class EtmPluginBaseTest extends EtmBaseTest {
                 .click();
 
     }
+    
+    protected boolean isJobCreated(String jobName) {
+        try {
+            driver.findElement(By.linkText(jobName));
+            return true;
+        }catch (Exception e) {
+            return false;
+        }
+    }
 
     protected void createPipelineJob(WebDriver driver, String jobName,
             String script) {
@@ -170,7 +204,36 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         log.info("Login on Jenkins.");
         driver.findElement(By.name("j_username")).sendKeys(jenkinsUser);
         driver.findElement(By.name("j_password")).sendKeys(jenkinsPass);
-        driver.findElement(By.xpath("//span/button")).click();
+        driver.findElement(By.name("Submit")).click();
+    }
+    
+    protected void executeJob(WebDriver driver) throws InterruptedException {
+        log.info("Run Job");
+        long historySize = driver
+                .findElements(
+                        By.xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr"))
+                .size();
+        driver.findElement(By.xpath("//a[contains(string(), 'Build Now')]"))
+                .click();
+        while (driver
+                .findElements(
+                        By.xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr"))
+                .size() == historySize) {
+            log.info("history table size {}", driver
+                .findElements(
+                        By.xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr"))
+                .size());
+        }
+        
+        log.info("Waiting for the start of Job execution");
+        By newBuildHistory = By
+                .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]");
+        WebDriverWait waitService = new WebDriverWait(driver, 10);
+        waitService.until(visibilityOfElementLocated(newBuildHistory));
+        Thread.sleep(2000);
+        driver.findElement(By.xpath(
+                "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
+                .click();
     }
 
 }

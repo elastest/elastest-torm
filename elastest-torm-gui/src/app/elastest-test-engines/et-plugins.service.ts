@@ -27,6 +27,7 @@ export class EtPluginsService {
     testEngine.statusMsg = rawEngine.statusMsg;
     testEngine.user = rawEngine.user;
     testEngine.pass = rawEngine.pass;
+    testEngine.displayName = rawEngine.displayName;
     return testEngine;
   }
 

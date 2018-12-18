@@ -1,7 +1,9 @@
+import { ParameterModel } from '../parameter/parameter-model';
 import { EimConfigModel } from './eim-config-model';
 import { ProjectModel } from '../project/project-model';
 import { ExternalProjectModel } from '../external/external-project/external-project-model';
 import { EimMonitoringConfigModel } from './eim-monitoring-config.model';
+import { ExternalElasticsearch } from './external-elasticsearch.model';
 
 export class SutModel {
   id: number;
@@ -14,38 +16,68 @@ export class SutModel {
   eimMonitoringConfig: EimMonitoringConfigModel;
   instrumentalize: boolean;
   currentSutExec: string;
-  instrumentedBy: 'WITHOUT' | 'ELASTEST' | 'ADMIN' | '';
+  instrumentedBy: 'WITHOUT' | 'ELASTEST' | 'ADMIN' | 'EXTERNAL_ELASTICSEARCH' | '';
   protocol: 'http' | 'https' | ''; // On add new, add too in getProtocolsList
   port: string;
+  path: string;
   managedDockerType: 'IMAGE' | 'COMPOSE' | 'COMMANDS' | '';
   mainService: string;
-  parameters: any[];
+  parameters: ParameterModel[];
   commands: string;
   commandsOption: 'DEFAULT' | 'IN_NEW_CONTAINER' | 'IN_DOCKER_COMPOSE' | '';
 
   exProject: ExternalProjectModel;
 
-  constructor() {
-    this.id = 0;
-    this.name = '';
-    this.specification = '';
-    this.sutType = '';
-    this.description = '';
-    this.project = undefined;
-    this.eimConfig = new EimConfigModel();
-    this.eimMonitoringConfig = new EimMonitoringConfigModel('', 'sut', false);
-    this.instrumentalize = false;
-    this.currentSutExec = undefined;
-    this.instrumentedBy = '';
-    this.protocol = 'http';
-    this.port = undefined;
-    this.managedDockerType = '';
-    this.mainService = '';
-    this.parameters = [];
-    this.commands = '';
-    this.commandsOption = '';
+  externalElasticsearch: ExternalElasticsearch;
 
-    this.exProject = undefined;
+  constructor(sut?: SutModel) {
+    if (sut === undefined) {
+      this.id = 0;
+      this.name = '';
+      this.specification = '';
+      this.sutType = '';
+      this.description = '';
+      this.project = undefined;
+      this.eimConfig = new EimConfigModel();
+      this.eimMonitoringConfig = new EimMonitoringConfigModel('', 'sut', false);
+      this.instrumentalize = false;
+      this.currentSutExec = undefined;
+      this.instrumentedBy = '';
+      this.protocol = 'http';
+      this.port = undefined;
+      this.path = undefined;
+      this.managedDockerType = '';
+      this.mainService = '';
+      this.parameters = [];
+      this.commands = '';
+      this.commandsOption = '';
+
+      this.exProject = undefined;
+      this.externalElasticsearch = new ExternalElasticsearch();
+    } else {
+      this.id = sut.id;
+      this.name = sut.name;
+      this.specification = sut.specification;
+      this.sutType = sut.sutType;
+      this.description = sut.description;
+      this.project = sut.project;
+      this.eimConfig = sut.eimConfig;
+      this.eimMonitoringConfig = sut.eimMonitoringConfig;
+      this.instrumentalize = sut.instrumentalize;
+      this.currentSutExec = sut.currentSutExec;
+      this.instrumentedBy = sut.instrumentedBy;
+      this.protocol = sut.protocol;
+      this.port = sut.port;
+      this.path = sut.path;
+      this.managedDockerType = sut.managedDockerType;
+      this.mainService = sut.mainService;
+      this.parameters = sut.parameters;
+      this.commands = sut.commands;
+      this.commandsOption = sut.commandsOption;
+
+      this.exProject = sut.exProject;
+      this.externalElasticsearch = sut.externalElasticsearch;
+    }
   }
 
   public getProtocolsList(): string[] {

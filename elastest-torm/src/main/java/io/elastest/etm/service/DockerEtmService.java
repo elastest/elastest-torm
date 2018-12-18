@@ -32,7 +32,6 @@ import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
-import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.HostConfig.Bind;
 import com.spotify.docker.client.messages.HostConfig.Bind.Builder;
 import com.spotify.docker.client.messages.LogConfig;
@@ -43,7 +42,6 @@ import io.elastest.epm.client.DockerContainer;
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.model.DockerPullImageProgress;
 import io.elastest.epm.client.service.DockerService;
-import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
 import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
@@ -112,6 +110,47 @@ public class DockerEtmService {
     @Value("${et.etm.binded.lstcp.port}")
     public String bindedLsTcpPort;
 
+    /* *** ET container labels *** */
+    @Value("${et.type.label}")
+    public String etTypeLabel;
+
+    @Value("${et.tjob.id.label}")
+    public String etTJobIdLabel;
+
+    @Value("${et.tjob.exec.id.label}")
+    public String etTJobExecIdLabel;
+
+    @Value("${et.tjob.sut.service.name.label}")
+    public String etTJobSutServiceNameLabel;
+
+    @Value("${et.tjob.tss.id.label}")
+    public String etTJobTSSIdLabel;
+
+    @Value("${et.tjob.tss.type.label}")
+    public String etTJobTssTypeLabel;
+
+    @Value("${et.type.test.label.value}")
+    public String etTypeTestLabelValue;
+
+    @Value("${et.type.sut.label.value}")
+    public String etTypeSutLabelValue;
+
+    @Value("${et.type.tss.label.value}")
+    public String etTypeTSSLabelValue;
+
+    @Value("${et.type.core.label.value}")
+    public String etTypeCoreLabelValue;
+
+    @Value("${et.type.te.label.value}")
+    public String etTypeTELabelValue;
+
+    @Value("${et.type.monitoring.label.value}")
+    public String etTypeMonitoringLabelValue;
+
+    @Value("${et.type.tool.label.value}")
+    public String etTypeToolLabelValue;
+    /* *** END of ET container labels *** */
+
     public DockerService dockerService;
     public EtmFilesService filesService;
     public TJobExecRepository tJobExecRepositoryImpl;
@@ -174,8 +213,12 @@ public class DockerEtmService {
     }
 
     public void loadBasicServices(DockerExecution dockerExec) throws Exception {
-        this.configureDocker(dockerExec);
-        dockerExec.setNetwork(elastestNetwork);
+        try {
+            this.configureDocker(dockerExec);
+            dockerExec.setNetwork(elastestNetwork);
+        } catch (Exception e) {
+            throw new Exception("Exception on load basic docker services", e);
+        }
     }
 
     public void insertCreatedContainer(String containerId,
@@ -216,6 +259,34 @@ public class DockerEtmService {
         return dockerService.getContainerIpByNetwork(etEdmMysqlContainerName,
                 elastestNetwork);
     }
+
+    public Map<String, String> getEtLabels(DockerExecution dockerExec,
+            String type, String sutServiceName) {
+        String etTypeLabelValue = "";
+        if ("sut".equals(type.toLowerCase())) {
+            etTypeLabelValue = etTypeSutLabelValue;
+        } else if ("tjob".equals(type.toLowerCase())) {
+            etTypeLabelValue = etTypeTestLabelValue;
+        }
+
+        Map<String, String> labels = new HashMap<>();
+        labels.put(etTypeLabel, etTypeLabelValue);
+        labels.put(etTJobExecIdLabel,
+                dockerExec.getTJobExec().getId().toString());
+        labels.put(etTJobIdLabel, dockerExec.gettJob().getId().toString());
+
+        if (sutServiceName != null) {
+            labels.put(etTJobSutServiceNameLabel, sutServiceName);
+        }
+
+        return labels;
+    }
+
+    public Map<String, String> getEtLabels(DockerExecution dockerExec,
+            String type) {
+        return this.getEtLabels(dockerExec, type, null);
+    }
+
     /* *************************** */
     /* **** Container Methods **** */
     /* *************************** */
@@ -232,6 +303,7 @@ public class DockerEtmService {
         String containerName = "";
         String sutHost = null;
         String sutPort = null;
+        String sutProtocol = null;
 
         String sutPath = null;
 
@@ -260,7 +332,9 @@ public class DockerEtmService {
             if (dockerExec.isWithSut()) {
                 sutHost = dockerExec.getSutExec().getIp();
                 sutPort = sut.getPort();
+                sutProtocol = sut.getProtocol().toString();
             }
+
         }
 
         // Environment variables (optional)
@@ -294,6 +368,12 @@ public class DockerEtmService {
         if (sutPort != null) {
             envList.add("ET_SUT_PORT=" + sutPort);
         }
+
+        if (sutProtocol != null) {
+            envList.add("ET_SUT_PROTOCOL=" + sutProtocol);
+        }
+        
+        envList.add("ET_NETWORK=" + elastestNetwork);
 
         // Commands (optional)
         ArrayList<String> cmdList = new ArrayList<>();
@@ -329,6 +409,10 @@ public class DockerEtmService {
                             : logstashTcpPort),
                     prefix, suffix, dockerExec);
         }
+
+        // ElasTest labels
+        Map<String, String> labels = this.getEtLabels(dockerExec, type);
+
         // Pull Image
         this.pullETExecutionImage(dockerExec, image, type, false);
 
@@ -340,6 +424,7 @@ public class DockerEtmService {
         dockerBuilder.cmd(cmdList);
         dockerBuilder.entryPoint(entrypointList);
         dockerBuilder.network(dockerExec.getNetwork());
+        dockerBuilder.labels(labels);
 
         boolean sharedDataVolume = false;
         if (sut != null && sut.isSutInNewContainer()) {
@@ -395,13 +480,7 @@ public class DockerEtmService {
             dockerService.pullImageIfNotExistWithProgressHandler(image,
                     progressHandler);
         }
-        // } catch (DockerClientException e) {
-        //
-        // logger.info(
-        // "Error probably because the user has stopped the execution",
-        // e);
-        // throw new TJobStoppedException();
-        // }
+
         logger.debug("{} image pulled succesfully!", name);
 
     }
@@ -465,66 +544,80 @@ public class DockerEtmService {
     }
 
     public void startDockbeat(DockerExecution dockerExec) throws Exception {
-        Long execution = dockerExec.getExecutionId();
-
-        String containerName = getDockbeatContainerName(dockerExec);
-
-        // Environment variables
-        ArrayList<String> envList = new ArrayList<>();
-        String envVar;
-
-        // Get Parameters and insert into Env Vars¡
-        String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashOrMiniHost;
-        String lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
-                + lsInternalBeatsPort;
-
-        if (isEMSSelected(dockerExec)) {
-            TJobExecution tJobExec = dockerExec.getTJobExec();
-
-            String regexSuffix = "_?(" + execution + ")(_([^_]*(_\\d*)?))?";
-            String testRegex = "^test" + regexSuffix;
-            String sutRegex = "^sut" + regexSuffix;
-            envVar = "FILTER_CONTAINERS" + "=" + testRegex + "|" + sutRegex;
-            envList.add(envVar);
-
-            // envVar = "FILTER_EXCLUDE" + "=" + "\"\"";
-            // envList.add(envVar);
-
-            lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
-                    + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_PORT");
-
-            lsHostEnvVar = "LOGSTASHHOST" + "="
-                    + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_HOST");
-        }
-        envList.add(lsHostEnvVar);
-        envList.add(lsInternalBeatsPortEnvVar);
-
-        // dockerSock
-        Bind dockerSockVolumeBind = Bind.from(dockerSock).to(dockerSock)
-                .build();
-
-        // Pull Image
-        this.pullETExecImage(dockbeatImage, "Dockbeat", false);
-
-        // Create Container
-        logger.debug("Creating Dockbeat Container...");
-
-        /* ******************************************************** */
-        DockerBuilder dockerBuilder = new DockerBuilder(dockbeatImage);
-        dockerBuilder.envs(envList);
-        dockerBuilder.containerName(containerName);
-        dockerBuilder.network(dockerExec.getNetwork());
-
-        dockerBuilder.volumeBindList(Arrays.asList(dockerSockVolumeBind));
-
-        DockerContainer dockerContainer = dockerBuilder.build();
-        String containerId = dockerService.createAndStartContainer(
-                dockerContainer, EpmService.etMasterSlaveMode);
-        this.insertCreatedContainer(containerId, containerName);
-
         try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
+            Long execution = dockerExec.getExecutionId();
+
+            String containerName = getDockbeatContainerName(dockerExec);
+
+            // Environment variables
+            ArrayList<String> envList = new ArrayList<>();
+            String envVar;
+
+            // Get Parameters and insert into Env Vars¡
+            String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashOrMiniHost;
+            String lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
+                    + lsInternalBeatsPort;
+
+            TJobExecution tJobExec = dockerExec.getTJobExec();
+            if (isEMSSelected(dockerExec)) {
+
+                String regexSuffix = "_?(" + execution + ")(_([^_]*(_\\d*)?))?";
+                String testRegex = "^test" + regexSuffix;
+                String sutRegex = "^sut" + regexSuffix;
+                envVar = "FILTER_CONTAINERS" + "=" + testRegex + "|" + sutRegex;
+                envList.add(envVar);
+
+                // envVar = "FILTER_EXCLUDE" + "=" + "\"\"";
+                // envList.add(envVar);
+
+                lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
+                        + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_PORT");
+
+                lsHostEnvVar = "LOGSTASHHOST" + "="
+                        + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_HOST");
+            }
+            envList.add(lsHostEnvVar);
+            envList.add(lsInternalBeatsPortEnvVar);
+
+            // dockerSock volume bind
+            Bind dockerSockVolumeBind = Bind.from(dockerSock).to(dockerSock)
+                    .build();
+
+            // ElasTest labels
+            Map<String, String> labels = new HashMap<>();
+            labels.put(etTypeLabel, etTypeMonitoringLabelValue);
+            labels.put(etTJobExecIdLabel, tJobExec.getId().toString());
+            labels.put(etTJobIdLabel, dockerExec.gettJob().getId().toString());
+
+            // Pull Image
+            this.pullETExecImage(dockbeatImage, "Dockbeat", false);
+
+            // Create Container
+            logger.debug("Creating Dockbeat Container...");
+
+            /* ******************************************************** */
+            DockerBuilder dockerBuilder = new DockerBuilder(dockbeatImage);
+            dockerBuilder.envs(envList);
+            dockerBuilder.containerName(containerName);
+            dockerBuilder.network(dockerExec.getNetwork());
+
+            dockerBuilder.volumeBindList(Arrays.asList(dockerSockVolumeBind));
+
+            dockerBuilder.labels(labels);
+
+            DockerContainer dockerContainer = dockerBuilder.build();
+            String containerId = dockerService.createAndStartContainer(
+                    dockerContainer, EpmService.etMasterSlaveMode);
+            this.insertCreatedContainer(containerId, containerName);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        } catch (TJobStoppedException e) {
+            throw e;
+        } catch (Exception e) {
+            new Exception("Exception on start Dockbeat", e);
         }
     }
 
@@ -646,7 +739,6 @@ public class DockerEtmService {
 
     public List<ReportTestSuite> createAndStartTestContainer(
             DockerExecution dockerExec) throws Exception {
-
         try {
             // Create Container Object
             dockerExec.setTestcontainer(createContainer(dockerExec, "tjob"));
@@ -673,16 +765,50 @@ public class DockerEtmService {
 
             dockerExec.setTestContainerExitCode(code);
             logger.info("Test container ends with code " + code);
-
-            return getTestResults(dockerExec);
         } catch (TJobStoppedException | InterruptedException e) {
             throw new TJobStoppedException(
                     "Error on create and start TJob container: Stopped", e);
         } catch (Exception e) {
             throw new Exception("Error on create and start TJob container", e);
         }
+        return getTestResults(dockerExec);
     }
 
+    public void updateExecutionResultStatus(DockerExecution dockerExec,
+            ResultEnum result, String msg) {
+        if (dockerExec.isExternal()) {
+            ExternalTJobExecution externalTJobExec = dockerExec
+                    .getExternalTJobExec();
+            updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
+        } else {
+            TJobExecution tJobExec = dockerExec.getTJobExec();
+            updateTJobExecResultStatus(tJobExec, result, msg);
+        }
+    }
+
+    public void updateTJobExecResultStatus(TJobExecution tJobExec,
+            ResultEnum result, String msg) {
+        tJobExec.setResult(result);
+        tJobExec.setResultMsg(msg);
+        tJobExecRepositoryImpl.save(tJobExec);
+    }
+
+    public void updateExternalTJobExecResultStatus(
+            ExternalTJobExecution externalTJobExec, ResultEnum result,
+            String msg) {
+        externalTJobExec.setResult(result);
+        externalTJobExec.setResultMsg(msg);
+        externalTJobExecutionRepository.save(externalTJobExec);
+    }
+
+    public boolean isEMSSelected(DockerExecution dockerExec) {
+        return !dockerExec.isExternal()
+                && dockerExec.gettJob().isSelectedService("ems");
+    }
+
+    /* ******************************* */
+    /* ******* Logging methods ******* */
+    /* ******************************* */
     public LogConfig getLogConfig(String host, String port, String tagPrefix,
             String tagSuffix, DockerExecution dockerExec) {
         Map<String, String> configMap = new HashMap<String, String>();
@@ -766,37 +892,6 @@ public class DockerEtmService {
         }
     }
 
-    public void updateExecutionResultStatus(DockerExecution dockerExec,
-            ResultEnum result, String msg) {
-        if (dockerExec.isExternal()) {
-            ExternalTJobExecution externalTJobExec = dockerExec
-                    .getExternalTJobExec();
-            updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
-        } else {
-            TJobExecution tJobExec = dockerExec.getTJobExec();
-            updateTJobExecResultStatus(tJobExec, result, msg);
-        }
-    }
-
-    public void updateTJobExecResultStatus(TJobExecution tJobExec,
-            ResultEnum result, String msg) {
-        tJobExec.setResult(result);
-        tJobExec.setResultMsg(msg);
-        tJobExecRepositoryImpl.save(tJobExec);
-    }
-
-    public void updateExternalTJobExecResultStatus(
-            ExternalTJobExecution externalTJobExec, ResultEnum result,
-            String msg) {
-        externalTJobExec.setResult(result);
-        externalTJobExec.setResultMsg(msg);
-        externalTJobExecutionRepository.save(externalTJobExec);
-    }
-
-    /* ******************************* */
-    /* **** End execution methods **** */
-    /* ******************************* */
-
     /* *************** */
     /* **** Utils **** */
     /* *************** */
@@ -834,75 +929,62 @@ public class DockerEtmService {
         createdContainers.remove(containerId);
     }
 
+    public void endContainer(String containerName, int timeout)
+            throws Exception {
+        dockerService.endContainer(containerName, true, timeout);
+        String containerId = dockerService.getContainerIdByName(containerName);
+
+        createdContainers.remove(containerId);
+    }
+
     public SocatBindedPort bindingPort(String containerIp, String port,
             String networkName, boolean remotely) throws Exception {
-        int listenPort = 37000;
-        String bindedPort = null;
+        return bindingPort(containerIp, null, port, networkName, remotely);
+    }
+
+    public SocatBindedPort bindingPort(String containerIp,
+            String containerSufix, String port, String networkName,
+            boolean remotely) throws Exception {
+        String bindedPort = "37000";
+        String socatContainerId = null;
         try {
-            listenPort = UtilTools.findRandomOpenPort();
+            bindedPort = String.valueOf(UtilTools.findRandomOpenPort());
             List<String> envVariables = new ArrayList<>();
-            envVariables.add("LISTEN_PORT=" + listenPort);
+            envVariables.add("LISTEN_PORT=" + bindedPort);
             envVariables.add("FORWARD_PORT=" + port);
             envVariables.add("TARGET_SERVICE_IP=" + containerIp);
-            String listenPortAsString = String.valueOf(listenPort);
+            // String listenPortAsString = String.valueOf(bindedPort);
 
             DockerBuilder dockerBuilder = new DockerBuilder(etSocatImage);
             dockerBuilder.envs(envVariables);
-            dockerBuilder.containerName("container" + listenPortAsString);
+            dockerBuilder.containerName("socat_"
+                    + (containerSufix != null && !containerSufix.isEmpty()
+                            ? containerSufix
+                            : bindedPort));
             dockerBuilder.network(networkName);
-            dockerBuilder
-                    .exposedPorts(Arrays.asList(String.valueOf(listenPort)));
+            dockerBuilder.exposedPorts(Arrays.asList(bindedPort));
 
             // portBindings
             Map<String, List<PortBinding>> portBindings = new HashMap<>();
-            portBindings.put(listenPortAsString, Arrays
-                    .asList(PortBinding.of("0.0.0.0", listenPortAsString)));
+            portBindings.put(bindedPort,
+                    Arrays.asList(PortBinding.of("0.0.0.0", bindedPort)));
             dockerBuilder.portBindings(portBindings);
 
             dockerService.pullImage(etSocatImage);
 
-            bindedPort = dockerService
+            socatContainerId = dockerService
                     .createAndStartContainer(dockerBuilder.build(), remotely);
+            logger.info("Socat container id: {} ", socatContainerId);
 
         } catch (Exception e) {
             throw new Exception("Error on bindingPort (start socat container)",
                     e);
         }
 
-        SocatBindedPort bindedPortObj = new SocatBindedPort(
-                Integer.toString(listenPort), bindedPort);
+        SocatBindedPort bindedPortObj = new SocatBindedPort(port, bindedPort,
+                socatContainerId);
 
         return bindedPortObj;
-    }
-
-    public List<Container> getContainersByNamePrefixByGivenList(
-            List<Container> containersList, String prefix,
-            ContainersListActionEnum action, String network) throws Exception {
-        List<Container> filteredList = new ArrayList<>();
-        for (Container currentContainer : containersList) {
-            // Get name (name start with slash, we remove it)
-            String containerName = currentContainer.names().get(0)
-                    .replaceFirst("/", "");
-            if (containerName != null && containerName.startsWith(prefix)) {
-                filteredList.add(currentContainer);
-                if (action != ContainersListActionEnum.NONE) {
-                    if (action == ContainersListActionEnum.ADD) {
-                        this.insertCreatedContainer(currentContainer.id(),
-                                containerName);
-                        try {
-                            dockerService.insertIntoNetwork(network,
-                                    currentContainer.id());
-                        } catch (Exception e) {
-                            // Already added
-                        }
-                    } else {
-                        this.endContainer(containerName);
-                    }
-                }
-            }
-        }
-
-        return filteredList;
     }
 
     /* ************************* */
@@ -911,21 +993,29 @@ public class DockerEtmService {
 
     private List<ReportTestSuite> getTestResults(DockerExecution dockerExec)
             throws Exception {
-        List<ReportTestSuite> testSuites = null;
-        String resultsPath = dockerExec.gettJob().getResultsPath();
+        try {
+            List<ReportTestSuite> testSuites = null;
+            String resultsPath = dockerExec.gettJob().getResultsPath();
 
-        if (resultsPath != null && !resultsPath.isEmpty()) {
-            try {
-                InputStream inputStream = dockerService.getFileFromContainer(
-                        dockerExec.getTestContainerId(), resultsPath);
+            if (resultsPath != null && !resultsPath.isEmpty()) {
+                try {
+                    InputStream inputStream = dockerService
+                            .getFileFromContainer(
+                                    dockerExec.getTestContainerId(),
+                                    resultsPath);
 
-                String result = IOUtils.toString(inputStream,
-                        StandardCharsets.UTF_8);
-                testSuites = getTestSuitesByString(result);
-            } catch (IOException e) {
+                    String result = IOUtils.toString(inputStream,
+                            StandardCharsets.UTF_8);
+                    testSuites = getTestSuitesByString(result);
+                } catch (IOException e) {
+                }
             }
+            return testSuites;
+        } catch (Exception e) {
+            throw new Exception(
+                    "Error on get test results. Maybe the specified path is incorrect.",
+                    e);
         }
-        return testSuites;
     }
 
     private List<ReportTestSuite> getTestSuitesByString(String result) {
@@ -945,18 +1035,19 @@ public class DockerEtmService {
                         Arrays.asList(piece.split(foot)));
                 String newResult = head + splitedFootResult.get(0) + foot;
 
-                ReportTestSuite testSuite = null;
+                List<ReportTestSuite> testSuites = null;
 
                 try {
-                    testSuite = this
+                    // normally, a single test suite
+                    testSuites = this
                             .testSuiteStringToReportTestSuite(newResult);
                 } catch (ParserConfigurationException | SAXException
                         | IOException e) {
                     logger.error("Error on parse testSuite {}", e);
                 }
 
-                if (testSuite != null) {
-                    results.add(testSuite);
+                if (testSuites != null) {
+                    results.addAll(testSuites);
                 }
             }
         }
@@ -964,18 +1055,16 @@ public class DockerEtmService {
         return results;
     }
 
-    private ReportTestSuite testSuiteStringToReportTestSuite(
+    private List<ReportTestSuite> testSuiteStringToReportTestSuite(
             String testSuiteStr) throws UnsupportedEncodingException,
             ParserConfigurationException, SAXException, IOException {
         TestSuiteXmlParser testSuiteXmlParser = new TestSuiteXmlParser(null);
         InputStream byteArrayIs = new ByteArrayInputStream(
                 testSuiteStr.getBytes());
+
+        // normally, a single test suite, but in some cases returns more than 1
         return testSuiteXmlParser
-                .parse(new InputStreamReader(byteArrayIs, "UTF-8")).get(0);
+                .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
     }
 
-    public boolean isEMSSelected(DockerExecution dockerExec) {
-        return !dockerExec.isExternal()
-                && dockerExec.gettJob().isSelectedService("ems");
-    }
 }

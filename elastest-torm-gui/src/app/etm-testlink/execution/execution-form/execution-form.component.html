@@ -49,10 +49,10 @@
       </strong>
     </div>
     <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-    <div *ngIf="!showSpinner && testCase.steps.length === 0" class=" messageEmptyCard">
+    <centered-element *ngIf="!showSpinner && testCase.steps.length === 0" class=" messageEmptyCard">
       <md-icon>assignment</md-icon>
       <p>Steps not created </p>
-    </div>
+    </centered-element>
     <td-data-table flex #stepsTable *ngIf="testCase.steps && testCase.steps.length > 0" class="scroll_table" [data]="testCase.steps"
       [columns]="testCaseStepsColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
       <ng-template *ngFor="let column of testCaseStepsColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">

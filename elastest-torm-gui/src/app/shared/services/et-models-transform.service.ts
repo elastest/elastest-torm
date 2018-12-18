@@ -8,11 +8,13 @@ import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { TJobModel } from '../../elastest-etm/tjob/tjob-model';
 import { Injectable } from '@angular/core';
 import { LogAnalyzerConfigModel } from '../../elastest-log-analyzer/log-analyzer-config-model';
-import { ETExternalModelsTransformService } from '../../elastest-etm/external/et-external-models-transform.service';
 import { ExternalProjectModel } from '../../elastest-etm/external/external-project/external-project-model';
 import { TestSuiteModel } from '../../elastest-etm/test-suite/test-suite-model';
 import { TestCaseModel } from '../../elastest-etm/test-case/test-case-model';
 import { EimMonitoringConfigModel, EimBeatConfigModel } from '../../elastest-etm/sut/eim-monitoring-config.model';
+import { ExternalElasticsearch } from '../../elastest-etm/sut/external-elasticsearch.model';
+import { ParameterModel } from '../../elastest-etm/parameter/parameter-model';
+import { MultiConfigModel } from '../multi-config-view/multi-config-view.component';
 @Injectable()
 export class ETModelsTransformServices {
   constructor() {}
@@ -106,7 +108,9 @@ export class ETModelsTransformServices {
     }
     newTJob.external = tjob.external;
     newTJob.externalUrls = tjob.externalUrls;
+    newTJob.multi = tjob.multi ? tjob.multi : false;
 
+    newTJob.multiConfigurations = this.jsonToMultiConfigsList(tjob.multiConfigurations);
     return newTJob;
   }
 
@@ -151,8 +155,19 @@ export class ETModelsTransformServices {
       newTJobExec.endDate = new Date(tjobExec.endDate);
     }
 
+    if (newTJobExec.startDate && newTJobExec.endDate) {
+      try {
+        newTJobExec.duration = (newTJobExec.endDate.getTime() - newTJobExec.startDate.getTime()) / 1000; // secs
+      } catch (e) {}
+    }
+
     newTJobExec.externalUrls = tjobExec.externalUrls;
     newTJobExec.monitoringStorageType = tjobExec.monitoringStorageType;
+
+    newTJobExec.type = tjobExec.type ? tjobExec.type : 'SIMPLE';
+    newTJobExec.execParent = tjobExec.execParent ? this.jsonToTJobExecModel(tjobExec.execParent) : undefined;
+    newTJobExec.execChilds = tjobExec.execChilds ? this.jsonToTJobExecsList(tjobExec.execChilds) : [];
+    newTJobExec.multiConfigurations = this.jsonToMultiConfigsList(tjobExec.multiConfigurations);
 
     return newTJobExec;
   }
@@ -262,6 +277,7 @@ export class ETModelsTransformServices {
     newSut.instrumentedBy = sut.instrumentedBy;
     newSut.protocol = sut.protocol !== undefined && sut.protocol !== null ? sut.protocol : 'http';
     newSut.port = sut.port;
+    newSut.path = sut.path;
     newSut.mainService = sut.mainService;
     newSut.parameters = sut.parameters;
     newSut.commands = sut.commands;
@@ -274,6 +290,8 @@ export class ETModelsTransformServices {
     } else {
       newSut.exProject = sut.exProject;
     }
+
+    newSut.externalElasticsearch = new ExternalElasticsearch(sut.externalElasticsearch);
 
     newSut.commandsOption = sut.commandsOption;
 
@@ -342,5 +360,37 @@ export class ETModelsTransformServices {
     }
 
     return logAnalyzerConfigModel;
+  }
+
+  /* *** Parameters *** */
+
+  jsonToParametersList(parameters: any[]): ParameterModel[] {
+    let parametersList: ParameterModel[] = [];
+
+    for (let parameter of parameters) {
+      parametersList.push(this.jsonToParameterModel(parameter));
+    }
+    return parametersList;
+  }
+
+  jsonToParameterModel(param: any): ParameterModel {
+    return new ParameterModel(param);
+  }
+
+  /* *** MultiConfig *** */
+
+  jsonToMultiConfigsList(multiConfigs: any[]): MultiConfigModel[] {
+    let multiConfigsList: MultiConfigModel[] = [];
+
+    if (multiConfigs !== undefined && multiConfigs !== null) {
+      for (let multiConfig of multiConfigs) {
+        multiConfigsList.push(this.jsonToMultiConfigModel(multiConfig));
+      }
+    }
+    return multiConfigsList;
+  }
+
+  jsonToMultiConfigModel(multiConfig: any): MultiConfigModel {
+    return new MultiConfigModel(multiConfig);
   }
 }

@@ -8,14 +8,14 @@
       </md-card-title>
       <md-divider></md-divider>
       <md-card-content #scrollMeTest>
-        <div *ngIf="exTJobExecs && exTJobExecs.length === 0; else showBuildTable" class="push-top-important messageEmptyCard">
+        <centered-element *ngIf="exTJobExecs && exTJobExecs.length === 0; else showBuildTable" class="push-top-important messageEmptyCard">
           <md-icon>assignment</md-icon>
           <p>No executions</p>
-        </div>
+        </centered-element>
 
         <ng-template #showBuildTable>
-          <td-data-table #buildTable id="externalExecutions" class="scroll_table" [data]="exTJobExecs" [columns]="execsColumns" [selectable]="false"
-            [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+          <td-data-table #buildTable id="externalExecutions" class="scroll_table" [data]="exTJobExecs" [columns]="execsColumns"
+            [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
             <ng-template *ngFor="let column of execsColumns" let-value="value" let-row="row" tdDataTableTemplate="{{column.name}}">
               <div *ngIf="column.name !== 'options'" [routerLink]="['/external/projects/',row.exTJob.exProject.id,'tjob',row.exTJob.id,'exec',row.id]"
                 class="hover-pointer">
@@ -30,7 +30,8 @@
                   </ng-template>
                 </ng-container>
                 <ng-template #resultColumn>
-                  <img *ngIf="!row.finished() && !row.notExecuted()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
+                  <img *ngIf="!row.finished() && !row.notExecuted()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif"
+                    style="width:23px;height: 23px; vertical-align: middle;">
                   <md-icon *ngIf="row.finished() || row.notExecuted()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color"
                     mdTooltip="{{row.getResultIcon().result}}">{{row.getResultIcon().name}}</md-icon>
                 </ng-template>

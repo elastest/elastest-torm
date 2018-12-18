@@ -9,12 +9,17 @@ import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
 export class ShowMessageModalComponent implements OnInit {
   row: any;
   columns: string[];
+  rawData: any;
   constructor(
     private dialogRef: MdDialogRef<ShowMessageModalComponent>,
     @Optional() @Inject(MD_DIALOG_DATA) public data: any,
   ) {
     this.row = data.row;
     this.columns = data.columns;
+
+    if(this.row.rawData !== undefined && this.row.rawData !== null){
+      this.rawData = JSON.parse(this.row.rawData);
+    }
   }
 
   ngOnInit() {

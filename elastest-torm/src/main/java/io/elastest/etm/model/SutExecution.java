@@ -70,6 +70,9 @@ public class SutExecution {
     @JsonView({ SutExecView.class })
     @OneToMany(mappedBy = "sutExecution", cascade = CascadeType.REMOVE)
     private List<TJobExecution> tjobExecs;
+    
+    @JsonView(SutExecView.class)
+    private Long publicPort = null;
 
     public enum DeployStatusEnum {
         DEPLOYING("deploying"),
@@ -218,6 +221,14 @@ public class SutExecution {
         this.tjobExecs = tjobExecs;
     }
 
+    public Long getPublicPort() {
+        return publicPort;
+    }
+
+    public void setPublicPort(Long publicPort) {
+        this.publicPort = publicPort;
+    }
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {
@@ -254,6 +265,10 @@ public class SutExecution {
                 .append("\n");
         sb.append("}");
         return sb.toString();
+    }
+
+    public String getSutExecMonitoringIndex() {
+        return "s" + this.getSutSpecification().getId() + "_e" + this.getId();
     }
 
 }

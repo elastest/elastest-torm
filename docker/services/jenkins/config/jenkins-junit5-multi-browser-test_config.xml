@@ -1,0 +1,60 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.17">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.45">
+    <script>node{
+    elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true, project: &apos;Jenkins Examples&apos;) {
+        stage (&apos;Executing Test&apos;) {
+            echo &apos;Print env variables&apos;
+            sh &apos;env&apos;
+            def sutImage = docker.image(&apos;elastest/demo-web-java-test-sut&apos;)
+            echo &apos;Start SUT&apos;
+            sutImage.withRun(&quot;--name ${env.ET_SUT_CONTAINER_NAME}&quot;) { c -&gt;
+                echo &quot;${c.id}&quot;
+                def sutContainerName = env.ET_SUT_CONTAINER_NAME;
+                def sutNetwork = getFirstNetwork(sutContainerName)
+                def sutIp = containerIp(sutContainerName,sutNetwork)
+                sh &apos;docker run -e IP=&apos; + sutIp + &apos; -e PORT=8080 --network=&apos; + sutNetwork + &apos; elastest/etm-check-service-up&apos;
+                withEnv([&apos;ET_SUT_HOST=&apos; + sutIp]) {
+                    echo &apos;Set up test environment&apos;
+                    mvnHome = tool &apos;M3.3.9&apos;
+                    echo &apos;Cloning repository&apos;
+                    git &apos;https://github.com/elastest/demo-projects&apos;
+                    echo &apos;Run test&apos;
+                    sh &quot;cd ./webapp/junit5-web-multiple-browsers-test/;&apos;${mvnHome}/bin/mvn&apos; -Dbrowser=chrome -DforkCount=0 test&quot;
+                }
+            }
+            
+        }        
+    }
+}
+
+def getFirstNetwork(containerName) {
+    echo &quot;Inside getFirstNetwork function&quot;
+    network = sh (
+        script: &quot;docker inspect &quot; + containerName + &quot; -f \&quot;{{json .NetworkSettings.Networks}}\&quot; | awk \&quot;{sub(/:.*/,\\\&quot;\\\&quot;)}1\&quot; | awk \&quot;{sub(/\\\&quot;/,\\\&quot;\\\&quot;)}1\&quot; | awk \&quot;{sub(/\\\&quot;/,\\\&quot;\\\&quot;)}1\&quot; | awk \&quot;{sub(/{/,\\\&quot;\\\&quot;)}1\&quot;&quot;,
+        returnStdout: true
+    ).trim()
+    
+    echo containerName+&quot; Network = &quot; + network;
+    return network;
+}
+
+def containerIp(containerName, network) {
+    echo &quot;Inside containerIp function&quot;
+    containerIp = sh (
+        script: &quot;docker inspect --format=\&quot;{{.NetworkSettings.Networks.&quot; + network + &quot;.IPAddress}}\&quot; &quot;+ containerName,
+        returnStdout: true
+    ).trim()
+    
+    echo containerName+&quot; IP = &quot; + containerIp;
+    return containerIp;
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

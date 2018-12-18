@@ -14,7 +14,7 @@ import { EtPluginsService } from './elastest-test-engines/et-plugins.service';
 import { EsmService } from './elastest-esm/esm-service.service';
 import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { CovalentExpansionPanelModule, CovalentMessageModule } from '@covalent/core';
-import { APP_INITIALIZER, NgModule, Type } from '@angular/core';
+import { APP_INITIALIZER, NgModule, Type, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -47,6 +47,7 @@ import {
   MdDialogModule,
   MdSidenavModule,
   MdProgressSpinnerModule,
+  MdDialogRef,
 } from '@angular/material';
 import { ConfigurationService } from './config/configuration-service.service';
 import { configServiceFactory } from './config/configServiceFactory';
@@ -128,6 +129,10 @@ import { TimeAgoPipe } from 'time-ago-pipe';
 import { EtmJenkinsComponent } from './etm-jenkins/etm-jenkins.component';
 import { LiveTjobExecManagerComponent } from './elastest-etm/tjob-exec/live-tjob-exec-manager/live-tjob-exec-manager.component';
 import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component';
+import { ChildTjobExecsViewComponent } from './elastest-etm/tjob-exec/child-tjob-execs-view/child-tjob-execs-view.component';
+import { TjobExecViewComponent } from './elastest-etm/tjob-exec/tjob-exec-view/tjob-exec-view.component';
+import { ParentTjobExecReportViewComponent } from './elastest-etm/tjob-exec/parent-tjob-exec-report-view/parent-tjob-exec-report-view.component';
+import { CredentialsDialogComponent } from './shared/credentials-dialog/credentials-dialog.component';
 
 const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
 
@@ -204,6 +209,10 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     TimeAgoPipe,
     LiveTjobExecManagerComponent,
     DashboardComponent,
+    ChildTjobExecsViewComponent,
+    TjobExecViewComponent,
+    ParentTjobExecReportViewComponent,
+    CredentialsDialogComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -283,7 +292,9 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     MonitoringConfigurationComponent,
     SelectBuildModalComponent,
     ElastestLogAnalyzerComponent,
+    CredentialsDialogComponent,
   ],
   bootstrap: [AppComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule {}

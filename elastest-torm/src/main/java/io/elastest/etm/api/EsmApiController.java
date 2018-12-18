@@ -113,6 +113,6 @@ public class EsmApiController implements EsmApi {
     public ResponseEntity<List<SupportServiceInstance>> getTSSInstByTJobExecId(
             @PathVariable("id") Long id) {
         return new ResponseEntity<List<SupportServiceInstance>>(
-                esmService.getTSSInstByTJobExecId(id), HttpStatus.OK);
+                esmService.getTJobExecServicesInstancesList(id), HttpStatus.OK);
     }
 }

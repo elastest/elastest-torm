@@ -1,0 +1,48 @@
+* {
+  color: rgba(0, 0, 0, 0.87);
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
+
+:host {
+  margin: 0 !important;
+  width: 100% !important;
+  min-height: auto !important;
+  max-height: 100% !important;
+  height: 100% !important;
+}
+
+.sa-card {
+  padding: 0;
+  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  position: relative;
+  border-radius: 2px;
+  background: white;
+  margin: 6px 7px;
+}
+.sa-card-title {
+  margin-top: 0;
+  margin-bottom: 11px;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 11px;
+  font-size: 24px;
+  font-weight: 400;
+}
+.sa-card-content {
+  margin-bottom: 0px;
+  font-size: 14px;
+  padding: 16px;
+  overflow: auto;
+}
+.sa-card-divider {
+  border-top-color: rgba(0, 0, 0, 0.12);
+}
+
+.mat-card .mat-divider.sa-card-divider {
+  position: static;
+}
+
+.useMaxHeight {
+  max-height: 100% !important;
+}

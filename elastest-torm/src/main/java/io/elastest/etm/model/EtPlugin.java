@@ -16,14 +16,16 @@ public class EtPlugin extends DockerServiceStatus {
     private Map<String, String> parameters;
     private String user;
     private String pass;
+    private String displayName;
 
     public EtPlugin() {
     }
 
-    public EtPlugin(String name) {
+    public EtPlugin(String name, String displayName) {
         super();
         this.name = name;
         this.parameters = new HashMap<>();
+        this.displayName = displayName;
     }
 
     public EtPlugin(EtPlugin plugin) {
@@ -38,6 +40,7 @@ public class EtPlugin extends DockerServiceStatus {
         this.setStatusMsg(plugin.getStatusMsg());
         this.user = plugin.user;
         this.pass = plugin.pass;
+        this.displayName = plugin.displayName;
     }
 
     public String getName() {
@@ -104,12 +107,20 @@ public class EtPlugin extends DockerServiceStatus {
         this.pass = pass;
     }
 
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
     @Override
     public String toString() {
         return "EtPlugin [name=" + name + ", internalUrl=" + internalUrl
                 + ", bindedUrl=" + bindedUrl + ", url=" + url + ", imagesList="
                 + imagesList + ", parameters=" + parameters + ", user=" + user
-                + ", pass=" + pass + "]";
+                + ", pass=" + pass + ", displayName=" + displayName + "]";
     }
 
     public void initToDefault() {

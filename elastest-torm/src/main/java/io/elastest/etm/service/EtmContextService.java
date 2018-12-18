@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,21 +21,17 @@ import io.elastest.etm.dao.LogAnalyzerRepository;
 import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.LogAnalyzerConfig;
-import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class EtmContextService {
-    @Value("${eus.tss.id}")
-    public String EUS_TSS_ID;
 
     private static final Logger logger = LoggerFactory
             .getLogger(EtmContextService.class);
     private final LogAnalyzerRepository logAnalyzerRepository;
 
-    EsmService esmService;
     EtmContextAuxService etmContextAuxService;
     DockerEtmService dockerEtmService;
     UtilsService utilsService;
@@ -109,36 +107,30 @@ public class EtmContextService {
     public String etEtmLsTcpPort;
 
     HelpInfo helpInfo;
+    ContextInfo contextInfo;
 
     public EtmContextService(LogAnalyzerRepository logAnalyzerRepository,
             EsmService esmService, EtmContextAuxService etmContextAuxService,
             DockerEtmService dockerEtmService, UtilsService utilsService) {
         this.logAnalyzerRepository = logAnalyzerRepository;
-        this.esmService = esmService;
         this.etmContextAuxService = etmContextAuxService;
         this.dockerEtmService = dockerEtmService;
         this.utilsService = utilsService;
     }
 
-    public ContextInfo getContextInfo() {
-        ContextInfo contextInfo = this.etmContextAuxService.getContextInfo();
-        contextInfo.setEusSSInstance(getEusApiUrl());
-
-        return contextInfo;
+    @PostConstruct
+    public void createContextInfo() {
+        contextInfo = this.etmContextAuxService.getContextInfo();
     }
 
-    private SupportServiceInstance getEusApiUrl() {
-        SupportServiceInstance eusInstance = null;
-        if (esmService.getServicesInstances() != null) {
-            for (Map.Entry<String, SupportServiceInstance> entry : esmService
-                    .getServicesInstances().entrySet()) {
-                if (entry.getValue().getService_id().equals(EUS_TSS_ID)) {
-                    eusInstance = entry.getValue();
-                    break;
-                }
+    public ContextInfo getContextInfo() {
+        logger.debug("Loading ElasTest Context");
+        if (utilsService.isElastestMini()) {
+            while (contextInfo.getEusSSInstance() == null) {
+                logger.debug("Waiting for the ElasTest Context to be ready");
             }
         }
-        return eusInstance;
+        return contextInfo;
     }
 
     public HelpInfo getHelpInfo() {
@@ -317,29 +309,20 @@ public class EtmContextService {
     }
 
     public Map<String, String> getTJobExecMonitoringEnvVars(
-            TJobExecution tJobExec) {
+            TJobExecution tJobExec) throws Exception {
         Map<String, String> monEnvs = new HashMap<String, String>();
         monEnvs.putAll(this.etmContextAuxService.getMonitoringEnvVars());
 
         if (tJobExec != null) {
             monEnvs.put("ET_MON_LOG_TAG", "sut_" + tJobExec.getId() + "_exec");
-            monEnvs.put("ET_SUT_CONTAINER_NAME", dockerEtmService
-                    .getSutPrefixBySuffix(tJobExec.getId().toString()));
             monEnvs.put("ET_MON_EXEC", tJobExec.getId().toString());
             if (tJobExec.getTjob().isExternal()) {
                 monEnvs.put("ET_SUT_LOG_TAG",
                         "sut_" + tJobExec.getId() + "_exec");
                 // Override
-                String host = utilsService.getEtPublicHostValue();
-                if (utilsService.isDefaultEtPublicHost()) {
-                    try {
-                        host = dockerEtmService.getEtmHost();
-                    } catch (Exception e) {
-                    }
-                }
+                String host = etmContextAuxService.getLogstashHostForExtJob();
 
-                monEnvs.put("ET_MON_LSHTTP_API",
-                        "http://" + host + ":" + etEtmLsHttpPort);
+                monEnvs.put("ET_MON_LSHTTP_API", contextInfo.getLogstashHttpUrl());
                 monEnvs.put("ET_MON_LSBEATS_HOST", host);
                 monEnvs.put("ET_MON_LSBEATS_PORT", etEtmBindedLsbeatsPort);
                 monEnvs.put("ET_MON_INTERNAL_LSBEATS_PORT",

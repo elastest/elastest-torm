@@ -37,7 +37,8 @@ import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
- * E2E ETM TestLink test.
+ * Test that creates sample data in TestLink, syncs them with ElasTest and
+ * executes Test Plan. Requirements tested: ETM9, ETM12, ETM13
  *
  * @author EduJG(https://github.com/EduJGURJC)
  * @since 0.1.1
@@ -170,7 +171,7 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
             testCase.setName(caseName);
             testCase.setTestSuiteId(suite.getId());
             testCase.setTestProjectId(project.getId());
-            testCase.setAuthorLogin("admin");
+            testCase.setAuthorLogin("elastest");
             testCase.setSummary("This is a Summary");
             testCase.setPreconditions("This is a precondition");
 

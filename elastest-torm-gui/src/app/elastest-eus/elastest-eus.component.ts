@@ -40,10 +40,13 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     { name: 'actions', label: 'Actions' },
   ];
 
-  testColumns: any[] = this.recordingColumns.concat([{ name: 'status', label: 'Status' }, { name: 'statusMsg', label: 'Info' }]);
+  activeBrowsersColumns: any[] = this.recordingColumns.concat([
+    { name: 'status', label: 'Status' },
+    { name: 'statusMsg', label: 'Info' },
+  ]);
 
-  testData: EusTestModel[] = [];
-  testDataMap: Map<string, number> = new Map<string, number>();
+  activeBrowsers: EusTestModel[] = [];
+  activeBrowsersMap: Map<string, number> = new Map<string, number>();
   recordings: EusTestModel[] = [];
   liveSession: EusTestModel;
 
@@ -58,6 +61,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   @Input()
   eusPort: number = 8040;
 
+  // If standalone, is live
   @Input()
   standalone: boolean = true;
 
@@ -138,27 +142,26 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
         this.websocket = new WebSocket(this.eusService.getEusWsByHostAndPort(this.eusHost, this.eusPort));
       }
 
-      this.websocket.onopen = () => this.websocket.send('getSessions');
-      this.websocket.onopen = () => this.websocket.send('getRecordings');
+      this.websocket.onopen = () => {
+        if (this.standalone) {
+          this.websocket.send('getLiveSessions');
+        } else {
+          // this.websocket.send('getSessions');
+        }
+        this.websocket.send('getRecordings');
+      };
 
       this.websocket.onclose = () => this.reconnect();
 
       this.websocket.onmessage = (message) => {
         let json: any = JSON.parse(message.data);
 
-        if (json.newSession) {
-          let testModel: EusTestModel = this.getEusTestModelFromSessionJson(json.newSession);
-          let position: number;
-          if (this.testDataMap.has(testModel.hubContainerName)) {
-            position = this.testDataMap.get(testModel.hubContainerName);
-            this.testData[position] = testModel;
-          } else {
-            position = this.testData.push(testModel) - 1;
-          }
-          this.testData = Array.from(this.testData);
-
-          this.testDataMap.set(testModel.hubContainerName, position);
-        } else if (json.newLiveSession) {
+        // If new normal session and not standalone (tJob)
+        if (json.newSession && !this.standalone) {
+          this.addOrUpdateActiveBrowsers(json.newSession);
+        } else if (json.newLiveSession && this.standalone) {
+          // If live session and standalone
+          this.addOrUpdateActiveBrowsers(json.newLiveSession);
           // new live session
           this.liveSession = this.getEusTestModelFromSessionJson(json.newLiveSession);
           if (
@@ -170,23 +173,20 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
             this.liveDialog.componentInstance.testModel = this.liveSession;
           }
         } else if (json.recordedSession) {
-          let testModel: EusTestModel = new EusTestModel();
-          testModel.id = json.recordedSession.id;
-          testModel.browser = json.recordedSession.browser;
-          testModel.version = json.recordedSession.version;
-          testModel.creationTime = json.recordedSession.creationTime;
-          testModel.hubContainerName = json.recordedSession.hubContainerName;
-          this.recordings.push(testModel);
-          this.sortRecordings();
+          let testModel: EusTestModel = this.getEusTestModelFromSessionJson(json.recordedSession);
+          if (testModel.live === undefined || testModel.live === null || testModel.live) {
+            this.recordings.push(testModel);
+            this.sortRecordings();
+          }
         } else if (json.removeSession) {
           let entry: EusTestModel;
           let newTestData: EusTestModel[] = [];
-          for (entry of this.testData) {
+          for (entry of this.activeBrowsers) {
             if (entry.id !== json.removeSession.id) {
               newTestData.push(entry);
             }
           }
-          this.testData = Array.from(newTestData);
+          this.activeBrowsers = Array.from(newTestData);
         }
       };
     }
@@ -203,14 +203,29 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       testModel.hubContainerName = jsonSession.hubContainerName;
       testModel.status = jsonSession.status;
       testModel.statusMsg = jsonSession.statusMsg;
+      testModel.live = jsonSession.live;
     }
     return testModel;
+  }
+
+  addOrUpdateActiveBrowsers(sessionJson: any): void {
+    let testModel: EusTestModel = this.getEusTestModelFromSessionJson(sessionJson);
+    let position: number;
+    if (this.activeBrowsersMap.has(testModel.hubContainerName)) {
+      position = this.activeBrowsersMap.get(testModel.hubContainerName);
+      this.activeBrowsers[position] = testModel;
+    } else {
+      position = this.activeBrowsers.push(testModel) - 1;
+    }
+    this.activeBrowsers = Array.from(this.activeBrowsers);
+
+    this.activeBrowsersMap.set(testModel.hubContainerName, position);
   }
 
   reconnect(): void {
     if (!this.manuallyClosed) {
       // try to reconnect websocket in 5 seconds
-      setTimeout(function() {
+      setTimeout(() => {
         console.log('Trying to reconnect to EUS WS');
         this.startWebSocket();
       }, 5000);

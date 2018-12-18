@@ -13,6 +13,7 @@ import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbi
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { TJobService } from '../../tjob/tjob.service';
+import { ParameterModel } from '../../parameter/parameter-model';
 
 @Component({
   selector: 'etm-live-tjob-exec-manager',
@@ -22,6 +23,7 @@ import { TJobService } from '../../tjob/tjob.service';
 export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('logsAndMetrics')
   logsAndMetrics: EtmMonitoringViewComponent;
+  showLogsAndMetrics: boolean = false;
 
   elastestMode: string;
 
@@ -34,6 +36,9 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
 
   serviceInstances: EsmServiceInstanceModel[] = [];
   instancesNumber: number;
+
+  tJobExecMultiConfigs: ParameterModel[] = [];
+  tJobExecParameters: ParameterModel[] = [];
 
   statusMessage: string = '';
   statusIcon: any = {
@@ -58,17 +63,20 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
     private configurationService: ConfigurationService,
   ) {
     this.elastestMode = this.configurationService.configModel.elasTestExecMode;
+  }
+
+  ngOnInit() {
+    this.router.routeReuseStrategy.shouldReuseRoute = function() {
+      return false;
+    };
+
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe((params: Params) => {
         this.tJobId = params.tJobId;
         this.tJobExecId = params.tJobExecId;
+        this.setTitle();
       });
     }
-  }
-
-  ngOnInit() {
-    let title: string = 'Live TJob Execution' + (this.tJobExecId !== undefined ? ' ' + this.tJobExecId : '');
-    this.titlesService.setHeadTitle(title);
   }
 
   ngAfterViewInit(): void {
@@ -81,26 +89,62 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
     this.unsubscribeCheckTssInstances();
   }
 
+  setTitle(): void {
+    let title: string = 'Live TJob Execution';
+
+    if (this.tJobExec) {
+      if (this.tJobExec.isChild()) {
+        title = 'Live Configuration Execution';
+      } else if (this.tJobExec.isParent()) {
+        title = 'Live Multi-Config Execution';
+      }
+    }
+    title += this.tJobExecId !== undefined ? ' ' + this.tJobExecId : '';
+    this.titlesService.setHeadTitle(title);
+  }
+
   loadTJobExec(): void {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExec: TJobExecModel) => {
       this.tJobExec = tJobExec;
+      this.setTitle();
       this.titlesService.setPathName(this.router.routerState.snapshot.url);
       this.withSut = this.tJobExec.tJob.hasSut();
 
+      if (this.tJobExec.parameters) {
+        for (let param of this.tJobExec.parameters) {
+          let parameter: ParameterModel = new ParameterModel(param);
+          if (param.multiConfig) {
+            this.tJobExecMultiConfigs.push(parameter);
+          } else {
+            this.tJobExecParameters.push(parameter);
+          }
+        }
+      }
+
       this.tJobService.getTJob(this.tJobExec.tJob.id.toString()).subscribe((tJob: TJobModel) => {
         this.tJob = tJob;
-        if (this.tJobExec.finished()) {
-          this.navigateToResultPage();
-        } else {
+        if (!this.tJobExec.finished()) {
           this.checkResultStatus();
           this.instancesNumber = this.tJobExec.tJob.esmServicesChecked;
           if (tJobExec) {
             this.getSupportServicesInstances();
+
+            if (this.tJobExec.isChild()) {
+              this.tJobExecService.getChildTJobExecParent(this.tJobExec.id).subscribe(
+                (parent: TJobExecModel) => {
+                  this.tJobExec.execParent = parent;
+                },
+                (error: Error) => console.log(error),
+              );
+            }
           }
-          this.logsAndMetrics.initView(tJob, this.tJobExec);
-          if (!this.tJobExec.starting()) {
-            // If it's already started, get last trace(s)
-            this.logsAndMetrics.loadLastTraces();
+          if (this.logsAndMetrics) {
+            this.logsAndMetrics.initView(tJob, this.tJobExec);
+            this.showLogsAndMetrics = true;
+            if (!this.tJobExec.starting()) {
+              // If it's already started, get last trace(s)
+              this.logsAndMetrics.loadLastTraces();
+            }
           }
         }
       });
@@ -139,7 +183,7 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
     let timer: Observable<number> = Observable.interval(1800);
     if (this.checkResultSubscription === null || this.checkResultSubscription === undefined) {
       this.checkResultSubscription = timer.subscribe(() => {
-        this.tJobExecService.getResultStatus(this.tJob, this.tJobExec).subscribe(
+        this.tJobExecService.getResultStatusByTJob(this.tJob, this.tJobExec).subscribe(
           (data) => {
             this.tJobExec.result = data.result;
             this.tJobExec.resultMsg = data.msg;
@@ -150,7 +194,6 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
                 .subscribe((finishedTJobExec: TJobExecModel) => {
                   this.tJobExec = finishedTJobExec;
                   this.statusIcon = this.tJobExec.getResultIcon();
-                  this.navigateToResultPage();
                 });
               this.popupService.openSnackBar(
                 'TJob Execution ' + this.tJobExec.id + ' finished with status ' + this.tJobExec.result,
@@ -179,7 +222,8 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
     this.tJobExecService.stopTJobExecution(this.tJob, this.tJobExec).subscribe(
       (tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
-        let msg: string = 'The execution has been stopped';
+        let id: string = this.tJobExec !== undefined && this.tJobExec !== null ? this.tJobExec.id + ' ' : '';
+        let msg: string = 'The execution ' + id + 'has been stopped';
         if (!this.tJobExec.stopped()) {
           msg = 'The execution has finished before stopping it';
         }

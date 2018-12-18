@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.config.EtSampleDataLoader;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.service.ProjectService;
@@ -22,34 +23,46 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 public class ProjectApiController implements ProjectApi {
-	private static final Logger logger = LoggerFactory.getLogger(ProjectApiController.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(ProjectApiController.class);
 
-	@Autowired
-	ProjectService projectService;
+    @Autowired
+    ProjectService projectService;
 
-	public ResponseEntity<Project> createProject(
-			@ApiParam(value = "Object with the data of the project to be created.", required = true) @Valid @RequestBody Project body) {		
+    @Autowired
+    EtSampleDataLoader etSampleDataLoader;
 
-		return new ResponseEntity<Project>(projectService.createProject(body), HttpStatus.OK);
-	}
+    public ResponseEntity<Project> createProject(
+            @ApiParam(value = "Object with the data of the project to be created.", required = true) @Valid @RequestBody Project body) {
 
-	@JsonView(BasicAttProject.class)
-	public ResponseEntity<List<Project>> getAllProjects() {
+        return new ResponseEntity<Project>(projectService.saveProject(body),
+                HttpStatus.OK);
+    }
 
-		return new ResponseEntity<List<Project>>(projectService.getAllProjects(), HttpStatus.OK);
-	}
+    @JsonView(BasicAttProject.class)
+    public ResponseEntity<List<Project>> getAllProjects() {
 
-	@JsonView(BasicAttProject.class)
-	public ResponseEntity<Project> getProject(@PathVariable("id") Long id) {
+        return new ResponseEntity<List<Project>>(
+                projectService.getAllProjects(), HttpStatus.OK);
+    }
 
-		return new ResponseEntity<Project>(projectService.getProjectById(id), HttpStatus.OK);
-	}
+    @JsonView(BasicAttProject.class)
+    public ResponseEntity<Project> getProject(@PathVariable("id") Long id) {
 
-	@JsonView(BasicAttProject.class)
-	public ResponseEntity<Long> deleteProject(
-			@ApiParam(value = "ID of Project to delete.", required = true) @PathVariable("id") Long id) {
-		projectService.deleteProject(id);
-		return new ResponseEntity<Long>(id, HttpStatus.OK);
-	}
+        return new ResponseEntity<Project>(projectService.getProjectById(id),
+                HttpStatus.OK);
+    }
 
+    @JsonView(BasicAttProject.class)
+    public ResponseEntity<Long> deleteProject(
+            @ApiParam(value = "ID of Project to delete.", required = true) @PathVariable("id") Long id) {
+        projectService.deleteProject(id);
+        return new ResponseEntity<Long>(id, HttpStatus.OK);
+    }
+
+    @JsonView(BasicAttProject.class)
+    public ResponseEntity<Boolean> restoreDemoProjects() {
+        Boolean createdOrUpdated = etSampleDataLoader.createData(true);
+        return new ResponseEntity<Boolean>(createdOrUpdated , HttpStatus.OK);
+    }
 }

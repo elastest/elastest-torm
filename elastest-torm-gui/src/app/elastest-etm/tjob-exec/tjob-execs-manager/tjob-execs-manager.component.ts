@@ -32,6 +32,7 @@ export class TJobExecsManagerComponent implements OnInit {
     { name: 'id', label: 'Id' },
     { name: 'tJob.name', label: 'TJob' },
     { name: 'result', label: 'Result' },
+    { name: 'duration', label: 'Duration(sec)' },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
     { name: 'options', label: 'Options' },
@@ -58,7 +59,7 @@ export class TJobExecsManagerComponent implements OnInit {
     this.loading = true;
     this.refreshText = refreshText;
 
-    this.tJobExecService.getAllRunningTJobExecutions().subscribe(
+    this.tJobExecService.getAllRunningTJobExecutionsWithoutChilds().subscribe(
       (runningTJobExecs: TJobExecModel[]) => {
         this.tJobExecsFinished = [];
         this.tJobExecsRunning = [];
@@ -94,7 +95,7 @@ export class TJobExecsManagerComponent implements OnInit {
       return this.tJobExecService.getAllFinishedOrNotExecutedTJobExecutions();
     } else {
       // Default
-      return this.tJobExecService.getLastNFinishedOrNotExecutedTJobExecutions(15);
+      return this.tJobExecService.getLastNFinishedOrNotExecutedTJobExecutionsWithoutChilds(15);
     }
   }
 

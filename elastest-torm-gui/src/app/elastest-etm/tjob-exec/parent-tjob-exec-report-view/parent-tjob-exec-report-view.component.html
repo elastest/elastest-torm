@@ -1,0 +1,142 @@
+<div layout="column" tdMediaToggle="gt-xs" *ngIf="model && model.isMultiConfig()">
+  <!-- EXECS TABLE -->
+  <div>
+    <md-card tdMediaToggle="gt-xs" *ngIf="uniqueConfigExecTableRows.length > 0 || twoConfigExecTableRows.length > 0">
+      <md-card-title>
+        Configurations Executions Table
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content>
+
+        <div class="push-bottom-lg" *ngIf="uniqueConfigExecTableRows.length > 0">
+          <td-data-table class="scroll_table" [columns]="uniqueConfigExecTableColumns" [data]="uniqueConfigExecTableRows">
+            <ng-template *ngFor="let column of uniqueConfigExecTableColumns" tdDataTableTemplate="{{column.name}}"
+              let-value="value" let-row="row">
+              <div *ngIf="column.name !== 'col1'; else printName">
+                <button md-button [style.color]="getResultIconByString(value.result).color" (click)="navigateToChild(value)"
+                  class="hover-pointer fontBold">{{value.result}}</button>
+              </div>
+              <ng-template #printName>
+                <div class="td-data-table-column fontBold">
+                  {{value}}
+                </div>
+              </ng-template>
+            </ng-template>
+          </td-data-table>
+        </div>
+
+        <div class="push-bottom-lg" *ngIf="twoConfigExecTableRows.length > 0">
+          <td-data-table class="scroll_table" [columns]="twoConfigExecTableColumns" [data]="twoConfigExecTableRows">
+            <ng-template *ngFor="let column of twoConfigExecTableColumns" tdDataTableTemplate="{{column.name}}"
+              let-value="value" let-row="row">
+              <!-- Value is a child TJobExec -->
+              <div *ngIf="column.name !== 'col1'; else printName">
+                <button md-button [style.color]="getResultIconByString(value.result).color" (click)="navigateToChild(value)"
+                  class="hover-pointer fontBold">{{value.result}}</button>
+              </div>
+              <ng-template #printName>
+                <div class="td-data-table-column fontBold">
+                  {{value}}
+                </div>
+              </ng-template>
+            </ng-template>
+          </td-data-table>
+        </div>
+
+      </md-card-content>
+    </md-card>
+  </div>
+
+  <!-- TEST TABLE -->
+  <div>
+    <md-card tdMediaToggle="gt-xs" *ngIf="uniqueConfigRows.length > 0 || config1Config2Rows.length > 0 || config2Config1Rows.length > 0 || configNRows.length > 0">
+      <md-card-title>
+        Tests Table
+      </md-card-title>
+      <md-divider></md-divider>
+      <md-card-content>
+
+        <div class="push-bottom-lg" *ngIf="uniqueConfigRows.length > 0">
+          <td-data-table class="scroll_table" [columns]="uniqueConfigColumns" [data]="uniqueConfigRows">
+            <ng-template *ngFor="let column of uniqueConfigColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+              let-row="row">
+              <!-- Value is a Test Case of a child TJobExec -->
+              <div *ngIf="column.name !== 'caseName'; else printName">
+                <button md-button [style.color]="getResultIconByString(value.getResult()).color" (click)="navigateToTestCase(value)"
+                  class="hover-pointer fontBold">{{value.getResult()}}</button>
+              </div>
+              <ng-template #printName>
+                <div class="td-data-table-column fontBold">
+                  {{value}}
+                </div>
+              </ng-template>
+            </ng-template>
+          </td-data-table>
+        </div>
+
+        <ng-container #twoConfigs>
+          <button md-raised-button color="accent" *ngIf="config1Config2Rows.length > 0 && config2Config1Rows.length > 0"
+            (click)="switchInvertAxis()" class="push-bottom">Invert
+            Axis</button>
+
+          <div class="
+              push-bottom-lg" *ngIf="config1Config2Rows.length > 0 && !invertAxis">
+            <td-data-table class="scroll_table columnNamePreLine" [columns]="config1Config2Columns" [data]="config1Config2Rows">
+              <ng-template *ngFor="let column of config1Config2Columns" tdDataTableTemplate="{{column.name}}" let-value="value"
+                let-row="row">
+                <!-- Value is a Test Case of a child TJobExec -->
+                <div *ngIf="column.name !== 'caseName'; else printName">
+                  <button md-button [style.color]="getResultIconByString(value.getResult()).color" (click)="navigateToTestCase(value)"
+                    class="hover-pointer fontBold">{{value.getResult()}}</button>
+                </div>
+                <ng-template #printName>
+                  <div class="td-data-table-column fontBold">
+                    {{value}}
+                  </div>
+                </ng-template>
+              </ng-template>
+            </td-data-table>
+          </div>
+
+          <div class="push-bottom-lg" *ngIf="config2Config1Rows.length > 0 && invertAxis">
+            <td-data-table class="scroll_table columnNamePreLine" [columns]="config2Config1Columns" [data]="config2Config1Rows">
+              <ng-template *ngFor="let column of config2Config1Columns" tdDataTableTemplate="{{column.name}}" let-value="value"
+                let-row="row">
+                <!-- Value is a Test Case of a child TJobExec -->
+                <div *ngIf="column.name !== 'caseName'; else printName">
+                  <button md-button [style.color]="getResultIconByString(value.getResult()).color" (click)="navigateToTestCase(value)"
+                    class="hover-pointer fontBold">{{value.getResult()}}</button>
+                </div>
+                <ng-template #printName>
+                  <div class="td-data-table-column fontBold">
+                    {{value}}
+                  </div>
+                </ng-template>
+              </ng-template>
+            </td-data-table>
+          </div>
+
+
+          <div class="push-bottom-lg" *ngIf="configNRows.length > 0">
+            <td-data-table class="scroll_table columnNamePreLine" [columns]="configNColumns" [data]="configNRows">
+              <ng-template *ngFor="let column of configNColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+                let-row="row">
+                <!-- Value is a Test Case of a child TJobExec -->
+                <div *ngIf="column.name !== 'caseName'; else printName">
+                  <button md-button [style.color]="getResultIconByString(value.getResult()).color" (click)="navigateToTestCase(value)"
+                    class="hover-pointer fontBold">{{value.getResult()}}</button>
+                </div>
+                <ng-template #printName>
+                  <div class="td-data-table-column fontBold">
+                    {{value}}
+                  </div>
+                </ng-template>
+              </ng-template>
+            </td-data-table>
+          </div>
+        </ng-container>
+      </md-card-content>
+    </md-card>
+  </div>
+
+</div>

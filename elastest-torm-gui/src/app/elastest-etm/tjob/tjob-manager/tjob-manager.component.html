@@ -1,83 +1,93 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        TJob {{tJob.name}}
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
-        <div layout="row">
-          <span flex-gt-xs="25">
-            <md-card-subtitle>Name</md-card-subtitle>
-            <h4>{{tJob.name}}</h4>
-          </span>
-          <span flex-gt-xs="25">
-            <md-card-subtitle>Image Name</md-card-subtitle>
-            <h4>{{tJob.imageName}}</h4>
-          </span>
-          <span flex-gt-xs="25" *ngIf="!tJob.hasSut()">
-            <md-card-subtitle>Sut</md-card-subtitle>
-            <h4>None</h4>
-          </span>
-          <span flex-gt-xs="25" *ngIf="tJob.hasSut()">
-            <button md-button (click)="editSut()" class="onlyIconBtn" title="Edit SuT">
-              <div layout="row">
-                <md-card-subtitle style="line-height: initial; padding-right: 8px;">Sut</md-card-subtitle>
-                <md-icon style="font-size: 18px;">mode_edit</md-icon>
+<auto-height-grid>
+
+  <normal-height-row>
+    <div flex-gt-sm="100">
+      <md-card tdMediaToggle="gt-xs">
+        <md-card-title>
+          <span *ngIf="tJob && tJob.multi">Multi-Configuration</span>
+          <span>TJob</span>
+          <span *ngIf="tJob && tJob.name">"{{tJob.name}}"</span>
+        </md-card-title>
+        <md-divider></md-divider>
+        <md-card-content>
+          <div layout="row">
+            <span flex-gt-xs="20">
+              <md-card-subtitle>Name</md-card-subtitle>
+              <h4>{{tJob.name}}</h4>
+            </span>
+            <span flex-gt-xs="20">
+              <md-card-subtitle>Image Name</md-card-subtitle>
+              <h4>{{tJob.imageName}}</h4>
+            </span>
+            <span flex-gt-xs="20" *ngIf="!tJob.hasSut()">
+              <md-card-subtitle>Sut</md-card-subtitle>
+              <h4>None</h4>
+            </span>
+            <span flex-gt-xs="20" *ngIf="tJob.hasSut()">
+              <button md-button (click)="editSut()" class="onlyIconBtn" title="Edit SuT">
+                <div layout="row">
+                  <md-card-subtitle style="line-height: initial; padding-right: 8px;">Sut</md-card-subtitle>
+                  <md-icon style="font-size: 18px;">mode_edit</md-icon>
+                </div>
+              </button>
+              <h4 style="margin-top: 0;">{{tJob.sut.name}}</h4>
+            </span>
+
+            <span flex-gt-xs="20" *ngIf="!tJob.hasSut()">
+              <md-card-subtitle>Is Multi Axis</md-card-subtitle>
+              <h4>{{tJob.multi}}</h4>
+            </span>
+
+            <span flex-gt-xs="25">
+              <md-card-subtitle>Options</md-card-subtitle>
+              <div class="optionsColumn" layout="column" layout-gt-xs="row">
+                <button md-button *ngIf="!tJob.external" (click)="runTJob()" class="iconBtn-lg" title="Run TJob">
+                  <md-icon>play_circle_outline</md-icon>
+                </button>
+                <button md-button *ngIf="!tJob.external || tJob.getExternalEditPage() !== undefined" (click)="editTJob()"
+                  class="iconBtn-lg" title="Edit TJob">
+                  <md-icon>mode_edit</md-icon>
+                </button>
+                <button md-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
+                  <md-icon>delete</md-icon>
+                </button>
               </div>
-            </button>
-            <h4 style="margin-top: 0;">{{tJob.sut.name}}</h4>
-          </span>
-          <span flex-gt-xs="25">
-            <md-card-subtitle>Options</md-card-subtitle>
-            <div class="optionsColumn" layout="column" layout-gt-xs="row">
-              <button md-button *ngIf="!tJob.external" (click)="runTJob()" class="iconBtn-lg" title="Run TJob">
-                <md-icon>play_circle_outline</md-icon>
-              </button>
-              <button md-button *ngIf="!tJob.external || tJob.getExternalEditPage() !== undefined" (click)="editTJob()" class="iconBtn-lg"
-                title="Edit TJob">
-                <md-icon>mode_edit</md-icon>
-              </button>
-              <button md-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
-                <md-icon>delete</md-icon>
-              </button>
-            </div>
-          </span>
-        </div>
-
-        <td-expansion-panel label="Parameters" expand="false" *ngIf="tJob.parameters.length > 0">
-          <td-data-table [data]="tJob.parameters"></td-data-table>
-        </td-expansion-panel>
-        <td-expansion-panel label="Commands" expand="false" *ngIf="tJob.withCommands()">
-          <div class="pad">
-            <ul>
-              <li *ngFor="let command of tJob.arrayCommands()">
-                {{command}}
-              </li>
-            </ul>
+            </span>
           </div>
-        </td-expansion-panel>
-      </md-card-content>
-    </md-card>
-  </div>
-</div>
 
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
+          <td-expansion-panel label="Parameters" expand="false" *ngIf="tJob.parameters.length > 0">
+            <td-data-table [data]="tJob.parameters"></td-data-table>
+          </td-expansion-panel>
+          <td-expansion-panel label="Commands" expand="false" *ngIf="tJob.withCommands()">
+            <div class="pad">
+              <ul>
+                <li *ngFor="let command of tJob.arrayCommands()">
+                  {{command}}
+                </li>
+              </ul>
+            </div>
+          </td-expansion-panel>
+        </md-card-content>
+      </md-card>
+    </div>
+  </normal-height-row>
+
+  <auto-height-row>
+    <self-adjustable-card tdMediaToggle="gt-xs">
+      <sa-card-title>
         Executions
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-      <div *ngIf="!showSpinner && tJobExecData.length === 0" class="push-top-sm messageEmptyCard">
-        <md-icon>assignment</md-icon>
-        <p>No Executions generated</p>
-      </div>
-      <md-card-content>
-        <td-data-table #tjobsTable *ngIf="tJobExecData && tJobExecData.length > 0" class="scroll_table" [data]="tJobExecData" [columns]="tJobExecColumns"
-          [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-          <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+      </sa-card-title>
+      <sa-card-content>
+        <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+        <centered-element *ngIf="!showSpinner && tJobExecData.length === 0" class="push-top-sm messageEmptyCard">
+          <md-icon>assignment</md-icon>
+          <p>No Executions generated</p>
+        </centered-element>
+        <td-data-table #tjobsTable *ngIf="tJobExecData && tJobExecData.length > 0" class="useMaxHeight" [data]="tJobExecData"
+          [columns]="tJobExecColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy"
+          [sortOrder]="sortOrder">
+          <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+            let-row="row">
             <div *ngIf="column.name !== 'options' && column.name !== 'startDate' && column.name !== 'endDate' && column.name !== 'lastExecutionDate'"
               (click)="viewTJobExec(row)" class="hover-pointer">
               <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
@@ -117,7 +127,8 @@
             </div>
           </ng-template>
         </td-data-table>
-      </md-card-content>
-    </md-card>
-  </div>
-</div>
+      </sa-card-content>
+    </self-adjustable-card>
+  </auto-height-row>
+
+</auto-height-grid>

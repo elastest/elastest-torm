@@ -7,17 +7,26 @@ import { Component, Input, OnInit } from '@angular/core';
   styleUrls: ['./parameters-view.component.scss'],
 })
 export class ParametersViewComponent implements OnInit {
-  @Input() public model: ParameterModel[];
+  @Input()
+  public model: ParameterModel[];
+
+  public updateInProgress: boolean = false;
 
   constructor() {}
 
   ngOnInit() {}
 
-  addParameter(): void {
-    this.model.push(new ParameterModel());
+  addParameter(parameter: ParameterModel = new ParameterModel()): void {
+    this.model.push(parameter);
   }
 
   deleteParameter(position: number): void {
     this.model.splice(position, 1);
+  }
+
+  updateModel(newModel: ParameterModel[]): void {
+    this.updateInProgress = true;
+    this.model = newModel;
+    this.updateInProgress = false;
   }
 }

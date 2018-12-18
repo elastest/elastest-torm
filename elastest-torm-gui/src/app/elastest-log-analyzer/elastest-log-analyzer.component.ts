@@ -56,19 +56,31 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     },*/
   };
 
-  @Input() tJobId: number;
-  @Input() tJobExecId: number;
-  @Input() testCase: string;
-  @Input() isEmbed: boolean = false;
-  @Input() componentStreams: any;
-  @Input() exTJob: number;
-  @Input() exTJobExec: number;
-  @Input() exTestCase: number;
-  @Input() exTestExec: number;
+  @Input()
+  tJobId: number;
+  @Input()
+  tJobExecId: number;
+  @Input()
+  testCase: string;
+  @Input()
+  isEmbed: boolean = false;
+  @Input()
+  componentStreams: any;
+  @Input()
+  exTJob: number;
+  @Input()
+  exTJobExec: number;
+  @Input()
+  exTestCase: number;
+  @Input()
+  exTestExec: number;
 
-  @ViewChild('fromDate') fromDate: ElementRef;
-  @ViewChild('toDate') toDate: ElementRef;
-  @ViewChild('mark') mark: MarkComponent;
+  @ViewChild('fromDate')
+  fromDate: ElementRef;
+  @ViewChild('toDate')
+  toDate: ElementRef;
+  @ViewChild('mark')
+  mark: MarkComponent;
 
   // Buttons
   public showLoadMore: boolean = false;
@@ -78,8 +90,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   disableBtns: boolean = false;
 
   // Filters
-  @ViewChild('componentsTree') componentsTree: TreeComponent;
-  @ViewChild('levelsTree') levelsTree: TreeComponent;
+  @ViewChild('componentsTree')
+  componentsTree: TreeComponent;
+  @ViewChild('levelsTree')
+  levelsTree: TreeComponent;
 
   // TestCase
   withTestCase: boolean = false;
@@ -182,6 +196,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     } else {
       this.gridApi.sizeColumnsToFit(); // State is saved automatically
     }
+    this.toggleRowHeight();
   }
 
   initLogAnalyzerQueryModel(): void {
@@ -253,7 +268,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       this.logAnalyzerQueryModel.levels = levels;
     }
 
-    // TODO fix levels
+    // TODO fix levels for experimental (in mini works fine)
   }
 
   setMatch(msg: string = this.logAnalyzer.messageFilter): void {
@@ -515,8 +530,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
 
-  toggleRowHeight(): void {
-    if (!this.autoRowHeight) {
+  toggleRowHeight(checked: boolean = this.autoRowHeight): void {
+    this.autoRowHeight = checked;
+    if (this.autoRowHeight) {
       let messageColumn: any = this.gridOptions.columnApi.getAllDisplayedColumns().filter((column: Column) => {
         return column.getColId() === 'message';
       })[0];

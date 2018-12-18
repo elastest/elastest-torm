@@ -21,6 +21,8 @@ import { ESRabLogModel } from '../logs-view/models/es-rab-log-model';
 import { MetricsDataType } from '../metrics-view/models/et-res-metrics-model';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { LogAnalyzerQueryModel } from '../loganalyzer-query.model';
+import { AbstractTJobExecModel } from '../../elastest-etm/models/abstract-tjob-exec-model';
+import { MonitorMarkModel } from '../../elastest-etm/etm-monitoring-view/monitor-mark.model';
 @Injectable()
 export class MonitoringService {
   etmApiUrl: string;
@@ -62,7 +64,6 @@ export class MonitoringService {
     let url: string = this.etmApiUrl + '/monitoring/log/tree';
     return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
   }
-
 
   public searchLogsLevelsTree(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/tree/levels';
@@ -193,9 +194,15 @@ export class MonitoringService {
     return logs;
   }
 
-  getLogsTree(tJobExec: TJobExecModel): Observable<any[]> {
+  getLogsTree(tJobExec: AbstractTJobExecModel): Observable<any[]> {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
-    query.indices = tJobExec.monitoringIndex.split(',');
+    let enableParentBehaviour: boolean = false;
+    if (tJobExec instanceof TJobExecModel && tJobExec.isParent() && enableParentBehaviour) {
+      query.indices = tJobExec.getChildsMonitoringIndices().split(',');
+    } else {
+      query.indices = tJobExec.getMonitoringIndexAsList();
+    }
+
     query.selectedTerms.push('component', 'stream');
 
     return this.searchLogsTree(query);
@@ -272,9 +279,13 @@ export class MonitoringService {
     return metrics;
   }
 
-  getMetricsTree(tJobExec: TJobExecModel): Observable<any[]> {
+  getMetricsTree(tJobExec: AbstractTJobExecModel): Observable<any[]> {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
-    query.indices = tJobExec.monitoringIndex.split(',');
+    if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
+      query.indices = tJobExec.getChildsMonitoringIndices().split(',');
+    } else {
+      query.indices = tJobExec.getMonitoringIndexAsList();
+    }
     query.selectedTerms.push('component', 'stream', 'et_type');
 
     return this.searchMetricsTree(query);
@@ -286,36 +297,84 @@ export class MonitoringService {
 
   convertToMetricTraces(data: any[], metricsField: MetricsFieldModel): LineChartMetricModel[] {
     let tracesList: LineChartMetricModel[];
-    if (metricsField.component === undefined || metricsField.component === '') {
+    let position: number = undefined;
+    let parsedMetric: any;
+
+    if (metricsField.componentIsEmpty()) {
       tracesList = this.getInitMetricsData();
-
-      let position: number = undefined;
-      let parsedMetric: any;
-      for (let metricTrace of data) {
-        let source: any = metricTrace._source;
-        if (source === undefined || source === null) {
-          source = metricTrace;
-        }
-
-        parsedMetric = this.convertToMetricTrace(source, metricsField);
-        position = this.getMetricPosition(source.component);
-        if (position !== undefined && parsedMetric !== undefined) {
-          tracesList[position].series.push(parsedMetric);
-        }
-      }
     } else {
       tracesList = this.getInitMetricsDataComplex(metricsField);
-      let parsedMetric: any;
-      let position: number = undefined;
-      for (let metricTrace of data) {
-        let source: any = metricTrace._source;
-        if (source === undefined || source === null) {
-          source = metricTrace;
+    }
+
+    let marks: MonitorMarkModel[];
+    for (let metricTrace of data) {
+      let source: any = metricTrace._source;
+      if (source === undefined || source === null) {
+        source = metricTrace;
+      }
+
+      if (
+        metricsField.tJobExec &&
+        metricsField.tJobExec.isChild() &&
+        source.exec &&
+        metricsField.tJobExec.getMonitoringIndexAsList().indexOf(source.exec) === -1
+      ) {
+        // ignore
+      } else {
+        let validTrace: boolean = true;
+
+        // if active View
+        if (source['@timestamp'] && metricsField.tJobExec && metricsField.activeView) {
+          if (metricsField.tJobExec.hasMonitoringMarks()) {
+            let sourceDate: Date = new Date(source['@timestamp']);
+            if (!marks) {
+              marks = metricsField.tJobExec.getMonitoringMarksById(metricsField.activeView);
+            }
+            let timeDifference: number;
+            let currentValid: boolean = false;
+            let markPos: number = 0;
+            let selectedMarkPos: number = 0;
+            for (let mark of marks) {
+              if (!mark) {
+                currentValid = false;
+              }
+
+              let currentTimeDifference: number = Math.abs(mark.timestamp.getTime() - sourceDate.getTime());
+              let sameTime: boolean = currentTimeDifference < 1000;
+
+              if (sameTime) {
+                currentValid = true;
+                if (!timeDifference || (timeDifference && currentTimeDifference <= timeDifference)) {
+                  source.monitorMarkValue = mark.value;
+                  timeDifference = currentTimeDifference;
+                  selectedMarkPos = markPos;
+                }
+              } else {
+                currentValid = false || currentValid;
+              }
+              markPos++;
+            }
+            validTrace = currentValid;
+            if (validTrace) {
+              // Remove mark to avoid duplicates
+              marks.splice(selectedMarkPos, 1);
+            }
+          } else {
+            validTrace = false;
+          }
         }
-        parsedMetric = this.convertToMetricTrace(source, metricsField);
-        position = 0;
-        if (position !== undefined && parsedMetric !== undefined) {
-          tracesList[position].series.push(parsedMetric);
+
+        if (validTrace) {
+          parsedMetric = this.convertToMetricTrace(source, metricsField);
+
+          if (metricsField.componentIsEmpty()) {
+            position = this.getMetricPosition(source.component);
+          } else {
+            position = 0;
+          }
+          if (position !== undefined && parsedMetric !== undefined) {
+            tracesList[position].series.push(parsedMetric);
+          }
         }
       }
     }
@@ -355,7 +414,7 @@ export class MonitoringService {
   convertToGenericMetricsData(trace: any, metricsField: MetricsFieldModel): SingleMetricModel {
     let parsedData: SingleMetricModel = undefined;
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z' && trace[trace['et_type']]) {
-      parsedData = this.getBasicSingleMetric(trace);
+      parsedData = this.getBasicSingleMetric(trace, metricsField);
       if (metricsField.streamType === 'atomic_metric') {
         parsedData.value = trace[trace['et_type']];
       } else {
@@ -370,7 +429,7 @@ export class MonitoringService {
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
       switch (metricsField.subtype) {
         case 'totalUsage':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.cpu.totalUsage * 100;
           break;
         default:
@@ -388,16 +447,16 @@ export class MonitoringService {
         case 'usage':
           let perMemoryUsage: number = (trace.memory.usage * 100) / trace.memory.limit;
           if (perMemoryUsage >= 0) {
-            parsedData = this.getBasicSingleMetric(trace);
+            parsedData = this.getBasicSingleMetric(trace, metricsField);
             parsedData.value = perMemoryUsage;
           }
           break;
         case 'limit':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.memory.limit;
           break;
         case 'maxUsage':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.memory.maxUsage;
           break;
         default:
@@ -415,15 +474,15 @@ export class MonitoringService {
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
       switch (metricsField.subtype) {
         case 'read_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.blkio.read_ps;
           break;
         case 'write_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.blkio.write_ps;
           break;
         case 'total_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.blkio.total_ps;
           break;
         default:
@@ -437,27 +496,27 @@ export class MonitoringService {
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
       switch (metricsField.subtype) {
         case 'rxBytes_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.rxBytes_ps;
           break;
         case 'rxErrors_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.rxErrors_ps;
           break;
         case 'rxPackets_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.rxPackets_ps;
           break;
         case 'txBytes_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.txBytes_ps;
           break;
         case 'txErrors_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.txErrors_ps;
           break;
         case 'txPackets_ps':
-          parsedData = this.getBasicSingleMetric(trace);
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.txPackets_ps;
           break;
         default:
@@ -479,14 +538,14 @@ export class MonitoringService {
         switch (typeArr[1]) {
           case 'cpu':
             if (subtypeValueObj && subtypeValueObj.pct !== undefined) {
-              parsedData = this.getBasicSingleMetric(trace);
+              parsedData = this.getBasicSingleMetric(trace, metricsField);
               parsedData.value = subtypeValueObj.pct;
             }
             break;
           case 'memory':
             // case 'network':
             if (subtypeValueObj && subtypeValueObj.pct !== undefined) {
-              parsedData = this.getBasicSingleMetric(trace);
+              parsedData = this.getBasicSingleMetric(trace, metricsField);
               parsedData.value = subtypeValueObj.pct;
             } else {
               let nestedSubtype: string[] = metricsField.subtype.split('_');
@@ -494,7 +553,7 @@ export class MonitoringService {
                 let nestedSubtypeObj: any = trace[trace['et_type']][nestedSubtype[0]]; // system_memory :{ USED: { pct: xxxx, bytes: xxxx }}
                 let nestedSubtypeValueObj: any = nestedSubtypeObj[nestedSubtype[1]]; // system_memory :{ used: { PCT: xxxx }}
                 if (nestedSubtypeObj && nestedSubtypeValueObj !== undefined) {
-                  parsedData = this.getBasicSingleMetric(trace);
+                  parsedData = this.getBasicSingleMetric(trace, metricsField);
                   parsedData.value = nestedSubtypeValueObj;
                 }
               }
@@ -512,7 +571,7 @@ export class MonitoringService {
   //     let parsedData: SingleMetricModel = undefined;
   //     switch (metricsField.subtype) {
   //         case 'cpu':
-  //             parsedData = this.getBasicSingleMetric(trace);
+  //             parsedData = this.getBasicSingleMetric(trace,metricsField);
   //             parsedData.value = trace.cpu.totalUsage * 100;
   //             break;
   //         default:
@@ -525,9 +584,23 @@ export class MonitoringService {
   /***** Common metric functions *****/
   /***********************************/
 
-  getBasicSingleMetric(trace: any): SingleMetricModel {
+  getBasicSingleMetric(trace: any, metricsField: MetricsFieldModel): SingleMetricModel {
     let parsedData: SingleMetricModel = new SingleMetricModel();
-    parsedData.name = new Date('' + trace['@timestamp']);
+    let timestampDate: Date = new Date('' + trace['@timestamp']);
+    parsedData.name = timestampDate;
+
+    // Multi tJobExec child
+    if (metricsField && metricsField.tJobExec && metricsField.tJobExec.isChild()) {
+      let newDateInMillis: number = timestampDate.getTime() - metricsField.tJobExec.startDate.getTime();
+      parsedData.name = new Date(newDateInMillis);
+    }
+
+    // If active View
+    // Note: monitorMarkValue set to trace in convertToMetricTrace()
+    if (trace.monitorMarkValue) {
+      parsedData.name = trace.monitorMarkValue;
+    }
+
     parsedData.timestamp = trace['@timestamp'];
     return parsedData;
   }
@@ -587,7 +660,13 @@ export class MonitoringService {
     return terms;
   }
 
-  searchAllDynamic(index: string, stream: string, component: string, metricName?: string): Observable<any> {
+  searchAllDynamic(
+    index: string,
+    stream: string,
+    component: string,
+    metricName?: string,
+    tJobExec?: AbstractTJobExecModel,
+  ): Observable<any> {
     let _obs: Subject<any> = new Subject<any>();
     let obs: Observable<any> = _obs.asObservable();
 
@@ -618,7 +697,9 @@ export class MonitoringService {
           component: component,
           stream: stream,
           monitoringIndex: index,
+          tJobExec: tJobExec as TJobExecModel,
         };
+
         if (this.isLogTrace(firstSource)) {
           this.addDynamicLog(_obs, obj, data);
         } else if (this.isMetricsTrace(firstSource)) {
@@ -677,23 +758,51 @@ export class MonitoringService {
       unit = this.allMetricsFields.getDefaultUnitByTypeAndSubtype(obj.etType, metricName);
     }
 
-    let metricsField: MetricsFieldModel = new MetricsFieldModel(
-      firstSource['et_type'],
-      metricName,
-      unit,
-      obj.component,
-      obj.stream,
-      streamType,
-      true,
-    );
-    let metricsTraces: LineChartMetricModel[] = this.convertToMetricTraces(data, metricsField);
+    let metricsTraces: LineChartMetricModel[] = [];
+    obj['metricFieldModels'] = [];
+
+    // If is Multi TJobExec Parent
+    if (obj.tJobExec !== undefined && obj.tJobExec.isParent() && obj.tJobExec.hasChilds()) {
+      for (let child of obj.tJobExec.execChilds) {
+        child.activeView = obj.tJobExec.activeView;
+        let metricsField: MetricsFieldModel = new MetricsFieldModel(
+          firstSource['et_type'],
+          metricName,
+          unit,
+          obj.component,
+          obj.stream,
+          streamType,
+          true,
+          child,
+        );
+        metricsTraces = metricsTraces.concat(this.convertToMetricTraces(data, metricsField));
+        obj['metricFieldModels'].push(metricsField);
+      }
+    } else {
+      // Normal
+      let metricsField: MetricsFieldModel = new MetricsFieldModel(
+        firstSource['et_type'],
+        metricName,
+        unit,
+        obj.component,
+        obj.stream,
+        streamType,
+        true,
+      );
+      metricsTraces = this.convertToMetricTraces(data, metricsField);
+      obj['metricFieldModels'].push(metricsField);
+    }
 
     obj.data = metricsTraces;
     obj.streamType = streamType;
-    obj['metricFieldModel'] = metricsField;
 
     obj.unit = unit;
-    if (metricsTraces[0].series.length > 0) {
+
+    let nonEmpty: boolean = false;
+    for (let metricsTrace of metricsTraces) {
+      nonEmpty = nonEmpty || metricsTrace.series.length > 0;
+    }
+    if (nonEmpty) {
       // If chart is not empty, add it
       _obs.next(obj);
     } else {

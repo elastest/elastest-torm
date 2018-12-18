@@ -69,8 +69,9 @@
           </md-tab>
           <div *ngIf="miniLogAnalyzer">
             <md-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes" label="{{component.name}}">
-              <elastest-log-analyzer *ngIf="exTestCase && exTestExec" [isEmbed]="true" [componentStreams]="[component]" [exTJob]="exTestCase.exTJob.id"
-                [exTJobExec]="exTestExec.exTJobExec.id" [exTestCase]="exTestCase.name" [exTestExec]="exTestExec.id"></elastest-log-analyzer>
+              <elastest-log-analyzer *ngIf="exTestCase && exTestExec" [isEmbed]="true" [componentStreams]="[component]"
+                [exTJob]="exTestCase.exTJob.id" [exTJobExec]="exTestExec.exTJobExec.id" [exTestCase]="exTestCase.name"
+                [exTestExec]="exTestExec.id"></elastest-log-analyzer>
             </md-tab>
           </div>
 
@@ -87,10 +88,10 @@
                 </a>
               </div>
             </div>
-            <div *ngIf="files && files.length === 0" class="push-top-important messageEmptyCard">
+            <centered-element *ngIf="files && files.length === 0" class="push-top-important messageEmptyCard">
               <md-icon>assignment</md-icon>
               <p>No Files found</p>
-            </div>
+            </centered-element>
           </md-tab>
           <md-tab *ngFor="let file of getMP4Files()">
             <ng-template md-tab-label>

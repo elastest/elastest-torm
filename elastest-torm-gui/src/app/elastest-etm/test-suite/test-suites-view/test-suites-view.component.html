@@ -49,9 +49,10 @@
           <div layout="column" class="pad-top-sm pad-left-sm">
             <md-card-subtitle class="pad-left-none">Test Cases</md-card-subtitle>
 
-            <td-data-table #testCasesTable *ngIf="suite.testCases.length > 0" class="scroll_table" [data]="suite.testCases" [columns]="testCaseColumns"
-              [selectable]="false" [clickable]="false" [sortable]="false">
-              <ng-template *ngFor="let column of testCaseColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+            <td-data-table #testCasesTable *ngIf="suite.testCases.length > 0" class="scroll_table" [data]="suite.testCases"
+              [columns]="testCaseColumns" [selectable]="false" [clickable]="false" [sortable]="false">
+              <ng-template *ngFor="let column of testCaseColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
+                let-row="row">
                 <div *ngIf="column.name !== 'logAnalyzer' && column.name !== 'files' && column.name !== 'result'" class="hover-pointer lineHeightNormal textCell"
                   mdTooltip="{{value}}" (click)="viewTestCaseDetails(suite, row)">
                   {{value}}
@@ -70,10 +71,16 @@
                 <div layout="column" class="filesColumn textCell">
                   <ol type="1" class="pad-left-md">
                     <li *ngFor="let file of row.files">
-                      <a md-button [attr.href]="filesUrlPrefix + file.url" class="iconBtn-lg" target="_blank">
-                        {{file.name}}
-                        <md-icon>open_in_new</md-icon>
-                      </a>
+                      <div layout="row" class="optionsColumn">
+                        <span>{{file.name}}</span>
+                        <a md-button [attr.href]="filesUrlPrefix + file.url" class="iconBtn" target="_blank" mdTooltip="Open in new tab">
+                          <md-icon>open_in_new</md-icon>
+                        </a>
+                        <a md-button *ngIf="file.name.includes('.mp4')" (click)="viewSession(filesUrlPrefix + file.url, file.name)"
+                          class="iconBtn" target="_blank" mdTooltip="Open as dialog">
+                          <md-icon>open_in_browser</md-icon>
+                        </a>
+                      </div>
                     </li>
                   </ol>
                 </div>
@@ -83,7 +90,7 @@
               <ng-template tdDataTableTemplate="logAnalyzer" let-value="value" let-row="row" let-column="column">
                 <div layout="row" class="logAnalyzerColumn">
                   <button md-button (click)="viewInLogAnalyzer(suite, row)" [disabled]="!tJobExec || row.getResultIcon().result === 'SKIPPED'"
-                    class="onlyIconBtn" title="Log">
+                    class="onlyIconBtn" mdTooltip="View Case in Log Analyzer">
                     <md-icon>library_books</md-icon>
                   </button>
                 </div>

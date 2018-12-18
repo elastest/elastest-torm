@@ -36,7 +36,7 @@ public class UtilsService {
     public String tcFinishMsgPrefix;
 
     @Value("${et.etm.incontainer}")
-    private String inContainer;
+    private boolean etmInContainer;
 
     @Value("${et.public.host}")
     public String etPublicHost;
@@ -54,7 +54,7 @@ public class UtilsService {
     }
 
     public boolean isEtmInContainer() {
-        return "true".equals(inContainer);
+        return etmInContainer;
     }
 
     public boolean isDefaultEtPublicHost() {

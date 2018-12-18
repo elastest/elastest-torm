@@ -1,14 +1,16 @@
 <!-- Metrics -->
-<div *ngIf="allInOneMetrics !== undefined" layout-gt-sm="row" tdMediaToggle="gt-xs" >
+<div *ngIf="allInOneMetrics !== undefined" layout-gt-sm="row" tdMediaToggle="gt-xs">
   <div flex-gt-sm="100">
-    <metrics-chart-card #allInOne [model]="allInOneMetrics" [showConfig]="true" [fieldsList]="allInOneMetrics.allMetricsFields.fieldsList" [remove]="removeAndUnsubscribeAIO.bind(this)"></metrics-chart-card>
+    <metrics-chart-card #allInOne [model]="allInOneMetrics" [showConfig]="true" [fieldsList]="allInOneMetrics.allMetricsFields.fieldsList"
+      [remove]="removeAndUnsubscribeAIO.bind(this)"></metrics-chart-card>
   </div>
 </div>
-<ng-container *ngIf="metricsList.length > 0">
-  <div *ngFor="let group of groupedMetricsList" layout-xs="column" layout-gt-xs="column" layout-gt-md="row" tdMediaToggle="gt-xs"
-    >
+<ng-container *ngIf="metricsList.length > 0 && groupedMetricsList.length > 0">
+  <div *ngFor="let group of groupedMetricsList" layout-xs="column" layout-gt-xs="column" layout-gt-md="row"
+    tdMediaToggle="gt-xs">
     <div *ngFor="let metric of group; let i = index; let f=first; let l=last;" [attr.flex-gt-md]="f && l ? 100 : 50">
-      <metrics-chart-card #individual{{i}} [model]="metric" [showConfig]="false" [remove]="removeAndUnsubscribe.bind(this, i)"></metrics-chart-card>
+      <metrics-chart-card #individual{{i}} [model]="metric" [showConfig]="false" [customButtons]="customButtons"
+        [remove]="removeAndUnsubscribe.bind(this, i)"></metrics-chart-card>
     </div>
   </div>
 </ng-container>

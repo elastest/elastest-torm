@@ -12,7 +12,8 @@ import { TdMediaService } from '@covalent/core';
   styleUrls: ['./etm.component.scss'],
 })
 export class EtmComponent implements AfterViewInit, OnInit {
-  @ViewChild('manageList') manageList: TdLayoutManageListComponent;
+  @ViewChild('manageList')
+  manageList: TdLayoutManageListComponent;
 
   openedMenu: boolean = true;
   enableRefresh: boolean = false;
@@ -89,7 +90,7 @@ export class EtmComponent implements AfterViewInit, OnInit {
 
   refresh(): void {
     if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
-      this.router.navigate(['/refresh'], { queryParams: { url: '/' } });
+      this.router.navigate(['/redirect'], { queryParams: { url: '/' } });
     }
   }
 

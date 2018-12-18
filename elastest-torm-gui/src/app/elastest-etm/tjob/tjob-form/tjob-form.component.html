@@ -12,16 +12,17 @@
       <ng-template #showForm>
         <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
           <md-input-container flex-gt-md="20" flex-md="20">
-            <input mdInput trim="blur" #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="TJob Name" [(ngModel)]="tJob.name"
-              name="tJobName" maxlength="40" #tjobNameInput required>
+            <input mdInput trim="blur" #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="TJob Name"
+              [(ngModel)]="tJob.name" name="tJobName" maxlength="80" #tjobNameInput required>
           </md-input-container>
 
           <md-input-container flex-gt-md="20" flex-md="20" flex-offset-md="5" flex-offset-gt-md="5">
-            <input mdInput trim="blur" #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="Test Results Path" [(ngModel)]="tJob.resultsPath"
-              name="resultsPath" maxlength="200">
+            <input mdInput trim="blur" #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="Test Results Path"
+              [(ngModel)]="tJob.resultsPath" name="resultsPath" maxlength="200">
           </md-input-container>
 
-          <div *ngIf="tJob.project !== undefined" class="push-top push-bottom" flex-gt-md="30" flex-md="30" flex-offset-md="5" flex-offset-gt-md="5">
+          <div *ngIf="tJob.project !== undefined" class="push-top push-bottom" flex-gt-md="30" flex-md="30"
+            flex-offset-md="5" flex-offset-gt-md="5">
             <md-select [(ngModel)]="tJob.sut" placeholder="Select a SuT" required name="tJobSut">
               <md-option [value]="sutEmpty">None</md-option>
               <md-option *ngFor="let sut of tJob.project.suts" [value]="sut">
@@ -42,21 +43,38 @@
 
         <!-- Commands -->
         <div layout="column" class="push-top push-bottom pad-top">
-          <md-slide-toggle [(ngModel)]="useImageCommand" name="toggleCommands">Use docker image command</md-slide-toggle>
+          <md-checkbox [(ngModel)]="useImageCommand" name="toggleCommands">Use docker image command</md-checkbox>
           <div layout="column" *ngIf="!useImageCommand" class="push-top">
             <md-input-container>
-              <textarea id="commands" rows="10" mdInput #tJobFormElement #tJobFormControl="ngModel" placeholder="Commands" [(ngModel)]="tJob.commands"
-                name="commands" required></textarea>
+              <textarea id="commands" rows="10" mdInput #tJobFormElement #tJobFormControl="ngModel" placeholder="Commands"
+                [(ngModel)]="tJob.commands" name="commands" required></textarea>
             </md-input-container>
             <div class="push-bottom">
-              <td-message #dockerTypeInfo label="{{commandsHelpHeadMessage}}" sublabel="{{commandsHelpMessage}}" color="primary" icon="info">
+              <td-message #dockerTypeInfo label="{{commandsHelpHeadMessage}}" sublabel="{{commandsHelpMessage}}" color="primary"
+                icon="info">
               </td-message>
             </div>
           </div>
         </div>
 
+
+        <!-- Multi Config -->
+        <div layout="column" class="push-bottom">
+          <md-checkbox class="push-bottom" mdTooltip="Activate Multi Configuration" id="multiConfigCheckbox"
+            [(ngModel)]="tJob.multi" name="multiConfigCheckbox">Activate Multi Configuration TJob</md-checkbox>
+
+          <td-expansion-panel *ngIf="tJob.multi" expand="true">
+            <ng-template td-expansion-panel-label>
+              <span>Multi Config Axis</span>
+            </ng-template>
+            <div class="pad">
+              <multi-config-view [model]="tJob.multiConfigurations"></multi-config-view>
+            </div>
+          </td-expansion-panel>
+        </div>
+
         <!-- Parameters -->
-        <td-expansion-panel expand="true" class="push-bottom" *ngIf="esmServicesCatalog.length > 0">
+        <td-expansion-panel expand="true" class="push-bottom">
           <ng-template td-expansion-panel-label>
             <span>Parameters</span>
           </ng-template>
@@ -64,6 +82,7 @@
             <parameters-view [model]="tJob.parameters"></parameters-view>
           </div>
         </td-expansion-panel>
+
 
         <!-- ESM services -->
         <td-expansion-panel expand="true" class="push-bottom" *ngIf="esmServicesCatalog.length > 0">
@@ -73,9 +92,10 @@
           <div class="pad" layout="column">
             <div *ngFor="let service of esmServicesCatalog; let i = index" layout="row">
               <div layout="row" layout-align="center center" class="push-bottom">
-                <md-checkbox #service{{i}} title="Select {{service.name}}" id="service{{service.name}}" [checked]="service.selected" (change)="service.changeServiceSelection($event)"></md-checkbox>
+                <md-checkbox #service{{i}} [(ngModel)]="service.selected" title="Select {{service.name}}" id="service{{service.name}}"
+                  name="service{{service.name}}"></md-checkbox>
               </div>
-              <td-expansion-panel expand="false" class="push-bottom push-left-sm" flex *ngIf="service.getConfigKeys().length > 0; else onlyName">
+              <td-expansion-panel id="service{{service.name}}Expansion" expand="false" class="push-bottom push-left-sm" flex *ngIf="service.getConfigKeys().length > 0; else onlyName">
                 <ng-template td-expansion-panel-label>
                   {{service.name}}
                 </ng-template>
@@ -103,12 +123,13 @@
             <md-card-subtitle>Metrics</md-card-subtitle>
             <ng-container *ngIf="tJob.execDashboardConfigModel.showAllInOne !== undefined && tJob.execDashboardConfigModel.showAllInOne !== null">
               <span class="push-right">
-                <md-checkbox #metric{{i}} [checked]="tJob.execDashboardConfigModel.showAllInOne" (change)="tJob.execDashboardConfigModel.changeShowAllInOneActive($event)">All-in-one chart</md-checkbox>
+                <md-checkbox #showAllInOne [(ngModel)]="tJob.execDashboardConfigModel.showAllInOne" name="showAllInOneCheckbox">All-in-one
+                  chart</md-checkbox>
               </span>
             </ng-container>
             <ng-container *ngIf="tJob.execDashboardConfigModel.allMetricsFields !== undefined && tJob.execDashboardConfigModel.allMetricsFields !== null">
               <span class="push-right" *ngFor="let metric of tJob.execDashboardConfigModel.allMetricsFields.fieldsList; let i = index">
-                <md-checkbox #metric{{i}} [checked]="metric.activated" (change)="metric.changeActive($event)">{{metric.name}}</md-checkbox>
+                <md-checkbox #metric{{i}} [(ngModel)]="metric.activated" name="metric{{i}}Checkbox">{{metric.name}}</md-checkbox>
               </span>
             </ng-container>
           </div>
@@ -117,7 +138,7 @@
             <md-card-subtitle>Logs</md-card-subtitle>
             <ng-container *ngIf="tJob.execDashboardConfigModel.allLogsTypes !== undefined && tJob.execDashboardConfigModel.allLogsTypes !== null">
               <span class="push-right" *ngFor="let log of tJob.execDashboardConfigModel.allLogsTypes.logsList; let i = index">
-                <md-checkbox #log{{i}} [hidden]="hideSut(log)" [checked]="log.activated" (change)="log.changeActive($event)">{{log.name}}</md-checkbox>
+                <md-checkbox #log{{i}} [hidden]="hideSut(log)" [(ngModel)]="log.activated" name="log{{i}}Checkbox">{{log.name}}</md-checkbox>
               </span>
             </ng-container>
           </div>

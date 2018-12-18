@@ -74,6 +74,11 @@ public class Trace {
     @JsonProperty("stream_type")
     StreamType streamType;
 
+    @JsonView({ TraceView.class })
+    @Column(name = "rawData", columnDefinition = "TEXT", length = 65535)
+    @JsonProperty("raw_data")
+    private String rawData;
+
     /* *** For Log *** */
 
     @JsonView({ TraceView.class })
@@ -115,15 +120,11 @@ public class Trace {
     public Trace() {
     }
 
-    /* *********************** */
-    /* *** Getters/Setters *** */
-    /* *********************** */
-
     public Trace(Long id, String exec, String component,
             String componentService, String etType, Date timestamp,
             String stream, String containerName, StreamType streamType,
-            String message, LevelEnum level, String metricName, String content,
-            String unit, String units) {
+            String rawData, String message, LevelEnum level, String metricName,
+            String content, String unit, String units) {
         super();
         this.id = id;
         this.exec = exec;
@@ -134,6 +135,7 @@ public class Trace {
         this.stream = stream;
         this.containerName = containerName;
         this.streamType = streamType;
+        this.rawData = rawData;
         this.message = message;
         this.level = level;
         this.metricName = metricName;
@@ -141,6 +143,10 @@ public class Trace {
         this.unit = unit;
         this.units = units;
     }
+
+    /* *********************** */
+    /* *** Getters/Setters *** */
+    /* *********************** */
 
     public Long getId() {
         return id;
@@ -212,6 +218,14 @@ public class Trace {
 
     public void setStreamType(StreamType streamType) {
         this.streamType = streamType;
+    }
+
+    public String getRawData() {
+        return rawData;
+    }
+
+    public void setRawData(String rawData) {
+        this.rawData = rawData;
     }
 
     /* ************** */

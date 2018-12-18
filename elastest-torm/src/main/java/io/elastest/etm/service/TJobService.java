@@ -29,11 +29,13 @@ import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.EimMonitoringConfig.BeatsStatusEnum;
 import io.elastest.etm.model.Enums.MonitoringStorageType;
+import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
+import io.elastest.etm.model.TJobExecution.TypeEnum;
 import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.utils.TestResultParser;
 import io.elastest.etm.utils.UtilsService;
@@ -115,12 +117,15 @@ public class TJobService {
         return Long.parseLong(mapName.split("_")[1]);
     }
 
-    public TJobExecution executeTJob(Long tJobId, List<Parameter> parameters,
-            List<Parameter> sutParameters) throws HttpClientErrorException {
+    /* *** Execute TJob *** */
+
+    public TJobExecution executeTJob(Long tJobId,
+            List<Parameter> tJobParameters, List<Parameter> sutParameters,
+            List<MultiConfig> multiConfigs) throws HttpClientErrorException {
         TJob tJob = tJobRepo.findById(tJobId).get();
 
         SutSpecification sut = tJob.getSut();
-        // Checks if has sut instrumented by elastest and beats status is
+        // Checks if has Sut instrumented by ElasTest and beats status is
         // activating yet
         if (sut != null && sut.isInstrumentedByElastest()
                 && sut.getEimMonitoringConfig() != null
@@ -144,9 +149,16 @@ public class TJobService {
             tJob.getSut().setParameters(sutParameters);
         }
         tJobExec.setTjob(tJob);
-        if (parameters != null && !parameters.isEmpty()) {
-            tJobExec.setParameters(parameters);
+        if (tJobParameters != null && !tJobParameters.isEmpty()) {
+            tJobExec.setParameters(tJobParameters);
         }
+
+        tJobExec.setType(TypeEnum.SIMPLE);
+        if (multiConfigs != null && multiConfigs.size() > 0 && tJob.isMulti()) {
+            tJobExec.setMultiConfigurations(multiConfigs);
+            tJobExec.setType(TypeEnum.PARENT);
+        }
+
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
         // After first save, get real Id
@@ -159,15 +171,19 @@ public class TJobService {
                     tJob.getSelectedServices());
             asyncExecs.put(getMapNameByTJobExec(tJobExec), asyncExec);
         } else {
-            tJobExecOrchestratorService.executeExternalJob(tJobExec);
+            tJobExecOrchestratorService.executeExternalJob(tJobExec, false);
         }
 
         return tJobExec;
     }
 
+    /* *** Execute Jenkins TJob *** */
+
     public TJobExecution executeTJob(ExternalJob externalJob, Long tJobId,
             List<Parameter> parameters, List<Parameter> sutParameters)
             throws HttpClientErrorException {
+
+        // TODO MultiTJob
         TJob tJob = tJobRepo.findById(tJobId).get();
 
         SutSpecification sut = tJob.getSut();
@@ -181,14 +197,14 @@ public class TJobService {
         }
 
         TJobExecution tJobExec = new TJobExecution();
-       
+
         if (utilsService.isElastestMini()) {
             tJobExec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
         } else {
             tJobExec.setMonitoringStorageType(
                     MonitoringStorageType.ELASTICSEARCH);
         }
-        
+
         tJobExec.setStartDate(new Date());
         if (tJob.getSut() != null && sutParameters != null
                 && !sutParameters.isEmpty()) {
@@ -209,7 +225,8 @@ public class TJobService {
         tJobExec.generateMonitoringIndex();
         tJobExec = tJobExecRepositoryImpl.save(tJobExec);
 
-        tJobExecOrchestratorService.executeExternalJob(tJobExec);
+        tJobExecOrchestratorService.executeExternalJob(tJobExec,
+                externalJob.isFromIntegratedJenkins());
         return tJobExec;
     }
 
@@ -217,6 +234,11 @@ public class TJobService {
         TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId)
                 .get();
         String mapKey = getMapNameByTJobExec(tJobExec);
+
+        if (tJobExec.isMultiExecutionChild()) {
+            return stopTJobExec(tJobExec.getExecParent().getId());
+        }
+
         Future<Void> asyncExec = asyncExecs.get(mapKey);
 
         boolean cancelExecuted = false;
@@ -245,19 +267,14 @@ public class TJobService {
 
     public void endExternalTJobExecution(long tJobExecId, int result,
             List<String> testResultsReportsAsString) {
-        logger.info("Finishing the external Job.");
+        logger.info("Finishing the external TJob.");
         TJobExecution tJobExec = this.getTJobExecById(tJobExecId);
-        tJobExec.setResult(ResultEnum.values()[result]);
-        tJobExec.setResultMsg("Finished: " + tJobExec.getResult());
-        tJobExec.setEndDate(new Date());
-        tJobExecRepositoryImpl.save(tJobExec);
 
         // Parsing test results
         List<ReportTestSuite> testResultsReports = new ArrayList<>();
         TestResultParser testResultParser = new TestResultParser();
         if (testResultsReportsAsString != null) {
             for (String testSuite : testResultsReportsAsString) {
-
                 try {
                     testResultsReports.add(testResultParser
                             .testSuiteStringToReportTestSuite(testSuite));
@@ -277,6 +294,25 @@ public class TJobService {
             logger.error(
                     "Exception during desprovisioning of the TSS associated with an External TJob.");
         }
+        if (tJobExec.isWithSut()) {
+            try {
+                DockerExecution dockerExec = new DockerExecution(tJobExec);
+                dockerExec.setSutExec(tJobExec.getSutExecution());
+                tJobExecOrchestratorService.endDockbeatExec(dockerExec, true);
+                tJobExecOrchestratorService.endSutExec(dockerExec, false);
+                tJobExecOrchestratorService
+                        .stopManageSutByExternalElasticsearch(
+                                dockerExec.getTJobExec());
+            } catch (Exception e) {
+                logger.error(
+                        "Error desprovisioning a SUT used in a TJob run from Jenkins.");
+            }
+        }
+        
+        tJobExec.setResult(ResultEnum.values()[result]);
+        tJobExec.setResultMsg("Finished: " + tJobExec.getResult());
+        tJobExec.setEndDate(new Date());
+        tJobExecRepositoryImpl.save(tJobExec);
     }
 
     public void deleteTJobExec(Long tJobExecId) {
@@ -300,13 +336,23 @@ public class TJobService {
     public List<TJobExecution> getLastNTJobExecs(Long number) {
         Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
                 "id");
-
         return tJobExecRepositoryImpl.findWithPageable(lastN);
+    }
+
+    public List<TJobExecution> getLastNTJobExecsWithoutChilds(Long number) {
+        Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
+                "id");
+        return tJobExecRepositoryImpl.findWithPageableWithoutChilds(lastN);
     }
 
     public List<TJobExecution> getAllRunningTJobExecs() {
         return this.tJobExecRepositoryImpl
                 .findByResults(ResultEnum.getNotFinishedOrExecutedResultList());
+    }
+
+    public List<TJobExecution> getAllRunningTJobExecsWithoutChilds() {
+        return this.tJobExecRepositoryImpl.findByResultsWithoutChilds(
+                ResultEnum.getNotFinishedOrExecutedResultList());
     }
 
     public List<TJobExecution> getLastNRunningTJobExecs(Long number) {
@@ -317,9 +363,27 @@ public class TJobService {
                 ResultEnum.getNotFinishedOrExecutedResultList(), lastN);
     }
 
+    public List<TJobExecution> getLastNRunningTJobExecsWithoutChilds(
+            Long number) {
+        Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
+                "id");
+
+        return tJobExecRepositoryImpl.findByResultsWithPageableWithoutChilds(
+                ResultEnum.getNotFinishedOrExecutedResultList(), lastN);
+    }
+
     public List<TJobExecution> getAllFinishedOrNotExecutedTJobExecs() {
         return this.tJobExecRepositoryImpl.findByResults(
                 ResultEnum.getFinishedAndNotExecutedResultList());
+    }
+
+    public List<TJobExecution> getLastNFinishedOrNotExecutedTJobExecsWithoutChilds(
+            Long number) {
+        Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
+                "id");
+
+        return tJobExecRepositoryImpl.findByResultsWithPageableWithoutChilds(
+                ResultEnum.getFinishedAndNotExecutedResultList(), lastN);
     }
 
     public List<TJobExecution> getLastNFinishedOrNotExecutedTJobExecs(
@@ -338,6 +402,11 @@ public class TJobService {
     public List<TJobExecution> getTJobsExecutionsByTJobId(Long tJobId) {
         TJob tJob = tJobRepo.findById(tJobId).get();
         return getTJobsExecutionsByTJob(tJob);
+    }
+
+    public List<TJobExecution> getTJobsExecutionsByTJobIdWithoutChilds(
+            Long tJobId) {
+        return tJobExecRepositoryImpl.findTJobIdWithoutChilds(tJobId);
     }
 
     public List<TJobExecution> getTJobsExecutionsByTJob(TJob tJob) {
@@ -373,4 +442,26 @@ public class TJobService {
 
     }
 
+    public TJobExecution getChildTJobExecParent(Long tJobExecId) {
+        TJobExecution tJobExec = this.tJobExecRepositoryImpl
+                .findById(tJobExecId).get();
+        TJobExecution parent = null;
+        if (tJobExec.isMultiExecutionChild()
+                && tJobExec.getExecParent() != null) {
+            parent = this.tJobExecRepositoryImpl
+                    .findById(tJobExec.getExecParent().getId()).get();
+        }
+        return parent;
+    }
+
+    public List<TJobExecution> getParentTJobExecChilds(Long tJobExecId) {
+        TJobExecution tJobExec = this.tJobExecRepositoryImpl
+                .findById(tJobExecId).get();
+        List<TJobExecution> childs = new ArrayList<>();
+        if (tJobExec.isMultiExecutionParent()
+                && tJobExec.getExecChilds() != null) {
+            childs = tJobExec.getExecChilds();
+        }
+        return childs;
+    }
 }

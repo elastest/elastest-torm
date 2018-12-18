@@ -1,5 +1,7 @@
 FROM docker.elastic.co/beats/metricbeat:6.1.1
 
+LABEL io.elastest.type=monitoring
+
 COPY metricbeat.yml /usr/share/metricbeat/metricbeat.yml
 
 USER root

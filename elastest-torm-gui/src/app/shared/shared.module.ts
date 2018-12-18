@@ -45,10 +45,18 @@ import { TooltipAreaComponent } from './metrics-view/metrics-chart-card/combo-ch
 import { TimelineComponent } from './metrics-view/metrics-chart-card/combo-chart/components/timeline.component';
 import { VncClientComponent } from './vnc-client/vnc-client.component';
 import { TestVncComponent } from './vnc-client/test-vnc/test-vnc.component';
-import { RefreshComponent } from './refresh/refresh.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { LogsViewTextComponent } from './logs-view-text/logs-view-text.component';
 import { StringListViewComponent } from './string-list-view/string-list-view.component';
+import { MultiConfigViewComponent } from './multi-config-view/multi-config-view.component';
+import { SelfAdjustableCardComponent } from './ng-self-adjustable-components/self-adjustable-card/self-adjustable-card.component';
+
+import { RedirectComponent } from './redirect/redirect.component';
+import { ButtonComponentComponent } from './button-component/button-component.component';
+import { AutoHeightGridComponent } from './ng-self-adjustable-components/auto-height-grid/auto-height-grid.component';
+import { NormalHeightRowComponent } from './ng-self-adjustable-components/auto-height-grid/normal-height-row/normal-height-row.component';
+import { AutoHeightRowComponent } from './ng-self-adjustable-components/auto-height-grid/auto-height-row/auto-height-row.component';
+import { CenteredElementComponent } from './centered-element/centered-element.component';
 
 const FLEX_LAYOUT_MODULES: any[] = [FlexLayoutModule];
 
@@ -110,10 +118,17 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     EtmLogsGroupComponent,
     VncClientComponent,
     TestVncComponent,
-    RefreshComponent,
     StringListViewComponent,
     BreadcrumbComponent,
     LogsViewTextComponent,
+    MultiConfigViewComponent,
+    SelfAdjustableCardComponent,
+    RedirectComponent,
+    ButtonComponentComponent,
+    AutoHeightGridComponent,
+    NormalHeightRowComponent,
+    AutoHeightRowComponent,
+    CenteredElementComponent,
   ],
   exports: [
     ANGULAR_MODULES,
@@ -126,6 +141,8 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     MetricsChartCardComponent,
     LoadPreviousViewComponent,
     ParametersViewComponent,
+    MultiConfigViewComponent,
+    SelfAdjustableCardComponent,
     StringListViewComponent,
     ComboChartComponent,
     EtmChartGroupComponent,
@@ -134,9 +151,13 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     TimelineComponent,
     VncClientComponent,
     TestVncComponent,
-    RefreshComponent,
+    RedirectComponent,
     BreadcrumbComponent,
     LogsViewTextComponent,
+    AutoHeightGridComponent,
+    NormalHeightRowComponent,
+    AutoHeightRowComponent,
+    CenteredElementComponent,
   ],
 })
 export class SharedModule {}

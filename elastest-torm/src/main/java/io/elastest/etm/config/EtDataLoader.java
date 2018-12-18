@@ -22,6 +22,7 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.model.Enums.ProtocolEnum;
+import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SupportService;
@@ -41,7 +42,7 @@ import io.elastest.etm.service.TestLinkService;
 @Service
 public class EtDataLoader {
     final Logger logger = getLogger(lookup().lookupClass());
-    
+
     @Value("${et.user}")
     private String etUser;
 
@@ -71,7 +72,11 @@ public class EtDataLoader {
 
     /* *** Project *** */
     public boolean projectExists(String name) {
-        return projectService.getProjectByName(name) != null;
+        return getProject(name) != null;
+    }
+
+    public Project getProject(String name) {
+        return projectService.getProjectByName(name);
     }
 
     public Project createProject(String projectName) {
@@ -81,15 +86,18 @@ public class EtDataLoader {
     }
 
     public Project createProject(Project project) {
-        return projectService.createProject(project);
+        return projectService.saveProject(project);
     }
 
+    /* ************ */
     /* *** TJob *** */
+    /* ************ */
 
     public TJob createTJob(Project project, String name, String resultsPath,
             String image, boolean useImageCommands, String commands,
             String execDashboardConfig, List<Parameter> parameters,
-            List<String> activatedTSSList, SutSpecification sut) {
+            List<String> activatedTSSList, SutSpecification sut,
+            List<MultiConfig> multiConfigurations) {
         TJob tJob = new TJob();
 
         tJob.setProject(project);
@@ -105,6 +113,11 @@ public class EtDataLoader {
 
         if (parameters != null) {
             tJob.setParameters(parameters);
+        }
+
+        if (multiConfigurations != null) {
+            tJob.setMultiConfigurations(multiConfigurations);
+            tJob.setMulti(true);
         }
 
         if (sut != null && sut.getId() > 0) {
@@ -153,7 +166,23 @@ public class EtDataLoader {
         return tJobService.createTJob(tJob);
     }
 
-    /* *** Sut *** */
+    /* ********************* */
+    /* ******** Sut ******** */
+    /* ********************* */
+
+    public boolean sutExistsInProject(String name, Project project) {
+        return sutService.getSutsByNameAndProject(name, project).size() > 0;
+    }
+
+    public SutSpecification getSut(String name, Project project) {
+        List<SutSpecification> suts = sutService.getSutsByNameAndProject(name,
+                project);
+        if (suts.size() > 0) {
+            return suts.get(0);
+        } else {
+            return null;
+        }
+    }
 
     private SutSpecification initCommonSutFields(SutSpecification sut,
             Project project, ExternalProject exProject, String name,

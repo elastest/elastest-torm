@@ -1,13 +1,13 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TestPlanModel } from '../../models/test-plan-model';
 import { BuildModel } from '../../models/build-model';
-import { MD_DIALOG_DATA } from '@angular/material';
+import { MD_DIALOG_DATA, MdButton, MdDialogRef } from '@angular/material';
 import { TestLinkService } from '../../testlink.service';
 import { TLTestCaseModel } from '../../models/test-case-model';
 
 @Component({
-  selector: 'app-select-build-modal',
+  selector: 'select-build-modal',
   templateUrl: './select-build-modal.component.html',
   styleUrls: ['./select-build-modal.component.scss'],
 })
@@ -21,7 +21,12 @@ export class SelectBuildModalComponent implements OnInit {
   ready: boolean = false;
   fail: boolean = false;
 
-  constructor(private router: Router, private testLinkService: TestLinkService, @Inject(MD_DIALOG_DATA) public data: any) {
+  constructor(
+    private router: Router,
+    private testLinkService: TestLinkService,
+    @Inject(MD_DIALOG_DATA) public data: any,
+    public dialogRef: MdDialogRef<SelectBuildModalComponent>,
+  ) {
     this.init();
   }
 
@@ -50,6 +55,16 @@ export class SelectBuildModalComponent implements OnInit {
         (testCases: TLTestCaseModel[]) => {
           this.testPlanCases = testCases;
           this.ready = true;
+
+          // Select first automatically
+          if (this.builds && this.builds.length > 0) {
+            this.selectedBuild = this.builds[0];
+            // If there is only one build, execute directly
+            if (this.builds.length === 1 && this.selectedBuild && this.selectedBuild.id) {
+              this.runTestPlan();
+              this.dialogRef.close();
+            }
+          }
         },
         (error) => {
           console.log(error);

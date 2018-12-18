@@ -41,6 +41,21 @@
 		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20180926114804.xml" />
 	<include
 		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20181002091325.xml" />
-
+	<include
+		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20181008110827.xml" />
+	<include
+		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20181009150431.xml" />
+	<include
+		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20181010090457.xml" />
+	<include
+		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20181010101153.xml" />
+	<include
+		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20181011121737.xml" />
+	<include
+		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20181119153949.xml" />
+    <include
+        file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20181121103335.xml" />
+    <include
+        file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20181210095451.xml" />
 	<!--includeAll path="src/main/resources/db/changelogs/"/ -->
 </databaseChangeLog>

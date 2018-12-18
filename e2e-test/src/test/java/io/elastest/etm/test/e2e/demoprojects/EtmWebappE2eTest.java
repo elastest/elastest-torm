@@ -17,19 +17,21 @@
 package io.elastest.etm.test.e2e.demoprojects;
 
 import static io.github.bonigarcia.BrowserType.CHROME;
-import static java.lang.invoke.MethodHandles.lookup;
-import static org.slf4j.LoggerFactory.getLogger;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmBaseTest;
 import io.github.bonigarcia.BrowserType;
@@ -37,7 +39,9 @@ import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
- * E2E ETM test.
+ * Test that creates a Project, a Sut and a TJob with EUS and executes it.
+ * Requirements tested: ETM1, ETM2, ETM3, ETM4, ETM5, ETM6, ETM7, ETM8, ETM9,
+ * ETM11, ETM18
  *
  * @author EduJG(https://github.com/EduJGURJC)
  * @since 0.1.1
@@ -46,10 +50,16 @@ import io.github.bonigarcia.SeleniumExtension;
 @DisplayName("ETM E2E test of Webapp project")
 @ExtendWith(SeleniumExtension.class)
 public class EtmWebappE2eTest extends EtmBaseTest {
-
-    final Logger log = getLogger(lookup().lookupClass());
-    final String projectName = "Webapp";
+    final String projectName = "E2E_test_Webapp";
     final String sutName = "Webapp";
+    String tJobImage = "elastest/test-etm-alpinegitjava";
+    String tJobTestResultPath = "/demo-projects/webapp/junit5-web-multiple-browsers-test/target/surefire-reports/";
+    private static final Map<String, List<String>> tssMap;
+    static {
+        tssMap = new HashMap<String, List<String>>();
+        tssMap.put("EUS", null);
+    }
+
     final int timeout = 600;
 
     void createProjectAndSut(WebDriver driver) throws InterruptedException {
@@ -70,9 +80,10 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create WebApp project Chrome Test")
     void testCreateChromeTest(
-            @DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
-        this.driver = driver;
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo)
+            throws InterruptedException, MalformedURLException {
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
 
         this.createProjectAndSut(driver);
 
@@ -80,27 +91,30 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 
         String tJobName = "Chrome Test";
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
-            String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
-            String tJobImage = "elastest/test-etm-alpinegitjava";
-            String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=chrome test;";
-            List<String> tssList = new ArrayList<>();
-            tssList.add("EUS");
+            String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-multiple-browsers-test; mvn -Dtest=WebAppTest -B -Dbrowser=chrome test;";
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssList);
+                    tJobImage, false, commands, null, tssMap, null);
         }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
         this.checkFinishTJobExec(driver, timeout, "FAIL", true);
+
+        // Navigate To First Test Case execution page
+        navigateToExecTestCase(driver, 1, 1, true);
+
+        // Check the presence of testCaseInfo
+        getElementById(driver, "testCaseInfo", 20);
     }
 
     @Test
     @DisplayName("Create and execute a Firefox Test")
     void testCreateFirefoxTest(
-            @DockerBrowser(type = BrowserType.FIREFOX) RemoteWebDriver driver)
-            throws InterruptedException {
-        this.driver = driver;
+            @DockerBrowser(type = BrowserType.FIREFOX) RemoteWebDriver localDriver,
+            TestInfo testInfo)
+            throws InterruptedException, MalformedURLException {
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
 
         this.createProjectAndSut(driver);
 
@@ -108,19 +122,53 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 
         String tJobName = "Firefox Test";
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
-            String tJobTestResultPath = "/demo-projects/web-java-test/target/surefire-reports/";
-            String tJobImage = "elastest/test-etm-alpinegitjava";
-            String commands = "git clone https://github.com/elastest/demo-projects; cd demo-projects/web-java-test; mvn -Dtest=MultipleWebAppTests -B -Dbrowser=firefox test;";
-            List<String> tssList = new ArrayList<>();
-            tssList.add("EUS");
+            String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-multiple-browsers-test; mvn -Dtest=WebAppTest -B -Dbrowser=firefox test;";
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssList);
+                    tJobImage, false, commands, null, tssMap, null);
         }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
 
         this.checkFinishTJobExec(driver, timeout, "FAIL", false);
+    }
+
+    @Test
+    @DisplayName("Create WebApp project Multi Test")
+    void testCreateMultiTest(
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo)
+            throws InterruptedException, MalformedURLException {
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
+
+        this.createProjectAndSut(driver);
+
+        navigateToETProject(driver, projectName);
+
+        String tJobName = "WebApp Multi Test";
+        if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
+            String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-multiple-browsers-test; mvn -Dtest=WebAppTest -B -Dbrowser=$BROWSER test;";
+
+            List<String> multiConfig1List = new ArrayList<>(
+                    Arrays.asList("chrome", "firefox"));
+            Map<String, List<String>> multiConfigurations = new HashMap<>();
+            multiConfigurations.put("BROWSER", multiConfig1List);
+
+            createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
+                    tJobImage, false, commands, null, tssMap,
+                    multiConfigurations);
+        }
+        // Run TJob
+        runTJobFromProjectPage(driver, tJobName);
+
+        this.checkFinishTJobExec(driver, timeout * 2, "FAIL", false);
+
+        // Wait for parent report and child view
+        log.info("Waiting for Child View to be present");
+        getElementById(driver, "childView", 20);
+
+        log.info("Waiting for Parent Report View to be present");
+        getElementById(driver, "parentReportView", 20);
     }
 
 }

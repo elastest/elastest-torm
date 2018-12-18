@@ -11,6 +11,8 @@
                     def epmClientJavaDirectory = 'epm-client-java'
                     def eusJavaDirectory = 'eus-java'
 
+                    git 'https://github.com/elastest/elastest-torm.git'
+
                     stage "Install et-epm-client-java"
                         def epmClientDirectoryExists = fileExists epmClientJavaDirectory
                         if (epmClientDirectoryExists) {
@@ -28,7 +30,6 @@
                         echo 'Installing epm-client-java'
                         sh "ls -lrt; cd $epmClientJavaDirectory; mvn clean install -Dmaven.test.skip=true"
                         
-                    git 'https://github.com/elastest/elastest-torm.git'
                         
                     stage "Test and deploy epm-client"
                         echo ("Test and deploy epm-client")
@@ -76,7 +77,8 @@
                             sh 'cd ./scripts; ./it.sh'
                             step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
                         } catch (err) {
-                            currentBuild.result = "UNSTABLE"
+                            def errString = err.toString()
+                            currentBuild.result = getJobStatus(errString)
                             throw err
                         }
 
@@ -100,12 +102,11 @@
                             myimage.push()
                         }
                 }
-
-
-                    
             } catch (err) {
                 if (currentBuild.result != "UNSTABLE") {
-                  currentBuild.result = "FAILURE"
+                    def errString = err.toString()
+                    echo 'Error: ' + errString
+                   	currentBuild.result = getJobStatus(errString)
                 }
                 echo 'Error!!! Send email to the people responsible for the builds.'
                 emailext body: 'Please go to  ${BUILD_URL}  and verify the build',
@@ -116,13 +117,12 @@
                 throw err
             }
     }
-
-    def containerIp(service) {
-        containerIp = sh (
-            script: "docker inspect --format=\"{{.NetworkSettings.Networks."+env.COMPOSE_PROJECT_NAME+"_elastest.IPAddress}}\" "+env.COMPOSE_PROJECT_NAME+"_"+service+"_1",
-            returnStdout: true
-        ).trim()
-        
-        echo service+" IP = " + containerIp;
-        return containerIp;
+def getJobStatus(exceptionString) {
+    def status = 'SUCCESS'
+    if (exceptionString.contains('FlowInterruptedException') || exceptionString.contains('AbortException')) {
+        status = 'ABORTED'
+    } else {
+        status = 'FAILURE'
     }
+    return status;
+}

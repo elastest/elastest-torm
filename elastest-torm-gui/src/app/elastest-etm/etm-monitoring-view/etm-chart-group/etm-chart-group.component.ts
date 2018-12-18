@@ -12,6 +12,7 @@ import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
 import { ExternalTJobExecModel } from '../../external/external-tjob-execution/external-tjob-execution-model';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { MonitoringService } from '../../../shared/services/monitoring.service';
+import { ButtonModel } from '../../../shared/button-component/button.model';
 
 @Component({
   selector: 'etm-chart-group',
@@ -19,25 +20,38 @@ import { MonitoringService } from '../../../shared/services/monitoring.service';
   styleUrls: ['./etm-chart-group.component.scss'],
 })
 export class EtmChartGroupComponent implements OnInit {
-  @ViewChildren(MetricsChartCardComponent) MetricsChartCardComponents: QueryList<MetricsChartCardComponent>;
+  @ViewChildren(MetricsChartCardComponent)
+  metricsChartCardComponents: QueryList<MetricsChartCardComponent>;
 
-  @Input() public live: boolean;
-  @Input() tJob: AbstractTJobModel;
-  @Input() tJobExec: AbstractTJobExecModel;
+  @Input()
+  public live: boolean;
+  @Input()
+  tJob: AbstractTJobModel;
+  @Input()
+  tJobExec: AbstractTJobExecModel;
+
+  firstTimeInitialized: boolean = false;
+
+  subscriptions: Map<string, Subscription> = new Map();
 
   // Metrics Chart
   allInOneMetrics: ESRabComplexMetricsModel;
   metricsList: ESRabComplexMetricsModel[] = [];
   groupedMetricsList: ESRabComplexMetricsModel[][] = [];
 
+  customButtons: ButtonModel[] = [];
+
   loaded: boolean = false;
 
   // TimeLine Observable
-  @Output() timelineObs = new EventEmitter<any>();
+  @Output()
+  timelineObs = new EventEmitter<any>();
 
-  @Output() hoverObs = new EventEmitter<any>();
+  @Output()
+  hoverObs = new EventEmitter<any>();
 
-  @Output() leaveObs = new EventEmitter<any>();
+  @Output()
+  leaveObs = new EventEmitter<any>();
 
   chartsEventsSubscriptionsObs: Subscription[] = [];
 
@@ -46,9 +60,15 @@ export class EtmChartGroupComponent implements OnInit {
   ngOnInit() {}
 
   ngAfterViewInit(): void {
-    this.MetricsChartCardComponents.changes.subscribe((data) => this.subscribeAllToEvents());
+    this.metricsChartCardComponents.changes.subscribe((data) => this.subscribeAllToEvents());
     if (this.live) {
       this.initObservables();
+    }
+  }
+
+  ngAfterViewChecked() {
+    if (!this.loaded) {
+      this.subscribeAllToEvents();
     }
   }
 
@@ -58,13 +78,125 @@ export class EtmChartGroupComponent implements OnInit {
     subjectMap.forEach((obs: Subject<string>, key: string) => {
       let subjectData: any = this.elastestRabbitmqService.getDataFromSubjectName(key);
       if (subjectData.streamType === 'composed_metrics' || subjectData.streamType === 'atomic_metric') {
-        obs.subscribe((data) => this.updateMetricsData(data));
+        obs.subscribe((data) => this.updateDefaultChartsData(data));
       }
     });
   }
 
   getIgnoreComponent(): string {
     return this.tJob.hasSut() ? '' : 'sut'; // if is without sut, ignore sut metrics
+  }
+
+  initModels(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
+    this.tJob = tJob;
+    this.tJobExec = tJobExec;
+
+    if (this.tJobExec.hasMonitoringMarks()) {
+      // One button for each mark id
+      for (let markId of this.tJobExec.getMonitoringMarkIds()) {
+        let markButtonModel: ButtonModel = new ButtonModel();
+        markButtonModel.name = '"' + markId + '" Mark View';
+        markButtonModel.color = 'accent';
+        markButtonModel.hideIcon = true;
+        markButtonModel.buttonType = 'raised-button';
+        markButtonModel.clickMethodTooltip = 'Switch to "' + markId + '" Mark View';
+        markButtonModel.clickMethod = () => {
+          for (let button of this.customButtons) {
+            button.disabled = false;
+          }
+          // Show Mark View and disable button (disables for all cards)
+          markButtonModel.disabled = this.showMarkView(markId);
+        };
+        this.customButtons.push(markButtonModel);
+      }
+
+      // Time view btn
+      if (this.customButtons.length > 0) {
+        let timeButtonModel: ButtonModel = new ButtonModel();
+        timeButtonModel.name = 'Time View';
+        timeButtonModel.color = 'accent';
+        timeButtonModel.hideIcon = true;
+        timeButtonModel.buttonType = 'raised-button';
+        timeButtonModel.disabled = true;
+        timeButtonModel.clickMethodTooltip = 'Return to Time View';
+        timeButtonModel.clickMethod = () => {
+          for (let button of this.customButtons) {
+            button.disabled = false;
+          }
+          timeButtonModel.disabled = this.showMarkView();
+        };
+        this.customButtons.push(timeButtonModel);
+      }
+    }
+  }
+
+  // When metric card is already activated
+  initMetricsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel, activeView?: string): void {
+    tJobExec.activeView = activeView;
+
+    this.allInOneMetrics = undefined;
+    this.metricsList = [];
+    this.groupedMetricsList = [];
+
+    if (!this.firstTimeInitialized) {
+      this.initModels(tJob, tJobExec);
+    }
+
+    let monitoringIndex: string = this.tJobExec.monitoringIndex;
+    let showAIO: boolean = this.tJob.execDashboardConfigModel.showAllInOne;
+    let passTJobExec: boolean = false;
+    let ignoreDefaultDockbeatMetrics: boolean = false;
+
+    // Multi parent TJobExec
+    if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
+      monitoringIndex = tJobExec.getChildsMonitoringIndices();
+      showAIO = false;
+      passTJobExec = true;
+      ignoreDefaultDockbeatMetrics = true;
+    }
+
+    if (showAIO) {
+      this.initAIO();
+    }
+
+    for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
+      if (metric.activated) {
+        let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
+        individualMetrics.monitoringIndex = monitoringIndex;
+        if (metric.component === '') {
+          // If no component, is a default metric (dockbeat whit more than 1 component)
+          if (ignoreDefaultDockbeatMetrics) {
+            metric.activated = false;
+          } else {
+            individualMetrics.activateAllMatchesByNameSuffix(metric.name);
+            if (!this.live) {
+              individualMetrics.getAllMetrics();
+            } else {
+              this.createSubjectAndSubscribe(individualMetrics.component, metric.stream, metric.streamType);
+            }
+
+            this.metricsList.push(individualMetrics);
+          }
+        } else {
+          // Else, is a custom metric
+          let pos: number = this.initCustomMetric(metric, individualMetrics);
+          if (!this.live && pos >= 0) {
+            let metricName: string = metric.streamType === 'atomic_metric' ? metric.etType : metric.etType + '.' + metric.subtype;
+            this.monitoringService
+              .searchAllDynamic(
+                individualMetrics.monitoringIndex,
+                metric.stream,
+                metric.component,
+                metricName,
+                passTJobExec ? tJobExec : undefined,
+              )
+              .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error) => console.log(error));
+          }
+        }
+      }
+    }
+    this.createGroupedMetricList();
+    this.firstTimeInitialized = true;
   }
 
   initAIO(): void {
@@ -80,45 +212,10 @@ export class EtmChartGroupComponent implements OnInit {
     }
   }
 
-  initMetricsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
-    this.tJob = tJob;
-    this.tJobExec = tJobExec;
-
-    if (this.tJob.execDashboardConfigModel.showAllInOne) {
-      this.initAIO();
-    }
-
-    for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
-      if (metric.activated) {
-        let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
-        individualMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
-        if (metric.component === '') {
-          // If no component, is a default metric
-          individualMetrics.activateAllMatchesByNameSuffix(metric.name);
-          if (!this.live) {
-            individualMetrics.getAllMetrics();
-          }
-          this.metricsList.push(individualMetrics);
-        } else {
-          // Else, is a custom metric
-          let pos: number = this.initCustomMetric(metric, individualMetrics);
-          if (!this.live && pos >= 0) {
-            let metricName: string = metric.streamType === 'atomic_metric' ? metric.etType : metric.etType + '.' + metric.subtype;
-            this.monitoringService
-              .searchAllDynamic(individualMetrics.monitoringIndex, metric.stream, metric.component, metricName)
-              .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error) => console.log(error));
-          }
-        }
-      }
-    }
-    this.createGroupedMetricList();
-  }
-
   initCustomMetric(metric: MetricsFieldModel, individualMetrics: ESRabComplexMetricsModel): number {
     if (metric.unit) {
       individualMetrics.yAxisLabelLeft = metric.unit;
     }
-
     this.metricsList.push(individualMetrics);
     this.createGroupedMetricList();
 
@@ -164,22 +261,27 @@ export class EtmChartGroupComponent implements OnInit {
     return pos;
   }
 
+  // Added manually
   addMoreMetrics(obj: any): boolean {
-    let metric: MetricsFieldModel = obj.metricFieldModel;
-    let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
+    let added: boolean = false;
+    for (let metric of obj.metricFieldModels) {
+      let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
 
-    if (!this.alreadyExist(individualMetrics.name)) {
-      individualMetrics.addSimpleMetricTraces(obj.data);
-      individualMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
-      this.initCustomMetric(metric, individualMetrics);
+      if (!this.alreadyExist(individualMetrics.name)) {
+        individualMetrics.addSimpleMetricTraces(obj.data);
+        individualMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
+        this.initCustomMetric(metric, individualMetrics);
 
-      return true;
-    } else {
-      return false;
+        added = added || true;
+      } else {
+        added = added || false;
+      }
     }
+
+    return added;
   }
 
-  initializeBasicAttrByMetric(metric: any): ESRabComplexMetricsModel {
+  initializeBasicAttrByMetric(metric: MetricsFieldModel): ESRabComplexMetricsModel {
     let ignoreComponent: string = this.getIgnoreComponent();
     let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.monitoringService, ignoreComponent);
     individualMetrics.name = this.createName(metric.component, metric.stream, metric.etType, metric.subtype);
@@ -187,6 +289,27 @@ export class EtmChartGroupComponent implements OnInit {
     individualMetrics.stream = metric.stream;
     individualMetrics.hidePrevBtn = !this.live;
     return individualMetrics;
+  }
+
+  createSubjectAndSubscribe(component: string, stream: string, streamType: string): void {
+    let index: string = this.getAbstractTJobExecIndex(component);
+    if (index) {
+      // Default chart
+      if (!component || component === '') {
+        // Subscribe to all component topics
+        for (component of components) {
+          let key: string = this.elastestRabbitmqService.getDestinationFromData(index, streamType, component, stream);
+          this.elastestRabbitmqService.createSubject(streamType, component, stream);
+          let subscription: Subscription = this.elastestRabbitmqService
+            .createAndSubscribeToTopic(index, streamType, component, stream)
+            .subscribe((data) => this.updateDefaultChartsData(data));
+
+          this.subscriptions.set(key, subscription);
+        }
+      } else {
+        // TODO but no necessary because only is used by default charts
+      }
+    }
   }
 
   createName(component: string, stream: string, etType: string, subtype: string): string {
@@ -220,7 +343,7 @@ export class EtmChartGroupComponent implements OnInit {
     return groups;
   }
 
-  updateMetricsData(data: any): void {
+  updateDefaultChartsData(data: any): void {
     for (let group of this.groupedMetricsList) {
       for (let metric of group) {
         if (metric.isDefault()) {
@@ -235,19 +358,14 @@ export class EtmChartGroupComponent implements OnInit {
     }
   }
 
-  ngAfterViewChecked() {
-    if (!this.loaded) {
-      this.subscribeAllToEvents();
-    }
-  }
-
   subscribeAllToEvents(): void {
     if (!this.live) {
       // If not is live, subscribe to events
       this.unsubscribeAllEvents();
-      this.loaded = this.MetricsChartCardComponents.toArray() && this.MetricsChartCardComponents.toArray().length > 0;
+      this.loaded =
+        this.metricsChartCardComponents.toArray() && this.metricsChartCardComponents.toArray().length === this.metricsList.length;
       if (this.loaded) {
-        this.MetricsChartCardComponents.forEach((element: MetricsChartCardComponent) => {
+        this.metricsChartCardComponents.forEach((element: MetricsChartCardComponent) => {
           this.subscribeToEvents(element);
         });
       }
@@ -286,19 +404,19 @@ export class EtmChartGroupComponent implements OnInit {
   }
 
   updateTimeline(domain) {
-    this.MetricsChartCardComponents.forEach((element) => {
+    this.metricsChartCardComponents.forEach((element) => {
       element.updateDomain(domain);
     });
   }
 
   hoverCharts(item) {
-    this.MetricsChartCardComponents.forEach((element) => {
+    this.metricsChartCardComponents.forEach((element) => {
       element.hoverCharts(item);
     });
   }
 
   leaveCharts() {
-    this.MetricsChartCardComponents.forEach((element) => {
+    this.metricsChartCardComponents.forEach((element) => {
       element.leaveCharts();
     });
   }
@@ -338,9 +456,16 @@ export class EtmChartGroupComponent implements OnInit {
     }
 
     if (!component || component === '') {
+      // If default chart, unsubscribe to all component topics
       for (component of components) {
         let index: string = this.getAbstractTJobExecIndex(component);
         this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
+
+        let key: string = this.elastestRabbitmqService.getDestinationFromData(index, streamType, component, stream);
+        if (this.subscriptions.has(key)) {
+          this.subscriptions.get(key).unsubscribe();
+          this.subscriptions.delete(key);
+        }
       }
     } else {
       let index: string = this.getAbstractTJobExecIndex(component);
@@ -370,5 +495,11 @@ export class EtmChartGroupComponent implements OnInit {
         break;
     }
     return index;
+  }
+
+  showMarkView(markId: string = undefined): boolean {
+    // if markId = undefined, normal view (time)
+    this.initMetricsView(this.tJob, this.tJobExec, markId);
+    return true;
   }
 }
