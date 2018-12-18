@@ -14,7 +14,7 @@ node('et_in_et'){
                     stage ("Run tests")
                         try {
                             sh "cd e2e-test; mvn -B clean test -Dtest=EtmTestLinkFTIntegratedE2eTest -DetEtmApi=" + elastest_url
-                        } catch(e) {
+                        } catch(err) {
                             def errString = err.toString()
                             currentBuild.result = getJobStatus(errString)
                             throw err
