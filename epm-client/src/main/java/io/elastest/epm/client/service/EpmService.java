@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -14,6 +15,10 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import io.elastest.epm.client.api.ClusterApi;
+import io.elastest.epm.client.model.AuthCredentials;
+import io.elastest.epm.client.model.ClusterFromResourceGroup;
+import io.elastest.epm.client.model.WorkerFromVDU;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +40,7 @@ import io.elastest.epm.client.model.RemoteEnvironment;
 import io.elastest.epm.client.model.ResourceGroup;
 import io.elastest.epm.client.model.VDU;
 import io.elastest.epm.client.model.Worker;
+import io.elastest.epm.client.model.Cluster;
 import io.elastest.epm.client.service.ServiceException.ExceptionCode;
 
 @Service
@@ -60,6 +66,7 @@ public class EpmService {
 
     private PackageApi packageApiInstance;
     private WorkerApi workerApiInstance;
+    private ClusterApi clusterApiInstance;
     private KeyApi keyApiInstance;
     private PoPApi popApi;
     private ApiClient apiClient;
@@ -87,6 +94,7 @@ public class EpmService {
         packageApiInstance = new PackageApi();
         packageApiInstance.setApiClient(apiClient);
         workerApiInstance = new WorkerApi();
+        clusterApiInstance = new ClusterApi();
         keyApiInstance = new KeyApi();
         popApi = new PoPApi();
         json = new JSON(apiClient);
@@ -168,6 +176,27 @@ public class EpmService {
             re.setKey(key);
             
             // Registering a Worker
+
+            /*
+            Registering from a Resource Group can also be done in the following way:
+
+            WorkerFromVDU workerFromVDU = new WorkerFromVDU();
+            workerFromVDU.setVduId(resourceGroup.getVdus().get(0).getId());
+            workerFromVDU.setType(new ArrayList<String>());
+            workerFromVDU.addTypeItem("docker-compose");
+            Worker registeredWorker = workerApiInstance.createWorker(workerFromVDU);
+
+            Alternatively you can transform the RG into a K8s CLuster
+
+            ClusterFromResourceGroup clusterFromResourceGroup = new ClusterFromResourceGroup();
+            clusterFromResourceGroup.setResourceGroupId(resourceGroup.getId());
+            clusterFromResourceGroup.setMasterId(resourceGroup.getVdus().get(0).getId());
+            clusterFromResourceGroup.addTypeItem("kubernetes");
+
+            Cluster cluster = clusterApiInstance.createCluster(clusterFromResourceGroup);
+
+             */
+
             int currentAttempts = 0;
             boolean registeredWorker = false;
             while (currentAttempts < MAX_ATTEMPTS && !registeredWorker) {
@@ -307,12 +336,15 @@ public class EpmService {
 
     public Worker registerWorker(ResourceGroup rg) throws ServiceException {
         Worker worker = new Worker();
+        AuthCredentials authCredentials = new AuthCredentials();
+        authCredentials.setKey("tub-ansible");
+        authCredentials.setUser("ubuntu");
+        authCredentials.passphrase("");
+        authCredentials.password("");
+
         worker.setIp(rg.getVdus().get(0).getIp());
-        worker.setUser("ubuntu");
         worker.setEpmIp("localhost");
-        worker.setKeyname("tub-ansible");
-        worker.passphrase("");
-        worker.password("");
+        worker.setAuthCredentials(authCredentials);
 
         Worker result = null;
         try {
