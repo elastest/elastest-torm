@@ -381,6 +381,7 @@ public class EtmBaseTest {
         driver.findElement(By.name("project.name")).sendKeys(projectName);
         driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]"))
                 .click();
+        sleep(1000);
     }
 
     protected void removeETProject(WebDriver driver, String projectName) {
@@ -551,12 +552,12 @@ public class EtmBaseTest {
         this.clickSaveSut(driver);
     }
 
-    protected void clickSaveSut(WebDriver driver) throws InterruptedException {
-        Thread.sleep(2000);
+    protected void clickSaveSut(WebDriver driver) {
+        sleep(2000);
         log.debug("Saving Sut");
         this.getElementByXpath(driver, "//button[contains(string(), 'SAVE')]")
                 .click();
-        Thread.sleep(1000);
+        sleep(1000);
     }
 
     protected String getSutsTableXpathFromProjectPage() {
@@ -578,11 +579,8 @@ public class EtmBaseTest {
                 projectName);
         this.navigateToETProject(driver, projectName);
 
-        try {
-            // Sleep for wait to load tables
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-        }
+        // Sleep for wait to load tables
+        sleep(1500);
 
         String sutsTableXpath = getSutsTableXpathFromProjectPage();
 
@@ -604,11 +602,9 @@ public class EtmBaseTest {
             String projectName, String sutName) {
         log.info("Checking if Sut {} exists into Project TL {}", sutName,
                 projectName);
-        try {
-            // Sleep for wait to load tables
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-        }
+
+        // Sleep for wait to load tables
+        sleep(1500);
 
         String sutsTableXpath = getSutsTableXpathFromProjectPage();
 
@@ -722,11 +718,8 @@ public class EtmBaseTest {
                 projectName);
         this.navigateToETProject(driver, projectName);
 
-        try {
-            // Sleep for wait to load tables
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-        }
+        // Sleep for wait to load tables
+        sleep(1500);
 
         String tJobsTableXpath = getTJobsTableXpathFromProjectPage();
 
@@ -878,10 +871,8 @@ public class EtmBaseTest {
 
         // Navigate to tjob
         driver.findElement(By.xpath(xpath)).click();
-        try {
-            Thread.sleep(1200);
-        } catch (InterruptedException e) {
-        }
+        sleep(1200);
+
         this.getElementByXpath(driver, "//button[@title='Run TJob']").click();
     }
 
@@ -1045,6 +1036,13 @@ public class EtmBaseTest {
                 : DesiredCapabilities.firefox();
         caps.setCapability("testName", testName);
         driver = new RemoteWebDriver(new URL(eusURL), caps);
+    }
+
+    public void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+        }
     }
 
 }

@@ -16,7 +16,6 @@
  */
 package io.elastest.etm.test.e2e.example;
 
-import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.openqa.selenium.Keys.RETURN;
 
