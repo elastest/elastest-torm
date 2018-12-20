@@ -1,6 +1,6 @@
-node('et_in_et'){
+node(){
     try {
-        elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: 11) {
+        elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: 20) {
             def elastest_url = ''
             stage ('docker container')
                 def mycontainer = docker.image('elastest/ci-docker-e2e:latest')
@@ -13,7 +13,7 @@ node('et_in_et'){
                         
                     stage ("Run tests")
                         try {
-                            sh "cd e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.demoprojects.** -DetEtmApi=" + elastest_url + " -DeUser=elastest -DePass=3xp3r1m3nt47"
+                            sh "cd e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.demoprojects.** -DetEtmApi=" + elastest_url + " -DeUser=${DEV_USER} -DePass=${DEV_PASS}"
                         } catch(err) {
                             def errString = err.toString()
                             currentBuild.result = getJobStatus(errString)
