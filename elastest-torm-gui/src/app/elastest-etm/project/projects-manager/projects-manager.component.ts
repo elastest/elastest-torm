@@ -14,7 +14,7 @@ import { MdDialog } from '@angular/material';
 export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   @Input()
   isNested: boolean = false;
-  tableStyle: string = 'without_scroll_table';
+  tableStyle: string = 'useMaxHeight';
 
   // Project data
   projectColumns: any[] = [
@@ -46,7 +46,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     if (!this.isNested) {
       this.titlesService.setHeadTitle('Projects');
-      this.tableStyle = 'without_scroll_table';
+      this.tableStyle = 'useMaxHeight';
     } else {
       this.tableStyle = 'scroll_table';
     }
