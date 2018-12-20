@@ -41,10 +41,10 @@ node(){
 
 def getJobStatus(exceptionString) {
     def status = 'SUCCESS'
-    if (exceptionString.contains('FlowInterruptedException') || exceptionString.contains('AbortException')) {
-        status = 'ABORTED'
-    } else {
+    if (exceptionString.contains('exit code 1')) {
         status = 'FAILURE'
+    } else {
+        status = 'ABORTED'
     }
     return status;
 }
