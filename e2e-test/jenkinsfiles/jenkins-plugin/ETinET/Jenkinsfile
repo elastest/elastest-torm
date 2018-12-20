@@ -1,6 +1,6 @@
 node('et_in_et'){
     try{
-        elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: 11, monitoring: true) {
+        elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: 11, monitoring: false) {
             def elastest_url = ''
             def jenkins_url = ''
             stage ('docker container')
@@ -15,9 +15,10 @@ node('et_in_et'){
                         jenkins_url =  env.ET_SUT_PROTOCOL + '://' + env.ET_SUT_HOST + ':37092'
                     stage ("Run tests")
                         try {                        
-                            sh "cd e2e-test; mvn -B clean test -Dtest=EJEtinEtTest -DetEtmApi=" + elastest_url + " -DeUser=elastest -DePass=3xp3r1m3nt47 -DciUrl=" + jenkins_url + " -DciUser=elastest -DciPass=3xp3r1m3nt47 "
+                            sh "cd e2e-test; mvn -B clean test -Dtest=EJEtinEtTest -DetEtmApi=" + elastest_url + " -DeUser=${DEV_USER} -DePass=${DEV_PASS} -DciUrl=" + jenkins_url + " -DciUser=${DEV_USER} -DciPass=${DEV_PASS} "
                         } catch(err) {
                             def errString = err.toString()
+                            echo 'Exception catched: ' + errString
                             currentBuild.result = getJobStatus(errString)
                             throw err
                         } finally {

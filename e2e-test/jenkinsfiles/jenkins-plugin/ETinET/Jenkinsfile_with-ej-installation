@@ -47,7 +47,7 @@ node('et_in_et'){
                     
                     stage ("Run tests")
                         try {                        
-                            sh "cd elastest/e2e-test; mvn -Dtest=EJWhitInstallEtInEtTest -DetEtmApi=" + elastest_url + " -DeUser=elastest -DePass=3xp3r1m3nt47 -DciUrl=" + jenkins_url + " -DePluginPath=" + pluginPath + " -B test"
+                            sh "cd elastest/e2e-test; mvn -Dtest=EJWhitInstallEtInEtTest -DetEtmApi=" + elastest_url + " -DeUser=${DEV_USER} -DePass=${DEV_PASS} -DciUrl=" + jenkins_url + " -DePluginPath=" + pluginPath + " -B test"
                         } catch(err) {
                             def errString = err.toString()
                             currentBuild.result = getJobStatus(errString)

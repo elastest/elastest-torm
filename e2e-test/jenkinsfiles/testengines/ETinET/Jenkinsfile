@@ -13,7 +13,7 @@ node('et_in_et'){
                         
                     stage ("Run tests")
                         try {                        
-                            sh "cd e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.engines.** -DetEtmApi=" + elastest_url + " -DeUser=elastest -DePass=3xp3r1m3nt47"
+                            sh "cd e2e-test; mvn -B clean test -Dtest=io.elastest.etm.test.e2e.engines.** -DetEtmApi=" + elastest_url + " -DeUser=${DEV_USER} -DePass=${DEV_PASS}"
                         } catch(e) {
                             def errString = err.toString()
                             currentBuild.result = getJobStatus(errString)
