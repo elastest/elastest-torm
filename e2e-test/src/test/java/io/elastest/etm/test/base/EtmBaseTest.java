@@ -146,7 +146,6 @@ public class EtmBaseTest {
         log.info("##### Finish test: {}", testName);
         if (driver != null) {
             if (eusURL != null) {
-                log.info("Clearing Messages...");
                 driver.quit();
             } else {
                 log.info("Browser console at the end of the test");
@@ -878,45 +877,22 @@ public class EtmBaseTest {
 
     protected void startTestSupportService(WebDriver driver,
             String supportServiceLabel) {
-        WebElement tssNavButton = driver
-                .findElement(By.id("nav_support_services"));
+        WebElement tssNavButton = getElementById(driver,
+                "nav_support_services");
         if (!tssNavButton.isDisplayed()) {
             driver.findElement(By.id("main_menu")).click();
         }
         tssNavButton.click();
 
-        WebDriverWait waitElement = new WebDriverWait(driver, 3);
-        By supportService;
-        int numRetries = 1;
-        do {
-            driver.findElement(By.className("mat-select-trigger")).click();
-            supportService = By.xpath("//md-option[contains(string(), '"
-                    + supportServiceLabel + "')]");
-            try {
-                waitElement.until(visibilityOfElementLocated(supportService));
-                log.info("Element {} already available", supportService);
-                break;
+        log.info("Select {}", supportServiceLabel);
+        selectItem(driver, supportServiceLabel, "Select a Service");
 
-            } catch (Exception e) {
-                numRetries++;
-                if (numRetries > 6) {
-                    log.warn("Max retries ({}) reached ... leaving",
-                            numRetries);
-                    break;
-                }
-                log.warn("Element {} not available ... retrying",
-                        supportService);
-            }
-        } while (true);
-        driver.findElement(supportService).click();
-
-        log.info("Create and wait instance");
-        driver.findElement(By.id("create_instance")).click();
-        WebDriverWait waitService = new WebDriverWait(driver, 120); // seconds
-        By serviceDetailButton = By
-                .xpath("//button[@title='View Service Detail']");
-        waitService.until(visibilityOfElementLocated(serviceDetailButton));
-        driver.findElement(serviceDetailButton).click();
+        log.info("Create and wait for instance");
+        getElementById(driver, "create_instance").click();
+        
+        log.info("Navigate for instance view");
+        getElementByXpath(driver, "//button[@title='View Service Detail']", 240)
+                .click();
     }
 
     protected void checkFinishTJobExec(WebDriver driver, int timeout,
@@ -1025,17 +1001,6 @@ public class EtmBaseTest {
         } else {
             this.driver = driver;
         }
-    }
-
-    public void setupTestBrowser(TestInfo testInfo, BrowserType browser)
-            throws MalformedURLException {
-        String testName = testInfo.getTestMethod().get().getName();
-
-        DesiredCapabilities caps;
-        caps = browser.equals(BrowserType.CHROME) ? DesiredCapabilities.chrome()
-                : DesiredCapabilities.firefox();
-        caps.setCapability("testName", testName);
-        driver = new RemoteWebDriver(new URL(eusURL), caps);
     }
 
     public void sleep(long millis) {

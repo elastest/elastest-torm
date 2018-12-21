@@ -16,31 +16,31 @@
                "bullets": "basic plan",
                "costs": {
                   "description": "cost model for eus",
-		          "currency": "eur",
-		          "model": "pay-as-you-go",
-		          "model_param": {
-		            "setup_cost": 3.5
-		          },
-		          "meter_list": [
-		            {
-		              "meter_name": "chrome_browser",
-		              "meter_type": "counter",
-		              "unit_cost": 5,
-		              "unit": "instance-hour"
-		            },
-		            {
-		              "meter_name": "firefox_browser",
-		              "meter_type": "counter",
-		              "unit_cost": 2.5,
-		              "unit": "instance-hour"
-		            },
-		            {
-		              "meter_name": "edge_browser",
-		              "meter_type": "counter",
-		              "unit_cost": 2,
-		              "unit": "instance-hour"
-		            }
-		          ]
+                  "currency": "eur",
+                  "model": "pay-as-you-go",
+                  "model_param": {
+                    "setup_cost": 3.5
+                  },
+                  "meter_list": [
+                    {
+                      "meter_name": "chrome_browser",
+                      "meter_type": "counter",
+                      "unit_cost": 5,
+                      "unit": "instance-hour"
+                    },
+                    {
+                      "meter_name": "firefox_browser",
+                      "meter_type": "counter",
+                      "unit_cost": 2.5,
+                      "unit": "instance-hour"
+                    },
+                    {
+                      "meter_name": "edge_browser",
+                      "meter_type": "counter",
+                      "unit_cost": 2,
+                      "unit": "instance-hour"
+                    }
+                  ]
                }
             },
             "name": "EUS plan"
@@ -56,7 +56,7 @@
    },
    "manifest": {
       "id": "2bd62bc2-f768-42d0-8194-562924b494ff",
-      "manifest_content": "version: '3'\nservices:\n   elastest-eus:\n      image: elastest/eus\n      environment:\n         - USE_TORM=true\n      expose:\n         - 8040\n      networks:\n         - default\n      volumes:\n         - /var/run/docker.sock:/var/run/docker.sock\n         - ${ET_DATA_IN_HOST}:${ET_SHARED_FOLDER}\nnetworks:\n  default:\n    external:\n      name: ${ELASTEST_DOCKER_NETWORK}",
+      "manifest_content": "version: '2.1'\nservices:\n   elastest-eus:\n      image: elastest/eus\n      environment:\n         - USE_TORM=true\n      expose:\n         - 8040\n      networks:\n         - elastest_elastest\n      volumes:\n         - /var/run/docker.sock:/var/run/docker.sock\n         - ${ET_DATA_IN_HOST}:${ET_SHARED_FOLDER}\n      labels:\n         - io.elastest.type=tss\n         - io.elastest.tjob.tss.id=eus\n         - io.elastest.tjob.tss.type=main\nnetworks:\n  elastest_elastest:\n    external: true",
       "manifest_type": "docker-compose",
       "plan_id": "b4cfc681-0e28-41f0-b88c-dde69169a256",
       "service_id": "29216b91-497c-43b7-a5c4-6613f13fa0e9",
