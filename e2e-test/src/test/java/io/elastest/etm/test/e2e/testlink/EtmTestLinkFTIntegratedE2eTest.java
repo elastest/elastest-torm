@@ -269,7 +269,7 @@ public class EtmTestLinkFTIntegratedE2eTest extends EtmTestLinkBaseTest {
         build = this.createTlBuild(driver, build);
 
         // Create Test Case and associate to plan
-        String caseName = "Log In Test Case ";
+        String caseName = "Log In Test Case";
         log.info("Creating TL Case with name: {}", caseName);
         TestCase testCase = new TestCase();
         testCase.setId(0);
