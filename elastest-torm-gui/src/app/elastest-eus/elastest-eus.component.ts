@@ -182,7 +182,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
           let entry: EusTestModel;
           let newTestData: EusTestModel[] = [];
           for (entry of this.activeBrowsers) {
-            if (entry.id !== json.removeSession.id) {
+            if (entry && entry.id !== json.removeSession.id) {
               newTestData.push(entry);
             }
           }

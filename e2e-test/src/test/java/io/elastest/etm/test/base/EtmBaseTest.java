@@ -410,6 +410,7 @@ public class EtmBaseTest {
     }
 
     protected boolean etProjectExists(WebDriver driver, String projectName) {
+        navigateToProjects(driver);        
         log.info("Checking if Project {} exists", projectName);
         String projectsTableXpath = getProjectsTableXpathFromProjectPage();
 

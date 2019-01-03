@@ -432,11 +432,12 @@ public class DockerService {
         String finalImage = imageId.contains(":") ? imageId
                 : imageId.concat(":" + latestTag);
 
-        if (progressHandler != null) {
-
-            dockerClient.pull(finalImage, progressHandler);
-        } else {
-            dockerClient.pull(finalImage);
+        synchronized (this) {
+            if (progressHandler != null) {
+                dockerClient.pull(finalImage, progressHandler);
+            } else {
+                dockerClient.pull(finalImage);
+            }
         }
         logger.info("Docker image {} downloaded", imageId);
     }

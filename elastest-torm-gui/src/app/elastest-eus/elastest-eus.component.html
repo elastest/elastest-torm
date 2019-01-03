@@ -71,10 +71,12 @@
                         <ng-template #showBrowsersTable>
                             <td-data-table class="scroll_table" id="activBrowsersTable" [data]="activeBrowsers" [columns]="activeBrowsersColumns">
                                 <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
-                                    <i class="material-icons" (click)="getLiveUrl(row.url)" style="cursor: pointer"
+                                    <ng-container *ngIf="row !== undefined && row !== null">
+                                        <i class="material-icons" (click)="getLiveUrl(row.url)" style="cursor: pointer"
                                         mdTooltip="Open in new tab" *ngIf="row.url !== undefined && row.url !== null">open_in_new</i>
-                                    <i class="material-icons" (click)="viewSession(row.url, row, ' - Automated Test')"
+                                        <i class="material-icons" (click)="viewSession(row.url, row, ' - Automated Test')"
                                         id="view_automated" mdTooltip="Open as dialog" *ngIf="row.url !== undefined && row.url !== null">open_in_browser</i>
+                                    </ng-container>
                                 </ng-template>
                             </td-data-table>
                         </ng-template>
