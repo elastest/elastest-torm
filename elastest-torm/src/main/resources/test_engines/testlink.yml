@@ -16,6 +16,11 @@ services:
     - MARIADB_USER=root
     volumes:
     - etm-testlink:/bitnami
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
 volumes:
   etm-testlink:
 # projectnametoreplace will be replaced to Elastest project name (elastest)

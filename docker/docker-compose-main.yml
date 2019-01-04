@@ -73,6 +73,11 @@ services:
             - ${ET_DATA_IN_HOST}:${ET_DATA_IN_CONTAINER}
         networks:
             - elastest
+        logging:
+          driver: "json-file"
+          options:
+            max-size: "50m"
+            max-file: "5"
 networks:
     elastest:
       driver: bridge

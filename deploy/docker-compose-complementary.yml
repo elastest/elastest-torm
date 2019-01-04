@@ -18,8 +18,12 @@ services:
             - RABBITUSER=elastest-etm
             - RABBITPASS=elastest-etm
         networks:
-            - elastest       
-                                  
+            - elastest
+        logging:
+          driver: "json-file"
+          options:
+            max-size: "50m"
+            max-file: "5"
     etm-rabbitmq:
         image: elastest/etm-rabbitmq:latest
         hostname: my-rabbit
@@ -31,6 +35,11 @@ services:
             - 61613:61613
         networks:
             - elastest
+        logging:
+          driver: "json-file"
+          options:
+            max-size: "50m"
+            max-file: "5"
 
     etm-filebeat:
         image: elastest/etm-filebeat:latest
@@ -43,6 +52,11 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - /var/lib/docker/containers:/var/lib/docker/containers
+        logging:
+          driver: "json-file"
+          options:
+            max-size: "50m"
+            max-file: "5"
 volumes:
     beats-data:
       driver: local

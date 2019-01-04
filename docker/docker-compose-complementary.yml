@@ -14,6 +14,11 @@ services:
             - ./resources/mysql/config:/etc/mysql/conf.d
         networks:
             - elastest
+        logging:
+          driver: "json-file"
+          options:
+            max-size: "50m"
+            max-file: "5"
 
     etm-filebeat:
         image: elastest/etm-filebeat:latest
@@ -24,6 +29,11 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - /var/lib/docker/containers:/var/lib/docker/containers
+        logging:
+          driver: "json-file"
+          options:
+            max-size: "50m"
+            max-file: "5"
 volumes:
     edm-mysql:
       driver: local
