@@ -479,10 +479,21 @@ public class EsmService {
 
     public void provisionTJobExecServiceInstanceSync(String serviceId,
             TJobExecution tJobExec, String tssInstanceId) {
+        // If ET mini and is shared tss
+        if (isSharedTssInstanceByServiceId(serviceId)) {
+            provisionTJobExecSharedTSSSync(serviceId, tJobExec, tssInstanceId);
+        } else {
+            // Else start new instance
+            provisionTJobExecServiceInstance(serviceId, tJobExec,
+                    tssInstanceId);
+        }
+
+    }
+
+    public void provisionTJobExecSharedTSSSync(String serviceId,
+            TJobExecution tJobExec, String tssInstanceId) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
-        // If mode normal and is shared tss
-        if (serviceName != null && utilsService.isElastestMini()
-                && tssLoadedOnInitMap.containsKey(serviceName)) {
+        if (isSharedTssInstance(serviceName)) {
             if (serviceName.equals("EUS")) {
                 this.registerTJobExecutionInEus(tssInstanceId, serviceName,
                         tJobExec);
@@ -492,13 +503,7 @@ public class EsmService {
                     .get(tssInstanceId);
             instance.gettJobExecIdList().add(tJobExec.getId());
             tJobServicesInstances.put(tssInstanceId, instance);
-
-        } else {
-            // Else start new instance
-            provisionTJobExecServiceInstance(serviceId, tJobExec,
-                    tssInstanceId);
         }
-
     }
 
     public void registerTJobExecutionInEus(String tssInstanceId,
@@ -586,9 +591,8 @@ public class EsmService {
             ExternalTJobExecution exTJobExec) {
 
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
-        // If mode normal and is shared tss
-        if (serviceName != null && utilsService.isElastestMini()
-                && tssLoadedOnInitMap.containsKey(serviceName)) {
+        // If Et Mini and is shared tss
+        if (isSharedTssInstance(serviceName)) {
             String tssInstanceId = tssLoadedOnInitMap.get(serviceName);
 
             if (serviceName.equals("EUS")) {
@@ -758,15 +762,15 @@ public class EsmService {
 
     public void waitForTssStartedInMini(TJobExecution tJobExec,
             String instanceId, String serviceName) {
-        String resultMsg = "Waiting for the Test Support Services to be ready";
+        String resultMsg = "Waiting for the Test Support Services to be ready: "
+                + serviceName.toUpperCase();
         dockerEtmService.updateTJobExecResultStatus(tJobExec,
                 ResultEnum.WAITING_TSS, resultMsg);
 
         logger.debug("Wait for TSS {} in TJob Execution {}", serviceName,
                 tJobExec.getId());
 
-        if (serviceName != null && utilsService.isElastestMini()
-                && tssLoadedOnInitMap.containsKey(serviceName)) {
+        if (isSharedTssInstance(serviceName)) {
             logger.debug(
                     "Service {} is loaded on init. It's not necessary to wait for the service",
                     serviceName);
@@ -1317,10 +1321,8 @@ public class EsmService {
         String serviceName = tssInstance != null
                 ? tssInstance.getServiceName().toUpperCase()
                 : null;
-        // If mode normal and is shared tss
-        if (serviceName != null && utilsService.isElastestMini()
-                && tssLoadedOnInitMap.containsKey(serviceName)) {
-
+        // If Et Mini and is shared tss
+        if (isSharedTssInstance(serviceName)) {
             if (serviceName.equals("EUS")) {
                 TJobExecution tJobExec = tJobExecRepositoryImpl
                         .findById(tJobExecId).get();
@@ -1349,9 +1351,8 @@ public class EsmService {
         String serviceName = tssInstance != null
                 ? tssInstance.getServiceName().toUpperCase()
                 : null;
-        // If mode normal and is shared tss
-        if (serviceName != null && utilsService.isElastestMini()
-                && tssLoadedOnInitMap.containsKey(serviceName)) {
+        // If Et Mini and is shared tss
+        if (isSharedTssInstance(serviceName)) {
 
             if (serviceName.equals("EUS")) {
                 ExternalTJobExecution exTJobExec = externalTJobExecutionRepository
@@ -2012,5 +2013,14 @@ public class EsmService {
             return servicesInstances.get(instanceId);
         }
         return null;
+    }
+
+    public boolean isSharedTssInstance(String serviceName) {
+        return getSharedTssInstanceId(serviceName) != null;
+    }
+
+    public boolean isSharedTssInstanceByServiceId(String serviceId) {
+        String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
+        return isSharedTssInstance(serviceName);
     }
 }

@@ -215,6 +215,7 @@ public class TJobExecOrchestratorService {
     public Future<Void> executeTJob(TJobExecution tJobExec,
             String tJobServices) {
         dbmanager.bindSession();
+        tJobExec.setResult(ResultEnum.IN_PROGRESS);
         String resultMsg = "Initializing";
         Date startDate = new Date();
         tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
@@ -627,19 +628,27 @@ public class TJobExecOrchestratorService {
 
         // If normal/experimental-lite mode, provision async and show pulling
         // information
+        String tssId = service.getId();
         if (utilsService.isElastestMini()) {
-            instanceId = esmService.generateNewOrGetInstanceId(service.getId());
-            esmService.provisionTJobExecServiceInstanceAsync(service.getId(),
-                    tJobExec, instanceId);
+            instanceId = esmService.generateNewOrGetInstanceId(tssId);
+            if (esmService.isSharedTssInstanceByServiceId(tssId)) {
+                // If is shared, is started
+                esmService.provisionTJobExecSharedTSSSync(tssId, tJobExec,
+                        instanceId);
+            } else {
+                // Else provision async and wait after for tss
+                esmService.provisionTJobExecServiceInstanceAsync(tssId,
+                        tJobExec, instanceId);
+            }
 
-            String serviceName = esmService
-                    .getServiceNameByServiceId(service.getId()).toUpperCase();
+            String serviceName = esmService.getServiceNameByServiceId(tssId)
+                    .toUpperCase();
 
             esmService.waitForTssStartedInMini(tJobExec, instanceId,
                     serviceName);
         } else { // Sync provision
-            instanceId = esmService.provisionTJobExecServiceInstanceSync(
-                    service.getId(), tJobExec);
+            instanceId = esmService.provisionTJobExecServiceInstanceSync(tssId,
+                    tJobExec);
         }
 
         tJobExec.getServicesInstances().add(instanceId);
@@ -789,8 +798,7 @@ public class TJobExecOrchestratorService {
                     .get(tJobExec.getId());
         }
 
-        logger.debug("TSS list size: {}", esmService
-                .gettSSIByTJobExecAssociated().get(tJobExec.getId()).size());
+        logger.debug("TSS list size: {}", instancesAux);
         for (String instanceId : instancesAux) {
             esmService.deprovisionTJobExecServiceInstance(instanceId,
                     tJobExec.getId());

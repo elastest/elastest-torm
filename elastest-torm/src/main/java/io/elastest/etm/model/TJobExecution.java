@@ -179,7 +179,8 @@ public class TJobExecution {
     public TJobExecution() {
         this.id = (long) 0;
         this.duration = (long) 0;
-        this.result = ResultEnum.IN_PROGRESS;
+        this.result = ResultEnum.QUEUED;
+        this.resultMsg = "QUEUED (Waiting for executor)";
         this.servicesInstances = new ArrayList<>();
         this.envVars = new HashMap<>();
         this.testSuites = new ArrayList<>();
@@ -232,7 +233,9 @@ public class TJobExecution {
 
         EXECUTING_TEST("EXECUTING TEST"),
 
-        WAITING_TSS("WAITING TSS");
+        WAITING_TSS("WAITING TSS"),
+        
+        QUEUED("QUEUED");
 
         private String value;
 
