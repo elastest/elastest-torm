@@ -91,6 +91,7 @@ public class EtmTestSupportServicesE2eTest extends EtmBaseTest {
         WebElement removeButton = getElementByXpath(driver,
                 firstTSSButtonsXpath + "[@title='Deprovision Service']");
         sleep(2000);
+        assertNotNull(removeButton);
         removeButton.click();
         log.debug("Wait for Test Support Service to be stopped");
         WebDriverWait waitEnd = new WebDriverWait(driver, 120);
