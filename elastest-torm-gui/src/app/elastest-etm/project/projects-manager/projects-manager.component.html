@@ -5,17 +5,17 @@
                 <div layout="row">
                     <span>Projects</span>
                     <span flex></span>
-                    <button md-raised-button color="primary" (click)="restoreDemoProjects()" id="restoreDemoProjects"
-                        mdTooltip="Restore Demo Projects">Restore Demo Projects</button>
-                    <button md-raised-button color="accent" [routerLink]="['/projects/add']" id="newProjectBtn"
-                        mdTooltip="Create New Project" class="push-left-sm">New Project</button>
+                    <button mat-raised-button color="primary" (click)="restoreDemoProjects()" id="restoreDemoProjects"
+                        matTooltip="Restore Demo Projects">Restore Demo Projects</button>
+                    <button mat-raised-button color="accent" [routerLink]="['/projects/add']" id="newProjectBtn"
+                        matTooltip="Create New Project" class="push-left-sm">New Project</button>
                 </div>
             </sa-card-title>
             <sa-card-content class="push-bottom-none">
-                <md-spinner strokeWidth="6" *ngIf="loading; else showContent" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+                <mat-spinner strokeWidth="6" *ngIf="loading; else showContent" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
                 <ng-template #showContent>
                     <centered-element *ngIf="projectData.length === 0" class="push-top-important messageEmptyCard">
-                        <md-icon>assignment</md-icon>
+                        <mat-icon>assignment</mat-icon>
                         <p>No Projects created</p>
                     </centered-element>
                     <td-data-table #projectsTable *ngIf="projectData && projectData.length > 0" [class]="tableStyle" [data]="projectData"
@@ -27,12 +27,12 @@
                         </ng-template>
                         <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                             <div layout="row" class="optionsColumn">
-                                <button md-button (click)="editProject(row)" stopRowClick class="iconBtn-lg" title="Edit Project">
-                                    <md-icon>mode_edit</md-icon>
+                                <button mat-button (click)="editProject(row)" stopRowClick class="iconBtn-lg" title="Edit Project">
+                                    <mat-icon>mode_edit</mat-icon>
                                 </button>
-                                <button md-button (click)="deleteProject(row)" [disabled]="deletingInProgress" stopRowClick
+                                <button mat-button (click)="deleteProject(row)" [disabled]="deletingInProgress" stopRowClick
                                     class="iconBtn-lg" title="Delete Project">
-                                    <md-icon>delete</md-icon>
+                                    <mat-icon>delete</mat-icon>
                                 </button>
                             </div>
                         </ng-template>

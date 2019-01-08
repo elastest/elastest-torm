@@ -1,14 +1,14 @@
 <div layout-xs="column" layout-gt-xs="column" layout-gt-lg="row" tdMediaToggle="gt-xs" layout-fill>
-  <md-card tdMediaToggle="gt-xs" flex>
+  <mat-card tdMediaToggle="gt-xs" flex>
     <div layout="column" layout-fill>
-      <md-card-title>
+      <mat-card-title>
         VNC
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content *ngIf="ready" flex style="overflow: auto;">
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content *ngIf="ready" flex style="overflow: auto;">
         <vnc-client [host]="host" [port]="port" [password]="password" [autoconnect]="autoconnect" [viewOnly]="viewOnly" [showStatus]="showStatus"
           [showConnectionBtns]="showConnectionBtns" flex></vnc-client>
-      </md-card-content>
+      </mat-card-content>
     </div>
-  </md-card>
+  </mat-card>
 </div>

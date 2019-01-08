@@ -1,19 +1,19 @@
 <div layout="column" tdMediaToggle="gt-xs" *ngIf="model && model.isMultiConfig()">
   <!-- EXECS TABLE -->
   <div>
-    <md-card tdMediaToggle="gt-xs" *ngIf="uniqueConfigExecTableRows.length > 0 || twoConfigExecTableRows.length > 0">
-      <md-card-title>
+    <mat-card tdMediaToggle="gt-xs" *ngIf="uniqueConfigExecTableRows.length > 0 || twoConfigExecTableRows.length > 0">
+      <mat-card-title>
         Configurations Executions Table
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content>
 
         <div class="push-bottom-lg" *ngIf="uniqueConfigExecTableRows.length > 0">
           <td-data-table class="scroll_table" [columns]="uniqueConfigExecTableColumns" [data]="uniqueConfigExecTableRows">
             <ng-template *ngFor="let column of uniqueConfigExecTableColumns" tdDataTableTemplate="{{column.name}}"
               let-value="value" let-row="row">
               <div *ngIf="column.name !== 'col1'; else printName">
-                <button md-button [style.color]="getResultIconByString(value.result).color" (click)="navigateToChild(value)"
+                <button mat-button [style.color]="getResultIconByString(value.result).color" (click)="navigateToChild(value)"
                   class="hover-pointer fontBold">{{value.result}}</button>
               </div>
               <ng-template #printName>
@@ -31,7 +31,7 @@
               let-value="value" let-row="row">
               <!-- Value is a child TJobExec -->
               <div *ngIf="column.name !== 'col1'; else printName">
-                <button md-button [style.color]="getResultIconByString(value.result).color" (click)="navigateToChild(value)"
+                <button mat-button [style.color]="getResultIconByString(value.result).color" (click)="navigateToChild(value)"
                   class="hover-pointer fontBold">{{value.result}}</button>
               </div>
               <ng-template #printName>
@@ -43,18 +43,18 @@
           </td-data-table>
         </div>
 
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <!-- TEST TABLE -->
   <div>
-    <md-card tdMediaToggle="gt-xs" *ngIf="uniqueConfigRows.length > 0 || config1Config2Rows.length > 0 || config2Config1Rows.length > 0 || configNRows.length > 0">
-      <md-card-title>
+    <mat-card tdMediaToggle="gt-xs" *ngIf="uniqueConfigRows.length > 0 || config1Config2Rows.length > 0 || config2Config1Rows.length > 0 || configNRows.length > 0">
+      <mat-card-title>
         Tests Table
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content>
 
         <div class="push-bottom-lg" *ngIf="uniqueConfigRows.length > 0">
           <td-data-table class="scroll_table" [columns]="uniqueConfigColumns" [data]="uniqueConfigRows">
@@ -62,7 +62,7 @@
               let-row="row">
               <!-- Value is a Test Case of a child TJobExec -->
               <div *ngIf="column.name !== 'caseName'; else printName">
-                <button md-button [style.color]="getResultIconByString(value.getResult()).color" (click)="navigateToTestCase(value)"
+                <button mat-button [style.color]="getResultIconByString(value.getResult()).color" (click)="navigateToTestCase(value)"
                   class="hover-pointer fontBold">{{value.getResult()}}</button>
               </div>
               <ng-template #printName>
@@ -75,7 +75,7 @@
         </div>
 
         <ng-container #twoConfigs>
-          <button md-raised-button color="accent" *ngIf="config1Config2Rows.length > 0 && config2Config1Rows.length > 0"
+          <button mat-raised-button color="accent" *ngIf="config1Config2Rows.length > 0 && config2Config1Rows.length > 0"
             (click)="switchInvertAxis()" class="push-bottom">Invert
             Axis</button>
 
@@ -86,7 +86,7 @@
                 let-row="row">
                 <!-- Value is a Test Case of a child TJobExec -->
                 <div *ngIf="column.name !== 'caseName'; else printName">
-                  <button md-button [style.color]="getResultIconByString(value.getResult()).color" (click)="navigateToTestCase(value)"
+                  <button mat-button [style.color]="getResultIconByString(value.getResult()).color" (click)="navigateToTestCase(value)"
                     class="hover-pointer fontBold">{{value.getResult()}}</button>
                 </div>
                 <ng-template #printName>
@@ -104,7 +104,7 @@
                 let-row="row">
                 <!-- Value is a Test Case of a child TJobExec -->
                 <div *ngIf="column.name !== 'caseName'; else printName">
-                  <button md-button [style.color]="getResultIconByString(value.getResult()).color" (click)="navigateToTestCase(value)"
+                  <button mat-button [style.color]="getResultIconByString(value.getResult()).color" (click)="navigateToTestCase(value)"
                     class="hover-pointer fontBold">{{value.getResult()}}</button>
                 </div>
                 <ng-template #printName>
@@ -123,7 +123,7 @@
                 let-row="row">
                 <!-- Value is a Test Case of a child TJobExec -->
                 <div *ngIf="column.name !== 'caseName'; else printName">
-                  <button md-button [style.color]="getResultIconByString(value.getResult()).color" (click)="navigateToTestCase(value)"
+                  <button mat-button [style.color]="getResultIconByString(value.getResult()).color" (click)="navigateToTestCase(value)"
                     class="hover-pointer fontBold">{{value.getResult()}}</button>
                 </div>
                 <ng-template #printName>
@@ -135,8 +135,8 @@
             </td-data-table>
           </div>
         </ng-container>
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </div>
 
 </div>

@@ -1,52 +1,52 @@
-<div id="testlinkPage" class="md-content">
+<div id="testlinkPage" class="mat-content">
     <div *ngIf="!isRunning; else showTestLink">
-        <md-card>
-            <md-card-title>
+        <mat-card>
+            <mat-card-title>
                 {{startingInProcess ? 'Starting TestLink...' : 'TestLink container not started yet'}}
-            </md-card-title>
-            <md-card-content>
-                <button *ngIf="!startingInProcess; else showProgress" md-button md-raised-button color="accent" id="startTestLink" (click)="startTestLink()"
-                    mdTooltip="Start TestLink container" [disabled]="startingInProcess">
-                    <md-icon>play_circle_outline</md-icon> Start TestLink
+            </mat-card-title>
+            <mat-card-content>
+                <button *ngIf="!startingInProcess; else showProgress" mat-button mat-raised-button color="accent" id="startTestLink" (click)="startTestLink()"
+                    matTooltip="Start TestLink container" [disabled]="startingInProcess">
+                    <mat-icon>play_circle_outline</mat-icon> Start TestLink
                 </button>
                 <ng-template #showProgress>
-                    <div class="md-subhead" *ngIf="testLinkModel && testLinkModel.statusMsg">
+                    <div class="mat-subhead" *ngIf="testLinkModel && testLinkModel.statusMsg">
                         {{ testLinkModel.statusMsg }}
                     </div>
-                    <md-spinner strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
+                    <mat-spinner strokeWidth="6" color="accent" class="push-top-sm"></mat-spinner>
                 </ng-template>
-            </md-card-content>
-        </md-card>
+            </mat-card-content>
+        </mat-card>
     </div>
 
     <ng-template #showTestLink>
         <div layout="column" *ngIf="testLinkUrl">
             <div flex-gt-sm="100">
-                <md-card>
-                    <md-card-title>
+                <mat-card>
+                    <mat-card-title>
                         <div layout="row">
                             <span>TestLink</span>
-                            <a href="{{testLinkUrl}}" id="openTestLink" class="iconBtn" target="_blank" mdTooltip="Open TestLink in new tab">
-                                <md-icon color="accent">open_in_new</md-icon>
+                            <a href="{{testLinkUrl}}" id="openTestLink" class="iconBtn" target="_blank" matTooltip="Open TestLink in new tab">
+                                <mat-icon color="accent">open_in_new</mat-icon>
                             </a>
                             <span class="push-left-sm">
-                                <div layout="column" class="md-caption">
-                                    <button md-raised-button color="accent" (click)="openDialog()">Show credentials</button>
+                                <div layout="column" class="mat-caption">
+                                    <button mat-raised-button color="accent" (click)="openDialog()">Show credentials</button>
                                 </div>
                             </span>
                             <span flex></span>
-                            <button md-icon-button color="accent" id="syncTestLink" (click)="syncTestLink()" mdTooltip="Sync data with ElasTest" [disabled]="disableBtns">
-                                <md-icon>sync</md-icon>
+                            <button mat-icon-button color="accent" id="syncTestLink" (click)="syncTestLink()" matTooltip="Sync data with ElasTest" [disabled]="disableBtns">
+                                <mat-icon>sync</mat-icon>
                             </button>
                         </div>
-                    </md-card-title>
+                    </mat-card-title>
 
-                    <md-divider></md-divider>
-                    <md-card-content class="push-bottom-none">
-                        <div class="md-title push-bottom-sm">Test Projects</div>
-                        <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+                    <mat-divider></mat-divider>
+                    <mat-card-content class="push-bottom-none">
+                        <div class="mat-title push-bottom-sm">Test Projects</div>
+                        <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
                         <centered-element *ngIf="!showSpinner && projectsList.length === 0" class="push-top-important messageEmptyCard">
-                            <md-icon>assignment</md-icon>
+                            <mat-icon>assignment</mat-icon>
                             <p>No Test Projects created</p>
                         </centered-element>
                         <td-data-table #projectsTable id="tlProjects" *ngIf="projectsList.length > 0" [class]="tableStyle" [data]="projectsList"
@@ -60,18 +60,18 @@
                             </ng-template>
                             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                                 <div layout="row" class="optionsColumn">
-                                    <button md-button [routerLink]="['/testlink/projects/edit', row.id]" stopRowClick class="iconBtn-lg" title="Edit Test Project">
-                                        <md-icon>mode_edit</md-icon>
+                                    <button mat-button [routerLink]="['/testlink/projects/edit', row.id]" stopRowClick class="iconBtn-lg" title="Edit Test Project">
+                                        <mat-icon>mode_edit</mat-icon>
                                     </button>
-                                    <!-- <button md-button (click)="deleteProject(row)" [disabled]="deletingInProgress" stopRowClick class="iconBtn-lg" title="Delete Project">
-                                    <md-icon>delete</md-icon>
+                                    <!-- <button mat-button (click)="deleteProject(row)" [disabled]="deletingInProgress" stopRowClick class="iconBtn-lg" title="Delete Project">
+                                    <mat-icon>delete</mat-icon>
                                 </button> -->
                                 </div>
                             </ng-template>
                         </td-data-table>
 
-                    </md-card-content>
-                </md-card>
+                    </mat-card-content>
+                </mat-card>
             </div>
         </div>
     </ng-template>

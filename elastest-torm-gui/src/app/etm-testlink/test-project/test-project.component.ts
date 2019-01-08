@@ -1,11 +1,11 @@
 import { TestPlanModel } from '../models/test-plan-model';
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
+import { TdDialogService } from '@covalent/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../shared/services/titles.service';
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { TestProjectModel } from '../models/test-project-model';
 import { TestLinkService } from '../testlink.service';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material';
 import { TLTestSuiteModel } from '../models/test-suite-model';
 import { ExternalProjectModel } from '../../elastest-etm/external/external-project/external-project-model';
 import { ExternalTJobModel } from '../../elastest-etm/external/external-tjob/external-tjob-model';
@@ -51,7 +51,7 @@ export class TestProjectComponent implements OnInit {
     private router: Router,
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
   ) {}
 
   ngOnInit() {
@@ -105,7 +105,7 @@ export class TestProjectComponent implements OnInit {
 
   /* Test Plans */
   runTestPlan(testPlan: TestPlanModel): void {
-    let dialogRef: MdDialogRef<SelectBuildModalComponent> = this.dialog.open(SelectBuildModalComponent, {
+    let dialogRef: MatDialogRef<SelectBuildModalComponent> = this.dialog.open(SelectBuildModalComponent, {
       data: {
         testPlan: testPlan,
         testProjectId: this.testProject.id,

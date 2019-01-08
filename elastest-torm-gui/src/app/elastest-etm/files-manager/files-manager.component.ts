@@ -8,7 +8,7 @@ import { ExternalService } from '../external/external.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { ExternalTJobExecModel } from '../external/external-tjob-execution/external-tjob-execution-model';
 import { ElastestEusDialog } from '../../elastest-eus/elastest-eus.dialog';
-import { MdDialogRef } from '@angular/material';
+import { MatDialogRef } from '@angular/material';
 import { ElastestEusDialogService } from '../../elastest-eus/elastest-eus.dialog.service';
 import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
 
@@ -121,7 +121,7 @@ export class FilesManagerComponent implements OnInit {
   }
 
   viewSession(url: string, title: string = 'Recorded Video'): void {
-    let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
+    let dialog: MatDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
     dialog.componentInstance.title = title;
     dialog.componentInstance.iframeUrl = url;
     dialog.componentInstance.sessionType = 'video';

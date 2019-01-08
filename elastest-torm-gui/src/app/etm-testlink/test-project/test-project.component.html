@@ -1,80 +1,80 @@
 <auto-height-grid layout="column">
   <normal-height-row>
-    <md-card>
-      <md-card-title>
+    <mat-card>
+      <mat-card-title>
         Test Project {{testProject.name}}
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content id="contentProject">
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content id="contentProject">
         <div layout="row">
           <div flex="47">
-            <md-list class="listInfoToLeft">
-              <md-list-item>
+            <mat-list class="listInfoToLeft">
+              <mat-list-item>
                 <h4>Name</h4>
                 <p>{{testProject.name}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
                 <h4>Prefix</h4>
                 <p>{{testProject.prefix}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
                 <h4>Enable Requirements</h4>
                 <p>{{testProject.enableRequirements}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
                 <h4>Enable Test Priority</h4>
                 <p>{{testProject.enableTestPriority}}</p>
-              </md-list-item>
-            </md-list>
+              </mat-list-item>
+            </mat-list>
           </div>
           <div flex="5"></div>
           <div flex="47">
-            <md-list class="listInfoToLeft">
-              <md-list-item>
+            <mat-list class="listInfoToLeft">
+              <mat-list-item>
                 <h4>Enable Automation</h4>
                 <p>{{testProject.enableAutomation}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
                 <h4>Enable Inventory</h4>
                 <p>{{testProject.enableInventory}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
                 <h4>Active</h4>
                 <p>{{testProject.active}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
                 <h4>Public</h4>
                 <p>{{testProject.public}}</p>
-              </md-list-item>
-            </md-list>
+              </mat-list-item>
+            </mat-list>
           </div>
           <!-- <span flex-gt-xs="25">
-              <md-card-subtitle>Options</md-card-subtitle>
+              <mat-card-subtitle>Options</mat-card-subtitle>
               <div class="optionsColumn" layout="column" layout-gt-xs="row">
-                <button md-button [routerLink]="['/testlink/projects/edit', testProject.id]" class="iconBtn-lg" title="Edit Test Project">
-                  <md-icon>mode_edit</md-icon>
+                <button mat-button [routerLink]="['/testlink/projects/edit', testProject.id]" class="iconBtn-lg" title="Edit Test Project">
+                  <mat-icon>mode_edit</mat-icon>
                 </button>
-                <button md-button (click)="deleteProject()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Project">
-                  <md-icon>delete</md-icon>
+                <button mat-button (click)="deleteProject()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Project">
+                  <mat-icon>delete</mat-icon>
                 </button>
               </div>
             </span> -->
         </div>
-        <md-divider></md-divider>
+        <mat-divider></mat-divider>
         <div layout="column" class="push-top-sm" id="testProjectBottomInfo">
           <span flex-gt-xs="100">
             <h4 class="pad-left-none">Notes</h4>
             <div id="notes" [innerHTML]="testProject.notes"></div>
           </span>
         </div>
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </normal-height-row>
 
   <!-- Test Suites/Plans -->
@@ -86,13 +86,13 @@
             <div layout="row">
               <span>Test Suites</span>
               <span flex></span>
-              <!-- <button md-raised-button color="accent" [routerLink]="['/testlink/projects',testProject.id, 'suites','new']">New Test Suite</button> -->
+              <!-- <button mat-raised-button color="accent" [routerLink]="['/testlink/projects',testProject.id, 'suites','new']">New Test Suite</button> -->
             </div>
           </sa-card-title>
           <sa-card-content #scrollMeTest>
-            <md-spinner strokeWidth="6" *ngIf="showSpinnerSuites" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+            <mat-spinner strokeWidth="6" *ngIf="showSpinnerSuites" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
             <centered-element *ngIf="!showSpinnerSuites && testSuites.length === 0" class="push-top-important messageEmptyCard">
-              <md-icon>assignment</md-icon>
+              <mat-icon>assignment</mat-icon>
               <p>No Test Suites created</p>
             </centered-element>
             <td-data-table #suiteTable id="tlTestSuites" *ngIf="testSuites.length > 0" class="scroll_table" [data]="testSuites"
@@ -114,13 +114,13 @@
             <div layout="row">
               <span>Test Plans</span>
               <span flex></span>
-              <!-- <button md-raised-button color="accent" [routerLink]="['/testlink/projects',testProject.id, 'plans','new']">New Test Plan</button> -->
+              <!-- <button mat-raised-button color="accent" [routerLink]="['/testlink/projects',testProject.id, 'plans','new']">New Test Plan</button> -->
             </div>
           </sa-card-title>
           <sa-card-content #scrollMeTest>
-            <md-spinner strokeWidth="6" *ngIf="showSpinnerPlans" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+            <mat-spinner strokeWidth="6" *ngIf="showSpinnerPlans" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
             <centered-element *ngIf="!showSpinnerPlans && testPlans.length === 0" class="push-top-important messageEmptyCard">
-              <md-icon>assignment</md-icon>
+              <mat-icon>assignment</mat-icon>
               <p>No Test Plans created</p>
             </centered-element>
             <td-data-table #planTable id="tlTestPlans" *ngIf="testPlans.length > 0" class="scroll_table" [data]="testPlans"
@@ -136,11 +136,11 @@
               </ng-template>
               <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                 <div layout="row" class="optionsColumn">
-                  <button md-button (click)="runTestPlan(row)" class="iconBtn" mdTooltip="Run Test Plan">
-                    <md-icon>play_circle_outline</md-icon>
+                  <button mat-button (click)="runTestPlan(row)" class="iconBtn" matTooltip="Run Test Plan">
+                    <mat-icon>play_circle_outline</mat-icon>
                   </button>
-                  <button *ngIf="exProject" md-button (click)="editTestPlan(row)" class="iconBtn" mdTooltip="Edit Test Plan">
-                    <md-icon>mode_edit</md-icon>
+                  <button *ngIf="exProject" mat-button (click)="editTestPlan(row)" class="iconBtn" matTooltip="Edit Test Plan">
+                    <mat-icon>mode_edit</mat-icon>
                   </button>
                 </div>
               </ng-template>

@@ -1,86 +1,86 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs">
   <div flex-gt-sm="100">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
+    <mat-card tdMediaToggle="gt-xs">
+      <mat-card-title>
         Test Suite {{testSuite.name}}
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content>
         <div layout="row">
           <div flex="47">
-            <md-list class="listInfoToLeft">
-              <md-list-item>
+            <mat-list class="listInfoToLeft">
+              <mat-list-item>
                 <h4>Name</h4>
                 <p>{{testSuite.name}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
                 <h4>Project ID</h4>
                 <p>{{testSuite.testProjectId}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
                 <h4>Parent ID</h4>
                 <p>{{testSuite.parentId}}</p>
-              </md-list-item>
-            </md-list>
+              </mat-list-item>
+            </mat-list>
           </div>
           <div flex="5"></div>
           <div flex="47">
-            <md-list class="listInfoToLeft">
-              <md-list-item>
+            <mat-list class="listInfoToLeft">
+              <mat-list-item>
                 <h4>Order</h4>
                 <p>{{testSuite.order}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
                 <h4>Check Duplicated Name</h4>
                 <p>{{testSuite.checkDuplicatedName}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
                 <h4>Action On Duplicated Name</h4>
                 <p>{{testSuite.actionOnDuplicatedName}}</p>
-              </md-list-item>
-            </md-list>
+              </mat-list-item>
+            </mat-list>
           </div>
 
           <!-- <span flex-gt-xs="25">
-            <md-card-subtitle>Options</md-card-subtitle>
+            <mat-card-subtitle>Options</mat-card-subtitle>
             <div class="optionsColumn" layout="column" layout-gt-xs="row">
-              <button md-button [routerLink]="['/testlink/suites/edit', testSuite.id]" class="iconBtn-lg" title="Edit Test Suite">
-                <md-icon>mode_edit</md-icon>
+              <button mat-button [routerLink]="['/testlink/suites/edit', testSuite.id]" class="iconBtn-lg" title="Edit Test Suite">
+                <mat-icon>mode_edit</mat-icon>
               </button>
-              <button md-button (click)="deleteSuite()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Suite">
-                <md-icon>delete</md-icon>
+              <button mat-button (click)="deleteSuite()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete Test Suite">
+                <mat-icon>delete</mat-icon>
               </button>
             </div>
           </span> -->
         </div>
-        <md-divider></md-divider>
+        <mat-divider></mat-divider>
         <div layout="column" class="push-top-sm" id="testSuiteBottomInfo">
           <span flex-gt-xs="100">
-            <md-card-subtitle class="pad-left-none">Details</md-card-subtitle>
+            <mat-card-subtitle class="pad-left-none">Details</mat-card-subtitle>
             <div [innerHTML]="testSuite.details"></div>
           </span>
         </div>
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>
 
 <div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testSuite && projectId">
   <div flex-gt-lg="50" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
+    <mat-card tdMediaToggle="gt-xs">
+      <mat-card-title>
         <div layout="row">
           <span>Test Cases</span>
           <span flex></span>
-          <!-- <button md-raised-button color="accent" [routerLink]="['/testlink/projects',projectId, 'suites',testSuite.id, 'cases','new']">New TestCase</button> -->
+          <!-- <button mat-raised-button color="accent" [routerLink]="['/testlink/projects',projectId, 'suites',testSuite.id, 'cases','new']">New TestCase</button> -->
         </div>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content #scrollMeTest>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content #scrollMeTest>
         <td-data-table #testCaseTable id="tlCases" class="scroll_table" [data]="testCases" [columns]="testCaseColumns" [selectable]="false"
           [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
           <ng-template *ngFor="let column of testCaseColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
@@ -94,19 +94,19 @@
           </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row" class="optionsColumn">
-              <!-- <button md-button (click)="runTJob(row, project)" class="iconBtn-lg" title="Run TJob">
-                <md-icon>play_circle_outline</md-icon>
+              <!-- <button mat-button (click)="runTJob(row, project)" class="iconBtn-lg" title="Run TJob">
+                <mat-icon>play_circle_outline</mat-icon>
               </button> -->
-              <!-- <button md-button (click)="editTJob(row)" class="iconBtn-lg" title="Edit TJob">
-                <md-icon>mode_edit</md-icon>
+              <!-- <button mat-button (click)="editTJob(row)" class="iconBtn-lg" title="Edit TJob">
+                <mat-icon>mode_edit</mat-icon>
               </button>
-              <button md-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
-                <md-icon>delete</md-icon>
+              <button mat-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
+                <mat-icon>delete</mat-icon>
               </button> -->
             </div>
           </ng-template>
         </td-data-table>
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

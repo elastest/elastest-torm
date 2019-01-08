@@ -229,7 +229,9 @@ export class VncUI {
   }
   // Adds a link to the label elements on the corresponding input elements
   setupSettingLabels(): void {
-    let labels: NodeListOf<HTMLLabelElement> = document.getElementsByTagName('LABEL') as NodeListOf<HTMLLabelElement>;
+    let labels: NodeListOf<HTMLLabelElement> = (document.getElementsByTagName('LABEL') as unknown) as NodeListOf<
+      HTMLLabelElement
+    >;
     if (labels) {
       for (let i: number = 0; i < labels.length; i++) {
         let label: HTMLLabelElement = labels[i];
@@ -278,10 +280,10 @@ export class VncUI {
   }
 
   /* ------^-------
-    *     /INIT
-    * ==============
-    * EVENT HANDLERS
-    * ------v------*/
+   *     /INIT
+   * ==============
+   * EVENT HANDLERS
+   * ------v------*/
 
   addResizeHandlers(): void {
     window.onresize = this.onResize.bind(this);
@@ -508,10 +510,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     * /EVENT HANDLERS
-     * ==============
-     *     VISUAL
-     * ------v------*/
+   * /EVENT HANDLERS
+   * ==============
+   *     VISUAL
+   * ------v------*/
 
   updateState(rfb, state, oldstate): void {
     let msg: string;
@@ -813,10 +815,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *    /VISUAL
-     * ==============
-     *    SETTINGS
-     * ------v------*/
+   *    /VISUAL
+   * ==============
+   *    SETTINGS
+   * ------v------*/
 
   // Initial page load read/initialization of settings
   initSetting(name, defVal): any {
@@ -926,10 +928,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *   /SETTINGS
-     * ==============
-     *    PANELS
-     * ------v------*/
+   *   /SETTINGS
+   * ==============
+   *    PANELS
+   * ------v------*/
 
   closeAllPanels(): void {
     this.closeSettingsPanel();
@@ -939,10 +941,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *   /PANELS
-     * ==============
-     * SETTINGS (panel)
-     * ------v------*/
+   *   /PANELS
+   * ==============
+   * SETTINGS (panel)
+   * ------v------*/
 
   openSettingsPanel(): void {
     this.closeAllPanels();
@@ -992,10 +994,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *   /SETTINGS
-     * ==============
-     *      XVP
-     * ------v------*/
+   *   /SETTINGS
+   * ==============
+   *      XVP
+   * ------v------*/
 
   openXvpPanel(): void {
     this.closeAllPanels();
@@ -1042,10 +1044,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *     /XVP
-     * ==============
-     *   CLIPBOARD
-     * ------v------*/
+   *     /XVP
+   * ==============
+   *   CLIPBOARD
+   * ------v------*/
 
   openClipboardPanel(): void {
     this.closeAllPanels();
@@ -1099,10 +1101,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *  /CLIPBOARD
-     * ==============
-     *  CONNECTION
-     * ------v------*/
+   *  /CLIPBOARD
+   * ==============
+   *  CONNECTION
+   * ------v------*/
 
   openConnectPanel(): void {
     if (document.getElementById('noVNC_connect_dlg')) {
@@ -1147,7 +1149,12 @@ export class VncUI {
 
     this.updateLocalCursor();
     this.updateViewOnly();
-    this.rfb.connect(this.host, this.port, this.password, path);
+    this.rfb.connect(
+      this.host,
+      this.port,
+      this.password,
+      path,
+    );
   }
 
   disconnect(): void {
@@ -1171,7 +1178,10 @@ export class VncUI {
       return;
     }
 
-    this.connect(null, this.reconnectPassword);
+    this.connect(
+      null,
+      this.reconnectPassword,
+    );
   }
 
   disconnectFinished(rfb, reason): void {
@@ -1202,10 +1212,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *  /CONNECTION
-     * ==============
-     *   PASSWORD
-     * ------v------*/
+   *  /CONNECTION
+   * ==============
+   *   PASSWORD
+   * ------v------*/
 
   passwordRequired(rfb, msg): void {
     let psw_dlg = document.getElementById('noVNC_password_dlg');
@@ -1250,10 +1260,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *  /PASSWORD
-     * ==============
-     *   FULLSCREEN
-     * ------v------*/
+   *  /PASSWORD
+   * ==============
+   *   FULLSCREEN
+   * ------v------*/
 
   toggleFullscreen(): void {
     let documentVar: any = document as any;
@@ -1307,10 +1317,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *  /FULLSCREEN
-     * ==============
-     *     RESIZE
-     * ------v------*/
+   *  /FULLSCREEN
+   * ==============
+   *     RESIZE
+   * ------v------*/
 
   // Apply remote resizing or local scaling
   applyResizeMode(): void {
@@ -1425,10 +1435,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *   /CLIPPING
-     * ==============
-     *    VIEWDRAG
-     * ------v------*/
+   *   /CLIPPING
+   * ==============
+   *    VIEWDRAG
+   * ------v------*/
 
   toggleViewDrag(): void {
     if (!this.rfb) {
@@ -1501,10 +1511,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *   /VIEWDRAG
-     * ==============
-     *    KEYBOARD
-     * ------v------*/
+   *   /VIEWDRAG
+   * ==============
+   *    KEYBOARD
+   * ------v------*/
 
   showVirtualKeyboard(): void {
     if (!isTouchDevice) {
@@ -1667,10 +1677,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *   /KEYBOARD
-     * ==============
-     *   EXTRA KEYS
-     * ------v------*/
+   *   /KEYBOARD
+   * ==============
+   *   EXTRA KEYS
+   * ------v------*/
 
   openExtraKeys() {
     this.closeAllPanels();
@@ -1740,10 +1750,10 @@ export class VncUI {
   }
 
   /* ------^-------
-     *   /EXTRA KEYS
-     * ==============
-     *     MISC
-     * ------v------*/
+   *   /EXTRA KEYS
+   * ==============
+   *     MISC
+   * ------v------*/
 
   setMouseButton(num) {
     let view_only = this.rfb.get_view_only();
@@ -1830,9 +1840,9 @@ export class VncUI {
   }
 
   /* ------^-------
-     *    /MISC
-     * ==============
-     */
+   *    /MISC
+   * ==============
+   */
 
   init(): void {
     // Set up translations

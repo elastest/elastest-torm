@@ -1,12 +1,12 @@
 <div layout="column" layout-fill>
   <div layout="row" *ngIf="showStatus && statusInfo">
-    <md-icon [style.color]="statusColor">{{statusIcon}}</md-icon>
+    <mat-icon [style.color]="statusColor">{{statusIcon}}</mat-icon>
     <span class="push-bottom">
       {{statusInfo}}
     </span>
     <span flex></span>
-    <button md-icon-button *ngIf="errorStatus()" color="accent" (click)="reconnect()" title="Try Reconnect" [disabled]="vncUi.connected">
-      <md-icon>sync</md-icon>
+    <button mat-icon-button *ngIf="errorStatus()" color="accent" (click)="reconnect()" title="Try Reconnect" [disabled]="vncUi.connected">
+      <mat-icon>sync</mat-icon>
     </button>
   </div>
   <div flex id="vnc_screen" [style.background]="bgColor">
@@ -15,7 +15,7 @@
     </canvas>
   </div>
   <div layout="row" class="push-top" *ngIf="vncUi && showConnectionBtns">
-    <button md-raised-button color="accent" (click)="connect()" [disabled]="vncUi.connected">Connect</button>
-    <button md-raised-button color="accent" (click)="disconnect()" [disabled]="!vncUi.connected">Disconnect</button>
+    <button mat-raised-button color="accent" (click)="connect()" [disabled]="vncUi.connected">Connect</button>
+    <button mat-raised-button color="accent" (click)="disconnect()" [disabled]="!vncUi.connected">Disconnect</button>
   </div>
 </div>

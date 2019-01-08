@@ -1,12 +1,12 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs">
   <div flex-gt-sm="100">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
+    <mat-card tdMediaToggle="gt-xs">
+      <mat-card-title>
         <div layout="row" layout-align="space-between end">
           <span>
-            <md-icon id="tJobExecResultIcon" *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color"
-              mdTooltip="{{exTJobExec.result}}">
-              {{exTJobExec.getResultIcon().name}}</md-icon>
+            <mat-icon id="tJobExecResultIcon" *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color"
+              matTooltip="{{exTJobExec.result}}">
+              {{exTJobExec.getResultIcon().name}}</mat-icon>
           </span>
           <a *ngIf="exTJob && exTJobExec" class="normalTextLink">
             <span>External TJob</span>
@@ -15,37 +15,37 @@
           <span>: Execution {{exTJobExecId}}</span>
           <span flex></span>
           <span>
-            <button md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
-              <md-icon>settings</md-icon>
+            <button mat-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
+              <mat-icon>settings</mat-icon>
             </button>
           </span>
         </div>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content>
         <div layout="row" class="push-bottom-sm">
           <div flex="47">
-            <md-list class="listInfoToLeft">
-              <md-list-item>
+            <mat-list class="listInfoToLeft">
+              <mat-list-item>
                 <h4>Start Date</h4>
                 <p>{{exTJobExec.startDate | date:'dd/MM/yyyy HH:mm:ss'}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-            </md-list>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+            </mat-list>
           </div>
           <div flex="5"></div>
           <div flex="47">
-            <md-list class="listInfoToLeft">
-              <md-list-item>
+            <mat-list class="listInfoToLeft">
+              <mat-list-item>
                 <h4>End Date</h4>
                 <p>{{exTJobExec.endDate | date:'dd/MM/yyyy HH:mm:ss'}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-            </md-list>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+            </mat-list>
           </div>
         </div>
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>
 

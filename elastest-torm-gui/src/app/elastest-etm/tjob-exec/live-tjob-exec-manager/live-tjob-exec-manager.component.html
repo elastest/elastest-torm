@@ -1,7 +1,7 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs">
   <div flex-gt-sm="100">
-    <md-card>
-      <md-card-title>
+    <mat-card>
+      <mat-card-title>
         <a *ngIf="tJob" (click)="viewTJob()" class="hover-pointer">
           <span *ngIf="tJobExec && tJobExec.isMultiConfig()">Multi-Configuration&nbsp;</span>
           <span>TJob</span>
@@ -11,27 +11,27 @@
         <span *ngIf="tJobExec && tJobExec.isChild()">&nbsp;Configuration</span>
 
         <span>&nbsp;Execution {{tJobExecId}}</span>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content *ngIf="tJobExec">
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content *ngIf="tJobExec">
         <div layout="row" layout-align="space-between end">
           <span>
             <img id="runningSpinner" *ngIf="!tJobExec.finished()" class="iconBtn-lg" src="./assets/img/spinner.gif"
               style="width:23px;height: 23px; vertical-align: middle;" title="Executing TJob">
-            <button md-button *ngIf="tJobExec.finished()" (click)="navigateToResultPage()" class="onlyIconBtn" title="Navigate to result page">
-              <md-icon style="vertical-align: middle;" [style.color]="statusIcon.color">{{statusIcon.name}}</md-icon>
+            <button mat-button *ngIf="tJobExec.finished()" (click)="navigateToResultPage()" class="onlyIconBtn" title="Navigate to result page">
+              <mat-icon style="vertical-align: middle;" [style.color]="statusIcon.color">{{statusIcon.name}}</mat-icon>
             </button>
             <span id="resultMsgText" style="vertical-align: middle;">{{tJobExec.resultMsg}}</span>
             <span flex></span>
-            <button md-button *ngIf="tJob && tJobExec && !tJobExec.finished()" (click)="stopExec()" class="iconBtn"
+            <button mat-button *ngIf="tJob && tJobExec && !tJobExec.finished()" (click)="stopExec()" class="iconBtn"
               title="Stop Execution" [disabled]="disableStopBtn">
-              <md-icon *ngIf="!disableStopBtn" style="vertical-align: middle; color: #c82a0e" title="Stop Execution">stop</md-icon>
-              <md-icon *ngIf="disableStopBtn" style=" vertical-align: middle; color: #969696 " title="Stop Execution ">stop</md-icon>
+              <mat-icon *ngIf="!disableStopBtn" style="vertical-align: middle; color: #c82a0e" title="Stop Execution">stop</mat-icon>
+              <mat-icon *ngIf="disableStopBtn" style=" vertical-align: middle; color: #969696 " title="Stop Execution ">stop</mat-icon>
             </button>
           </span>
           <span *ngIf="showLogsAndMetrics">
-            <button id="openMonitoringConfigBtn" md-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config">
-              <md-icon>settings</md-icon>
+            <button id="openMonitoringConfigBtn" mat-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config">
+              <mat-icon>settings</mat-icon>
             </button>
           </span>
         </div>
@@ -51,8 +51,8 @@
           </td-expansion-panel>
         </ng-container>
 
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>
 

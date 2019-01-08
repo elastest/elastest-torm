@@ -1,10 +1,9 @@
 import { Router } from '@angular/router';
 import { ConfigurationService } from '../config/configuration-service.service';
 import { TitlesService } from '../shared/services/titles.service';
-import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { ElastestRabbitmqService } from '../shared/services/elastest-rabbitmq.service';
 import { AfterViewInit, Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { TdMediaService } from '@covalent/core';
+import { TdMediaService, TdLayoutManageListComponent } from '@covalent/core';
 
 @Component({
   selector: 'etm-etm',

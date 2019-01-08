@@ -1,38 +1,38 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs">
   <div flex-gt-sm="100">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
+    <mat-card tdMediaToggle="gt-xs">
+      <mat-card-title>
         TestLink Test Execution {{testExec.id}}
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content>
         <div layout="row" class="push-bottom-sm">
           <div flex="47">
-            <md-list class="listInfoToLeft">
-              <md-list-item>
+            <mat-list class="listInfoToLeft">
+              <mat-list-item>
                 <h4>Date</h4>
                 <p>{{testExec.executionTimeStamp | date:'dd/MM/yyyy HH:mm:ss'}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              <mat-list-item>
                 <h4>Tester Id</h4>
                 <p>{{testExec.testerId}}</p>
-              </md-list-item>
-            </md-list>
+              </mat-list-item>
+            </mat-list>
           </div>
           <div flex="5"></div>
           <div flex="47">
-            <md-list class="listInfoToLeft">
-              <md-list-item>
+            <mat-list class="listInfoToLeft">
+              <mat-list-item>
                 <h4>Status</h4>
                 <p>{{testExec.status}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-            </md-list>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+            </mat-list>
           </div>
         </div>
 
-        <md-divider></md-divider>
+        <mat-divider></mat-divider>
 
         <div layout="row" class="push-top-sm">
           <span flex-gt-xs="100">
@@ -40,7 +40,7 @@
             <div id="notes" [innerHTML]="testExec.notes"></div>
           </span>
         </div>
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

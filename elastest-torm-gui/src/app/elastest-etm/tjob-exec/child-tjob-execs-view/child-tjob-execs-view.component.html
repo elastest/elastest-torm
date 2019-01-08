@@ -1,16 +1,16 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs">
   <div flex-gt-sm="100">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
+    <mat-card tdMediaToggle="gt-xs">
+      <mat-card-title>
         Configurations Executions List
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
       <centered-element *ngIf="!showSpinner && childrens.length === 0" class="push-top-sm messageEmptyCard">
-        <md-icon>assignment</md-icon>
+        <mat-icon>assignment</mat-icon>
         <p>No Executions generated</p>
       </centered-element>
-      <md-card-content>
+      <mat-card-content>
         <td-data-table #tjobsTable *ngIf="childrens && childrens.length > 0" class="scroll_table" [data]="childrens"
           [columns]="tJobExecColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy"
           [sortOrder]="sortOrder">
@@ -22,7 +22,7 @@
               <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
                 <ng-container *ngIf="column.name === 'result'">
                   <img *ngIf="!row.finished()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
-                  <md-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</md-icon>
+                  <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</mat-icon>
                 </ng-container>
                 {{value}}
               </span>
@@ -58,13 +58,13 @@
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row" class="optionsColumn">
-              <button md-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">
-                <md-icon>library_books</md-icon>
+              <button mat-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">
+                <mat-icon>library_books</mat-icon>
               </button>
             </div>
           </ng-template>
         </td-data-table>
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

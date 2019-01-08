@@ -4,7 +4,7 @@ import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob.service';
 import { TJobModel } from '../tjob-model';
 import { Component, Inject, OnInit } from '@angular/core';
-import { MD_DIALOG_DATA } from '@angular/material';
+import { MAT_DIALOG_DATA } from '@angular/material';
 
 @Component({
   selector: 'run-tjob-modal',
@@ -17,7 +17,7 @@ export class RunTJobModalComponent implements OnInit {
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
     private router: Router,
-    @Inject(MD_DIALOG_DATA) public tJob: TJobModel,
+    @Inject(MAT_DIALOG_DATA) public tJob: TJobModel,
   ) {}
 
   ngOnInit() {

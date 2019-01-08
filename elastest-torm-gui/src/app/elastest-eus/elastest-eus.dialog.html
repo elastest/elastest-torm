@@ -1,18 +1,18 @@
 <div layout="row">
-    <h2 md-dialog-title class="push-bottom-sm">{{ title }}
+    <h2 mat-dialog-title class="push-bottom-sm">{{ title }}
     </h2>
     <span flex></span>
-    <a color="accent" *ngIf="!loading && sessionType && sessionType === 'live' && iframeUrl !== undefined" md-button
-        [attr.href]="iframeUrl" class="iconBtn" target="_blank" mdTooltip="Open in new tab">
-        <md-icon>open_in_new</md-icon>
+    <a color="accent" *ngIf="!loading && sessionType && sessionType === 'live' && iframeUrl !== undefined" mat-button
+        [attr.href]="iframeUrl" class="iconBtn" target="_blank" matTooltip="Open in new tab">
+        <mat-icon>open_in_new</mat-icon>
     </a>
 </div>
 <div *ngIf="testModel" class="push-bottom-xs" layout="row">
-    <span class="md-subhead">
+    <span class="mat-subhead">
         {{testModel.statusMsg}}
     </span>
 </div>
-<md-dialog-content style="max-height: 84vh">
+<mat-dialog-content style="max-height: 84vh">
     <img *ngIf="loading === true; else showContent" src="./assets/img/spinner.gif" style="display: block; margin: 0 auto;">
     <ng-template #showContent>
         <div *ngIf="sessionType && sessionType === 'live'; else showVideo" layout="column" style="width: 48vw; height: 30vw; max-height: 83vh">
@@ -24,7 +24,7 @@
         </ng-template>
     </ng-template>
     {{message}}
-</md-dialog-content>
+</mat-dialog-content>
 <br>
-<button *ngIf="closeButton" md-raised-button color="accent" type="button" md-raised-button (click)="dialogRef.close(true)"
+<button *ngIf="closeButton" mat-raised-button color="accent" type="button" mat-raised-button (click)="dialogRef.close(true)"
     id="close_dialog">Close</button>

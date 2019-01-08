@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit, Optional } from '@angular/core';
-import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 
 @Component({
   selector: 'show-message-modal',
@@ -11,8 +11,8 @@ export class ShowMessageModalComponent implements OnInit {
   columns: string[];
   rawData: any;
   constructor(
-    private dialogRef: MdDialogRef<ShowMessageModalComponent>,
-    @Optional() @Inject(MD_DIALOG_DATA) public data: any,
+    private dialogRef: MatDialogRef<ShowMessageModalComponent>,
+    @Optional() @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.row = data.row;
     this.columns = data.columns;

@@ -1,28 +1,28 @@
 <auto-height-grid layout="column">
   <normal-height-row>
     <div flex-gt-sm="100">
-      <md-card tdMediaToggle="gt-xs">
-        <md-card-title>
+      <mat-card tdMediaToggle="gt-xs">
+        <mat-card-title>
           <div layout="row">
             <span>Project {{ project.name }}</span> <span flex></span>
             <div>
-              <button md-button (click)="editProject()" class="iconBtn-lg" title="Edit Project">
-                <md-icon>mode_edit</md-icon>
+              <button mat-button (click)="editProject()" class="iconBtn-lg" title="Edit Project">
+                <mat-icon>mode_edit</mat-icon>
               </button>
               <button
-                md-button
+                mat-button
                 (click)="deleteProject()"
                 [disabled]="deletingInProgress"
                 class="iconBtn-lg"
                 title="Delete Project"
               >
-                <md-icon>delete</md-icon>
+                <mat-icon>delete</mat-icon>
               </button>
             </div>
           </div>
-        </md-card-title>
-        <md-divider></md-divider>
-      </md-card>
+        </mat-card-title>
+        <mat-divider></mat-divider>
+      </mat-card>
     </div>
   </normal-height-row>
 

@@ -3,13 +3,13 @@
     <div layout="row">
       <span>SuTs</span>
       <span flex></span>
-      <button md-raised-button color="accent" (click)="newSut()" id="newSutBtn" mdTooltip="Create New Sut">New SuT</button>
+      <button mat-raised-button color="accent" (click)="newSut()" id="newSutBtn" matTooltip="Create New Sut">New SuT</button>
     </div>
   </sa-card-title>
   <sa-card-content #scrollMeSut>
-    <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+    <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
     <centered-element *ngIf="!showSpinner && suts.length === 0" class="push-top-important messageEmptyCard">
-      <md-icon>assignment</md-icon>
+      <mat-icon>assignment</mat-icon>
       <p>No SuTs created</p>
     </centered-element>
     <td-data-table #sutsTable *ngIf="suts.length > 0" id="sutsTable" class="useMaxHeight" [data]="suts" [columns]="sutColumns"
@@ -28,15 +28,15 @@
       <!-- OPTIONS -->
       <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
         <div layout="row" class="sutOptions optionsColumn">
-          <button md-button (click)="editSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Edit SuT">
-            <md-icon>mode_edit</md-icon>
+          <button mat-button (click)="editSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Edit SuT">
+            <mat-icon>mode_edit</mat-icon>
           </button>
-          <button md-button [disabled]="deletingInProgress || duplicateInProgress" (click)="duplicateSut(row)" class="iconBtn"
+          <button mat-button [disabled]="deletingInProgress || duplicateInProgress" (click)="duplicateSut(row)" class="iconBtn"
             title="Duplicate Sut">
-            <md-icon>content_copy</md-icon>
+            <mat-icon>content_copy</mat-icon>
           </button>
-          <button md-button (click)="deleteSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Delete SuT">
-            <md-icon>delete</md-icon>
+          <button mat-button (click)="deleteSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Delete SuT">
+            <mat-icon>delete</mat-icon>
           </button>
         </div>
       </ng-template>

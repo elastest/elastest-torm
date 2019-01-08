@@ -4,7 +4,7 @@ import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob.service';
 import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 import { TdDialogService, IConfirmConfig } from '@covalent/core';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { TJobModel } from '../tjob-model';
 import { ProjectModel } from '../../project/project-model';
@@ -46,7 +46,7 @@ export class TJobsManagerComponent implements OnInit {
     private tJobExecService: TJobExecService,
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
     private router: Router,
     private route: ActivatedRoute,
     private projectService: ProjectService,

@@ -1,5 +1,5 @@
-<md-card>
-  <md-card-title>
+<mat-card>
+  <mat-card-title>
     <div layout="column" layout-gt-md="row">
       <div custom-flex-gt-xl="75" custom-flex-xl="85" flex-gt-lg="75" flex-gt-md="65" flex-md="100" flex-gt-sm="100"
         flex-gt-xs="100" flex-xs="100" style="word-break: break-all;">{{model.name}}</div>
@@ -11,16 +11,16 @@
         </div>
         <load-previous-view [model]="model"></load-previous-view>
         <div>
-          <button md-button (click)="remove()" aria-label="Remove" title="Remove" class="iconBtn pad-left-none">
-            <md-icon>clear</md-icon>
+          <button mat-button (click)="remove()" aria-label="Remove" title="Remove" class="iconBtn pad-left-none">
+            <mat-icon>clear</mat-icon>
           </button>
         </div>
       </div>
     </div>
-  </md-card-title>
-  <md-divider></md-divider>
-  <md-card-content>
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <mat-card-content>
     <metrics-view #metricsView [model]="model" [fieldsList]="fieldsList" [showConfig]="showConfig" [remove]="remove"></metrics-view>
-  </md-card-content>
+  </mat-card-content>
 
-</md-card>
+</mat-card>

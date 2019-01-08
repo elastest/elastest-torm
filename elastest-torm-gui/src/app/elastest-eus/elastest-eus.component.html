@@ -1,51 +1,51 @@
 <auto-height-grid layout="column">
     <normal-height-row *ngIf="standalone">
         <div flex-gt-xs="100">
-            <md-card tdMediaToggle="gt-xs">
-                <md-card-title>
+            <mat-card tdMediaToggle="gt-xs">
+                <mat-card-title>
                     <div layout="row">
                         <span>
                             Manual Web Browsers
                         </span>
                         <span flex></span>
-                        <button md-icon-button color="accent" id="refreshBrowsers" (click)="refreshBrowsers()"
-                            mdTooltip="Refresh available browsers">
-                            <md-icon>sync</md-icon>
+                        <button mat-icon-button color="accent" id="refreshBrowsers" (click)="refreshBrowsers()"
+                            matTooltip="Refresh available browsers">
+                            <mat-icon>sync</mat-icon>
                         </button>
                     </div>
-                </md-card-title>
-                <md-divider></md-divider>
-                <md-card-content class="push-bottom-none">
+                </mat-card-title>
+                <mat-divider></mat-divider>
+                <mat-card-content class="push-bottom-none">
                     <div *ngIf="loading; else showBrowsersSelection" layout="row" layout-align="start center">
                         <span>
-                            <md-spinner strokeWidth="6" color="accent"></md-spinner>
+                            <mat-spinner strokeWidth="6" color="accent"></mat-spinner>
                         </span>
-                        <span class="md-title push-left-sm">
+                        <span class="mat-title push-left-sm">
                             Loading browsers...</span>
                     </div>
                     <ng-template #showBrowsersSelection>
-                        <md-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
+                        <mat-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
                             <div *ngFor="let browser of browserNamesList">
-                                <md-radio-button [value]="browser" flex-gt-xs="50" id="{{browser + '_radio'}}">{{browser
+                                <mat-radio-button [value]="browser" flex-gt-xs="50" id="{{browser + '_radio'}}">{{browser
                                     |
-                                    capitalize}}</md-radio-button>
-                                <md-select class="push-left-sm" placeholder="version" [(ngModel)]="selectedVersion[browser]"
+                                    capitalize}}</mat-radio-button>
+                                <mat-select class="push-left-sm" placeholder="version" [(ngModel)]="selectedVersion[browser]"
                                     name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser(browser)">
-                                    <md-option *ngFor="let version of browserVersions[browser]" [value]="version">
+                                    <mat-option *ngFor="let version of browserVersions[browser]" [value]="version">
                                         {{version}}
-                                    </md-option>
-                                </md-select>
+                                    </mat-option>
+                                </mat-select>
                                 <br>
                                 <br>
                             </div>
-                        </md-radio-group>
+                        </mat-radio-group>
                         <div layout="row" class="push-top">
-                            <button md-raised-button color="accent" (click)="startSession()" id="start_session">Start
+                            <button mat-raised-button color="accent" (click)="startSession()" id="start_session">Start
                                 Web Browser</button>
                         </div>
                     </ng-template>
-                </md-card-content>
-            </md-card>
+                </mat-card-content>
+            </mat-card>
         </div>
     </normal-height-row>
 
@@ -58,14 +58,14 @@
                             <div>
                                 {{ !standalone ? "Web Browsers" : "WebDriver Web Browsers" }}
                             </div>
-                            <md-card-subtitle *ngIf="standalone" class="pad-left-none">Remote Web Driver URL:
+                            <mat-card-subtitle *ngIf="standalone" class="pad-left-none">Remote Web Driver URL:
                                 <strong>{{eusUrl}}</strong>
-                            </md-card-subtitle>
+                            </mat-card-subtitle>
                         </div>
                     </sa-card-title>
                     <sa-card-content class="push-bottom-none">
                         <centered-element *ngIf="activeBrowsers.length === 0; else showBrowsersTable" class="push-top-important messageEmptyCard">
-                            <md-icon>assignment</md-icon>
+                            <mat-icon>assignment</mat-icon>
                             <p>No Browsers created yet</p>
                         </centered-element>
                         <ng-template #showBrowsersTable>
@@ -73,9 +73,9 @@
                                 <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
                                     <ng-container *ngIf="row !== undefined && row !== null">
                                         <i class="material-icons" (click)="getLiveUrl(row.url)" style="cursor: pointer"
-                                        mdTooltip="Open in new tab" *ngIf="row.url !== undefined && row.url !== null">open_in_new</i>
+                                        matTooltip="Open in new tab" *ngIf="row.url !== undefined && row.url !== null">open_in_new</i>
                                         <i class="material-icons" (click)="viewSession(row.url, row, ' - Automated Test')"
-                                        id="view_automated" mdTooltip="Open as dialog" *ngIf="row.url !== undefined && row.url !== null">open_in_browser</i>
+                                        id="view_automated" matTooltip="Open as dialog" *ngIf="row.url !== undefined && row.url !== null">open_in_browser</i>
                                     </ng-container>
                                 </ng-template>
                             </td-data-table>
@@ -89,18 +89,18 @@
                     <sa-card-title>Recordings</sa-card-title>
                     <sa-card-content class="push-bottom-none">
                         <centered-element *ngIf="recordings.length === 0; else showRecordingsTable" class="push-top-important messageEmptyCard">
-                            <md-icon>assignment</md-icon>
+                            <mat-icon>assignment</mat-icon>
                             <p>No Recordings created yet</p>
                         </centered-element>
                         <ng-template #showRecordingsTable>
                             <td-data-table class="scroll_table" id="recordingsTable" [data]="recordings" [columns]="recordingColumns">
                                 <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
                                     <i class="material-icons" (click)="deleteRecording(row)" id="delete_recording_{{row.id}}"
-                                        mdTooltip="Delete recording">delete</i>
+                                        matTooltip="Delete recording">delete</i>
                                     <i class="material-icons" (click)="getRecordingUrl(row)" id="view_recording_new_tab"
-                                        mdTooltip="Open in new tab">open_in_new</i>
+                                        matTooltip="Open in new tab">open_in_new</i>
                                     <i class="material-icons" (click)="viewRecording(row)" id="view_recording"
-                                        mdTooltip="Open as dialog">open_in_browser</i>
+                                        matTooltip="Open as dialog">open_in_browser</i>
                                 </ng-template>
                             </td-data-table>
                         </ng-template>

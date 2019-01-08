@@ -1,6 +1,6 @@
 import { Observable, Subject } from 'rxjs/Rx';
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { MonitoringQueryModel } from '../monitoring-query.model';
 import { PopupService } from './popup.service';
@@ -29,7 +29,7 @@ export class MonitoringService {
   allMetricsFields: AllMetricsFields = new AllMetricsFields(); // Object with a list of all metrics
   metricbeatFieldGroupList: MetricFieldGroupModel[];
 
-  constructor(public http: Http, private configurationService: ConfigurationService, public popupService: PopupService) {
+  constructor(public http: HttpClient, private configurationService: ConfigurationService, public popupService: PopupService) {
     this.etmApiUrl = this.configurationService.configModel.hostApi;
     this.metricbeatFieldGroupList = getMetricBeatFieldGroupList();
   }
@@ -40,63 +40,63 @@ export class MonitoringService {
 
   public searchAllByTerms(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/byterms';
-    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
+    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   /* *** Logs *** */
 
   public searchAllLogs(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log';
-    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
+    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchPreviousLogs(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/previous';
-    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
+    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchLastLogs(query: MonitoringQueryModel, size: number): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/last/' + size;
-    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
+    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchLogsTree(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/tree';
-    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
+    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchLogsLevelsTree(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/tree/levels';
-    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
+    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   /* *** Metrics *** */
 
   public searchAllMetrics(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric';
-    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
+    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchPreviousMetrics(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric/previous';
-    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
+    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchLastMetrics(query: MonitoringQueryModel, size: number): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric/last/' + size;
-    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
+    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchMetricsTree(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric/tree';
-    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
+    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   /* *** LogAnalyzer *** */
 
   public searchLogAnalyzerQuery(query: LogAnalyzerQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/loganalyzer';
-    return this.http.post(url, query).map((response) => this.parseETMiniTracesIfNecessary(response.json()));
+    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   /* ******************************************* */

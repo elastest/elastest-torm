@@ -1,5 +1,6 @@
 import { Observable, Subject } from 'rxjs/Rx';
-import { Http, Response } from '@angular/http';
+import { Response } from '@angular/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { ETModelsTransformServices } from '../shared/services/et-models-transform.service';
 import { ConfigurationService } from '../config/configuration-service.service';
 import { Injectable } from '@angular/core';
@@ -17,7 +18,7 @@ export class LogAnalyzerService {
   maxResults: number = 10000;
 
   constructor(
-    private http: Http,
+    private http: HttpClient,
     private configurationService: ConfigurationService,
     public monitoringService: MonitoringService,
     private eTModelsTransformServices: ETModelsTransformServices,
@@ -25,31 +26,35 @@ export class LogAnalyzerService {
 
   public getLogAnalyzerConfig(): Observable<LogAnalyzerConfigModel> {
     let url: string = this.configurationService.configModel.hostApi + '/loganalyzerconfig/';
-    return this.http.get(url).map((response: Response) => {
-      let errorOccur: boolean = true;
-      if (response !== undefined && response !== null) {
-        if (response['_body']) {
-          let data: any = response.json();
-          if (data !== undefined && data !== null) {
+    return this.http
+      .get(url, {
+        observe: 'response',
+      })
+      .map((response: HttpResponse<any>) => {
+        let errorOccur: boolean = true;
+        if (response !== undefined && response !== null) {
+          if (response.body) {
+            let data: any = response.body;
+            if (data !== undefined && data !== null) {
+              errorOccur = false;
+              return this.eTModelsTransformServices.jsonToLogAnalyzerConfigModel(data);
+            }
+          } else {
             errorOccur = false;
-            return this.eTModelsTransformServices.jsonToLogAnalyzerConfigModel(data);
+            return undefined;
           }
-        } else {
-          errorOccur = false;
-          return undefined;
         }
-      }
-      if (errorOccur) {
-        throw new Error("Empty response. LogAnalyzerConfig not exist or you don't have permissions to access it");
-      }
-    });
+        if (errorOccur) {
+          throw new Error("Empty response. LogAnalyzerConfig not exist or you don't have permissions to access it");
+        }
+      });
   }
 
   public saveLogAnalyzerConfig(logAnalyzerConfigModel: LogAnalyzerConfigModel): Observable<LogAnalyzerConfigModel> {
     let url: string = this.configurationService.configModel.hostApi + '/loganalyzerconfig';
     logAnalyzerConfigModel.generatColumnsConfigJson();
-    return this.http.post(url, logAnalyzerConfigModel).map((response: Response) => {
-      let data: any = response.json();
+    return this.http.post(url, logAnalyzerConfigModel).map((response: HttpResponse<any>) => {
+      let data: any = response.body;
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToLogAnalyzerConfigModel(data);
       } else {

@@ -1,6 +1,6 @@
 import { PullingObjectModel } from '../../shared/pulling-obj.model';
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { PopupService } from '../../shared/services/popup.service';
 import { ETExternalModelsTransformService } from './et-external-models-transform.service';
@@ -18,7 +18,7 @@ export class ExternalService {
   hostApi: string;
 
   constructor(
-    private http: Http,
+    private http: HttpClient,
     private configurationService: ConfigurationService,
     public eTExternalModelsTransformService: ETExternalModelsTransformService,
     public popupService: PopupService,
@@ -32,29 +32,23 @@ export class ExternalService {
 
   public getAllExternalProjects(): Observable<ExternalProjectModel[]> {
     let url: string = this.hostApi + '/external/project';
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalProjectsList(response.json()));
+    return this.http.get(url).map((data: any[]) => this.eTExternalModelsTransformService.jsonToExternalProjectsList(data));
   }
 
   public getExternalProjectByType(project: ExternalProjectModel): Observable<ExternalProjectModel> {
     let url: string = this.hostApi + '/external/project/type/' + project.type;
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalProjectModel(response.json()));
+    return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalProjectModel(data));
   }
 
   public getExternalProjectById(projectId: number | string): Observable<ExternalProjectModel> {
     let url: string = this.hostApi + '/external/project/' + projectId;
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalProjectModel(response.json()));
+    return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalProjectModel(data));
   }
 
   // public createProject(project: ExternalProjectModel): Observable<ExternalProjectModel> {
   //     let url: string = this.configurationService.configModel.hostApi + '/external/project';
   //     return this.http.post(url, project)
-  //         .map((response: Response) => response.json());
+  //         .map((response: HttpResponse<any>) => response.body);
   // }
 
   /************************/
@@ -63,16 +57,12 @@ export class ExternalService {
 
   public getAllExternalTJobs(): Observable<ExternalTJobModel[]> {
     let url: string = this.hostApi + '/external/extjob';
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobsList(response.json()));
+    return this.http.get(url).map((data: any[]) => this.eTExternalModelsTransformService.jsonToExternalTJobsList(data));
   }
 
   public getExternalTJobById(tJobId: number): Observable<ExternalTJobModel> {
     let url: string = this.hostApi + '/external/extjob/' + tJobId;
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(response.json()));
+    return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(data));
   }
 
   public modifyExternalTJob(tJob: ExternalTJobModel): Observable<ExternalTJobModel> {
@@ -83,9 +73,7 @@ export class ExternalService {
     tJob.generateExecDashboardConfig();
     tJob.exTJobExecs = undefined;
     let url: string = this.configurationService.configModel.hostApi + '/external/extjob';
-    return this.http
-      .put(url, tJob)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(response.json()));
+    return this.http.put(url, tJob).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(data));
   }
 
   public createExternalTJob(tJob: ExternalTJobModel): Observable<ExternalTJobModel> {
@@ -97,7 +85,7 @@ export class ExternalService {
     let url: string = this.configurationService.configModel.hostApi + '/external/extjob';
     return this.http
       .post(url, tJob)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(response.json()));
+      .map((response: HttpResponse<any>) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(response.body));
   }
 
   /*************************/
@@ -106,56 +94,46 @@ export class ExternalService {
 
   public getAllExternalTJobExecs(): Observable<ExternalTJobExecModel[]> {
     let url: string = this.hostApi + '/external/tjobexec';
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecsList(response.json()));
+    return this.http.get(url).map((data: any[]) => this.eTExternalModelsTransformService.jsonToExternalTJobExecsList(data));
   }
 
   public getExternalTJobExecsByExternalTJobId(tJobId: string | number): Observable<ExternalTJobExecModel[]> {
     let url: string = this.hostApi + '/external/extjob/' + tJobId + '/tjobexec';
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecsList(response.json()));
+    return this.http.get(url).map((data: any[]) => this.eTExternalModelsTransformService.jsonToExternalTJobExecsList(data));
   }
 
   public getExternalTJobExecById(tJobExecId: number | string): Observable<ExternalTJobExecModel> {
     let url: string = this.hostApi + '/external/tjobexec/' + tJobExecId;
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.json()));
+    return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(data));
   }
 
   public createExternalTJobExecution(exec: ExternalTJobExecModel): Observable<ExternalTJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/external/tjobexec';
     return this.http
       .post(url, exec)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.json()));
+      .map((response: HttpResponse<any>) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.body));
   }
 
   public createExternalTJobExecutionByExTJobId(exTJobId: number | string): Observable<ExternalTJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/external/extjob/' + exTJobId + '/tjobexec';
     return this.http
       .post(url, {})
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.json()));
+      .map((response: HttpResponse<any>) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.body));
   }
 
   public modifyExternalTJobExec(exec: ExternalTJobExecModel): Observable<ExternalTJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/external/tjobexec';
-    return this.http
-      .put(url, exec)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.json()));
+    return this.http.put(url, exec).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(data));
   }
 
   public getExternalTJobExecutionFiles(tJobExecId: number): Observable<any> {
     let url: string = this.configurationService.configModel.hostApi + '/external/tjobexec/' + tJobExecId + '/files';
-    return this.http.get(url).map((response) => response.json());
+    return this.http.get(url);
   }
 
   public getExternalTestExecsByExternalTJobExecId(exTJobExecId: string | number): Observable<ExternalTestExecutionModel[]> {
     let url: string = this.hostApi + '/external/tjobexec/' + exTJobExecId + '/testexec';
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecsList(response.json()));
+    return this.http.get(url).map((data: any[]) => this.eTExternalModelsTransformService.jsonToExternalTestExecsList(data));
   }
 
   public checkTJobExecFinished(
@@ -202,16 +180,12 @@ export class ExternalService {
 
   public getAllExternalTestCases(): Observable<ExternalTestCaseModel[]> {
     let url: string = this.hostApi + '/external/testcase';
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestCasesList(response.json()));
+    return this.http.get(url).map((data: any[]) => this.eTExternalModelsTransformService.jsonToExternalTestCasesList(data));
   }
 
   public getExternalTestCaseById(caseId: number): Observable<ExternalTestCaseModel> {
     let url: string = this.hostApi + '/external/testcase/' + caseId;
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestCaseModel(response.json()));
+    return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTestCaseModel(data));
   }
 
   /************************/
@@ -220,30 +194,28 @@ export class ExternalService {
 
   public getAllExternalTestExecs(): Observable<ExternalTestExecutionModel[]> {
     let url: string = this.hostApi + '/external/testexec';
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecsList(response.json()));
+    return this.http.get(url).map((data: any[]) => this.eTExternalModelsTransformService.jsonToExternalTestExecsList(data));
   }
 
   public getExternalTestExecById(execId: number): Observable<ExternalTestExecutionModel> {
     let url: string = this.hostApi + '/external/testexec/' + execId;
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()));
+    return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(data));
   }
 
   public createExternalTestExecution(exec: ExternalTestExecutionModel): Observable<ExternalTestExecutionModel> {
     let url: string = this.configurationService.configModel.hostApi + '/external/testexec';
     return this.http
       .post(url, exec)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()));
+      .map((response: HttpResponse<any>) =>
+        this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.body),
+      );
   }
 
   public modifyExternalTestExecution(exec: ExternalTestExecutionModel): Observable<ExternalTestExecutionModel> {
     let url: string = this.configurationService.configModel.hostApi + '/external/testexec';
     return this.http
       .put(url, exec)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()));
+      .map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(data));
   }
 
   public setExternalTJobExecToTestExecutionByExecutionId(
@@ -251,8 +223,6 @@ export class ExternalService {
     exTJobExecId: number | string,
   ): Observable<ExternalTestExecutionModel> {
     let url: string = this.hostApi + '/external/testexec/' + execId + '/tjobexec/' + exTJobExecId;
-    return this.http
-      .get(url)
-      .map((response: Response) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.json()));
+    return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(data));
   }
 }

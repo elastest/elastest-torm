@@ -1,78 +1,78 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs">
   <div flex-gt-sm="100">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
+    <mat-card tdMediaToggle="gt-xs">
+      <mat-card-title>
         <span *ngIf="testCase && testCase.id == 0">New Test Case</span>
         <span *ngIf="testCase && testCase.id > 0">Edit Test Case "{{testCase.name}}"</span>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content class="push-bottom-none">
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content class="push-bottom-none">
         <form #caseForm="ngForm">
 
           <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
-            <md-input-container flex-gt-md="20" flex-md="20">
+            <mat-form-field flex-gt-md="20" flex-md="20">
               <input mdInput #caseNameInput #nameControl="ngModel" type="text" placeholder="Test Case Name" [(ngModel)]="testCase.name"
                 name="testCase.name" maxlength="50" required>
-            </md-input-container>
+            </mat-form-field>
 
-            <md-select [(ngModel)]="testCase.testCaseStatus" placeholder="Select a Status" name="service" class="push-right" flex-gt-md="5"
+            <mat-select [(ngModel)]="testCase.testCaseStatus" placeholder="Select a Status" name="service" class="push-right" flex-gt-md="5"
               flex-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">
-              <md-option *ngFor="let status of testCase.getTestCaseStatusValues()" [value]="status">
+              <mat-option *ngFor="let status of testCase.getTestCaseStatusValues()" [value]="status">
                 {{status}}
-              </md-option>
-            </md-select>
+              </mat-option>
+            </mat-select>
 
-            <md-select [(ngModel)]="testCase.executionStatus" placeholder="Select a Exec Status" name="service" class="push-right" flex-gt-md="5"
+            <mat-select [(ngModel)]="testCase.executionStatus" placeholder="Select a Exec Status" name="service" class="push-right" flex-gt-md="5"
               flex-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">
-              <md-option *ngFor="let execstatus of testCase.getExecStatusValues()" [value]="execstatus">
+              <mat-option *ngFor="let execstatus of testCase.getExecStatusValues()" [value]="execstatus">
                 {{execstatus}}
-              </md-option>
-            </md-select>
+              </mat-option>
+            </mat-select>
 
-            <md-select [(ngModel)]="testCase.testImportance" placeholder="Select a Importance" name="service" class="push-right" flex-gt-md="5"
+            <mat-select [(ngModel)]="testCase.testImportance" placeholder="Select a Importance" name="service" class="push-right" flex-gt-md="5"
               flex-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">
-              <md-option *ngFor="let importance of testCase.getImportanceValues()" [value]="importance">
+              <mat-option *ngFor="let importance of testCase.getImportanceValues()" [value]="importance">
                 {{importance}}
-              </md-option>
-            </md-select>
+              </mat-option>
+            </mat-select>
 
-            <md-select [(ngModel)]="testCase.executionType" placeholder="Select an Exec Type" name="service" class="push-right" flex-gt-md="5"
+            <mat-select [(ngModel)]="testCase.executionType" placeholder="Select an Exec Type" name="service" class="push-right" flex-gt-md="5"
               flex-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">
-              <md-option *ngFor="let execType of testCase.getExecTypeValues()" [value]="execType">
+              <mat-option *ngFor="let execType of testCase.getExecTypeValues()" [value]="execType">
                 {{execType}}
-              </md-option>
-            </md-select>
+              </mat-option>
+            </mat-select>
 
-            <md-select [(ngModel)]="testCase.actionOnDuplicatedName" placeholder="Select an Action on Duplicated Name" name="service"
+            <mat-select [(ngModel)]="testCase.actionOnDuplicatedName" placeholder="Select an Action on Duplicated Name" name="service"
               class="push-right" flex-gt-md="5" flex-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">
-              <md-option *ngFor="let action of testCase.getActionOnDuplicatedNameValues()" [value]="action">
+              <mat-option *ngFor="let action of testCase.getActionOnDuplicatedNameValues()" [value]="action">
                 {{action}}
-              </md-option>
-            </md-select>
+              </mat-option>
+            </mat-select>
           </div>
 
           <div layout="column" class="push-top">
-            <md-input-container>
+            <mat-form-field>
               <textarea id="summary" autosize mdInput #nameControl="ngModel" placeholder="Summary" [(ngModel)]="testCase.summary" name="summary"
                 required></textarea>
-            </md-input-container>
+            </mat-form-field>
           </div>
 
           <div layout="column" class="push-top">
-            <md-input-container>
+            <mat-form-field>
               <textarea id="preconditions" autosize mdInput #nameControl="ngModel" placeholder="Preconditions" [(ngModel)]="testCase.preconditions"
                 name="preconditions" required></textarea>
-            </md-input-container>
+            </mat-form-field>
           </div>
 
         </form>
-      </md-card-content>
+      </mat-card-content>
 
-      <md-divider></md-divider>
-      <md-card-actions>
-        <button md-button [disabled]="!caseForm.valid" color="primary" (click)="save()">SAVE</button>
-        <button md-button (click)="goBack()">CANCEL</button>
-      </md-card-actions>
-    </md-card>
+      <mat-divider></mat-divider>
+      <mat-card-actions>
+        <button mat-button [disabled]="!caseForm.valid" color="primary" (click)="save()">SAVE</button>
+        <button mat-button (click)="goBack()">CANCEL</button>
+      </mat-card-actions>
+    </mat-card>
   </div>
 </div>

@@ -1,22 +1,22 @@
 import { ETModelsTransformServices } from '../../shared/services/et-models-transform.service';
 import { ProjectModel } from './project-model';
-import { Http, RequestOptions } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { Observable } from 'rxjs';
+import { Response } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class ProjectService {
   constructor(
-    private http: Http,
+    private http: HttpClient,
     private configurationService: ConfigurationService,
     private eTModelsTransformServices: ETModelsTransformServices,
   ) {}
 
   public getProject(id: string, onlyProject: boolean = false) {
     let url: string = this.configurationService.configModel.hostApi + '/project/' + id;
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToProjectModel(data, onlyProject);
       } else {
@@ -27,12 +27,12 @@ export class ProjectService {
 
   public getProjects(): Observable<ProjectModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/project';
-    return this.http.get(url).map((response) => this.eTModelsTransformServices.jsonToProjectsList(response.json()));
+    return this.http.get(url).map((data: any) => this.eTModelsTransformServices.jsonToProjectsList(data));
   }
 
   public createProject(project: ProjectModel) {
     let url: string = this.configurationService.configModel.hostApi + '/project';
-    return this.http.post(url, this.convertProjectToBackProject(project)).map((response) => response.json());
+    return this.http.post(url, this.convertProjectToBackProject(project)).map((data: any) => data());
   }
 
   public convertProjectToBackProject(project: ProjectModel) {
@@ -41,11 +41,11 @@ export class ProjectService {
 
   public deleteProject(project: ProjectModel) {
     let url: string = this.configurationService.configModel.hostApi + '/project/' + project.id;
-    return this.http.delete(url).map((response) => response.json());
+    return this.http.delete(url).map((data: any) => data);
   }
 
   public restoreDemoProjects(): Observable<boolean> {
     let url: string = this.configurationService.configModel.hostApi + '/project/restore';
-    return this.http.get(url).map((response) => response.json());
+    return this.http.get(url).map((data: any) => data);
   }
 }

@@ -1,4 +1,4 @@
-import { MdDialogRef } from '@angular/material';
+import { MatDialogRef } from '@angular/material';
 import { Component } from '@angular/core';
 import { EusTestModel } from './elastest-eus-test-model';
 
@@ -15,5 +15,5 @@ export class ElastestEusDialog {
   public closeButton: boolean = false;
   public testModel: EusTestModel;
 
-  constructor(public dialogRef: MdDialogRef<ElastestEusDialog>) {}
+  constructor(public dialogRef: MatDialogRef<ElastestEusDialog>) {}
 }

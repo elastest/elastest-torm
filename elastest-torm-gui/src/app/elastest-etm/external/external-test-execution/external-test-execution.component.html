@@ -1,11 +1,11 @@
 <div layout="column">
-  <md-card>
-    <md-card-title>
+  <mat-card>
+    <mat-card-title>
       <div layout="row" layout-align="space-between end" class="pad-right-xs">
         <span>
-          <md-icon *ngIf="exTestExec.finished() || exTestExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTestExec.getResultIcon().color"
-            mdTooltip="{{exTestExec.result}}">
-            {{exTestExec.getResultIcon().name}}</md-icon>
+          <mat-icon *ngIf="exTestExec.finished() || exTestExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTestExec.getResultIcon().color"
+            matTooltip="{{exTestExec.result}}">
+            {{exTestExec.getResultIcon().name}}</mat-icon>
         </span>
         <a *ngIf="exTestCase && exTestExec" class="normalTextLink">
           <span>External Test Case</span>
@@ -14,37 +14,37 @@
         <span>: Execution {{exTestExecId}}</span>
         <span flex></span>
         <span *ngIf="exTestExec, exTestCase">
-          <button md-button (click)="viewInLogAnalyzer()" class="iconBtn" mdTooltip="View in Log Analyzer">
-            <md-icon>library_books</md-icon>
+          <button mat-button (click)="viewInLogAnalyzer()" class="iconBtn" matTooltip="View in Log Analyzer">
+            <mat-icon>library_books</mat-icon>
           </button>
         </span>
       </div>
-    </md-card-title>
-    <md-divider></md-divider>
-    <md-card-content>
+    </mat-card-title>
+    <mat-divider></mat-divider>
+    <mat-card-content>
       <div layout="row" class="push-bottom-sm">
         <div flex="47">
-          <md-list class="listInfoToLeft">
-            <md-list-item>
+          <mat-list class="listInfoToLeft">
+            <mat-list-item>
               <h4>Start Date</h4>
               <p>{{exTestExec.startDate | date:'dd/MM/yyyy HH:mm:ss'}}</p>
-            </md-list-item>
-            <md-divider></md-divider>
-          </md-list>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+          </mat-list>
         </div>
         <div flex="5"></div>
         <div flex="47">
-          <md-list class="listInfoToLeft">
-            <md-list-item>
+          <mat-list class="listInfoToLeft">
+            <mat-list-item>
               <h4>End Date</h4>
               <p>{{exTestExec.endDate | date:'dd/MM/yyyy HH:mm:ss'}}</p>
-            </md-list-item>
-            <md-divider></md-divider>
-          </md-list>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+          </mat-list>
         </div>
       </div>
-    </md-card-content>
-  </md-card>
+    </mat-card-content>
+  </mat-card>
 </div>
 
 
@@ -60,52 +60,52 @@
     </ng-container>
   </div>
   <div flex="50">
-    <md-card id="miniLogAnalyzerCard">
-      <md-card-content layout-fill layout="column">
-        <md-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
-          <md-tab label="Logs">
+    <mat-card id="miniLogAnalyzerCard">
+      <mat-card-content layout-fill layout="column">
+        <mat-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
+          <mat-tab label="Logs">
             <elastest-log-analyzer #miniLogAnalyzer *ngIf="exTestCase && exTestExec" [isEmbed]="true" [exTJob]="exTestCase.exTJob.id"
               [exTJobExec]="exTestExec.exTJobExec.id" [exTestCase]="exTestCase.name" [exTestExec]="exTestExec.id"></elastest-log-analyzer>
-          </md-tab>
+          </mat-tab>
           <div *ngIf="miniLogAnalyzer">
-            <md-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes" label="{{component.name}}">
+            <mat-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes" label="{{component.name}}">
               <elastest-log-analyzer *ngIf="exTestCase && exTestExec" [isEmbed]="true" [componentStreams]="[component]"
                 [exTJob]="exTestCase.exTJob.id" [exTJobExec]="exTestExec.exTJobExec.id" [exTestCase]="exTestCase.name"
                 [exTestExec]="exTestExec.id"></elastest-log-analyzer>
-            </md-tab>
+            </mat-tab>
           </div>
 
-          <md-tab label="Files">
+          <mat-tab label="Files">
             <div layout="row" *ngFor="let file of files">
               <div flex id="filesContent">
                 <div>
                   <p>Title</p>
                   <span>{{file.name}}</span>
                 </div>
-                <a md-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
+                <a mat-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
                   Open Video
-                  <md-icon>open_in_new</md-icon>
+                  <mat-icon>open_in_new</mat-icon>
                 </a>
               </div>
             </div>
             <centered-element *ngIf="files && files.length === 0" class="push-top-important messageEmptyCard">
-              <md-icon>assignment</md-icon>
+              <mat-icon>assignment</mat-icon>
               <p>No Files found</p>
             </centered-element>
-          </md-tab>
-          <md-tab *ngFor="let file of getMP4Files()">
-            <ng-template md-tab-label>
-              <md-icon mdTooltip="Video" id="videoIcon">play_circle_filled</md-icon>
+          </mat-tab>
+          <mat-tab *ngFor="let file of getMP4Files()">
+            <ng-template mat-tab-label>
+              <mat-icon matTooltip="Video" id="videoIcon">play_circle_filled</mat-icon>
             </ng-template>
             <div id="videoContent">
               <video controls id="video">
                 <source src="{{filesUrlPrefix}}{{file.url}}" type="video/mp4">
               </video>
             </div>
-          </md-tab>
+          </mat-tab>
 
-        </md-tab-group>
-      </md-card-content>
-    </md-card>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

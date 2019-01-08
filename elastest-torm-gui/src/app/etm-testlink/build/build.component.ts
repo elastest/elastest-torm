@@ -1,21 +1,19 @@
 import { BuildModel } from '../models/build-model';
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../shared/services/titles.service';
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TestLinkService } from '../testlink.service';
 import { TLTestCaseModel } from '../models/test-case-model';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material';
 import { ExecuteCaseModalComponent } from './execute-case-modal/execute-case-modal.component';
 import { ServiceType } from '../../elastest-etm/external/external-project/external-project-model';
 
 @Component({
   selector: 'testlink-build',
   templateUrl: './build.component.html',
-  styleUrls: ['./build.component.scss']
+  styleUrls: ['./build.component.scss'],
 })
 export class BuildComponent implements OnInit {
-
   build: BuildModel;
   testCases: TLTestCaseModel[] = [];
   testProjectId: number;
@@ -52,11 +50,13 @@ export class BuildComponent implements OnInit {
     { name: 'options', label: 'Options' },
   ];
 
-  constructor(private titlesService: TitlesService, private testLinkService: TestLinkService,
-    private route: ActivatedRoute, private router: Router,
-    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog
-  ) { }
+  constructor(
+    private titlesService: TitlesService,
+    private testLinkService: TestLinkService,
+    private route: ActivatedRoute,
+    private router: Router,
+    public dialog: MatDialog,
+  ) {}
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Build');
@@ -66,12 +66,11 @@ export class BuildComponent implements OnInit {
 
   loadBuild(): void {
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap(
-        (params: Params) => {
+      this.route.params
+        .switchMap((params: Params) => {
           this.testProjectId = params['projectId'];
           return this.testLinkService.getBuildById(params['buildId']);
-        }
-      )
+        })
         .subscribe((build: BuildModel) => {
           this.build = build;
           this.titlesService.setPathName(this.router.routerState.snapshot.url);
@@ -82,8 +81,7 @@ export class BuildComponent implements OnInit {
   }
 
   loadTestCases(): void {
-    this.testLinkService.getBuildTestCases(this.build)
-      .subscribe(
+    this.testLinkService.getBuildTestCases(this.build).subscribe(
       (testCases: TLTestCaseModel[]) => {
         this.testCases = testCases;
         this.loadingCases = false;
@@ -98,7 +96,9 @@ export class BuildComponent implements OnInit {
 
   execTestCaseWithElastest(testCase: TLTestCaseModel): void {
     let type: ServiceType = 'TESTLINK';
-    this.router.navigate(['/external/execute'], { queryParams: { serviceType: type, testCaseId: testCase.id, buildId: this.build.id } });
+    this.router.navigate(['/external/execute'], {
+      queryParams: { serviceType: type, testCaseId: testCase.id, buildId: this.build.id },
+    });
   }
 
   public openSelectExecutions(testCase: TLTestCaseModel): void {
@@ -106,22 +106,21 @@ export class BuildComponent implements OnInit {
       testCase: testCase,
       build: this.build,
     };
-    let dialogRef: MdDialogRef<ExecuteCaseModalComponent> = this.dialog.open(ExecuteCaseModalComponent, {
+    let dialogRef: MatDialogRef<ExecuteCaseModalComponent> = this.dialog.open(ExecuteCaseModalComponent, {
       data: data,
       height: '80%',
       width: '90%',
     });
-    dialogRef.afterClosed()
-      .subscribe(
-      (data: any) => {
-        if (data) { // Ok Pressed
-          if (data.saved) {
-            this.loadingCases = true;
-            this.testLinkService.popupService.openSnackBar('Execution has been saved successfully');
-            this.loadBuild();
-          }
-        } else { }
-      },
-    );
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        // Ok Pressed
+        if (data.saved) {
+          this.loadingCases = true;
+          this.testLinkService.popupService.openSnackBar('Execution has been saved successfully');
+          this.loadBuild();
+        }
+      } else {
+      }
+    });
   }
 }

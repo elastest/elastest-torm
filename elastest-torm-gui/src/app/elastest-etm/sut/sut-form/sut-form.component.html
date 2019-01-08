@@ -1,79 +1,79 @@
-<md-card tdMediaToggle="gt-xs" [mediaClasses]="['push']">
-  <md-card-title>
+<mat-card tdMediaToggle="gt-xs" [mediaClasses]="['push']">
+  <mat-card-title>
     <span *ngIf="sut && sut.id == 0">New SuT</span>
     <span *ngIf="sut && sut.id > 0">Edit SuT "{{sut.name}}"</span>
-  </md-card-title>
-  <md-divider></md-divider>
-  <md-card-content class="push-bottom-none">
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <mat-card-content class="push-bottom-none">
     <form #sutForm="ngForm">
       <ng-container *ngIf="sut === undefined; else showForm">
-        <md-spinner strokeWidth="6" color="accent" class="push-top-sm"></md-spinner>
+        <mat-spinner strokeWidth="6" color="accent" class="push-top-sm"></mat-spinner>
       </ng-container>
       <ng-template #showForm>
         <!-- Common fields -->
         <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
-          <md-input-container flex-gt-md="45" flex-md="45">
+          <mat-form-field flex-gt-md="45" flex-md="45">
             <input mdInput trim="blur" #sutNameInput type="text" placeholder="SuT Name" [(ngModel)]="sut.name" name="sutName"
               required>
-          </md-input-container>
-          <md-input-container flex-gt-md="45" flex-md="45" flex-offset-md="5" flex-offset-gt-md="5">
+          </mat-form-field>
+          <mat-form-field flex-gt-md="45" flex-md="45" flex-offset-md="5" flex-offset-gt-md="5">
             <input mdInput trim="blur" type="text" placeholder="SuT Description" [(ngModel)]="sut.description" name="sutDesc">
-          </md-input-container>
+          </mat-form-field>
         </div>
 
         <div layout="column" class="push-top push-bottom">
           <!-- SuT Type -->
-          <md-radio-group #radioGroup (change)="sutBy(managedSut.checked ? 'managedSut' : (deployedSut.checked ? 'deployedSut' : 'repository'))">
-            <md-radio-button #managedSut name="managedSut" value="managedChecked" [checked]="managedChecked" class="push-right">
+          <mat-radio-group #radioGroup (change)="sutBy(managedSut.checked ? 'managedSut' : (deployedSut.checked ? 'deployedSut' : 'repository'))">
+            <mat-radio-button #managedSut name="managedSut" value="managedChecked" [checked]="managedChecked" class="push-right">
               Deployed by ElasTest
-            </md-radio-button>
+            </mat-radio-button>
 
-            <md-radio-button #deployedSut name="deployedSut" value="deployedChecked" [checked]="deployedChecked">
+            <mat-radio-button #deployedSut name="deployedSut" value="deployedChecked" [checked]="deployedChecked">
               Deployed outside ElasTest
-            </md-radio-button>
-          </md-radio-group>
+            </mat-radio-button>
+          </mat-radio-group>
 
           <!-- Deployed types -->
           <div layout="row" class="push-top" *ngIf="deployedChecked">
-            <md-radio-group #radioGroupDeployed (change)="deployedType(withoutIns.checked ? 'withoutIns' : (adminIns.checked ? 'adminIns' : (elastestIns.checked ? 'elastestIns' : 'extElasticsearchIns')))">
-              <md-radio-button #withoutIns name="withoutIns" value="withoutInsCheck" [checked]="withoutInsCheck" class="push-right">
+            <mat-radio-group #radioGroupDeployed (change)="deployedType(withoutIns.checked ? 'withoutIns' : (adminIns.checked ? 'adminIns' : (elastestIns.checked ? 'elastestIns' : 'extElasticsearchIns')))">
+              <mat-radio-button #withoutIns name="withoutIns" value="withoutInsCheck" [checked]="withoutInsCheck" class="push-right">
                 No Instrumentation
-              </md-radio-button>
+              </mat-radio-button>
 
-              <md-radio-button #elastestIns name="elastestIns" value="elastestInsCheck" [checked]="elastestInsCheck"
+              <mat-radio-button #elastestIns name="elastestIns" value="elastestInsCheck" [checked]="elastestInsCheck"
                 class="push-right">
                 Instrumented by ElasTest
-              </md-radio-button>
+              </mat-radio-button>
 
-              <md-radio-button #adminIns name="adminIns" value="adminInsCheck" [checked]="adminInsCheck" class="push-right">
+              <mat-radio-button #adminIns name="adminIns" value="adminInsCheck" [checked]="adminInsCheck" class="push-right">
                 Manual Instrumentation
-              </md-radio-button>
+              </mat-radio-button>
 
-              <md-radio-button #extElasticsearchIns name="extElasticsearchIns" value="extElasticsearchInsCheck"
+              <mat-radio-button #extElasticsearchIns name="extElasticsearchIns" value="extElasticsearchInsCheck"
                 [checked]="extElasticsearchInsCheck">
                 Use External Elasticsearch
-              </md-radio-button>
-            </md-radio-group>
+              </mat-radio-button>
+            </mat-radio-group>
           </div>
 
           <!-- Managed -->
           <div layout="column" class="push-top" *ngIf="managedSut.checked">
             <!-- SuT DOCKER Type -->
             <div class="push-bottom">
-              <md-radio-group #radioGroupManagedDockerType (change)="managedDockerTypeBy(commandsRadio.checked ? 'commands' : (dockerImageRadio.checked ? 'image' : 'compose'))">
-                <md-radio-button #commandsRadio name="commandsRadio" value="{{commands}}" [checked]="commands" class="push-right">
+              <mat-radio-group #radioGroupManagedDockerType (change)="managedDockerTypeBy(commandsRadio.checked ? 'commands' : (dockerImageRadio.checked ? 'image' : 'compose'))">
+                <mat-radio-button #commandsRadio name="commandsRadio" value="{{commands}}" [checked]="commands" class="push-right">
                   With Commands Container
-                </md-radio-button>
+                </mat-radio-button>
 
-                <md-radio-button #dockerImageRadio name="dockerImageRadio" value="{{dockerImage}}" [checked]="dockerImage"
+                <mat-radio-button #dockerImageRadio name="dockerImageRadio" value="{{dockerImage}}" [checked]="dockerImage"
                   class="push-right">
                   With Docker Image
-                </md-radio-button>
+                </mat-radio-button>
 
-                <md-radio-button #dockerComposeRadio name="dockerComposeRadio" value="{{dockerCompose}}" [checked]="dockerCompose">
+                <mat-radio-button #dockerComposeRadio name="dockerComposeRadio" value="{{dockerCompose}}" [checked]="dockerCompose">
                   With Docker Compose
-                </md-radio-button>
-              </md-radio-group>
+                </mat-radio-button>
+              </mat-radio-group>
             </div>
           </div>
 
@@ -82,56 +82,56 @@
 
             <!-- Common SuT Specification -->
             <ng-container *ngIf="!managedSut.checked || (managedSut.checked && !dockerCompose); else dockerComposeSpec">
-              <md-input-container flex="100">
+              <mat-form-field flex="100">
                 <input mdInput trim="blur" type="text" placeholder="{{ managedSut.checked ? (commands ? managedCommandsSpecText : managedSpecText) : (deployedSut.checked ? deployedSpecText : specText) }}"
                   [(ngModel)]="sut.specification" name="specification" required>
-              </md-input-container>
+              </mat-form-field>
             </ng-container>
 
             <!-- Commands (Managed) -->
             <ng-container *ngIf="managedSut.checked && commands">
               <!-- Commands -->
               <div layout="column" *ngIf="!useImageCommand" class="push-top">
-                <md-input-container>
+                <mat-form-field>
                   <textarea id="commands" rows="10" mdInput #sutFormElement #sutFormControl="ngModel" placeholder="Commands"
                     [(ngModel)]="sut.commands" name="commands" required></textarea>
-                </md-input-container>
+                </mat-form-field>
               </div>
 
 
 
               <!-- SuT DOCKER Type -->
               <div class="push-bottom">
-                <md-radio-group #radioGroupCommandsOption (change)="changeCommandsOption(defaultRadio.checked ? 'default' : (inNewContainerRadio.checked ? 'container' : 'compose'))">
-                  <md-radio-button #defaultRadio name="defaultRadio" value="{{optionDefault}}" [checked]="optionDefault"
+                <mat-radio-group #radioGroupCommandsOption (change)="changeCommandsOption(defaultRadio.checked ? 'default' : (inNewContainerRadio.checked ? 'container' : 'compose'))">
+                  <mat-radio-button #defaultRadio name="defaultRadio" value="{{optionDefault}}" [checked]="optionDefault"
                     class="push-right">
                     SuT In Commands Container
-                  </md-radio-button>
+                  </mat-radio-button>
 
-                  <md-radio-button #inNewContainerRadio name="inNewContainerRadio" value="{{optionInNewContainer}}"
+                  <mat-radio-button #inNewContainerRadio name="inNewContainerRadio" value="{{optionInNewContainer}}"
                     [checked]="optionInNewContainer" class="push-right">
                     SuT In New Container
-                  </md-radio-button>
+                  </mat-radio-button>
 
-                  <md-radio-button #inDockerComposeRadio name="inDockerComposeRadio" value="{{optionInDockerCompose}}"
+                  <mat-radio-button #inDockerComposeRadio name="inDockerComposeRadio" value="{{optionInDockerCompose}}"
                     [checked]="optionInDockerCompose">
                     SuT In Docker Compose
-                  </md-radio-button>
-                </md-radio-group>
+                  </mat-radio-button>
+                </mat-radio-group>
               </div>
               <div class="push-bottom">
                 <td-message #dockerTypeInfo label="{{currentCommandsModeHelpHead}}" sublabel="{{currentCommandsModeHelpDesc}}"
                   color="primary" icon="info">
-                  <!-- <button td-message-actions md-button (click)="dockerTypeInfo.close()">X</button> -->
+                  <!-- <button td-message-actions mat-button (click)="dockerTypeInfo.close()">X</button> -->
                 </td-message>
               </div>
 
               <ng-container *ngIf="optionInDockerCompose">
                 <!-- Main service name -->
-                <md-input-container flex="100">
+                <mat-form-field flex="100">
                   <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService"
                     name="mainService" required>
-                </md-input-container>
+                </mat-form-field>
               </ng-container>
 
             </ng-container>
@@ -142,35 +142,35 @@
 
             <ng-template #dockerComposeSpec>
               <!-- Specification as Docker Compose -->
-              <md-input-container flex="100">
+              <mat-form-field flex="100">
                 <textarea id="specification" rows="24" mdInput placeholder="Docker Compose" [(ngModel)]="sut.specification"
                   name="specification" required></textarea>
-              </md-input-container>
+              </mat-form-field>
             </ng-template>
 
             <!-- Compose (Managed) -->
             <ng-container *ngIf="managedSut.checked && dockerCompose">
               <!-- Main service name -->
-              <md-input-container flex="100">
+              <mat-form-field flex="100">
                 <input mdInput trim="blur" type="text" placeholder="Main Service Name" [(ngModel)]="sut.mainService"
                   name="mainService" required>
-              </md-input-container>
+              </mat-form-field>
             </ng-container>
 
             <div layout="row">
               <!-- Protocol -->
-              <md-select flex="45" [(ngModel)]="sut.protocol" placeholder="Select a protocol" required name="protocol"
+              <mat-select flex="45" [(ngModel)]="sut.protocol" placeholder="Select a protocol" required name="protocol"
                 class="push-right">
-                <md-option *ngFor="let protocol of sut.getProtocolsList()" [value]="protocol">
+                <mat-option *ngFor="let protocol of sut.getProtocolsList()" [value]="protocol">
                   {{protocol.toLowerCase()}}
-                </md-option>
-              </md-select>
+                </mat-option>
+              </mat-select>
 
               <!-- Port -->
-              <md-input-container flex="45" flex-offset="5">
+              <mat-form-field flex="45" flex-offset="5">
                 <input mdInput trim="blur" type="number" placeholder="{{managedSut.checked ? 'Wait for port' : 'Port'}}"
                   [(ngModel)]="sut.port" name="port">
-              </md-input-container>
+              </mat-form-field>
             </div>
           </div>
 
@@ -178,48 +178,48 @@
           <div layout="column" class="push-top" *ngIf="deployedChecked && elastestInsCheck">
             <div layout="row">
 
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10">
+              <mat-form-field *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10">
                 <input mdInput trim="blur" type="text" placeholder="User" [(ngModel)]="this.sut.eimConfig.user" name="user"
                   required>
-              </md-input-container>
+              </mat-form-field>
 
 
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
+              <mat-form-field *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
                 flex-offset-gt-md="5">
                 <input mdInput trim="blur" type="password" placeholder="Password" [(ngModel)]="this.sut.eimConfig.password"
                   name="password">
-              </md-input-container>
+              </mat-form-field>
 
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="45" flex-md="35" flex-offset-md="5"
+              <mat-form-field *ngIf="deployedSut.checked" flex-gt-md="45" flex-md="35" flex-offset-md="5"
                 flex-offset-gt-md="5">
                 <textarea mdInput placeholder="Private Key" [(ngModel)]="this.sut.eimConfig.privateKey" name="Private Key"
                   required></textarea>
-              </md-input-container>
+              </mat-form-field>
 
               <!-- Instrumentalize? -->
-              <md-list flex-gt-md="20" flex-md="30" flex-offset-md="5" flex-offset-gt-md="5">
-                <md-list-item *ngIf="!instrumentalized">
+              <mat-list flex-gt-md="20" flex-md="30" flex-offset-md="5" flex-offset-gt-md="5">
+                <mat-list-item *ngIf="!instrumentalized">
                   <div>
                     <h3>Not Instrumentalized</h3>
                     <p>
-                      <md-checkbox [(ngModel)]="this.sut.instrumentalize" name="instrumentalizeCheckbox">Instrumentalize</md-checkbox>
+                      <mat-checkbox [(ngModel)]="this.sut.instrumentalize" name="instrumentalizeCheckbox">Instrumentalize</mat-checkbox>
                     </p>
                   </div>
-                </md-list-item>
-                <md-list-item *ngIf="instrumentalized">
+                </mat-list-item>
+                <mat-list-item *ngIf="instrumentalized">
                   <div>
                     <h3>Instrumentalized </h3>
                     <p>
-                      <md-checkbox [(ngModel)]="!this.sut.instrumentalize" name="deInstrumentalizeCheckbox">De-Instrumentalize</md-checkbox>
+                      <mat-checkbox [(ngModel)]="!this.sut.instrumentalize" name="deInstrumentalizeCheckbox">De-Instrumentalize</mat-checkbox>
                     </p>
                   </div>
-                </md-list-item>
-              </md-list>
+                </mat-list-item>
+              </mat-list>
             </div>
             <!-- Eim Logs Paths -->
             <td-expansion-panel expand="true" class="push-bottom push-top">
               <ng-template td-expansion-panel-label>
-                <span class="md-headline">SuT Logs Paths</span>
+                <span class="mat-headline">SuT Logs Paths</span>
               </ng-template>
               <div class="pad-sm pad-top-xs">
                 <div class="pad-xs">
@@ -236,22 +236,22 @@
             <td-expansion-panel *ngIf="this.sut.eimMonitoringConfig" expand="{{this.sut.eimMonitoringConfig.dockerized}}"
               class="push-bottom push-top">
               <ng-template td-expansion-panel-label>
-                <md-checkbox mdTooltip="Is Dockerized" id="isDockerizedSut" [(ngModel)]="this.sut.eimMonitoringConfig.dockerized"
-                  name="isDockerizedSutCheckbox"></md-checkbox>
-                <span class="md-headline">Dockerized SuT</span>
+                <mat-checkbox matTooltip="Is Dockerized" id="isDockerizedSut" [(ngModel)]="this.sut.eimMonitoringConfig.dockerized"
+                  name="isDockerizedSutCheckbox"></mat-checkbox>
+                <span class="mat-headline">Dockerized SuT</span>
               </ng-template>
               <div class="pad-sm pad-top-xs" layout="column">
                 <div class="pad-xs">
-                  <div class="md-title push-bottom-sm">Docker containers logs path</div>
+                  <div class="mat-title push-bottom-sm">Docker containers logs path</div>
                   <td-message #dockerizedSutFilebeatInfo label="{{eimDockerContainerLogsPathHelpDesc}}" color="primary"
                     icon="info">
                   </td-message>
                   <string-list-view [model]="sut.eimMonitoringConfig.beats.filebeat.dockerized" [fieldName]="'Docker Containers Logs Path'">
                   </string-list-view>
                 </div>
-                <md-divider></md-divider>
+                <mat-divider></mat-divider>
                 <div class="pad-xs push-top-md">
-                  <div class="md-title push-bottom-sm">Docker sock path</div>
+                  <div class="mat-title push-bottom-sm">Docker sock path</div>
                   <td-message #dockerizedSutMetricbeatInfo label="{{eimDockerSockPathHelpDesc}}" color="primary" icon="info">
                   </td-message>
                   <string-list-view [model]="sut.eimMonitoringConfig.beats.metricbeat.dockerized" [fieldName]="'Docker sock path'">
@@ -264,23 +264,23 @@
           <!-- Deployed: Instrumented By SuT Admin Info -->
           <div layout="column" class="push-top" *ngIf="deployedChecked && adminInsCheck">
             <div *ngIf="showGetInfoBtn(); else showMonitoringInfo">
-              <button md-raised-button color="accent" [disabled]="!sutForm.valid" *ngIf="deployedChecked && adminInsCheck"
+              <button mat-raised-button color="accent" [disabled]="!sutForm.valid" *ngIf="deployedChecked && adminInsCheck"
                 (click)="preSave(false)" title="Save and get monitoring details">SAVE AND GET MONITORING DETAILS</button>
             </div>
             <ng-template #showMonitoringInfo>
-              <div class="md-title">Monitoring Configuration</div>
-              <md-list class="noPaddingChilds">
-                <md-list-item *ngIf="sut.eimConfig.logstashIp">
-                  <strong>Logstash Container IP:&nbsp;</strong> {{sut.eimConfig.logstashIp}}</md-list-item>
-                <md-list-item *ngIf="sut.eimConfig.logstashBindedBeatsHost">
-                  <strong>Logstash Beats Host:&nbsp;</strong> {{sut.eimConfig.logstashBindedBeatsHost}}</md-list-item>
-                <md-list-item *ngIf="sut.eimConfig.logstashBindedBeatsPort">
-                  <strong>Logstash Beats Port:&nbsp;</strong> {{sut.eimConfig.logstashBindedBeatsPort}}</md-list-item>
-                <md-list-item *ngIf="sut.eimConfig.logstashHttpApiUrl">
-                  <strong>HTTP Api Url:&nbsp;</strong> {{sut.eimConfig.logstashHttpApiUrl}}</md-list-item>
-                <md-list-item *ngIf="sut.currentSutExec">
-                  <strong>Execution ID:&nbsp;</strong> {{sutExecIndex}}</md-list-item>
-              </md-list>
+              <div class="mat-title">Monitoring Configuration</div>
+              <mat-list class="noPaddingChilds">
+                <mat-list-item *ngIf="sut.eimConfig.logstashIp">
+                  <strong>Logstash Container IP:&nbsp;</strong> {{sut.eimConfig.logstashIp}}</mat-list-item>
+                <mat-list-item *ngIf="sut.eimConfig.logstashBindedBeatsHost">
+                  <strong>Logstash Beats Host:&nbsp;</strong> {{sut.eimConfig.logstashBindedBeatsHost}}</mat-list-item>
+                <mat-list-item *ngIf="sut.eimConfig.logstashBindedBeatsPort">
+                  <strong>Logstash Beats Port:&nbsp;</strong> {{sut.eimConfig.logstashBindedBeatsPort}}</mat-list-item>
+                <mat-list-item *ngIf="sut.eimConfig.logstashHttpApiUrl">
+                  <strong>HTTP Api Url:&nbsp;</strong> {{sut.eimConfig.logstashHttpApiUrl}}</mat-list-item>
+                <mat-list-item *ngIf="sut.currentSutExec">
+                  <strong>Execution ID:&nbsp;</strong> {{sutExecIndex}}</mat-list-item>
+              </mat-list>
             </ng-template>
           </div>
 
@@ -289,51 +289,51 @@
           <div layout="column" class="push-top" *ngIf="deployedChecked && extElasticsearchInsCheck">
             <div layout="row">
               <!-- ES IP -->
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10">
+              <mat-form-field *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10">
                 <input mdInput trim="blur" type="text" placeholder="Elasticsearch IP" [(ngModel)]="this.sut.externalElasticsearch.ip"
                   name="esIp" required>
-              </md-input-container>
+              </mat-form-field>
 
               <!-- ES Port -->
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="5" flex-md="5" flex-offset-md="5"
+              <mat-form-field *ngIf="deployedSut.checked" flex-gt-md="5" flex-md="5" flex-offset-md="5"
                 flex-offset-gt-md="5">
                 <input mdInput trim="blur" type="number" placeholder="ES Port" [(ngModel)]="this.sut.externalElasticsearch.port"
                   name="esPort" required>
-              </md-input-container>
+              </mat-form-field>
               
               <!-- ES PATH -->
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
+              <mat-form-field *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
               flex-offset-gt-md="5">
                 <input mdInput trim="blur" type="text" placeholder="Elasticsearch PATH" [(ngModel)]="this.sut.externalElasticsearch.path"
                   name="esPath">
-              </md-input-container>
+              </mat-form-field>
               
 
               <!-- ES User -->
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
+              <mat-form-field *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
                 flex-offset-gt-md="5">
                 <input mdInput trim="blur" type="text" placeholder="Elasticsearch User" [(ngModel)]="this.sut.externalElasticsearch.user"
                   name="esUser">
-              </md-input-container>
+              </mat-form-field>
 
               <!-- ES Pass -->
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
+              <mat-form-field *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
                 flex-offset-gt-md="5">
                 <input mdInput trim="blur" type="password" placeholder="Elasticsearch Pass" [(ngModel)]="this.sut.externalElasticsearch.pass"
                   name="esPass">
-              </md-input-container>
+              </mat-form-field>
 
 
               <!-- ES Indices -->
-              <md-input-container *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
+              <mat-form-field *ngIf="deployedSut.checked" flex-gt-md="10" flex-md="10" flex-offset-md="5"
                 flex-offset-gt-md="5">
                 <input mdInput trim="blur" type="text" placeholder="ES Indices (comma separated)" [(ngModel)]="this.sut.externalElasticsearch.indices"
                   name="esIndices" required>
-              </md-input-container>
+              </mat-form-field>
 
-              <md-checkbox [checked]="useESIndicesByExecutionCheck" (change)="switchUseESIndicesByExecution($event)"
+              <mat-checkbox [checked]="useESIndicesByExecutionCheck" (change)="switchUseESIndicesByExecution($event)"
                 flex-offset-md="5" flex-offset-gt-md="5">Use
-                indices by execution</md-checkbox>
+                indices by execution</mat-checkbox>
 
             </div>
           </div>
@@ -350,13 +350,13 @@
         </div>
       </ng-template>
     </form>
-  </md-card-content>
-  <md-divider></md-divider>
+  </mat-card-content>
+  <mat-divider></mat-divider>
 
   <!-- Buttons -->
-  <md-card-actions>
-    <button id="saveSutBtn" md-button [disabled]="sut === undefined || (sutForm && !sutForm.valid)" color="primary"
-      (click)="preSave()" mdTooltip="Save and return to previous page">SAVE</button>
-    <button md-button color="primary" (click)="cancel()" title="Cancel and return to previous page">CANCEL</button>
-  </md-card-actions>
-</md-card>
+  <mat-card-actions>
+    <button id="saveSutBtn" mat-button [disabled]="sut === undefined || (sutForm && !sutForm.valid)" color="primary"
+      (click)="preSave()" matTooltip="Save and return to previous page">SAVE</button>
+    <button mat-button color="primary" (click)="cancel()" title="Cancel and return to previous page">CANCEL</button>
+  </mat-card-actions>
+</mat-card>

@@ -1,12 +1,12 @@
 <div flex-gt-sm="100" *ngIf="exTestExecs">
-  <md-card tdMediaToggle="gt-xs">
-    <md-card-title>
+  <mat-card tdMediaToggle="gt-xs">
+    <mat-card-title>
       Test Case Executions
-    </md-card-title>
-    <md-divider></md-divider>
-    <md-card-content>
+    </mat-card-title>
+    <mat-divider></mat-divider>
+    <mat-card-content>
       <centered-element *ngIf="exTestExecs && exTestExecs.length === 0" class="push-top-sm messageEmptyCard">
-        <md-icon>assignment</md-icon>
+        <mat-icon>assignment</mat-icon>
         <p>No Test Executions generated</p>
       </centered-element>
       <div *ngFor="let exTestExec of exTestExecs" class="push-bottom-sm">
@@ -15,20 +15,20 @@
           <ng-template td-expansion-panel-header>
             <div layout="row" class="pad-top-sm pad-left-sm" [routerLink]="['/external/projects/',exTestExec.exTJobExec.exTJob.exProject.id,'tjob',exTJobExec.exTJob.id,'case',exTestExec.exTestCase.id, 'exec',exTestExec.id]">
               <span class="centeredStatusIconSpan pad-right-sm">
-                <md-icon [style.color]="exTestExec.getResultIcon().color">{{exTestExec.getResultIcon().name}}</md-icon>
+                <mat-icon [style.color]="exTestExec.getResultIcon().color">{{exTestExec.getResultIcon().name}}</mat-icon>
               </span>
               <span flex-gt-xs="15">
-                <md-card-subtitle class="pad-left-none">
+                <mat-card-subtitle class="pad-left-none">
                   <strong>Test Case</strong>
-                </md-card-subtitle>
+                </mat-card-subtitle>
                 <h4>{{exTestExec.exTestCase.name}}</h4>
               </span>
               <span flex-gt-xs="10">
-                <md-card-subtitle class="pad-left-none">Start Date</md-card-subtitle>
+                <mat-card-subtitle class="pad-left-none">Start Date</mat-card-subtitle>
                 <h4>{{exTestExec.startDate | date:'dd/MM/yyyy HH:mm:ss'}}</h4>
               </span>
               <span flex-gt-xs="10">
-                <md-card-subtitle class="pad-left-none">End Date</md-card-subtitle>
+                <mat-card-subtitle class="pad-left-none">End Date</mat-card-subtitle>
                 <h4>{{exTestExec.endDate | date:'dd/MM/yyyy HH:mm:ss'}}</h4>
               </span>
             </div>
@@ -37,6 +37,6 @@
         </td-expansion-panel>
       </div>
 
-    </md-card-content>
-  </md-card>
+    </mat-card-content>
+  </mat-card>
 </div>

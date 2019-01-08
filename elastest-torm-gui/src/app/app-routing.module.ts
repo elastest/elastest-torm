@@ -16,7 +16,6 @@ import { InstancesManagerComponent } from './elastest-esm/support-services/insta
 import { TestVncComponent } from './shared/vnc-client/test-vnc/test-vnc.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { UsersComponent } from './users/users.component';
 import { EtmComponent } from './elastest-etm/etm.component';
 import { ProjectFormComponent } from './elastest-etm/project/project-form/project-form.component';
 import { ProjectsManagerComponent } from './elastest-etm/project/projects-manager/projects-manager.component';
@@ -29,7 +28,6 @@ import { TjobManagerComponent } from './elastest-etm/tjob/tjob-manager/tjob-mana
 import { TjobExecManagerComponent } from './elastest-etm/tjob-exec/tjob-exec-manager/tjob-exec-manager.component';
 import { ElastestEusComponent } from './elastest-eus/elastest-eus.component';
 import { LoginComponent } from './login/login.component';
-import { UsersFormComponent } from './users/form/form.component';
 import { RedirectComponent } from './shared/redirect/redirect.component';
 import { EtmTestlinkComponent } from './etm-testlink/etm-testlink.component';
 import { TestProjectFormComponent } from './etm-testlink/test-project/test-project-form/test-project-form.component';
@@ -618,8 +616,6 @@ const routes: Routes = [
 export class AppRoutingModule {}
 export const routedComponents: any[] = [
   LoginComponent,
-  UsersComponent,
-  UsersFormComponent,
   TJobsManagerComponent,
   ProjectsManagerComponent,
   SutManagerComponent,

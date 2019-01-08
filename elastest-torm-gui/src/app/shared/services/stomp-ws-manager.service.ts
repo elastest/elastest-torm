@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../../config/configuration-service.service';
-import { Http } from '@angular/http';
+import {HttpClient} from '@angular/common/http';
 import { StompConfig, StompRService, StompState } from '@stomp/ng2-stompjs';
 import { Subscription, Observable } from 'rxjs';
 import { StompHeaders } from '@stomp/ng2-stompjs/src/stomp-headers';
@@ -15,7 +15,7 @@ export class StompWSManager {
 
   endExecution: boolean = false;
 
-  constructor(private stompRService: StompRService, private http: Http, private configurationService: ConfigurationService) {
+  constructor(private stompRService: StompRService, private http: HttpClient, private configurationService: ConfigurationService) {
     this.subscriptions = new Map<string, any>();
 
     this.wsConf = new StompConfig();

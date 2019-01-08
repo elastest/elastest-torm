@@ -1,20 +1,18 @@
 import { TLTestCaseModel } from '../models/test-case-model';
 import { TLTestSuiteModel } from '../models/test-suite-model';
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
+import { TdDialogService } from '@covalent/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../shared/services/titles.service';
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
-import { TestProjectModel } from '../models/test-project-model';
 import { TestLinkService } from '../testlink.service';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 
 @Component({
   selector: 'app-test-suite',
   templateUrl: './test-suite.component.html',
-  styleUrls: ['./test-suite.component.scss']
+  styleUrls: ['./test-suite.component.scss'],
 })
 export class TLTestSuiteComponent implements OnInit {
-
   testSuite: TLTestSuiteModel;
   testCases: TLTestCaseModel[] = [];
   projectId: number;
@@ -46,15 +44,18 @@ export class TLTestSuiteComponent implements OnInit {
     // { name: 'customFields', label: 'Custom Fields' },
     // steps: TestCaseStepModel[];
 
-
     // { name: 'options', label: 'Options' },
   ];
 
-  constructor(private titlesService: TitlesService, private testLinkService: TestLinkService,
-    private route: ActivatedRoute, private router: Router,
-    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog
-  ) { }
+  constructor(
+    private titlesService: TitlesService,
+    private testLinkService: TestLinkService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private _dialogService: TdDialogService,
+    private _viewContainerRef: ViewContainerRef,
+    public dialog: MatDialog,
+  ) {}
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Test Suite');
@@ -64,25 +65,25 @@ export class TLTestSuiteComponent implements OnInit {
 
   loadSuite(): void {
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap((params: Params) => {
-        this.projectId = params['projectId'];
-        return this.testLinkService.getTestSuiteById(params['suiteId'], params['projectId'])
-      }).subscribe((suite: TLTestSuiteModel) => {
-        this.testSuite = suite;
-        this.titlesService.setPathName(this.router.routerState.snapshot.url);
-        this.loadTestCases();
-      });
+      this.route.params
+        .switchMap((params: Params) => {
+          this.projectId = params['projectId'];
+          return this.testLinkService.getTestSuiteById(params['suiteId'], params['projectId']);
+        })
+        .subscribe((suite: TLTestSuiteModel) => {
+          this.testSuite = suite;
+          this.titlesService.setPathName(this.router.routerState.snapshot.url);
+          this.loadTestCases();
+        });
     }
   }
 
   loadTestCases(): void {
-    this.testLinkService.getSuiteTestCases(this.testSuite)
-      .subscribe(
+    this.testLinkService.getSuiteTestCases(this.testSuite).subscribe(
       (testCases: TLTestCaseModel[]) => {
         this.testCases = testCases;
       },
       (error) => console.log(error),
     );
   }
-
 }

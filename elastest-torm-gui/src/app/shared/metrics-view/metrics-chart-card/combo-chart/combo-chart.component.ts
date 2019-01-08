@@ -182,6 +182,7 @@ export class ComboChartComponent extends BaseChartComponent {
   timelineXDomain: any;
   timelineTransform: any;
   timelinePadding: number = 10;
+  location: any;
 
   // TimeLine Observable
   _timelineObs: Subject<any> = new Subject<any>();
@@ -282,7 +283,7 @@ export class ComboChartComponent extends BaseChartComponent {
     this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
     this.transformRightTwo = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
 
-    const pageUrl = this.location instanceof PathLocationStrategy ? this.location.path() : '';
+    const pageUrl: string = this.location instanceof PathLocationStrategy ? this.location.path() : '';
 
     this.clipPathId = 'clip' + id().toString();
     this.clipPath = `url(${pageUrl}#${this.clipPathId})`;

@@ -3,14 +3,14 @@
         <div layout="row">
             <span>TJobs</span>
             <span flex></span>
-            <button md-raised-button color="accent" (click)="newTJob()" id="newTJobBtn" mdTooltip="Create New TJob">New
+            <button mat-raised-button color="accent" (click)="newTJob()" id="newTJobBtn" matTooltip="Create New TJob">New
                 TJob</button>
         </div>
     </sa-card-title>
     <sa-card-content #scrollMeTest>
-        <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+        <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
         <centered-element *ngIf="!showSpinner && tJobs.length === 0" class="push-top-sm messageEmptyCard">
-            <md-icon>assignment</md-icon>
+            <mat-icon>assignment</mat-icon>
             <p>No TJobs created</p>
         </centered-element>
         <td-data-table #tjobsTable *ngIf="tJobs && tJobs.length > 0" class="useMaxHeight" [data]="tJobs" [columns]="tjobColumns"
@@ -29,7 +29,7 @@
                     </ng-template>
                 </div>
                 <div *ngIf="column.name === 'result' && value !== undefined" (click)="viewTJob(row)">
-                    <md-icon style="vertical-align: middle;" [style.color]="value.color" mdTooltip="{{value.result}}">{{value.name}}</md-icon>
+                    <mat-icon style="vertical-align: middle;" [style.color]="value.color" matTooltip="{{value.result}}">{{value.name}}</mat-icon>
                 </div>
                 <div *ngIf="column.name === 'lastExecutionDate'" (click)="viewTJob(row)">
                     <ng-container *ngIf="value !== undefined; else notExecuted">
@@ -43,20 +43,20 @@
 
             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                 <div layout="row" class="optionsColumn">
-                    <button md-button *ngIf="!row.external" (click)="runTJob(row, row.project)" [disabled]="deletingInProgress"
+                    <button mat-button *ngIf="!row.external" (click)="runTJob(row, row.project)" [disabled]="deletingInProgress"
                         class="iconBtn" title="Run TJob">
-                        <md-icon>play_circle_outline</md-icon>
+                        <mat-icon>play_circle_outline</mat-icon>
                     </button>
-                    <button md-button *ngIf="!row.external || row.getExternalEditPage() !== undefined" (click)="editTJob(row)"
+                    <button mat-button *ngIf="!row.external || row.getExternalEditPage() !== undefined" (click)="editTJob(row)"
                         [disabled]="deletingInProgress" class="iconBtn" title="Edit TJob">
-                        <md-icon>mode_edit</md-icon>
+                        <mat-icon>mode_edit</mat-icon>
                     </button>
-                    <button md-button [disabled]="deletingInProgress || duplicateInProgress" *ngIf="!row.external || row.getExternalEditPage() !== undefined"
+                    <button mat-button [disabled]="deletingInProgress || duplicateInProgress" *ngIf="!row.external || row.getExternalEditPage() !== undefined"
                         (click)="duplicateTJob(row)" class="iconBtn" title="Duplicate TJob">
-                        <md-icon>content_copy</md-icon>
+                        <mat-icon>content_copy</mat-icon>
                     </button>
-                    <button md-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn" title="Delete TJob">
-                        <md-icon>delete</md-icon>
+                    <button mat-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn" title="Delete TJob">
+                        <mat-icon>delete</mat-icon>
                     </button>
                 </div>
             </ng-template>

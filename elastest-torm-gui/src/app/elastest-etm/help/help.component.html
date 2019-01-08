@@ -1,37 +1,37 @@
 <div layout-gt-sm="row" tdMediaToggle="gt-xs">
   <div flex-gt-sm="100">
-    <md-card>
-      <md-card-title>
+    <mat-card>
+      <mat-card-title>
         <div layout="row">
           <span>
-            <md-icon style="vertical-align: middle;padding-right: 10px;">info</md-icon>
+            <mat-icon style="vertical-align: middle;padding-right: 10px;">info</mat-icon>
             <span style="vertical-align: middle;">About ElasTest</span>
           </span>
           <span flex></span>
-          <span *ngIf="etCurrentVersion" class="md-subhead tc-grey-600 pad-right-sm">
+          <span *ngIf="etCurrentVersion" class="mat-subhead tc-grey-600 pad-right-sm">
             <span>ElasTest version:&nbsp;</span>
             <span id="etVersion">{{etCurrentVersion}}</span>
           </span>
         </div>
-      </md-card-title>
+      </mat-card-title>
 
-      <md-card-content>
-        <div class="md-title" layout="row">
+      <mat-card-content>
+        <div class="mat-title" layout="row">
           <span> ElasTest Main Services </span>
           <span flex></span>
           <span>
             <div layout="row">
-              <span *ngIf="lastRefresh" class="md-subhead tc-grey-600 pad-right-sm">
+              <span *ngIf="lastRefresh" class="mat-subhead tc-grey-600 pad-right-sm">
                 <span>Last refresh: </span>
                 <span>
                   {{lastRefresh | timeAgo }} ({{lastRefresh | date:'HH:mm:ss' }})</span>
               </span>
 
-              <md-icon color="accent" class="hover-pointer pad-right-sm" (click)="init()" md-tooltip="Refresh now">sync</md-icon>
-              <span class="md-subhead pad-right-sm">AutoRefresh:</span>
-              <md-checkbox #autorefresh [checked]="autorefreshEnabled" name="autorefresh" (change)="switchAutorefresh(autorefresh.checked)"
-                md-tooltip="Enable AutoRefresh">
-              </md-checkbox>
+              <mat-icon color="accent" class="hover-pointer pad-right-sm" (click)="init()" mat-tooltip="Refresh now">sync</mat-icon>
+              <span class="mat-subhead pad-right-sm">AutoRefresh:</span>
+              <mat-checkbox #autorefresh [checked]="autorefreshEnabled" name="autorefresh" (change)="switchAutorefresh(autorefresh.checked)"
+                mat-tooltip="Enable AutoRefresh">
+              </mat-checkbox>
             </div>
           </span>
         </div>
@@ -43,7 +43,7 @@
             </ng-container>
             <ng-template #specialFields>
               <ng-container *ngIf="column.name === 'status'">
-                <md-icon style="vertical-align: middle; padding-right: 1px;" [style.color]="row.getStatusIcon().color">{{row.getStatusIcon().name}}</md-icon>
+                <mat-icon style="vertical-align: middle; padding-right: 1px;" [style.color]="row.getStatusIcon().color">{{row.getStatusIcon().name}}</mat-icon>
                 {{value}}
               </ng-container>
 
@@ -58,9 +58,9 @@
 
               <ng-container *ngIf="column.name === 'options'">
                 <div layout="row" class="optionsColumn">
-                  <button md-button (click)="loadCoreServiceLogs(row.name)" md-tooltip="View logs" class="iconBtn-lg"
+                  <button mat-button (click)="loadCoreServiceLogs(row.name)" mat-tooltip="View logs" class="iconBtn-lg"
                     [disabled]="loadingLogs">
-                    <md-icon>library_books</md-icon>
+                    <mat-icon>library_books</mat-icon>
                   </button>
                 </div>
               </ng-container>
@@ -68,12 +68,12 @@
             </ng-template>
           </ng-template>
         </td-data-table>
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
     <div *ngIf="coreServiceLogs">
       <logs-view *ngIf="!loadingLogs; else showLoadingLogs" [model]="coreServiceLogs" [live]="false" [remove]="removeLogCard.bind(this)"></logs-view>
       <ng-template #showLoadingLogs>
-        <md-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+        <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
       </ng-template>
     </div>
   </div>

@@ -2,54 +2,54 @@
 
   <normal-height-row>
     <div flex-gt-sm="100">
-      <md-card tdMediaToggle="gt-xs">
-        <md-card-title>
+      <mat-card tdMediaToggle="gt-xs">
+        <mat-card-title>
           <span *ngIf="tJob && tJob.multi">Multi-Configuration</span>
           <span>TJob</span>
           <span *ngIf="tJob && tJob.name">"{{tJob.name}}"</span>
-        </md-card-title>
-        <md-divider></md-divider>
-        <md-card-content>
+        </mat-card-title>
+        <mat-divider></mat-divider>
+        <mat-card-content>
           <div layout="row">
             <span flex-gt-xs="20">
-              <md-card-subtitle>Name</md-card-subtitle>
+              <mat-card-subtitle>Name</mat-card-subtitle>
               <h4>{{tJob.name}}</h4>
             </span>
             <span flex-gt-xs="20">
-              <md-card-subtitle>Image Name</md-card-subtitle>
+              <mat-card-subtitle>Image Name</mat-card-subtitle>
               <h4>{{tJob.imageName}}</h4>
             </span>
             <span flex-gt-xs="20" *ngIf="!tJob.hasSut()">
-              <md-card-subtitle>Sut</md-card-subtitle>
+              <mat-card-subtitle>Sut</mat-card-subtitle>
               <h4>None</h4>
             </span>
             <span flex-gt-xs="20" *ngIf="tJob.hasSut()">
-              <button md-button (click)="editSut()" class="onlyIconBtn" title="Edit SuT">
+              <button mat-button (click)="editSut()" class="onlyIconBtn" title="Edit SuT">
                 <div layout="row">
-                  <md-card-subtitle style="line-height: initial; padding-right: 8px;">Sut</md-card-subtitle>
-                  <md-icon style="font-size: 18px;">mode_edit</md-icon>
+                  <mat-card-subtitle style="line-height: initial; padding-right: 8px;">Sut</mat-card-subtitle>
+                  <mat-icon style="font-size: 18px;">mode_edit</mat-icon>
                 </div>
               </button>
               <h4 style="margin-top: 0;">{{tJob.sut.name}}</h4>
             </span>
 
             <span flex-gt-xs="20" *ngIf="!tJob.hasSut()">
-              <md-card-subtitle>Is Multi Axis</md-card-subtitle>
+              <mat-card-subtitle>Is Multi Axis</mat-card-subtitle>
               <h4>{{tJob.multi}}</h4>
             </span>
 
             <span flex-gt-xs="25">
-              <md-card-subtitle>Options</md-card-subtitle>
+              <mat-card-subtitle>Options</mat-card-subtitle>
               <div class="optionsColumn" layout="column" layout-gt-xs="row">
-                <button md-button *ngIf="!tJob.external" (click)="runTJob()" class="iconBtn-lg" title="Run TJob">
-                  <md-icon>play_circle_outline</md-icon>
+                <button mat-button *ngIf="!tJob.external" (click)="runTJob()" class="iconBtn-lg" title="Run TJob">
+                  <mat-icon>play_circle_outline</mat-icon>
                 </button>
-                <button md-button *ngIf="!tJob.external || tJob.getExternalEditPage() !== undefined" (click)="editTJob()"
+                <button mat-button *ngIf="!tJob.external || tJob.getExternalEditPage() !== undefined" (click)="editTJob()"
                   class="iconBtn-lg" title="Edit TJob">
-                  <md-icon>mode_edit</md-icon>
+                  <mat-icon>mode_edit</mat-icon>
                 </button>
-                <button md-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
-                  <md-icon>delete</md-icon>
+                <button mat-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
+                  <mat-icon>delete</mat-icon>
                 </button>
               </div>
             </span>
@@ -67,8 +67,8 @@
               </ul>
             </div>
           </td-expansion-panel>
-        </md-card-content>
-      </md-card>
+        </mat-card-content>
+      </mat-card>
     </div>
   </normal-height-row>
 
@@ -78,9 +78,9 @@
         Executions
       </sa-card-title>
       <sa-card-content>
-        <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+        <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
         <centered-element *ngIf="!showSpinner && tJobExecData.length === 0" class="push-top-sm messageEmptyCard">
-          <md-icon>assignment</md-icon>
+          <mat-icon>assignment</mat-icon>
           <p>No Executions generated</p>
         </centered-element>
         <td-data-table #tjobsTable *ngIf="tJobExecData && tJobExecData.length > 0" class="useMaxHeight" [data]="tJobExecData"
@@ -93,7 +93,7 @@
               <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
                 <ng-container *ngIf="column.name === 'result'">
                   <img *ngIf="!row.finished()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
-                  <md-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</md-icon>
+                  <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</mat-icon>
                 </ng-container>
                 {{value}}
               </span>
@@ -117,12 +117,12 @@
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div layout="row" class="optionsColumn">
-              <button md-button (click)="deleteTJobExec(row)" [disabled]="deletingInProgress" stopRowClick title="Delete TJob Execution"
+              <button mat-button (click)="deleteTJobExec(row)" [disabled]="deletingInProgress" stopRowClick title="Delete TJob Execution"
                 class="iconBtn-lg">
-                <md-icon>delete</md-icon>
+                <mat-icon>delete</mat-icon>
               </button>
-              <button md-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">
-                <md-icon>library_books</md-icon>
+              <button mat-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">
+                <mat-icon>library_books</mat-icon>
               </button>
             </div>
           </ng-template>

@@ -4,7 +4,6 @@ import { ETModelsTransformServices } from '../../shared/services/et-models-trans
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { TJobModel } from '../tjob/tjob-model';
 import { TJobExecModel } from './tjobExec-model';
-import { Http, Response } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs/Rx';
 import 'rxjs/Rx';
@@ -13,11 +12,12 @@ import { TestSuiteModel } from '../test-suite/test-suite-model';
 import { LogAnalyzerService, StartFinishTestCaseTraces } from '../../elastest-log-analyzer/log-analyzer.service';
 import { sleep } from '../../shared/utils';
 import { MetricTraces } from '../../shared/services/monitoring.service';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 @Injectable()
 export class TJobExecService {
   constructor(
-    private http: Http,
+    private http: HttpClient,
     private configurationService: ConfigurationService,
     private eTModelsTransformServices: ETModelsTransformServices,
     public popupService: PopupService,
@@ -45,10 +45,10 @@ export class TJobExecService {
       body['multiConfigurations'] = multiConfigs;
     }
 
-    return this.http.post(url, body).map((response: Response) => {
+    return this.http.post(url, body).map((response: HttpResponse<any>) => {
       let data: any = undefined;
       try {
-        data = response.json();
+        data = response.body;
       } catch (e) {}
       if (response.status !== 200) {
         let msg: string = 'Sut instrumented by Elastest is still activating beats. Wait and try again';
@@ -56,7 +56,7 @@ export class TJobExecService {
         throw new Error(msg);
       } else {
         if (data !== undefined && data !== null) {
-          return this.eTModelsTransformServices.jsonToTJobExecModel(response.json());
+          return this.eTModelsTransformServices.jsonToTJobExecModel(data);
         } else {
           throw new Error('Empty response.');
         }
@@ -67,23 +67,23 @@ export class TJobExecService {
   // Get all Executions of a TJob
   public getTJobsExecutions(tJob: TJobModel): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec';
-    return this.http.get(url).map((response) => this.eTModelsTransformServices.jsonToTJobExecsList(response.json()));
+    return this.http.get(url).map((data: any[]) => this.eTModelsTransformServices.jsonToTJobExecsList(data));
   }
 
   public getTJobsExecutionsWithoutChilds(tJob: TJobModel): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/withoutchilds';
-    return this.http.get(url).map((response) => this.eTModelsTransformServices.jsonToTJobExecsList(response.json()));
+    return this.http.get(url).map((data: any[]) => this.eTModelsTransformServices.jsonToTJobExecsList(data));
   }
 
   public getTJobExecutionFiles(tJobId: number, tJobExecId: number) {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecId + '/files';
-    return this.http.get(url).map((response) => response.json());
+    return this.http.get(url);
   }
 
   /*public getTJobExecutionFiles(tJobExec: TJobExecModel){
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobExec.tJob.id + '/exec/' + tJobExec.id + '/files';
     return this.http.get(url)
-    .map((response) => console.log(response.json()));
+    .map((data: any[]) => console.log(data));
   }*/
 
   // Get a specific TJob Execution
@@ -93,8 +93,7 @@ export class TJobExecService {
 
   public getAllTJobExecs(): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs';
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
       } else {
@@ -105,8 +104,7 @@ export class TJobExecService {
 
   public getLastNTJobExecutions(n: number): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/last/' + n;
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
       } else {
@@ -117,8 +115,7 @@ export class TJobExecService {
 
   public getLastNTJobExecutionsWithoutChilds(n: number): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/last/withoutchilds/' + n;
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
       } else {
@@ -129,8 +126,7 @@ export class TJobExecService {
 
   public getAllRunningTJobExecutions(): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/running';
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
       } else {
@@ -141,8 +137,7 @@ export class TJobExecService {
 
   public getAllRunningTJobExecutionsWithoutChilds(): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/running/withoutchilds';
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
       } else {
@@ -153,8 +148,7 @@ export class TJobExecService {
 
   public getLastNRunningTJobExecutions(n: number): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/running/last/' + n;
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
       } else {
@@ -165,8 +159,7 @@ export class TJobExecService {
 
   public getLastNRunningTJobExecutionsWithoutChilds(n: number): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/running/last/withoutchilds/' + n;
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
       } else {
@@ -177,8 +170,7 @@ export class TJobExecService {
 
   public getAllFinishedOrNotExecutedTJobExecutions(): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/finished';
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
       } else {
@@ -189,8 +181,7 @@ export class TJobExecService {
 
   public getLastNFinishedOrNotExecutedTJobExecutions(n: number): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/finished/last/' + n;
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
       } else {
@@ -201,8 +192,7 @@ export class TJobExecService {
 
   public getLastNFinishedOrNotExecutedTJobExecutionsWithoutChilds(n: number): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/finished/last/withoutchilds/' + n;
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
       } else {
@@ -213,8 +203,7 @@ export class TJobExecService {
 
   public getTJobExecutionByTJobId(tJobId: number, idTJobExecution: number): Observable<TJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + idTJobExecution;
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecModel(data);
       } else {
@@ -225,8 +214,7 @@ export class TJobExecService {
 
   public stopTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel): Observable<TJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id + '/stop';
-    return this.http.delete(url).map((response) => {
-      let data: any = response.json();
+    return this.http.delete(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecModel(data);
       } else {
@@ -237,22 +225,21 @@ export class TJobExecService {
 
   public deleteTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel): Observable<any> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id;
-    return this.http.delete(url).map((response) => response.json());
+    return this.http.delete(url);
   }
 
   public getResultStatus(tJobId: string | number, tJobExecution: TJobExecModel): Observable<any> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecution.id + '/result';
-    return this.http.get(url).map((response) => response.json());
+    return this.http.get(url);
   }
-  
+
   public getResultStatusByTJob(tJob: TJobModel, tJobExecution: TJobExecModel): Observable<any> {
     return this.getResultStatus(tJob.id, tJobExecution);
   }
 
   public getChildTJobExecParent(tJobExecutionId: string | number): Observable<TJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/exec/' + tJobExecutionId + '/parent';
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecModel(data);
       } else {
@@ -263,8 +250,7 @@ export class TJobExecService {
 
   public getParentTJobExecChilds(tJobExecutionId: string | number): Observable<TJobExecModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/exec/' + tJobExecutionId + '/childs';
-    return this.http.get(url).map((response) => {
-      let data: any = response.json();
+    return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
       } else {

@@ -9,18 +9,18 @@
     */
 
     /* Manage list custom styles */
-    .md-sort-item {
+    .mat-sort-item {
         /deep/ {
-            .md-list-item-content {
+            .mat-list-item-content {
                 padding: 0;
             }
         }
     }
-    .md-sort-icon {
+    .mat-sort-icon {
         font-size: 15px;
         margin-right: 10px;
     }
-    .md-sort-header {
+    .mat-sort-header {
         padding: 10px;
         &:hover {
             background-color: #EEEEEE;

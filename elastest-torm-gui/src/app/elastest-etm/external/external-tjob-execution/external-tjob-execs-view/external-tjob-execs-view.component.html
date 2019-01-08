@@ -1,15 +1,15 @@
 <div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="exTJobId">
   <div flex-gt-lg="50" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
+    <mat-card tdMediaToggle="gt-xs">
+      <mat-card-title>
         <div layout="row">
           <span>Executions</span>
         </div>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content #scrollMeTest>
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content #scrollMeTest>
         <centered-element *ngIf="exTJobExecs && exTJobExecs.length === 0; else showBuildTable" class="push-top-important messageEmptyCard">
-          <md-icon>assignment</md-icon>
+          <mat-icon>assignment</mat-icon>
           <p>No executions</p>
         </centered-element>
 
@@ -32,8 +32,8 @@
                 <ng-template #resultColumn>
                   <img *ngIf="!row.finished() && !row.notExecuted()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif"
                     style="width:23px;height: 23px; vertical-align: middle;">
-                  <md-icon *ngIf="row.finished() || row.notExecuted()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color"
-                    mdTooltip="{{row.getResultIcon().result}}">{{row.getResultIcon().name}}</md-icon>
+                  <mat-icon *ngIf="row.finished() || row.notExecuted()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color"
+                    matTooltip="{{row.getResultIcon().result}}">{{row.getResultIcon().name}}</mat-icon>
                 </ng-template>
               </div>
             </ng-template>
@@ -43,7 +43,7 @@
             </ng-template>
           </td-data-table>
         </ng-template>
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

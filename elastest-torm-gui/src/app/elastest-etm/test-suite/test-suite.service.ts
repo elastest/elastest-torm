@@ -1,4 +1,4 @@
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/Rx';
@@ -10,7 +10,7 @@ import { TestSuiteModel } from './test-suite-model';
 @Injectable()
 export class TestSuiteService {
   constructor(
-    private http: Http,
+    private http: HttpClient,
     private configurationService: ConfigurationService,
     private eTModelsTransformServices: ETModelsTransformServices,
   ) {}
@@ -21,12 +21,12 @@ export class TestSuiteService {
 
   public getTestSuitesByTJobExecIdAndTJobId(tJobExecId: number, tJobId: number): Observable<TestSuiteModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecId + '/testsuite';
-    return this.http.get(url).map((response) => this.eTModelsTransformServices.jsonToTestSuitesList(response.json()));
+    return this.http.get(url).map((data: any[]) => this.eTModelsTransformServices.jsonToTestSuitesList(data));
   }
 
   public getTestSuiteById(testSuiteId: number): Observable<TestSuiteModel> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/exec/testsuite/' + testSuiteId;
-    return this.http.get(url).map((response) => this.eTModelsTransformServices.jsonToTestSuiteModel(response.json()));
+    return this.http.get(url).map((data: any) => this.eTModelsTransformServices.jsonToTestSuiteModel(data));
   }
 
   public getTestSuite(testSuite: TestSuiteModel): Observable<TestSuiteModel> {

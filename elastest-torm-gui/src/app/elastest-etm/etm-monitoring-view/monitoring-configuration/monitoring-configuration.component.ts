@@ -10,7 +10,7 @@ import { TreeComponent } from 'angular-tree-component/dist/components/tree.compo
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { AgTreeCheckModel, TreeCheckElementModel } from '../../../shared/ag-tree-model';
 import { Component, Inject, OnInit, Optional, ViewChild } from '@angular/core';
-import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { EtmChartGroupComponent } from '../etm-chart-group/etm-chart-group.component';
 import { defaultStreamMap } from '../../../shared/defaultESData-model';
 import { MonitoringService } from '../../../shared/services/monitoring.service';
@@ -40,10 +40,10 @@ export class MonitoringConfigurationComponent implements OnInit {
   metricbeatFieldGroupList: MetricFieldGroupModel[];
 
   constructor(
-    private dialogRef: MdDialogRef<MonitoringConfigurationComponent>,
+    private dialogRef: MatDialogRef<MonitoringConfigurationComponent>,
     private monitoringService: MonitoringService,
     @Optional()
-    @Inject(MD_DIALOG_DATA)
+    @Inject(MAT_DIALOG_DATA)
     public inputObj: any,
   ) {
     this.tJobExec = inputObj.exec;

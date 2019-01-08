@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit, Optional, ViewChild, ElementRef } from '@angular/core';
-import { MD_DIALOG_DATA, MdDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { TLTestCaseModel, ExecStatusValue } from '../../models/test-case-model';
 import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
 import { BuildModel } from '../../models/build-model';
@@ -32,9 +32,9 @@ export class ExecuteCaseModalComponent implements OnInit, AfterViewChecked {
   tcExec: TestCaseExecutionModel;
 
   constructor(
-    private dialogRef: MdDialogRef<ExecuteCaseModalComponent>,
+    private dialogRef: MatDialogRef<ExecuteCaseModalComponent>,
     private testLinkService: TestLinkService,
-    @Optional() @Inject(MD_DIALOG_DATA) public data: any,
+    @Optional() @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.tcExec = new TestCaseExecutionModel();
     this.testCase = data.testCase;

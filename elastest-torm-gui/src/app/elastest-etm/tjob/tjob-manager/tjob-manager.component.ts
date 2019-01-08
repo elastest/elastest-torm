@@ -8,9 +8,8 @@ import { TJobService } from '../tjob.service';
 
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { IConfirmConfig } from '@covalent/core';
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { IConfirmConfig, TdDialogService } from '@covalent/core';
+import { MatDialog, MatDialogRef } from '@angular/material';
 
 @Component({
   selector: 'app-tjob-manager',
@@ -46,7 +45,7 @@ export class TjobManagerComponent implements OnInit {
     private router: Router,
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
   ) {}
 
   ngOnInit() {
@@ -56,25 +55,27 @@ export class TjobManagerComponent implements OnInit {
 
   reloadTJob(): void {
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap((params: Params) => this.tJobService.getTJob(params['tJobId'])).subscribe((tJob: TJobModel) => {
-        this.tJob = tJob;
-        this.titlesService.setHeadTitle('TJob ' + this.tJob.name);
-        this.titlesService.setPathName(this.router.routerState.snapshot.url);
-        if (this.tJob.sut.id === 0) {
-          this.tJob.sut = this.sutEmpty;
-        }
-        this.tJobExecService.getTJobsExecutionsWithoutChilds(tJob).subscribe(
-          (tJobExecs: TJobExecModel[]) => {
-            this.tJobExecData = tJobExecs;
-            this.tJobExecData.forEach((tJobExec: TJobExecModel) => {
-              tJobExec['lastExecutionDate'] = tJobExec.endDate ? tJobExec.endDate : tJobExec.startDate;
-            });
-            this.showSpinner = false;
-            this.sortTJobsExec(); // Id desc
-          },
-          (error: Error) => console.log(error),
-        );
-      });
+      this.route.params
+        .switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
+        .subscribe((tJob: TJobModel) => {
+          this.tJob = tJob;
+          this.titlesService.setHeadTitle('TJob ' + this.tJob.name);
+          this.titlesService.setPathName(this.router.routerState.snapshot.url);
+          if (this.tJob.sut.id === 0) {
+            this.tJob.sut = this.sutEmpty;
+          }
+          this.tJobExecService.getTJobsExecutionsWithoutChilds(tJob).subscribe(
+            (tJobExecs: TJobExecModel[]) => {
+              this.tJobExecData = tJobExecs;
+              this.tJobExecData.forEach((tJobExec: TJobExecModel) => {
+                tJobExec['lastExecutionDate'] = tJobExec.endDate ? tJobExec.endDate : tJobExec.startDate;
+              });
+              this.showSpinner = false;
+              this.sortTJobsExec(); // Id desc
+            },
+            (error: Error) => console.log(error),
+          );
+        });
     }
   }
 
@@ -120,7 +121,7 @@ export class TjobManagerComponent implements OnInit {
 
   runTJob(): void {
     if (this.tJob.hasParameters()) {
-      let dialogRef: MdDialogRef<RunTJobModalComponent> = this.dialog.open(RunTJobModalComponent, {
+      let dialogRef: MatDialogRef<RunTJobModalComponent> = this.dialog.open(RunTJobModalComponent, {
         data: this.tJob.cloneTJob(),
         height: '85%',
         width: '65%',

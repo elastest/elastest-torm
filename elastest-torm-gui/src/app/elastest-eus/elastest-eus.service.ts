@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+
 import { ConfigurationService } from '../config/configuration-service.service';
 import { getUrlObj, CompleteUrlObj } from '../shared/utils';
 import { Observable } from 'rxjs/Observable';
@@ -14,7 +15,7 @@ export class EusService {
 
   private sessionPath: string = 'session';
 
-  constructor(private http: Http, private configurationService: ConfigurationService) {}
+  constructor(private http: HttpClient, private configurationService: ConfigurationService) {}
 
   public startSession(browser: string, version: string, extraCapabilities?: any, live: boolean = true): Observable<EusTestModel> {
     let url: string = this.eusUrl + this.sessionPath;
@@ -31,9 +32,7 @@ export class EusService {
       capabilities = { ...capabilities, ...extraCapabilities };
     }
     let data: any = { desiredCapabilities: capabilities, capabilities: capabilities };
-    return this.http.post(url, data).map((response: Response) => {
-      let json: any = response.json();
-
+    return this.http.post(url, data).map((json: any) => {
       let testModel: EusTestModel = new EusTestModel();
       testModel.id = json.sessionId;
       testModel.hubContainerName = json.hubContainerName;
@@ -57,9 +56,7 @@ export class EusService {
 
   public getVncUrl(sessionId: string): Observable<string> {
     let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/vnc';
-    return this.http.get(url).map((response: Response) => {
-      return response.text();
-    });
+    return this.http.get(url).map((data: string) => data);
   }
 
   public getVncUrlSplitted(sessionId: string): Observable<CompleteUrlObj> {
@@ -79,7 +76,7 @@ export class EusService {
   public startRecording(sessionId: string, hubContainerName: string, videoName: string = sessionId): Observable<any> {
     let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording/' + hubContainerName + '/start';
 
-    return this.http.post(url, videoName).map((response: Response) => {
+    return this.http.post(url, videoName).map((response: HttpResponse<any>) => {
       if (response) {
         return response;
       } else {
@@ -88,46 +85,45 @@ export class EusService {
     });
   }
 
-  public stopRecording(sessionId: string, hubContainerName: string): Observable<Response> {
+  public stopRecording(sessionId: string, hubContainerName: string): Observable<any> {
     let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording/' + hubContainerName + '/stop';
-
     return this.http.delete(url);
   }
 
-  public getRecording(sessionId: string): Observable<Response> {
+  public getRecording(sessionId: string): Observable<string> {
     let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording';
-    return this.http.get(url);
+    return this.http.get(url).map((data: string) => data);
   }
 
-  public deleteRecording(sessionId: string): Observable<Response> {
+  public deleteRecording(sessionId: string): Observable<any> {
     let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording';
     return this.http.delete(url);
   }
 
-  public stopSession(sessionId: string): Observable<Response> {
+  public stopSession(sessionId: string): Observable<any> {
     let url: string = this.eusUrl + this.sessionPath + '/' + sessionId;
     return this.http.delete(url);
   }
 
-  public getStatus(): Observable<Response> {
+  public getStatus(): Observable<any> {
     let url: string = this.eusUrl + 'status';
     console.log('GET ' + url + ' (to find out browser list in EUS)');
     return this.http.get(url);
   }
 
-  public getBrowsers(): Observable<Response> {
+  public getBrowsers(): Observable<any> {
     let url: string = this.eusUrl + 'browsers';
     return this.http.get(url);
   }
 
-  public getCachedBrowsers(): Observable<Response> {
+  public getCachedBrowsers(): Observable<any> {
     let url: string = this.eusUrl + 'browsers/cached';
     return this.http.get(url);
   }
 
   public navigateToUrl(sessionId: string, urlToOpen: string): Observable<any> {
     let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/url';
-    return this.http.post(url, { url: urlToOpen }).map((response: Response) => {
+    return this.http.post(url, { url: urlToOpen }).map((response: HttpResponse<any>) => {
       if (response) {
         return response;
       } else {

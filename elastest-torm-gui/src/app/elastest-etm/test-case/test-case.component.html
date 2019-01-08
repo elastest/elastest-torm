@@ -1,35 +1,35 @@
 <div layout="row" *ngIf="testCase" id="testCaseContent" layout-fill>
   <div flex="40" class="mat-content">
-    <md-card id="testCaseCard" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-      <md-card-title>
-        <md-icon *ngIf="testCase.result && testCase.result.name" [style.color]="testCase.result.color">{{testCase.result.name}}</md-icon>
+    <mat-card id="testCaseCard" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+      <mat-card-title>
+        <mat-icon *ngIf="testCase.result && testCase.result.name" [style.color]="testCase.result.color">{{testCase.result.name}}</mat-icon>
         Test {{testCase.name}}
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content flex id="cardContent">
-        <md-list id="testCaseInfo">
+      </mat-card-title>
+      <mat-divider></mat-divider>
+      <mat-card-content flex id="cardContent">
+        <mat-list id="testCaseInfo">
           <div>
             <h4>Time (s)</h4>
             <p>{{testCase.time}}</p>
-            <md-divider></md-divider>
+            <mat-divider></mat-divider>
           </div>
 
           <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
             <h4>Failure Message</h4>
             <p>{{testCase.failureMessage}}</p>
-            <md-divider></md-divider>
+            <mat-divider></mat-divider>
           </div>
 
           <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
             <h4>Failure Type</h4>
             <p>{{testCase.failureType}}</p>
-            <md-divider></md-divider>
+            <mat-divider></mat-divider>
           </div>
 
           <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
             <h4>Failure Error Line</h4>
             <p>{{testCase.failureErrorLine}}</p>
-            <md-divider></md-divider>
+            <mat-divider></mat-divider>
           </div>
 
           <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
@@ -37,55 +37,55 @@
             <p>{{testCase.failureDetail}}
               <p>
           </div>
-        </md-list>
-      </md-card-content>
-    </md-card>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <div flex="60">
-    <md-card id="miniLogAnalyzerCard">
-      <md-card-content layout-fill layout="column">
-        <md-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
-          <md-tab label="Logs">
+    <mat-card id="miniLogAnalyzerCard">
+      <mat-card-content layout-fill layout="column">
+        <mat-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
+          <mat-tab label="Logs">
             <elastest-log-analyzer #miniLogAnalyzer *ngIf="params && testCase" [isEmbed]="true" [tJobId]="params.tJobId" [tJobExecId]="params.tJobExecId"
               [testCase]="testCase.name"></elastest-log-analyzer>
-          </md-tab>
+          </mat-tab>
           <div *ngIf="miniLogAnalyzer">
-            <md-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes" label="{{component.name}}">
+            <mat-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes" label="{{component.name}}">
               <elastest-log-analyzer *ngIf="params && testCase" [isEmbed]="true" [componentStreams]="[component]" [tJobId]="params.tJobId"
                 [tJobExecId]="params.tJobExecId" [testCase]="testCase.name"></elastest-log-analyzer>
-            </md-tab>
+            </mat-tab>
           </div>
-          <md-tab label="Files">
+          <mat-tab label="Files">
             <div layout="row" *ngFor="let file of testCase.files">
               <div flex id="filesContent">
                 <div>
                   <p>Title</p>
                   <span>{{file.name}}</span>
                 </div>
-                <a md-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
+                <a mat-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
                   Open Video
-                  <md-icon>open_in_new</md-icon>
+                  <mat-icon>open_in_new</mat-icon>
                 </a>
               </div>
             </div>
             <centered-element *ngIf="testCase && testCase.files.length === 0" class="push-top-important messageEmptyCard">
-              <md-icon>assignment</md-icon>
+              <mat-icon>assignment</mat-icon>
               <p>No Files found</p>
             </centered-element>
-          </md-tab>
-          <md-tab *ngFor="let file of getMP4Files()">
-            <ng-template md-tab-label>
-              <md-icon mdTooltip="Video" id="videoIcon">play_circle_filled</md-icon>
+          </mat-tab>
+          <mat-tab *ngFor="let file of getMP4Files()">
+            <ng-template mat-tab-label>
+              <mat-icon matTooltip="Video" id="videoIcon">play_circle_filled</mat-icon>
             </ng-template>
             <div id="videoContent">
               <video controls id="video">
                 <source src="{{filesUrlPrefix}}{{file.url}}" type="video/mp4">
               </video>
             </div>
-          </md-tab>
-        </md-tab-group>
-      </md-card-content>
-    </md-card>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

@@ -1,52 +1,52 @@
-<h2 md-dialog-title>Select Executions</h2>
+<h2 mat-dialog-title>Select Executions</h2>
 
-<md-dialog-content>
+<mat-dialog-content>
   <div *ngIf="testLinkStarted" layout="column" layout-gt-sm="row" class="pad-right pad-bottom">
-    <md-radio-group #typeRadioGroup (change)="changeType(internalType.checked ? 'internal' : 'external')">
-      <md-radio-button #internalType name="internalType" value="internalSelected" [checked]="internalSelected" class="push-right">
+    <mat-radio-group #typeRadioGroup (change)="changeType(internalType.checked ? 'internal' : 'external')">
+      <mat-radio-button #internalType name="internalType" value="internalSelected" [checked]="internalSelected" class="push-right">
         Internal
-      </md-radio-button>
+      </mat-radio-button>
 
-      <md-radio-button #externalType name="externalType" value="externalSelected" [checked]="externalSelected">
+      <mat-radio-button #externalType name="externalType" value="externalSelected" [checked]="externalSelected">
         <!-- External -->
         TestLink
-      </md-radio-button>
-    </md-radio-group>
+      </mat-radio-button>
+    </mat-radio-group>
   </div>
   <div layout="column" layout-gt-sm="row" class="pad-right pad-bottom">
     <ng-container *ngIf="abstractProjects.length > 0; else noProjects">
       <!-- Projects -->
-      <md-select [(ngModel)]="selectedProject" placeholder="Select a Project" required name="projects" [disabled]="abstractProjects.length === 0"
+      <mat-select [(ngModel)]="selectedProject" placeholder="Select a Project" required name="projects" [disabled]="abstractProjects.length === 0"
         class="noMarginInput form-control input-sm margin-bottom-gt-xs margin-bottom-none-gt-sm" (ngModelChange)="loadTJobs($event)"
         flex-gt-sm="45">
-        <md-option *ngFor="let project of abstractProjects" [value]="project">
+        <mat-option *ngFor="let project of abstractProjects" [value]="project">
           {{project.name}}
-        </md-option>
-      </md-select>
+        </mat-option>
+      </mat-select>
 
       <!-- TJobs -->
-      <md-select [(ngModel)]="selectedTJob" placeholder="Select a TJob" required name="tJobs" [disabled]="abstractTJobs.length === 0"
+      <mat-select [(ngModel)]="selectedTJob" placeholder="Select a TJob" required name="tJobs" [disabled]="abstractTJobs.length === 0"
         class="noMarginInput form-control input-sm" (ngModelChange)="loadTJobExecs($event)" flex-offset-gt-sm="10"
         flex-gt-sm="45">
-        <md-option *ngFor="let tJob of abstractTJobs" [value]="tJob">
+        <mat-option *ngFor="let tJob of abstractTJobs" [value]="tJob">
           {{tJob.name}}
-        </md-option>
-      </md-select>
+        </mat-option>
+      </mat-select>
     </ng-container>
     <ng-template #noProjects>There are no projects</ng-template>
   </div>
 
   <div layout="column" class="push-top">
     <div>
-      <md-card-subtitle>
+      <mat-card-subtitle>
         <span>Executions </span>
         <span>
-          <md-checkbox [checked]="selectAll" (change)="selectAllExecs($event.checked)" title="Select/Unselect all"
-            [disabled]="!selectedProject || !selectedTJob || abstractTJobExecs.length === 0"></md-checkbox>
+          <mat-checkbox [checked]="selectAll" (change)="selectAllExecs($event.checked)" title="Select/Unselect all"
+            [disabled]="!selectedProject || !selectedTJob || abstractTJobExecs.length === 0"></mat-checkbox>
         </span>
 
-      </md-card-subtitle>
-      <md-divider></md-divider>
+      </mat-card-subtitle>
+      <mat-divider></mat-divider>
     </div>
     <ng-container *ngIf="selectedProject && selectedTJob && !loadingExecs">
       <div *ngIf="abstractTJobExecs.length > 0; else noExecs">
@@ -59,7 +59,7 @@
               <span>
                 <ng-container *ngIf="column.name === 'result'">
                   <img *ngIf="!row.finished()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
-                  <md-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</md-icon>
+                  <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</mat-icon>
                 </ng-container>
                 <span *ngIf="column.name === 'startDate' || column.name === 'endDate'; else printOnlyValue">
                   {{value | date:'dd/MM/yyyy HH:mm:ss'}}
@@ -73,7 +73,7 @@
           <!-- Select column -->
           <ng-template tdDataTableTemplate="select" let-value="value" let-row="row" let-column="column">
             <div layout="row">
-              <md-checkbox [checked]="selectedAbstractTJobExecs.get(row.id) ? true : false" (change)="checkAbstractTJobExec($event.checked, row)"></md-checkbox>
+              <mat-checkbox [checked]="selectedAbstractTJobExecs.get(row.id) ? true : false" (change)="checkAbstractTJobExec($event.checked, row)"></mat-checkbox>
             </div>
           </ng-template>
         </td-data-table>
@@ -82,13 +82,13 @@
         <div class="push-top-sm">There are no Executions</div>
       </ng-template>
     </ng-container>
-    <md-spinner strokeWidth="6" *ngIf="loadingExecs" color="accent" class="push-top-sm"></md-spinner>
+    <mat-spinner strokeWidth="6" *ngIf="loadingExecs" color="accent" class="push-top-sm"></mat-spinner>
   </div>
 
 
-</md-dialog-content>
+</mat-dialog-content>
 
-<md-dialog-actions>
-  <button md-raised-button color="accent" [md-dialog-close]="true" (click)="saveIndices()">OK</button>
-  <button md-button md-dialog-close>Cancel</button>
-</md-dialog-actions>
+<mat-dialog-actions>
+  <button mat-raised-button color="accent" [mat-dialog-close]="true" (click)="saveIndices()">OK</button>
+  <button mat-button mat-dialog-close>Cancel</button>
+</mat-dialog-actions>

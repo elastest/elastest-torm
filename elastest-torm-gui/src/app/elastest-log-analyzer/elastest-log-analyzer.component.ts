@@ -7,7 +7,7 @@ import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, Input } from '@angular/core';
 import { dateToInputLiteral, invertColor } from './utils/Utils';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material';
 import { ColumnApi, ComponentStateChangedEvent, GridApi, GridOptions, GridReadyEvent, RowNode, Column } from 'ag-grid/main';
 import { TreeComponent } from 'angular-tree-component';
 import { ShowMessageModalComponent } from './show-message-modal/show-message-modal.component';
@@ -102,7 +102,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   monitoringService: MonitoringService;
 
   constructor(
-    public dialog: MdDialog,
+    public dialog: MatDialog,
     public router: Router,
     private logAnalyzerService: LogAnalyzerService,
     private tJobExecService: TJobExecService,
@@ -517,7 +517,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
   public openMessageModal($event: RowDoubleClickedEvent): void {
-    let dialogRef: MdDialogRef<ShowMessageModalComponent> = this.dialog.open(ShowMessageModalComponent, {
+    let dialogRef: MatDialogRef<ShowMessageModalComponent> = this.dialog.open(ShowMessageModalComponent, {
       data: { row: $event.data, columns: this.logColumns },
       height: '90%',
       width: '80%',
@@ -644,7 +644,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   /**** Modal ****/
   public openSelectExecutions(fromExec?: any): void {
-    let dialogRef: MdDialogRef<GetIndexModalComponent> = this.dialog.open(GetIndexModalComponent, {
+    let dialogRef: MatDialogRef<GetIndexModalComponent> = this.dialog.open(GetIndexModalComponent, {
       data: fromExec,
       height: '90%',
       width: '80%',

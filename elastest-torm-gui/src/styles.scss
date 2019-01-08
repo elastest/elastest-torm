@@ -6,8 +6,8 @@
 .color-white {
   color: #fff !important;
 }
-// Href line height wasn't right for md-icon-button
-a[md-icon-button] {
+// Href line height wasn't right for mat-icon-button
+a[mat-icon-button] {
   line-height: 36px;
 }
 
@@ -48,16 +48,16 @@ td-layout-manage-list .mat-toolbar {
   margin: 6px 7px !important;
 }
 
-.mat-card md-card-title {
+.mat-card mat-card-title {
   padding-top: 11px !important;
   margin-bottom: 11px !important;
 }
 
-md-card-title > div {
+mat-card-title > div {
   align-items: center;
 }
 
-md-card-content a {
+mat-card-content a {
   color: #ffac2f;
   font-weight: bold;
 }
@@ -67,7 +67,7 @@ a.normalTextLink {
   color: #000;
 }
 
-.mat-icon.md-icon-logo {
+.mat-icon.mat-icon-logo {
   width: 172px !important;
 }
 
@@ -256,19 +256,19 @@ td-data-table.useMaxHeight div {
   margin-left: 7px !important;
 }
 
-.push-md-important {
+.push-mat-important {
   margin: 10px !important;
 }
-.push-top-md-important {
+.push-top-mat-important {
   margin-top: 10px !important;
 }
-.push-right-md-important {
+.push-right-mat-important {
   margin-right: 10px !important;
 }
-.push-bottom-md-important {
+.push-bottom-mat-important {
   margin-bottom: 10px !important;
 }
-.push-left-md-important {
+.push-left-mat-important {
   margin-left: 10px !important;
 }
 
@@ -333,7 +333,7 @@ td-data-table.useMaxHeight div {
   margin: auto;
 }
 @media (max-width: 600px) {
-  .mat-icon.md-icon-logo {
+  .mat-icon.mat-icon-logo {
     width: 154px !important;
   }
 }
@@ -400,7 +400,7 @@ td-data-table.useMaxHeight div {
     margin-left: 0 !important;
   }
 
-  .mat-icon.md-icon-logo {
+  .mat-icon.mat-icon-logo {
     width: 172px !important;
   }
 }
@@ -422,7 +422,7 @@ td-data-table.useMaxHeight div {
   .margin-left-gt-md {
     margin-left: 1.5em !important;
   }
-  .mat-icon.md-icon-logo {
+  .mat-icon.mat-icon-logo {
     width: 144px !important;
   }
 }
@@ -445,7 +445,7 @@ td-data-table.useMaxHeight div {
     margin-left: 1.5em !important;
   }
 
-  .mat-icon.md-icon-logo {
+  .mat-icon.mat-icon-logo {
     width: 165px !important;
   }
 }

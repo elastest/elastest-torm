@@ -2,7 +2,7 @@ import { Component, OnInit, Inject, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TestPlanModel } from '../../models/test-plan-model';
 import { BuildModel } from '../../models/build-model';
-import { MD_DIALOG_DATA, MdButton, MdDialogRef } from '@angular/material';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { TestLinkService } from '../../testlink.service';
 import { TLTestCaseModel } from '../../models/test-case-model';
 
@@ -24,8 +24,8 @@ export class SelectBuildModalComponent implements OnInit {
   constructor(
     private router: Router,
     private testLinkService: TestLinkService,
-    @Inject(MD_DIALOG_DATA) public data: any,
-    public dialogRef: MdDialogRef<SelectBuildModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    public dialogRef: MatDialogRef<SelectBuildModalComponent>,
   ) {
     this.init();
   }

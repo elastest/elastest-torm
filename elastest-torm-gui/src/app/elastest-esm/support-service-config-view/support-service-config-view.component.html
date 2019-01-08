@@ -1,5 +1,5 @@
 <ng-container *ngIf="model && model.type" [ngSwitch]="model.type">
   <ng-container *ngSwitchCase="'boolean'">
-    <md-checkbox #config{{model.name}} [(ngModel)]="model.value" id="config{{model.name}}Checkbox" name="config{{model.name}}Checkbox" md-tooltip="{{model.label}}">{{model.name}}</md-checkbox>
+    <mat-checkbox #config{{model.name}} [(ngModel)]="model.value" id="config{{model.name}}Checkbox" name="config{{model.name}}Checkbox" mat-tooltip="{{model.label}}">{{model.name}}</mat-checkbox>
   </ng-container>
 </ng-container>

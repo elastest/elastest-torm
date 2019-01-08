@@ -1,12 +1,12 @@
 import { Observable } from 'rxjs/Rx';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
-import { IConfirmConfig } from '@covalent/core';
+import { Router } from '@angular/router';
+import { TdDialogService, IConfirmConfig } from '@covalent/core';
+
 import { TJobExecModel } from '../tjobExec-model';
 import { TJobExecService } from '../tjobExec.service';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 
 @Component({
   selector: 'etm-tjob-execs-manager',
@@ -44,7 +44,7 @@ export class TJobExecsManagerComponent implements OnInit {
     private router: Router,
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
   ) {}
 
   ngOnInit() {

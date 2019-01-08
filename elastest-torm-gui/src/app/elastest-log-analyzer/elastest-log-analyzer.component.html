@@ -1,25 +1,25 @@
-<md-sidenav-container fullscreen>
+<mat-sidenav-container fullscreen>
   <div id="content" layout-fill>
-    <md-card id="logCard" class="push-none">
-      <md-card-content class="push-bottom-none pad-bottom-none pad-top-none">
+    <mat-card id="logCard" class="push-none">
+      <mat-card-content class="push-bottom-none pad-bottom-none pad-top-none">
         <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows"
           [columnDefs]="logColumns" [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)"
           (componentStateChanged)="componentStateChanged($event)" (rowSelected)="switchRowSelection($event)"
           (columnResized)="saveColumnsConfig($event, false)" (columnMoved)="saveColumnsConfig(undefined,false)"
           (rowDoubleClicked)="openMessageModal($event)" style="width: 100%; height: 80%;">
         </ag-grid-angular>
-      </md-card-content>
-    </md-card>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <!-- SIDENAV -->
-  <md-sidenav mode="side" align="end" [opened]="true" [style.width.%]="25" [ngClass]="{'dontShow': isEmbed}">
-    <md-card tdMediaToggle="gt-xs" *ngIf="logAnalyzer" id="logSidenav">
-      <md-card-content class="push-bottom-none">
-        <md-tab-group>
-          <md-tab>
-            <ng-template md-tab-label>
-              <md-icon mdTooltip="Filter">tune</md-icon>
+  <mat-sidenav mode="side" align="end" [opened]="true" [style.width.%]="25" [ngClass]="{'dontShow': isEmbed}">
+    <mat-card tdMediaToggle="gt-xs" *ngIf="logAnalyzer" id="logSidenav">
+      <mat-card-content class="push-bottom-none">
+        <mat-tab-group>
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon matTooltip="Filter">tune</mat-icon>
             </ng-template>
             <form #logAnalyzerForm="ngForm" id="logAnalyzerForm">
               <!-- Top Content -->
@@ -30,14 +30,14 @@
                     <div layout="column">
                       <!-- Indices  -->
                       <div layout="row">
-                        <md-input-container class="noMarginInput" flex="70">
+                        <mat-form-field class="noMarginInput" flex="70">
                           <input mdInput type="string" class="form-control input-sm" id="selectedIndices" value="{{logAnalyzer.selectedIndicesToString()}}"
                             name="selectedIndices" placeholder="Executions" required [disabled]="true">
-                        </md-input-container>
+                        </mat-form-field>
                         <!-- Select indices (MODAL) -->
                         <div id="executionsButton" flex="20">
-                          <button md-raised-button color="accent" (click)="openSelectExecutions()">
-                            <md-icon mdTooltip="Select Execution">playlist_add</md-icon>
+                          <button mat-raised-button color="accent" (click)="openSelectExecutions()">
+                            <mat-icon matTooltip="Select Execution">playlist_add</mat-icon>
                           </button>
                         </div>
                       </div>
@@ -45,20 +45,20 @@
                     <!-- Date -->
                     <div id="logDate" layout="column" class="push-top">
                       <div layout="row" class="">
-                        <md-input-container flex="90" class="oveflowHidden">
+                        <mat-form-field flex="90" class="oveflowHidden">
                           <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date (GMT+0)"
                             required>
-                        </md-input-container>
+                        </mat-form-field>
                       </div>
                       <div layout="row" class="">
                         <div flex-xl="75">
-                          <md-input-container class="overflowHidden">
+                          <mat-form-field class="overflowHidden">
                             <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date (GMT+0)"
                               required [disabled]="tail.checked">
-                          </md-input-container>
+                          </mat-form-field>
                         </div>
                         <div flex-xl="25" id="tail">
-                          <md-checkbox #tail [checked]="logAnalyzer.tail" name="tail" (change)="setUseTail(tail.checked)"></md-checkbox>
+                          <mat-checkbox #tail [checked]="logAnalyzer.tail" name="tail" (change)="setUseTail(tail.checked)"></mat-checkbox>
                           <p>Tail</p>
                         </div>
 
@@ -71,56 +71,56 @@
                 <!-- Components/Streams And Levels -->
                 <div id="componentsLevels" layout="column" class="">
                   <div flex="50">
-                    <md-card-subtitle class="pad-left-none">Components/Streams</md-card-subtitle>
+                    <mat-card-subtitle class="pad-left-none">Components/Streams</mat-card-subtitle>
                     <tree-root #componentsTree [nodes]="logAnalyzer.componentsStreams.tree">
                       <ng-template #treeNodeTemplate let-node="node" let-index="index">
-                        <md-checkbox (change)="logAnalyzer.componentsStreams.check(node, !node.data.checked)" type="checkbox"
+                        <mat-checkbox (change)="logAnalyzer.componentsStreams.check(node, !node.data.checked)" type="checkbox"
                           [indeterminate]="node.data.indeterminate" [checked]="node.data.checked" title="{{ node.data.name }}">
-                          {{ node.data.name }}</md-checkbox>
+                          {{ node.data.name }}</mat-checkbox>
                       </ng-template>
                     </tree-root>
                   </div>
                   <div flex="45" class="">
-                    <md-card-subtitle class="pad-left-none">Levels</md-card-subtitle>
+                    <mat-card-subtitle class="pad-left-none">Levels</mat-card-subtitle>
                     <tree-root #levelsTree [nodes]="logAnalyzer.levels.tree">
                       <ng-template #treeNodeTemplate let-node="node" let-index="index">
-                        <md-checkbox (change)="logAnalyzer.levels.check(node, !node.data.checked)" type="checkbox"
-                          [indeterminate]="node.data.indeterminate" [checked]="node.data.checked"> {{ node.data.name }}</md-checkbox>
+                        <mat-checkbox (change)="logAnalyzer.levels.check(node, !node.data.checked)" type="checkbox"
+                          [indeterminate]="node.data.indeterminate" [checked]="node.data.checked"> {{ node.data.name }}</mat-checkbox>
                       </ng-template>
                     </tree-root>
                   </div>
                 </div>
 
                 <div *ngIf="testCaseName" class="" layout="column">
-                  <md-checkbox #testCase [checked]="withTestCase" id="testCase" name="testCase" (change)="setWithTestCase(testCase.checked)"
-                    style="line-height: 4;">TestCase: {{testCaseName}}</md-checkbox>
+                  <mat-checkbox #testCase [checked]="withTestCase" id="testCase" name="testCase" (change)="setWithTestCase(testCase.checked)"
+                    style="line-height: 4;">TestCase: {{testCaseName}}</mat-checkbox>
                 </div>
 
                 <div class="" layout="column">
-                  <md-input-container class="noMarginInput">
+                  <mat-form-field class="noMarginInput">
                     <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value=""
                       [(ngModel)]="logAnalyzer.messageFilter" placeholder="Message" title="Search and filter by message"
                       (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)">
-                  </md-input-container>
+                  </mat-form-field>
                 </div>
               </div>
 
-              <md-divider></md-divider>
+              <mat-divider></mat-divider>
 
               <!-- Bottom Content (Buttons, ...) -->
               <div id="filtersBottom" layout="column" class="">
                 <div layout="row">
                   <div flex="25">
-                    <md-input-container class="noMarginInput noPaddingInput">
+                    <mat-form-field class="noMarginInput noPaddingInput">
                       <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1"
                         max="10000" [(ngModel)]="logAnalyzer.maxResults" name="max_results" placeholder="Nº Entries"
                         #logAnalyzerFormElement #logAnalyzerFormControl="ngModel" (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)"
                         required>
-                    </md-input-container>
+                    </mat-form-field>
                   </div>
                   <div flex="20" id="loadLogButton">
-                    <button md-raised-button color="accent" class="iconBtn" (click)="loadLog()" [disabled]="!logAnalyzerForm.valid || disableBtns">
-                      <md-icon>refresh</md-icon>
+                    <button mat-raised-button color="accent" class="iconBtn" (click)="loadLog()" [disabled]="!logAnalyzerForm.valid || disableBtns">
+                      <mat-icon>refresh</mat-icon>
                       <span *ngIf="logRows.length <= 0">Load log</span>
                       <span *ngIf="logRows.length > 0">Reload log</span>
                     </button>
@@ -128,60 +128,60 @@
                 </div>
                 <div layout="row" class="">
                   <div flex="50" id="addFromLast" *ngIf="showLoadMore && !showPauseTail">
-                    <button md-button (click)="loadMore()" [disabled]="disableBtns" class="pad-left-none" title="Add more traces from last">
-                      <md-icon>vertical_align_bottom</md-icon>
+                    <button mat-button (click)="loadMore()" [disabled]="disableBtns" class="pad-left-none" title="Add more traces from last">
+                      <mat-icon>vertical_align_bottom</mat-icon>
                     </button>
                   </div>
                   <div flex="50" id="addFromSelected" *ngIf="showLoadMore && !showPauseTail">
-                    <button md-button (click)="moreFromSelected()" [disabled]="logAnalyzer.selectedRow === undefined || disableBtns"
+                    <button mat-button (click)="moreFromSelected()" [disabled]="logAnalyzer.selectedRow === undefined || disableBtns"
                       title="Add more from selected trace">
-                      <md-icon>vertical_align_center</md-icon>
+                      <mat-icon>vertical_align_center</mat-icon>
                     </button>
                   </div>
-                  <!-- <button md-button *ngIf="showShare && !showPauseTail" (click)="copyToClipboard()">
-                  <md-icon>link</md-icon> Share link
+                  <!-- <button mat-button *ngIf="showShare && !showPauseTail" (click)="copyToClipboard()">
+                  <mat-icon>link</mat-icon> Share link
                 </button>  -->
                   <div flex="90" id="pauseTail" *ngIf="showPauseTail">
-                    <md-checkbox #pauseTail name="pauseTail" (change)="logAnalyzer.switchPauseTail(pauseTail.checked)"
-                      title="Pause Tail">Pause Tail</md-checkbox>
+                    <mat-checkbox #pauseTail name="pauseTail" (change)="logAnalyzer.switchPauseTail(pauseTail.checked)"
+                      title="Pause Tail">Pause Tail</mat-checkbox>
                   </div>
 
                 </div>
               </div>
             </form>
-          </md-tab>
+          </mat-tab>
           <!-- Mark (Patterns) -->
-          <md-tab [disabled]="logRows.length === 0">
-            <ng-template md-tab-label>
-              <md-icon mdTooltip="Mark">search</md-icon>
+          <mat-tab [disabled]="logRows.length === 0">
+            <ng-template mat-tab-label>
+              <mat-icon matTooltip="Mark">search</mat-icon>
               <p>Mark</p>
             </ng-template>
             <mark-component #mark [model]="this"></mark-component>
-          </md-tab>
-          <md-tab [disabled]="logRows.length === 0">
-            <ng-template md-tab-label>
-              <md-icon mdTooltip="Config">settings</md-icon>
+          </mat-tab>
+          <mat-tab [disabled]="logRows.length === 0">
+            <ng-template mat-tab-label>
+              <mat-icon matTooltip="Config">settings</mat-icon>
             </ng-template>
             <div layout="column" class="push-top-sm">
-              <md-card-subtitle class="push-bottom-xs">Columns Configuration</md-card-subtitle>
-              <button md-raised-button color="accent" (click)="saveColumnsConfig(undefined,true,true)" title="Save Columns Configuration"
+              <mat-card-subtitle class="push-bottom-xs">Columns Configuration</mat-card-subtitle>
+              <button mat-raised-button color="accent" (click)="saveColumnsConfig(undefined,true,true)" title="Save Columns Configuration"
                 class="iconBtn push-top-sm">
-                <md-icon>save</md-icon> Save
+                <mat-icon>save</mat-icon> Save
               </button>
-              <button md-raised-button color="accent" (click)="loadSavedColumnsConfig()" title="Load Saved Columns Configuration"
+              <button mat-raised-button color="accent" (click)="loadSavedColumnsConfig()" title="Load Saved Columns Configuration"
                 class="iconBtn push-top-sm">
-                <md-icon>settings_backup_restore</md-icon> Load Saved
+                <mat-icon>settings_backup_restore</mat-icon> Load Saved
               </button>
-              <button md-raised-button color="accent" (click)="loadDefaultColumnsConfig()" title="Load Default Columns Configuration"
+              <button mat-raised-button color="accent" (click)="loadDefaultColumnsConfig()" title="Load Default Columns Configuration"
                 class="iconBtn push-top-sm">
-                <md-icon>restore</md-icon> Load Default
+                <mat-icon>restore</mat-icon> Load Default
               </button>
-              <md-checkbox #autoRowHeight id="toggleRowHeight" name="toggleRowHeightCheckbox" [checked]="autoRowHeight" (change)="toggleRowHeight(autoRowHeight.checked)">Auto
-                row height</md-checkbox>
+              <mat-checkbox #autoRowHeight id="toggleRowHeight" name="toggleRowHeightCheckbox" [checked]="autoRowHeight" (change)="toggleRowHeight(autoRowHeight.checked)">Auto
+                row height</mat-checkbox>
             </div>
-          </md-tab>
-        </md-tab-group>
-      </md-card-content>
-    </md-card>
-  </md-sidenav>
-</md-sidenav-container>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
+  </mat-sidenav>
+</mat-sidenav-container>

@@ -1,12 +1,11 @@
 import { TitlesService } from '../shared/services/titles.service';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, HostListener } from '@angular/core';
-import { MdDialogRef } from '@angular/material';
+import { MatDialogRef } from '@angular/material';
 import { ElastestEusDialog } from './elastest-eus.dialog';
 import { ElastestEusDialogService } from './elastest-eus.dialog.service';
 import { EusService } from './elastest-eus.service';
 import { EusTestModel } from './elastest-eus-test-model';
 import { ConfigurationService } from '../config/configuration-service.service';
-import { Response } from '@angular/http';
 
 @Component({
   selector: 'app-elastest-eus',
@@ -50,7 +49,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   recordings: EusTestModel[] = [];
   liveSession: EusTestModel;
 
-  liveDialog: MdDialogRef<ElastestEusDialog>;
+  liveDialog: MatDialogRef<ElastestEusDialog>;
 
   @Input()
   eusUrl: string = 'http://localhost:8040/eus/v1/';
@@ -97,11 +96,11 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     }
 
     this.eusService.getStatus().subscribe(
-      (ok: Response) => {
-        this.initBrowsersByGiven(ok.json().browsers);
+      (data: any) => {
+        this.initBrowsersByGiven(data.browsers);
         this.loading = false;
       },
-      (error) => console.error('Error getting EUS status: ' + error),
+      (error: Error) => console.error('Error getting EUS status: ' + error),
     );
 
     this.startWebSocket();
@@ -287,7 +286,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   }
 
   viewSession(url: string, testModel: EusTestModel, titleSuffix: string, sessionType: 'live' | 'video' = 'live'): void {
-    let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
+    let dialog: MatDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
     let title: string = this.capitalize(testModel.browser) + ' ' + testModel.version;
     title += titleSuffix;
     dialog.componentInstance.title = title;
@@ -302,27 +301,27 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
   getRecordingUrl(testModel: EusTestModel): void {
     this.eusService.getRecording(testModel.id).subscribe(
-      (ok: Response) => {
-        window.open('http://' + this.eusHost + ':' + this.eusPort + ok.text());
+      (data: string) => {
+        window.open('http://' + this.eusHost + ':' + this.eusPort + data);
       },
-      (error) => console.error(error),
+      (error: Error) => console.error(error),
     );
   }
 
   viewRecording(testModel: EusTestModel): void {
     this.eusService.getRecording(testModel.id).subscribe(
-      (ok: Response) => {
-        let videoUrl: string = 'http://' + this.eusHost + ':' + this.eusPort + ok.text();
+      (data: string) => {
+        let videoUrl: string = 'http://' + this.eusHost + ':' + this.eusPort + data;
         console.log('Video URL: ' + videoUrl);
         this.viewSession(videoUrl, testModel, ' - recorded test', 'video');
       },
-      (error) => console.error(error),
+      (error: Error) => console.error(error),
     );
   }
 
   deleteRecording(testModel: EusTestModel): void {
     this.eusService.deleteRecording(testModel.id).subscribe(
-      (ok: Response) => {
+      (data: any) => {
         let entry: EusTestModel;
         let newTestData: EusTestModel[] = [];
         for (entry of this.recordings) {
@@ -332,7 +331,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
         }
         this.recordings = Array.from(newTestData);
       },
-      (error) => console.error(error),
+      (error: Error) => console.error(error),
     );
   }
 
@@ -352,10 +351,10 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       this.liveDialog.componentInstance.testModel = this.liveSession;
 
       this.liveDialog.afterClosed().subscribe(
-        (ok: Response) => {
+        (data: any) => {
           this.stopSession();
         },
-        (error) => {
+        (error: Error) => {
           console.error(error);
           this.liveDialog = undefined;
         },
@@ -369,10 +368,10 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
               this.liveDialog.componentInstance.loading = false;
               this.liveDialog.componentInstance.iframeUrl = url;
             },
-            (error) => console.error(error),
+            (error: Error) => console.error(error),
           );
         },
-        (error) => console.error(error),
+        (error: Error) => console.error(error),
       );
     } else {
       this.eusDialog.popUpMessage('Browser not selected', 'You need to chose one browsers to start a session').subscribe();
@@ -381,18 +380,18 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
   stopSession(): void {
     this.eusService.stopSession(this.sessionId).subscribe(
-      (ok: Response) => {
+      (data: any) => {
         this.vncUrl = null;
         this.liveSession = undefined;
         this.liveDialog = undefined;
       },
-      (error) => console.error(error),
+      (error: Error) => console.error(error),
     );
   }
 
   selectBrowser(browser: string): void {
     this.selectedBrowser = browser;
-    Object.keys(this.selectedVersion).forEach((key) => {
+    Object.keys(this.selectedVersion).forEach((key: string) => {
       if (key !== browser) {
         this.selectedVersion[key] = '';
       }
@@ -400,7 +399,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   }
 
   clearVersion(): void {
-    Object.keys(this.selectedVersion).forEach((key) => (this.selectedVersion[key] = ''));
+    Object.keys(this.selectedVersion).forEach((key: string) => (this.selectedVersion[key] = ''));
   }
 
   capitalize(value: any): any {
@@ -414,8 +413,8 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     this.loading = true;
 
     this.eusService.getBrowsers().subscribe(
-      (ok: Response) => {
-        this.initBrowsersByGiven(ok.json());
+      (data: any) => {
+        this.initBrowsersByGiven(data);
         this.loading = false;
       },
       (error: Error) => {

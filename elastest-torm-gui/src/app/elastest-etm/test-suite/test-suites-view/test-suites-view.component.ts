@@ -6,7 +6,7 @@ import { TestCaseModel } from '../../test-case/test-case-model';
 import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { FileModel } from '../../files-manager/file-model';
 import { ConfigurationService } from '../../../config/configuration-service.service';
-import { MdDialogRef } from '@angular/material';
+import { MatDialogRef } from '@angular/material';
 import { ElastestEusDialog } from '../../../elastest-eus/elastest-eus.dialog';
 import { ElastestEusDialogService } from '../../../elastest-eus/elastest-eus.dialog.service';
 
@@ -103,7 +103,7 @@ export class TestSuitesViewComponent implements OnInit {
   }
 
   viewSession(url: string, title: string = 'Recorded Video'): void {
-    let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
+    let dialog: MatDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
     dialog.componentInstance.title = title;
     dialog.componentInstance.iframeUrl = url;
     dialog.componentInstance.sessionType = 'video';

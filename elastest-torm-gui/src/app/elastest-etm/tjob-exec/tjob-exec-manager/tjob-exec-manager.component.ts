@@ -1,5 +1,5 @@
 import { FilesService } from '../../../shared/services/files.service';
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
+import { TdDialogService } from '@covalent/core';
 import { IConfirmConfig } from '@covalent/core';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
@@ -11,7 +11,7 @@ import { TJobExecService } from '../tjobExec.service';
 
 import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 import { MetricTraces, LogTraces, MonitoringService } from '../../../shared/services/monitoring.service';
 import { ParameterModel } from '../../parameter/parameter-model';
 
@@ -60,7 +60,7 @@ export class TjobExecManagerComponent implements OnInit {
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
     private filesService: FilesService,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
   ) {}
 
   ngOnInit() {
