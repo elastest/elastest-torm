@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -75,21 +76,22 @@ public class EtmTestSupportServicesE2eTest extends EtmBaseTest {
 
         String firstTSSButtonsXpath = instanceRowXpath + "//button";
 
-//        log.debug("Navigate to view of Test Support Service");
+        // log.debug("Navigate to view of Test Support Service");
         assertNotNull(getElementByXpath(driver,
                 firstTSSButtonsXpath + "[@title='View Service Detail']"));
-//                        .click();
+        // .click();
 
-//        log.debug("Check if Test Support Service iframe exists");
-//        getElementByXpath(driver, "//iframe[@name='engine']").get(0);
+        // log.debug("Check if Test Support Service iframe exists");
+        // getElementByXpath(driver, "//iframe[@name='engine']").get(0);
 
-//        log.debug("Return to Test Support Services page");
-//        navigateToTestEnginesPage(driver);
+        // log.debug("Return to Test Support Services page");
+        // navigateToTestEnginesPage(driver);
 
         log.debug("Stop Test Support Service");
-        getElementByXpath(driver,
-                firstTSSButtonsXpath + "[@title='Deprovision Service']")
-                        .click();
+        WebElement removeButton = getElementByXpath(driver,
+                firstTSSButtonsXpath + "[@title='Deprovision Service']");
+        sleep(2000);
+        removeButton.click();
         log.debug("Wait for Test Support Service to be stopped");
         WebDriverWait waitEnd = new WebDriverWait(driver, 120);
         waitEnd.until(invisibilityOfElementLocated(By.xpath(instanceRowXpath)));
