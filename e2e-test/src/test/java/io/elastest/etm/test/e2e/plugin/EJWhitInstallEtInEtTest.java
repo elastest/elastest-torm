@@ -87,6 +87,7 @@ public class EJWhitInstallEtInEtTest extends EtmPluginBaseTest {
             waitLogs.until(textToBePresentInElementLocated(
                     By.tagName("logs-view"), "BUILD SUCCESS"));
         } catch (Exception te) {
+            localDriver.navigate().refresh();
             jse2.executeScript("arguments[0].scrollIntoView()", logsView);
             waitLogs.until(textToBePresentInElementLocated(
                     By.tagName("logs-view"), "BUILD SUCCESS"));
