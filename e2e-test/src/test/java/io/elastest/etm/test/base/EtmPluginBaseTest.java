@@ -275,10 +275,11 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         By elasTestLink = By.linkText("Open in ElasTest");
         String elastestLinkString = "";
         try {
-            WebDriverWait waitService = new WebDriverWait(driver, 5);
-            waitService.until(visibilityOfElementLocated(elasTestLink));
+            //WebDriverWait waitService = new WebDriverWait(driver, 5);
+            //waitService.until(visibilityOfElementLocated(elasTestLink));
             elastestLinkString = driver.findElement(elasTestLink)
                     .getAttribute("href");
+            log.info("ElasTest link: {}", elastestLinkString);
         } catch (TimeoutException te) {
             log.info("Error waiting for ElasTest link element {} ",
                     te.getMessage());
