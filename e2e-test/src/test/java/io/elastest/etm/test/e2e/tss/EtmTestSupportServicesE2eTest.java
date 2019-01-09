@@ -91,11 +91,19 @@ public class EtmTestSupportServicesE2eTest extends EtmBaseTest {
         WebElement removeButton = getElementByXpath(driver,
                 firstTSSButtonsXpath + "[@title='Deprovision Service']");
         sleep(2000);
+
+        By sessionId = By.xpath(
+                "//*[@id=\"tss-instances\"]/div/table/tbody/tr[1]/td[1]/span");
+        driver.findElement(sessionId).getText();
+        log.info("Browser session id: {}",
+                driver.findElement(sessionId).getText());
+        By deleteServices = By.id("deleteServices_"
+                + driver.findElement(sessionId).getText().trim());
         assertNotNull(removeButton);
         removeButton.click();
         log.debug("Wait for Test Support Service to be stopped");
         WebDriverWait waitEnd = new WebDriverWait(driver, 120);
-        waitEnd.until(invisibilityOfElementLocated(By.xpath(instanceRowXpath)));
+        waitEnd.until(invisibilityOfElementLocated(deleteServices));
     }
 
 }

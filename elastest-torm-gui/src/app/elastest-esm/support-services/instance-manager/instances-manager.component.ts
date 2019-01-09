@@ -31,7 +31,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
   currentPage: number = 1;
   pageSize: number = 5;
   sortBy: string = 'serviceName';
-  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
   supportServices: EsmServiceModel[] = [];
   selectedService: string;
   tSSIOnTheFly: string[] = [];
