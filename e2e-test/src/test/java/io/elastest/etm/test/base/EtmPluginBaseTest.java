@@ -6,6 +6,7 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElem
 import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
@@ -17,6 +18,15 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class EtmPluginBaseTest extends EtmBaseTest {
+    
+    protected final String unitTestPipelineScript = "node{\n" + "    elastest(tss: ['EUS']) {\n"
+            + "        stage ('Executing Test') {\n"
+            + "            echo 'Print env variables'\n"
+            + "            sh 'env'\n" + "            mvnHome = tool 'M3.3.9'\n"
+            + "            echo 'Cloning repository'\n"
+            + "            git 'https://github.com/elastest/demo-projects'\n"
+            + "            echo 'Run test'\n"
+            + "            sh \"cd ./unit/junit5-unit-test;'${mvnHome}/bin/mvn' -DforkCount=0 test\"\n";
 
     protected String jenkinsPluginManagerAd = "/pluginManager/advanced";
     protected String jenkinsRestartRelPath = "/restart";
@@ -175,10 +185,13 @@ public class EtmPluginBaseTest extends EtmBaseTest {
     }
     
     protected boolean isJobCreated(String jobName) {
+        log.info("Checking if there is a Job with the name {}", jobName);
         try {
-            driver.findElement(By.linkText(jobName));
+            getElementByXpath(driver, "//*[@id=\"job_PJob_1\"]", 5, false);
+            log.info("There is a Job with name {}", jobName);
             return true;
         }catch (Exception e) {
+            log.info("There isn't a Job with name {}", jobName);
             return false;
         }
     }
@@ -198,6 +211,22 @@ public class EtmPluginBaseTest extends EtmBaseTest {
 
         driver.findElement(By.xpath("//button[contains(string(), 'Save')]"))
                 .click();
+    }
+    
+    protected void deletePipelineJob(WebDriver driver, String jobName) {
+        navigateTo(driver, jenkinsCIUrl);
+        if (isJobCreated(jobName)) {
+            log.info("Deleting Job created for the test");
+            log.info("Go inside Pipeline Job");
+            getElementByXpath(driver, "//*[@id=\"job_PJob_1\"]/td[3]/a", 30, false).click();
+            log.info("Click delete Pipeline Job");
+            driver.findElement(By.linkText("Delete Pipeline")).click();
+            log.info("Confirm delete Pipeline Job");
+            WebDriverWait wait = new WebDriverWait(driver, 30);
+            wait.until(ExpectedConditions.alertIsPresent());
+            Alert alert = driver.switchTo().alert();
+            alert.accept();
+        }
     }
 
     protected void loginOnJenkins(WebDriver driver) {
@@ -232,8 +261,26 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         waitService.until(visibilityOfElementLocated(newBuildHistory));
         Thread.sleep(2000);
         driver.findElement(By.xpath(
-                "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[1]/div/a"))
+                "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[2]/a"))
                 .click();
+    }
+    
+    protected void goToElasTest(WebDriver driver) {
+        String linkElasTest = driver
+                .findElement(By.linkText("Open in ElasTest"))
+                .getAttribute("href");
+        if (secureElastest) {
+            String split_url[] = linkElasTest.split("//");
+            linkElasTest = split_url[0] + "//" + eUser + ":" + ePassword + "@"
+                    + split_url[1];
+            navigateTo(driver, linkElasTest);
+        } else {
+            JavascriptExecutor jse2 = (JavascriptExecutor) driver;
+            WebElement etLink = driver
+                    .findElement(By.linkText("Open in ElasTest"));
+            jse2.executeScript("arguments[0].scrollIntoView()", etLink);
+            etLink.click();
+        }
     }
 
 }
