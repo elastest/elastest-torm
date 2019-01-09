@@ -19,8 +19,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class EtmPluginBaseTest extends EtmBaseTest {
-    
-    protected final String unitTestPipelineScript = "node{\n" + "    elastest(tss: ['EUS']) {\n"
+
+    protected final String unitTestPipelineScript = "node{\n"
+            + "    elastest(tss: ['EUS']) {\n"
             + "        stage ('Executing Test') {\n"
             + "            echo 'Print env variables'\n"
             + "            sh 'env'\n" + "            mvnHome = tool 'M3.3.9'\n"
@@ -75,7 +76,8 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         log.info("Installing plugin from: {}", pluginPath);
         By inputFileName = By.name("name");
         WebElement uploadFile = webDriver.findElement(inputFileName);
-        ((RemoteWebElement) uploadFile).setFileDetector(new LocalFileDetector()); 
+        ((RemoteWebElement) uploadFile)
+                .setFileDetector(new LocalFileDetector());
         uploadFile.sendKeys(pluginPath);
         By uploadButton = By.xpath("//button[contains(string(), 'Upload')]");
         webDriver.findElement(uploadButton).click();
@@ -88,18 +90,19 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         try {
             waitService.until(visibilityOfElementLocated(installationStatus));
         } catch (TimeoutException te) {
-            By alreadyInstalledMessage = By
-                    .xpath("//table/tbody/tr/td[contains(string(), 'elastest plugin is already installed')]");
-            waitService.until(visibilityOfElementLocated(alreadyInstalledMessage));
+            By alreadyInstalledMessage = By.xpath(
+                    "//table/tbody/tr/td[contains(string(), 'elastest plugin is already installed')]");
+            waitService
+                    .until(visibilityOfElementLocated(alreadyInstalledMessage));
             pluginAlreadyInstalled = true;
         }
-        
+
         if (pluginAlreadyInstalled) {
             navigateTo(webDriver, jenkinsRestartRelPath);
             By yesButton = By.xpath("//button[contains(string(), 'Yes')]");
             webDriver.findElement(yesButton).click();
             WebDriverWait waitForLogin = new WebDriverWait(driver, 180);
-            //wait for login form
+            // wait for login form
             By userField = By.id("j_username");
             waitForLogin.until(visibilityOfElementLocated(userField));
             loginOnJenkins(webDriver);
@@ -184,14 +187,14 @@ public class EtmPluginBaseTest extends EtmBaseTest {
                 .click();
 
     }
-    
+
     protected boolean isJobCreated(String jobName) {
         log.info("Checking if there is a Job with the name {}", jobName);
         try {
             getElementByXpath(driver, "//*[@id=\"job_PJob_1\"]", 5, false);
             log.info("There is a Job with name {}", jobName);
             return true;
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.info("There isn't a Job with name {}", jobName);
             return false;
         }
@@ -213,13 +216,14 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         driver.findElement(By.xpath("//button[contains(string(), 'Save')]"))
                 .click();
     }
-    
+
     protected void deletePipelineJob(WebDriver driver, String jobName) {
         navigateTo(driver, jenkinsCIUrl);
         if (isJobCreated(jobName)) {
             log.info("Deleting Job created for the test");
             log.info("Go inside Pipeline Job");
-            getElementByXpath(driver, "//*[@id=\"job_PJob_1\"]/td[3]/a", 30, false).click();
+            getElementByXpath(driver, "//*[@id=\"job_PJob_1\"]/td[3]/a", 30,
+                    false).click();
             log.info("Click delete Pipeline Job");
             driver.findElement(By.linkText("Delete Pipeline")).click();
             log.info("Confirm delete Pipeline Job");
@@ -236,25 +240,25 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         driver.findElement(By.name("j_password")).sendKeys(jenkinsPass);
         driver.findElement(By.name("Submit")).click();
     }
-    
+
     protected void executeJob(WebDriver driver) throws InterruptedException {
         log.info("Run Job");
         long historySize = driver
-                .findElements(
-                        By.xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr"))
+                .findElements(By.xpath(
+                        "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr"))
                 .size();
         driver.findElement(By.xpath("//a[contains(string(), 'Build Now')]"))
                 .click();
         while (driver
-                .findElements(
-                        By.xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr"))
+                .findElements(By.xpath(
+                        "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr"))
                 .size() == historySize) {
-            log.info("history table size {}", driver
-                .findElements(
-                        By.xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr"))
-                .size());
+            log.info("history table size {}",
+                    driver.findElements(By.xpath(
+                            "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr"))
+                            .size());
         }
-        
+
         log.info("Waiting for the start of Job execution");
         By newBuildHistory = By
                 .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]");
@@ -265,21 +269,26 @@ public class EtmPluginBaseTest extends EtmBaseTest {
                 "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[2]/a"))
                 .click();
     }
-    
+
     protected void goToElasTest(WebDriver driver) {
         log.info("Navigating to ElasTest");
         By elasTestLink = By.linkText("Open in ElasTest");
-        WebDriverWait waitService = new WebDriverWait(driver, 5);
-        waitService.until(visibilityOfElementLocated(elasTestLink));
-        String linkElasTest = driver
-                .findElement(elasTestLink)
-                .getAttribute("href");
+        String elastestLinkString = "";
+        try {
+            WebDriverWait waitService = new WebDriverWait(driver, 5);
+            waitService.until(visibilityOfElementLocated(elasTestLink));
+            elastestLinkString = driver.findElement(elasTestLink)
+                    .getAttribute("href");
+        } catch (TimeoutException te) {
+            log.info("Error waiting for ElasTest link element {} ",
+                    te.getMessage());
+        }
         if (secureElastest) {
             log.info("Accessing to ElasTest with credentials");
-            String split_url[] = linkElasTest.split("//");
-            linkElasTest = split_url[0] + "//" + eUser + ":" + ePassword + "@"
-                    + split_url[1];
-            navigateTo(driver, linkElasTest);
+            String split_url[] = elastestLinkString.split("//");
+            elastestLinkString = split_url[0] + "//" + eUser + ":" + ePassword
+                    + "@" + split_url[1];
+            navigateTo(driver, elastestLinkString);
         } else {
             log.info("Accessing to ElasTest without credentials");
             JavascriptExecutor jse2 = (JavascriptExecutor) driver;
