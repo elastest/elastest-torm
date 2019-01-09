@@ -1,6 +1,7 @@
 package io.elastest.etm.test.base;
 
 import static java.lang.System.getProperty;
+import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 
 import java.io.IOException;
@@ -266,15 +267,21 @@ public class EtmPluginBaseTest extends EtmBaseTest {
     }
     
     protected void goToElasTest(WebDriver driver) {
+        log.info("Navigating to ElasTest");
+        By elasTestLink = By.linkText("Open in ElasTest");
+        WebDriverWait waitService = new WebDriverWait(driver, 5);
+        waitService.until(visibilityOfElementLocated(elasTestLink));
         String linkElasTest = driver
-                .findElement(By.linkText("Open in ElasTest"))
+                .findElement(elasTestLink)
                 .getAttribute("href");
         if (secureElastest) {
+            log.info("Accessing to ElasTest with credentials");
             String split_url[] = linkElasTest.split("//");
             linkElasTest = split_url[0] + "//" + eUser + ":" + ePassword + "@"
                     + split_url[1];
             navigateTo(driver, linkElasTest);
         } else {
+            log.info("Accessing to ElasTest without credentials");
             JavascriptExecutor jse2 = (JavascriptExecutor) driver;
             WebElement etLink = driver
                     .findElement(By.linkText("Open in ElasTest"));
