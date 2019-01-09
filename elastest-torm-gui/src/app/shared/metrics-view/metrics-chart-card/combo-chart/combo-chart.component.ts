@@ -61,6 +61,8 @@ export class ComboChartComponent extends BaseChartComponent {
   @Input()
   legend = false;
   @Input()
+  legendPosition = 'right';
+  @Input()
   legendTitle: string = 'Legend';
   @Input()
   xAxis;
@@ -215,6 +217,7 @@ export class ComboChartComponent extends BaseChartComponent {
       showYLabel: this.showYAxisLabel,
       showLegend: this.legend,
       legendType: this.schemeType,
+      legendPosition: this.legendPosition,
     });
   }
 
@@ -596,6 +599,7 @@ export class ComboChartComponent extends BaseChartComponent {
       colors: undefined,
       domain: [],
       title: undefined,
+      position: this.legendPosition,
     };
     if (opts.scaleType === 'ordinal') {
       opts.domain = this.seriesDomain;

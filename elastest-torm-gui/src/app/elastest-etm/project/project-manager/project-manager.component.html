@@ -1,10 +1,10 @@
-<auto-height-grid layout="column">
+<auto-height-grid fxLayout="column">
   <normal-height-row>
-    <div flex-gt-sm="100">
+    <div fxFlex.gt-sm="100">
       <mat-card tdMediaToggle="gt-xs">
         <mat-card-title>
-          <div layout="row">
-            <span>Project {{ project.name }}</span> <span flex></span>
+          <div fxLayout="row">
+            <span>Project {{ project.name }}</span> <span fxFlex></span>
             <div>
               <button mat-button (click)="editProject()" class="iconBtn-lg" title="Edit Project">
                 <mat-icon>mode_edit</mat-icon>
@@ -21,17 +21,16 @@
             </div>
           </div>
         </mat-card-title>
-        <mat-divider></mat-divider>
       </mat-card>
     </div>
   </normal-height-row>
 
-  <auto-height-row *ngIf="project" layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs">
-    <auto-height-grid flex-gt-lg="50" layout="column">
-      <etm-tjobs-manager *ngIf="projectId" [projectId]="projectId" layout="column" layout-fill></etm-tjobs-manager>
+  <auto-height-row *ngIf="project" fxLayout="column" fxLayout.gt-xl="row" tdMediaToggle="gt-xs">
+    <auto-height-grid fxFlex.gt-lg="1 0 50" fxLayout="column">
+      <etm-tjobs-manager *ngIf="projectId" [projectId]="projectId" fxLayout="column" fxFlexFill></etm-tjobs-manager>
     </auto-height-grid>
-    <auto-height-grid flex-gt-lg="50" layout="column">
-      <etm-suts-manager *ngIf="projectId" [projectId]="projectId" layout="column" layout-fill></etm-suts-manager>
+    <auto-height-grid fxFlex.gt-lg="1 0 50" fxLayout="column">
+      <etm-suts-manager *ngIf="projectId" [projectId]="projectId" fxLayout="column" fxFlexFill></etm-suts-manager>
     </auto-height-grid>
   </auto-height-row>
 </auto-height-grid>

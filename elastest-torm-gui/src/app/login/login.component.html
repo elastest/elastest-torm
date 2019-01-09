@@ -1,19 +1,19 @@
-<div layout="column" layout-fill>
+<div fxLayout="column" fxFlexFill>
   <mat-toolbar color="primary" class="mat-whiteframe-z1">
     <span>Login</span>
   </mat-toolbar>
-  <div class="mat-content" layout-padding flex>
-    <div layout-gt-xs="row" layout-align-gt-xs="center start" class="margin">
-      <div flex-gt-xs="50">
+  <div class="mat-content" fxLayoutPadding fxFlex>
+    <div fxLayout.gt-xs="row" fxLayoutAlign.gt-xs="center start" class="margin">
+      <div fxFlex.gt-xs="50">
         <mat-card tdMediaToggle="gt-xs" [mediaClasses]="['push-top-lg']">
           <mat-card-title><mat-icon class="mat-icon-logo" svgIcon="assets:covalent"></mat-icon> Login</mat-card-title>
           <mat-card-subtitle>sign in via your current corporate account</mat-card-subtitle>
           <mat-divider></mat-divider>
           <mat-card-content>
             <form #loginForm="ngForm">
-              <div layout="row">
-                <mat-form-field flex> 
-                  <input mdInput #userElement #userControl="ngModel" placeholder="Username" type="text" maxlength="30" name="username" [(ngModel)]="username" required>
+              <div fxLayout="row">
+                <mat-form-field fxFlex> 
+                  <input matInput #userElement #userControl="ngModel" placeholder="Username" type="text" maxlength="30" name="username" [(ngModel)]="username" required>
                   <span mat-prefix><mat-icon>person</mat-icon></span>
                   <mat-hint align="start">
                     <span [hidden]="!userControl.errors?.required || userControl.pristine" class="tc-red-600">Required</span>
@@ -21,9 +21,9 @@
                   <mat-hint align="end">{{userElement.value.length}} / 30</mat-hint>
                 </mat-form-field>
               </div>
-              <div layout="row">
-                <mat-form-field flex> 
-                  <input mdInput #passElement #passControl="ngModel" placeholder="Password" type="password" name="password" [(ngModel)]="password" required>
+              <div fxLayout="row">
+                <mat-form-field fxFlex> 
+                  <input matInput #passElement #passControl="ngModel" placeholder="Password" type="password" name="password" [(ngModel)]="password" required>
                   <span mat-prefix><mat-icon>lock</mat-icon></span>
                   <mat-hint align="start">
                     <span [hidden]="!passControl.errors?.required || passControl.pristine" class="tc-red-600">Required</span>
@@ -34,8 +34,8 @@
             </form>
           </mat-card-content>
           <mat-divider></mat-divider>
-          <mat-card-actions layout="row">
-            <button flex mat-raised-button color="accent" [disabled]="!loginForm.form.valid" (click)="login()">Sign In</button>
+          <mat-card-actions fxLayout="row">
+            <button fxFlex mat-raised-button color="accent" [disabled]="!loginForm.form.valid" (click)="login()">Sign In</button>
           </mat-card-actions>
         </mat-card>
       </div>

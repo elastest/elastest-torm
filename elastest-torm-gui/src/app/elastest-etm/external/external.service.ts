@@ -47,7 +47,7 @@ export class ExternalService {
 
   // public createProject(project: ExternalProjectModel): Observable<ExternalProjectModel> {
   //     let url: string = this.configurationService.configModel.hostApi + '/external/project';
-  //     return this.http.post(url, project)
+  //     return this.http.post(url, project, { observe: 'response' })
   //         .map((response: HttpResponse<any>) => response.body);
   // }
 
@@ -84,7 +84,7 @@ export class ExternalService {
     tJob.generateExecDashboardConfig();
     let url: string = this.configurationService.configModel.hostApi + '/external/extjob';
     return this.http
-      .post(url, tJob)
+      .post(url, tJob, { observe: 'response' })
       .map((response: HttpResponse<any>) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(response.body));
   }
 
@@ -110,14 +110,14 @@ export class ExternalService {
   public createExternalTJobExecution(exec: ExternalTJobExecModel): Observable<ExternalTJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/external/tjobexec';
     return this.http
-      .post(url, exec)
+      .post(url, exec, { observe: 'response' })
       .map((response: HttpResponse<any>) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.body));
   }
 
   public createExternalTJobExecutionByExTJobId(exTJobId: number | string): Observable<ExternalTJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/external/extjob/' + exTJobId + '/tjobexec';
     return this.http
-      .post(url, {})
+      .post(url, {}, { observe: 'response' })
       .map((response: HttpResponse<any>) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.body));
   }
 
@@ -205,7 +205,7 @@ export class ExternalService {
   public createExternalTestExecution(exec: ExternalTestExecutionModel): Observable<ExternalTestExecutionModel> {
     let url: string = this.configurationService.configModel.hostApi + '/external/testexec';
     return this.http
-      .post(url, exec)
+      .post(url, exec, { observe: 'response' })
       .map((response: HttpResponse<any>) =>
         this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(response.body),
       );

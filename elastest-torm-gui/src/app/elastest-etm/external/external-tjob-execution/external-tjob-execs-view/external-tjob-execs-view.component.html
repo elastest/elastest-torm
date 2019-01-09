@@ -1,8 +1,8 @@
-<div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="exTJobId">
-  <div flex-gt-lg="50" layout-gt-sm="column">
+<div fxLayout="column" fxLayout.gt-xl="row" tdMediaToggle="gt-xs" *ngIf="exTJobId">
+  <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div layout="row">
+        <div fxLayout="row">
           <span>Executions</span>
         </div>
       </mat-card-title>
@@ -38,7 +38,7 @@
               </div>
             </ng-template>
             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-              <div layout="row" class="optionsColumn">
+              <div fxLayout="row" class="optionsColumn">
               </div>
             </ng-template>
           </td-data-table>

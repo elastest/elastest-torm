@@ -1,16 +1,16 @@
 <ng-container *ngIf="serviceType && exTJobExec" [ngSwitch]="serviceType">
     <ng-container *ngSwitchCase="'TESTLINK'">
-        <div layout="row" class="push-bottom-md" *ngIf="!showTestLinkExec; else testLinkBuildInfo">
-            <mat-select flex [(ngModel)]="testLinkSelectedBuild" placeholder="Select a build" name="status" #nameControl="ngModel" required>
+        <div fxLayout="row" class="push-bottom-md" *ngIf="!showTestLinkExec; else testLinkBuildInfo">
+            <mat-select fxFlex [(ngModel)]="testLinkSelectedBuild" placeholder="Select a build" name="status" #nameControl="ngModel" required>
                 <mat-option *ngFor="let build of testLinkBuilds" [value]="build">
                     {{build.name}}
                 </mat-option>
             </mat-select>
-            <button flex mat-raised-button color="accent" [disabled]="!testLinkSelectedBuild || showTestLinkExec" (click)="selectTestLinkBuild()"
+            <button fxFlex mat-raised-button color="accent" [disabled]="!testLinkSelectedBuild || showTestLinkExec" (click)="selectTestLinkBuild()"
                 class="push-left-sm">Select Build</button>
         </div>
         <ng-template #testLinkBuildInfo>
-            <div layout="row" class="mat-title push-bottom-xs">
+            <div fxLayout="row" class="mat-title push-bottom-xs">
                 <span id="executionTitle">Executing Build:
                     <strong>{{testLinkSelectedBuild.name}}</strong>
                 </span>
@@ -19,7 +19,7 @@
         <div id="testLinkExec">
             <testlink-execution-form #executionForm *ngIf="showTestLinkExec && data && data.testCase" [data]="data"></testlink-execution-form>
         </div>
-        <div layout="row">
+        <div fxLayout="row">
             <button mat-raised-button color="accent" [disabled]="disableTLNextBtn || caseForm != undefined && !caseForm.valid" (click)="saveTLCaseExecution()">Save & Next</button>
         </div>
     </ng-container>

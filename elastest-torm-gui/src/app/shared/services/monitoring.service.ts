@@ -40,63 +40,85 @@ export class MonitoringService {
 
   public searchAllByTerms(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/byterms';
-    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+    return this.http
+      .post(url, query, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   /* *** Logs *** */
 
   public searchAllLogs(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log';
-    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+    return this.http
+      .post(url, query, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchPreviousLogs(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/previous';
-    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+    return this.http
+      .post(url, query, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchLastLogs(query: MonitoringQueryModel, size: number): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/last/' + size;
-    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+    return this.http
+      .post(url, query, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchLogsTree(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/tree';
-    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+    return this.http
+      .post(url, query, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchLogsLevelsTree(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/log/tree/levels';
-    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+    return this.http
+      .post(url, query, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   /* *** Metrics *** */
 
   public searchAllMetrics(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric';
-    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+    return this.http
+      .post(url, query, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchPreviousMetrics(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric/previous';
-    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+    return this.http
+      .post(url, query, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchLastMetrics(query: MonitoringQueryModel, size: number): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric/last/' + size;
-    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+    return this.http
+      .post(url, query, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchMetricsTree(query: MonitoringQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/metric/tree';
-    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+    return this.http
+      .post(url, query, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   /* *** LogAnalyzer *** */
 
   public searchLogAnalyzerQuery(query: LogAnalyzerQueryModel): Observable<any> {
     let url: string = this.etmApiUrl + '/monitoring/loganalyzer';
-    return this.http.post(url, query).map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+    return this.http
+      .post(url, query, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   /* ******************************************* */
@@ -237,7 +259,7 @@ export class MonitoringService {
 
     let query: MonitoringQueryModel = this.getMetricsMonitoringQuery(index, metricsField.etType, metricsField.component);
 
-    this.searchAllMetrics(query).subscribe((data) => {
+    this.searchAllMetrics(query).subscribe((data: any[]) => {
       _metrics.next(this.convertToMetricTraces(data, metricsField));
     });
 
@@ -299,6 +321,10 @@ export class MonitoringService {
     let tracesList: LineChartMetricModel[];
     let position: number = undefined;
     let parsedMetric: any;
+
+    if (data === undefined || data === null) {
+      return tracesList;
+    }
 
     if (metricsField.componentIsEmpty()) {
       tracesList = this.getInitMetricsData();

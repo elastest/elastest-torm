@@ -1,7 +1,7 @@
 <h2 mat-dialog-title id="dialogTitle">Log entry</h2>
-<div layout="column" id="entryDiv" *ngIf="columns" class="pad-bottom-sm">
-  <div layout="row" class="push-bottom-sm">
-    <div flex="100" id="">
+<div fxLayout="column" id="entryDiv" *ngIf="columns" class="pad-bottom-sm">
+  <div fxLayout="row" class="push-bottom-sm">
+    <div fxFlex="100" id="">
       <mat-list class="">
         <h4>Message</h4>
         <p class="monospaced" id="message">{{ row.message }}</p>
@@ -9,7 +9,7 @@
       </mat-list>
     </div>
   </div>
-  <div flex="70" *ngFor="let column of columns">
+  <div fxFlex="70" *ngFor="let column of columns">
     <mat-list class="listInfoToLeft" *ngIf="column.field !== 'message'">
       <mat-list-item>
         <h5>{{ column.field }}</h5>
@@ -25,7 +25,7 @@
       <mat-divider></mat-divider>
     </mat-list>
   </div>
-  <div flex="70" *ngIf="rawData">
+  <div fxFlex="70" *ngIf="rawData">
     <h5>Raw Data</h5>
     <pre>{{ rawData | json }}</pre>
   </div>

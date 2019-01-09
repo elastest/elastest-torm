@@ -1,11 +1,11 @@
-<auto-height-grid layout="column">
+<auto-height-grid fxLayout="column">
     <normal-height-row>
         <mat-card>
             <mat-card-title>Support Services</mat-card-title>
             <mat-divider></mat-divider>
             <mat-card-content>
                 <form #ServiceForm="ngForm">
-                    <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
+                    <div fxLayout.gt-md="row" fxLayout.md="row" fxLayout="column" class="push-top push-bottom">
                         <mat-select [(ngModel)]="selectedService" placeholder="Select a Service" required name="service"
                             class="push-right">
                             <mat-option *ngFor="let service of supportServices" [value]="service.id">
@@ -35,7 +35,7 @@
                     [data]="instancesData" [columns]="serviceColumns" [selectable]="false" [clickable]="true"
                     [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)">
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-                        <div layout="row" class="optionsColumn">
+                        <div fxLayout="row" class="optionsColumn">
                             <button mat-button *ngIf="row.serviceReady && (deleting && deleting[row.serviceName] === undefined)"
                                 (click)="goToServiceDetail(row)" class="iconBtn-lg" title="View Service Detail" id="viewService-{{row.id}}" name="view_service">
                                 <mat-icon>remove_red_eye</mat-icon>

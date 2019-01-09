@@ -1,25 +1,25 @@
 <h2 mat-dialog-title>Execute Test Case</h2>
 
 <mat-dialog-content>
-  <div layout="column" id="testCaseDiv" class="pad-bottom-sm">
+  <div fxLayout="column" id="testCaseDiv" class="pad-bottom-sm">
     <mat-card-subtitle>
       Test Case :: Version {{testCase.version}} :: {{testCase.name}}
     </mat-card-subtitle>
     <div>
       Last Execution: {{testCase.executionStatus}}
     </div>
-    <div layout="row" class="push-top">
-      <mat-form-field flex="45">
-        <textarea id="summary" autosize mdInput placeholder="Summary" [(ngModel)]="testCase.summary" name="summary" readonly></textarea>
+    <div fxLayout="row" class="push-top">
+      <mat-form-field fxFlex="45">
+        <textarea id="summary" autosize matInput placeholder="Summary" [(ngModel)]="testCase.summary" name="summary" readonly></textarea>
       </mat-form-field>
 
-      <mat-form-field flex="45" flex-offset="5">
-        <textarea id="preconditions" autosize mdInput placeholder="Preconditions" [(ngModel)]="testCase.preconditions" name="preconditions"
+      <mat-form-field fxFlex="45" fxFlexOffset="5">
+        <textarea id="preconditions" autosize matInput placeholder="Preconditions" [(ngModel)]="testCase.preconditions" name="preconditions"
           readonly></textarea>
       </mat-form-field>
     </div>
 
-    <div layout="column" class="push-top">
+    <div fxLayout="column" class="push-top">
       <mat-card-subtitle>
         Test Case Steps
       </mat-card-subtitle>
@@ -33,14 +33,14 @@
     </div>
 
     <form #caseForm="ngForm" class="push-top-lg">
-      <div layout="row">
-        <mat-form-field flex="45">
-          <textarea #notes id="notes" autosize mdInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
+      <div fxLayout="row">
+        <mat-form-field fxFlex="45">
+          <textarea #notes id="notes" autosize matInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
         </mat-form-field>
 
-        <div layout="column" flex="15" flex-offset="5">
+        <div fxLayout="column" fxFlex="15" fxFlexOffset="5">
           <!-- <mat-form-field class="noMarginInput noPaddingInput push-bottom-md">
-            <input mdInput type="number" class="form-control input-sm" id="duration" value="0" [(ngModel)]="tcExec.executionTimeStamp" name="duration"
+            <input matInput type="number" class="form-control input-sm" id="duration" value="0" [(ngModel)]="tcExec.executionTimeStamp" name="duration"
               placeholder="Exec duration (min)">
           </mat-form-field> -->
           <mat-select [(ngModel)]="tcExec.status" placeholder="Select a status" name="status" #nameControl="ngModel" required>

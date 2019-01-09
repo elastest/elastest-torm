@@ -45,7 +45,7 @@ export class TJobExecService {
       body['multiConfigurations'] = multiConfigs;
     }
 
-    return this.http.post(url, body).map((response: HttpResponse<any>) => {
+    return this.http.post(url, body, { observe: 'response' }).map((response: HttpResponse<any>) => {
       let data: any = undefined;
       try {
         data = response.body;

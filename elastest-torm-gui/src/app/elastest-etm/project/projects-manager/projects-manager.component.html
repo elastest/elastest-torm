@@ -2,9 +2,9 @@
     <auto-height-row>
         <self-adjustable-card>
             <sa-card-title>
-                <div layout="row">
+                <div fxLayout="row">
                     <span>Projects</span>
-                    <span flex></span>
+                    <span fxFlex></span>
                     <button mat-raised-button color="primary" (click)="restoreDemoProjects()" id="restoreDemoProjects"
                         matTooltip="Restore Demo Projects">Restore Demo Projects</button>
                     <button mat-raised-button color="accent" [routerLink]="['/projects/add']" id="newProjectBtn"
@@ -18,15 +18,13 @@
                         <mat-icon>assignment</mat-icon>
                         <p>No Projects created</p>
                     </centered-element>
-                    <td-data-table #projectsTable *ngIf="projectData && projectData.length > 0" [class]="tableStyle" [data]="projectData"
-                        [columns]="projectColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy"
-                        [sortOrder]="sortOrder" [style.height.px]="200" id="projects">
+                    <td-data-table #projectsTable *ngIf="projectData && projectData.length > 0" [class]="tableStyle" [data]="projectData" [columns]="projectColumns" [clickable]="true" id="projects">
                         <ng-template *ngFor="let column of projectColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
                             let-row="row">
                             <div *ngIf="column.name !== 'options'" (click)="viewProject(row)" class="hover-pointer">{{value}}</div>
                         </ng-template>
                         <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-                            <div layout="row" class="optionsColumn">
+                            <div fxLayout="row" class="optionsColumn">
                                 <button mat-button (click)="editProject(row)" stopRowClick class="iconBtn-lg" title="Edit Project">
                                     <mat-icon>mode_edit</mat-icon>
                                 </button>

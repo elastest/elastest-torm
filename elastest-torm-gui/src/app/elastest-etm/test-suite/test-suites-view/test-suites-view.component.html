@@ -1,4 +1,4 @@
-<div flex-gt-sm="100" *ngIf="testSuites">
+<div fxFlex.gt-sm="100" *ngIf="testSuites">
   <mat-card tdMediaToggle="gt-xs">
     <mat-card-title>
       Test Results
@@ -9,44 +9,44 @@
       <div *ngFor="let suite of testSuites" class="push-bottom-sm">
         <td-expansion-panel expand="false">
           <ng-template td-expansion-panel-header>
-            <div layout="row" class="pad-top-sm pad-left-sm">
+            <div fxLayout="row" class="pad-top-sm pad-left-sm">
               <span class="centeredStatusIconSpan pad-right-sm">
                 <mat-icon [style.color]="suite.getResultIcon().color">{{suite.getResultIcon().name}}</mat-icon>
               </span>
-              <span flex-gt-xs="15">
+              <span fxFlex.gt-xs="15">
                 <mat-card-subtitle class="pad-left-none">
                   <strong>Test Suite</strong>
                 </mat-card-subtitle>
                 <h4>{{suite.name}}</h4>
               </span>
-              <span flex-gt-xs="10">
+              <span fxFlex.gt-xs="10">
                 <mat-card-subtitle class="pad-left-none">Nº Test</mat-card-subtitle>
                 <h4>{{suite.numTests}}</h4>
               </span>
-              <span flex-gt-xs="10">
+              <span fxFlex.gt-xs="10">
                 <mat-card-subtitle class="pad-left-none">Errors</mat-card-subtitle>
                 <h4>{{suite.errors}}</h4>
               </span>
-              <span flex-gt-xs="10">
+              <span fxFlex.gt-xs="10">
                 <mat-card-subtitle class="pad-left-none">Failures</mat-card-subtitle>
                 <h4>{{suite.failures}}</h4>
               </span>
-              <span flex-gt-xs="10">
+              <span fxFlex.gt-xs="10">
                 <mat-card-subtitle class="pad-left-none">Skipped</mat-card-subtitle>
                 <h4>{{suite.skipped}}</h4>
               </span>
-              <span flex-gt-xs="10">
+              <span fxFlex.gt-xs="10">
                 <mat-card-subtitle class="pad-left-none">Flakes</mat-card-subtitle>
                 <h4>{{suite.flakes}}</h4>
               </span>
-              <span flex-gt-xs="15">
+              <span fxFlex.gt-xs="15">
                 <mat-card-subtitle class="pad-left-none">Time Elapsed (s)</mat-card-subtitle>
                 <h4>{{suite.timeElapsed}}</h4>
               </span>
             </div>
           </ng-template>
 
-          <div layout="column" class="pad-top-sm pad-left-sm">
+          <div fxLayout="column" class="pad-top-sm pad-left-sm">
             <mat-card-subtitle class="pad-left-none">Test Cases</mat-card-subtitle>
 
             <td-data-table #testCasesTable *ngIf="suite.testCases.length > 0" class="scroll_table" [data]="suite.testCases"
@@ -61,17 +61,17 @@
 
               <!-- Result -->
               <ng-template tdDataTableTemplate="result" let-value="value" let-row="row" let-column="column">
-                <div layout="row" class="resultColumn">
+                <div fxLayout="row" class="resultColumn">
                   <mat-icon [style.color]="row.getResultIcon().color" matTooltip="{{row.getResultIcon().result}}">{{row.getResultIcon().name}}</mat-icon>
                 </div>
               </ng-template>
 
               <!-- Files -->
               <ng-template tdDataTableTemplate="files" let-value="value" let-row="row" let-column="column">
-                <div layout="column" class="filesColumn textCell">
+                <div fxLayout="column" class="filesColumn textCell">
                   <ol type="1" class="pad-left-md">
                     <li *ngFor="let file of row.files">
-                      <div layout="row" class="optionsColumn">
+                      <div fxLayout="row" class="optionsColumn">
                         <span>{{file.name}}</span>
                         <a mat-button [attr.href]="filesUrlPrefix + file.url" class="iconBtn" target="_blank" matTooltip="Open in new tab">
                           <mat-icon>open_in_new</mat-icon>
@@ -88,7 +88,7 @@
 
               <!-- Log Analyzer -->
               <ng-template tdDataTableTemplate="logAnalyzer" let-value="value" let-row="row" let-column="column">
-                <div layout="row" class="logAnalyzerColumn">
+                <div fxLayout="row" class="logAnalyzerColumn">
                   <button mat-button (click)="viewInLogAnalyzer(suite, row)" [disabled]="!tJobExec || row.getResultIcon().result === 'SKIPPED'"
                     class="onlyIconBtn" matTooltip="View Case in Log Analyzer">
                     <mat-icon>library_books</mat-icon>

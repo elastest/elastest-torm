@@ -1,8 +1,8 @@
 <h2 mat-dialog-title>Select a Build</h2>
 <mat-dialog-content>
-  <div layout="row" class="push-bottom-md" *ngIf="ready; else notReadyMsg">
+  <div fxLayout="row" class="push-bottom-md" *ngIf="ready; else notReadyMsg">
     <ng-container *ngIf="testPlanCases !== undefined && testPlanCases.length > 0; else noTestCases">
-      <mat-select flex [(ngModel)]="selectedBuild" placeholder="Select a build" id="selectBuild" name="selectBuild"
+      <mat-select fxFlex [(ngModel)]="selectedBuild" placeholder="Select a build" id="selectBuild" name="selectBuild"
         #nameControl="ngModel" required>
         <mat-option *ngFor="let build of builds; let i = index" id="build{{i}}" [value]="build">
           {{build.name}}

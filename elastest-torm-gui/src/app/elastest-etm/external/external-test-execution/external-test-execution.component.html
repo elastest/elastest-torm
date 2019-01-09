@@ -1,7 +1,7 @@
-<div layout="column">
+<div fxLayout="column">
   <mat-card>
     <mat-card-title>
-      <div layout="row" layout-align="space-between end" class="pad-right-xs">
+      <div fxLayout="row" fxLayoutAlign="space-between end" class="pad-right-xs">
         <span>
           <mat-icon *ngIf="exTestExec.finished() || exTestExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTestExec.getResultIcon().color"
             matTooltip="{{exTestExec.result}}">
@@ -12,7 +12,7 @@
           <span> "{{exTestCase.name}}"</span>
         </a>
         <span>: Execution {{exTestExecId}}</span>
-        <span flex></span>
+        <span fxFlex></span>
         <span *ngIf="exTestExec, exTestCase">
           <button mat-button (click)="viewInLogAnalyzer()" class="iconBtn" matTooltip="View in Log Analyzer">
             <mat-icon>library_books</mat-icon>
@@ -22,8 +22,8 @@
     </mat-card-title>
     <mat-divider></mat-divider>
     <mat-card-content>
-      <div layout="row" class="push-bottom-sm">
-        <div flex="47">
+      <div fxLayout="row" class="push-bottom-sm">
+        <div fxFlex="47">
           <mat-list class="listInfoToLeft">
             <mat-list-item>
               <h4>Start Date</h4>
@@ -32,8 +32,8 @@
             <mat-divider></mat-divider>
           </mat-list>
         </div>
-        <div flex="5"></div>
-        <div flex="47">
+        <div fxFlex="5"></div>
+        <div fxFlex="47">
           <mat-list class="listInfoToLeft">
             <mat-list-item>
               <h4>End Date</h4>
@@ -48,8 +48,8 @@
 </div>
 
 
-<div layout="row" layout-fill>
-  <div #serviceExecution flex="50">
+<div fxLayout="row" fxFlexFill>
+  <div #serviceExecution fxFlex="50">
     <ng-container *ngIf="serviceType" [ngSwitch]="serviceType">
       <ng-container *ngSwitchCase="'TESTLINK'">
         <div id="testLinkExec">
@@ -59,9 +59,9 @@
       </ng-container>
     </ng-container>
   </div>
-  <div flex="50">
+  <div fxFlex="50">
     <mat-card id="miniLogAnalyzerCard">
-      <mat-card-content layout-fill layout="column">
+      <mat-card-content fxFlexFill fxLayout="column">
         <mat-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
           <mat-tab label="Logs">
             <elastest-log-analyzer #miniLogAnalyzer *ngIf="exTestCase && exTestExec" [isEmbed]="true" [exTJob]="exTestCase.exTJob.id"
@@ -76,8 +76,8 @@
           </div>
 
           <mat-tab label="Files">
-            <div layout="row" *ngFor="let file of files">
-              <div flex id="filesContent">
+            <div fxLayout="row" *ngFor="let file of files">
+              <div fxFlex id="filesContent">
                 <div>
                   <p>Title</p>
                   <span>{{file.name}}</span>

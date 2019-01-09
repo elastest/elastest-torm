@@ -39,9 +39,9 @@ export class TJobService {
     tJob.esmServicesString = JSON.stringify(tJob.esmServices);
     let url: string = this.configurationService.configModel.hostApi + '/tjob';
     if (action === 'new') {
-      return this.http.post(url, tJob).map((response: HttpResponse<any>) => response.body);
+      return this.http.post(url, tJob, { observe: 'response' }).map((response: HttpResponse<any>) => response.body);
     } else {
-      return this.http.put(url, tJob).map((response: HttpResponse<any>) => response.body);
+      return this.http.put(url, tJob, { observe: 'response' }).map((response: HttpResponse<any>) => response.body);
     }
   }
 

@@ -4,9 +4,9 @@
     <strong>{{testCase.name}}</strong>
   </p>
 </div>
-<div layout="column" id="testCaseDiv" class="pad-bottom-sm">
-  <div layout="row">
-    <div flex="50">
+<div fxLayout="column" id="testCaseDiv" class="pad-bottom-sm">
+  <div fxLayout="row">
+    <div fxFlex="50">
       <mat-list>
         <mat-list-item>
           <p>
@@ -16,7 +16,7 @@
         </mat-list-item>
       </mat-list>
     </div>
-    <div flex="50">
+    <div fxFlex="50">
       <mat-list>
         <mat-list-item>
           <p>Last Execution:
@@ -27,14 +27,14 @@
     </div>
   </div>
   <mat-divider></mat-divider>
-  <div layout="row" class="push-top">
-    <div flex="50" id="testCaseInfo">
+  <div fxLayout="row" class="push-top">
+    <div fxFlex="50" id="testCaseInfo">
       <span class="mat-subhead">
         <strong>Summary</strong>
       </span>
       <p id="summary" [innerHTML]="testCase.summary"></p>
     </div>
-    <div flex="50" id="testCaseInfo">
+    <div fxFlex="50" id="testCaseInfo">
       <span class="mat-subhead">
         <strong>Preconditions</strong>
       </span>
@@ -42,8 +42,8 @@
     </div>
   </div>
   <mat-divider></mat-divider>
-  <div layout="column" class="push-top">
-    <div flex class="pad-left-none mat-title push-bottom-sm" id="executionTableTitle">
+  <div fxLayout="column" class="push-top">
+    <div fxFlex class="pad-left-none mat-title push-bottom-sm" id="executionTableTitle">
       <strong>
         Test Case Steps
       </strong>
@@ -53,7 +53,7 @@
       <mat-icon>assignment</mat-icon>
       <p>Steps not created </p>
     </centered-element>
-    <td-data-table flex #stepsTable *ngIf="testCase.steps && testCase.steps.length > 0" class="scroll_table" [data]="testCase.steps"
+    <td-data-table fxFlex #stepsTable *ngIf="testCase.steps && testCase.steps.length > 0" class="scroll_table" [data]="testCase.steps"
       [columns]="testCaseStepsColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
       <ng-template *ngFor="let column of testCaseStepsColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
         <div *ngIf="column.name === 'actions' || column.name === 'expectedResults'; else onlyValue" [innerHTML]="value"></div>
@@ -63,17 +63,17 @@
   </div>
 
   <form #caseForm="ngForm" class="push-top-sm">
-    <div layout="column" layout-margin>
-      <div layout="row">
+    <div fxLayout="column" fxLayoutMargin>
+      <div fxLayout="row">
         <mat-radio-group [(ngModel)]="tcExec.status" placeholder="Select a status" name="status" id="executionStatus" #nameControl="ngModel"
           required>
           <mat-radio-button *ngFor="let status of testCase.getExecStatusValuesToExec()" [id]="'status-' + status" [value]="status" class="push-right-sm">{{status}}</mat-radio-button>
         </mat-radio-group>
       </div>
 
-      <div layout="column">
-        <mat-form-field flex="50">
-          <textarea #notes id="notes" autosize mdInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
+      <div fxLayout="column">
+        <mat-form-field fxFlex="50">
+          <textarea #notes id="notes" autosize matInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
         </mat-form-field>
       </div>
     </div>

@@ -1,5 +1,5 @@
 <mat-sidenav-container fullscreen>
-  <div id="content" layout-fill>
+  <div id="content" fxFlexFill>
     <mat-card id="logCard" class="push-none">
       <mat-card-content class="push-bottom-none pad-bottom-none pad-top-none">
         <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows"
@@ -13,7 +13,7 @@
   </div>
 
   <!-- SIDENAV -->
-  <mat-sidenav mode="side" align="end" [opened]="true" [style.width.%]="25" [ngClass]="{'dontShow': isEmbed}">
+  <mat-sidenav position="end" mode="side" [opened]="true" [style.width.%]="25" [ngClass]="{'dontShow': isEmbed}">
     <mat-card tdMediaToggle="gt-xs" *ngIf="logAnalyzer" id="logSidenav">
       <mat-card-content class="push-bottom-none">
         <mat-tab-group>
@@ -23,19 +23,19 @@
             </ng-template>
             <form #logAnalyzerForm="ngForm" id="logAnalyzerForm">
               <!-- Top Content -->
-              <div id="filtersTop" class="pad-xs pad-top-sm" layout="column">
-                <div id="indicesDate" layout="column" class="pad-top-sm">
+              <div id="filtersTop" class="pad-xs pad-top-sm" fxLayout="column">
+                <div id="indicesDate" fxLayout="column" class="pad-top-sm">
                   <div>
                     <!-- Indices and Select Buttons -->
-                    <div layout="column">
+                    <div fxLayout="column">
                       <!-- Indices  -->
-                      <div layout="row">
-                        <mat-form-field class="noMarginInput" flex="70">
-                          <input mdInput type="string" class="form-control input-sm" id="selectedIndices" value="{{logAnalyzer.selectedIndicesToString()}}"
+                      <div fxLayout="row">
+                        <mat-form-field class="noMarginInput" fxFlex="70">
+                          <input matInput type="string" class="form-control input-sm" id="selectedIndices" value="{{logAnalyzer.selectedIndicesToString()}}"
                             name="selectedIndices" placeholder="Executions" required [disabled]="true">
                         </mat-form-field>
                         <!-- Select indices (MODAL) -->
-                        <div id="executionsButton" flex="20">
+                        <div id="executionsButton" fxFlex="20">
                           <button mat-raised-button color="accent" (click)="openSelectExecutions()">
                             <mat-icon matTooltip="Select Execution">playlist_add</mat-icon>
                           </button>
@@ -43,17 +43,17 @@
                       </div>
                     </div>
                     <!-- Date -->
-                    <div id="logDate" layout="column" class="push-top">
-                      <div layout="row" class="">
-                        <mat-form-field flex="90" class="oveflowHidden">
-                          <input #fromDate mdInput type="datetime-local" id="fromDate" placeholder="From Date (GMT+0)"
+                    <div id="logDate" fxLayout="column" class="push-top">
+                      <div fxLayout="row" class="">
+                        <mat-form-field fxFlex="90" class="oveflowHidden">
+                          <input #fromDate matInput type="datetime-local" id="fromDate" placeholder="From Date (GMT+0)"
                             required>
                         </mat-form-field>
                       </div>
-                      <div layout="row" class="">
+                      <div fxLayout="row" class="">
                         <div flex-xl="75">
                           <mat-form-field class="overflowHidden">
-                            <input #toDate mdInput type="datetime-local" id="toDate" placeholder="To Date (GMT+0)"
+                            <input #toDate matInput type="datetime-local" id="toDate" placeholder="To Date (GMT+0)"
                               required [disabled]="tail.checked">
                           </mat-form-field>
                         </div>
@@ -69,8 +69,8 @@
                 </div>
 
                 <!-- Components/Streams And Levels -->
-                <div id="componentsLevels" layout="column" class="">
-                  <div flex="50">
+                <div id="componentsLevels" fxLayout="column" class="">
+                  <div fxFlex="50">
                     <mat-card-subtitle class="pad-left-none">Components/Streams</mat-card-subtitle>
                     <tree-root #componentsTree [nodes]="logAnalyzer.componentsStreams.tree">
                       <ng-template #treeNodeTemplate let-node="node" let-index="index">
@@ -80,7 +80,7 @@
                       </ng-template>
                     </tree-root>
                   </div>
-                  <div flex="45" class="">
+                  <div fxFlex="45" class="">
                     <mat-card-subtitle class="pad-left-none">Levels</mat-card-subtitle>
                     <tree-root #levelsTree [nodes]="logAnalyzer.levels.tree">
                       <ng-template #treeNodeTemplate let-node="node" let-index="index">
@@ -91,14 +91,14 @@
                   </div>
                 </div>
 
-                <div *ngIf="testCaseName" class="" layout="column">
+                <div *ngIf="testCaseName" class="" fxLayout="column">
                   <mat-checkbox #testCase [checked]="withTestCase" id="testCase" name="testCase" (change)="setWithTestCase(testCase.checked)"
                     style="line-height: 4;">TestCase: {{testCaseName}}</mat-checkbox>
                 </div>
 
-                <div class="" layout="column">
+                <div class="" fxLayout="column">
                   <mat-form-field class="noMarginInput">
-                    <input mdInput #messageCmp class="form-control input-sm" id="message" name="message" value=""
+                    <input matInput #messageCmp class="form-control input-sm" id="message" name="message" value=""
                       [(ngModel)]="logAnalyzer.messageFilter" placeholder="Message" title="Search and filter by message"
                       (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)">
                   </mat-form-field>
@@ -108,17 +108,17 @@
               <mat-divider></mat-divider>
 
               <!-- Bottom Content (Buttons, ...) -->
-              <div id="filtersBottom" layout="column" class="">
-                <div layout="row">
-                  <div flex="25">
+              <div id="filtersBottom" fxLayout="column" class="">
+                <div fxLayout="row">
+                  <div fxFlex="25">
                     <mat-form-field class="noMarginInput noPaddingInput">
-                      <input mdInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1"
+                      <input matInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1"
                         max="10000" [(ngModel)]="logAnalyzer.maxResults" name="max_results" placeholder="Nº Entries"
                         #logAnalyzerFormElement #logAnalyzerFormControl="ngModel" (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)"
                         required>
                     </mat-form-field>
                   </div>
-                  <div flex="20" id="loadLogButton">
+                  <div fxFlex="20" id="loadLogButton">
                     <button mat-raised-button color="accent" class="iconBtn" (click)="loadLog()" [disabled]="!logAnalyzerForm.valid || disableBtns">
                       <mat-icon>refresh</mat-icon>
                       <span *ngIf="logRows.length <= 0">Load log</span>
@@ -126,13 +126,13 @@
                     </button>
                   </div>
                 </div>
-                <div layout="row" class="">
-                  <div flex="50" id="addFromLast" *ngIf="showLoadMore && !showPauseTail">
+                <div fxLayout="row" class="">
+                  <div fxFlex="50" id="addFromLast" *ngIf="showLoadMore && !showPauseTail">
                     <button mat-button (click)="loadMore()" [disabled]="disableBtns" class="pad-left-none" title="Add more traces from last">
                       <mat-icon>vertical_align_bottom</mat-icon>
                     </button>
                   </div>
-                  <div flex="50" id="addFromSelected" *ngIf="showLoadMore && !showPauseTail">
+                  <div fxFlex="50" id="addFromSelected" *ngIf="showLoadMore && !showPauseTail">
                     <button mat-button (click)="moreFromSelected()" [disabled]="logAnalyzer.selectedRow === undefined || disableBtns"
                       title="Add more from selected trace">
                       <mat-icon>vertical_align_center</mat-icon>
@@ -141,7 +141,7 @@
                   <!-- <button mat-button *ngIf="showShare && !showPauseTail" (click)="copyToClipboard()">
                   <mat-icon>link</mat-icon> Share link
                 </button>  -->
-                  <div flex="90" id="pauseTail" *ngIf="showPauseTail">
+                  <div fxFlex="90" id="pauseTail" *ngIf="showPauseTail">
                     <mat-checkbox #pauseTail name="pauseTail" (change)="logAnalyzer.switchPauseTail(pauseTail.checked)"
                       title="Pause Tail">Pause Tail</mat-checkbox>
                   </div>
@@ -162,7 +162,7 @@
             <ng-template mat-tab-label>
               <mat-icon matTooltip="Config">settings</mat-icon>
             </ng-template>
-            <div layout="column" class="push-top-sm">
+            <div fxLayout="column" class="push-top-sm">
               <mat-card-subtitle class="push-bottom-xs">Columns Configuration</mat-card-subtitle>
               <button mat-raised-button color="accent" (click)="saveColumnsConfig(undefined,true,true)" title="Save Columns Configuration"
                 class="iconBtn push-top-sm">

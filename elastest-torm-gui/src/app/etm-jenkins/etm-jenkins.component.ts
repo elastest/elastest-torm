@@ -114,14 +114,13 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
   }
 
   openDialog(): void {
-    let dialogRef:MatDialogRef<CredentialsDialogComponent> = this.dialog.open(CredentialsDialogComponent, {
+    let dialogRef: MatDialogRef<CredentialsDialogComponent> = this.dialog.open(CredentialsDialogComponent, {
       height: '30%',
       width: '40%',
       data: this.jenkinsModel,
     });
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       console.log(`Dialog closed: ${result}`);
-      
     });
   }
 }

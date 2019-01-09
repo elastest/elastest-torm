@@ -1,5 +1,5 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
+<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
+  <div fxFlex.gt-sm="100">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
         <span *ngIf="project && project.id == 0">New Project</span>
@@ -8,9 +8,9 @@
       <mat-divider></mat-divider>
       <mat-card-content class="push-bottom-none">
         <form #projectForm="ngForm">
-          <div layout="row">
-            <mat-form-field flex>
-              <input mdInput #projectNameInput #nameControl="ngModel" type="text" placeholder="Project Name" [(ngModel)]="project.name"
+          <div fxLayout="row">
+            <mat-form-field fxFlex>
+              <input matInput #projectNameInput #nameControl="ngModel" type="text" placeholder="Project Name" [(ngModel)]="project.name"
                 name="project.name" maxlength="80" required>
               <mat-hint align="start">
                 <span [hidden]="nameControl.pristine || !nameControl.errors?.required" class="tc-red-600">Required</span>

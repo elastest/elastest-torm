@@ -6,8 +6,8 @@
   <mat-divider></mat-divider>
   <mat-card-content class="push-bottom-none">
     <form #tJobForm="ngForm">
-      <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
-        <div *ngIf="exTJob.exProject !== undefined" class="push-top push-bottom" flex-gt-md="30" flex-md="30">
+      <div fxLayout.gt-md="row" fxLayout.md="row" fxLayout="column" class="push-top push-bottom">
+        <div *ngIf="exTJob.exProject !== undefined" class="push-top push-bottom" fxFlex.gt-md="30" fxFlex.md="30">
           <mat-select [(ngModel)]="exTJob.sut" placeholder="Select a SuT" required name="tJobSut">
             <mat-option [value]="sutEmpty">None</mat-option>
             <mat-option *ngFor="let sut of exTJob.exProject.suts" [value]="sut">

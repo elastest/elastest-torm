@@ -1,5 +1,5 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
+<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
+  <div fxFlex.gt-sm="100">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
         Configurations Executions List
@@ -57,7 +57,7 @@
           </ng-template>
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row" class="optionsColumn">
+            <div fxLayout="row" class="optionsColumn">
               <button mat-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">
                 <mat-icon>library_books</mat-icon>
               </button>

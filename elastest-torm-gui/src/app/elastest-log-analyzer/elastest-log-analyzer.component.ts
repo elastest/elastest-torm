@@ -47,7 +47,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     suppressRowClickSelection: false,
     suppressCellSelection: false, // Only supress key navigation and focus
     suppressChangeDetection: true,
-    rowModelType: 'inMemory',
+    rowModelType: 'clientSide',
     suppressDragLeaveHidesColumns: true,
     enableCellChangeFlash: true,
     getRowStyle: this.setRowsStyle,
@@ -555,7 +555,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   public saveColumnsConfig(event: any, showPopup: boolean = true, persist: boolean = false): void {
-    if (this.autoRowHeight && event && event.column.colId === 'message' && event.finished) {
+    if (this.autoRowHeight && event && event.column && event.column.colId === 'message' && event.finished) {
       this.setRowHeight(event.column.actualWidth);
     }
     this.logAnalyzer.laConfig.columnsState = this.gridColumnApi.getColumnState();
@@ -564,7 +564,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         (logAnalyzerConfig: LogAnalyzerConfigModel) => {
           this.logAnalyzer.laConfig = logAnalyzerConfig;
         },
-        (error) => {
+        (error: Error) => {
           this.popup('An error occurred while trying to save the configuration');
           console.log('Error on save LogAnalyzer column configuration:', error);
         },

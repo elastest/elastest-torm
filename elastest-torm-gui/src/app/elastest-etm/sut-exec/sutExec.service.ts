@@ -17,7 +17,7 @@ export class SutExecService {
 
   public deploySut(sutId: number): Observable<any> {
     let url: string = this.configurationService.configModel.hostApi + '/sut/' + sutId + '/exec';
-    return this.http.post(url, {}).map((response: HttpResponse<any>) => response.body);
+    return this.http.post(url, {}, { observe: 'response' }).map((response: HttpResponse<any>) => response.body);
   }
 
   public getSutsExecutions(sut: SutModel): Observable<SutExecModel[]> {
@@ -36,7 +36,7 @@ export class SutExecService {
     });
   }
 
-  public deleteSutExecution(sut: SutModel, sutExecution: SutExecModel) {
+  public deleteSutExecution(sut: SutModel, sutExecution: SutExecModel): Observable<any> {
     let url: string = this.configurationService.configModel.hostApi + '/sut/' + sut.id + '/exec/' + sutExecution.id;
     return this.http.delete(url);
   }

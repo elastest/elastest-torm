@@ -4,28 +4,28 @@
     <mat-icon>add</mat-icon>Add MultiConfig Axis
   </button>
 
-  <div *ngFor="let multiConfig of model; let i = index" layout="column" class="pad-bottom push-top">
+  <div *ngFor="let multiConfig of model; let i = index" fxLayout="column" class="pad-bottom push-top">
     <mat-divider *ngIf="i > 0"></mat-divider>
-    <mat-list-item flex-gt-xs="100" layout="row" layout-align="center center">
-      <div layout="row" layout-align="center center">
+    <mat-list-item fxFlex.gt-xs="100" fxLayout="row" fxLayoutAlign="center center">
+      <div fxLayout="row" fxLayoutAlign="center center">
         <!-- Delete MultiConfig -->
         <button mat-mini-fab color="primary" (click)="deleteMultiConfig(i)" matTooltip="Delete multi config" class="iconBtn push-top-sm">
           <mat-icon style="color: #ffffff">delete</mat-icon>
         </button>
 
         <!-- Name -->
-        <mat-form-field flex-offset="5">
-          <input mdInput id="multiConfigName{{i}}" value="" [(ngModel)]="multiConfig.name" placeholder="Name" required>
+        <mat-form-field fxFlexOffset="5">
+          <input matInput id="multiConfigName{{i}}" value="" [(ngModel)]="multiConfig.name" placeholder="Name" required>
         </mat-form-field>
 
         <!-- configValues -->
-        <div layout="column" flex-offset="5">
-          <mat-list-item flex-gt-xs="100">
+        <div fxLayout="column" fxFlexOffset="5">
+          <mat-list-item fxFlex.gt-xs="100">
 
-            <div *ngFor="let value of multiConfig.configValues; let j = index; trackBy:trackByFn" layout-gt-xs="column"
-              layout-gt-md="row" class="pad-bottom push-top">
+            <div *ngFor="let value of multiConfig.configValues; let j = index; trackBy:trackByFn" fxLayout.gt-xs="column"
+              fxLayout.gt-md="row" class="pad-bottom push-top">
               <mat-form-field>
-                <input mdInput id="multiConfig{{i}}Value{{j}}" value="" [(ngModel)]="multiConfig.configValues[j]"
+                <input matInput id="multiConfig{{i}}Value{{j}}" value="" [(ngModel)]="multiConfig.configValues[j]"
                   placeholder="Value" required>
               </mat-form-field>
 
@@ -35,7 +35,7 @@
             </div>
 
             <!-- Add value -->
-            <div layout="row" layout-align="center center">
+            <div fxLayout="row" fxLayoutAlign="center center">
               <button mat-mini-fab color="accent" (click)="addValueToMultiConfig(i)" matTooltip="Add value to multi config"
                 id="addValueToMultiConfig{{i}}" class="iconBtn push-top-sm">
                 <mat-icon style="color: #ffffff !important">add</mat-icon>

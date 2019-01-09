@@ -1,13 +1,13 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
+<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
+  <div fxFlex.gt-sm="100">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
         Build {{build.name}}
       </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content>
-        <div layout="row">
-          <div flex="47">
+        <div fxLayout="row">
+          <div fxFlex="47">
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>Name</h4>
@@ -15,8 +15,8 @@
               </mat-list-item>
             </mat-list>
           </div>
-          <div flex="5"></div>
-          <div flex="47">
+          <div fxFlex="5"></div>
+          <div fxFlex="47">
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>Test Plan Id</h4>
@@ -24,9 +24,9 @@
               </mat-list-item>
             </mat-list>
           </div>
-          <!-- <span flex-gt-xs="25">
+          <!-- <span fxFlex.gt-xs="25">
             <mat-card-subtitle>Options</mat-card-subtitle>
-            <div class="optionsColumn" layout="column" layout-gt-xs="row">
+            <div class="optionsColumn" fxLayout="column" fxLayout.gt-xs="row">
               <button mat-button [routerLink]="['/testlink/builds/edit', build.id]" class="iconBtn-lg" title="Edit Test Plan">
                 <mat-icon>mode_edit</mat-icon>
               </button>
@@ -37,8 +37,8 @@
           </span> -->
         </div>
         <mat-divider></mat-divider>
-        <div layout="column" class="push-top-sm" id="buildBottomInfo">
-          <span flex-gt-xs="100">
+        <div fxLayout="column" class="push-top-sm" id="buildBottomInfo">
+          <span fxFlex.gt-xs="100">
             <h4 class="pad-left-none">Notes</h4>
             <div id="notes" [innerHTML]="build.notes"></div>
           </span>
@@ -48,11 +48,11 @@
   </div>
 </div>
 
-<div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="build">
-  <div flex-gt-lg="50" layout-gt-sm="column">
+<div fxLayout="column" fxLayout.gt-xl="row" tdMediaToggle="gt-xs" *ngIf="build">
+  <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div layout="row">
+        <div fxLayout="row">
           <span>Test Cases</span>
         </div>
       </mat-card-title>
@@ -75,7 +75,7 @@
             </div>
           </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row" class="optionsColumn">
+            <div fxLayout="row" class="optionsColumn">
               <button mat-button (click)="execTestCase(row)" class="iconBtn-lg" title="Execute Test Case">
                 <mat-icon>play_circle_outline</mat-icon>
               </button>

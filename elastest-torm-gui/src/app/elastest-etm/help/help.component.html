@@ -1,13 +1,13 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
+<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
+  <div fxFlex.gt-sm="100">
     <mat-card>
       <mat-card-title>
-        <div layout="row">
+        <div fxLayout="row">
           <span>
             <mat-icon style="vertical-align: middle;padding-right: 10px;">info</mat-icon>
             <span style="vertical-align: middle;">About ElasTest</span>
           </span>
-          <span flex></span>
+          <span fxFlex></span>
           <span *ngIf="etCurrentVersion" class="mat-subhead tc-grey-600 pad-right-sm">
             <span>ElasTest version:&nbsp;</span>
             <span id="etVersion">{{etCurrentVersion}}</span>
@@ -16,11 +16,11 @@
       </mat-card-title>
 
       <mat-card-content>
-        <div class="mat-title" layout="row">
+        <div class="mat-title" fxLayout="row">
           <span> ElasTest Main Services </span>
-          <span flex></span>
+          <span fxFlex></span>
           <span>
-            <div layout="row">
+            <div fxLayout="row">
               <span *ngIf="lastRefresh" class="mat-subhead tc-grey-600 pad-right-sm">
                 <span>Last refresh: </span>
                 <span>
@@ -57,7 +57,7 @@
               </ng-container>
 
               <ng-container *ngIf="column.name === 'options'">
-                <div layout="row" class="optionsColumn">
+                <div fxLayout="row" class="optionsColumn">
                   <button mat-button (click)="loadCoreServiceLogs(row.name)" mat-tooltip="View logs" class="iconBtn-lg"
                     [disabled]="loadingLogs">
                     <mat-icon>library_books</mat-icon>

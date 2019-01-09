@@ -1,5 +1,5 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
+<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
+  <div fxFlex.gt-sm="100">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
         <span *ngIf="testCase && testCase.id == 0">New Test Case</span>
@@ -9,58 +9,58 @@
       <mat-card-content class="push-bottom-none">
         <form #caseForm="ngForm">
 
-          <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
-            <mat-form-field flex-gt-md="20" flex-md="20">
-              <input mdInput #caseNameInput #nameControl="ngModel" type="text" placeholder="Test Case Name" [(ngModel)]="testCase.name"
+          <div fxLayout.gt-md="row" fxLayout.md="row" fxLayout="column" class="push-top push-bottom">
+            <mat-form-field fxFlex.gt-md="20" fxFlex.md="20">
+              <input matInput #caseNameInput #nameControl="ngModel" type="text" placeholder="Test Case Name" [(ngModel)]="testCase.name"
                 name="testCase.name" maxlength="50" required>
             </mat-form-field>
 
-            <mat-select [(ngModel)]="testCase.testCaseStatus" placeholder="Select a Status" name="service" class="push-right" flex-gt-md="5"
-              flex-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">
+            <mat-select [(ngModel)]="testCase.testCaseStatus" placeholder="Select a Status" name="service" class="push-right" fxFlex.gt-md="5"
+              fxFlex.md="5" fxFlex.md="5" fxFlexOffset.md="5" fxFlexOffset.gt-md="5">
               <mat-option *ngFor="let status of testCase.getTestCaseStatusValues()" [value]="status">
                 {{status}}
               </mat-option>
             </mat-select>
 
-            <mat-select [(ngModel)]="testCase.executionStatus" placeholder="Select a Exec Status" name="service" class="push-right" flex-gt-md="5"
-              flex-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">
+            <mat-select [(ngModel)]="testCase.executionStatus" placeholder="Select a Exec Status" name="service" class="push-right" fxFlex.gt-md="5"
+              fxFlex.md="5" fxFlex.md="5" fxFlexOffset.md="5" fxFlexOffset.gt-md="5">
               <mat-option *ngFor="let execstatus of testCase.getExecStatusValues()" [value]="execstatus">
                 {{execstatus}}
               </mat-option>
             </mat-select>
 
-            <mat-select [(ngModel)]="testCase.testImportance" placeholder="Select a Importance" name="service" class="push-right" flex-gt-md="5"
-              flex-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">
+            <mat-select [(ngModel)]="testCase.testImportance" placeholder="Select a Importance" name="service" class="push-right" fxFlex.gt-md="5"
+              fxFlex.md="5" fxFlex.md="5" fxFlexOffset.md="5" fxFlexOffset.gt-md="5">
               <mat-option *ngFor="let importance of testCase.getImportanceValues()" [value]="importance">
                 {{importance}}
               </mat-option>
             </mat-select>
 
-            <mat-select [(ngModel)]="testCase.executionType" placeholder="Select an Exec Type" name="service" class="push-right" flex-gt-md="5"
-              flex-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">
+            <mat-select [(ngModel)]="testCase.executionType" placeholder="Select an Exec Type" name="service" class="push-right" fxFlex.gt-md="5"
+              fxFlex.md="5" fxFlex.md="5" fxFlexOffset.md="5" fxFlexOffset.gt-md="5">
               <mat-option *ngFor="let execType of testCase.getExecTypeValues()" [value]="execType">
                 {{execType}}
               </mat-option>
             </mat-select>
 
             <mat-select [(ngModel)]="testCase.actionOnDuplicatedName" placeholder="Select an Action on Duplicated Name" name="service"
-              class="push-right" flex-gt-md="5" flex-md="5" flex-md="5" flex-offset-md="5" flex-offset-gt-md="5">
+              class="push-right" fxFlex.gt-md="5" fxFlex.md="5" fxFlex.md="5" fxFlexOffset.md="5" fxFlexOffset.gt-md="5">
               <mat-option *ngFor="let action of testCase.getActionOnDuplicatedNameValues()" [value]="action">
                 {{action}}
               </mat-option>
             </mat-select>
           </div>
 
-          <div layout="column" class="push-top">
+          <div fxLayout="column" class="push-top">
             <mat-form-field>
-              <textarea id="summary" autosize mdInput #nameControl="ngModel" placeholder="Summary" [(ngModel)]="testCase.summary" name="summary"
+              <textarea id="summary" autosize matInput #nameControl="ngModel" placeholder="Summary" [(ngModel)]="testCase.summary" name="summary"
                 required></textarea>
             </mat-form-field>
           </div>
 
-          <div layout="column" class="push-top">
+          <div fxLayout="column" class="push-top">
             <mat-form-field>
-              <textarea id="preconditions" autosize mdInput #nameControl="ngModel" placeholder="Preconditions" [(ngModel)]="testCase.preconditions"
+              <textarea id="preconditions" autosize matInput #nameControl="ngModel" placeholder="Preconditions" [(ngModel)]="testCase.preconditions"
                 name="preconditions" required></textarea>
             </mat-form-field>
           </div>

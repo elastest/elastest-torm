@@ -1,13 +1,13 @@
-<div layout-xs="column" layout-gt-xs="column" layout-gt-lg="row" tdMediaToggle="gt-xs" layout-fill>
-  <mat-card tdMediaToggle="gt-xs" flex>
-    <div layout="column" layout-fill>
+<div fxLayout.xs="column" fxLayout.gt-xs="column" fxLayout.gt-lg="row" tdMediaToggle="gt-xs" fxFlexFill>
+  <mat-card tdMediaToggle="gt-xs" fxFlex>
+    <div fxLayout="column" fxFlexFill>
       <mat-card-title>
         VNC
       </mat-card-title>
       <mat-divider></mat-divider>
-      <mat-card-content *ngIf="ready" flex style="overflow: auto;">
+      <mat-card-content *ngIf="ready" fxFlex style="overflow: auto;">
         <vnc-client [host]="host" [port]="port" [password]="password" [autoconnect]="autoconnect" [viewOnly]="viewOnly" [showStatus]="showStatus"
-          [showConnectionBtns]="showConnectionBtns" flex></vnc-client>
+          [showConnectionBtns]="showConnectionBtns" fxFlex></vnc-client>
       </mat-card-content>
     </div>
   </mat-card>

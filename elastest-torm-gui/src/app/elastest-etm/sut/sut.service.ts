@@ -33,7 +33,7 @@ export class SutService {
   public createSut(sut: SutModel): Observable<SutModel> {
     let url: string = this.configurationService.configModel.hostApi + '/sut';
     return this.http
-      .post(url, sut)
+      .post(url, sut, { observe: 'response' })
       .map((response: HttpResponse<any>) => this.eTModelsTransformServices.jsonToSutModel(response.body));
   }
 

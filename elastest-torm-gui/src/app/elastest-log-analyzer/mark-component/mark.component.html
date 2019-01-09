@@ -1,12 +1,12 @@
-<div *ngFor="let pattern of patterns; let i = index" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
-  <mat-list-item flex-gt-xs="100">
-    <div layout="row" layout-align="center center">
+<div *ngFor="let pattern of patterns; let i = index" fxLayout.gt-xs="column" fxLayout.gt-md="row" class="pad-bottom push-top">
+  <mat-list-item fxFlex.gt-xs="100">
+    <div fxLayout="row" fxLayoutAlign="center center">
       <mat-form-field>
-        <input mdInput id="pattern{{i}}" value="" [(ngModel)]="pattern.searchValue" placeholder="Search on message {{pattern.found >= 0 ? pattern.results.length : ''}}"
+        <input matInput id="pattern{{i}}" value="" [(ngModel)]="pattern.searchValue" placeholder="Search on message {{pattern.found >= 0 ? pattern.results.length : ''}}"
           (keydown.enter)="searchByPattern(i)">
       </mat-form-field>
     </div>
-    <div id="patternBtnsDiv" layout-gt-md="row" layout="column" layout-align="center center">
+    <div id="patternBtnsDiv" fxLayout.gt-md="row" fxLayout="column" fxLayoutAlign="center center">
       <input #pattern{{i}}Color type="color" name="favcolor" [(ngModel)]="pattern.color" value="{{pattern.color}}" id="pattern{{i}}Color"
         class="hiddenElement" required>
       <button mat-button (click)="openColorPicker(i)" aria-label="color" title="Pattern color" class="iconBtn push-top-sm">

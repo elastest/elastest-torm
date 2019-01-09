@@ -1,13 +1,13 @@
-<div layout="row">
+<div fxLayout="row">
     <h2 mat-dialog-title class="push-bottom-sm">{{ title }}
     </h2>
-    <span flex></span>
+    <span fxFlex></span>
     <a color="accent" *ngIf="!loading && sessionType && sessionType === 'live' && iframeUrl !== undefined" mat-button
         [attr.href]="iframeUrl" class="iconBtn" target="_blank" matTooltip="Open in new tab">
         <mat-icon>open_in_new</mat-icon>
     </a>
 </div>
-<div *ngIf="testModel" class="push-bottom-xs" layout="row">
+<div *ngIf="testModel" class="push-bottom-xs" fxLayout="row">
     <span class="mat-subhead">
         {{testModel.statusMsg}}
     </span>
@@ -15,9 +15,9 @@
 <mat-dialog-content style="max-height: 84vh">
     <img *ngIf="loading === true; else showContent" src="./assets/img/spinner.gif" style="display: block; margin: 0 auto;">
     <ng-template #showContent>
-        <div *ngIf="sessionType && sessionType === 'live'; else showVideo" layout="column" style="width: 48vw; height: 30vw; max-height: 83vh">
+        <div *ngIf="sessionType && sessionType === 'live'; else showVideo" fxLayout="column" style="width: 48vw; height: 30vw; max-height: 83vh">
             <vnc-client id="eusBrowser" *ngIf="iframeUrl" [vncUrl]="iframeUrl" [showStatus]="false"
-                [showConnectionBtns]="false" flex></vnc-client>
+                [showConnectionBtns]="false" fxFlex></vnc-client>
         </div>
         <ng-template #showVideo>
             <video id="eusVideo" *ngIf="iframeUrl" [src]="iframeUrl" style="max-width: 82vw; max-height: 80vh" controls></video>

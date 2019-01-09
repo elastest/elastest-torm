@@ -2,10 +2,10 @@
   <button mat-icon-button td-menu-button (click)="openMainSidenav()" id="main_menu">
     <mat-icon>menu</mat-icon>
   </button>
-  <div td-toolbar-content layout="row" layout-margin layout-align="center center" flex>
-    <breadcrumb flex="80"></breadcrumb>
-    <span flex></span>
-    <div flex layout-align="end center">
+  <div td-toolbar-content fxLayout="row" fxLayoutMargin fxLayoutAlign="center center" fxFlex>
+    <breadcrumb fxFlex="80"></breadcrumb>
+    <span fxFlex></span>
+    <div fxFlex fxLayoutAlign="end center">
       <button *ngIf="isReloadable()" mat-icon-button matTooltip="Refresh" (click)="refresh()">
         <mat-icon mat-list-icon>refresh</mat-icon>
       </button>
@@ -102,9 +102,9 @@
     <router-outlet></router-outlet>
   </td-layout-manage-list>
   <!-- <td-layout-footer>
-    <div layout="row" layout-align="start center">
+    <div fxLayout="row" fxLayoutAlign="start center">
       <span class="mat-caption">Copyright &copy; 2017 ElasTest. All rights reserved</span>
-      <span flex></span>
+      <span fxFlex></span>
       <mat-icon class="mat-icon-ux" svgIcon="assets:elastestlogo"></mat-icon>
     </div>
   </td-layout-footer> -->

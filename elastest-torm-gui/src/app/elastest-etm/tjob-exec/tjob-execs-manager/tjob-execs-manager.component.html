@@ -1,6 +1,6 @@
-<div layout-gt-xl="row" layout="column" class="push-top-none" layout-fill>
+<div fxLayout.gt-xl="row" fxLayout="column" class="push-top-none" fxFlexFill>
 
-  <auto-height-grid flex-gt-lg="50">
+  <auto-height-grid fxFlex.gt-lg="50">
     <self-adjustable-card>
       <sa-card-title>TJob Executions Running</sa-card-title>
       <sa-card-content>
@@ -35,7 +35,7 @@
           </ng-template>
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row" class="optionsColumn">
+            <div fxLayout="row" class="optionsColumn">
               <button mat-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">
                 <mat-icon>library_books</mat-icon>
               </button>
@@ -46,12 +46,12 @@
     </self-adjustable-card>
   </auto-height-grid>
 
-  <auto-height-grid flex-gt-lg="50">
+  <auto-height-grid fxFlex.gt-lg="50">
     <self-adjustable-card>
       <sa-card-title>
-        <div layout="row">
+        <div fxLayout="row">
           <span>TJob Executions Finished</span>
-          <span flex></span>
+          <span fxFlex></span>
           <button mat-raised-button color="accent" (click)="showAllFinished()" [disabled]="loadAllFinished" matTooltip="Show All Finished Executions">Show
             All</button>
         </div>
@@ -95,7 +95,7 @@
             </div>
           </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row" class="optionsColumn">
+            <div fxLayout="row" class="optionsColumn">
               <button mat-button (click)="deleteTJobExec(row)" [disabled]="deletingInProgress" stopRowClick title="Delete TJob Execution"
                 class="iconBtn-lg">
                 <mat-icon>delete</mat-icon>

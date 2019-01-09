@@ -43,12 +43,16 @@ export class EtPluginsService {
 
   startEtPlugin(etPluginModel: EtPluginModel): Observable<EtPluginModel> {
     let url: string = this.mainUrl + etPluginModel.name + '/start';
-    return this.http.post(url, undefined).map((response: HttpResponse<any>) => this.transformRawTestEngine(response.body));
+    return this.http
+      .post(url, undefined, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.transformRawTestEngine(response.body));
   }
 
   startEtPluginAsync(etPluginModel: EtPluginModel): Observable<EtPluginModel> {
     let url: string = this.mainUrl + etPluginModel.name + '/start/async';
-    return this.http.post(url, undefined).map((response: HttpResponse<any>) => this.transformRawTestEngine(response.body));
+    return this.http
+      .post(url, undefined, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.transformRawTestEngine(response.body));
   }
 
   stopEtPlugin(etPluginModel: EtPluginModel): Observable<EtPluginModel> {
@@ -68,7 +72,7 @@ export class EtPluginsService {
 
   getUrl(name: string): Observable<string> {
     let url: string = this.mainUrl + name + '/url';
-    return this.http.get(url).map((data: string) => data);
+    return this.http.get(url, { responseType: 'text' }).map((data: string) => data);
   }
 
   /* **************************************************************** */

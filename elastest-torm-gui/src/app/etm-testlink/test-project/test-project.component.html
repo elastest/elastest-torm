@@ -1,4 +1,4 @@
-<auto-height-grid layout="column">
+<auto-height-grid fxLayout="column">
   <normal-height-row>
     <mat-card>
       <mat-card-title>
@@ -6,8 +6,8 @@
       </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content id="contentProject">
-        <div layout="row">
-          <div flex="47">
+        <div fxLayout="row">
+          <div fxFlex="1 0 47">
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>Name</h4>
@@ -30,8 +30,8 @@
               </mat-list-item>
             </mat-list>
           </div>
-          <div flex="5"></div>
-          <div flex="47">
+          <div fxFlex="1 0 5"></div>
+          <div fxFlex="1 0 47">
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>Enable Automation</h4>
@@ -54,9 +54,9 @@
               </mat-list-item>
             </mat-list>
           </div>
-          <!-- <span flex-gt-xs="25">
+          <!-- <span fxFlex.gt-xs="1 0 25">
               <mat-card-subtitle>Options</mat-card-subtitle>
-              <div class="optionsColumn" layout="column" layout-gt-xs="row">
+              <div class="optionsColumn" fxLayout="column" fxLayout.gt-xs="row">
                 <button mat-button [routerLink]="['/testlink/projects/edit', testProject.id]" class="iconBtn-lg" title="Edit Test Project">
                   <mat-icon>mode_edit</mat-icon>
                 </button>
@@ -67,8 +67,8 @@
             </span> -->
         </div>
         <mat-divider></mat-divider>
-        <div layout="column" class="push-top-sm" id="testProjectBottomInfo">
-          <span flex-gt-xs="100">
+        <div fxLayout="column" class="push-top-sm" id="testProjectBottomInfo">
+          <span fxFlex.gt-xs="1 0 100">
             <h4 class="pad-left-none">Notes</h4>
             <div id="notes" [innerHTML]="testProject.notes"></div>
           </span>
@@ -79,13 +79,13 @@
 
   <!-- Test Suites/Plans -->
   <normal-height-row *ngIf="testProject">
-    <div layout="column" layout-gt-xl="row">
-      <div flex-gt-lg="50" layout-gt-sm="column">
+    <div fxLayout="column" fxLayout.gt-xl="row">
+      <div fxFlex.gt-lg="1 0 50" fxLayout.gt-sm="column">
         <self-adjustable-card>
           <sa-card-title>
-            <div layout="row">
+            <div fxLayout="row">
               <span>Test Suites</span>
-              <span flex></span>
+              <span fxFlex></span>
               <!-- <button mat-raised-button color="accent" [routerLink]="['/testlink/projects',testProject.id, 'suites','new']">New Test Suite</button> -->
             </div>
           </sa-card-title>
@@ -108,12 +108,12 @@
         </self-adjustable-card>
       </div>
 
-      <div flex-gt-lg="50" layout-gt-sm="column">
+      <div fxFlex.gt-lg="1 0 50" fxLayout.gt-sm="column">
         <self-adjustable-card>
           <sa-card-title>
-            <div layout="row">
+            <div fxLayout="row">
               <span>Test Plans</span>
-              <span flex></span>
+              <span fxFlex></span>
               <!-- <button mat-raised-button color="accent" [routerLink]="['/testlink/projects',testProject.id, 'plans','new']">New Test Plan</button> -->
             </div>
           </sa-card-title>
@@ -135,7 +135,7 @@
                 </div>
               </ng-template>
               <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-                <div layout="row" class="optionsColumn">
+                <div fxLayout="row" class="optionsColumn">
                   <button mat-button (click)="runTestPlan(row)" class="iconBtn" matTooltip="Run Test Plan">
                     <mat-icon>play_circle_outline</mat-icon>
                   </button>

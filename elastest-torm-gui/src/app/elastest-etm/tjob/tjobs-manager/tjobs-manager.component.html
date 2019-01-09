@@ -1,8 +1,8 @@
 <self-adjustable-card tdMediaToggle="gt-xs">
     <sa-card-title>
-        <div layout="row">
+        <div fxLayout="row">
             <span>TJobs</span>
-            <span flex></span>
+            <span fxFlex></span>
             <button mat-raised-button color="accent" (click)="newTJob()" id="newTJobBtn" matTooltip="Create New TJob">New
                 TJob</button>
         </div>
@@ -13,8 +13,7 @@
             <mat-icon>assignment</mat-icon>
             <p>No TJobs created</p>
         </centered-element>
-        <td-data-table #tjobsTable *ngIf="tJobs && tJobs.length > 0" class="useMaxHeight" [data]="tJobs" [columns]="tjobColumns"
-            [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" id="tJobs">
+        <td-data-table #tjobsTable *ngIf="tJobs && tJobs.length > 0" class="useMaxHeight" [data]="tJobs" [columns]="tjobColumns" id="tJobs">
             <ng-template *ngFor="let column of tjobColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
                 let-row="row">
                 <ng-container *ngIf="column.name === 'name' || column.name === 'imageName'">
@@ -42,7 +41,7 @@
             </ng-template>
 
             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-                <div layout="row" class="optionsColumn">
+                <div fxLayout="row" class="optionsColumn">
                     <button mat-button *ngIf="!row.external" (click)="runTJob(row, row.project)" [disabled]="deletingInProgress"
                         class="iconBtn" title="Run TJob">
                         <mat-icon>play_circle_outline</mat-icon>

@@ -1,10 +1,10 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
+<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
+  <div fxFlex.gt-sm="100">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div layout="row">
+        <div fxLayout="row">
           <span>Test Plan {{testPlan.name}}</span>
-          <span flex></span>
+          <span fxFlex></span>
           <div *ngIf="exTJob != undefined">
             <button mat-button id="btnEditPlan" [routerLink]="['/external/projects/', exTJob.exProject.id ,'tjob', 'edit',exTJob.id]"
               class="iconBtn-lg" matTooltip="Edit Test Plan">
@@ -21,8 +21,8 @@
       </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content>
-        <div layout="row">
-          <div flex="47">
+        <div fxLayout="row">
+          <div fxFlex="47">
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>Name</h4>
@@ -38,8 +38,8 @@
               </mat-list-item>
             </mat-list>
           </div>
-          <div flex="5"></div>
-          <div flex="47" class="listInfoToLeft">
+          <div fxFlex="5"></div>
+          <div fxFlex="47" class="listInfoToLeft">
             <mat-list>
               <mat-list-item>
                 <h4>Active</h4>
@@ -54,8 +54,8 @@
           </div>
         </div>
         <mat-divider></mat-divider>
-        <div layout="column" class="push-top" id="testPlanBottomInfo">
-          <span flex-gt-xs="100">
+        <div fxLayout="column" class="push-top" id="testPlanBottomInfo">
+          <span fxFlex.gt-xs="100">
             <h4 class="pad-left-none">Notes</h4>
             <div id="notes" [innerHTML]="testPlan.notes"></div>
           </span>
@@ -65,13 +65,13 @@
   </div>
 </div>
 
-<div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testPlan">
-  <div flex-gt-lg="50" layout-gt-sm="column">
+<div fxLayout="column" fxLayout.gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testPlan">
+  <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div layout="row">
+        <div fxLayout="row">
           <span>Builds</span>
-          <span flex></span>
+          <span fxFlex></span>
         </div>
       </mat-card-title>
       <mat-divider></mat-divider>
@@ -93,7 +93,7 @@
               </div>
             </ng-template>
             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-              <div layout="row" class="optionsColumn">
+              <div fxLayout="row" class="optionsColumn">
 
               </div>
             </ng-template>
@@ -105,13 +105,13 @@
 
 </div>
 
-<div layout="row" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testPlan">
-  <div flex-gt-lg="50" layout-gt-sm="column">
+<div fxLayout="row" fxLayout.gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testPlan">
+  <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div layout="row">
+        <div fxLayout="row">
           <span>Test Cases</span>
-          <span flex></span>
+          <span fxFlex></span>
           <!-- <button mat-raised-button color="accent" (click)="newTJob()">New Build</button> -->
         </div>
       </mat-card-title>
@@ -139,7 +139,7 @@
       </mat-card-content>
     </mat-card>
   </div>
-  <div flex-gt-lg="50" layout-gt-sm="column">
+  <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
     <etm-external-tjob-execs-view *ngIf="exTJob" [exTJobId]="exTJob.id"></etm-external-tjob-execs-view>
   </div>
 </div>

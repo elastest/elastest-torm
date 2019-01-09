@@ -1,13 +1,13 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
+<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
+  <div fxFlex.gt-sm="100">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
         Test Case {{testCase.name}}
       </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content>
-        <div layout="row">
-          <div flex="47">
+        <div fxLayout="row">
+          <div fxFlex="47">
             <mat-list class="listInfoToLeft">
 
               <mat-list-item>
@@ -32,8 +32,8 @@
 
             </mat-list>
           </div>
-          <div flex="5"></div>
-          <div flex="47">
+          <div fxFlex="5"></div>
+          <div fxFlex="47">
             <mat-list class="listInfoToLeft">
 
               <mat-list-item>
@@ -61,12 +61,12 @@
 
         <mat-divider></mat-divider>
 
-        <div layout="row" class="push-top-sm" id="testCaseBottomInfo">
-          <span flex="50">
+        <div fxLayout="row" class="push-top-sm" id="testCaseBottomInfo">
+          <span fxFlex="50">
             <mat-card-subtitle class="pad-left-none">Summary</mat-card-subtitle>
             <div id="summary" [innerHTML]="testCase.summary"></div>
           </span>
-          <span flex="50">
+          <span fxFlex="50">
             <mat-card-subtitle class="pad-left-none">Preconditions</mat-card-subtitle>
             <div [innerHTML]="testCase.preconditions"></div>
           </span>
@@ -76,13 +76,13 @@
   </div>
 </div>
 
-<div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testCase && buildId">
-  <div flex-gt-lg="50" layout-gt-sm="column">
+<div fxLayout="column" fxLayout.gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testCase && buildId">
+  <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div layout="row">
+        <div fxLayout="row">
           <span>Executions on Build {{buildId}}</span>
-          <span flex></span>
+          <span fxFlex></span>
           <!-- <button mat-raised-button color="accent" (click)="newTJob()">New Exec</button> -->
         </div>
       </mat-card-title>
@@ -109,7 +109,7 @@
 
           </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row" class="optionsColumn">
+            <div fxLayout="row" class="optionsColumn">
               <!-- <button mat-button (click)="runTJob(row, project)" class="iconBtn-lg" title="Run TJob">
                 <mat-icon>play_circle_outline</mat-icon>
               </button> -->

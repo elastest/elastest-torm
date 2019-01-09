@@ -53,7 +53,7 @@ export class LogAnalyzerService {
   public saveLogAnalyzerConfig(logAnalyzerConfigModel: LogAnalyzerConfigModel): Observable<LogAnalyzerConfigModel> {
     let url: string = this.configurationService.configModel.hostApi + '/loganalyzerconfig';
     logAnalyzerConfigModel.generatColumnsConfigJson();
-    return this.http.post(url, logAnalyzerConfigModel).map((response: HttpResponse<any>) => {
+    return this.http.post(url, logAnalyzerConfigModel, { observe: 'response' }).map((response: HttpResponse<any>) => {
       let data: any = response.body;
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToLogAnalyzerConfigModel(data);

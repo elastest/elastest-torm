@@ -3,14 +3,14 @@
     <mat-icon>add</mat-icon>Add Parameter
   </button>
 
-  <div *ngFor="let parameter of model; let i = index" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
-    <mat-list-item flex-gt-xs="100">
-      <div layout="row" layout-align="center center">
+  <div *ngFor="let parameter of model; let i = index" fxLayout.gt-xs="column" fxLayout.gt-md="row" class="pad-bottom push-top">
+    <mat-list-item fxFlex.gt-xs="100">
+      <div fxLayout="row" fxLayoutAlign="center center">
         <mat-form-field>
-          <input mdInput id="parameterName{{i}}" value="" [(ngModel)]="parameter.name" placeholder="Name" required>
+          <input matInput id="parameterName{{i}}" value="" [(ngModel)]="parameter.name" placeholder="Name" required>
         </mat-form-field>
-        <mat-form-field flex-offset="5">
-          <input mdInput id="parameterValue{{i}}" value="" [(ngModel)]="parameter.value" placeholder="Default Value"
+        <mat-form-field fxFlexOffset="5">
+          <input matInput id="parameterValue{{i}}" value="" [(ngModel)]="parameter.value" placeholder="Default Value"
             required>
         </mat-form-field>
 

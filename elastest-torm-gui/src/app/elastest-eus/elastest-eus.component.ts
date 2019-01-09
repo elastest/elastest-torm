@@ -364,7 +364,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
         (eusTestModel: EusTestModel) => {
           this.sessionId = eusTestModel.id;
           this.eusService.getVncUrl(this.sessionId).subscribe(
-            (url) => {
+            (url: string) => {
               this.liveDialog.componentInstance.loading = false;
               this.liveDialog.componentInstance.iframeUrl = url;
             },

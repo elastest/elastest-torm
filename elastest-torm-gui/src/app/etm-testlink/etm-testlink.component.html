@@ -20,21 +20,21 @@
     </div>
 
     <ng-template #showTestLink>
-        <div layout="column" *ngIf="testLinkUrl">
-            <div flex-gt-sm="100">
+        <div fxLayout="column" *ngIf="testLinkUrl">
+            <div fxFlex.gt-sm="100">
                 <mat-card>
                     <mat-card-title>
-                        <div layout="row">
+                        <div fxLayout="row">
                             <span>TestLink</span>
                             <a href="{{testLinkUrl}}" id="openTestLink" class="iconBtn" target="_blank" matTooltip="Open TestLink in new tab">
                                 <mat-icon color="accent">open_in_new</mat-icon>
                             </a>
                             <span class="push-left-sm">
-                                <div layout="column" class="mat-caption">
+                                <div fxLayout="column" class="mat-caption">
                                     <button mat-raised-button color="accent" (click)="openDialog()">Show credentials</button>
                                 </div>
                             </span>
-                            <span flex></span>
+                            <span fxFlex></span>
                             <button mat-icon-button color="accent" id="syncTestLink" (click)="syncTestLink()" matTooltip="Sync data with ElasTest" [disabled]="disableBtns">
                                 <mat-icon>sync</mat-icon>
                             </button>
@@ -59,7 +59,7 @@
                                 </div>
                             </ng-template>
                             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-                                <div layout="row" class="optionsColumn">
+                                <div fxLayout="row" class="optionsColumn">
                                     <button mat-button [routerLink]="['/testlink/projects/edit', row.id]" stopRowClick class="iconBtn-lg" title="Edit Test Project">
                                         <mat-icon>mode_edit</mat-icon>
                                     </button>

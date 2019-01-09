@@ -56,7 +56,7 @@ export class EusService {
 
   public getVncUrl(sessionId: string): Observable<string> {
     let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/vnc';
-    return this.http.get(url).map((data: string) => data);
+    return this.http.get(url, { responseType: 'text' });
   }
 
   public getVncUrlSplitted(sessionId: string): Observable<CompleteUrlObj> {
@@ -76,7 +76,7 @@ export class EusService {
   public startRecording(sessionId: string, hubContainerName: string, videoName: string = sessionId): Observable<any> {
     let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording/' + hubContainerName + '/start';
 
-    return this.http.post(url, videoName).map((response: HttpResponse<any>) => {
+    return this.http.post(url, videoName, { observe: 'response' }).map((response: HttpResponse<any>) => {
       if (response) {
         return response;
       } else {
@@ -92,7 +92,7 @@ export class EusService {
 
   public getRecording(sessionId: string): Observable<string> {
     let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording';
-    return this.http.get(url).map((data: string) => data);
+    return this.http.get(url, { responseType: 'text' });
   }
 
   public deleteRecording(sessionId: string): Observable<any> {
@@ -123,7 +123,7 @@ export class EusService {
 
   public navigateToUrl(sessionId: string, urlToOpen: string): Observable<any> {
     let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/url';
-    return this.http.post(url, { url: urlToOpen }).map((response: HttpResponse<any>) => {
+    return this.http.post(url, { url: urlToOpen }, { observe: 'response' }).map((response: HttpResponse<any>) => {
       if (response) {
         return response;
       } else {

@@ -1,3 +1,8 @@
 :host /deep/ #menusideLeft > .td-layout-manage-list .list {
   overflow-x: hidden !important;
 }
+
+:host /deep/ span.td-layout-nav-toolbar-content,
+:host /deep/ span.td-layout-nav-toolbar-content > mat-icon.mat-icon-logo {
+  height: 100%;
+}

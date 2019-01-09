@@ -1,8 +1,8 @@
-<div layout="row" layout-gt-xl="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="40" layout-gt-sm="column">
+<div fxLayout="row" fxLayout.gt-xl="row" tdMediaToggle="gt-xs">
+  <div fxFlex.gt-sm="40" fxLayout.gt-sm="column">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div layout="row" *ngIf="exTJobExec">
+        <div fxLayout="row" *ngIf="exTJobExec">
           <span>
             <button mat-button *ngIf="exTJobExec.finished()" [routerLink]="['/external/projects/',exTJob.exProject.id,'tjob',exTJob.id,'exec',exTJobExec.id]"
               class="onlyIconBtn" title="Navigate to result page">
@@ -11,7 +11,7 @@
             <span style="vertical-align: middle;">{{exTJobExec.resultMsg}}</span>
           </span>
           <span id="executingTitle">Executing External TJob "{{exTJob.name}}" - Exec {{exTJobExec.id}} </span>
-          <span flex></span>
+          <span fxFlex></span>
           <span>
             <button *ngIf="showStopBtn" mat-button (click)="forceEnd()" [style.color]="'#c82a0e'" title="Force End" class="iconBtn">
               <mat-icon>stop</mat-icon>
@@ -31,10 +31,10 @@
       </mat-card-content>
     </mat-card>
   </div>
-  <div flex-gt-sm="60" layout-gt-sm="column">
+  <div fxFlex.gt-sm="60" fxLayout.gt-sm="column">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div layout="row">
+        <div fxLayout="row">
           <span>Browser</span>
         </div>
       </mat-card-title>

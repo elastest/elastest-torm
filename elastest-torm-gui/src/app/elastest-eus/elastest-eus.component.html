@@ -1,13 +1,13 @@
-<auto-height-grid layout="column">
+<auto-height-grid fxLayout="column">
     <normal-height-row *ngIf="standalone">
-        <div flex-gt-xs="100">
+        <div fxFlex.gt-xs="100">
             <mat-card tdMediaToggle="gt-xs">
                 <mat-card-title>
-                    <div layout="row">
+                    <div fxLayout="row">
                         <span>
                             Manual Web Browsers
                         </span>
-                        <span flex></span>
+                        <span fxFlex></span>
                         <button mat-icon-button color="accent" id="refreshBrowsers" (click)="refreshBrowsers()"
                             matTooltip="Refresh available browsers">
                             <mat-icon>sync</mat-icon>
@@ -16,7 +16,7 @@
                 </mat-card-title>
                 <mat-divider></mat-divider>
                 <mat-card-content class="push-bottom-none">
-                    <div *ngIf="loading; else showBrowsersSelection" layout="row" layout-align="start center">
+                    <div *ngIf="loading; else showBrowsersSelection" fxLayout="row" fxLayoutAlign="start center">
                         <span>
                             <mat-spinner strokeWidth="6" color="accent"></mat-spinner>
                         </span>
@@ -26,11 +26,11 @@
                     <ng-template #showBrowsersSelection>
                         <mat-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
                             <div *ngFor="let browser of browserNamesList">
-                                <mat-radio-button [value]="browser" flex-gt-xs="50" id="{{browser + '_radio'}}">{{browser
+                                <mat-radio-button [value]="browser" fxFlex.gt-xs="50" id="{{browser + '_radio'}}">{{browser
                                     |
                                     capitalize}}</mat-radio-button>
                                 <mat-select class="push-left-sm" placeholder="version" [(ngModel)]="selectedVersion[browser]"
-                                    name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser(browser)">
+                                    name="version" fxFlex.gt-xs="50" (ngModelChange)="selectBrowser(browser)">
                                     <mat-option *ngFor="let version of browserVersions[browser]" [value]="version">
                                         {{version}}
                                     </mat-option>
@@ -39,7 +39,7 @@
                                 <br>
                             </div>
                         </mat-radio-group>
-                        <div layout="row" class="push-top">
+                        <div fxLayout="row" class="push-top">
                             <button mat-raised-button color="accent" (click)="startSession()" id="start_session">Start
                                 Web Browser</button>
                         </div>
@@ -50,11 +50,11 @@
     </normal-height-row>
 
     <auto-height-row>
-        <auto-height-grid layout="column">
+        <auto-height-grid fxLayout="column">
             <auto-height-row>
                 <self-adjustable-card tdMediaToggle="gt-xs">
                     <sa-card-title>
-                        <div layout="column">
+                        <div fxLayout="column">
                             <div>
                                 {{ !standalone ? "Web Browsers" : "WebDriver Web Browsers" }}
                             </div>

@@ -54,9 +54,9 @@ export class EtmComponent implements AfterViewInit, OnInit {
   }
 
   toggleFullscreen(): void {
-    let documentVar = document as any;
-    let documentElement = document.documentElement as any;
-    let documentBody = document.body as any;
+    let documentVar: any = document as any;
+    let documentElement: any = document.documentElement as any;
+    let documentBody: any = document.body as any;
 
     if (
       documentVar.fullscreenElement || // alternative standard method
@@ -74,7 +74,7 @@ export class EtmComponent implements AfterViewInit, OnInit {
         documentVar.msExitFullscreen();
       }
     } else {
-      let element = Element as any;
+      let element: any = Element as any;
       if (documentElement.requestFullscreen) {
         documentElement.requestFullscreen();
       } else if (documentElement.mozRequestFullScreen) {

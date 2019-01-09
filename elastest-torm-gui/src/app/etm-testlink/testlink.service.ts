@@ -50,7 +50,7 @@ export class TestLinkService {
   public startTestLink(): Observable<EtPluginModel> {
     let url: string = this.hostApi + '/testlink/start';
     return this.http
-      .post(url, undefined)
+      .post(url, undefined, { observe: 'response' })
       .map((response: HttpResponse<any>) => this.etPluginsService.transformRawTestEngine(response.body));
   }
 
@@ -85,7 +85,7 @@ export class TestLinkService {
 
   public createProject(project: TestProjectModel): Observable<TestProjectModel> {
     let url: string = this.configurationService.configModel.hostApi + '/testlink/project';
-    return this.http.post(url, project).map((response: HttpResponse<any>) => response.body);
+    return this.http.post(url, project, { observe: 'response' }).map((response: HttpResponse<any>) => response.body);
   }
 
   /***********************/
@@ -108,7 +108,7 @@ export class TestLinkService {
 
   public createTestSuite(suite: TLTestSuiteModel): Observable<TLTestSuiteModel> {
     let url: string = this.hostApi + '/testlink/project/' + suite.testProjectId + '/suite';
-    return this.http.post(url, suite).map((response: HttpResponse<any>) => response.body);
+    return this.http.post(url, suite, { observe: 'response' }).map((response: HttpResponse<any>) => response.body);
   }
 
   /*************************/
@@ -131,7 +131,7 @@ export class TestLinkService {
 
   public createTestCase(testCase: TLTestCaseModel): Observable<TLTestCaseModel> {
     let url: string = this.hostApi + '/testlink/project/' + testCase.testProjectId + '/suite/' + testCase.testSuiteId + '/case';
-    return this.http.post(url, testCase).map((response: HttpResponse<any>) => response.body);
+    return this.http.post(url, testCase, { observe: 'response' }).map((response: HttpResponse<any>) => response.body);
   }
 
   public getBuildTestCase(build: BuildModel, testCase: TLTestCaseModel): Observable<TLTestCaseModel> {
@@ -174,7 +174,7 @@ export class TestLinkService {
 
   public createTestPlan(plan: TestPlanModel): Observable<TLTestCaseModel> {
     let url: string = this.hostApi + '/testlink/project/plan';
-    return this.http.post(url, plan).map((response: HttpResponse<any>) => response.body);
+    return this.http.post(url, plan, { observe: 'response' }).map((response: HttpResponse<any>) => response.body);
   }
 
   /************************/
@@ -216,7 +216,7 @@ export class TestLinkService {
 
   public createBuild(build: BuildModel): Observable<TLTestCaseModel> {
     let url: string = this.hostApi + '/testlink/project/plan/build';
-    return this.http.post(url, build).map((response: HttpResponse<any>) => response.body);
+    return this.http.post(url, build, { observe: 'response' }).map((response: HttpResponse<any>) => response.body);
   }
 
   public getBuildTestCases(build: BuildModel): Observable<TLTestCaseModel[]> {
@@ -231,7 +231,7 @@ export class TestLinkService {
   public saveExecution(execution: TestCaseExecutionModel, testCaseId: number | string): Observable<TestCaseExecutionModel> {
     let url: string = this.hostApi + '/testlink/project/plan/build/case/' + testCaseId + '/exec';
     return this.http
-      .post(url, execution)
+      .post(url, execution, { observe: 'response' })
       .map((response: HttpResponse<any>) => this.eTTestlinkModelsTransformService.jsonToExecModel(response.body));
   }
 

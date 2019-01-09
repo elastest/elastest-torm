@@ -1,8 +1,8 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
+<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
+  <div fxFlex.gt-sm="100">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div layout="row" layout-align="space-between end">
+        <div fxLayout="row" fxLayoutAlign="space-between end">
           <span>
             <mat-icon id="tJobExecResultIcon" *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color"
               matTooltip="{{exTJobExec.result}}">
@@ -13,7 +13,7 @@
             <span> "{{exTJob.name}}"</span>
           </a>
           <span>: Execution {{exTJobExecId}}</span>
-          <span flex></span>
+          <span fxFlex></span>
           <span>
             <button mat-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
               <mat-icon>settings</mat-icon>
@@ -23,8 +23,8 @@
       </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content>
-        <div layout="row" class="push-bottom-sm">
-          <div flex="47">
+        <div fxLayout="row" class="push-bottom-sm">
+          <div fxFlex="47">
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>Start Date</h4>
@@ -33,8 +33,8 @@
               <mat-divider></mat-divider>
             </mat-list>
           </div>
-          <div flex="5"></div>
-          <div flex="47">
+          <div fxFlex="5"></div>
+          <div fxFlex="47">
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>End Date</h4>
@@ -49,8 +49,8 @@
   </div>
 </div>
 
-<div layout="column" *ngIf="exTJob && exTJobExec && exTestExecs">
-  <etm-external-test-executions-view [exTestExecs]="exTestExecs" [exTJobExec]="exTJobExec" flex></etm-external-test-executions-view>
+<div fxLayout="column" *ngIf="exTJob && exTJobExec && exTestExecs">
+  <etm-external-test-executions-view [exTestExecs]="exTestExecs" [exTJobExec]="exTJobExec" fxFlex></etm-external-test-executions-view>
 </div>
 
 <!-- logs & Metrics -->

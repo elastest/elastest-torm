@@ -1,8 +1,8 @@
 <self-adjustable-card>
   <sa-card-title>
-    <div layout="row">
+    <div fxLayout="row">
       <span>SuTs</span>
-      <span flex></span>
+      <span fxFlex></span>
       <button mat-raised-button color="accent" (click)="newSut()" id="newSutBtn" matTooltip="Create New Sut">New SuT</button>
     </div>
   </sa-card-title>
@@ -12,8 +12,7 @@
       <mat-icon>assignment</mat-icon>
       <p>No SuTs created</p>
     </centered-element>
-    <td-data-table #sutsTable *ngIf="suts.length > 0" id="sutsTable" class="useMaxHeight" [data]="suts" [columns]="sutColumns"
-      [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+    <td-data-table #sutsTable *ngIf="suts.length > 0" id="sutsTable" class="useMaxHeight" [data]="suts" [columns]="sutColumns">
       <ng-template *ngFor="let column of sutColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
         <ng-container *ngIf="column.name !== 'options'">
           <ng-container *ngIf="column.name === 'name'; else normalColumn">
@@ -27,7 +26,7 @@
 
       <!-- OPTIONS -->
       <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-        <div layout="row" class="sutOptions optionsColumn">
+        <div fxLayout="row" class="sutOptions optionsColumn">
           <button mat-button (click)="editSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Edit SuT">
             <mat-icon>mode_edit</mat-icon>
           </button>

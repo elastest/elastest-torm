@@ -1,7 +1,7 @@
 <auto-height-grid>
 
   <normal-height-row>
-    <div flex-gt-sm="100">
+    <div fxFlex.gt-sm="100">
       <mat-card tdMediaToggle="gt-xs">
         <mat-card-title>
           <span *ngIf="tJob && tJob.multi">Multi-Configuration</span>
@@ -10,22 +10,22 @@
         </mat-card-title>
         <mat-divider></mat-divider>
         <mat-card-content>
-          <div layout="row">
-            <span flex-gt-xs="20">
+          <div fxLayout="row">
+            <span fxFlex.gt-xs="20">
               <mat-card-subtitle>Name</mat-card-subtitle>
               <h4>{{tJob.name}}</h4>
             </span>
-            <span flex-gt-xs="20">
+            <span fxFlex.gt-xs="20">
               <mat-card-subtitle>Image Name</mat-card-subtitle>
               <h4>{{tJob.imageName}}</h4>
             </span>
-            <span flex-gt-xs="20" *ngIf="!tJob.hasSut()">
+            <span fxFlex.gt-xs="20" *ngIf="!tJob.hasSut()">
               <mat-card-subtitle>Sut</mat-card-subtitle>
               <h4>None</h4>
             </span>
-            <span flex-gt-xs="20" *ngIf="tJob.hasSut()">
+            <span fxFlex.gt-xs="20" *ngIf="tJob.hasSut()">
               <button mat-button (click)="editSut()" class="onlyIconBtn" title="Edit SuT">
-                <div layout="row">
+                <div fxLayout="row">
                   <mat-card-subtitle style="line-height: initial; padding-right: 8px;">Sut</mat-card-subtitle>
                   <mat-icon style="font-size: 18px;">mode_edit</mat-icon>
                 </div>
@@ -33,14 +33,14 @@
               <h4 style="margin-top: 0;">{{tJob.sut.name}}</h4>
             </span>
 
-            <span flex-gt-xs="20" *ngIf="!tJob.hasSut()">
+            <span fxFlex.gt-xs="20" *ngIf="!tJob.hasSut()">
               <mat-card-subtitle>Is Multi Axis</mat-card-subtitle>
               <h4>{{tJob.multi}}</h4>
             </span>
 
-            <span flex-gt-xs="25">
+            <span fxFlex.gt-xs="25">
               <mat-card-subtitle>Options</mat-card-subtitle>
-              <div class="optionsColumn" layout="column" layout-gt-xs="row">
+              <div class="optionsColumn" fxLayout="column" fxLayout.gt-xs="row">
                 <button mat-button *ngIf="!tJob.external" (click)="runTJob()" class="iconBtn-lg" title="Run TJob">
                   <mat-icon>play_circle_outline</mat-icon>
                 </button>
@@ -116,7 +116,7 @@
           </ng-template>
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div layout="row" class="optionsColumn">
+            <div fxLayout="row" class="optionsColumn">
               <button mat-button (click)="deleteTJobExec(row)" [disabled]="deletingInProgress" stopRowClick title="Delete TJob Execution"
                 class="iconBtn-lg">
                 <mat-icon>delete</mat-icon>

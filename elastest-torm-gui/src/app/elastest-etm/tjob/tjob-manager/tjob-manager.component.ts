@@ -131,12 +131,12 @@ export class TjobManagerComponent implements OnInit {
         (tjobExecution: TJobExecModel) => {
           this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id]);
         },
-        (error) => console.error('Error:' + error),
+        (error: Error) => console.error('Error:' + error),
       );
     }
   }
 
-  editSut() {
+  editSut(): void {
     this.router.navigate(['/projects', this.tJob.project.id, 'sut', 'edit', this.tJob.sut.id]);
   }
 

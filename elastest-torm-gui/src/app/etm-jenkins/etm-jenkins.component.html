@@ -20,17 +20,17 @@
   </div>
 
   <ng-template #showJenkins>
-    <div layout="column" *ngIf="jenkinsUrl">
-      <div flex-gt-sm="100">
+    <div fxLayout="column" *ngIf="jenkinsUrl">
+      <div fxFlex.gt-sm="100">
         <mat-card class="pad-bottom-xs">
           <mat-card-title>
-            <div layout="row">
+            <div fxLayout="row">
               <span>Jenkins</span>
               <a href="{{jenkinsUrl}}" id="openJenkins" class="iconBtn" target="_blank" matTooltip="Open Jenkins in new tab">
                 <mat-icon color="accent">open_in_new</mat-icon>
               </a>
               <span class="push-left-sm">
-                <div layout="column" class="mat-caption">
+                <div fxLayout="column" class="mat-caption">
                     <button mat-raised-button color="accent" (click)="openDialog()">Show credentials</button>                    
                 </div>
               </span>
