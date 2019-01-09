@@ -53,7 +53,7 @@ public class EJWhitInstallEtInEtTest extends EtmPluginBaseTest {
                 driver.findElement(By.linkText(jobName)).click();
             }
             executeJob(driver);
-            goToElasTest(localDriver);
+            goToElasTest(driver);
             log.info("Wait for TJob end with sucess");
             checkFinishTJobExec(driver, 180, "SUCCESS", false);
         }finally {
