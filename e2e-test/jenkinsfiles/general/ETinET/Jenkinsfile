@@ -1,4 +1,4 @@
-  node('et_in_et'){      
+  node('${NODE}'){      
     try {
         def elastest_url = ''
         elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: 20) {
