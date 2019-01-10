@@ -18,7 +18,7 @@ then
 	mySqlHost=$(containerIp "aux-lb-db")
     #Wait for DB is ready
 	while ! nc -z $mySqlHost 3306 ; do
-        echo "MySQL server in not ready in address 'mysql' and port 3306"
+        echo "MySQL server is not ready in address 'mysql' and port 3306"
         sleep 2
     done
 elif [[ $2 = 'win' ]];
