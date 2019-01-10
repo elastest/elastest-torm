@@ -79,31 +79,9 @@ public class EtmTestSupportServicesE2eTest extends EtmBaseTest {
         // log.debug("Navigate to view of Test Support Service");
         assertNotNull(getElementByXpath(driver,
                 firstTSSButtonsXpath + "[@title='View Service Detail']"));
-        // .click();
-
-        // log.debug("Check if Test Support Service iframe exists");
-        // getElementByXpath(driver, "//iframe[@name='engine']").get(0);
-
-        // log.debug("Return to Test Support Services page");
-        // navigateToTestEnginesPage(driver);
 
         log.debug("Stop Test Support Service");
-        WebElement removeButton = getElementByXpath(driver,
-                firstTSSButtonsXpath + "[@title='Deprovision Service']");
-        sleep(2000);
-
-        By sessionId = By.xpath(
-                "//*[@id=\"tss-instances\"]/div/table/tbody/tr[1]/td[1]/span");
-        driver.findElement(sessionId).getText();
-        log.info("Browser session id: {}",
-                driver.findElement(sessionId).getText());
-        By deleteServices = By.id("deleteService-"
-                + driver.findElement(sessionId).getText().trim());
-        assertNotNull(removeButton);
-        removeButton.click();
-        log.debug("Wait for Test Support Service to be stopped");
-        WebDriverWait waitEnd = new WebDriverWait(driver, 120);
-        waitEnd.until(invisibilityOfElementLocated(deleteServices));
+        deleteTSSInstance(driver);
     }
 
 }
