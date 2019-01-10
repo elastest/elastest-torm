@@ -97,7 +97,7 @@ public class EtmTestSupportServicesE2eTest extends EtmBaseTest {
         driver.findElement(sessionId).getText();
         log.info("Browser session id: {}",
                 driver.findElement(sessionId).getText());
-        By deleteServices = By.id("deleteServices_"
+        By deleteServices = By.id("deleteService-"
                 + driver.findElement(sessionId).getText().trim());
         assertNotNull(removeButton);
         removeButton.click();
