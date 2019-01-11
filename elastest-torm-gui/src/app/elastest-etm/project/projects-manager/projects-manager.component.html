@@ -18,7 +18,8 @@
                         <mat-icon>assignment</mat-icon>
                         <p>No Projects created</p>
                     </centered-element>
-                    <td-data-table #projectsTable *ngIf="projectData && projectData.length > 0" [class]="tableStyle" [data]="projectData" [columns]="projectColumns" [clickable]="true" id="projects">
+                    <td-data-table #projectsTable *ngIf="projectData && projectData.length > 0" [class]="tableStyle" [data]="projectData" [columns]="projectColumns" [clickable]="true" 
+                        [resizableColumns]="false" id="projects">
                         <ng-template *ngFor="let column of projectColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
                             let-row="row">
                             <div *ngIf="column.name !== 'options'" (click)="viewProject(row)" class="hover-pointer">{{value}}</div>

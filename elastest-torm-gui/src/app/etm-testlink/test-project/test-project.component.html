@@ -7,7 +7,7 @@
       <mat-divider></mat-divider>
       <mat-card-content id="contentProject">
         <div fxLayout="row">
-          <div fxFlex="1 0 47">
+          <div fxFlex="47">
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>Name</h4>
@@ -30,8 +30,8 @@
               </mat-list-item>
             </mat-list>
           </div>
-          <div fxFlex="1 0 5"></div>
-          <div fxFlex="1 0 47">
+          <div fxFlex="5"></div>
+          <div fxFlex="47">
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>Enable Automation</h4>
@@ -54,7 +54,7 @@
               </mat-list-item>
             </mat-list>
           </div>
-          <!-- <span fxFlex.gt-xs="1 0 25">
+          <!-- <span fxFlex.gt-xs="25">
               <mat-card-subtitle>Options</mat-card-subtitle>
               <div class="optionsColumn" fxLayout="column" fxLayout.gt-xs="row">
                 <button mat-button [routerLink]="['/testlink/projects/edit', testProject.id]" class="iconBtn-lg" title="Edit Test Project">
@@ -68,7 +68,7 @@
         </div>
         <mat-divider></mat-divider>
         <div fxLayout="column" class="push-top-sm" id="testProjectBottomInfo">
-          <span fxFlex.gt-xs="1 0 100">
+          <span fxFlex.gt-xs="100">
             <h4 class="pad-left-none">Notes</h4>
             <div id="notes" [innerHTML]="testProject.notes"></div>
           </span>
@@ -80,7 +80,7 @@
   <!-- Test Suites/Plans -->
   <normal-height-row *ngIf="testProject">
     <div fxLayout="column" fxLayout.gt-xl="row">
-      <div fxFlex.gt-lg="1 0 50" fxLayout.gt-sm="column">
+      <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
         <self-adjustable-card>
           <sa-card-title>
             <div fxLayout="row">
@@ -108,7 +108,7 @@
         </self-adjustable-card>
       </div>
 
-      <div fxFlex.gt-lg="1 0 50" fxLayout.gt-sm="column">
+      <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
         <self-adjustable-card>
           <sa-card-title>
             <div fxLayout="row">
