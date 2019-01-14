@@ -271,9 +271,18 @@ public class DockerEtmService {
 
         Map<String, String> labels = new HashMap<>();
         labels.put(etTypeLabel, etTypeLabelValue);
-        labels.put(etTJobExecIdLabel,
-                dockerExec.getTJobExec().getId().toString());
-        labels.put(etTJobIdLabel, dockerExec.gettJob().getId().toString());
+        String execId = null;
+        String tJobId = null;
+        if (dockerExec.isExternal()) {
+            execId = dockerExec.getExternalTJobExec().getId().toString();
+            tJobId = dockerExec.getExternalTJob().getId().toString();
+        } else {
+            execId = dockerExec.getTJobExec().getId().toString();
+            tJobId = dockerExec.gettJob().getId().toString();
+        }
+
+        labels.put(etTJobExecIdLabel, execId);
+        labels.put(etTJobIdLabel, tJobId);
 
         if (sutServiceName != null) {
             labels.put(etTJobSutServiceNameLabel, sutServiceName);
@@ -372,7 +381,7 @@ public class DockerEtmService {
         if (sutProtocol != null) {
             envList.add("ET_SUT_PROTOCOL=" + sutProtocol);
         }
-        
+
         envList.add("ET_NETWORK=" + elastestNetwork);
 
         // Commands (optional)
