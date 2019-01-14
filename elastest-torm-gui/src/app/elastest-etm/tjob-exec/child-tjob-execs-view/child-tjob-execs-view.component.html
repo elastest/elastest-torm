@@ -1,9 +1,7 @@
 <div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
   <div fxFlex.gt-sm="100">
     <mat-card tdMediaToggle="gt-xs">
-      <mat-card-title>
-        Configurations Executions List
-      </mat-card-title>
+      <mat-card-title> Configurations Executions List </mat-card-title>
       <mat-divider></mat-divider>
       <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
       <centered-element *ngIf="!showSpinner && childrens.length === 0" class="push-top-sm messageEmptyCard">
@@ -11,46 +9,68 @@
         <p>No Executions generated</p>
       </centered-element>
       <mat-card-content>
-        <td-data-table #tjobsTable *ngIf="childrens && childrens.length > 0" class="scroll_table" [data]="childrens"
-          [columns]="tJobExecColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy"
-          [sortOrder]="sortOrder">
-          <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
-            let-row="row">
-
-            <div *ngIf="column.name !== 'options' && column.name !== 'startDate' && column.name !== 'endDate' && column.name !== 'lastExecutionDate' && column.name !== 'parameters'"
-              (click)="viewTJobExec(row)" class="hover-pointer">
+        <td-data-table
+          #tjobsTable
+          *ngIf="childrens && childrens.length > 0"
+          class="scroll_table"
+          [data]="childrens"
+          [columns]="tJobExecColumns"
+          [selectable]="false"
+          [clickable]="true"
+          [sortable]="false"
+          [sortBy]="sortBy"
+          [sortOrder]="sortOrder"
+        >
+          <ng-template
+            *ngFor="let column of tJobExecColumns"
+            tdDataTableTemplate="{{ column.name }}"
+            let-value="value"
+            let-row="row"
+          >
+            <div
+              *ngIf="
+                column.name !== 'options' &&
+                column.name !== 'startDate' &&
+                column.name !== 'endDate' &&
+                column.name !== 'lastExecutionDate' &&
+                column.name !== 'parameters'
+              "
+              (click)="viewTJobExec(row)"
+              class="hover-pointer"
+            >
               <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
                 <ng-container *ngIf="column.name === 'result'">
-                  <img *ngIf="!row.finished()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
-                  <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</mat-icon>
+                  <mat-spinner
+                    *ngIf="!row.finished()"
+                    strokeWidth="3"
+                    diameter="20"
+                    color="accent"
+                    style="vertical-align: middle; display: inline-block"
+                  ></mat-spinner>
+                  <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{
+                    row.getResultIcon().name
+                  }}</mat-icon>
                 </ng-container>
-                {{value}}
+                {{ value }}
               </span>
               <ng-template #tjobSutValue>
-                <span *ngIf="row.hasSutExec()">{{row.sutExec.id}}</span>
-                <span *ngIf="!row.hasSutExec()">None</span>
+                <span *ngIf="row.hasSutExec()">{{ row.sutExec.id }}</span> <span *ngIf="!row.hasSutExec()">None</span>
               </ng-template>
             </div>
 
             <div *ngIf="column.name === 'startDate' || column.name === 'endDate'" (click)="viewTJobExec(row)">
-              {{value | date:'dd/MM/yyyy HH:mm:ss'}}
+              {{ value | date: 'dd/MM/yyyy HH:mm:ss' }}
             </div>
 
             <div *ngIf="column.name === 'lastExecutionDate'" (click)="viewTJobExec(row)">
-              <ng-container *ngIf="value !== undefined; else notExecuted">
-                {{value | timeAgo}}
-              </ng-container>
-              <ng-template #notExecuted>
-                Not Executed Yet
-              </ng-template>
+              <ng-container *ngIf="value !== undefined; else notExecuted"> {{ value | timeAgo }} </ng-container>
+              <ng-template #notExecuted> Not Executed Yet </ng-template>
             </div>
 
             <div *ngIf="column.name === 'parameters'" (click)="viewTJobExec(row)">
               <ul *ngIf="row.parameters" class="pad-left-none">
                 <ng-container *ngFor="let param of row.parameters">
-                  <li style="line-height: normal;" *ngIf="param.multiConfig">
-                    {{param.name}}: {{param.value}}
-                  </li>
+                  <li style="line-height: normal;" *ngIf="param.multiConfig">{{ param.name }}: {{ param.value }}</li>
                 </ng-container>
               </ul>
             </div>

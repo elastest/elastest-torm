@@ -3,7 +3,13 @@
 <mat-dialog-content>
   <div *ngIf="testLinkStarted" fxLayout="column" fxLayout.gt-sm="row" class="pad-right pad-bottom">
     <mat-radio-group #typeRadioGroup (change)="changeType(internalType.checked ? 'internal' : 'external')">
-      <mat-radio-button #internalType name="internalType" value="internalSelected" [checked]="internalSelected" class="push-right">
+      <mat-radio-button
+        #internalType
+        name="internalType"
+        value="internalSelected"
+        [checked]="internalSelected"
+        class="push-right"
+      >
         Internal
       </mat-radio-button>
 
@@ -16,21 +22,32 @@
   <div fxLayout="column" fxLayout.gt-sm="row" class="pad-right pad-bottom">
     <ng-container *ngIf="abstractProjects.length > 0; else noProjects">
       <!-- Projects -->
-      <mat-select [(ngModel)]="selectedProject" placeholder="Select a Project" required name="projects" [disabled]="abstractProjects.length === 0"
-        class="noMarginInput form-control input-sm margin-bottom-gt-xs margin-bottom-none-gt-sm" (ngModelChange)="loadTJobs($event)"
-        fxFlex.gt-sm="45">
-        <mat-option *ngFor="let project of abstractProjects" [value]="project">
-          {{project.name}}
-        </mat-option>
+      <mat-select
+        [(ngModel)]="selectedProject"
+        placeholder="Select a Project"
+        required
+        name="projects"
+        [disabled]="abstractProjects.length === 0"
+        class="noMarginInput form-control input-sm margin-bottom-gt-xs margin-bottom-none-gt-sm"
+        (ngModelChange)="loadTJobs($event)"
+        fxFlex.gt-sm="45"
+      >
+        <mat-option *ngFor="let project of abstractProjects" [value]="project"> {{ project.name }} </mat-option>
       </mat-select>
 
       <!-- TJobs -->
-      <mat-select [(ngModel)]="selectedTJob" placeholder="Select a TJob" required name="tJobs" [disabled]="abstractTJobs.length === 0"
-        class="noMarginInput form-control input-sm" (ngModelChange)="loadTJobExecs($event)" fxFlexOffset.gt-sm="10"
-        fxFlex.gt-sm="45">
-        <mat-option *ngFor="let tJob of abstractTJobs" [value]="tJob">
-          {{tJob.name}}
-        </mat-option>
+      <mat-select
+        [(ngModel)]="selectedTJob"
+        placeholder="Select a TJob"
+        required
+        name="tJobs"
+        [disabled]="abstractTJobs.length === 0"
+        class="noMarginInput form-control input-sm"
+        (ngModelChange)="loadTJobExecs($event)"
+        fxFlexOffset.gt-sm="10"
+        fxFlex.gt-sm="45"
+      >
+        <mat-option *ngFor="let tJob of abstractTJobs" [value]="tJob"> {{ tJob.name }} </mat-option>
       </mat-select>
     </ng-container>
     <ng-template #noProjects>There are no projects</ng-template>
@@ -41,51 +58,72 @@
       <mat-card-subtitle>
         <span>Executions </span>
         <span>
-          <mat-checkbox [checked]="selectAll" (change)="selectAllExecs($event.checked)" title="Select/Unselect all"
-            [disabled]="!selectedProject || !selectedTJob || abstractTJobExecs.length === 0"></mat-checkbox>
+          <mat-checkbox
+            [checked]="selectAll"
+            (change)="selectAllExecs($event.checked)"
+            title="Select/Unselect all"
+            [disabled]="!selectedProject || !selectedTJob || abstractTJobExecs.length === 0"
+          ></mat-checkbox>
         </span>
-
       </mat-card-subtitle>
       <mat-divider></mat-divider>
     </div>
     <ng-container *ngIf="selectedProject && selectedTJob && !loadingExecs">
       <div *ngIf="abstractTJobExecs.length > 0; else noExecs">
-        <td-data-table #execsTable class="scroll_table" [data]="abstractTJobExecs" [columns]="tJobExecColumns"
-          [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+        <td-data-table
+          #execsTable
+          class="scroll_table"
+          [data]="abstractTJobExecs"
+          [columns]="tJobExecColumns"
+          [selectable]="false"
+          [clickable]="false"
+          [sortable]="false"
+          [sortBy]="sortBy"
+          [sortOrder]="sortOrder"
+        >
           <!-- Other columns -->
-          <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
-            let-row="row">
+          <ng-template
+            *ngFor="let column of tJobExecColumns"
+            tdDataTableTemplate="{{ column.name }}"
+            let-value="value"
+            let-row="row"
+          >
             <div *ngIf="column.name !== 'select'" (click)="checkTJobExec(!row['selected'], row)" class="hover-pointer">
               <span>
                 <ng-container *ngIf="column.name === 'result'">
-                  <img *ngIf="!row.finished()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
-                  <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</mat-icon>
+                  <mat-spinner
+                  *ngIf="!row.finished()"
+                  strokeWidth="3"
+                  diameter="20"
+                  color="accent"
+                  style="vertical-align: middle; display: inline-block"
+                ></mat-spinner>
+                  <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{
+                    row.getResultIcon().name
+                  }}</mat-icon>
                 </ng-container>
                 <span *ngIf="column.name === 'startDate' || column.name === 'endDate'; else printOnlyValue">
-                  {{value | date:'dd/MM/yyyy HH:mm:ss'}}
+                  {{ value | date: 'dd/MM/yyyy HH:mm:ss' }}
                 </span>
-                <ng-template #printOnlyValue>
-                  {{value}}
-                </ng-template>
+                <ng-template #printOnlyValue> {{ value }} </ng-template>
               </span>
             </div>
           </ng-template>
           <!-- Select column -->
           <ng-template tdDataTableTemplate="select" let-value="value" let-row="row" let-column="column">
             <div fxLayout="row">
-              <mat-checkbox [checked]="selectedAbstractTJobExecs.get(row.id) ? true : false" (change)="checkAbstractTJobExec($event.checked, row)"></mat-checkbox>
+              <mat-checkbox
+                [checked]="selectedAbstractTJobExecs.get(row.id) ? true : false"
+                (change)="checkAbstractTJobExec($event.checked, row)"
+              ></mat-checkbox>
             </div>
           </ng-template>
         </td-data-table>
       </div>
-      <ng-template #noExecs>
-        <div class="push-top-sm">There are no Executions</div>
-      </ng-template>
+      <ng-template #noExecs> <div class="push-top-sm">There are no Executions</div> </ng-template>
     </ng-container>
     <mat-spinner strokeWidth="6" *ngIf="loadingExecs" color="accent" class="push-top-sm"></mat-spinner>
   </div>
-
-
 </mat-dialog-content>
 
 <mat-dialog-actions>

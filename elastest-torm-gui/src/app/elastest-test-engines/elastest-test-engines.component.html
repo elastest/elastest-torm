@@ -12,7 +12,7 @@
       <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
         <div fxLayout="row" class="optionsColumn">
           <ng-container #waitServiceReady *ngIf="(row.isCreated() && !row.isReady()) || (starting[row.name]!== undefined && starting[row.name] || stopping[row.name]!== undefined && stopping[row.name])">
-            <img class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px;">
+            <mat-spinner strokeWidth="3" diameter="20" color="accent" style="vertical-align: middle; display: inline-block"></mat-spinner>
           </ng-container>
 
           <button *ngIf="!row.isCreated() && starting[row.name]!== undefined && !starting[row.name] && stopping[row.name]!== undefined && !stopping[row.name]"

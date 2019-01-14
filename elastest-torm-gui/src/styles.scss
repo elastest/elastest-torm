@@ -57,10 +57,6 @@ td-layout-manage-list .mat-toolbar {
   margin-bottom: 11px !important;
 }
 
-table.td-data-table {
-  width: 100% !important;
-}
-
 mat-card-title > div {
   align-items: center;
 }
@@ -110,10 +106,23 @@ tbody > tr.td-data-table-row {
 //   padding: 0 15px 0 15px !important;
 // }
 
-.td-data-table-cell {
-  // Breaks table width on update Angular (09/01/2019)
-  // line-height: 40px !important;
-  line-height: 27px !important;
+// .td-data-table-cell,
+// .td-data-table-column {
+//   line-height: 28px !important;
+//   min-width: initial !important;
+//   max-width: initial !important;
+// }
+
+// // [style] set to override magically !important
+// body table.td-data-table[style] {
+//   width: 100% !important;
+// }
+// body td-data-table {
+//   display: inline !important;
+// }
+
+.td-data-table-cell > div > div {
+  flex-wrap: wrap;
 }
 
 textarea[autosize] {
@@ -164,6 +173,10 @@ td-data-table.useMaxHeight div {
 
 .overflowHidden {
   overflow: hidden !important;
+}
+
+.displayBlock {
+  display: block !important;
 }
 
 .floatRight {

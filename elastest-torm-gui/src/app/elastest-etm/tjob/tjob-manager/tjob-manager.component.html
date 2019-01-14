@@ -92,10 +92,10 @@
               (click)="viewTJobExec(row)" class="hover-pointer">
               <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
                 <ng-container *ngIf="column.name === 'result'">
-                  <img *ngIf="!row.finished()" class="iconBtn-lg pad-none" src="./assets/img/spinner.gif" style="width:23px;height: 23px; vertical-align: middle;">
+                  <mat-spinner *ngIf="!row.finished()" strokeWidth="3" diameter="20" color="accent" style="vertical-align: middle; display: inline-block"></mat-spinner>
                   <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</mat-icon>
                 </ng-container>
-                {{value}}
+                <span style="vertical-align: middle; margin-left: 4px;">{{value}}</span>
               </span>
               <ng-template #tjobSutValue>
                 <span *ngIf="row.hasSutExec()">{{row.sutExec.id}}</span>

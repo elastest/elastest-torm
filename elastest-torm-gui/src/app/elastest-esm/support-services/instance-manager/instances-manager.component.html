@@ -46,12 +46,12 @@
                             </button>
                         </div>
                         <ng-container *ngIf="!row.serviceReady || deleting && deleting[row.serviceName]">
-                            <img id="serviceSpinner-{{row.id}}" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px;">
+                            <mat-spinner id="serviceSpinner-{{row.id}}" strokeWidth="3" diameter="20" color="accent" style="vertical-align: middle; display: inline-block"></mat-spinner>
                         </ng-container>
                     </ng-template>
                 </td-data-table>
 
-            </sa-card-content>
+            </sa-card-content>  
         </self-adjustable-card>
     </auto-height-row>
 

@@ -3,6 +3,10 @@
   box-sizing: border-box !important;
 }
 
+:host /deep/ normal-height-row {
+  display: block !important;
+}
+
 :host {
   margin: 0 !important;
   width: 100% !important;

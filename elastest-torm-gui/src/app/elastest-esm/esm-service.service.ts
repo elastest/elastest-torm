@@ -23,7 +23,7 @@ export class EsmService {
   // TODO api call to /prov without tJobExec (backend)
   provisionServiceInstance(serviceId: string): Observable<any> {
     let url: string = this.configurationService.configModel.hostApi + '/esm/services/' + serviceId + '/prov';
-    return this.http.post(url, undefined, { observe: 'response' }).map((data: HttpResponse<any>) => data.body);
+    return this.http.post(url, undefined, { responseType: 'text' });
   }
 
   deprovisionServiceInstance(serviceInstanceId: string): Observable<any> {

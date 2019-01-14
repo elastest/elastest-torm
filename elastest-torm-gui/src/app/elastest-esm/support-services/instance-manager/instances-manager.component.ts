@@ -97,7 +97,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
     if (this.subscription === null || this.subscription === undefined) {
       console.log('Start polling for check tssInstance status');
       this.subscription = this.timer.subscribe(() => {
-        this.esmService.getSupportServicesInstances().subscribe((esmServicesInstances) => {
+        this.esmService.getSupportServicesInstances().subscribe((esmServicesInstances: EsmServiceInstanceModel[]) => {
           if (this.allServicesReady(esmServicesInstances)) {
             console.log('Stop polling for check tssInstance status');
             if (this.subscription !== undefined) {
