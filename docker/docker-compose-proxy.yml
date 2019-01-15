@@ -19,6 +19,11 @@ services:
             - ET_PASS=none
             - LOGSTASH_HOST=etm-logstash
             - LOGSTASH_HTTP_PATH=/
+        logging:
+          driver: "json-file"
+          options:
+            max-size: "50m"
+            max-file: "5"
 networks:
     elastest:
       driver: bridge
