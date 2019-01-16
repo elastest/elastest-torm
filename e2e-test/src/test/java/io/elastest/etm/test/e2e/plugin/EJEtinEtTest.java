@@ -37,8 +37,7 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
     @DisplayName("ETinET-Test: use plugin in a pipeline")
     void testETInETPluginInPipelineJob(ChromeDriver localDriver,
             TestInfo testInfo) throws Exception {
-        setupTestBrowser(testInfo, BrowserType.CHROME, "71.0.3578.80",
-                localDriver);
+        setupTestBrowser(testInfo, BrowserType.CHROME, "71", localDriver);
         navigateTo(driver, jenkinsCIUrl);
         loginOnJenkins(driver);
 
