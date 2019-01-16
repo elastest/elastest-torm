@@ -131,7 +131,11 @@ import { ChildTjobExecsViewComponent } from './elastest-etm/tjob-exec/child-tjob
 import { TjobExecViewComponent } from './elastest-etm/tjob-exec/tjob-exec-view/tjob-exec-view.component';
 import { ParentTjobExecReportViewComponent } from './elastest-etm/tjob-exec/parent-tjob-exec-report-view/parent-tjob-exec-report-view.component';
 import { CredentialsDialogComponent } from './shared/credentials-dialog/credentials-dialog.component';
-import { FlexLayoutModule } from '@angular/flex-layout';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faJenkins } from '@fortawesome/free-brands-svg-icons';
+
+library.add(faJenkins);
 
 @NgModule({
   declarations: [
@@ -222,6 +226,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
     CovalentHighlightModule,
     CovalentMarkdownModule,
+    FontAwesomeModule,
     FormsModule,
     HttpClientModule,
     InputTrimModule,

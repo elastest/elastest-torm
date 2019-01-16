@@ -6,3 +6,7 @@
 :host /deep/ span.td-layout-nav-toolbar-content > mat-icon.mat-icon-logo {
   height: 100%;
 }
+
+:host /deep/ mat-sidenav .mat-list-item-content fa-icon {
+  margin-right: 16px;
+}

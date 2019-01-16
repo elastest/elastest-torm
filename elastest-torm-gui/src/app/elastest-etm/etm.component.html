@@ -1,10 +1,7 @@
 <td-layout-nav navigationRoute="/" logo="assets:elastestlogo" id="main_nav">
-  <button mat-icon-button td-menu-button (click)="openMainSidenav()" id="main_menu">
-    <mat-icon>menu</mat-icon>
-  </button>
+  <button mat-icon-button td-menu-button (click)="openMainSidenav()" id="main_menu"><mat-icon>menu</mat-icon></button>
   <div td-toolbar-content fxLayout="row" fxLayoutMargin fxLayoutAlign="center center" fxFlex>
-    <breadcrumb fxFlex="80"></breadcrumb>
-    <span fxFlex></span>
+    <breadcrumb fxFlex="80"></breadcrumb> <span fxFlex></span>
     <div fxFlex fxLayoutAlign="end center">
       <button *ngIf="isReloadable()" mat-icon-button matTooltip="Refresh" (click)="refresh()">
         <mat-icon mat-list-icon>refresh</mat-icon>
@@ -18,77 +15,195 @@
       <button mat-icon-button matTooltip="Fullscreen" (click)="toggleFullscreen()">
         <mat-icon mat-list-icon>fullscreen</mat-icon>
       </button>
-      <button mat-icon-button matTooltip="Help" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/help']"
-        id="help">
+      <button
+        mat-icon-button
+        matTooltip="Help"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/help']"
+        id="help"
+      >
         <mat-icon mat-list-icon>help_outline</mat-icon>
       </button>
     </div>
   </div>
-  <td-layout-manage-list id="menusideLeft" #manageList [opened]="media.registerQuery('gt-sm') | async" [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
-    [sidenavWidth]="(media.registerQuery('gt-lg') | async) ? '244px' :
-                    (media.registerQuery('gt-sm') | async) ? '210px' : 
-                    (media.registerQuery('gt-xs') | async) ? '35%' : 
-                    '60%'">
+  <td-layout-manage-list
+    id="menusideLeft"
+    #manageList
+    [opened]="media.registerQuery('gt-sm') | async"
+    [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
+    [sidenavWidth]="
+      (media.registerQuery('gt-lg') | async)
+        ? '244px'
+        : (media.registerQuery('gt-sm') | async)
+        ? '210px'
+        : (media.registerQuery('gt-xs') | async)
+        ? '35%'
+        : '60%'
+    "
+  >
     <!-- <mat-toolbar td-sidenav-content>
       <span>ETM</span>
     </mat-toolbar> -->
     <mat-nav-list td-sidenav-content>
-      <a mat-list-item mat-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']"
-        [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/']" id="dashboard">
+      <a
+        mat-list-item
+        mat-ripple
+        class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/']"
+        id="dashboard"
+      >
         <mat-icon mat-list-icon>dashboard</mat-icon>
         Dashboard
       </a>
-      <a mat-list-item mat-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']"
-        [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/projects']" id="nav_projects">
+      <a
+        mat-list-item
+        mat-ripple
+        class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/projects']"
+        id="nav_projects"
+      >
         <mat-icon mat-list-icon>folder_multiple</mat-icon>
         Projects
       </a>
-      <a *ngIf="configService.configModel.elasTestExecMode !== 'experimental'" mat-list-item (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple class="block relative" mat-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/eus']" id="nav_integrated_eus">
+      <a
+        *ngIf="configService.configModel.elasTestExecMode !== 'experimental'"
+        mat-list-item
+        (click)="!media.query('gt-sm') && manageList.close()"
+        mat-ripple
+        class="block relative"
+        mat-ripple
+        class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/eus']"
+        id="nav_integrated_eus"
+      >
         <mat-icon mat-list-icon>open_in_browser</mat-icon>
         Web Browsers
       </a>
-      <a *ngIf="configService.configModel.elasTestExecMode !== 'normal'" mat-list-item (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple class="block relative" mat-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/test-engines']" id="nav_test_engines">
+      <a
+        *ngIf="configService.configModel.elasTestExecMode !== 'normal'"
+        mat-list-item
+        (click)="!media.query('gt-sm') && manageList.close()"
+        mat-ripple
+        class="block relative"
+        mat-ripple
+        class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/test-engines']"
+        id="nav_test_engines"
+      >
         <mat-icon mat-list-icon>battery_charging_full</mat-icon>
         Test Engines
       </a>
-      <a *ngIf="configService.configModel.elasTestExecMode !== 'normal'" mat-list-item (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple class="block relative" mat-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/support-services']" id="nav_support_services">
+      <a
+        *ngIf="configService.configModel.elasTestExecMode !== 'normal'"
+        mat-list-item
+        (click)="!media.query('gt-sm') && manageList.close()"
+        mat-ripple
+        class="block relative"
+        mat-ripple
+        class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/support-services']"
+        id="nav_support_services"
+      >
         <mat-icon mat-list-icon>settings_input_component</mat-icon>
         Test Support Services
       </a>
-      <a mat-list-item (click)="!media.query('gt-sm') && manageList.close()" mat-ripple class="block relative" mat-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/loganalyzer']" id="nav_log_manager">
+      <a
+        mat-list-item
+        (click)="!media.query('gt-sm') && manageList.close()"
+        mat-ripple
+        class="block relative"
+        mat-ripple
+        class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/loganalyzer']"
+        id="nav_log_manager"
+      >
         <mat-icon mat-list-icon>library_books</mat-icon>
         Log Analyzer
       </a>
 
-      <a mat-list-item (click)="!media.query('gt-sm') && manageList.close()" mat-ripple class="block relative" mat-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/testlink']" id="nav_testlink">
+      <a
+        mat-list-item
+        (click)="!media.query('gt-sm') && manageList.close()"
+        mat-ripple
+        class="block relative"
+        mat-ripple
+        class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/testlink']"
+        id="nav_testlink"
+      >
         <mat-icon mat-list-icon>gps_not_fixed</mat-icon>
         TestLink
       </a>
-      <a mat-list-item (click)="!media.query('gt-sm') && manageList.close()" mat-ripple class="block relative" mat-ripple class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
-        [routerLink]="['/jenkins']" id="nav_jenkins">
-        <mat-icon mat-list-icon>face</mat-icon>
+      <a
+        mat-list-item
+        (click)="!media.query('gt-sm') && manageList.close()"
+        mat-ripple
+        class="block relative"
+        mat-ripple
+        class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/jenkins']"
+        id="nav_jenkins"
+      >
+        <!-- <mat-icon mat-list-icon>face</mat-icon> -->
+        <fa-icon mat-list-icon [icon]="['fab', 'jenkins']"></fa-icon>
         Jenkins
       </a>
-      <a *ngIf="configService.configModel.elasTestExecMode === 'experimental'" mat-list-item (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple class="block relative" mat-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/edm']" id="nav_edm">
+      <a
+        *ngIf="configService.configModel.elasTestExecMode === 'experimental'"
+        mat-list-item
+        (click)="!media.query('gt-sm') && manageList.close()"
+        mat-ripple
+        class="block relative"
+        mat-ripple
+        class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/edm']"
+        id="nav_edm"
+      >
         <mat-icon mat-list-icon>storage</mat-icon>
         Data Manager (EDM)
       </a>
-      <a *ngIf="configService.configModel.elasTestExecMode === 'experimental'" mat-list-item (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple class="block relative" mat-ripple class="block relative" (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}" [routerLink]="['/emp']" id="nav_emp">
+      <a
+        *ngIf="configService.configModel.elasTestExecMode === 'experimental'"
+        mat-list-item
+        (click)="!media.query('gt-sm') && manageList.close()"
+        mat-ripple
+        class="block relative"
+        mat-ripple
+        class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/emp']"
+        id="nav_emp"
+      >
         <mat-icon mat-list-icon>insert_chart</mat-icon>
         Monitoring Platfrom (EMP)
       </a>
