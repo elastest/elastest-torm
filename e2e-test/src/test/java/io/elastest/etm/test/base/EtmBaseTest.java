@@ -1004,6 +1004,7 @@ public class EtmBaseTest {
             }
             caps.setCapability("testName", testName);
             if (!browserVersion.equals(BROWSER_VERSION_LATEST)){
+                log.info("Use this browser version: {}", browserVersion);
                 caps.setVersion(browserVersion);
             }
             this.driver = new RemoteWebDriver(new URL(eusURL), caps);
