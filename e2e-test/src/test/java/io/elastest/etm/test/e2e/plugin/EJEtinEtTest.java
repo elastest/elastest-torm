@@ -37,10 +37,10 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
     @DisplayName("ETinET-Test: use plugin in a pipeline")
     void testETInETPluginInPipelineJob(ChromeDriver localDriver,
             TestInfo testInfo) throws Exception {
-        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
+        setupTestBrowser(testInfo, BrowserType.CHROME, "71", localDriver);
         navigateTo(driver, jenkinsCIUrl);
         loginOnJenkins(driver);
-        
+
         try {
             if (!isJobCreated(jobName)) {
                 driver.findElement(By.linkText("New Item")).click();
@@ -52,8 +52,8 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
             goToElasTest(driver);
             log.info("Wait for TJob end with sucess");
             checkFinishTJobExec(driver, 180, "SUCCESS", false);
-        }finally {
-            //deletePipelineJob(driver, jobName);
+        } finally {
+            // deletePipelineJob(driver, jobName);
         }
     }
 

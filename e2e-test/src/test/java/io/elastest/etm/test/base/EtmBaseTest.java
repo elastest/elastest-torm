@@ -66,6 +66,7 @@ import io.github.bonigarcia.wdm.ChromeDriverManager;
 import io.github.bonigarcia.wdm.FirefoxDriverManager;
 
 public class EtmBaseTest {
+    protected static final String BROWSER_VERSION_LATEST = "latest";
     protected final Logger log = getLogger(lookup().lookupClass());
 
     protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
@@ -981,9 +982,14 @@ public class EtmBaseTest {
             return null;
         }
     }
-
     public void setupTestBrowser(TestInfo testInfo, BrowserType browser,
             WebDriver driver) throws MalformedURLException {
+        setupTestBrowser(testInfo, browser, "latest", driver);
+    }
+
+    public void setupTestBrowser(TestInfo testInfo, BrowserType browser,
+            String browserVersion, WebDriver driver)
+            throws MalformedURLException {
         String testName = testInfo.getTestMethod().get().getName();
 
         log.info("EUS hub URL: {}", eusURL);
@@ -997,6 +1003,9 @@ public class EtmBaseTest {
                 caps.setBrowserName("firefox");
             }
             caps.setCapability("testName", testName);
+            if (!browserVersion.equals(BROWSER_VERSION_LATEST)){
+                caps.setVersion(browserVersion);
+            }
             this.driver = new RemoteWebDriver(new URL(eusURL), caps);
             driver = this.driver;
         } else {
