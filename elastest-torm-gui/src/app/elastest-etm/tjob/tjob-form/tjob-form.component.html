@@ -1,7 +1,6 @@
 <mat-card tdMediaToggle="gt-xs" [mediaClasses]="['push']">
   <mat-card-title>
-    <span *ngIf="tJob && tJob.id == 0">New TJob</span>
-    <span *ngIf="tJob && tJob.id > 0">Edit TJob "{{tJob.name}}"</span>
+    <span *ngIf="tJob && tJob.id == 0">New TJob</span> <span *ngIf="tJob && tJob.id > 0">Edit TJob "{{ tJob.name }}"</span>
   </mat-card-title>
   <mat-divider></mat-divider>
   <mat-card-content class="push-bottom-none">
@@ -10,34 +9,66 @@
         <mat-spinner strokeWidth="6" color="accent" class="push-top-sm"></mat-spinner>
       </ng-container>
       <ng-template #showForm>
-        <div fxLayout.gt-md="row" fxLayout.md="row" fxLayout="column" class="push-top push-bottom">
+        <div fxLayout.gt-md="row" fxLayout.md="row" fxLayout="column" class="push-top push-bottom" fxLayoutAlign="start center">
           <mat-form-field fxFlex.gt-md="20" fxFlex.md="20">
-            <input matInput trim="blur" #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="TJob Name"
-              [(ngModel)]="tJob.name" name="tJobName" maxlength="80" #tjobNameInput required>
+            <input
+              matInput
+              trim="blur"
+              #tJobFormElement
+              #tJobFormControl="ngModel"
+              type="text"
+              placeholder="TJob Name"
+              [(ngModel)]="tJob.name"
+              name="tJobName"
+              maxlength="80"
+              #tjobNameInput
+              required
+            />
           </mat-form-field>
 
-          <mat-form-field fxFlex.gt-md="20" fxFlex.md="20" fxFlexOffset.md="5" fxFlexOffset.gt-md="5">
-            <input matInput trim="blur" #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="Test Results Path"
-              [(ngModel)]="tJob.resultsPath" name="resultsPath" maxlength="200">
+          <mat-form-field fxFlex.gt-md="30" fxFlex.md="30" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
+            <input
+              matInput
+              trim="blur"
+              #tJobFormElement
+              #tJobFormControl="ngModel"
+              type="text"
+              placeholder="Test Results Path"
+              [(ngModel)]="tJob.resultsPath"
+              name="resultsPath"
+              maxlength="200"
+            />
           </mat-form-field>
 
-          <div *ngIf="tJob.project !== undefined" class="push-top push-bottom" fxFlex.gt-md="30" fxFlex.md="30"
-            fxFlexOffset.md="5" fxFlexOffset.gt-md="5">
-            <mat-select [(ngModel)]="tJob.sut" placeholder="Select a SuT" required name="tJobSut">
+          <div
+            *ngIf="tJob.project !== undefined"
+            class="push-top push-bottom"
+            fxFlex.gt-md="30"
+            fxFlex.md="30"
+            fxFlexOffset.md="2"
+            fxFlexOffset.gt-md="2"
+          >
+            <mat-select [(ngModel)]="tJob.sut" placeholder="Select a SuT" required name="tJobSut" fxFlex="50">
               <mat-option [value]="sutEmpty">None</mat-option>
-              <mat-option *ngFor="let sut of tJob.project.suts" [value]="sut">
-                {{sut.name}}
-              </mat-option>
+              <mat-option *ngFor="let sut of tJob.project.suts" [value]="sut"> {{ sut.name }} </mat-option>
             </mat-select>
-            <span class="push-left">
-              <strong>Current SuT: </strong>{{currentSut}}</span>
+            <span class="push-left" fxFlex="50"> <strong>Current SuT: </strong>{{ currentSut }}</span>
           </div>
         </div>
 
         <div fxLayout.gt-md="row" fxLayout.md="row" fxLayout="column" class="push-top push-bottom">
-          <mat-form-field fxFlex.gt-md="50" fxFlex.md="50">
-            <input matInput trim="blur" #tJobFormElement #tJobFormControl="ngModel" type="text" placeholder="Environment docker image"
-              [(ngModel)]="tJob.imageName" name="tJobImageName" required>
+          <mat-form-field fxFlex>
+            <input
+              matInput
+              trim="blur"
+              #tJobFormElement
+              #tJobFormControl="ngModel"
+              type="text"
+              placeholder="Environment docker image"
+              [(ngModel)]="tJob.imageName"
+              name="tJobImageName"
+              required
+            />
           </mat-form-field>
         </div>
 
@@ -46,59 +77,76 @@
           <mat-checkbox [(ngModel)]="useImageCommand" name="toggleCommands">Use docker image command</mat-checkbox>
           <div fxLayout="column" *ngIf="!useImageCommand" class="push-top">
             <mat-form-field>
-              <textarea id="commands" rows="10" matInput #tJobFormElement #tJobFormControl="ngModel" placeholder="Commands"
-                [(ngModel)]="tJob.commands" name="commands" required></textarea>
+              <textarea
+                id="commands"
+                rows="10"
+                matInput
+                #tJobFormElement
+                #tJobFormControl="ngModel"
+                placeholder="Commands"
+                [(ngModel)]="tJob.commands"
+                name="commands"
+                required
+              ></textarea>
             </mat-form-field>
             <div class="push-bottom">
-              <td-message #dockerTypeInfo label="{{commandsHelpHeadMessage}}" sublabel="{{commandsHelpMessage}}" color="primary"
-                icon="info">
+              <td-message
+                #dockerTypeInfo
+                label="{{ commandsHelpHeadMessage }}"
+                sublabel="{{ commandsHelpMessage }}"
+                color="primary"
+                icon="info"
+              >
               </td-message>
             </div>
           </div>
         </div>
 
-
         <!-- Multi Config -->
         <div fxLayout="column" class="push-bottom">
-          <mat-checkbox class="push-bottom" matTooltip="Activate Multi Configuration" id="multiConfigCheckbox"
-            [(ngModel)]="tJob.multi" name="multiConfigCheckbox">Activate Multi Configuration TJob</mat-checkbox>
+          <mat-checkbox
+            class="push-bottom"
+            matTooltip="Activate Multi Configuration"
+            id="multiConfigCheckbox"
+            [(ngModel)]="tJob.multi"
+            name="multiConfigCheckbox"
+            >Activate Multi Configuration TJob</mat-checkbox
+          >
 
           <td-expansion-panel *ngIf="tJob.multi" expand="true">
-            <ng-template td-expansion-panel-label>
-              <span>Multi Config Axis</span>
-            </ng-template>
-            <div class="pad">
-              <multi-config-view [model]="tJob.multiConfigurations"></multi-config-view>
-            </div>
+            <ng-template td-expansion-panel-label> <span>Multi Config Axis</span> </ng-template>
+            <div class="pad"><multi-config-view [model]="tJob.multiConfigurations"></multi-config-view></div>
           </td-expansion-panel>
         </div>
 
         <!-- Parameters -->
         <td-expansion-panel expand="true" class="push-bottom">
-          <ng-template td-expansion-panel-label>
-            <span>Parameters</span>
-          </ng-template>
-          <div class="pad">
-            <parameters-view [model]="tJob.parameters"></parameters-view>
-          </div>
+          <ng-template td-expansion-panel-label> <span>Parameters</span> </ng-template>
+          <div class="pad"><parameters-view [model]="tJob.parameters"></parameters-view></div>
         </td-expansion-panel>
-
 
         <!-- ESM services -->
         <td-expansion-panel expand="true" class="push-bottom" *ngIf="esmServicesCatalog.length > 0">
-          <ng-template td-expansion-panel-label>
-            <span>Test Support Services</span>
-          </ng-template>
+          <ng-template td-expansion-panel-label> <span>Test Support Services</span> </ng-template>
           <div class="pad" fxLayout="column">
             <div *ngFor="let service of esmServicesCatalog; let i = index" fxLayout="row">
               <div fxLayout="row" fxLayoutAlign="center center" class="push-bottom">
-                <mat-checkbox #service{{i}} [(ngModel)]="service.selected" title="Select {{service.name}}" id="service{{service.name}}"
-                  name="service{{service.name}}"></mat-checkbox>
+                <mat-checkbox
+                  #service{{i}}
+                  [(ngModel)]="service.selected"
+                  title="Select {{ service.name }}"
+                  id="service{{ service.name }}"
+                  name="service{{ service.name }}"
+                ></mat-checkbox>
               </div>
-              <td-expansion-panel fxFlex id="service{{service.name}}Expansion" expand="false" class="push-bottom push-left-sm" *ngIf="service.getConfigKeys().length > 0; else onlyName">
-                <ng-template td-expansion-panel-label>
-                  {{service.name}}
-                </ng-template>
+              <td-expansion-panel
+                fxFlex
+                id="service{{ service.name }}Expansion"
+                expand="false"
+                class="push-bottom push-left-sm"
+                *ngIf="service.getConfigKeys().length > 0; else onlyName"
+              >
+                <ng-template td-expansion-panel-label> {{ service.name }} </ng-template>
                 <div class="pad" fxLayout="row">
                   <span *ngFor="let key of service.getConfigKeys()">
                     <esm-support-service-config-view [model]="service.manifest.config[key]"></esm-support-service-config-view>
@@ -106,39 +154,60 @@
                 </div>
               </td-expansion-panel>
               <ng-template #onlyName>
-                <span class="mat-subhead" style="margin-left: 25px !important;">
-                  {{service.name}}
-                </span>
+                <span class="mat-subheading-1" style="margin-left: 25px !important;"> {{ service.name }} </span>
               </ng-template>
             </div>
           </div>
         </td-expansion-panel>
 
         <!-- Monitoring config -->
-        <td-expansion-panel expand="true" class="push-bottom" *ngIf="tJob.execDashboardConfigModel !== undefined && tJob.execDashboardConfigModel !== null">
-          <ng-template td-expansion-panel-label>
-            <span>Metrics and logs</span>
-          </ng-template>
+        <td-expansion-panel
+          expand="true"
+          class="push-bottom"
+          *ngIf="tJob.execDashboardConfigModel !== undefined && tJob.execDashboardConfigModel !== null"
+        >
+          <ng-template td-expansion-panel-label> <span>Metrics and logs</span> </ng-template>
           <div class="pad">
             <mat-card-subtitle>Metrics</mat-card-subtitle>
-            <ng-container *ngIf="tJob.execDashboardConfigModel.showAllInOne !== undefined && tJob.execDashboardConfigModel.showAllInOne !== null">
+            <ng-container
+              *ngIf="
+                tJob.execDashboardConfigModel.showAllInOne !== undefined && tJob.execDashboardConfigModel.showAllInOne !== null
+              "
+            >
               <span class="push-right">
-                <mat-checkbox #showAllInOne [(ngModel)]="tJob.execDashboardConfigModel.showAllInOne" name="showAllInOneCheckbox">All-in-one
-                  chart</mat-checkbox>
+                <mat-checkbox #showAllInOne [(ngModel)]="tJob.execDashboardConfigModel.showAllInOne" name="showAllInOneCheckbox"
+                  >All-in-one chart</mat-checkbox
+                >
               </span>
             </ng-container>
-            <ng-container *ngIf="tJob.execDashboardConfigModel.allMetricsFields !== undefined && tJob.execDashboardConfigModel.allMetricsFields !== null">
-              <span class="push-right" *ngFor="let metric of tJob.execDashboardConfigModel.allMetricsFields.fieldsList; let i = index">
-                <mat-checkbox #metric{{i}} [(ngModel)]="metric.activated" name="metric{{i}}Checkbox">{{metric.name}}</mat-checkbox>
+            <ng-container
+              *ngIf="
+                tJob.execDashboardConfigModel.allMetricsFields !== undefined &&
+                tJob.execDashboardConfigModel.allMetricsFields !== null
+              "
+            >
+              <span
+                class="push-right"
+                *ngFor="let metric of tJob.execDashboardConfigModel.allMetricsFields.fieldsList; let i = index"
+              >
+                <mat-checkbox #metric{{i}} [(ngModel)]="metric.activated" name="metric{{ i }}Checkbox">{{
+                  metric.name
+                }}</mat-checkbox>
               </span>
             </ng-container>
           </div>
 
           <div class="pad">
             <mat-card-subtitle>Logs</mat-card-subtitle>
-            <ng-container *ngIf="tJob.execDashboardConfigModel.allLogsTypes !== undefined && tJob.execDashboardConfigModel.allLogsTypes !== null">
+            <ng-container
+              *ngIf="
+                tJob.execDashboardConfigModel.allLogsTypes !== undefined && tJob.execDashboardConfigModel.allLogsTypes !== null
+              "
+            >
               <span class="push-right" *ngFor="let log of tJob.execDashboardConfigModel.allLogsTypes.logsList; let i = index">
-                <mat-checkbox #log{{i}} [hidden]="hideSut(log)" [(ngModel)]="log.activated" name="log{{i}}Checkbox">{{log.name}}</mat-checkbox>
+                <mat-checkbox #log{{i}} [hidden]="hideSut(log)" [(ngModel)]="log.activated" name="log{{ i }}Checkbox">{{
+                  log.name
+                }}</mat-checkbox>
               </span>
             </ng-container>
           </div>
@@ -148,7 +217,9 @@
   </mat-card-content>
   <mat-divider></mat-divider>
   <mat-card-actions>
-    <button mat-button [disabled]="tJob === undefined || (tJobForm && !tJobForm.valid)" color="primary" (click)="save()">SAVE</button>
+    <button mat-button [disabled]="tJob === undefined || (tJobForm && !tJobForm.valid)" color="primary" (click)="save()">
+      SAVE
+    </button>
     <button mat-button color="primary" (click)="cancel()">CANCEL</button>
   </mat-card-actions>
 </mat-card>

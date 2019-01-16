@@ -10,7 +10,7 @@
           <mat-icon>play_circle_outline</mat-icon> Start Jenkins
         </button>
         <ng-template #showProgress>
-          <div class="mat-subhead" *ngIf="jenkinsModel && jenkinsModel.statusMsg">
+          <div class="mat-subheading-1" *ngIf="jenkinsModel && jenkinsModel.statusMsg">
             {{ jenkinsModel.statusMsg }}
           </div>
           <mat-spinner strokeWidth="6" color="accent" class="push-top-sm"></mat-spinner>

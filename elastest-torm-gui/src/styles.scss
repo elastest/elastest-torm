@@ -143,9 +143,15 @@ textarea[autosize] {
 
 //
 #dataTable > div,
-.scroll_table div {
+.scroll_table > div {
   max-height: 74vh !important;
 }
+
+#dataTable table,
+.scroll_table table {
+  overflow-y: auto !important;
+}
+
 td-data-table {
   border-bottom: 0 !important;
 }
@@ -156,11 +162,6 @@ td-data-table {
 
 td-data-table.useMaxHeight div {
   max-height: 100% !important;
-}
-
-#dataTable table,
-.scroll_table table {
-  overflow-y: auto !important;
 }
 
 .tableCodeField {

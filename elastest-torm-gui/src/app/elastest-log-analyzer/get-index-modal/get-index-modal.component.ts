@@ -1,5 +1,4 @@
 import { minDate, maxDate } from '../utils/Utils';
-import { TJobService } from '../../elastest-etm/tjob/tjob.service';
 import { ProjectService } from '../../elastest-etm/project/project.service';
 import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { TJobExecService } from '../../elastest-etm/tjob-exec/tjobExec.service';
@@ -46,8 +45,8 @@ export class GetIndexModalComponent implements OnInit {
 
   // TJob Exec Data
   tJobExecColumns: any[] = [
-    { name: 'select', label: 'Select' },
-    { name: 'id', label: 'Id' },
+    { name: 'select', label: 'Select', width: 70 },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'result', label: 'Result' },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
@@ -55,7 +54,6 @@ export class GetIndexModalComponent implements OnInit {
 
   constructor(
     private projectService: ProjectService,
-    private tJobService: TJobService,
     private tJobExecService: TJobExecService,
     private externalService: ExternalService,
     private dialogRef: MatDialogRef<GetIndexModalComponent>,
@@ -132,17 +130,23 @@ export class GetIndexModalComponent implements OnInit {
     this.loadingExecs = true;
     if (this.internalSelected) {
       if (abstractTJob instanceof TJobModel) {
-        this.tJobExecService.getTJobsExecutions(abstractTJob).subscribe((execs: TJobExecModel[]) => {
-          this.abstractTJobExecs = execs.reverse();
-          this.loadingExecs = false;
-        }, (error: Error) => (this.loadingExecs = false));
+        this.tJobExecService.getTJobsExecutions(abstractTJob).subscribe(
+          (execs: TJobExecModel[]) => {
+            this.abstractTJobExecs = execs.reverse();
+            this.loadingExecs = false;
+          },
+          (error: Error) => (this.loadingExecs = false),
+        );
       }
     } else {
       if (abstractTJob instanceof ExternalTJobModel) {
-        this.externalService.getExternalTJobExecsByExternalTJobId(abstractTJob.id).subscribe((execs: ExternalTJobExecModel[]) => {
-          this.abstractTJobExecs = execs.reverse();
-          this.loadingExecs = false;
-        }, (error: Error) => (this.loadingExecs = false));
+        this.externalService.getExternalTJobExecsByExternalTJobId(abstractTJob.id).subscribe(
+          (execs: ExternalTJobExecModel[]) => {
+            this.abstractTJobExecs = execs.reverse();
+            this.loadingExecs = false;
+          },
+          (error: Error) => (this.loadingExecs = false),
+        );
       }
     }
   }

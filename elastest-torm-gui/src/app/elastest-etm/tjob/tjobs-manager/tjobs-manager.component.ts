@@ -30,13 +30,13 @@ export class TJobsManagerComponent implements OnInit {
 
   // TJob Data
   tjobColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
     { name: 'imageName', label: 'Image Name' },
     { name: 'lastExecutionDate', label: 'Last Execution' },
-    { name: 'result', label: 'Result' },
-    { name: 'sut', label: 'Sut' },
-    { name: 'multi', label: 'Multi Axis' },
+    { name: 'result', label: 'Result', width: 74 },
+    { name: 'sut', label: 'Sut', width: 80 },
+    { name: 'multi', label: 'Multi Axis', width: 92 },
     { name: 'options', label: 'Options' },
   ];
 

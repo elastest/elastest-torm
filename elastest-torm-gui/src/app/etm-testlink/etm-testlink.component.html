@@ -10,7 +10,7 @@
                     <mat-icon>play_circle_outline</mat-icon> Start TestLink
                 </button>
                 <ng-template #showProgress>
-                    <div class="mat-subhead" *ngIf="testLinkModel && testLinkModel.statusMsg">
+                    <div class="mat-subheading-1" *ngIf="testLinkModel && testLinkModel.statusMsg">
                         {{ testLinkModel.statusMsg }}
                     </div>
                     <mat-spinner strokeWidth="6" color="accent" class="push-top-sm"></mat-spinner>

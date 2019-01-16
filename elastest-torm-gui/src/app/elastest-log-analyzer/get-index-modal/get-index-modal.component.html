@@ -80,6 +80,7 @@
           [sortable]="false"
           [sortBy]="sortBy"
           [sortOrder]="sortOrder"
+          [resizableColumns]="true"
         >
           <!-- Other columns -->
           <ng-template
@@ -92,12 +93,12 @@
               <span>
                 <ng-container *ngIf="column.name === 'result'">
                   <mat-spinner
-                  *ngIf="!row.finished()"
-                  strokeWidth="3"
-                  diameter="20"
-                  color="accent"
-                  style="vertical-align: middle; display: inline-block"
-                ></mat-spinner>
+                    *ngIf="!row.finished()"
+                    strokeWidth="3"
+                    diameter="20"
+                    color="accent"
+                    style="vertical-align: middle; display: inline-block"
+                  ></mat-spinner>
                   <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{
                     row.getResultIcon().name
                   }}</mat-icon>

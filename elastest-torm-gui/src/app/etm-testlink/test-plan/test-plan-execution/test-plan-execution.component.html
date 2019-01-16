@@ -41,7 +41,7 @@
               </span>
             </div>
             <div fxLayout="row" class="push-top-sm">
-              <span id="resultMsgText" class="mat-subhead" style="vertical-align: middle;">{{ exTJobExec.resultMsg }}</span>
+              <span id="resultMsgText" class="mat-subheading-1" style="vertical-align: middle;">{{ exTJobExec.resultMsg }}</span>
             </div>
           </div>
         </mat-card-title>
@@ -74,7 +74,7 @@
           <ng-template #showMessage>
             <div fxLayoutAlign="center center" fxLayout="column" fxFlexFill>
               <div class="mat-headline text-center">{{ executionCardMsg }}</div>
-              <div class="mat-subhead text-center" *ngIf="execFinished">{{ executionCardSubMsg }}</div>
+              <div class="mat-subheading-1 text-center" *ngIf="execFinished">{{ executionCardSubMsg }}</div>
             </div>
           </ng-template>
         </mat-card-content>
@@ -110,7 +110,7 @@
               fxLayout="row"
               class="push-top-sm"
             >
-              <span id="resultMsgText" class="mat-subhead" style="vertical-align: middle;">{{ eusTestModel.statusMsg }}</span>
+              <span id="resultMsgText" class="mat-subheading-1" style="vertical-align: middle;">{{ eusTestModel.statusMsg }}</span>
             </div>
           </div>
         </mat-card-title>

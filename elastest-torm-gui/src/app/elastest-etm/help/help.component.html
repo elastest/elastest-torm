@@ -8,7 +8,7 @@
             <span style="vertical-align: middle;">About ElasTest</span>
           </span>
           <span fxFlex></span>
-          <span *ngIf="etCurrentVersion" class="mat-subhead tc-grey-600 pad-right-sm">
+          <span *ngIf="etCurrentVersion" class="mat-subheading-1 tc-grey-600 pad-right-sm">
             <span>ElasTest version:&nbsp;</span> <span id="etVersion">{{ etCurrentVersion }}</span>
           </span>
         </div>
@@ -19,14 +19,14 @@
           <span> ElasTest Main Services </span> <span fxFlex></span>
           <span>
             <div fxLayout="row">
-              <span *ngIf="lastRefresh" class="mat-subhead tc-grey-600 pad-right-sm">
+              <span *ngIf="lastRefresh" class="mat-subheading-1 tc-grey-600 pad-right-sm">
                 <span>Last refresh: </span> <span> {{ lastRefresh | timeAgo }} ({{ lastRefresh | date: 'HH:mm:ss' }})</span>
               </span>
 
               <mat-icon color="accent" class="hover-pointer pad-right-sm" (click)="init()" mat-tooltip="Refresh now"
                 >sync</mat-icon
               >
-              <span class="mat-subhead pad-right-sm">AutoRefresh:</span>
+              <span class="mat-subheading-1 pad-right-sm">AutoRefresh:</span>
               <mat-checkbox
                 #autorefresh
                 [checked]="autorefreshEnabled"
