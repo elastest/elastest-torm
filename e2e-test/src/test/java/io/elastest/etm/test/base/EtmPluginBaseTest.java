@@ -1,8 +1,8 @@
 package io.elastest.etm.test.base;
 
 import static java.lang.System.getProperty;
-import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
+import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 
 import java.io.IOException;
 
@@ -204,15 +204,15 @@ public class EtmPluginBaseTest extends EtmBaseTest {
             String script) {
         log.info("Creating a Pipeline Job");
         driver.findElement(By.id("name")).sendKeys(jobName);
-
         log.info("Select the Job's type");
         driver.findElement(By.xpath("//li[contains(string(), 'Pipeline')]"))
                 .click();
-        driver.findElement(By.id("ok-button")).click();
-
+        WebDriverWait waitForOkButton = new WebDriverWait(driver, 5);
+        By okButtonId = By.id("ok-button");
+        waitForOkButton.until(elementToBeClickable(okButtonId));
+        driver.findElement(okButtonId).click();
         driver.findElement(By.xpath("//*[@id=\"workflow-editor-1\"]/textarea"))
                 .sendKeys(script);
-
         driver.findElement(By.xpath("//button[contains(string(), 'Save')]"))
                 .click();
     }
