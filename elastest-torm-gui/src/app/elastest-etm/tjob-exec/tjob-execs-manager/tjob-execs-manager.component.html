@@ -1,4 +1,4 @@
-<div fxLayout.gt-xl="row" fxLayout="column" class="push-top-none" fxFlexFill>
+<div fxLayout="row" fxLayout.lt-xl="column" class="push-top-none" fxFlexFill>
   <auto-height-grid fxFlex.gt-lg="1 1 50">
     <self-adjustable-card>
       <sa-card-title>TJob Executions Running</sa-card-title>
@@ -28,6 +28,7 @@
           [sortable]="false"
           [sortBy]="sortBy"
           [sortOrder]="sortOrder"
+          [resizableColumns]="true"
         >
           <ng-template
             *ngFor="let column of tJobExecColumns"
@@ -116,6 +117,7 @@
           [sortable]="false"
           [sortBy]="sortBy"
           [sortOrder]="sortOrder"
+          [resizableColumns]="true"
         >
           <ng-template
             *ngFor="let column of tJobExecColumns"

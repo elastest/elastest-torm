@@ -54,7 +54,9 @@ td-layout-manage-list .mat-toolbar {
 
 .mat-card mat-card-title {
   padding-top: 11px !important;
-  margin-bottom: 11px !important;
+}
+.mat-card mat-card-title:last-child {
+  padding-bottom: 11px !important;
 }
 
 mat-card-title > div {
@@ -92,8 +94,12 @@ a.normalTextLink {
   text-overflow: ellipsis !important;
 }
 
-thead > tr.td-data-table-row {
-  height: 36px !important;
+td-data-table {
+  overflow-x: auto !important;
+}
+
+thead > tr.td-data-table-column-row {
+  height: 38px !important;
 }
 
 tbody > tr.td-data-table-row {
@@ -162,7 +168,7 @@ td-data-table.useMaxHeight div {
 
 .optionsColumn {
   :first-child {
-    padding-left: 0px !important;
+    // padding-left: 0px !important;
   }
 }
 

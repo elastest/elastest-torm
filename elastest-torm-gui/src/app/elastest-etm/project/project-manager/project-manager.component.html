@@ -25,11 +25,11 @@
     </div>
   </normal-height-row>
 
-  <auto-height-row *ngIf="project" fxLayout="column" fxLayout.gt-xl="row" tdMediaToggle="gt-xs">
-    <auto-height-grid fxFlex.gt-lg="1 0 50" fxLayout="column">
+  <auto-height-row *ngIf="project" fxLayout="row" fxLayout.lt-xl="column" tdMediaToggle="gt-xs">
+    <auto-height-grid fxFlex.gt-lg="50" fxLayout="column">
       <etm-tjobs-manager *ngIf="projectId" [projectId]="projectId" fxLayout="column" fxFlexFill></etm-tjobs-manager>
     </auto-height-grid>
-    <auto-height-grid fxFlex.gt-lg="1 0 50" fxLayout="column">
+    <auto-height-grid fxFlex.gt-lg="50" fxLayout="column">
       <etm-suts-manager *ngIf="projectId" [projectId]="projectId" fxLayout="column" fxFlexFill></etm-suts-manager>
     </auto-height-grid>
   </auto-height-row>

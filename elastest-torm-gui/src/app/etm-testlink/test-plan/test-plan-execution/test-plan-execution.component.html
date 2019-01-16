@@ -1,4 +1,4 @@
-<div fxLayout="row" fxLayout.gt-xl="row" tdMediaToggle="gt-xs" fxFlexFill>
+<div fxLayout="row" tdMediaToggle="gt-xs" fxFlexFill>
   <div fxFlex.gt-sm="40" fxLayout.gt-sm="column" fxFlexFill>
     <mat-card tdMediaToggle="gt-xs" fxFlex style="overflow: auto;">
       <div fxLayout="column" fxFlexFill>
@@ -6,15 +6,31 @@
           <div fxLayout="column" fxLayoutAlign="none" *ngIf="exTJobExec">
             <div fxLayout="row">
               <span>
-                <button mat-button *ngIf="exTJobExec.finished()" (click)="viewEndedTJobExec()" class="onlyIconBtn" title="Navigate to result page">
-                  <mat-icon style="vertical-align: middle;" [style.color]="this.exTJobExec.getResultIcon().color">{{this.exTJobExec.getResultIcon().name}}</mat-icon>
+                <button
+                  mat-button
+                  *ngIf="exTJobExec.finished()"
+                  (click)="viewEndedTJobExec()"
+                  class="onlyIconBtn"
+                  title="Navigate to result page"
+                >
+                  <mat-icon style="vertical-align: middle;" [style.color]="this.exTJobExec.getResultIcon().color">{{
+                    this.exTJobExec.getResultIcon().name
+                  }}</mat-icon>
                 </button>
               </span>
-              <span id="executingTitle">Executing Test Plan "{{testPlan.name}}" - Build "{{selectedBuild.name}}"- Exec {{exTJobExec.id}}
+              <span id="executingTitle"
+                >Executing Test Plan "{{ testPlan.name }}" - Build "{{ selectedBuild.name }}"- Exec {{ exTJobExec.id }}
               </span>
               <span fxFlex></span>
               <span>
-                <button *ngIf="showStopBtn" mat-button (click)="forceEnd()" [style.color]="'#c82a0e'" title="Force End" class="iconBtn">
+                <button
+                  *ngIf="showStopBtn"
+                  mat-button
+                  (click)="forceEnd()"
+                  [style.color]="'#c82a0e'"
+                  title="Force End"
+                  class="iconBtn"
+                >
                   <mat-icon>stop</mat-icon>
                 </button>
               </span>
@@ -25,26 +41,40 @@
               </span>
             </div>
             <div fxLayout="row" class="push-top-sm">
-              <span id="resultMsgText" class="mat-subhead" style="vertical-align: middle;">{{exTJobExec.resultMsg}}</span>
+              <span id="resultMsgText" class="mat-subhead" style="vertical-align: middle;">{{ exTJobExec.resultMsg }}</span>
             </div>
           </div>
         </mat-card-title>
         <mat-divider></mat-divider>
         <mat-card-content fxFlex class="push-bottom-none">
-          <div *ngIf="!browserAndEusLoading && exTJob && exTJobExec && !exTJobExec.finished() && exTJobExec.executing(); else showMessage"
-            fxLayout="column" fxFlexFill>
+          <div
+            *ngIf="
+              !browserAndEusLoading && exTJob && exTJobExec && !exTJobExec.finished() && exTJobExec.executing();
+              else showMessage
+            "
+            fxLayout="column"
+            fxFlexFill
+          >
             <div id="testLinkExec" fxFlex>
               <testlink-execution-form #tlExecutionForm *ngIf="data && data.testCase" [data]="data"></testlink-execution-form>
             </div>
             <div fxLayout="row">
-              <button mat-raised-button color="accent" id="saveAndNext" *ngIf="tlExecutionForm" [disabled]="disableTLNextBtn || !tlExecutionForm.isValidForm()"
-                (click)="saveTLCaseExecution()">Save & Next</button>
+              <button
+                mat-raised-button
+                color="accent"
+                id="saveAndNext"
+                *ngIf="tlExecutionForm"
+                [disabled]="disableTLNextBtn || !tlExecutionForm.isValidForm()"
+                (click)="saveTLCaseExecution()"
+              >
+                Save & Next
+              </button>
             </div>
           </div>
           <ng-template #showMessage>
             <div fxLayoutAlign="center center" fxLayout="column" fxFlexFill>
-              <div class="mat-headline text-center">{{executionCardMsg}}</div>
-              <div class="mat-subhead text-center" *ngIf="execFinished">{{executionCardSubMsg}}</div>
+              <div class="mat-headline text-center">{{ executionCardMsg }}</div>
+              <div class="mat-subhead text-center" *ngIf="execFinished">{{ executionCardSubMsg }}</div>
             </div>
           </ng-template>
         </mat-card-content>
@@ -57,17 +87,30 @@
         <mat-card-title>
           <div fxLayout="column" fxLayoutAlign="none">
             <div fxLayout="row">
-              <span>Browser</span>
-              <span fxFlex></span>
-              <a *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined" mat-button [attr.href]="vncBrowserUrl" class="iconBtn" target="_blank"
-                matTooltip="Open in new tab">
+              <span>Browser</span> <span fxFlex></span>
+              <a
+                *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined"
+                mat-button
+                [attr.href]="vncBrowserUrl"
+                class="iconBtn"
+                target="_blank"
+                matTooltip="Open in new tab"
+              >
                 <mat-icon>open_in_new</mat-icon>
               </a>
             </div>
 
-            <div *ngIf="browserAndEusLoading && eusTestModel !== undefined && eusTestModel.statusMsg !== undefined && eusTestModel.statusMsg !== ''"
-              fxLayout="row" class="push-top-sm">
-              <span id="resultMsgText" class="mat-subhead" style="vertical-align: middle;">{{eusTestModel.statusMsg}}</span>
+            <div
+              *ngIf="
+                browserAndEusLoading &&
+                eusTestModel !== undefined &&
+                eusTestModel.statusMsg !== undefined &&
+                eusTestModel.statusMsg !== ''
+              "
+              fxLayout="row"
+              class="push-top-sm"
+            >
+              <span id="resultMsgText" class="mat-subhead" style="vertical-align: middle;">{{ eusTestModel.statusMsg }}</span>
             </div>
           </div>
         </mat-card-title>
@@ -75,13 +118,24 @@
         <mat-card-content *ngIf="exTJobExec" fxFlex style="overflow: auto;" class="push-bottom-none">
           <div fxLayoutAlign="center center" fxLayout="column" fxFlexFill>
             <ng-container *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined; else loadingBrowser">
-              <vnc-client [vncUrl]="vncBrowserUrl" [autoconnect]="autoconnect" [viewOnly]="viewOnly" [showStatus]="false" [showConnectionBtns]="false"
-                [bgColor]="'#ffffff'" fxFlexFill></vnc-client>
+              <vnc-client
+                [vncUrl]="vncBrowserUrl"
+                [autoconnect]="autoconnect"
+                [viewOnly]="viewOnly"
+                [showStatus]="false"
+                [showConnectionBtns]="false"
+                [bgColor]="'#ffffff'"
+                fxFlexFill
+              ></vnc-client>
             </ng-container>
             <ng-template #loadingBrowser>
-              <div class="mat-headline text-center">{{browserCardMsg}}</div>
-              <mat-spinner *ngIf="exTJobExec && (!exTJobExec.finished() || (exTJobExec.finished() && !browserAndEusDeprovided))" strokeWidth="6"
-                color="accent" class="push-top-sm"></mat-spinner>
+              <div class="mat-headline text-center">{{ browserCardMsg }}</div>
+              <mat-spinner
+                *ngIf="exTJobExec && (!exTJobExec.finished() || (exTJobExec.finished() && !browserAndEusDeprovided))"
+                strokeWidth="6"
+                color="accent"
+                class="push-top-sm"
+              ></mat-spinner>
             </ng-template>
           </div>
         </mat-card-content>
@@ -94,4 +148,9 @@
 <etm-monitoring-view *ngIf="exTJobExec !== undefined" #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
 
 <!-- Files -->
-<etm-files-manager *ngIf="exTJob && exTJobExec && showFiles" [tJobId]="exTJob.id" [tJobExecId]="exTJobExec.id" [external]="true"></etm-files-manager>
+<etm-files-manager
+  *ngIf="exTJob && exTJobExec && showFiles"
+  [tJobId]="exTJob.id"
+  [tJobExecId]="exTJobExec.id"
+  [external]="true"
+></etm-files-manager>

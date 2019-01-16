@@ -1,29 +1,34 @@
-<div fxLayout="row" fxLayout.gt-xl="row" tdMediaToggle="gt-xs">
+<div fxLayout="row" tdMediaToggle="gt-xs">
   <div fxFlex.gt-lg="50" fxLayout.gt-sm="column" *ngIf="ready">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div fxLayout="row">
-          <span>New Execution</span>
-        </div>
+        <div fxLayout="row"><span>New Execution</span></div>
       </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content #scrollMeTest>
         <etm-execution-view #externalExecution [model]="model"></etm-execution-view>
-        <button mat-raised-button color="accent" [disabled]="caseForm != undefined && !caseForm.valid" (click)="saveExecution()">Save execution</button>
+        <button mat-raised-button color="accent" [disabled]="caseForm != undefined && !caseForm.valid" (click)="saveExecution()">
+          Save execution
+        </button>
       </mat-card-content>
     </mat-card>
   </div>
   <div fxFlex.gt-lg="50" fxLayout.gt-sm="column" *ngIf="ready">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div fxLayout="row">
-          <span>Browser</span>
-        </div>
+        <div fxLayout="row"><span>Browser</span></div>
       </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content #scrollMeTest>
         <ng-container *ngIf="vncBrowserUrl !== undefined; else loadingBrowser">
-          <vnc-client [host]="vncHost" [port]="vncPort" [password]="vncPassword" [autoconnect]="autoconnect" [viewOnly]="viewOnly" [showStatus]="true"></vnc-client>
+          <vnc-client
+            [host]="vncHost"
+            [port]="vncPort"
+            [password]="vncPassword"
+            [autoconnect]="autoconnect"
+            [viewOnly]="viewOnly"
+            [showStatus]="true"
+          ></vnc-client>
         </ng-container>
         <ng-template #loadingBrowser>
           <mat-spinner strokeWidth="6" color="accent" class="push-top-sm"></mat-spinner>

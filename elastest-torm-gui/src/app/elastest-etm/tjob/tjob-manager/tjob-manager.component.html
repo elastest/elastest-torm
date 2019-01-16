@@ -1,23 +1,21 @@
 <auto-height-grid>
-
   <normal-height-row>
     <div fxFlex.gt-sm="100">
       <mat-card tdMediaToggle="gt-xs">
         <mat-card-title>
-          <span *ngIf="tJob && tJob.multi">Multi-Configuration</span>
-          <span>TJob</span>
-          <span *ngIf="tJob && tJob.name">"{{tJob.name}}"</span>
+          <span *ngIf="tJob && tJob.multi">Multi-Configuration</span> <span>TJob</span>
+          <span *ngIf="tJob && tJob.name">"{{ tJob.name }}"</span>
         </mat-card-title>
         <mat-divider></mat-divider>
         <mat-card-content>
           <div fxLayout="row">
             <span fxFlex.gt-xs="20">
               <mat-card-subtitle>Name</mat-card-subtitle>
-              <h4>{{tJob.name}}</h4>
+              <h4>{{ tJob.name }}</h4>
             </span>
             <span fxFlex.gt-xs="20">
               <mat-card-subtitle>Image Name</mat-card-subtitle>
-              <h4>{{tJob.imageName}}</h4>
+              <h4>{{ tJob.imageName }}</h4>
             </span>
             <span fxFlex.gt-xs="20" *ngIf="!tJob.hasSut()">
               <mat-card-subtitle>Sut</mat-card-subtitle>
@@ -30,12 +28,12 @@
                   <mat-icon style="font-size: 18px;">mode_edit</mat-icon>
                 </div>
               </button>
-              <h4 style="margin-top: 0;">{{tJob.sut.name}}</h4>
+              <h4 style="margin-top: 0;">{{ tJob.sut.name }}</h4>
             </span>
 
             <span fxFlex.gt-xs="20" *ngIf="!tJob.hasSut()">
               <mat-card-subtitle>Is Multi Axis</mat-card-subtitle>
-              <h4>{{tJob.multi}}</h4>
+              <h4>{{ tJob.multi }}</h4>
             </span>
 
             <span fxFlex.gt-xs="25">
@@ -44,8 +42,13 @@
                 <button mat-button *ngIf="!tJob.external" (click)="runTJob()" class="iconBtn-lg" title="Run TJob">
                   <mat-icon>play_circle_outline</mat-icon>
                 </button>
-                <button mat-button *ngIf="!tJob.external || tJob.getExternalEditPage() !== undefined" (click)="editTJob()"
-                  class="iconBtn-lg" title="Edit TJob">
+                <button
+                  mat-button
+                  *ngIf="!tJob.external || tJob.getExternalEditPage() !== undefined"
+                  (click)="editTJob()"
+                  class="iconBtn-lg"
+                  title="Edit TJob"
+                >
                   <mat-icon>mode_edit</mat-icon>
                 </button>
                 <button mat-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
@@ -61,9 +64,7 @@
           <td-expansion-panel label="Commands" expand="false" *ngIf="tJob.withCommands()">
             <div class="pad">
               <ul>
-                <li *ngFor="let command of tJob.arrayCommands()">
-                  {{command}}
-                </li>
+                <li *ngFor="let command of tJob.arrayCommands()">{{ command }}</li>
               </ul>
             </div>
           </td-expansion-panel>
@@ -74,51 +75,80 @@
 
   <auto-height-row>
     <self-adjustable-card tdMediaToggle="gt-xs">
-      <sa-card-title>
-        Executions
-      </sa-card-title>
+      <sa-card-title> Executions </sa-card-title>
       <sa-card-content>
         <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
         <centered-element *ngIf="!showSpinner && tJobExecData.length === 0" class="push-top-sm messageEmptyCard">
           <mat-icon>assignment</mat-icon>
           <p>No Executions generated</p>
         </centered-element>
-        <td-data-table #tjobsTable *ngIf="tJobExecData && tJobExecData.length > 0" class="useMaxHeight" [data]="tJobExecData"
-          [columns]="tJobExecColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy"
-          [sortOrder]="sortOrder">
-          <ng-template *ngFor="let column of tJobExecColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
-            let-row="row">
-            <div *ngIf="column.name !== 'options' && column.name !== 'startDate' && column.name !== 'endDate' && column.name !== 'lastExecutionDate'"
-              (click)="viewTJobExec(row)" class="hover-pointer">
+        <td-data-table
+          #tjobsTable
+          *ngIf="tJobExecData && tJobExecData.length > 0"
+          class="useMaxHeight"
+          [data]="tJobExecData"
+          [columns]="tJobExecColumns"
+          [selectable]="false"
+          [clickable]="true"
+          [sortable]="false"
+          [sortBy]="sortBy"
+          [sortOrder]="sortOrder"
+          [resizableColumns]="true"
+        >
+          <ng-template
+            *ngFor="let column of tJobExecColumns"
+            tdDataTableTemplate="{{ column.name }}"
+            let-value="value"
+            let-row="row"
+          >
+            <div
+              *ngIf="
+                column.name !== 'options' &&
+                column.name !== 'startDate' &&
+                column.name !== 'endDate' &&
+                column.name !== 'lastExecutionDate'
+              "
+              (click)="viewTJobExec(row)"
+              class="hover-pointer"
+            >
               <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
                 <ng-container *ngIf="column.name === 'result'">
-                  <mat-spinner *ngIf="!row.finished()" strokeWidth="3" diameter="20" color="accent" style="vertical-align: middle; display: inline-block"></mat-spinner>
-                  <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{row.getResultIcon().name}}</mat-icon>
+                  <mat-spinner
+                    *ngIf="!row.finished()"
+                    strokeWidth="3"
+                    diameter="20"
+                    color="accent"
+                    style="vertical-align: middle; display: inline-block"
+                  ></mat-spinner>
+                  <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{
+                    row.getResultIcon().name
+                  }}</mat-icon>
                 </ng-container>
-                <span style="vertical-align: middle; margin-left: 4px;">{{value}}</span>
+                <span style="vertical-align: middle; margin-left: 4px;">{{ value }}</span>
               </span>
               <ng-template #tjobSutValue>
-                <span *ngIf="row.hasSutExec()">{{row.sutExec.id}}</span>
-                <span *ngIf="!row.hasSutExec()">None</span>
+                <span *ngIf="row.hasSutExec()">{{ row.sutExec.id }}</span> <span *ngIf="!row.hasSutExec()">None</span>
               </ng-template>
             </div>
             <div *ngIf="column.name === 'startDate' || column.name === 'endDate'" (click)="viewTJobExec(row)">
-              {{value | date:'dd/MM/yyyy HH:mm:ss'}}
+              {{ value | date: 'dd/MM/yyyy HH:mm:ss' }}
             </div>
             <div *ngIf="column.name === 'lastExecutionDate'" (click)="viewTJobExec(row)">
-              <ng-container *ngIf="value !== undefined; else notExecuted">
-                {{value | timeAgo}}
-              </ng-container>
-              <ng-template #notExecuted>
-                Not Executed Yet
-              </ng-template>
+              <ng-container *ngIf="value !== undefined; else notExecuted"> {{ value | timeAgo }} </ng-container>
+              <ng-template #notExecuted> Not Executed Yet </ng-template>
             </div>
           </ng-template>
 
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div fxLayout="row" class="optionsColumn">
-              <button mat-button (click)="deleteTJobExec(row)" [disabled]="deletingInProgress" stopRowClick title="Delete TJob Execution"
-                class="iconBtn-lg">
+              <button
+                mat-button
+                (click)="deleteTJobExec(row)"
+                [disabled]="deletingInProgress"
+                stopRowClick
+                title="Delete TJob Execution"
+                class="iconBtn-lg"
+              >
                 <mat-icon>delete</mat-icon>
               </button>
               <button mat-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">
@@ -130,5 +160,4 @@
       </sa-card-content>
     </self-adjustable-card>
   </auto-height-row>
-
 </auto-height-grid>

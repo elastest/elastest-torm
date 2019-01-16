@@ -1,9 +1,7 @@
 <div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
   <div fxFlex.gt-sm="100">
     <mat-card tdMediaToggle="gt-xs">
-      <mat-card-title>
-        Build {{build.name}}
-      </mat-card-title>
+      <mat-card-title> Build {{ build.name }} </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content>
         <div fxLayout="row">
@@ -11,7 +9,7 @@
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>Name</h4>
-                <p>{{build.name}}</p>
+                <p>{{ build.name }}</p>
               </mat-list-item>
             </mat-list>
           </div>
@@ -20,7 +18,7 @@
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>Test Plan Id</h4>
-                <p>{{build.testPlanId}}</p>
+                <p>{{ build.testPlanId }}</p>
               </mat-list-item>
             </mat-list>
           </div>
@@ -48,13 +46,11 @@
   </div>
 </div>
 
-<div fxLayout="column" fxLayout.gt-xl="row" tdMediaToggle="gt-xs" *ngIf="build">
+<div fxLayout="row" fxLayout.lt-xl="column" tdMediaToggle="gt-xs" *ngIf="build">
   <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div fxLayout="row">
-          <span>Test Cases</span>
-        </div>
+        <div fxLayout="row"><span>Test Cases</span></div>
       </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content>
@@ -63,14 +59,36 @@
           <mat-icon>assignment</mat-icon>
           <p>No Test Cases created</p>
         </centered-element>
-        <td-data-table *ngIf="!loadingCases && testCases.length > 0" id="tlCases" #buildTable class="scroll_table" [data]="testCases"
-          [columns]="testCasesColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-          <ng-template *ngFor="let column of testCasesColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
-            <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProjectId, 'plans', build.testPlanId, 'builds', build.id, 'cases', row.id]"
-              class="hover-pointer">
-              <div *ngIf="column.name === 'summary' || column.name === 'preconditions'; else normalValue" [innerHTML]="value"></div>
+        <td-data-table
+          *ngIf="!loadingCases && testCases.length > 0"
+          id="tlCases"
+          #buildTable
+          class="scroll_table"
+          [data]="testCases"
+          [columns]="testCasesColumns"
+          [selectable]="false"
+          [clickable]="true"
+          [sortable]="false"
+          [sortBy]="sortBy"
+          [sortOrder]="sortOrder"
+        >
+          <ng-template
+            *ngFor="let column of testCasesColumns"
+            tdDataTableTemplate="{{ column.name }}"
+            let-value="value"
+            let-row="row"
+          >
+            <div
+              *ngIf="column.name !== 'options'"
+              [routerLink]="['/testlink/projects', testProjectId, 'plans', build.testPlanId, 'builds', build.id, 'cases', row.id]"
+              class="hover-pointer"
+            >
+              <div
+                *ngIf="column.name === 'summary' || column.name === 'preconditions'; else normalValue"
+                [innerHTML]="value"
+              ></div>
               <ng-template #normalValue>
-                <span>{{value}}</span>
+                <span>{{ value }}</span>
               </ng-template>
             </div>
           </ng-template>

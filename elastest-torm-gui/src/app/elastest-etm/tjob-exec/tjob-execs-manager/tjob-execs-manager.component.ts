@@ -26,16 +26,16 @@ export class TJobExecsManagerComponent implements OnInit {
 
   loading: boolean = true;
   loadAllFinished: boolean = false;
-
+  
   // TJob Exec Data
   tJobExecColumns: any[] = [
-    { name: 'id', label: 'Id' },
-    { name: 'tJob.name', label: 'TJob' },
-    { name: 'result', label: 'Result' },
-    { name: 'duration', label: 'Duration(sec)' },
-    { name: 'startDate', label: 'Start Date' },
-    { name: 'endDate', label: 'End Date' },
-    { name: 'options', label: 'Options' },
+    { name: 'id', label: 'Id'},
+    { name: 'tJob.name', label: 'TJob'},
+    { name: 'result', label: 'Result'},
+    { name: 'duration', label: 'Duration(sec)'},
+    { name: 'startDate', label: 'Start Date'},
+    { name: 'endDate', label: 'End Date'},
+    { name: 'options', label: 'Options'},
   ];
 
   constructor(

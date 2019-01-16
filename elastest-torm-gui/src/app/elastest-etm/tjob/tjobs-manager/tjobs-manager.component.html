@@ -1,64 +1,93 @@
 <self-adjustable-card tdMediaToggle="gt-xs">
-    <sa-card-title>
-        <div fxLayout="row">
-            <span>TJobs</span>
-            <span fxFlex></span>
-            <button mat-raised-button color="accent" (click)="newTJob()" id="newTJobBtn" matTooltip="Create New TJob">New
-                TJob</button>
+  <sa-card-title>
+    <div fxLayout="row">
+      <span>TJobs</span> <span fxFlex></span>
+      <button mat-raised-button color="accent" (click)="newTJob()" id="newTJobBtn" matTooltip="Create New TJob">New TJob</button>
+    </div>
+  </sa-card-title>
+  <sa-card-content #scrollMeTest>
+    <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
+    <centered-element *ngIf="!showSpinner && tJobs.length === 0" class="push-top-sm messageEmptyCard">
+      <mat-icon>assignment</mat-icon>
+      <p>No TJobs created</p>
+    </centered-element>
+    <td-data-table
+      #tjobsTable
+      *ngIf="tJobs && tJobs.length > 0"
+      class="useMaxHeight"
+      [data]="tJobs"
+      [columns]="tjobColumns"
+      id="tJobs"
+      [resizableColumns]="true"
+    >
+      <ng-template *ngFor="let column of tjobColumns" tdDataTableTemplate="{{ column.name }}" let-value="value" let-row="row">
+        <ng-container *ngIf="column.name === 'name' || column.name === 'imageName'">
+          <span class="wrapColumn hover-pointer" (click)="viewTJob(row)">{{ value }}</span>
+        </ng-container>
+        <div
+          *ngIf="
+            column.name !== 'options' &&
+            column.name !== 'name' &&
+            column.name !== 'imageName' &&
+            column.name !== 'lastExecutionDate' &&
+            column.name !== 'result'
+          "
+          (click)="viewTJob(row)"
+          class="hover-pointer"
+        >
+          <span *ngIf="column.name !== 'sut'; else tjobSutValue">{{ value }}</span>
+          <ng-template #tjobSutValue>
+            <span *ngIf="row.hasSut()">{{ row.sut.id }}</span> <span *ngIf="!row.hasSut()">None</span>
+          </ng-template>
         </div>
-    </sa-card-title>
-    <sa-card-content #scrollMeTest>
-        <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
-        <centered-element *ngIf="!showSpinner && tJobs.length === 0" class="push-top-sm messageEmptyCard">
-            <mat-icon>assignment</mat-icon>
-            <p>No TJobs created</p>
-        </centered-element>
-        <td-data-table #tjobsTable *ngIf="tJobs && tJobs.length > 0" class="useMaxHeight" [data]="tJobs" [columns]="tjobColumns" id="tJobs">
-            <ng-template *ngFor="let column of tjobColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
-                let-row="row">
-                <ng-container *ngIf="column.name === 'name' || column.name === 'imageName'">
-                    <span class="wrapColumn hover-pointer" (click)="viewTJob(row)">{{value}}</span>
-                </ng-container>
-                <div *ngIf="column.name !== 'options' && column.name !== 'name' && column.name !== 'imageName' && column.name !== 'lastExecutionDate' && column.name !== 'result'"
-                    (click)="viewTJob(row)" class="hover-pointer">
-                    <span *ngIf="column.name !== 'sut'; else tjobSutValue">{{value}}</span>
-                    <ng-template #tjobSutValue>
-                        <span *ngIf="row.hasSut()">{{row.sut.id}}</span>
-                        <span *ngIf="!row.hasSut()">None</span>
-                    </ng-template>
-                </div>
-                <div *ngIf="column.name === 'result' && value !== undefined" (click)="viewTJob(row)">
-                    <mat-icon style="vertical-align: middle;" [style.color]="value.color" matTooltip="{{value.result}}">{{value.name}}</mat-icon>
-                </div>
-                <div *ngIf="column.name === 'lastExecutionDate'" (click)="viewTJob(row)">
-                    <ng-container *ngIf="value !== undefined; else notExecuted">
-                        {{value | timeAgo}}
-                    </ng-container>
-                    <ng-template #notExecuted>
-                        Not Executed Yet
-                    </ng-template>
-                </div>
-            </ng-template>
+        <div *ngIf="column.name === 'result' && value !== undefined" (click)="viewTJob(row)">
+          <mat-icon style="vertical-align: middle;" [style.color]="value.color" matTooltip="{{ value.result }}">{{
+            value.name
+          }}</mat-icon>
+        </div>
+        <div *ngIf="column.name === 'lastExecutionDate'" (click)="viewTJob(row)">
+          <ng-container *ngIf="value !== undefined; else notExecuted"> {{ value | timeAgo }} </ng-container>
+          <ng-template #notExecuted> Not Executed Yet </ng-template>
+        </div>
+      </ng-template>
 
-            <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-                <div fxLayout="row" class="optionsColumn">
-                    <button mat-button *ngIf="!row.external" (click)="runTJob(row, row.project)" [disabled]="deletingInProgress"
-                        class="iconBtn" title="Run TJob">
-                        <mat-icon>play_circle_outline</mat-icon>
-                    </button>
-                    <button mat-button *ngIf="!row.external || row.getExternalEditPage() !== undefined" (click)="editTJob(row)"
-                        [disabled]="deletingInProgress" class="iconBtn" title="Edit TJob">
-                        <mat-icon>mode_edit</mat-icon>
-                    </button>
-                    <button mat-button [disabled]="deletingInProgress || duplicateInProgress" *ngIf="!row.external || row.getExternalEditPage() !== undefined"
-                        (click)="duplicateTJob(row)" class="iconBtn" title="Duplicate TJob">
-                        <mat-icon>content_copy</mat-icon>
-                    </button>
-                    <button mat-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn" title="Delete TJob">
-                        <mat-icon>delete</mat-icon>
-                    </button>
-                </div>
-            </ng-template>
-        </td-data-table>
-    </sa-card-content>
+      <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+        <div fxLayout="row" class="optionsColumn">
+          <button
+            mat-button
+            *ngIf="!row.external"
+            (click)="runTJob(row, row.project)"
+            [disabled]="deletingInProgress"
+            class="iconBtn"
+            title="Run TJob"
+          >
+            <mat-icon>play_circle_outline</mat-icon>
+          </button>
+          <button
+            mat-button
+            *ngIf="!row.external || row.getExternalEditPage() !== undefined"
+            (click)="editTJob(row)"
+            [disabled]="deletingInProgress"
+            class="iconBtn"
+            title="Edit TJob"
+          >
+            <mat-icon>mode_edit</mat-icon>
+          </button>
+          <button
+            mat-button
+            [disabled]="deletingInProgress || duplicateInProgress"
+            *ngIf="!row.external || row.getExternalEditPage() !== undefined"
+            (click)="duplicateTJob(row)"
+            class="iconBtn"
+            title="Duplicate TJob"
+          >
+            <mat-icon>content_copy</mat-icon>
+          </button>
+          <button mat-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn" title="Delete TJob">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </ng-template>
+    </td-data-table>
+  </sa-card-content>
 </self-adjustable-card>

@@ -1,19 +1,33 @@
-<div fxLayout="row" fxLayout.gt-xl="row" tdMediaToggle="gt-xs">
+<div fxLayout="row" tdMediaToggle="gt-xs">
   <div fxFlex.gt-sm="40" fxLayout.gt-sm="column">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
         <div fxLayout="row" *ngIf="exTJobExec">
           <span>
-            <button mat-button *ngIf="exTJobExec.finished()" [routerLink]="['/external/projects/',exTJob.exProject.id,'tjob',exTJob.id,'exec',exTJobExec.id]"
-              class="onlyIconBtn" title="Navigate to result page">
-              <mat-icon style="vertical-align: middle;" [style.color]="this.exTJobExec.getResultIcon().color">{{this.exTJobExec.getResultIcon().name}}</mat-icon>
+            <button
+              mat-button
+              *ngIf="exTJobExec.finished()"
+              [routerLink]="['/external/projects/', exTJob.exProject.id, 'tjob', exTJob.id, 'exec', exTJobExec.id]"
+              class="onlyIconBtn"
+              title="Navigate to result page"
+            >
+              <mat-icon style="vertical-align: middle;" [style.color]="this.exTJobExec.getResultIcon().color">{{
+                this.exTJobExec.getResultIcon().name
+              }}</mat-icon>
             </button>
-            <span style="vertical-align: middle;">{{exTJobExec.resultMsg}}</span>
+            <span style="vertical-align: middle;">{{ exTJobExec.resultMsg }}</span>
           </span>
-          <span id="executingTitle">Executing External TJob "{{exTJob.name}}" - Exec {{exTJobExec.id}} </span>
+          <span id="executingTitle">Executing External TJob "{{ exTJob.name }}" - Exec {{ exTJobExec.id }} </span>
           <span fxFlex></span>
           <span>
-            <button *ngIf="showStopBtn" mat-button (click)="forceEnd()" [style.color]="'#c82a0e'" title="Force End" class="iconBtn">
+            <button
+              *ngIf="showStopBtn"
+              mat-button
+              (click)="forceEnd()"
+              [style.color]="'#c82a0e'"
+              title="Force End"
+              class="iconBtn"
+            >
               <mat-icon>stop</mat-icon>
             </button>
           </span>
@@ -26,27 +40,41 @@
       </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content #scrollMeTest *ngIf="exTJob && exTJobExec">
-        <etm-case-execution-view #etmCaseExecutionView *ngIf="vncBrowserUrl !== undefined; else loadingBrowser" [exTJob]="exTJob"
-          [exTJobExec]="exTJobExec"></etm-case-execution-view>
+        <etm-case-execution-view
+          #etmCaseExecutionView
+          *ngIf="vncBrowserUrl !== undefined; else loadingBrowser"
+          [exTJob]="exTJob"
+          [exTJobExec]="exTJobExec"
+        ></etm-case-execution-view>
       </mat-card-content>
     </mat-card>
   </div>
   <div fxFlex.gt-sm="60" fxLayout.gt-sm="column">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        <div fxLayout="row">
-          <span>Browser</span>
-        </div>
+        <div fxLayout="row"><span>Browser</span></div>
       </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content #scrollMeTest *ngIf="exTJobExec">
         <ng-container *ngIf="vncBrowserUrl !== undefined; else loadingBrowser">
-          <vnc-client [host]="vncHost" [port]="vncPort" [password]="vncPassword" [autoconnect]="autoconnect" [viewOnly]="viewOnly"
-            [showStatus]="false" [showConnectionBtns]="false"></vnc-client>
+          <vnc-client
+            [host]="vncHost"
+            [port]="vncPort"
+            [password]="vncPassword"
+            [autoconnect]="autoconnect"
+            [viewOnly]="viewOnly"
+            [showStatus]="false"
+            [showConnectionBtns]="false"
+          ></vnc-client>
         </ng-container>
         <ng-template #loadingBrowser>
-          <div>{{browserLoadingMsg}}</div>
-          <mat-spinner *ngIf="exTJobExec && !exTJobExec.finished()" strokeWidth="6" color="accent" class="push-top-sm"></mat-spinner>
+          <div>{{ browserLoadingMsg }}</div>
+          <mat-spinner
+            *ngIf="exTJobExec && !exTJobExec.finished()"
+            strokeWidth="6"
+            color="accent"
+            class="push-top-sm"
+          ></mat-spinner>
         </ng-template>
       </mat-card-content>
     </mat-card>
@@ -57,4 +85,9 @@
 <etm-monitoring-view *ngIf="exTJobExec !== undefined" #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
 
 <!-- Files -->
-<etm-files-manager *ngIf="exTJob && exTJobExec && showFiles" [tJobId]="exTJob.id" [tJobExecId]="exTJobExec.id" [external]="true"></etm-files-manager>
+<etm-files-manager
+  *ngIf="exTJob && exTJobExec && showFiles"
+  [tJobId]="exTJob.id"
+  [tJobExecId]="exTJobExec.id"
+  [external]="true"
+></etm-files-manager>

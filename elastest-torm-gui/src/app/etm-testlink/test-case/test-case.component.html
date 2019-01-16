@@ -1,9 +1,7 @@
 <div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
   <div fxFlex.gt-sm="100">
     <mat-card tdMediaToggle="gt-xs">
-      <mat-card-title>
-        Test Case {{testCase.name}}
-      </mat-card-title>
+      <mat-card-title> Test Case {{ testCase.name }} </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content>
         <div fxLayout="row">
@@ -11,27 +9,27 @@
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>Name</h4>
-                <p>{{testCase.name}}</p>
+                <p>{{ testCase.name }}</p>
               </mat-list-item>
 
               <mat-divider></mat-divider>
 
               <mat-list-item>
                 <h4>Version</h4>
-                <p>{{testCase.version}}</p>
+                <p>{{ testCase.version }}</p>
               </mat-list-item>
 
               <mat-divider></mat-divider>
 
               <mat-list-item>
                 <h4>Version ID</h4>
-                <p>{{testCase.versionId}}</p>
+                <p>{{ testCase.versionId }}</p>
               </mat-list-item>
               <mat-divider></mat-divider>
 
               <mat-list-item>
                 <h4>Author Login</h4>
-                <p>{{testCase.authorLogin}}</p>
+                <p>{{ testCase.authorLogin }}</p>
               </mat-list-item>
               <!--<mat-list-item>
                 <h4>Project ID</h4>
@@ -54,27 +52,23 @@
               </mat-list-item>-->
               <mat-list-item>
                 <h4>Exec Type</h4>
-                <p *ngIf="testCase.executionType !== undefined">
-                  {{testCase.executionType}}
-                </p>
+                <p *ngIf="testCase.executionType !== undefined">{{ testCase.executionType }}</p>
               </mat-list-item>
               <mat-divider></mat-divider>
               <mat-list-item>
                 <h4>External ID</h4>
-                <p>{{testCase.fullExternalId}}</p>
+                <p>{{ testCase.fullExternalId }}</p>
               </mat-list-item>
               <mat-divider></mat-divider>
               <mat-list-item>
                 <h4>Parent ID</h4>
-                <p>{{testCase.parentId}}</p>
+                <p>{{ testCase.parentId }}</p>
               </mat-list-item>
               <mat-divider></mat-divider>
 
               <mat-list-item>
                 <h4>Execution Status</h4>
-                <p *ngIf="testCase.executionStatus !== undefined">
-                  {{testCase.executionStatus}}
-                </p>
+                <p *ngIf="testCase.executionStatus !== undefined">{{ testCase.executionStatus }}</p>
               </mat-list-item>
               <!--<mat-list-item>
                 <h4>Custom Fields</h4>
@@ -103,13 +97,12 @@
   </div>
 </div>
 
-<div fxLayout="column" fxLayout.gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testCase">
+<div fxLayout="row" fxLayout.lt-xl="column" tdMediaToggle="gt-xs" *ngIf="testCase">
   <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
         <div fxLayout="row">
-          <span>Test Case Steps</span>
-          <span fxFlex></span>
+          <span>Test Case Steps</span> <span fxFlex></span>
           <!-- <button mat-raised-button color="accent" (click)="newTJob()">New TestCaseStep</button> -->
         </div>
       </mat-card-title>
@@ -120,13 +113,26 @@
           <mat-icon>assignment</mat-icon>
           <p>No Test Cases Steps created</p>
         </centered-element>
-        <td-data-table #testCaseStepTable *ngIf="testCase.steps && testCase.steps.length > 0" class="scroll_table"
-          [data]="testCase.steps" [columns]="testCaseStepColumns" [selectable]="false" [clickable]="true" [sortable]="false"
-          [sortBy]="sortBy" [sortOrder]="sortOrder">
-          <ng-template *ngFor="let column of testCaseStepColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
-            let-row="row">
+        <td-data-table
+          #testCaseStepTable
+          *ngIf="testCase.steps && testCase.steps.length > 0"
+          class="scroll_table"
+          [data]="testCase.steps"
+          [columns]="testCaseStepColumns"
+          [selectable]="false"
+          [clickable]="true"
+          [sortable]="false"
+          [sortBy]="sortBy"
+          [sortOrder]="sortOrder"
+        >
+          <ng-template
+            *ngFor="let column of testCaseStepColumns"
+            tdDataTableTemplate="{{ column.name }}"
+            let-value="value"
+            let-row="row"
+          >
             <div *ngIf="column.name === 'actions' || column.name === 'expectedResults'; else onlyValue" [innerHTML]="value"></div>
-            <ng-template #onlyValue>{{value}}</ng-template>
+            <ng-template #onlyValue>{{ value }}</ng-template>
           </ng-template>
           <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
             <div fxLayout="row" class="optionsColumn">
