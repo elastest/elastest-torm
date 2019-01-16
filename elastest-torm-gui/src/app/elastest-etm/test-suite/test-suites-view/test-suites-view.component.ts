@@ -24,15 +24,15 @@ export class TestSuitesViewComponent implements OnInit {
   filesUrlPrefix: string;
 
   testCaseColumns: any[] = [
-    { name: 'result', label: 'Result' },
-    { name: 'logAnalyzer', label: 'Log' },
+    { name: 'result', label: 'Result', width: 68 },
+    { name: 'logAnalyzer', label: 'Log', width: 60 },
     { name: 'name', label: 'Name' },
+    { name: 'files', label: 'Files' },
     { name: 'time', label: 'Time (s)' },
     { name: 'failureMessage', label: 'Failure Msg' },
     { name: 'failureType', label: 'Failure Type' },
-    { name: 'failureErrorLine', label: 'Failure Error Line' },
+    { name: 'failureErrorLine', label: 'Error Line', width: 96 },
     { name: 'failureDetail', label: 'Failure Detail' },
-    { name: 'files', label: 'Files' },
   ];
 
   constructor(

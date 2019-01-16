@@ -102,6 +102,11 @@ thead > tr.td-data-table-column-row {
   height: 38px !important;
 }
 
+.td-data-table-heading,
+.td-data-table-cell-content-wrapper {
+  padding: 0 18px !important;
+}
+
 tbody > tr.td-data-table-row {
   height: 42px !important;
 }
@@ -129,6 +134,7 @@ tbody > tr.td-data-table-row {
 
 .td-data-table-cell > div > div {
   flex-wrap: wrap;
+  // word-break: break-word;
 }
 
 textarea[autosize] {
