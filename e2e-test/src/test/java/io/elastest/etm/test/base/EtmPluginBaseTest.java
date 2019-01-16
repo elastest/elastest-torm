@@ -20,7 +20,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class EtmPluginBaseTest extends EtmBaseTest {
 
-    protected final String unitTestPipelineScript = "node{\n"
+    protected final String unitTestPipelineScript = "node {\n"
             + "    elastest(tss: ['EUS']) {\n"
             + "        stage ('Executing Test') {\n"
             + "            echo 'Print env variables'\n"
