@@ -22,6 +22,7 @@ import { MonitoringService } from '../shared/services/monitoring.service';
 import { MonitoringQueryModel } from '../shared/monitoring-query.model';
 import { LogAnalyzerQueryModel } from '../shared/loganalyzer-query.model';
 import { TreeCheckElementModel } from '../shared/ag-tree-model';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'elastest-log-analyzer',
@@ -389,7 +390,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     let timer: Observable<number>;
     this.updateButtons(false);
 
-    timer = Observable.interval(3500);
+    timer = interval(3500);
     this.logAnalyzer.tailSubscription = timer.subscribe(() => {
       if (!this.logAnalyzer.pauseTail) {
         this.loadMore(true);

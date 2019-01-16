@@ -8,7 +8,7 @@ import { TestLinkService } from './testlink.service';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { EtPluginsService } from '../elastest-test-engines/et-plugins.service';
 import { EtPluginModel } from '../elastest-test-engines/et-plugin-model';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, interval } from 'rxjs';
 import { CredentialsDialogComponent } from '../shared/credentials-dialog/credentials-dialog.component';
 
 @Component({
@@ -93,7 +93,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
   }
 
   waitForReady(): void {
-    this.timer = Observable.interval(1800);
+    this.timer = interval(1800);
     if (
       this.testLinkModel.isCreated() &&
       !this.testLinkModel.isReady() &&

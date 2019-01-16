@@ -1,10 +1,10 @@
 <mat-card>
   <mat-card-title>
     <div fxLayout="column" fxLayout.gt-md="row">
-      <div custom-fxFlex.gt-xl="1 0 75" custom-fxFlex-xl="85" fxFlex.gt-lg="1 0 75" fxFlex.gt-md="1 0 65" fxFlex.md="1 0 100" fxFlex.gt-sm="1 0 100"
-        fxFlex.gt-xs="1 0 100" fxFlex.xs="1 0 100" style="word-break: break-all;">{{model.name}}</div>
+      <div custom-fxFlex.gt-xl="75" custom-fxFlex-xl="85" fxFlex.gt-lg="75" fxFlex.gt-md="65" fxFlex.md="100" fxFlex.gt-sm="100"
+        fxFlex.gt-xs="100" fxFlex.xs="100" style="word-break: break-all;">{{model.name}}</div>
       <span fxFlex></span>
-      <div hide-gt-md fxFlex="1 0 100" class="pad-top-sm"></div>
+      <div hide-gt-md fxFlex="100" class="pad-top-sm"></div>
       <div fxLayout="row" style="text-align: right;">
         <div *ngFor="let button of customButtons" class="customButton push-right-sm">
           <button-component [model]="button"></button-component>

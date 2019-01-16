@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 import { PullingObjectModel } from '../shared/pulling-obj.model';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import { interval } from 'rxjs';
 
 export type tssParentType = 'normal' | 'tjobexec' | 'external';
 
@@ -125,7 +126,7 @@ export class EsmService {
     let _obs: Subject<EsmServiceInstanceModel> = new Subject<EsmServiceInstanceModel>();
     let obs: Observable<EsmServiceInstanceModel> = _obs.asObservable();
 
-    timer = Observable.interval(2000);
+    timer = interval(2000);
     if (subscription === null || subscription === undefined) {
       subscription = timer.subscribe(() => {
         this.getSupportServiceInstanceByType(esmServicesInstanceId, type).subscribe(

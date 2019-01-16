@@ -9,69 +9,109 @@
           </span>
           <span fxFlex></span>
           <span *ngIf="etCurrentVersion" class="mat-subhead tc-grey-600 pad-right-sm">
-            <span>ElasTest version:&nbsp;</span>
-            <span id="etVersion">{{etCurrentVersion}}</span>
+            <span>ElasTest version:&nbsp;</span> <span id="etVersion">{{ etCurrentVersion }}</span>
           </span>
         </div>
       </mat-card-title>
 
       <mat-card-content>
         <div class="mat-title" fxLayout="row">
-          <span> ElasTest Main Services </span>
-          <span fxFlex></span>
+          <span> ElasTest Main Services </span> <span fxFlex></span>
           <span>
             <div fxLayout="row">
               <span *ngIf="lastRefresh" class="mat-subhead tc-grey-600 pad-right-sm">
-                <span>Last refresh: </span>
-                <span>
-                  {{lastRefresh | timeAgo }} ({{lastRefresh | date:'HH:mm:ss' }})</span>
+                <span>Last refresh: </span> <span> {{ lastRefresh | timeAgo }} ({{ lastRefresh | date: 'HH:mm:ss' }})</span>
               </span>
 
-              <mat-icon color="accent" class="hover-pointer pad-right-sm" (click)="init()" mat-tooltip="Refresh now">sync</mat-icon>
+              <mat-icon color="accent" class="hover-pointer pad-right-sm" (click)="init()" mat-tooltip="Refresh now"
+                >sync</mat-icon
+              >
               <span class="mat-subhead pad-right-sm">AutoRefresh:</span>
-              <mat-checkbox #autorefresh [checked]="autorefreshEnabled" name="autorefresh" (change)="switchAutorefresh(autorefresh.checked)"
-                mat-tooltip="Enable AutoRefresh">
+              <mat-checkbox
+                #autorefresh
+                [checked]="autorefreshEnabled"
+                name="autorefresh"
+                (change)="switchAutorefresh(autorefresh.checked)"
+                mat-tooltip="Enable AutoRefresh"
+              >
               </mat-checkbox>
             </div>
           </span>
         </div>
-        <td-data-table #versionsInfo id="coreServicesInfo" [data]="coreServices" [columns]="coreServiceColumns"
-          [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-          <ng-template *ngFor="let column of coreServiceColumns" let-value="value" let-row="row" tdDataTableTemplate="{{column.name}}">
-            <ng-container *ngIf="column.name !== 'status' && column.name !== 'imageDate' && column.name !== 'versionInfo.commitDate' && column.name !== 'containerNames' && column.name !== 'networks' && column.name !== 'options'; else specialFields">
-              {{value}}
+        <td-data-table
+          #versionsInfo
+          id="coreServicesInfo"
+          [data]="coreServices"
+          [columns]="coreServiceColumns"
+          [selectable]="false"
+          [clickable]="false"
+          [sortable]="false"
+          [sortBy]="sortBy"
+          [sortOrder]="sortOrder"
+          [resizableColumns]="true"
+        >
+          <ng-template
+            *ngFor="let column of coreServiceColumns"
+            let-value="value"
+            let-row="row"
+            tdDataTableTemplate="{{ column.name }}"
+          >
+            <ng-container
+              *ngIf="
+                column.name !== 'status' &&
+                  column.name !== 'imageDate' &&
+                  column.name !== 'versionInfo.commitDate' &&
+                  column.name !== 'containerNames' &&
+                  column.name !== 'networks' &&
+                  column.name !== 'options';
+                else specialFields
+              "
+            >
+              {{ value }}
             </ng-container>
             <ng-template #specialFields>
               <ng-container *ngIf="column.name === 'status'">
-                <mat-icon style="vertical-align: middle; padding-right: 1px;" [style.color]="row.getStatusIcon().color">{{row.getStatusIcon().name}}</mat-icon>
-                {{value}}
+                <mat-icon style="vertical-align: middle; padding-right: 1px;" [style.color]="row.getStatusIcon().color">{{
+                  row.getStatusIcon().name
+                }}</mat-icon>
+                {{ value }}
               </ng-container>
 
               <ng-container *ngIf="column.name === 'containerNames' || column.name === 'networks'">
-                <div *ngFor="let elementOfArray of value">- {{elementOfArray.startsWith('/')?
-                  elementOfArray.substring(1) : elementOfArray}}</div>
+                <div *ngFor="let elementOfArray of value">
+                  - {{ elementOfArray.startsWith('/') ? elementOfArray.substring(1) : elementOfArray }}
+                </div>
               </ng-container>
 
               <ng-container *ngIf="column.name === 'versionInfo.commitDate' || column.name === 'imageDate'">
-                {{value | date:'yyyy/MM/dd HH:mm:ss' || 'unespecified' }}
+                {{ value | date: 'yyyy/MM/dd HH:mm:ss' || 'unespecified' }}
               </ng-container>
 
               <ng-container *ngIf="column.name === 'options'">
                 <div fxLayout="row" class="optionsColumn">
-                  <button mat-button (click)="loadCoreServiceLogs(row.name)" mat-tooltip="View logs" class="iconBtn-lg"
-                    [disabled]="loadingLogs">
+                  <button
+                    mat-button
+                    (click)="loadCoreServiceLogs(row.name)"
+                    mat-tooltip="View logs"
+                    class="iconBtn-lg"
+                    [disabled]="loadingLogs"
+                  >
                     <mat-icon>library_books</mat-icon>
                   </button>
                 </div>
               </ng-container>
-
             </ng-template>
           </ng-template>
         </td-data-table>
       </mat-card-content>
     </mat-card>
     <div *ngIf="coreServiceLogs">
-      <logs-view *ngIf="!loadingLogs; else showLoadingLogs" [model]="coreServiceLogs" [live]="false" [remove]="removeLogCard.bind(this)"></logs-view>
+      <logs-view
+        *ngIf="!loadingLogs; else showLoadingLogs"
+        [model]="coreServiceLogs"
+        [live]="false"
+        [remove]="removeLogCard.bind(this)"
+      ></logs-view>
       <ng-template #showLoadingLogs>
         <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
       </ng-template>

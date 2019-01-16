@@ -2,7 +2,7 @@ import { Router } from '@angular/router';
 import { ETModelsTransformServices } from '../../../shared/services/et-models-transform.service';
 import { TJobExecModel } from '../tjobExec-model';
 import { Component, Input, OnInit } from '@angular/core';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, interval } from 'rxjs';
 import { TJobExecService } from '../tjobExec.service';
 
 @Component({
@@ -64,7 +64,7 @@ export class ChildTjobExecsViewComponent implements OnInit {
   }
 
   subscribeToChilds(): void {
-    let timer: Observable<number> = Observable.interval(1800);
+    let timer: Observable<number> = interval(1800);
     if (this.checkChildsSubscription === null || this.checkChildsSubscription === undefined) {
       this.checkChildsSubscription = timer.subscribe(() => {
         this.tJobExecService.getParentTJobExecChilds(this.model.id).subscribe(

@@ -1,6 +1,6 @@
 <!-- Metrics -->
 <div *ngIf="allInOneMetrics !== undefined" fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
-  <div fxFlex.gt-sm="1 0 100">
+  <div fxFlex.gt-sm="100">
     <metrics-chart-card #allInOne [model]="allInOneMetrics" [showConfig]="true" [fieldsList]="allInOneMetrics.allMetricsFields.fieldsList"
       [remove]="removeAndUnsubscribeAIO.bind(this)"></metrics-chart-card>
   </div>

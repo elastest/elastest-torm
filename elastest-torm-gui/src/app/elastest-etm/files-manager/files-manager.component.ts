@@ -11,6 +11,7 @@ import { ElastestEusDialog } from '../../elastest-eus/elastest-eus.dialog';
 import { MatDialogRef } from '@angular/material';
 import { ElastestEusDialogService } from '../../elastest-eus/elastest-eus.dialog.service';
 import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'etm-files-manager',
@@ -53,11 +54,11 @@ export class FilesManagerComponent implements OnInit {
     this.filesUrlPrefix = configurationService.configModel.proxyHost;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.getExecutionFiles();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.loading = false;
     this.finished = true;
     this.endSubscription();
@@ -68,7 +69,7 @@ export class FilesManagerComponent implements OnInit {
   }
 
   waitForExecutionFiles(): void {
-    this.timer = Observable.interval(3500);
+    this.timer = interval(3500);
     if (this.subscription === undefined) {
       this.loading = true;
       console.log('Start polling for check tssInstance status');

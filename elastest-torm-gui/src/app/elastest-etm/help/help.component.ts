@@ -6,6 +6,7 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { CoreServiceModel } from '../models/core-service.model';
 import { VersionInfo } from '../models/version-info.model';
 import { PopupService } from '../../shared/services/popup.service';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'etm-help',
@@ -33,10 +34,10 @@ export class HelpComponent implements OnInit {
     { name: 'imageDate', label: 'Image Date' },
     { name: 'versionInfo.tag', label: 'Version' },
     { name: 'versionInfo.commitDate', label: 'Commit Date' },
-    { name: 'versionInfo.commitId', label: 'Commit Id' },
+    { name: 'versionInfo.commitId', label: 'Commit Id', width: 340 },
     { name: 'networks', label: 'Networks' },
     { name: 'containerNames', label: 'Container Names' },
-    { name: 'options', label: 'Options' },
+    { name: 'options', label: 'Options', width: 90 },
   ];
 
   constructor(
@@ -90,7 +91,7 @@ export class HelpComponent implements OnInit {
   }
 
   startCoreServicesSubscription(): void {
-    let timer: Observable<number> = Observable.interval(6000);
+    let timer: Observable<number> = interval(6000);
     this.coreServicesSubscription = timer.subscribe(() => {
       if (this.autorefreshEnabled) {
         this.init();

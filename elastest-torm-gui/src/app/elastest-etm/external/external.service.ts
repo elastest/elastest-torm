@@ -12,6 +12,7 @@ import { ExternalTestCaseModel } from './external-test-case/external-test-case-m
 import { ExternalTestExecutionModel } from './external-test-execution/external-test-execution-model';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
+import { interval } from 'rxjs';
 
 @Injectable()
 export class ExternalService {
@@ -147,7 +148,7 @@ export class ExternalService {
     }>();
     let obs: Observable<ExternalTJobExecFinishedModel> = _obs.asObservable();
 
-    timer = Observable.interval(2000);
+    timer = interval(2000);
     if (subscription === null || subscription === undefined) {
       subscription = timer.subscribe(() => {
         this.getExternalTJobExecById(tJobExecId).subscribe(

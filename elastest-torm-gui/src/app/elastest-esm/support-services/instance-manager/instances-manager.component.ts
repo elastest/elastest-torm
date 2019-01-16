@@ -6,6 +6,7 @@ import { EsmServiceModel } from '../../esm-service.model';
 import { TdDataTableService, TdDataTableSortingOrder, ITdDataTableSortChangeEvent, IPageChangeEvent } from '@covalent/core';
 import { EsmServiceInstanceModel } from '../../esm-service-instance.model';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'esm-instance-manager',
@@ -93,7 +94,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
 
   loadServiceInstances(): void {
     console.log('tSSIOnTheFly size:' + this.tSSIOnTheFly.length);
-    this.timer = Observable.interval(2000);
+    this.timer = interval(2000);
     if (this.subscription === null || this.subscription === undefined) {
       console.log('Start polling for check tssInstance status');
       this.subscription = this.timer.subscribe(() => {

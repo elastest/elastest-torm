@@ -2,7 +2,7 @@
 
 <mat-dialog-content>
   <div fxLayout="column" fxLayout.gt-sm="row" class="pad-right pad-bottom">
-    <div fxFlex.gt-sm="1 0 100">
+    <div fxFlex.gt-sm="100">
       <span class="mat-title"
         >Monitoring Cards
         <button mat-icon-button color="accent" title="Refresh" (click)="loadTrees()" [disabled]="loadingLogs || loadingMetrics">
@@ -12,7 +12,7 @@
 
       <div fxLayout="column" fxLayout.gt-sm="row" class="push-bottom">
         <!-- Logs Tree -->
-        <div id="logsTree" fxFlex.gt-sm="1 0 30">
+        <div id="logsTree" fxFlex.gt-sm="30">
           <mat-card-subtitle>Logs</mat-card-subtitle>
           <mat-spinner strokeWidth="6" *ngIf="loadingLogs" color="accent" class="push-top-sm"></mat-spinner>
           <span *ngIf="noLogs">There aren't logs to configure</span>
@@ -33,7 +33,7 @@
         </div>
 
         <!-- Metrics Tree -->
-        <div id="metricsTree" fxFlex.gt-sm="1 0 50" fxFlexOffset.gt-sm="5">
+        <div id="metricsTree" fxFlex.gt-sm="50" fxFlexOffset.gt-sm="5">
           <mat-card-subtitle>Metrics</mat-card-subtitle>
           <mat-spinner strokeWidth="6" *ngIf="loadingMetrics" color="accent" class="push-top-sm"></mat-spinner>
           <span *ngIf="noMetrics">There aren't metrics to configure</span>

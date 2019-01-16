@@ -6,6 +6,7 @@ import { Observable, Subscription } from 'rxjs/Rx';
 import { EtPluginsService } from './et-plugins.service';
 import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { EtPluginModel } from './et-plugin-model';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'elastest-test-engines',
@@ -84,7 +85,7 @@ export class ElastestTestEnginesComponent implements OnInit, OnDestroy {
   }
 
   waitForReady(testEngine: EtPluginModel): void {
-    this.timer = Observable.interval(2500);
+    this.timer = interval(2500);
     if (testEngine.isCreated() && !testEngine.isReady() && (this.subscription === null || this.subscription === undefined)) {
       this.subscription = this.timer.subscribe(() => {
         this.tetPluginsService.getEtPlugin(testEngine.name).subscribe((engine: EtPluginModel) => {

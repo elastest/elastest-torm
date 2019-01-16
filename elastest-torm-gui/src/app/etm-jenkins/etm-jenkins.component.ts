@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnDestroy, HostListener } from '@angular/core
 import { TitlesService } from '../shared/services/titles.service';
 import { EtPluginsService } from '../elastest-test-engines/et-plugins.service';
 import { EtPluginModel } from '../elastest-test-engines/et-plugin-model';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, interval } from 'rxjs';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { CredentialsDialogComponent } from '../shared/credentials-dialog/credentials-dialog.component';
 
@@ -61,7 +61,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
   }
 
   waitForReady(): void {
-    this.timer = Observable.interval(1800);
+    this.timer = interval(1800);
     if (
       this.jenkinsModel.isCreated() &&
       !this.jenkinsModel.isReady() &&

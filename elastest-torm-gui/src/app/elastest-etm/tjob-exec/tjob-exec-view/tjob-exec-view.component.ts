@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Params, ActivatedRoute } from '@angular/router';
 import { TJobExecModel } from '../tjobExec-model';
 import { TJobExecService } from '../tjobExec.service';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, interval } from 'rxjs';
 
 @Component({
   selector: 'etm-tjob-exec-view',
@@ -20,7 +20,7 @@ export class TjobExecViewComponent implements OnInit {
 
   constructor(private tJobExecService: TJobExecService, private route: ActivatedRoute) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.tJobId = undefined;
     this.tJobExecId = undefined;
     this.tJobExec = undefined;
@@ -34,7 +34,7 @@ export class TjobExecViewComponent implements OnInit {
     }
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.unsubscribeCheckResult();
   }
 
@@ -46,7 +46,7 @@ export class TjobExecViewComponent implements OnInit {
   }
 
   checkResultStatus(): void {
-    let timer: Observable<number> = Observable.interval(1800);
+    let timer: Observable<number> = interval(1800);
     if (this.checkResultSubscription === null || this.checkResultSubscription === undefined) {
       this.checkResultSubscription = timer.subscribe(() => {
         this.tJobExecService.getResultStatus(this.tJobId, this.tJobExec).subscribe(
@@ -63,7 +63,7 @@ export class TjobExecViewComponent implements OnInit {
                 });
             }
           },
-          (error) => console.log(error),
+          (error: Error) => console.log(error),
         );
       });
     }
@@ -76,7 +76,7 @@ export class TjobExecViewComponent implements OnInit {
         this.finished = this.tJobExec.finished();
         this.checkResultStatus();
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 }
