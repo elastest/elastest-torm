@@ -10,3 +10,16 @@
 :host /deep/ mat-sidenav .mat-list-item-content fa-icon {
   margin-right: 16px;
 }
+
+:host /deep/ mat-sidenav .mat-list-item-content mat-icon > svg {
+  display: inline-block;
+  overflow-x: visible;
+  overflow-y: visible;
+  text-align: start;
+  visibility: visible;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  height: 1em;
+  width: 1em;
+  margin-left: -2px;
+  font-size: inherit;
+}

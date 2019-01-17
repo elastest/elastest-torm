@@ -1,4 +1,4 @@
-<auto-height-grid>
+<auto-height-grid fxLayout="column">
   <normal-height-row>
     <div fxFlex.gt-sm="100">
       <mat-card tdMediaToggle="gt-xs">
@@ -73,8 +73,8 @@
     </div>
   </normal-height-row>
 
-  <auto-height-row>
-    <self-adjustable-card tdMediaToggle="gt-xs">
+  <auto-height-row fxLayout="column">
+    <self-adjustable-card>
       <sa-card-title> Executions </sa-card-title>
       <sa-card-content>
         <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>

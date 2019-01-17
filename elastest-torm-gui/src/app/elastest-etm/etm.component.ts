@@ -88,17 +88,13 @@ export class EtmComponent implements AfterViewInit, OnInit {
   }
 
   refresh(): void {
-    if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
+    if (this.isReloadable()) {
       this.router.navigate(['/redirect'], { queryParams: { url: '/' } });
     }
   }
 
   isReloadable(): boolean {
-    if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
-      return true;
-    } else {
-      return false;
-    }
+    return this.titlesService.getTitle().getTitle() === 'Dashboard';
   }
 
   setTitles(): void {}

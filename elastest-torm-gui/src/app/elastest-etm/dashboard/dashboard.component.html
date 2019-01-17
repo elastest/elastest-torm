@@ -1,22 +1,19 @@
 <auto-height-grid fxLayout="column">
-    <normal-height-row>
-        <etm-projects-manager #projectsManager [isNested]="true">
-        </etm-projects-manager>
-    </normal-height-row>
-    <auto-height-row>
-        <etm-tjob-execs-manager *ngIf="projectsManager && !projectsManager.deletingInProgress; else showSpinner" [isNested]="true">
-        </etm-tjob-execs-manager>
-        <ng-template #showSpinner>
-            <self-adjustable-card>
-                <sa-card-title>
-                    Wait please...
-                </sa-card-title>
-                <sa-card-content>
-                    <centered-element>
-                        <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
-                    </centered-element>
-                </sa-card-content>
-            </self-adjustable-card>
-        </ng-template>
-    </auto-height-row>
+  <normal-height-row> <etm-projects-manager #projectsManager [isNested]="true"> </etm-projects-manager> </normal-height-row>
+  <auto-height-row fxLayout="column">
+    <auto-height-grid fxFlex>
+      <etm-tjob-execs-manager *ngIf="projectsManager && !projectsManager.deletingInProgress; else showSpinner" [isNested]="true">
+      </etm-tjob-execs-manager>
+    </auto-height-grid>
+    <ng-template #showSpinner>
+      <self-adjustable-card>
+        <sa-card-title> Wait please... </sa-card-title>
+        <sa-card-content>
+          <centered-element>
+            <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
+          </centered-element>
+        </sa-card-content>
+      </self-adjustable-card>
+    </ng-template>
+  </auto-height-row>
 </auto-height-grid>
