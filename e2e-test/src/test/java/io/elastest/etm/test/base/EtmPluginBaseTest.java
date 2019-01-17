@@ -28,7 +28,8 @@ public class EtmPluginBaseTest extends EtmBaseTest {
             + "            echo 'Cloning repository'\n"
             + "            git 'https://github.com/elastest/demo-projects'\n"
             + "            echo 'Run test'\n"
-            + "            sh \"cd ./unit/junit5-unit-test;'${mvnHome}/bin/mvn' -DforkCount=0 test\"\n";
+            + "            sh \"cd ./unit/junit5-unit-test;'${mvnHome}/bin/mvn' -DforkCount=0 test\"\n"
+            + "   }";
 
     protected String jenkinsPluginManagerAd = "/pluginManager/advanced";
     protected String jenkinsRestartRelPath = "/restart";
