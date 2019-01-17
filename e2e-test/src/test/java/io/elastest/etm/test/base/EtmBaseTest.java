@@ -292,14 +292,18 @@ public class EtmBaseTest {
 
     protected WebElement getElementByXpath(WebDriver driver, String xpath,
             int secondsTimeout, boolean withScroll) {
+        try {
+            Thread.sleep(500l);
+        } catch (InterruptedException e) {
+            log.error("Time Slot between actions interrupted.");
+        }
+        
         WebElement element = getElementsByXpath(driver, xpath, secondsTimeout)
                 .get(0);
-
         if (withScroll) {
             JavascriptExecutor jse2 = (JavascriptExecutor) driver;
             jse2.executeScript("arguments[0].scrollIntoView()", element);
         }
-
         return element;
     }
 
