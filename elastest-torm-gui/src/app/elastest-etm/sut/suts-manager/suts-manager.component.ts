@@ -34,7 +34,7 @@ export class SutsManagerComponent implements OnInit {
 
   // SuT Data
   sutColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
     { name: 'specification', label: 'Specification' },
     { name: 'sutType', label: 'SuT Type' },

@@ -22,7 +22,7 @@ export class ChildTjobExecsViewComponent implements OnInit {
 
   // TJob Exec Data
   tJobExecColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'result', label: 'Result' },
     { name: 'parameters', label: 'Configurations' },
     { name: 'duration', label: 'Duration(sec)' },

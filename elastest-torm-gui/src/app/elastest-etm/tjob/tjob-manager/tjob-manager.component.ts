@@ -25,13 +25,13 @@ export class TjobManagerComponent implements OnInit {
 
   // TJob Exec Data
   tJobExecColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'result', label: 'Result' },
-    { name: 'duration', label: 'Duration(sec)' },
+    { name: 'lastExecutionDate', label: 'Last Execution' },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
-    { name: 'lastExecutionDate', label: 'Last Execution' },
-    { name: 'sutExecution', label: 'Sut Execution' },
+    { name: 'duration', label: 'Duration(sec)' },
+    { name: 'sutExecution', label: 'Sut Execution', width: 116 },
     { name: 'options', label: 'Options' },
   ];
   tJobExecData: TJobExecModel[] = [];

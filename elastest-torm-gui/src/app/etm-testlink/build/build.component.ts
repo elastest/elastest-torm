@@ -22,7 +22,7 @@ export class BuildComponent implements OnInit {
 
   // TestCase Data
   testCasesColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
     { name: 'testCaseStatus', label: 'Status' },
     // { name: 'testSuiteId', label: 'Suite ID' },

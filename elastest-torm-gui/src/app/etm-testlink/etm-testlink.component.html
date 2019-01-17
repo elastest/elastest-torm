@@ -1,7 +1,9 @@
 <auto-height-grid id="testlinkPage" class="mat-content">
   <div *ngIf="!isRunning; else showTestLink">
     <mat-card>
-      <mat-card-title> {{ startingInProcess ? 'Starting TestLink...' : 'TestLink container is not started yet' }} </mat-card-title>
+      <mat-card-title>
+        {{ startingInProcess ? 'Starting TestLink...' : 'TestLink container is not started yet' }}
+      </mat-card-title>
       <mat-card-content>
         <button
           *ngIf="!startingInProcess; else showProgress"
@@ -27,7 +29,7 @@
     <auto-height-row>
       <self-adjustable-card>
         <sa-card-title>
-          <div fxLayout="row">
+          <div fxLayout="row" fxLayoutAlign="start center">
             <span>TestLink</span>
             <a href="{{ testLinkUrl }}" id="openTestLink" class="iconBtn" target="_blank" matTooltip="Open TestLink in new tab">
               <mat-icon color="accent">open_in_new</mat-icon>

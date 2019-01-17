@@ -23,3 +23,11 @@
   margin-left: -2px;
   font-size: inherit;
 }
+
+:host /deep/ mat-nav-list [mat-list-item].active fa-icon[mat-list-icon] {
+  color: #ffac2f;
+}
+
+:host /deep/ mat-nav-list [mat-list-item].active mat-icon[mat-list-icon] > svg {
+  fill: #ffac2f;
+}

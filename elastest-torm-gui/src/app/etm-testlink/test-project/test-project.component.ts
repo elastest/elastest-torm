@@ -27,7 +27,7 @@ export class TestProjectComponent implements OnInit {
 
   // Test Suite Data
   suiteColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
     { name: 'details', label: 'Details' },
     { name: 'parentId', label: 'Parent ID' },
@@ -36,7 +36,7 @@ export class TestProjectComponent implements OnInit {
 
   // Test Plan Data
   planColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
     { name: 'notes', label: 'Notes' },
     { name: 'active', label: 'Active' },

@@ -18,7 +18,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   // Project data
   projectColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Project' },
     { name: 'options', label: 'Options' },
   ];

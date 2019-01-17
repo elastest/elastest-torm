@@ -41,7 +41,7 @@ export class TjobExecManagerComponent implements OnInit {
 
   // TJob Data
   testCaseColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
     { name: 'time', label: 'Time (s)' },
     { name: 'failureMessage', label: 'Failure Msg' },

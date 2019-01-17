@@ -31,7 +31,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
 
   // Project data
   projectColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Project' },
     { name: 'prefix', label: 'Prefix' },
     { name: 'notes', label: 'Notes' },

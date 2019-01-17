@@ -16,8 +16,8 @@
         <div fxLayout="row" fxLayoutAlign="space-between end">
           <span class="displayBlock">
             <mat-spinner
-            *ngIf="!tJobExec.finished()"
-            strokeWidth="3"
+              *ngIf="!tJobExec.finished()"
+              strokeWidth="3"
               diameter="20"
               color="accent"
               style="vertical-align: middle; display: inline-block; margin-right: 6px;"
@@ -70,7 +70,7 @@
             class="push-top-sm"
             *ngIf="tJobExecMultiConfigs && tJobExecMultiConfigs.length > 0"
           >
-            <td-data-table [data]="tJobExecMultiConfigs"> </td-data-table>
+            <td-data-table [data]="tJobExecMultiConfigs" [resizableColumns]="true"> </td-data-table>
           </td-expansion-panel>
 
           <!-- Params -->
@@ -80,7 +80,7 @@
             class="push-top-sm"
             *ngIf="tJobExecParameters && tJobExecParameters.length > 0"
           >
-            <td-data-table [data]="tJobExecParameters"> </td-data-table>
+            <td-data-table [data]="tJobExecParameters" [resizableColumns]="true"> </td-data-table>
           </td-expansion-panel>
         </ng-container>
       </mat-card-content>

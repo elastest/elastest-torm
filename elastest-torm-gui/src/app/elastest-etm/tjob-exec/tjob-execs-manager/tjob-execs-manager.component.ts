@@ -29,7 +29,7 @@ export class TJobExecsManagerComponent implements OnInit {
   
   // TJob Exec Data
   tJobExecColumns: any[] = [
-    { name: 'id', label: 'Id'},
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'tJob.name', label: 'TJob'},
     { name: 'result', label: 'Result'},
     { name: 'duration', label: 'Duration(sec)'},
