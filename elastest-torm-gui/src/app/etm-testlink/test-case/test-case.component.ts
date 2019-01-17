@@ -18,7 +18,7 @@ export class TLTestCaseComponent implements OnInit {
 
   // TestCaseStep Data
   testCaseStepColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     // { name: 'testCaseVersionId', label: 'Case Version ID' },
     { name: 'number', label: 'Number' },
     { name: 'actions', label: 'Actions' },

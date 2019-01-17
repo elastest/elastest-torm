@@ -1,78 +1,69 @@
-<div fxLayout="row" fxLayout.lt-xl="column" tdMediaToggle="gt-xs" *ngIf="exTJobId">
-  <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
-    <mat-card tdMediaToggle="gt-xs">
-      <mat-card-title>
-        <div fxLayout="row"><span>Executions</span></div>
-      </mat-card-title>
-      <mat-divider></mat-divider>
-      <mat-card-content #scrollMeTest>
-        <centered-element
-          *ngIf="exTJobExecs && exTJobExecs.length === 0; else showBuildTable"
-          class="push-top-important messageEmptyCard"
-        >
-          <mat-icon>assignment</mat-icon>
-          <p>No executions</p>
-        </centered-element>
+<self-adjustable-card tdMediaToggle="gt-xs">
+  <sa-card-title>
+    <div fxLayout="row"><span>Executions</span></div>
+  </sa-card-title>
+  <sa-card-content #scrollMeTest>
+    <centered-element
+      *ngIf="exTJobExecs && exTJobExecs.length === 0; else showBuildTable"
+      class="push-top-important messageEmptyCard"
+    >
+      <mat-icon>assignment</mat-icon>
+      <p>No executions</p>
+    </centered-element>
 
-        <ng-template #showBuildTable>
-          <td-data-table
-            #buildTable
-            id="externalExecutions"
-            class="scroll_table"
-            [data]="exTJobExecs"
-            [columns]="execsColumns"
-            [selectable]="false"
-            [clickable]="true"
-            [sortable]="false"
-            [sortBy]="sortBy"
-            [sortOrder]="sortOrder"
+    <ng-template #showBuildTable>
+      <td-data-table
+        #buildTable
+        id="externalExecutions"
+        class="scroll_table"
+        [data]="exTJobExecs"
+        [columns]="execsColumns"
+        [selectable]="false"
+        [clickable]="true"
+        [sortable]="false"
+        [sortBy]="sortBy"
+        [sortOrder]="sortOrder"
+        [resizableColumns]="true"
+      >
+        <ng-template *ngFor="let column of execsColumns" let-value="value" let-row="row" tdDataTableTemplate="{{ column.name }}">
+          <div
+            *ngIf="column.name !== 'options'"
+            [routerLink]="['/external/projects/', row.exTJob.exProject.id, 'tjob', row.exTJob.id, 'exec', row.id]"
+            class="hover-pointer"
           >
-            <ng-template
-              *ngFor="let column of execsColumns"
-              let-value="value"
-              let-row="row"
-              tdDataTableTemplate="{{ column.name }}"
-            >
-              <div
-                *ngIf="column.name !== 'options'"
-                [routerLink]="['/external/projects/', row.exTJob.exProject.id, 'tjob', row.exTJob.id, 'exec', row.id]"
-                class="hover-pointer"
-              >
-                <ng-container *ngIf="column.name !== 'result'; else resultColumn">
-                  <ng-container *ngIf="column.name !== 'startDate' && column.name !== 'endDate'; else dateColumn">
-                    {{ value }}
-                  </ng-container>
-                  <ng-template #dateColumn>
-                    <div *ngIf="column.name === 'startDate' || column.name === 'endDate'">
-                      {{ value | date: 'dd/MM/yyyy HH:mm:ss' }}
-                    </div>
-                  </ng-template>
-                </ng-container>
-                <ng-template #resultColumn>
-                  <mat-spinner
-                    *ngIf="!row.finished() && !row.notExecuted()"
-                    strokeWidth="3"
-                    diameter="20"
-                    color="accent"
-                    style="vertical-align: middle; display: inline-block"
-                  ></mat-spinner>
+            <ng-container *ngIf="column.name !== 'result'; else resultColumn">
+              <ng-container *ngIf="column.name !== 'startDate' && column.name !== 'endDate'; else dateColumn">
+                {{ value }}
+              </ng-container>
+              <ng-template #dateColumn>
+                <div *ngIf="column.name === 'startDate' || column.name === 'endDate'">
+                  {{ value | date: 'dd/MM/yyyy HH:mm:ss' }}
+                </div>
+              </ng-template>
+            </ng-container>
+            <ng-template #resultColumn>
+              <mat-spinner
+                *ngIf="!row.finished() && !row.notExecuted()"
+                strokeWidth="3"
+                diameter="20"
+                color="accent"
+                style="vertical-align: middle; display: inline-block"
+              ></mat-spinner>
 
-                  <mat-icon
-                    *ngIf="row.finished() || row.notExecuted()"
-                    style="vertical-align: middle;"
-                    [style.color]="row.getResultIcon().color"
-                    matTooltip="{{ row.getResultIcon().result }}"
-                    >{{ row.getResultIcon().name }}</mat-icon
-                  >
-                </ng-template>
-              </div>
+              <mat-icon
+                *ngIf="row.finished() || row.notExecuted()"
+                style="vertical-align: middle;"
+                [style.color]="row.getResultIcon().color"
+                matTooltip="{{ row.getResultIcon().result }}"
+                >{{ row.getResultIcon().name }}</mat-icon
+              >
             </ng-template>
-            <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-              <div fxLayout="row" class="optionsColumn"></div>
-            </ng-template>
-          </td-data-table>
+          </div>
         </ng-template>
-      </mat-card-content>
-    </mat-card>
-  </div>
-</div>
+        <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+          <div fxLayout="row" class="optionsColumn"></div>
+        </ng-template>
+      </td-data-table>
+    </ng-template>
+  </sa-card-content>
+</self-adjustable-card>

@@ -137,6 +137,10 @@ tbody > tr.td-data-table-row {
   // word-break: break-word;
 }
 
+.td-data-table-cell > div > div > span {
+  word-break: break-all;
+}
+
 textarea[autosize] {
   resize: none;
 }

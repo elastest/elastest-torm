@@ -47,7 +47,7 @@
 </div>
 
 <div fxLayout="row" fxLayout.lt-xl="column" tdMediaToggle="gt-xs" *ngIf="build">
-  <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
+  <div fxFlex fxLayout.gt-sm="column">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
         <div fxLayout="row"><span>Test Cases</span></div>
@@ -71,6 +71,7 @@
           [sortable]="false"
           [sortBy]="sortBy"
           [sortOrder]="sortOrder"
+          [resizableColumns]="true"
         >
           <ng-template
             *ngFor="let column of testCasesColumns"

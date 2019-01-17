@@ -8,7 +8,7 @@ import { TestLinkService } from '../testlink.service';
 import { MatDialog } from '@angular/material';
 
 @Component({
-  selector: 'app-test-suite',
+  selector: 'testlink-test-suite',
   templateUrl: './test-suite.component.html',
   styleUrls: ['./test-suite.component.scss'],
 })
@@ -19,7 +19,7 @@ export class TLTestSuiteComponent implements OnInit {
 
   // TestCase Data
   testCaseColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
     { name: 'testCaseStatus', label: 'Status' },
     // { name: 'testSuiteId', label: 'Suite ID' },
