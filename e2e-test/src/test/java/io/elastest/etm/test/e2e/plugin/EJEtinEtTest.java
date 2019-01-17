@@ -53,7 +53,7 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
             log.info("Wait for TJob end with sucess");
             checkFinishTJobExec(driver, 180, "SUCCESS", false);
         } finally {
-            // deletePipelineJob(driver, jobName);
+            deletePipelineJob(driver, jobName);
         }
     }
 

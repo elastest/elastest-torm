@@ -30,6 +30,16 @@ public class EtmPluginBaseTest extends EtmBaseTest {
             + "            echo 'Run test'\n"
             + "            sh \"cd ./unit/junit5-unit-test;'${mvnHome}/bin/mvn' -DforkCount=0 test\"\n"
             + "   }";
+    
+    protected final String unitTestPipelineScriptOriginal = "node {\n"
+            + "    elastest(tss: ['EUS']) {\n"
+            + "        stage ('Executing Test') {\n"
+            + "            echo 'Print env variables'\n"
+            + "            sh 'env'\n" + "            mvnHome = tool 'M3.3.9'\n"
+            + "            echo 'Cloning repository'\n"
+            + "            git 'https://github.com/elastest/demo-projects'\n"
+            + "            echo 'Run test'\n"
+            + "            sh \"cd ./unit/junit5-unit-test;'${mvnHome}/bin/mvn' -DforkCount=0 test\"\n";
 
     protected String jenkinsPluginManagerAd = "/pluginManager/advanced";
     protected String jenkinsRestartRelPath = "/restart";

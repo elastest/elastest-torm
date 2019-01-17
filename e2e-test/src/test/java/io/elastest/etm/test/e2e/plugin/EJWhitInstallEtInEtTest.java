@@ -48,7 +48,7 @@ public class EJWhitInstallEtInEtTest extends EtmPluginBaseTest {
         try {
             if (!isJobCreated(jobName)) {
                 driver.findElement(By.linkText("New Item")).click();
-                createPipelineJob(driver, jobName, unitTestPipelineScript);
+                createPipelineJob(driver, jobName, unitTestPipelineScriptOriginal);
             } else {
                 driver.findElement(By.linkText(jobName)).click();
             }
