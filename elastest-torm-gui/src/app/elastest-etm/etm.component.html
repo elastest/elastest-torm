@@ -3,9 +3,6 @@
   <div td-toolbar-content fxLayout="row" fxLayoutMargin fxLayoutAlign="center center" fxFlex>
     <breadcrumb fxFlex="80"></breadcrumb> <span fxFlex></span>
     <div fxFlex fxLayoutAlign="end center">
-      <button *ngIf="isReloadable()" mat-icon-button matTooltip="Refresh" (click)="refresh()">
-        <mat-icon mat-list-icon>refresh</mat-icon>
-      </button>
       <a mat-icon-button matTooltip="Docs" href="http://elastest.io/docs/" target="_blank">
         <mat-icon>chrome_reader_mode</mat-icon>
       </a>
@@ -153,7 +150,6 @@
         [routerLink]="['/testlink']"
         id="nav_testlink"
       >
-        <!-- <mat-icon mat-list-icon>gps_not_fixed</mat-icon> -->
         <mat-icon mat-list-icon svgIcon="icon-testlink"></mat-icon>
         TestLink
       </a>
@@ -170,7 +166,6 @@
         [routerLink]="['/jenkins']"
         id="nav_jenkins"
       >
-        <!-- <mat-icon mat-list-icon>face</mat-icon> -->
         <fa-icon mat-list-icon [icon]="['fab', 'jenkins']"></fa-icon>
         Jenkins
       </a>

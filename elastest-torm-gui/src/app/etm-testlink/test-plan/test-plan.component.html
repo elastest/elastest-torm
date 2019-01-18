@@ -93,6 +93,7 @@
             </centered-element>
             <ng-template #showBuilds>
               <td-data-table
+                *ngIf="builds && builds.length > 0"
                 #buildTable
                 id="tlBuilds"
                 class="scroll_table"
@@ -155,6 +156,7 @@
                 </centered-element>
                 <ng-template #showTestCases>
                   <td-data-table
+                    *ngIf="testPlanCases && testPlanCases.length > 0"
                     #tcTable
                     id="tlCases"
                     class="scroll_table"
@@ -189,7 +191,12 @@
             </self-adjustable-card>
           </auto-height-row>
           <auto-height-row fxFlex.gt-lg="50" fxFlex>
-            <etm-external-tjob-execs-view fxLayout="column" fxFlexFill *ngIf="exTJob" [exTJobId]="exTJob.id"></etm-external-tjob-execs-view>
+            <etm-external-tjob-execs-view
+              fxLayout="column"
+              fxFlexFill
+              *ngIf="exTJob"
+              [exTJobId]="exTJob.id"
+            ></etm-external-tjob-execs-view>
           </auto-height-row>
         </auto-height-grid>
       </auto-height-row>

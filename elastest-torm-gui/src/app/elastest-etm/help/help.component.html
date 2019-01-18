@@ -23,7 +23,7 @@
                 <span>Last refresh: </span> <span> {{ lastRefresh | timeAgo }} ({{ lastRefresh | date: 'HH:mm:ss' }})</span>
               </span>
 
-              <mat-icon color="accent" class="hover-pointer pad-right-sm" (click)="init()" mat-tooltip="Refresh now"
+              <mat-icon color="accent" class="hover-pointer pad-right-sm" (click)="init()" matTooltip="Refresh now"
                 >sync</mat-icon
               >
               <span class="mat-subheading-1 pad-right-sm">AutoRefresh:</span>
@@ -32,7 +32,7 @@
                 [checked]="autorefreshEnabled"
                 name="autorefresh"
                 (change)="switchAutorefresh(autorefresh.checked)"
-                mat-tooltip="Enable AutoRefresh"
+                matTooltip="Enable AutoRefresh"
               >
               </mat-checkbox>
             </div>
@@ -92,7 +92,7 @@
                   <button
                     mat-button
                     (click)="loadCoreServiceLogs(row.name)"
-                    mat-tooltip="View logs"
+                    matTooltip="View logs"
                     class="iconBtn-lg"
                     [disabled]="loadingLogs"
                   >

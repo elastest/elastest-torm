@@ -1,4 +1,3 @@
-import { Router } from '@angular/router';
 import { ConfigurationService } from '../config/configuration-service.service';
 import { TitlesService } from '../shared/services/titles.service';
 import { ElastestRabbitmqService } from '../shared/services/elastest-rabbitmq.service';
@@ -23,7 +22,6 @@ export class EtmComponent implements AfterViewInit, OnInit {
     private elastestRabbitmqService: ElastestRabbitmqService,
     private cdr: ChangeDetectorRef,
     private configService: ConfigurationService,
-    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -86,16 +84,5 @@ export class EtmComponent implements AfterViewInit, OnInit {
       }
     }
   }
-
-  refresh(): void {
-    if (this.isReloadable()) {
-      this.router.navigate(['/redirect'], { queryParams: { url: '/' } });
-    }
-  }
-
-  isReloadable(): boolean {
-    return this.titlesService.getTitle().getTitle() === 'Dashboard';
-  }
-
   setTitles(): void {}
 }

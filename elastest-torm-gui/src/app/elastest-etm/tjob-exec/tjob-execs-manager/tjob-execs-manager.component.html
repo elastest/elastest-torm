@@ -1,12 +1,18 @@
 <div fxLayout="row" fxLayout.lt-xl="column" class="push-top-none" fxFlexFill>
   <auto-height-grid fxFlex.gt-lg="50">
     <self-adjustable-card>
-      <sa-card-title>TJob Executions Running</sa-card-title>
+      <sa-card-title>
+        <div fxLayout="row">
+          <span>TJob Executions Running</span> <span fxFlex></span>
+          <mat-checkbox #autorefresh name="autorefreshRunning" [(ngModel)]="reloadRunning" matTooltip="AutoRefresh">
+          </mat-checkbox>
+        </div>
+      </sa-card-title>
       <sa-card-content>
         <ng-template #runningEmpty>
           <mat-spinner
             strokeWidth="6"
-            *ngIf="loading; else emptyRunningMsg"
+            *ngIf="loadingRunning; else emptyRunningMsg"
             color="accent"
             class="push-top-sm spinnerCenter"
           ></mat-spinner>
@@ -18,7 +24,7 @@
           </ng-template>
         </ng-template>
         <td-data-table
-          *ngIf="!loading && tJobExecsRunning.length > 0; else runningEmpty"
+          *ngIf="!loadingRunning && tJobExecsRunning.length > 0; else runningEmpty"
           #running
           class="useMaxHeight"
           [data]="tJobExecsRunning"
@@ -79,7 +85,9 @@
       <sa-card-title>
         <div fxLayout="row">
           <span>TJob Executions Finished</span> <span fxFlex></span>
-          <button
+          <mat-checkbox #autorefresh name="autorefreshFinished" [(ngModel)]="reloadFinished" matTooltip="AutoRefresh">
+          </mat-checkbox>
+          <button fxFlexOffset="1"
             mat-raised-button
             color="accent"
             (click)="showAllFinished()"
@@ -94,7 +102,7 @@
         <ng-template #finishedEmpty>
           <mat-spinner
             strokeWidth="6"
-            *ngIf="loading; else emptyMsg"
+            *ngIf="loadingFinished; else emptyMsg"
             color="accent"
             class="push-top-sm spinnerCenter"
           ></mat-spinner>
@@ -107,7 +115,7 @@
         </ng-template>
 
         <td-data-table
-          *ngIf="!loading && tJobExecsFinished.length > 0; else finishedEmpty"
+          *ngIf="!loadingFinished && tJobExecsFinished.length > 0; else finishedEmpty"
           #finished
           class="useMaxHeight"
           [data]="tJobExecsFinished"

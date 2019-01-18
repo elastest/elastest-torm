@@ -48,7 +48,7 @@ export class TjobManagerComponent implements OnInit {
     public dialog: MatDialog,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.tJob = new TJobModel();
     this.reloadTJob();
   }
@@ -106,7 +106,7 @@ export class TjobManagerComponent implements OnInit {
               );
               this.reloadTJob();
             },
-            (error) => {
+            (error: Error) => {
               this.deletingInProgress = true;
               this.tJobExecService.popupService.openSnackBar('TJob Execution could not be deleted');
             },
@@ -168,7 +168,7 @@ export class TjobManagerComponent implements OnInit {
               this.deletingInProgress = true;
               this.router.navigate(['/projects']);
             },
-            (error) => {
+            (error: Error) => {
               this.deletingInProgress = true;
               console.log(error);
             },
