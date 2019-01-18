@@ -663,6 +663,19 @@ public class DockerService {
         return this.getNetworkName(containerId, this.getDockerClient(true));
     }
 
+    public List<Object> getContainerNetworks(String containerId,
+            DockerClient dockerClient)
+            throws DockerException, InterruptedException {
+        return Arrays.asList(dockerClient.inspectContainer(containerId)
+                .networkSettings().networks().keySet().toArray());
+    }
+
+    public List<Object> getContainerNetworks(String containerId)
+            throws Exception {
+        return this.getContainerNetworks(containerId,
+                this.getDockerClient(true));
+    }
+
     public String getHostIpByNetwork(String network) throws Exception {
         return this.getDockerClient(false).inspectNetwork(network).ipam()
                 .config().get(0).gateway();
