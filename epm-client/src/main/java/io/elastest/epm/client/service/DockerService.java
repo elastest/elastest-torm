@@ -663,14 +663,14 @@ public class DockerService {
         return this.getNetworkName(containerId, this.getDockerClient(true));
     }
 
-    public List<Object> getContainerNetworks(String containerId,
+    public ImmutableList<String> getContainerNetworks(String containerId,
             DockerClient dockerClient)
             throws DockerException, InterruptedException {
-        return Arrays.asList(dockerClient.inspectContainer(containerId)
-                .networkSettings().networks().keySet().toArray());
+        return dockerClient.inspectContainer(containerId).networkSettings()
+                .networks().keySet().asList();
     }
 
-    public List<Object> getContainerNetworks(String containerId)
+    public ImmutableList<String> getContainerNetworks(String containerId)
             throws Exception {
         return this.getContainerNetworks(containerId,
                 this.getDockerClient(true));
