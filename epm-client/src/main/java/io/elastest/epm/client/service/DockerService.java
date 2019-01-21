@@ -722,7 +722,7 @@ public class DockerService {
             if (container.names() != null) {
                 boolean match = false;
                 for (String name : container.names()) {
-                    if (prefix.equals(name)) {
+                    if (name.startsWith(prefix)) {
                         match = true;
                         break;
                     }
