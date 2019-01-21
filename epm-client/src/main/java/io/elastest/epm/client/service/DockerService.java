@@ -715,7 +715,27 @@ public class DockerService {
     public List<Container> getContainersByNamePrefix(String prefix)
             throws Exception {
         DockerClient dockerClient = this.getDockerClient(true);
-        return dockerClient.listContainers(ListContainersParam.allContainers());
+        List<Container> allContainers = dockerClient
+                .listContainers(ListContainersParam.allContainers());
+        List<Container> matchPrefixContainers = new ArrayList<>();
+        for (Container container : allContainers) {
+            if (container.names() != null) {
+                boolean match = false;
+                for (String name : container.names()) {
+                    if (prefix.equals(name)) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    matchPrefixContainers.add(container);
+                }
+
+            }
+        }
+
+        return matchPrefixContainers;
     }
 
     public List<Container> getContainersCreatedSinceId(String startId)
