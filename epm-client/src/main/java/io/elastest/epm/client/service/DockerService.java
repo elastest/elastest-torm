@@ -722,7 +722,7 @@ public class DockerService {
             if (container.names() != null) {
                 boolean match = false;
                 for (String name : container.names()) {
-                    if (name.startsWith(prefix)) {
+                    if (name.replaceFirst("/", "").startsWith(prefix)) {
                         match = true;
                         break;
                     }
