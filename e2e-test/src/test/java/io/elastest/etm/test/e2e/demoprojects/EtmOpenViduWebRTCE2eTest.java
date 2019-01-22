@@ -84,7 +84,11 @@ public class EtmOpenViduWebRTCE2eTest extends EtmBaseTest {
                     + "echo -n \"/usr/bin/supervisord & \" >> Dockerfile\n"
                     + "echo -n \"echo '##### BUILD OPENVIDU #####';\" >> Dockerfile\n"
                     + "echo -n \"git clone https://github.com/OpenVidu/openvidu.git; \" >> Dockerfile\n"
-                    + "echo -n \"cd openvidu/openvidu-browser;\" >> Dockerfile\n"
+
+                    + "echo -n \"cd openvidu;\" >> Dockerfile\n"
+                    + "echo -n \"git checkout tags/v2.7.0; \" >> Dockerfile\n"
+                    + "echo -n \"cd openvidu-browser;\" >> Dockerfile"
+
                     + "echo -n \"npm install; \" >> Dockerfile\n"
                     + "echo -n \"npm run build; \" >> Dockerfile\n"
                     + "echo -n \"npm link; \" >> Dockerfile\n"
