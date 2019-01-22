@@ -111,7 +111,7 @@
               <div id="filtersBottom" fxLayout="column" class="">
                 <div fxLayout="row">
                   <div fxFlex="25">
-                    <mat-form-field class="noMarginInput noPaddingInput">
+                    <mat-form-field class="noMarginInput noPaddingInput" fxLayout="column">
                       <input matInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1"
                         max="10000" [(ngModel)]="logAnalyzer.maxResults" name="max_results" placeholder="Nº Entries"
                         #logAnalyzerFormElement #logAnalyzerFormControl="ngModel" (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)"
@@ -142,7 +142,7 @@
                   <mat-icon>link</mat-icon> Share link
                 </button>  -->
                   <div fxFlex="90" id="pauseTail" *ngIf="showPauseTail">
-                    <mat-checkbox #pauseTail name="pauseTail" (change)="logAnalyzer.switchPauseTail(pauseTail.checked)"
+                    <mat-checkbox fxLayout="column" fxLayoutAlign="start start" #pauseTail name="pauseTail" (change)="logAnalyzer.switchPauseTail(pauseTail.checked)"
                       title="Pause Tail">Pause Tail</mat-checkbox>
                   </div>
 
