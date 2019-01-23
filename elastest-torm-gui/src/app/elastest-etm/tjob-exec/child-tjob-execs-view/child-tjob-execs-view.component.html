@@ -3,8 +3,7 @@
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title> Configurations Executions List </mat-card-title>
       <mat-divider></mat-divider>
-      <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
-      <centered-element *ngIf="!showSpinner && childrens.length === 0" class="push-top-sm messageEmptyCard">
+      <centered-element *ngIf="childrens.length === 0" class="push-top-sm messageEmptyCard">
         <mat-icon>assignment</mat-icon>
         <p>No Executions generated</p>
       </centered-element>

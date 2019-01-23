@@ -21,7 +21,7 @@ export class EtmComponent implements AfterViewInit, OnInit {
     public media: TdMediaService,
     private elastestRabbitmqService: ElastestRabbitmqService,
     private cdr: ChangeDetectorRef,
-    private configService: ConfigurationService,
+    public configService: ConfigurationService,
   ) {}
 
   ngOnInit() {

@@ -1,32 +1,69 @@
 <self-adjustable-card tdMediaToggle="gt-xs">
-  <sa-card-title>
-    Test Engines
-  </sa-card-title>
+  <sa-card-title> Test Engines </sa-card-title>
 
   <sa-card-content>
-    <td-data-table class="useMaxHeight" [data]="testEngines" [columns]="testEnginesColumns" [selectable]="false"
-      [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
+    <td-data-table
+      class="useMaxHeight"
+      [data]="testEngines"
+      [columns]="testEnginesColumns"
+      [selectable]="false"
+      [clickable]="true"
+      [sortable]="false"
+    >
       <ng-template tdDataTableTemplate="started" let-value="value" let-row="row" let-column="column">
-        {{row.started}}
+        {{ row.started }}
       </ng-template>
       <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
         <div fxLayout="row" class="optionsColumn">
-          <ng-container #waitServiceReady *ngIf="(row.isCreated() && !row.isReady()) || (starting[row.name]!== undefined && starting[row.name] || stopping[row.name]!== undefined && stopping[row.name])">
-            <mat-spinner strokeWidth="3" diameter="20" color="accent" style="vertical-align: middle; display: inline-block"></mat-spinner>
+          <ng-container
+            #waitServiceReady
+            *ngIf="
+              (row.isCreated() && !row.isReady()) ||
+              ((starting[row.name] !== undefined && starting[row.name]) ||
+                (stopping[row.name] !== undefined && stopping[row.name]))
+            "
+          >
+            <mat-spinner
+              strokeWidth="3"
+              diameter="20"
+              color="accent"
+              style="vertical-align: middle; display: inline-block"
+            ></mat-spinner>
           </ng-container>
 
-          <button *ngIf="!row.isCreated() && starting[row.name]!== undefined && !starting[row.name] && stopping[row.name]!== undefined && !stopping[row.name]"
-            mat-button (click)="startTestEngine(row)" class="iconBtn-lg" title="Start Engine">
+          <button
+            *ngIf="
+              !row.isCreated() &&
+              starting[row.name] !== undefined &&
+              !starting[row.name] &&
+              stopping[row.name] !== undefined &&
+              !stopping[row.name]
+            "
+            mat-button
+            (click)="startTestEngine(row)"
+            class="iconBtn-lg"
+            title="Start Engine"
+          >
             <mat-icon>play_circle_outline</mat-icon>
           </button>
 
-          <button *ngIf="row.isReady() && stopping[row.name]!== undefined && !stopping[row.name]; else waitServiceReady"
-            mat-button (click)="viewTestEngine(row)" class="iconBtn-lg" title="View Engine">
+          <button
+            *ngIf="row.isReady() && stopping[row.name] !== undefined && !stopping[row.name]; else waitServiceReady"
+            mat-button
+            (click)="viewTestEngine(row)"
+            class="iconBtn-lg"
+            title="View Engine"
+          >
             <mat-icon>remove_red_eye</mat-icon>
           </button>
 
-          <button *ngIf="(row.isStarting() || row.isReady()) && stopping[row.name]!== undefined && !stopping[row.name]"
-            mat-button (click)="stopTestEngine(row)" class="iconBtn-lg" title="Stop Engine">
+          <button
+            *ngIf="(row.isStarting() || row.isReady()) && stopping[row.name] !== undefined && !stopping[row.name]"
+            mat-button
+            (click)="stopTestEngine(row)"
+            class="iconBtn-lg"
+            title="Stop Engine"
+          >
             <mat-icon>delete</mat-icon>
           </button>
         </div>
