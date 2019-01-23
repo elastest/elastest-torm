@@ -18,7 +18,8 @@
     "webdriver-update": "bash ./node_modules/.bin/webdriver-manager update",
     "test": "ng test --code-coverage --single-run",
     "ghpages-deploy": "ng build --aot --prod --configuration=production --sourcemap=false",
-    "start": "ng serve --proxy-config proxy.conf.json"
+    "start": "ng serve --proxy-config proxy.conf.json",
+    "build-prod": "node --max_old_space_size=8192 ./node_modules/@angular/cli/bin/ng build --prod --aot --configuration=production"
   },
   "engines": {
     "node": ">4.4 < 7",
