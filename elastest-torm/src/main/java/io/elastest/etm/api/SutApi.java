@@ -46,6 +46,16 @@ public interface SutApi extends EtmApiRoot {
     ResponseEntity<Long> deleteSuT(
             @ApiParam(value = "Id of the SUT to delete.", required = true) @PathVariable("sutId") Long sutId);
 
+    @ApiOperation(value = "Duplicates a SuT", response = SutSpecification.class, tags = {
+            "SUT", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = SutSpecification.class),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/sut/{sutId}/duplicate", consumes = {
+            "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<SutSpecification> duplicateSuT(
+            @ApiParam(value = "SuT id to duplicate", required = true) @PathVariable("sutId") Long sutId);
+
     @ApiOperation(value = "Deletes a SUT execution", notes = "Deteltes the SUT Execution whose id matches with a given id.", response = Long.class, tags = {
             "SUT Execution", })
     @ApiResponses(value = {

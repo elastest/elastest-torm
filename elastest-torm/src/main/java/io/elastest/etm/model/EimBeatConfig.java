@@ -2,6 +2,7 @@ package io.elastest.etm.model;
 
 import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+
 import org.hibernate.annotations.GenericGenerator;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -82,12 +85,24 @@ public class EimBeatConfig {
         this.stream = stream;
     }
 
+    public EimBeatConfig(EimBeatConfig beatConfig) {
+        this.id = 0l;
+        this.stream = beatConfig.getStream();
+        this.name = beatConfig.getName();
+        if (beatConfig.getPaths() != null) {
+            this.paths = new ArrayList<>(beatConfig.getPaths());
+        }
+        if (beatConfig.getDockerized() != null) {
+            this.dockerized = new ArrayList<>(beatConfig.getDockerized());
+        }
+    }
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
-        this.id = id;
+        this.id = id != null ? id : 0;
     }
 
     public String getName() {
@@ -160,7 +175,10 @@ public class EimBeatConfig {
         sb.append("    dockerized: ").append(toIndentedString(dockerized))
                 .append("\n");
         sb.append("    eimMonitoringConfig: ")
-                .append(toIndentedString(eimMonitoringConfig)).append("\n");
+                .append(toIndentedString(eimMonitoringConfig != null
+                        ? eimMonitoringConfig.getId()
+                        : "null"))
+                .append("\n");
         sb.append("}");
         return sb.toString();
     }

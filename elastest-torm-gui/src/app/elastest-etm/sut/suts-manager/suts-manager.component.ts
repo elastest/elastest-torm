@@ -178,18 +178,8 @@ export class SutsManagerComponent implements OnInit {
 
   duplicateSut(sut: SutModel): void {
     this.duplicateInProgress = true;
-    if (this.project && !sut.project) {
-      let project: ProjectModel = new ProjectModel();
-      project.id = this.project.id;
-      sut.project = project;
-    } else if (this.exProject && !sut.exProject) {
-      let exProject: ExternalProjectModel = new ExternalProjectModel();
-      exProject.id = this.exProject.id;
-      sut.exProject = exProject;
-    }
-
     this.sutService.duplicateSut(sut).subscribe(
-      (tJob: any) => {
+      (sut: SutModel) => {
         this.init();
       },
       (error: Error) => {

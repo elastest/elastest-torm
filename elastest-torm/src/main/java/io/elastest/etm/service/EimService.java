@@ -285,4 +285,39 @@ public class EimService {
         dbmanager.unbindSession();
     }
 
+    /* **************** */
+    /* **** Others **** */
+    /* **************** */
+
+    public EimConfig getEimConfigById(Long eimConfigId) {
+        return eimConfigRepository.findById(eimConfigId).get();
+    }
+
+    public EimMonitoringConfig getEimMonitoringConfigById(
+            Long eimMonitoringConfigId) {
+        return eimMonitoringConfigRepository.findById(eimMonitoringConfigId)
+                .get();
+    }
+
+    public EimBeatConfig getEimBeatConfigById(Long eimBeatConfigId) {
+        return eimBeatConfigRepository.findById(eimBeatConfigId).get();
+    }
+
+    public EimConfig duplicateEimConfig(Long eimConfigId) {
+        EimConfig eimConfig = eimConfigRepository.findById(eimConfigId).get();
+        return new EimConfig(eimConfig);
+    }
+
+    public EimMonitoringConfig duplicateEimMonitoringConfig(
+            Long eimMonitoringConfigId) {
+        EimMonitoringConfig eimMonitoringConfig = eimMonitoringConfigRepository
+                .findById(eimMonitoringConfigId).get();
+        return new EimMonitoringConfig(eimMonitoringConfig);
+    }
+
+    public EimBeatConfig duplicateEimBeatConfig(Long eimBeatConfigId) {
+        EimBeatConfig eimBeatConfig = eimBeatConfigRepository
+                .findById(eimBeatConfigId).get();
+        return new EimBeatConfig(eimBeatConfig);
+    }
 }

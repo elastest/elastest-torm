@@ -1,11 +1,9 @@
 package io.elastest.etm.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Future;
 
 import javax.xml.ws.http.HTTPException;
@@ -61,7 +59,6 @@ public class SutService {
     public SutSpecification prepareSutToSave(SutSpecification sut) {
         sut = this.prepareEimMonitoringConfig(sut);
         if (sut.getId() == 0) { // If is a new Sut, set
-            logger.debug("asd {}", sut);
             sut = sutRepository.save(sut); // Save first
             SutExecution sutExec = createSutExecutionBySut(sut);
             if (sut.isDeployedOutside()) {
@@ -144,6 +141,12 @@ public class SutService {
                     sut.getEimConfig(), sut.getEimMonitoringConfig());
         }
         sutRepository.delete(sut);
+    }
+
+    public SutSpecification duplicateSut(Long sutId) {
+        SutSpecification sut = sutRepository.findById(sutId).get();
+        SutSpecification newSut = new SutSpecification(sut);
+        return this.createSutSpecification(newSut);
     }
 
     public List<SutSpecification> getAllSutSpecification() {
@@ -231,7 +234,8 @@ public class SutService {
         String esApiUrl = "http://" + extES.getIp() + ":" + extES.getPort();
 
         ElasticsearchService esService = new ElasticsearchService(esApiUrl,
-                extES.getUser(), extES.getPass(), extES.getPath(), utilsService);
+                extES.getUser(), extES.getPass(), extES.getPath(),
+                utilsService);
 
         List<Map<String, Object>> traces = new ArrayList<>();
 
@@ -239,9 +243,9 @@ public class SutService {
         boolean finish = false;
         while (!finish) {
             String indexes = extES.getIndices();
-            for (Parameter param: sut.getParameters()) {
+            for (Parameter param : sut.getParameters()) {
                 if (param.getName().equals("EXT_ELASTICSEARCH_INDICES")) {
-                    indexes =  param.getValue();
+                    indexes = param.getValue();
                     logger.debug("Indexes as String: {}", indexes);
                     break;
                 }

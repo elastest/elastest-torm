@@ -164,6 +164,27 @@ public class EimConfig {
         this.logstashHttpPort = logstashHttpPort;
         this.logstashHttpApiUrl = logstashHttpApiUrl;
     }
+
+    public EimConfig(EimConfig eimConfig) {
+        this.setId(null);
+        this.user = eimConfig.getUser();
+        this.password = eimConfig.getPassword();
+        this.privateKey = eimConfig.getPrivateKey();
+        this.ip = eimConfig.getIp();
+        this.agentId = eimConfig.getAgentId();
+        this.logstashIp = eimConfig.getLogstashIp();
+        this.logstashTcpHost = eimConfig.getLogstashTcpHost();
+        this.logstashTcpPort = eimConfig.getLogstashTcpPort();
+        this.logstashBeatsHost = eimConfig.getLogstashBeatsHost();
+        this.logstashBeatsPort = eimConfig.getLogstashBeatsPort();
+        this.logstashBindedTcpHost = eimConfig.getLogstashBindedTcpHost();
+        this.logstashBindedTcpPort = eimConfig.getLogstashBindedTcpPort();
+        this.logstashBindedBeatsHost = eimConfig.getLogstashBindedBeatsHost();
+        this.logstashBindedBeatsPort = eimConfig.getLogstashBindedBeatsPort();
+        this.logstashHttpPort = eimConfig.getLogstashHttpPort();
+        this.logstashHttpApiUrl = eimConfig.getLogstashHttpApiUrl();
+    }
+
     /* *************************** */
     /* *** Getters and setters *** */
     /* *************************** */
@@ -173,7 +194,7 @@ public class EimConfig {
     }
 
     public void setId(Long id) {
-        this.id = id;
+        this.id = id != null ? id : 0;
     }
 
     public String getUser() {
@@ -325,8 +346,9 @@ public class EimConfig {
                 + ", logstashBindedBeatsHost=" + logstashBindedBeatsHost
                 + ", logstashBindedBeatsPort=" + logstashBindedBeatsPort
                 + ", logstashHttpPort=" + logstashHttpPort
-                + ", logstashHttpApiUrl=" + logstashHttpApiUrl
-                + ", sutSpecification=" + sutSpecification + "]";
+                + ", logstashHttpApiUrl=" + logstashHttpApiUrl + ", sutId="
+                + (sutSpecification != null ? sutSpecification.getId() : "null")
+                + "]";
     }
 
 }

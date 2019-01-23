@@ -2,6 +2,7 @@ package io.elastest.etm.model;
 
 import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -254,6 +255,44 @@ public class SutSpecification {
     /* *****************************/
     /* ********** Enums ************/
     /* *****************************/
+
+    public SutSpecification(SutSpecification sut) {
+        this.id = 0l;
+
+        this.name = sut.name;
+        this.specification = sut.specification;
+        this.description = sut.description;
+        this.sutExecution = new ArrayList<>();
+        this.project = sut.project;
+        this.tJobs = null;
+        this.sutType = sut.sutType;
+        this.instrumentalize = false;
+        this.currentSutExec = null;
+        this.instrumentedBy = sut.instrumentedBy;
+        this.protocol = sut.protocol;
+        this.port = sut.port;
+        this.managedDockerType = sut.managedDockerType;
+        this.mainService = sut.mainService;
+        this.commands = sut.commands;
+        this.commandsOption = sut.commandsOption;
+        this.exProject = sut.exProject;
+        this.exTJobs = null;
+
+        if (sut.parameters != null) {
+            this.parameters = new ArrayList<>();
+            for (Parameter param : sut.parameters) {
+                Parameter newParam = new Parameter(param);
+                this.parameters.add(newParam);
+            }
+        }
+
+        this.externalElasticsearch = new ExternalElasticsearch(
+                sut.externalElasticsearch);
+
+        this.eimConfig = new EimConfig(sut.eimConfig);
+        this.eimMonitoringConfig = new EimMonitoringConfig(
+                sut.eimMonitoringConfig);
+    }
 
     public enum SutTypeEnum {
         MANAGED("MANAGED"),
@@ -834,47 +873,42 @@ public class SutSpecification {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("class SutSpecification {\n");
-        sb.append("    id: ").append(toIndentedString(id)).append("\n");
-        sb.append("    name: ").append(toIndentedString(name)).append("\n");
-        sb.append("    specification: ").append(toIndentedString(specification))
-                .append("\n");
-        sb.append("    description: ").append(toIndentedString(description))
-                .append("\n");
-        sb.append("    project: ").append(toIndentedString(project))
-                .append("\n");
-        sb.append("    sutType: ").append(toIndentedString(sutType))
-                .append("\n");
-        sb.append("    eimConfig: ").append(toIndentedString(eimConfig))
-                .append("\n");
-        sb.append("    eimMonitoringConfig: ")
-                .append(toIndentedString(eimMonitoringConfig)).append("\n");
-        sb.append("    instrumentalize: ")
-                .append(toIndentedString(instrumentalize)).append("\n");
-        sb.append("    currentSutExec: ")
-                .append(toIndentedString(currentSutExec)).append("\n");
-        sb.append("    instrumentedBy: ")
-                .append(toIndentedString(instrumentedBy)).append("\n");
-        sb.append("    protocol: ").append(toIndentedString(protocol))
-                .append("\n");
-        sb.append("    port: ").append(toIndentedString(port)).append("\n");
-        sb.append("    managedDockerType: ")
-                .append(toIndentedString(managedDockerType)).append("\n");
-        sb.append("    mainService: ").append(toIndentedString(mainService))
-                .append("\n");
-        sb.append("    parameters: ").append(toIndentedString(parameters))
-                .append("\n");
-        sb.append("    commands: ").append(toIndentedString(commands))
-                .append("\n");
-        sb.append("    exProject: ").append(toIndentedString(exProject))
-                .append("\n");
-        sb.append("    exTJobs: ").append(toIndentedString(exTJobs))
-                .append("\n");
-        sb.append("    commandsOption: ")
-                .append(toIndentedString(commandsOption)).append("\n");
-        sb.append("    commandsOption: ")
-                .append(toIndentedString(externalElasticsearch)).append("\n");
+        sb = toStringAppender(sb, "id", id);
+        sb = toStringAppender(sb, "name", name);
+        sb = toStringAppender(sb, "specification", specification);
+        sb = toStringAppender(sb, "description", description);
+        sb = toStringAppender(sb, "project id",
+                project != null ? project.getId() : "null");
+        sb = toStringAppender(sb, "sutType", sutType);
+        sb = toStringAppender(sb, "eimConfig", eimConfig);
+        sb = toStringAppender(sb, "eimMonitoringConfig", eimMonitoringConfig);
+        sb = toStringAppender(sb, "instrumentalize", instrumentalize);
+        sb = toStringAppender(sb, "currentSutExec", currentSutExec);
+        sb = toStringAppender(sb, "instrumentedBy", instrumentedBy);
+        sb = toStringAppender(sb, "protocol", protocol);
+        sb = toStringAppender(sb, "port", port);
+        sb = toStringAppender(sb, "managedDockerType", managedDockerType);
+        sb = toStringAppender(sb, "mainService", mainService);
+        sb = toStringAppender(sb, "parameters", parameters);
+        sb = toStringAppender(sb, "commands", commands);
+        sb = toStringAppender(sb, "exProject", exProject);
+        sb = toStringAppender(sb, "exTJobs", exTJobs);
+        sb = toStringAppender(sb, "commandsOption", commandsOption);
+        sb = toStringAppender(sb, "externalElasticsearch",
+                externalElasticsearch);
         sb.append("}");
+
         return sb.toString();
+    }
+
+    public StringBuilder toStringAppender(StringBuilder sb, String fieldName,
+            Object field) {
+        try {
+            sb.append("    " + fieldName + ": ").append(toIndentedString(field))
+                    .append("\n");
+        } catch (Exception e) {
+        }
+        return sb;
     }
 
     public String getSutMonitoringIndex() {

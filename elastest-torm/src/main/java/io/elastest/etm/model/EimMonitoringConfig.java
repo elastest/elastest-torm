@@ -5,6 +5,7 @@ import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -98,6 +99,26 @@ public class EimMonitoringConfig {
         this.beatsStatus = BeatsStatusEnum.DEACTIVATED;
     }
 
+    public EimMonitoringConfig(EimMonitoringConfig eimMonitoringConfig) {
+        this.setId(null);
+        this.exec = null;
+        this.component = eimMonitoringConfig.getComponent();
+        this.dockerized = eimMonitoringConfig.isDockerized();
+        this.beatsStatus = BeatsStatusEnum.DEACTIVATED;
+
+        if (eimMonitoringConfig.beats != null) {
+            this.beats = new HashMap<>();
+            for (Entry<String, EimBeatConfig> beatConfig : eimMonitoringConfig.beats
+                    .entrySet()) {
+                EimBeatConfig newBeatConfig = new EimBeatConfig(
+                        beatConfig.getValue());
+                beats.put(beatConfig.getKey(), newBeatConfig);
+            }
+        }
+
+        this.beats = beats != null ? beats : new HashMap<>();
+    }
+
     public enum BeatsStatusEnum {
         ACTIVATED("ACTIVATED"),
 
@@ -137,7 +158,7 @@ public class EimMonitoringConfig {
     }
 
     public void setId(Long id) {
-        this.id = id;
+        this.id = id != null ? id : 0;
     }
 
     public String getExec() {
@@ -238,8 +259,9 @@ public class EimMonitoringConfig {
         sb.append("    component: ").append(toIndentedString(component))
                 .append("\n");
         sb.append("    beats: ").append(toIndentedString(beats)).append("\n");
-        sb.append("    sutSpecification: ")
-                .append(toIndentedString(sutSpecification)).append("\n");
+        sb.append("    sutSpecification: ").append(toIndentedString(
+                sutSpecification != null ? sutSpecification.getId() : "null"))
+                .append("\n");
         sb.append("}");
         return sb.toString();
     }

@@ -50,11 +50,10 @@ export class SutService {
     return this.configurationService.getLogstashInfo();
   }
 
-  public duplicateSut(sut: SutModel): Observable<any> {
-    let newSut: SutModel = new SutModel(sut);
-    newSut.id = 0;
-    newSut.currentSutExec = undefined;
-    newSut.instrumentalize = false;
-    return this.createSut(newSut);
+  public duplicateSut(sut: SutModel): Observable<SutModel> {
+    let url: string = this.configurationService.configModel.hostApi + '/sut/' + sut.id + '/duplicate';
+    return this.http
+      .post(url, sut, { observe: 'response' })
+      .map((response: HttpResponse<any>) => this.eTModelsTransformServices.jsonToSutModel(response.body));
   }
 }

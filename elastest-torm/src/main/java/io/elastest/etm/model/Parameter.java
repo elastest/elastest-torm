@@ -60,6 +60,12 @@ public class Parameter {
         this.multiConfig = false;
     }
 
+    public Parameter(Parameter param) {
+        this.name = param.name;
+        this.multiConfig = param.multiConfig;
+        this.value = param.value;
+    }
+
     // Getters and setters
     @ApiModelProperty(example = "ELASTEST_HOME", value = "Name of the Environment Variable.")
     public String getName() {
@@ -96,7 +102,8 @@ public class Parameter {
         int result = 1;
         result = prime * result + ((name == null) ? 0 : name.hashCode());
         result = prime * result + ((value == null) ? 0 : value.hashCode());
-        result = prime * result + ((multiConfig == null) ? 0 : multiConfig.hashCode());
+        result = prime * result
+                + ((multiConfig == null) ? 0 : multiConfig.hashCode());
         return result;
     }
 

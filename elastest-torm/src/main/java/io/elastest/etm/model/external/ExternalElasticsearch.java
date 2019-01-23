@@ -98,6 +98,16 @@ public class ExternalElasticsearch {
         this.sutSpecification = sutSpecification;
     }
 
+    public ExternalElasticsearch(ExternalElasticsearch externalElasticsearch) {
+        this.setId(null);
+        this.ip = externalElasticsearch.getIp();
+        this.port = externalElasticsearch.getPort();
+        this.path = externalElasticsearch.getPath();
+        this.user = externalElasticsearch.getUser();
+        this.pass = externalElasticsearch.getPass();
+        this.indices = externalElasticsearch.getIndices();
+    }
+
     /* *************************** */
     /* *** Getters and setters *** */
     /* *************************** */
@@ -169,7 +179,9 @@ public class ExternalElasticsearch {
     public String toString() {
         return "ExternalElasticsearch [id=" + id + ", ip=" + ip + ", port="
                 + port + ", user=" + user + ", pass=" + pass + ", indices="
-                + indices + ", sutSpecification=" + sutSpecification + "]";
+                + indices + ", sutSpecification="
+                + (sutSpecification != null ? sutSpecification.getId() : "null")
+                + "]";
     }
 
 }
