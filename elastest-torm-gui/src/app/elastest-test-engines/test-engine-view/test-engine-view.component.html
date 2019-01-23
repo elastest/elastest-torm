@@ -1,10 +1,10 @@
-<self-adjustable-card *ngIf="url" tdMediaToggle="gt-xs" flex="100">
+<self-adjustable-card *ngIf="url" tdMediaToggle="gt-xs" fxFlex="100">
   <sa-card-title>
     {{engineDisplayName}}
   </sa-card-title>
   <sa-card-content class="push-bottom-none">
-    <!-- <div layout="column" layout-gt-sm="row" [style.height.px]="800"> -->
-    <auto-height-grid layout="column">
+    <!-- <div fxLayout="column" fxLayout.gt-sm="row" [style.height.px]="800"> -->
+    <auto-height-grid fxLayout="column">
       <auto-height-row>
         <iframe name="engine" height="100%" width="100%" scrolling="auto" frameborder="no" [src]="url | safe"></iframe>
       </auto-height-row>

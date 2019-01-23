@@ -5,9 +5,9 @@ import { Observable } from 'rxjs/Rx';
 import { RowSelectedEvent, RowDoubleClickedEvent } from 'ag-grid/dist/lib/events';
 import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, Input } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
 import { dateToInputLiteral, invertColor } from './utils/Utils';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material';
 import { ColumnApi, ComponentStateChangedEvent, GridApi, GridOptions, GridReadyEvent, RowNode, Column } from 'ag-grid/main';
 import { TreeComponent } from 'angular-tree-component';
 import { ShowMessageModalComponent } from './show-message-modal/show-message-modal.component';
@@ -22,13 +22,14 @@ import { MonitoringService } from '../shared/services/monitoring.service';
 import { MonitoringQueryModel } from '../shared/monitoring-query.model';
 import { LogAnalyzerQueryModel } from '../shared/loganalyzer-query.model';
 import { TreeCheckElementModel } from '../shared/ag-tree-model';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'elastest-log-analyzer',
   templateUrl: './elastest-log-analyzer.component.html',
   styleUrls: ['./elastest-log-analyzer.component.scss'],
 })
-export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
+export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDestroy {
   private charsByLine: number = 0;
 
   public gridApi: GridApi;
@@ -47,7 +48,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     suppressRowClickSelection: false,
     suppressCellSelection: false, // Only supress key navigation and focus
     suppressChangeDetection: true,
-    rowModelType: 'inMemory',
+    rowModelType: 'clientSide',
     suppressDragLeaveHidesColumns: true,
     enableCellChangeFlash: true,
     getRowStyle: this.setRowsStyle,
@@ -102,7 +103,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   monitoringService: MonitoringService;
 
   constructor(
-    public dialog: MdDialog,
+    public dialog: MatDialog,
     public router: Router,
     private logAnalyzerService: LogAnalyzerService,
     private tJobExecService: TJobExecService,
@@ -112,7 +113,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     this.monitoringService = this.logAnalyzerService.monitoringService;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setPathName(this.router.routerState.snapshot.url);
     this.logAnalyzer = new LogAnalyzerModel();
     this.initLogAnalyzer();
@@ -122,19 +123,19 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
           this.logAnalyzer.laConfig = logAnalyzerConfig;
         }
       },
-      (error) => {
+      (error: Error) => {
         // Do nothing
       },
     );
     this.initLogAnalyzerQueryModel();
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.fromDate.nativeElement.value = this.getDefaultFromValue();
     this.toDate.nativeElement.value = this.getDefaultToValue();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.logAnalyzer.stopTail();
   }
 
@@ -160,7 +161,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
       };
     }
     if (!this.isEmbed) {
-      this.openSelectExecutions(fromExec);
+      // Timeout is a hack to remove console ExpressionChangedAfterItHasBeenCheckedError error
+      setTimeout(() => this.openSelectExecutions(fromExec), 200);
     } else {
       if (this.tJobId && this.tJobExecId) {
         this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe(
@@ -172,7 +174,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
             };
             this.loadSelectExecutions(data, fromExec);
           },
-          (error) => console.log(error),
+          (error: Error) => console.log(error),
         );
       } else if (this.exTJob && this.exTJobExec) {
         this.externalService.getExternalTJobExecById(this.exTJobExec).subscribe((exTJobExec: ExternalTJobExecModel) => {
@@ -329,7 +331,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   /***** Load functions *****/
   /**************************/
 
-  verifyAndLoadLog($event, loadLog: boolean) {
+  verifyAndLoadLog($event, loadLog: boolean): void {
     $event.preventDefault(); // On enter key pressed always opens modal. Prevent this
     if (loadLog) {
       this.loadLog();
@@ -357,7 +359,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         let logs: any[] = data;
         this.loadLogByGivenData(logs);
       },
-      (error) => {
+      (error: Error) => {
         this.disableBtns = false;
       },
     );
@@ -388,7 +390,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     let timer: Observable<number>;
     this.updateButtons(false);
 
-    timer = Observable.interval(3500);
+    timer = interval(3500);
     this.logAnalyzer.tailSubscription = timer.subscribe(() => {
       if (!this.logAnalyzer.pauseTail) {
         this.loadMore(true);
@@ -420,7 +422,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         }
         this.disableBtns = false;
       },
-      (error) => {
+      (error: Error) => {
         this.disableBtns = false;
       },
     );
@@ -454,7 +456,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
             }
             this.disableBtns = false;
           },
-          (error) => {
+          (error: Error) => {
             this.disableBtns = false;
           },
         );
@@ -517,7 +519,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
     }
   }
   public openMessageModal($event: RowDoubleClickedEvent): void {
-    let dialogRef: MdDialogRef<ShowMessageModalComponent> = this.dialog.open(ShowMessageModalComponent, {
+    let dialogRef: MatDialogRef<ShowMessageModalComponent> = this.dialog.open(ShowMessageModalComponent, {
       data: { row: $event.data, columns: this.logColumns },
       height: '90%',
       width: '80%',
@@ -555,7 +557,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
   }
 
   public saveColumnsConfig(event: any, showPopup: boolean = true, persist: boolean = false): void {
-    if (this.autoRowHeight && event && event.column.colId === 'message' && event.finished) {
+    if (this.autoRowHeight && event && event.column && event.column.colId === 'message' && event.finished) {
       this.setRowHeight(event.column.actualWidth);
     }
     this.logAnalyzer.laConfig.columnsState = this.gridColumnApi.getColumnState();
@@ -564,7 +566,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
         (logAnalyzerConfig: LogAnalyzerConfigModel) => {
           this.logAnalyzer.laConfig = logAnalyzerConfig;
         },
-        (error) => {
+        (error: Error) => {
           this.popup('An error occurred while trying to save the configuration');
           console.log('Error on save LogAnalyzer column configuration:', error);
         },
@@ -594,7 +596,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
           this.popup('There is not any saved configuration to load');
         }
       },
-      (error) => {
+      (error: Error) => {
         this.popup('Error on load saved configuration. Possibly there is not saved config to load');
       },
     );
@@ -644,7 +646,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
   /**** Modal ****/
   public openSelectExecutions(fromExec?: any): void {
-    let dialogRef: MdDialogRef<GetIndexModalComponent> = this.dialog.open(GetIndexModalComponent, {
+    let dialogRef: MatDialogRef<GetIndexModalComponent> = this.dialog.open(GetIndexModalComponent, {
       data: fromExec,
       height: '90%',
       width: '80%',
@@ -724,7 +726,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
 
                     this.loadLogByGivenData(logs);
                   },
-                  (error) => {
+                  (error: Error) => {
                     this.startBehaviourOnNoLogs();
                   },
                 );
@@ -732,7 +734,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
                 this.startBehaviourOnNoLogs();
               }
             },
-            (error) => {
+            (error: Error) => {
               this.startBehaviourOnNoLogs();
             },
           );
@@ -740,7 +742,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit {
           this.startBehaviourOnNoLogs();
         }
       },
-      (error) => {
+      (error: Error) => {
         this.startBehaviourOnNoLogs();
       },
     );

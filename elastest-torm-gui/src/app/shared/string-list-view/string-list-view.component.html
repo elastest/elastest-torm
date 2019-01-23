@@ -1,16 +1,16 @@
-<button md-raised-button color="accent" (click)="addField()" mdTooltip="Add {{fieldName}}" class="iconBtn push-top-sm">
-  <md-icon>add</md-icon>Add {{fieldName}}</button>
+<button mat-raised-button color="accent" (click)="addField()" matTooltip="Add {{fieldName}}" class="iconBtn push-top-sm">
+  <mat-icon>add</mat-icon>Add {{fieldName}}</button>
 
-<div *ngFor="let field of model; let i = index; trackBy:trackByFn" layout-gt-xs="column" layout-gt-md="row" class="pad-bottom push-top">
-  <md-list-item flex-gt-xs="100">
-    <div layout="row" layout-align="center center">
-      <md-input-container>
-        <input mdInput id="{{fieldNameAsPrefix}}{{i}}" value="" [(ngModel)]="model[i]" placeholder="{{fieldName}}" type="text" required>
-      </md-input-container>
+<div *ngFor="let field of model; let i = index; trackBy:trackByFn" fxLayout.gt-xs="column" fxLayout.gt-md="row" class="pad-bottom push-top">
+  <mat-list-item fxFlex.gt-xs="100">
+    <div fxLayout="row" fxLayoutAlign="center center">
+      <mat-form-field>
+        <input matInput id="{{fieldNameAsPrefix}}{{i}}" value="" [(ngModel)]="model[i]" placeholder="{{fieldName}}" type="text" required>
+      </mat-form-field>
 
-      <button md-button (click)="deleteField(i)" mdTooltip="Delete {{fieldName}}" class="iconBtn push-top-sm">
-        <md-icon>delete</md-icon>
+      <button mat-button (click)="deleteField(i)" matTooltip="Delete {{fieldName}}" class="iconBtn push-top-sm">
+        <mat-icon>delete</mat-icon>
       </button>
     </div>
-  </md-list-item>
+  </mat-list-item>
 </div>

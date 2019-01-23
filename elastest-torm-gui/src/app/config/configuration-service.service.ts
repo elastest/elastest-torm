@@ -1,11 +1,10 @@
 import { TransformService } from '../elastest-etm/help/transform.service';
-
-import { Http } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { ConfigModel } from './config-model';
-import { Observable } from 'rxjs/Rx';
 import { CoreServiceModel } from '../elastest-etm/models/core-service.model';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class ConfigurationService {
@@ -16,7 +15,7 @@ export class ConfigurationService {
 
   devHost: string = 'localhost:4200';
 
-  constructor(private http: Http, private transformService: TransformService) {
+  constructor(private http: HttpClient, private transformService: TransformService) {
     console.log('Starting configuration.');
     this.protocol = window.location.protocol;
     this.host = window.location.host;
@@ -25,9 +24,9 @@ export class ConfigurationService {
     console.log('hostapi: ' + this.hostApi);
   }
 
-  load() {
-    return new Promise((resolve, reject) => {
-      this.getServicesInfo().subscribe((servicesInfo) => {
+  load(): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      this.getServicesInfo().subscribe((servicesInfo: any) => {
         let eusUrl: URL =
           servicesInfo.elasTestExecMode !== 'experimental' && servicesInfo.eusSSInstance !== null
             ? new URL(servicesInfo.eusSSInstance.urls.api)
@@ -74,29 +73,29 @@ export class ConfigurationService {
 
   public getServicesInfo(): Observable<any> {
     let url: string = this.hostApi + '/context/services/info';
-    return this.http.get(url).map((response) => response.json());
+    return this.http.get(url);
   }
 
   public getWSHost(): Observable<any> {
     let url: string = this.hostApi + '/context/ws-host';
-    return this.http.get(url).map((response) => response['_body']);
+    return this.http.get(url, { responseType: 'text' });
   }
 
   public getLogstashIp(): Observable<any> {
     let hostApi: string = this.configModel.hostApi;
     let url: string = hostApi + '/context/logstash/ip';
-    return this.http.get(url).map((response) => response['_body']);
+    return this.http.get(url, { responseType: 'text' });
   }
 
   public getLogstashInfo(): Observable<any> {
     let hostApi: string = this.configModel.hostApi;
     let url: string = hostApi + '/context/logstash/info';
-    return this.http.get(url).map((response) => response.json());
+    return this.http.get(url);
   }
 
   public getHelpInfo(): Observable<any> {
     let url: string = this.configModel.hostApi + '/context/help/info';
-    return this.http.get(url).map((response) => response.json());
+    return this.http.get(url);
   }
 
   /* ********************* */
@@ -105,7 +104,7 @@ export class ConfigurationService {
 
   public getCoreServicesInfo(): Observable<CoreServiceModel[]> {
     let url: string = this.configModel.hostApi + '/context/coreservices/info';
-    return this.http.get(url).map((response) => this.transformService.jsonToCoreServicesList(response.json()));
+    return this.http.get(url).map((response: object[]) => this.transformService.jsonToCoreServicesList(response));
   }
 
   public getAllCoreServiceLogs(coreServiceName: string, withFollow: boolean): Observable<string> {
@@ -113,7 +112,7 @@ export class ConfigurationService {
     if (withFollow) {
       url += '/follow';
     }
-    return this.http.get(url).map((response) => response['_body']);
+    return this.http.get(url, { responseType: 'text' });
   }
 
   public getSomeCoreServiceLogs(coreServiceName: string, amount: number, withFollow: boolean): Observable<string> {
@@ -121,7 +120,7 @@ export class ConfigurationService {
     if (withFollow) {
       url += '/follow';
     }
-    return this.http.get(url).map((response) => response['_body']);
+    return this.http.get(url, { responseType: 'text' });
   }
 
   public getCoreServiceLogsSince(coreServiceName: string, since: number, withFollow: boolean): Observable<string> {
@@ -129,7 +128,7 @@ export class ConfigurationService {
     if (withFollow) {
       url += '/follow';
     }
-    return this.http.get(url).map((response) => response['_body']);
+    return this.http.get(url, { responseType: 'text' });
   }
 
   public logsWithTimestampToLogViewTraces(logs: string): any[] {

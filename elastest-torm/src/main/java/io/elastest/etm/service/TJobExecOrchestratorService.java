@@ -785,24 +785,27 @@ public class TJobExecOrchestratorService {
     }
 
     public void deprovisionServices(TJobExecution tJobExec) {
-        logger.info("Start the service deprovision.");
+        Long execId = tJobExec.getId();
+        logger.info("TJob Exec {} => Start the services deprovision.", execId);
         List<String> instancesAux = new ArrayList<String>();
         if (tJobExec.getServicesInstances().size() > 0) {
             logger.debug(
-                    "Deprovisioning TJob's TSSs stored in the TJob object");
+                    "TJob Exec {} => Deprovisioning TJob's TSSs stored in the TJob object",
+                    execId);
             instancesAux = tJobExec.getServicesInstances();
         } else if (esmService.gettSSIByTJobExecAssociated()
-                .get(tJobExec.getId()) != null) {
-            logger.debug("Deprovisioning TJob's TSSs stored in the EsmService");
-            instancesAux = esmService.gettSSIByTJobExecAssociated()
-                    .get(tJobExec.getId());
+                .get(execId) != null) {
+            logger.debug(
+                    "TJob Exec {} => Deprovisioning TJob's TSSs stored in the EsmService",
+                    execId);
+            instancesAux = esmService.gettSSIByTJobExecAssociated().get(execId);
         }
 
-        logger.debug("TSS list size: {}", instancesAux);
+        logger.debug("TJob Exec {} => TSS list size: {}", execId, instancesAux);
         for (String instanceId : instancesAux) {
-            esmService.deprovisionTJobExecServiceInstance(instanceId,
-                    tJobExec.getId());
-            logger.debug("TSS Instance id to deprovision: {}", instanceId);
+            esmService.deprovisionTJobExecServiceInstance(instanceId, execId);
+            logger.debug("TJob Exec {} => TSS Instance id to deprovision: {}",
+                    execId, instanceId);
         }
     }
 

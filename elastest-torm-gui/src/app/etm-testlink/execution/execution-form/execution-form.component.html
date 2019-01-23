@@ -1,59 +1,59 @@
 <div id="testCaseName">
-  <p class="md-headline push-top-none push-bottom-sm">
+  <p class="mat-headline push-top-none push-bottom-sm">
     Test Case Name:
     <strong>{{testCase.name}}</strong>
   </p>
 </div>
-<div layout="column" id="testCaseDiv" class="pad-bottom-sm">
-  <div layout="row">
-    <div flex="50">
-      <md-list>
-        <md-list-item>
+<div fxLayout="column" id="testCaseDiv" class="pad-bottom-sm">
+  <div fxLayout="row">
+    <div fxFlex="50">
+      <mat-list>
+        <mat-list-item>
           <p>
             Test Case Version:
             <strong>{{testCase.version}}</strong>
           </p>
-        </md-list-item>
-      </md-list>
+        </mat-list-item>
+      </mat-list>
     </div>
-    <div flex="50">
-      <md-list>
-        <md-list-item>
+    <div fxFlex="50">
+      <mat-list>
+        <mat-list-item>
           <p>Last Execution:
             <strong [style.color]="resultObj.color"> {{testCase.executionStatus}}</strong>
           </p>
-        </md-list-item>
-      </md-list>
+        </mat-list-item>
+      </mat-list>
     </div>
   </div>
-  <md-divider></md-divider>
-  <div layout="row" class="push-top">
-    <div flex="50" id="testCaseInfo">
-      <span class="md-subhead">
+  <mat-divider></mat-divider>
+  <div fxLayout="row" class="push-top">
+    <div fxFlex="50" id="testCaseInfo">
+      <span class="mat-subheading-1">
         <strong>Summary</strong>
       </span>
       <p id="summary" [innerHTML]="testCase.summary"></p>
     </div>
-    <div flex="50" id="testCaseInfo">
-      <span class="md-subhead">
+    <div fxFlex="50" id="testCaseInfo">
+      <span class="mat-subheading-1">
         <strong>Preconditions</strong>
       </span>
       <p id="preconditions" [innerHTML]="testCase.preconditions"></p>
     </div>
   </div>
-  <md-divider></md-divider>
-  <div layout="column" class="push-top">
-    <div flex class="pad-left-none md-title push-bottom-sm" id="executionTableTitle">
+  <mat-divider></mat-divider>
+  <div fxLayout="column" class="push-top">
+    <div fxFlex class="pad-left-none mat-title push-bottom-sm" id="executionTableTitle">
       <strong>
         Test Case Steps
       </strong>
     </div>
-    <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+    <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
     <centered-element *ngIf="!showSpinner && testCase.steps.length === 0" class=" messageEmptyCard">
-      <md-icon>assignment</md-icon>
+      <mat-icon>assignment</mat-icon>
       <p>Steps not created </p>
     </centered-element>
-    <td-data-table flex #stepsTable *ngIf="testCase.steps && testCase.steps.length > 0" class="scroll_table" [data]="testCase.steps"
+    <td-data-table fxFlex #stepsTable *ngIf="testCase.steps && testCase.steps.length > 0" class="scroll_table" [data]="testCase.steps"
       [columns]="testCaseStepsColumns" [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
       <ng-template *ngFor="let column of testCaseStepsColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
         <div *ngIf="column.name === 'actions' || column.name === 'expectedResults'; else onlyValue" [innerHTML]="value"></div>
@@ -63,18 +63,18 @@
   </div>
 
   <form #caseForm="ngForm" class="push-top-sm">
-    <div layout="column" layout-margin>
-      <div layout="row">
-        <md-radio-group [(ngModel)]="tcExec.status" placeholder="Select a status" name="status" id="executionStatus" #nameControl="ngModel"
+    <div fxLayout="column" fxLayoutMargin>
+      <div fxLayout="row">
+        <mat-radio-group [(ngModel)]="tcExec.status" placeholder="Select a status" name="status" id="executionStatus" #nameControl="ngModel"
           required>
-          <md-radio-button *ngFor="let status of testCase.getExecStatusValuesToExec()" [id]="'status-' + status" [value]="status" class="push-right-sm">{{status}}</md-radio-button>
-        </md-radio-group>
+          <mat-radio-button *ngFor="let status of testCase.getExecStatusValuesToExec()" [id]="'status-' + status" [value]="status" class="push-right-sm">{{status}}</mat-radio-button>
+        </mat-radio-group>
       </div>
 
-      <div layout="column">
-        <md-input-container flex="50">
-          <textarea #notes id="notes" autosize mdInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
-        </md-input-container>
+      <div fxLayout="column">
+        <mat-form-field fxFlex="50">
+          <textarea #notes id="notes" autosize matInput placeholder="Notes" [(ngModel)]="tcExec.notes" name="notes"></textarea>
+        </mat-form-field>
       </div>
     </div>
   </form>

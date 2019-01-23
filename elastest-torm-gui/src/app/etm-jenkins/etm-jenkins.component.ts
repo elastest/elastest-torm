@@ -2,8 +2,8 @@ import { Component, OnInit, Input, OnDestroy, HostListener } from '@angular/core
 import { TitlesService } from '../shared/services/titles.service';
 import { EtPluginsService } from '../elastest-test-engines/et-plugins.service';
 import { EtPluginModel } from '../elastest-test-engines/et-plugin-model';
-import { Subscription, Observable } from 'rxjs';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { Subscription, Observable, interval } from 'rxjs';
+import { MatDialog, MatDialogRef } from '@angular/material';
 import { CredentialsDialogComponent } from '../shared/credentials-dialog/credentials-dialog.component';
 
 @Component({
@@ -22,7 +22,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
   timer: Observable<number>;
   subscription: Subscription;
 
-  constructor(private titlesService: TitlesService, private etPluginsService: EtPluginsService, public dialog: MdDialog) {}
+  constructor(private titlesService: TitlesService, private etPluginsService: EtPluginsService, public dialog: MatDialog) {}
 
   ngOnInit() {
     if (!this.isNested) {
@@ -61,7 +61,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
   }
 
   waitForReady(): void {
-    this.timer = Observable.interval(1800);
+    this.timer = interval(1800);
     if (
       this.jenkinsModel.isCreated() &&
       !this.jenkinsModel.isReady() &&
@@ -114,14 +114,13 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
   }
 
   openDialog(): void {
-    let dialogRef:MdDialogRef<CredentialsDialogComponent> = this.dialog.open(CredentialsDialogComponent, {
+    let dialogRef: MatDialogRef<CredentialsDialogComponent> = this.dialog.open(CredentialsDialogComponent, {
       height: '30%',
       width: '40%',
       data: this.jenkinsModel,
     });
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       console.log(`Dialog closed: ${result}`);
-      
     });
   }
 }

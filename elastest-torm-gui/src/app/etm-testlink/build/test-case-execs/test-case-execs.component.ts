@@ -1,18 +1,15 @@
 import { TLTestCaseModel } from '../../models/test-case-model';
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../../shared/services/titles.service';
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TestLinkService } from '../../testlink.service';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
-
-
 
 @Component({
   selector: 'testlink-test-case-execs',
   templateUrl: './test-case-execs.component.html',
-  styleUrls: ['./test-case-execs.component.scss']
+  styleUrls: ['./test-case-execs.component.scss'],
 })
 export class TestCaseExecsComponent implements OnInit {
   testCase: TLTestCaseModel;
@@ -36,11 +33,13 @@ export class TestCaseExecsComponent implements OnInit {
     // { name: 'options', label: 'Options' },
   ];
 
-  constructor(private titlesService: TitlesService, private testLinkService: TestLinkService,
-    private route: ActivatedRoute, private router: Router,
-    private _dialogService: TdDialogService, private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog
-  ) { }
+  constructor(
+    private titlesService: TitlesService,
+    private testLinkService: TestLinkService,
+    private route: ActivatedRoute,
+    private router: Router,
+    public dialog: MatDialog,
+  ) {}
 
   ngOnInit() {
     this.titlesService.setHeadTitle('Test Case Execs');
@@ -50,13 +49,12 @@ export class TestCaseExecsComponent implements OnInit {
 
   loadCase(): void {
     if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.switchMap(
-        (params: Params) => {
+      this.route.params
+        .switchMap((params: Params) => {
           this.testProjectId = params['projectId'];
           this.buildId = params['buildId'];
           return this.testLinkService.getTestCaseById(params['caseId']);
-        }
-      )
+        })
         .subscribe((testCase: TLTestCaseModel) => {
           this.testCase = testCase;
           this.titlesService.setPathName(this.router.routerState.snapshot.url);
@@ -67,8 +65,7 @@ export class TestCaseExecsComponent implements OnInit {
   }
 
   loadExecs(): void {
-    this.testLinkService.getBuildCaseExecs(this.testCase.id, this.buildId)
-      .subscribe(
+    this.testLinkService.getBuildCaseExecs(this.testCase.id, this.buildId).subscribe(
       (execs: TestCaseExecutionModel[]) => {
         this.execs = execs.reverse(); // To sort
         this.showSpinner = false;
@@ -76,5 +73,4 @@ export class TestCaseExecsComponent implements OnInit {
       (error) => console.log(error),
     );
   }
-
 }

@@ -6,7 +6,7 @@ import { Observable, Subject } from 'rxjs/Rx';
 import { TJobService } from '../tjob/tjob.service';
 
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material';
 import { AbstractTJobModel } from '../models/abstract-tjob-model';
 import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
 import { TJobModel } from '../tjob/tjob-model';
@@ -50,7 +50,7 @@ export class EtmMonitoringViewComponent implements OnInit {
     private externalService: ExternalService,
     private logAnalyzerService: LogAnalyzerService,
     private tJobService: TJobService,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
   ) {}
 
   ngOnInit() {}
@@ -218,7 +218,7 @@ export class EtmMonitoringViewComponent implements OnInit {
   }
 
   public openMonitoringConfig(): void {
-    let dialogRef: MdDialogRef<MonitoringConfigurationComponent> = this.dialog.open(MonitoringConfigurationComponent, {
+    let dialogRef: MatDialogRef<MonitoringConfigurationComponent> = this.dialog.open(MonitoringConfigurationComponent, {
       data: { exec: this.tJobExec, logCards: this.logsGroup, metricCards: this.metricsGroup },
       height: '80%',
       width: '90%',

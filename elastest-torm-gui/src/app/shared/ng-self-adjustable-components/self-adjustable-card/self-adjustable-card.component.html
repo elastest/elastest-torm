@@ -1,21 +1,22 @@
-<auto-height-grid layout="column">
-  <!-- Md card with flex like auto-height-row -->
-  <md-card flex class="sa-card">
-    <auto-height-grid layout="column">
+<auto-height-grid fxLayout="column">
+  <!-- Md card with fxFlex like auto-height-row -->
+  <mat-card fxFlex="100" class="sa-card">
+    <auto-height-grid fxLayout="column">
       <normal-height-row>
-        <!-- <md-card-title layout-align="{{titleAlignHorizontal}} {{titleAlignVertical}}" class="sa-card-title"> -->
-        <md-card-title class="sa-card-title"> <ng-content select="sa-card-title"></ng-content> </md-card-title>
-        <md-divider class="sa-card-divider"></md-divider>
+        <!-- <mat-card-title fxLayoutAlign="{{titleAlignHorizontal}} {{titleAlignVertical}}" class="sa-card-title"> -->
+        <mat-card-title class="sa-card-title"> <ng-content select="sa-card-title"></ng-content> </mat-card-title>
+        <mat-divider class="sa-card-divider"></mat-divider>
       </normal-height-row>
 
-      <auto-height-row layout="column">
-        <auto-height-grid layout="column">
-          <md-card-content class="sa-card-content" flex>
-            <!-- <div layout="column" layout-align="{{contentAlignHorizontal}} {{contentAlignVertical}}" layout-fill> -->
+      <auto-height-row fxLayout="column">
+        <auto-height-grid fxLayout="column">
+          <mat-card-content class="sa-card-content" fxFlex="100">
+            <!-- <div fxLayout="column" fxLayoutAlign="{{contentAlignHorizontal}} {{contentAlignVertical}}" fxFlexFill> -->
             <ng-content select="sa-card-content"></ng-content>
-          </md-card-content>
+            <!-- </div> -->
+          </mat-card-content>
         </auto-height-grid>
       </auto-height-row>
     </auto-height-grid>
-  </md-card>
+  </mat-card>
 </auto-height-grid>

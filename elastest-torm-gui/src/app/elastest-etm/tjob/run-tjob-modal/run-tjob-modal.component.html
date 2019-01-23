@@ -1,27 +1,27 @@
-<h2 md-dialog-title>Run TJob Parameters</h2>
-<md-dialog-content>
+<h2 mat-dialog-title>Run TJob Parameters</h2>
+<mat-dialog-content>
   <ng-container *ngIf="!initializing && tJob; else showSpinner">
     <!-- <div *ngIf="tJob.hasMultiConfiguration()">
-      <md-card-subtitle>TJob Multi Configurations</md-card-subtitle>
+      <mat-card-subtitle>TJob Multi Configurations</mat-card-subtitle>
       <multi-config-view [model]="tJob.multiConfigurations"></multi-config-view>
     </div> -->
     <div *ngIf="tJob.parameters.length > 0">
-      <md-card-subtitle>TJob Parameters</md-card-subtitle>
+      <mat-card-subtitle>TJob Parameters</mat-card-subtitle>
       <parameters-view [model]="tJob.parameters"></parameters-view>
     </div>
     <div *ngIf="hasSut() && tJob.sut.parameters.length > 0">
-      <md-card-subtitle>SuT Parameters</md-card-subtitle>
+      <mat-card-subtitle>SuT Parameters</mat-card-subtitle>
       <parameters-view [model]="tJob.sut.parameters"></parameters-view>
     </div>
   </ng-container>
 
   <ng-template #showSpinner>
-    <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+    <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
   </ng-template>
-</md-dialog-content>
+</mat-dialog-content>
 
-<md-dialog-actions layout="row" layout-align="end left">
-  <button md-raised-button color="accent" [md-dialog-close]="true" (click)="runTJob()" [disabled]="initializing">Run
+<mat-dialog-actions fxLayout="row" fxLayoutAlign="end left">
+  <button mat-raised-button color="accent" [mat-dialog-close]="true" (click)="runTJob()" [disabled]="initializing">Run
     TJob</button>
-  <button md-button md-dialog-close>Cancel</button>
-</md-dialog-actions>
+  <button mat-button mat-dialog-close>Cancel</button>
+</mat-dialog-actions>

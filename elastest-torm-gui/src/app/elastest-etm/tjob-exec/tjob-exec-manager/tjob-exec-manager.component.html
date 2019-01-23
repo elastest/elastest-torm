@@ -1,11 +1,11 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-    <div flex-gt-sm="100">
-        <md-card tdMediaToggle="gt-xs">
-            <md-card-title>
-                <div layout="row">
+<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
+    <div fxFlex.gt-sm="100">
+        <mat-card tdMediaToggle="gt-xs">
+            <mat-card-title>
+                <div fxLayout="row">
                     <span>
-                        <md-icon *ngIf="tJobExec.finished()" style="vertical-align: sub;" [style.color]="statusIcon.color"
-                            mdTooltip="{{tJobExec.result}}">{{statusIcon.name}}</md-icon>
+                        <mat-icon *ngIf="tJobExec.finished()" style="vertical-align: sub;" [style.color]="statusIcon.color"
+                            matTooltip="{{tJobExec.result}}">{{statusIcon.name}}</mat-icon>
                     </span>
                     <a *ngIf="tJob" (click)="viewTJob()" class="hover-pointer">
                         <span *ngIf="tJobExec.isParent() || tJobExec.isChild()">Multi-Configuration</span>
@@ -15,80 +15,80 @@
                     <span *ngIf="tJobExec.isChild()">&nbsp;Configuration</span>
 
                     <span>&nbsp;Execution {{tJobExecId}}</span>
-                    <span flex></span>
+                    <span fxFlex></span>
                     <div>
-                        <button id="openExternalUrlBtn" md-button *ngIf="tJobExec.getExternalUrl()" (click)="openExternalUrl()" stopRowClick
-                            mdTooltip="Open External URL" class="onlyIconBtn iconBtn-lg">
-                            <md-icon>open_in_new</md-icon>
+                        <button id="openExternalUrlBtn" mat-button *ngIf="tJobExec.getExternalUrl()" (click)="openExternalUrl()" stopRowClick
+                            matTooltip="Open External URL" class="onlyIconBtn iconBtn-lg">
+                            <mat-icon>open_in_new</mat-icon>
                         </button>
-                        <button id="viewExecutionInLogAnalyzer" md-button (click)="viewInLogAnalyzer()" class="onlyIconBtn iconBtn-lg"
-                            mdTooltip="View in Log Analyzer">
-                            <md-icon>library_books</md-icon>
+                        <button id="viewExecutionInLogAnalyzer" mat-button (click)="viewInLogAnalyzer()" class="onlyIconBtn iconBtn-lg"
+                            matTooltip="View in Log Analyzer">
+                            <mat-icon>library_books</mat-icon>
                         </button>
-                        <button id="openMonitoringConfigBtn" md-button *ngIf="showLogsAndMetrics" (click)="logsAndMetrics.openMonitoringConfig()"
-                            class="onlyIconBtn iconBtn-lg" mdTooltip="Open Monitoring Config">
-                            <md-icon>settings</md-icon>
+                        <button id="openMonitoringConfigBtn" mat-button *ngIf="showLogsAndMetrics" (click)="logsAndMetrics.openMonitoringConfig()"
+                            class="onlyIconBtn iconBtn-lg" matTooltip="Open Monitoring Config">
+                            <mat-icon>settings</mat-icon>
                         </button>
-                        <button id="deleteTJobExecBtn" md-button (click)="deleteTJobExec()" [disabled]="deletingInProgress || downloading"
-                            stopRowClick mdTooltip="Delete TJob Execution" class="onlyIconBtn iconBtn-lg">
-                            <md-icon>delete</md-icon>
+                        <button id="deleteTJobExecBtn" mat-button (click)="deleteTJobExec()" [disabled]="deletingInProgress || downloading"
+                            stopRowClick matTooltip="Delete TJob Execution" class="onlyIconBtn iconBtn-lg">
+                            <mat-icon>delete</mat-icon>
                         </button>
-                        <button id="downloadAsJsonBtn" md-button (click)="downloadAsJson()" [disabled]="deletingInProgress || downloading"
-                            stopRowClick mdTooltip="Download as Json" class="onlyIconBtn iconBtn-lg">
-                            <md-icon>cloud_download</md-icon>
+                        <button id="downloadAsJsonBtn" mat-button (click)="downloadAsJson()" [disabled]="deletingInProgress || downloading"
+                            stopRowClick matTooltip="Download as Json" class="onlyIconBtn iconBtn-lg">
+                            <mat-icon>cloud_download</mat-icon>
                         </button>
                     </div>
                 </div>
-            </md-card-title>
+            </mat-card-title>
 
-            <md-divider></md-divider>
+            <mat-divider></mat-divider>
 
-            <md-card-content>
-                <div layout="row">
-                    <span flex="10" flex-gt-xl="5">
-                        <md-card-subtitle>Result</md-card-subtitle>
+            <mat-card-content>
+                <div fxLayout="row">
+                    <span fxFlex="10" fxFlex.gt-xl="5">
+                        <mat-card-subtitle>Result</mat-card-subtitle>
                         <h4 id="resultMsgText" [style.color]="statusIcon.color">{{tJobExec.result}}</h4>
                     </span>
 
-                    <span flex="10" flex-gt-lg="5" *ngIf="tJobExec.isChild() && tJobExec.execParent">
-                        <md-card-subtitle>Multi-Configuration</md-card-subtitle>
-                        <h4 mdTooltip="Navigate to Multi Axis Configurations">
+                    <span fxFlex="10" fxFlex.gt-lg="5" *ngIf="tJobExec.isChild() && tJobExec.execParent">
+                        <mat-card-subtitle>Multi-Configuration</mat-card-subtitle>
+                        <h4 matTooltip="Navigate to Multi Axis Configurations">
                             <a (click)="viewParent()" class="hover-pointer">
                                 {{ tJobExec.execParent.id }}
                             </a>
                         </h4>
                     </span>
 
-                    <span flex="10" *ngIf="tJobExec.duration">
-                        <md-card-subtitle>Duration(sec)</md-card-subtitle>
+                    <span fxFlex="10" *ngIf="tJobExec.duration">
+                        <mat-card-subtitle>Duration(sec)</mat-card-subtitle>
                         <h4>{{ tJobExec.duration }}</h4>
                     </span>
 
-                    <span flex="20">
-                        <md-card-subtitle>Start Date</md-card-subtitle>
+                    <span fxFlex="20">
+                        <mat-card-subtitle>Start Date</mat-card-subtitle>
                         <h4>{{ tJobExec.startDate | date:'dd/MM/yyyy HH:mm:ss' }}</h4>
                     </span>
-                    <span flex="20">
-                        <md-card-subtitle>End Date</md-card-subtitle>
+                    <span fxFlex="20">
+                        <mat-card-subtitle>End Date</mat-card-subtitle>
                         <h4>{{ tJobExec.endDate | date:'dd/MM/yyyy HH:mm:ss' }}</h4>
                     </span>
 
                     <ng-container>
-                        <span flex="15">
-                            <md-card-subtitle>Sut Execution</md-card-subtitle>
+                        <span fxFlex="15">
+                            <mat-card-subtitle>Sut Execution</mat-card-subtitle>
                             <h4 *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== null && tJobExec.sutExec.id !== 0; else NoneSutExec">{{tJobExec.sutExec.id}}</h4>
                             <ng-template #NoneSutExec>
                                 <h4>None</h4>
                             </ng-template>
                         </span>
                     </ng-container>
-                    <span flex="15">
-                        <md-card-subtitle>Log Index</md-card-subtitle>
+                    <span fxFlex="15">
+                        <mat-card-subtitle>Log Index</mat-card-subtitle>
                         <h4>{{tJobExec.monitoringIndex}}</h4>
                     </span>
 
-                    <span flex="10">
-                        <md-card-subtitle>Monitoring Storage</md-card-subtitle>
+                    <span fxFlex="10">
+                        <mat-card-subtitle>Monitoring Storage</mat-card-subtitle>
                         <h4 *ngIf="tJobExec.monitoringStorageType && tJobExec.monitoringStorageType !== ''; else NoneMonitoringStorage">{{tJobExec.monitoringStorageType}}</h4>
                         <ng-template #NoneMonitoringStorage>
                             <h4>Unknown</h4>
@@ -96,9 +96,9 @@
                     </span>
 
                 </div>
-                <div layout="column" *ngIf="tJobExec.finished() && tJobExec.resultError()">
-                    <md-divider></md-divider>
-                    <div layout="row" [style.color]="statusIcon.color" class="push-top-sm">
+                <div fxLayout="column" *ngIf="tJobExec.finished() && tJobExec.resultError()">
+                    <mat-divider></mat-divider>
+                    <div fxLayout="row" [style.color]="statusIcon.color" class="push-top-sm">
                         {{tJobExec.resultMsg}}
                     </div>
                 </div>
@@ -116,8 +116,8 @@
                         </td-data-table>
                     </td-expansion-panel>
                 </ng-container>
-            </md-card-content>
-        </md-card>
+            </mat-card-content>
+        </mat-card>
     </div>
 </div>
 
@@ -131,8 +131,8 @@
 
 <ng-template #showNormalExecutionView>
     <!-- Test Suite / Cases -->
-    <div id="testSuitesView" layout-gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0">
-        <etm-test-suites-view flex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
+    <div id="testSuitesView" fxLayout.gt-sm="row" tdMediaToggle="gt-xs" *ngIf="tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0">
+        <etm-test-suites-view fxFlex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
     </div>
     <!-- logs & Metrics -->
     <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false "></etm-monitoring-view>

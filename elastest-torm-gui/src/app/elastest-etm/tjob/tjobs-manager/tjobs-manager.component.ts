@@ -4,7 +4,7 @@ import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob.service';
 import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 import { TdDialogService, IConfirmConfig } from '@covalent/core';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { TJobModel } from '../tjob-model';
 import { ProjectModel } from '../../project/project-model';
@@ -30,13 +30,13 @@ export class TJobsManagerComponent implements OnInit {
 
   // TJob Data
   tjobColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
+    { name: 'result', label: 'Result', width: 74 },
     { name: 'name', label: 'Name' },
     { name: 'imageName', label: 'Image Name' },
     { name: 'lastExecutionDate', label: 'Last Execution' },
-    { name: 'result', label: 'Result' },
-    { name: 'sut', label: 'Sut' },
-    { name: 'multi', label: 'Multi Axis' },
+    { name: 'sut', label: 'Sut', width: 80 },
+    { name: 'multi', label: 'Multi Axis', width: 92 },
     { name: 'options', label: 'Options' },
   ];
 
@@ -46,7 +46,7 @@ export class TJobsManagerComponent implements OnInit {
     private tJobExecService: TJobExecService,
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
     private router: Router,
     private route: ActivatedRoute,
     private projectService: ProjectService,

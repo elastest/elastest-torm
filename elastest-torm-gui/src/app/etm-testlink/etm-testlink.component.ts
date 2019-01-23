@@ -5,10 +5,10 @@ import { TitlesService } from '../shared/services/titles.service';
 import { TestProjectModel } from './models/test-project-model';
 import { Component, Input, OnInit, ViewContainerRef, HostListener, OnDestroy } from '@angular/core';
 import { TestLinkService } from './testlink.service';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material';
 import { EtPluginsService } from '../elastest-test-engines/et-plugins.service';
 import { EtPluginModel } from '../elastest-test-engines/et-plugin-model';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription, Observable, interval } from 'rxjs';
 import { CredentialsDialogComponent } from '../shared/credentials-dialog/credentials-dialog.component';
 
 @Component({
@@ -31,7 +31,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
 
   // Project data
   projectColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Project' },
     { name: 'prefix', label: 'Prefix' },
     { name: 'notes', label: 'Notes' },
@@ -52,7 +52,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
   constructor(
     private titlesService: TitlesService,
     private testlinkService: TestLinkService,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
     private etPluginsService: EtPluginsService,
   ) {}
 
@@ -93,7 +93,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
   }
 
   waitForReady(): void {
-    this.timer = Observable.interval(1800);
+    this.timer = interval(1800);
     if (
       this.testLinkModel.isCreated() &&
       !this.testLinkModel.isReady() &&
@@ -177,7 +177,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
   }
 
   openDialog(): void {
-    let dialogRef:MdDialogRef<CredentialsDialogComponent> = this.dialog.open(CredentialsDialogComponent, {
+    let dialogRef:MatDialogRef<CredentialsDialogComponent> = this.dialog.open(CredentialsDialogComponent, {
       height: '30%',
       width: '40%',
       data: this.testLinkModel,

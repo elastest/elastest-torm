@@ -1,28 +1,28 @@
-<md-card tdMediaToggle="gt-xs" [mediaClasses]="['push']">
-  <md-card-title>
+<mat-card tdMediaToggle="gt-xs" [mediaClasses]="['push']">
+  <mat-card-title>
     <span *ngIf="exTJob && exTJob.id == 0">New External TJob</span>
     <span *ngIf="exTJob && exTJob.id > 0">Edit External TJob "{{exTJob.name}}"</span>
-  </md-card-title>
-  <md-divider></md-divider>
-  <md-card-content class="push-bottom-none">
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <mat-card-content class="push-bottom-none">
     <form #tJobForm="ngForm">
-      <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
-        <div *ngIf="exTJob.exProject !== undefined" class="push-top push-bottom" flex-gt-md="30" flex-md="30">
-          <md-select [(ngModel)]="exTJob.sut" placeholder="Select a SuT" required name="tJobSut">
-            <md-option [value]="sutEmpty">None</md-option>
-            <md-option *ngFor="let sut of exTJob.exProject.suts" [value]="sut">
+      <div fxLayout.gt-md="row" fxLayout.md="row" fxLayout="column" class="push-top push-bottom">
+        <div *ngIf="exTJob.exProject !== undefined" class="push-top push-bottom" fxFlex.gt-md="30" fxFlex.md="30">
+          <mat-select [(ngModel)]="exTJob.sut" placeholder="Select a SuT" required name="tJobSut">
+            <mat-option [value]="sutEmpty">None</mat-option>
+            <mat-option *ngFor="let sut of exTJob.exProject.suts" [value]="sut">
               {{sut.name}}
-            </md-option>
-          </md-select>
+            </mat-option>
+          </mat-select>
           <span class="push-left">
             <strong>Current SuT: </strong>{{currentSut}}</span>
         </div>
       </div>
     </form>
-  </md-card-content>
-  <md-divider></md-divider>
-  <md-card-actions>
-    <button md-button [disabled]="!tJobForm.valid" color="primary" (click)="save()">SAVE</button>
-    <button md-button color="primary" (click)="cancel()">CANCEL</button>
-  </md-card-actions>
-</md-card>
+  </mat-card-content>
+  <mat-divider></mat-divider>
+  <mat-card-actions>
+    <button mat-button [disabled]="!tJobForm.valid" color="primary" (click)="save()">SAVE</button>
+    <button mat-button color="primary" (click)="cancel()">CANCEL</button>
+  </mat-card-actions>
+</mat-card>

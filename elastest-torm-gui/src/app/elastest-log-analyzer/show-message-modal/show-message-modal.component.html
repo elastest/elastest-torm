@@ -1,17 +1,17 @@
-<h2 md-dialog-title id="dialogTitle">Log entry</h2>
-<div layout="column" id="entryDiv" *ngIf="columns" class="pad-bottom-sm">
-  <div layout="row" class="push-bottom-sm">
-    <div flex="100" id="">
-      <md-list class="">
+<h2 mat-dialog-title id="dialogTitle">Log entry</h2>
+<div fxLayout="column" id="entryDiv" *ngIf="columns" class="pad-bottom-sm">
+  <div fxLayout="row" class="push-bottom-sm">
+    <div fxFlex="100" id="">
+      <mat-list class="">
         <h4>Message</h4>
         <p class="monospaced" id="message">{{ row.message }}</p>
-        <md-divider></md-divider>
-      </md-list>
+        <mat-divider></mat-divider>
+      </mat-list>
     </div>
   </div>
-  <div flex="70" *ngFor="let column of columns">
-    <md-list class="listInfoToLeft" *ngIf="column.field !== 'message'">
-      <md-list-item>
+  <div fxFlex="70" *ngFor="let column of columns">
+    <mat-list class="listInfoToLeft" *ngIf="column.field !== 'message'">
+      <mat-list-item>
         <h5>{{ column.field }}</h5>
         <p class="monospaced">
           <ng-container *ngIf="column.field !== '@timestamp'; else: timestamp">
@@ -21,14 +21,14 @@
             {{ row[column.field] ? (row[column.field] | date: 'dd/MM/yyyy HH:mm:ss') : 'Field ' + column.field + ' is empty' }}
           </ng-template>
         </p>
-      </md-list-item>
-      <md-divider></md-divider>
-    </md-list>
+      </mat-list-item>
+      <mat-divider></mat-divider>
+    </mat-list>
   </div>
-  <div flex="70" *ngIf="rawData">
+  <div fxFlex="70" *ngIf="rawData">
     <h5>Raw Data</h5>
     <pre>{{ rawData | json }}</pre>
   </div>
 </div>
 
-<md-dialog-actions> <button md-raised-button color="accent" md-dialog-close>Close</button> </md-dialog-actions>
+<mat-dialog-actions> <button mat-raised-button color="accent" mat-dialog-close>Close</button> </mat-dialog-actions>

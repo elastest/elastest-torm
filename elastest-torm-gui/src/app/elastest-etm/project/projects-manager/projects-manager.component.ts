@@ -4,7 +4,7 @@ import { ProjectModel } from '../project-model';
 import { ProjectService } from '../project.service';
 import { TdDataTableSortingOrder, TdDialogService, IConfirmConfig } from '@covalent/core';
 import { AfterViewInit, Component, Input, OnInit, ViewContainerRef } from '@angular/core';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 
 @Component({
   selector: 'etm-projects-manager',
@@ -18,7 +18,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   // Project data
   projectColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Project' },
     { name: 'options', label: 'Options' },
   ];
@@ -40,7 +40,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     private router: Router,
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
   ) {}
 
   ngOnInit() {

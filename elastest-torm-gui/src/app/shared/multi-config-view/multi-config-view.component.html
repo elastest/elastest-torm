@@ -1,50 +1,50 @@
 <ng-container *ngIf="!updateInProgress">
-  <button md-raised-button color="accent" (click)="addMultiConfig()" mdTooltip="Add multi config" id="addNewMultiConfiguration"
+  <button mat-raised-button color="accent" (click)="addMultiConfig()" matTooltip="Add multi config" id="addNewMultiConfiguration"
     class="iconBtn push-top-sm">
-    <md-icon>add</md-icon>Add MultiConfig Axis
+    <mat-icon>add</mat-icon>Add MultiConfig Axis
   </button>
 
-  <div *ngFor="let multiConfig of model; let i = index" layout="column" class="pad-bottom push-top">
-    <md-divider *ngIf="i > 0"></md-divider>
-    <md-list-item flex-gt-xs="100" layout="row" layout-align="center center">
-      <div layout="row" layout-align="center center">
+  <div *ngFor="let multiConfig of model; let i = index" fxLayout="column" class="pad-bottom push-top">
+    <mat-divider *ngIf="i > 0"></mat-divider>
+    <mat-list-item fxFlex.gt-xs="100" fxLayout="row" fxLayoutAlign="center center">
+      <div fxLayout="row" fxLayoutAlign="center center">
         <!-- Delete MultiConfig -->
-        <button md-mini-fab color="primary" (click)="deleteMultiConfig(i)" mdTooltip="Delete multi config" class="iconBtn push-top-sm">
-          <md-icon style="color: #ffffff">delete</md-icon>
+        <button mat-mini-fab color="primary" (click)="deleteMultiConfig(i)" matTooltip="Delete multi config" class="iconBtn push-top-sm">
+          <mat-icon style="color: #ffffff">delete</mat-icon>
         </button>
 
         <!-- Name -->
-        <md-input-container flex-offset="5">
-          <input mdInput id="multiConfigName{{i}}" value="" [(ngModel)]="multiConfig.name" placeholder="Name" required>
-        </md-input-container>
+        <mat-form-field fxFlexOffset="5">
+          <input matInput id="multiConfigName{{i}}" value="" [(ngModel)]="multiConfig.name" placeholder="Name" required>
+        </mat-form-field>
 
         <!-- configValues -->
-        <div layout="column" flex-offset="5">
-          <md-list-item flex-gt-xs="100">
+        <div fxLayout="column" fxFlexOffset="5">
+          <mat-list-item fxFlex.gt-xs="100">
 
-            <div *ngFor="let value of multiConfig.configValues; let j = index; trackBy:trackByFn" layout-gt-xs="column"
-              layout-gt-md="row" class="pad-bottom push-top">
-              <md-input-container>
-                <input mdInput id="multiConfig{{i}}Value{{j}}" value="" [(ngModel)]="multiConfig.configValues[j]"
+            <div *ngFor="let value of multiConfig.configValues; let j = index; trackBy:trackByFn" fxLayout.gt-xs="column"
+              fxLayout.gt-md="row" class="pad-bottom push-top">
+              <mat-form-field>
+                <input matInput id="multiConfig{{i}}Value{{j}}" value="" [(ngModel)]="multiConfig.configValues[j]"
                   placeholder="Value" required>
-              </md-input-container>
+              </mat-form-field>
 
-              <button md-button (click)="deleteValue(i,j)" mdTooltip="Delete multi config value" class="iconBtn push-top-sm">
-                <md-icon>delete</md-icon>
+              <button mat-button (click)="deleteValue(i,j)" matTooltip="Delete multi config value" class="iconBtn push-top-sm">
+                <mat-icon>delete</mat-icon>
               </button>
             </div>
 
             <!-- Add value -->
-            <div layout="row" layout-align="center center">
-              <button md-mini-fab color="accent" (click)="addValueToMultiConfig(i)" mdTooltip="Add value to multi config"
+            <div fxLayout="row" fxLayoutAlign="center center">
+              <button mat-mini-fab color="accent" (click)="addValueToMultiConfig(i)" matTooltip="Add value to multi config"
                 id="addValueToMultiConfig{{i}}" class="iconBtn push-top-sm">
-                <md-icon style="color: #ffffff !important">add</md-icon>
+                <mat-icon style="color: #ffffff !important">add</mat-icon>
               </button>
             </div>
-          </md-list-item>
+          </mat-list-item>
         </div>
 
       </div>
-    </md-list-item>
+    </mat-list-item>
   </div>
 </ng-container>

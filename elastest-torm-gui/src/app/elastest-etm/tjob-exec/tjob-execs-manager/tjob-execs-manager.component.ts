@@ -1,35 +1,40 @@
-import { Observable } from 'rxjs/Rx';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
-import { IConfirmConfig } from '@covalent/core';
+import { Observable, Subscription } from 'rxjs/Rx';
+import { Router } from '@angular/router';
+import { TdDialogService, IConfirmConfig } from '@covalent/core';
+
 import { TJobExecModel } from '../tjobExec-model';
 import { TJobExecService } from '../tjobExec.service';
 import { TitlesService } from '../../../shared/services/titles.service';
-import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
-import { MdDialog } from '@angular/material';
+import { Component, OnInit, ViewContainerRef, Input, OnDestroy, HostListener } from '@angular/core';
+import { MatDialog } from '@angular/material';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'etm-tjob-execs-manager',
   templateUrl: './tjob-execs-manager.component.html',
   styleUrls: ['./tjob-execs-manager.component.scss'],
 })
-export class TJobExecsManagerComponent implements OnInit {
+export class TJobExecsManagerComponent implements OnInit, OnDestroy {
   @Input()
   isNested: boolean = false;
 
   tJobExecsFinished: TJobExecModel[] = [];
   tJobExecsRunning: TJobExecModel[] = [];
 
-  defaultRefreshText: string = 'Refresh';
-  refreshText: string = this.defaultRefreshText;
   deletingInProgress: boolean = false;
 
-  loading: boolean = true;
+  loadingRunning: boolean = true;
+  loadingFinished: boolean = true;
+
   loadAllFinished: boolean = false;
+
+  reloadSubscription: Subscription;
+  reloadRunning: boolean = true;
+  reloadFinished: boolean = true;
 
   // TJob Exec Data
   tJobExecColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'tJob.name', label: 'TJob' },
     { name: 'result', label: 'Result' },
     { name: 'duration', label: 'Duration(sec)' },
@@ -44,50 +49,75 @@ export class TJobExecsManagerComponent implements OnInit {
     private router: Router,
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (!this.isNested) {
       this.titlesService.setHeadTitle('All TJob Executions');
     }
 
-    this.loadTJobExecs();
+    this.loadTJobExecs(true);
+
+    let timer: Observable<number> = interval(5000);
+    if (this.reloadSubscription === null || this.reloadSubscription === undefined) {
+      this.reloadSubscription = timer.subscribe(() => {
+        this.loadTJobExecs();
+      });
+    }
   }
 
-  loadTJobExecs(refreshText: string = ''): void {
-    this.loading = true;
-    this.refreshText = refreshText;
+  ngOnDestroy(): void {
+    this.unsubscribeReload();
+  }
 
-    this.tJobExecService.getAllRunningTJobExecutionsWithoutChilds().subscribe(
-      (runningTJobExecs: TJobExecModel[]) => {
-        this.tJobExecsFinished = [];
-        this.tJobExecsRunning = [];
+  @HostListener('window:beforeunload')
+  beforeunloadHandler() {
+    // On window closed leave session
+    this.unsubscribeReload();
+  }
 
-        this.loadFinishedTJobExecs().subscribe(
-          (finishedTJobExecs: TJobExecModel[]) => {
-            runningTJobExecs = runningTJobExecs.reverse(); // To sort Descending
-            if (this.loadAllFinished) {
-              finishedTJobExecs = finishedTJobExecs.reverse();
-            }
+  unsubscribeReload(): void {
+    if (this.reloadSubscription) {
+      this.reloadSubscription.unsubscribe();
+      this.reloadSubscription = undefined;
+    }
+  }
 
-            this.tJobExecsFinished = finishedTJobExecs;
-            this.tJobExecsRunning = runningTJobExecs;
+  loadTJobExecs(firstLoad: boolean = false): void {
+    if (this.reloadRunning || firstLoad) {
+      this.loadingRunning = true;
+      this.tJobExecService.getAllRunningTJobExecutionsWithoutChilds().subscribe(
+        (runningTJobExecs: TJobExecModel[]) => {
+          this.tJobExecsRunning = [];
+          runningTJobExecs = runningTJobExecs.reverse(); // To sort Descending
+          this.tJobExecsRunning = runningTJobExecs;
+          this.loadingRunning = false;
+        },
+        (error: Error) => {
+          this.loadingRunning = false;
+          console.log(error);
+        },
+      );
+    }
 
-            this.refreshText = this.defaultRefreshText;
-            this.loading = false;
-          },
-          (error: Error) => {
-            this.loading = false;
-            console.log(error);
-          },
-        );
-      },
-      (error: Error) => {
-        this.loading = false;
-        console.log(error);
-      },
-    );
+    if (this.reloadFinished || firstLoad) {
+      this.loadingFinished = true;
+      this.loadFinishedTJobExecs().subscribe(
+        (finishedTJobExecs: TJobExecModel[]) => {
+          this.tJobExecsFinished = [];
+          if (this.loadAllFinished) {
+            finishedTJobExecs = finishedTJobExecs.reverse();
+          }
+          this.tJobExecsFinished = finishedTJobExecs;
+          this.loadingFinished = false;
+        },
+        (error: Error) => {
+          this.loadingFinished = false;
+          console.log(error);
+        },
+      );
+    }
   }
 
   loadFinishedTJobExecs(): Observable<TJobExecModel[]> {
@@ -99,7 +129,7 @@ export class TJobExecsManagerComponent implements OnInit {
     }
   }
 
-  deleteTJobExec(tJobExec: TJobExecModel) {
+  deleteTJobExec(tJobExec: TJobExecModel): void {
     let iConfirmConfig: IConfirmConfig = {
       message: 'TJob Execution ' + tJobExec.id + ' will be deleted, do you want to continue?',
       disableClose: false,
@@ -122,7 +152,7 @@ export class TJobExecsManagerComponent implements OnInit {
               );
               this.loadTJobExecs();
             },
-            (error) => {
+            (error: Error) => {
               this.deletingInProgress = true;
               this.tJobExecService.popupService.openSnackBar('TJob Execution could not be deleted');
             },
@@ -131,7 +161,7 @@ export class TJobExecsManagerComponent implements OnInit {
       });
   }
 
-  viewTJobExec(tJobExec: TJobExecModel) {
+  viewTJobExec(tJobExec: TJobExecModel): void {
     this.router.navigate(['/projects', tJobExec.tJob.project.id, 'tjob', tJobExec.tJob.id, 'tjob-exec', tJobExec.id]);
   }
 

@@ -1,10 +1,8 @@
-import { Router } from '@angular/router';
 import { ConfigurationService } from '../config/configuration-service.service';
 import { TitlesService } from '../shared/services/titles.service';
-import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
 import { ElastestRabbitmqService } from '../shared/services/elastest-rabbitmq.service';
 import { AfterViewInit, Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { TdMediaService } from '@covalent/core';
+import { TdMediaService, TdLayoutManageListComponent } from '@covalent/core';
 
 @Component({
   selector: 'etm-etm',
@@ -24,7 +22,6 @@ export class EtmComponent implements AfterViewInit, OnInit {
     private elastestRabbitmqService: ElastestRabbitmqService,
     private cdr: ChangeDetectorRef,
     private configService: ConfigurationService,
-    private router: Router,
   ) {}
 
   ngOnInit() {
@@ -55,9 +52,9 @@ export class EtmComponent implements AfterViewInit, OnInit {
   }
 
   toggleFullscreen(): void {
-    let documentVar = document as any;
-    let documentElement = document.documentElement as any;
-    let documentBody = document.body as any;
+    let documentVar: any = document as any;
+    let documentElement: any = document.documentElement as any;
+    let documentBody: any = document.body as any;
 
     if (
       documentVar.fullscreenElement || // alternative standard method
@@ -75,7 +72,7 @@ export class EtmComponent implements AfterViewInit, OnInit {
         documentVar.msExitFullscreen();
       }
     } else {
-      let element = Element as any;
+      let element: any = Element as any;
       if (documentElement.requestFullscreen) {
         documentElement.requestFullscreen();
       } else if (documentElement.mozRequestFullScreen) {
@@ -87,20 +84,5 @@ export class EtmComponent implements AfterViewInit, OnInit {
       }
     }
   }
-
-  refresh(): void {
-    if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
-      this.router.navigate(['/redirect'], { queryParams: { url: '/' } });
-    }
-  }
-
-  isReloadable(): boolean {
-    if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   setTitles(): void {}
 }

@@ -14,6 +14,7 @@ import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { TJobService } from '../../tjob/tjob.service';
 import { ParameterModel } from '../../parameter/parameter-model';
+import { interval } from 'rxjs';
 
 @Component({
   selector: 'etm-live-tjob-exec-manager',
@@ -65,7 +66,7 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
     this.elastestMode = this.configurationService.configModel.elasTestExecMode;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.router.routeReuseStrategy.shouldReuseRoute = function() {
       return false;
     };
@@ -83,7 +84,7 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
     this.loadTJobExec();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.elastestRabbitmqService.unsubscribeWSDestination();
     this.unsubscribeCheckResult();
     this.unsubscribeCheckTssInstances();
@@ -156,7 +157,7 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
   }
 
   getSupportServicesInstances(): void {
-    let timer: Observable<number> = Observable.interval(2200);
+    let timer: Observable<number> = interval(2200);
     if (this.checkTSSInstancesSubscription === null || this.checkTSSInstancesSubscription === undefined) {
       this.checkTSSInstancesSubscription = timer.subscribe(() => {
         this.esmService.getSupportServicesInstancesByTJobExec(this.tJobExec).subscribe(
@@ -166,7 +167,7 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
               this.serviceInstances = [...serviceInstances];
             }
           },
-          (error) => console.log(error),
+          (error: Error) => console.log(error),
         );
       });
     }
@@ -180,7 +181,7 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
   }
 
   checkResultStatus(): void {
-    let timer: Observable<number> = Observable.interval(1800);
+    let timer: Observable<number> = interval(1800);
     if (this.checkResultSubscription === null || this.checkResultSubscription === undefined) {
       this.checkResultSubscription = timer.subscribe(() => {
         this.tJobExecService.getResultStatusByTJob(this.tJob, this.tJobExec).subscribe(
@@ -200,7 +201,7 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
               );
             }
           },
-          (error) => console.log(error),
+          (error: Error) => console.log(error),
         );
       });
     }
@@ -229,7 +230,7 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
         }
         this.popupService.openSnackBar(msg);
       },
-      (error) => (this.disableStopBtn = false),
+      (error: Error) => (this.disableStopBtn = false),
     );
   }
 }

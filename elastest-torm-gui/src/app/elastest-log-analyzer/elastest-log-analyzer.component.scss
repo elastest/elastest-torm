@@ -51,7 +51,7 @@
 /*********** OTHERS ************/
 /*******************************/
 
-md-sidenav-container {
+mat-sidenav-container {
   min-height: 100%;
 }
 
@@ -63,11 +63,11 @@ md-sidenav-container {
   width: 100%;
   height: 98%;
 }
-#logCard md-card-title {
+#logCard mat-card-title {
   height: 3%;
 }
 
-#logCard md-card-content {
+#logCard mat-card-content {
   height: 100%; //93% with card title
   padding: 0px;
 }
@@ -85,7 +85,7 @@ md-sidenav-container {
 }
 
 #logSidenav,
-#logSidenav md-tab-group,
+#logSidenav mat-tab-group,
 #logAnalyzerForm {
   height: 99%;
   width: 100%;
@@ -96,7 +96,7 @@ md-sidenav-container {
   position: absolute;
 }
 
-#logSidenav md-card-content {
+#logSidenav mat-card-content {
   height: 100%;
   padding: 2px 6px 0px 8px;
   //padding-right: 8px;
@@ -104,7 +104,7 @@ md-sidenav-container {
   //padding-bottom: 0;
 }
 
-:host /deep/ #logSidenav md-tab-group .mat-tab-body-wrapper {
+:host /deep/ #logSidenav mat-tab-group .mat-tab-body-wrapper {
   height: 93% !important;
 }
 
@@ -155,7 +155,7 @@ md-sidenav-container {
   overflow: auto;
 }
 
-#componentsLevels md-card-subtitle {
+#componentsLevels mat-card-subtitle {
   margin-bottom: 3px;
 }
 
@@ -172,9 +172,6 @@ md-sidenav-container {
 #addFromSelected,
 #pauseTail {
   text-align: center;
-}
-#pauseTail {
-  margin: auto;
 }
 
 #tail > p {

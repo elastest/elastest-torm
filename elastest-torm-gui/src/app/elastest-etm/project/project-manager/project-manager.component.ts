@@ -1,11 +1,11 @@
 import { TitlesService } from '../../../shared/services/titles.service';
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
+import { TdDialogService } from '@covalent/core';
 import { IConfirmConfig } from '@covalent/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ProjectService } from '../project.service';
 import { ProjectModel } from '../project-model';
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 
 @Component({
   selector: 'etm-project-manager',
@@ -24,7 +24,7 @@ export class ProjectManagerComponent implements OnInit {
     private router: Router,
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
   ) {}
 
   ngOnInit() {

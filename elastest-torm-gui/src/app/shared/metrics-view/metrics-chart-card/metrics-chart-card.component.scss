@@ -2,12 +2,12 @@
   height: 300px;
 }
 
-md-card-title{
+mat-card-title{
   font-size: 21px;
 }
 /* sm */ 
 @media (min-width : 961px) {
-  md-card-title{
+  mat-card-title{
     font-size: 23px;
   }
 }

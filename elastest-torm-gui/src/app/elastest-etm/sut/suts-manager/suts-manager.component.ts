@@ -1,11 +1,11 @@
 import { TitlesService } from '../../../shared/services/titles.service';
 import { SutModel } from '../../sut/sut-model';
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
+import { TdDialogService } from '@covalent/core';
 import { SutService } from '../../sut/sut.service';
 import { IConfirmConfig } from '@covalent/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 import { ProjectService } from '../../project/project.service';
 import { ProjectModel } from '../../project/project-model';
 import { ExternalProjectModel } from '../../external/external-project/external-project-model';
@@ -34,7 +34,7 @@ export class SutsManagerComponent implements OnInit {
 
   // SuT Data
   sutColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
     { name: 'specification', label: 'Specification' },
     { name: 'sutType', label: 'SuT Type' },
@@ -51,7 +51,7 @@ export class SutsManagerComponent implements OnInit {
     private sutService: SutService,
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
   ) {}
 
   ngOnInit() {
@@ -187,7 +187,7 @@ export class SutsManagerComponent implements OnInit {
       exProject.id = this.exProject.id;
       sut.exProject = exProject;
     }
-    
+
     this.sutService.duplicateSut(sut).subscribe(
       (tJob: any) => {
         this.init();

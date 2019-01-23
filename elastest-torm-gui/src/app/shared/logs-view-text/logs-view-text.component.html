@@ -1,13 +1,13 @@
 <ng-container *ngIf="model.filteredTraces.length > 0">
   Showing: Filtered
 </ng-container>
-<div layout="row">
+<div fxLayout="row">
   <ul #scrollMe class="logsViewContent" (scroll)="onScroll($event);">
     <ng-container *ngIf="model.filteredTraces.length === 0">
       <li *ngFor="let trace of model.prevTraces">
         <pre>{{trace.message}}</pre>
       </li>
-      <!-- <md-divider *ngIf="model.prevTraces.length > 0" class="push-bottom push-top"></md-divider> -->
+      <!-- <mat-divider *ngIf="model.prevTraces.length > 0" class="push-bottom push-top"></mat-divider> -->
       <li *ngFor="let trace of model.traces">
         <pre>{{trace.message}}</pre>
       </li>

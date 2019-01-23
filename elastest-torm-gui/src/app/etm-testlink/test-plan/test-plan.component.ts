@@ -1,11 +1,10 @@
 import { BuildModel } from '../models/build-model';
 import { TestPlanModel } from '../models/test-plan-model';
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../shared/services/titles.service';
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TestLinkService } from '../testlink.service';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material';
 import { ExternalTJobModel } from '../../elastest-etm/external/external-tjob/external-tjob-model';
 import { TLTestCaseModel } from '../models/test-case-model';
 import { SelectBuildModalComponent } from './select-build-modal/select-build-modal.component';
@@ -27,7 +26,7 @@ export class TestPlanComponent implements OnInit {
 
   // Build Data
   buildColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
     { name: 'testPlanId', label: 'Test Plan ID' },
     { name: 'notes', label: 'Notes' },
@@ -37,7 +36,7 @@ export class TestPlanComponent implements OnInit {
 
   // TestCase Data
   testCaseColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
     { name: 'testCaseStatus', label: 'Status' },
     { name: 'summary', label: 'Summary' },
@@ -51,9 +50,7 @@ export class TestPlanComponent implements OnInit {
     private testLinkService: TestLinkService,
     private route: ActivatedRoute,
     private router: Router,
-    private _dialogService: TdDialogService,
-    private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
   ) {}
 
   ngOnInit() {
@@ -110,7 +107,7 @@ export class TestPlanComponent implements OnInit {
   }
 
   runTestPlan(): void {
-    let dialogRef: MdDialogRef<SelectBuildModalComponent> = this.dialog.open(SelectBuildModalComponent, {
+    let dialogRef: MatDialogRef<SelectBuildModalComponent> = this.dialog.open(SelectBuildModalComponent, {
       data: {
         testPlan: this.testPlan,
         builds: this.builds,

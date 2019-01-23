@@ -1,46 +1,56 @@
 <self-adjustable-card>
   <sa-card-title>
-    <div layout="row">
-      <span>SuTs</span>
-      <span flex></span>
-      <button md-raised-button color="accent" (click)="newSut()" id="newSutBtn" mdTooltip="Create New Sut">New SuT</button>
+    <div fxLayout="row">
+      <span>SuTs</span> <span fxFlex></span>
+      <button mat-raised-button color="accent" (click)="newSut()" id="newSutBtn" matTooltip="Create New Sut">New SuT</button>
     </div>
   </sa-card-title>
   <sa-card-content #scrollMeSut>
-    <md-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+    <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
     <centered-element *ngIf="!showSpinner && suts.length === 0" class="push-top-important messageEmptyCard">
-      <md-icon>assignment</md-icon>
+      <mat-icon>assignment</mat-icon>
       <p>No SuTs created</p>
     </centered-element>
-    <td-data-table #sutsTable *ngIf="suts.length > 0" id="sutsTable" class="useMaxHeight" [data]="suts" [columns]="sutColumns"
-      [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-      <ng-template *ngFor="let column of sutColumns" tdDataTableTemplate="{{column.name}}" let-value="value" let-row="row">
+    <td-data-table
+      #sutsTable
+      *ngIf="suts.length > 0"
+      id="sutsTable"
+      class="useMaxHeight"
+      [data]="suts"
+      [columns]="sutColumns"
+      [resizableColumns]="true"
+    >
+      <ng-template *ngFor="let column of sutColumns" tdDataTableTemplate="{{ column.name }}" let-value="value" let-row="row">
         <ng-container *ngIf="column.name !== 'options'">
           <ng-container *ngIf="column.name === 'name'; else normalColumn">
-            <span class="wrapColumn">{{value}}</span>
+            <span class="wrapColumn">{{ value }}</span>
           </ng-container>
           <ng-template #normalColumn>
-            <span class="ellipsisNoWrapColumn">{{value}}</span>
+            <span class="ellipsisNoWrapColumn">{{ value }}</span>
           </ng-template>
         </ng-container>
       </ng-template>
 
       <!-- OPTIONS -->
       <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-        <div layout="row" class="sutOptions optionsColumn">
-          <button md-button (click)="editSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Edit SuT">
-            <md-icon>mode_edit</md-icon>
+        <div fxLayout="row" class="sutOptions optionsColumn">
+          <button mat-button (click)="editSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Edit SuT">
+            <mat-icon>mode_edit</mat-icon>
           </button>
-          <button md-button [disabled]="deletingInProgress || duplicateInProgress" (click)="duplicateSut(row)" class="iconBtn"
-            title="Duplicate Sut">
-            <md-icon>content_copy</md-icon>
+          <button
+            mat-button
+            [disabled]="deletingInProgress || duplicateInProgress"
+            (click)="duplicateSut(row)"
+            class="iconBtn"
+            title="Duplicate Sut"
+          >
+            <mat-icon>content_copy</mat-icon>
           </button>
-          <button md-button (click)="deleteSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Delete SuT">
-            <md-icon>delete</md-icon>
+          <button mat-button (click)="deleteSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Delete SuT">
+            <mat-icon>delete</mat-icon>
           </button>
         </div>
       </ng-template>
-
     </td-data-table>
   </sa-card-content>
 </self-adjustable-card>

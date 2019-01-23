@@ -1,22 +1,22 @@
-<div class="md-content">
-  <div layout="column" layout-gt-sm="row">
-    <div flex-gt-sm="100">
-      <md-card>
-        <md-card-title>
-          <div layout="row">
+<div class="mat-content">
+  <div fxLayout="column" fxLayout.gt-sm="row">
+    <div fxFlex.gt-sm="100">
+      <mat-card>
+        <mat-card-title>
+          <div fxLayout="row">
             <span>Files</span>
-            <span flex></span>
-            <button md-icon-button color="accent" (click)="getExecutionFiles()" title="Reload Files" [disabled]="subscription || loading || executionFiles.length > 0">
-              <md-icon>sync</md-icon>
+            <span fxFlex></span>
+            <button mat-icon-button color="accent" (click)="getExecutionFiles()" title="Reload Files" [disabled]="subscription || loading || executionFiles.length > 0">
+              <mat-icon>sync</mat-icon>
             </button>
           </div>
-        </md-card-title>
-        <md-divider></md-divider>
-        <md-card-content>
-          <md-spinner strokeWidth="6" *ngIf="loading; else showContent" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+        </mat-card-title>
+        <mat-divider></mat-divider>
+        <mat-card-content>
+          <mat-spinner strokeWidth="6" *ngIf="loading; else showContent" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
           <ng-template #showContent>
             <centered-element *ngIf="showNoFilesMessage(); else showFilesTable" class="push-top-important messageEmptyCard">
-              <md-icon>assignment</md-icon>
+              <mat-icon>assignment</mat-icon>
               <p>No files generated during execution</p>
             </centered-element>
 
@@ -30,13 +30,13 @@
                   </div>
 
                   <ng-template #optionsColumn tdDataTableTemplate="options">
-                    <div layout="row" class="optionsColumn">
-                      <a md-button [attr.href]="filesUrlPrefix + row.url" class="iconBtn" target="_blank" mdTooltip="Open in new tab">
-                        <md-icon>open_in_new</md-icon>
+                    <div fxLayout="row" class="optionsColumn">
+                      <a mat-button [attr.href]="filesUrlPrefix + row.url" class="iconBtn" target="_blank" matTooltip="Open in new tab">
+                        <mat-icon>open_in_new</mat-icon>
                       </a>
-                      <a *ngIf="row.name.includes('.mp4')" md-button (click)="viewSession(filesUrlPrefix + row.url, row.name)"
-                        class="iconBtn" target="_blank" mdTooltip="Open as dialog">
-                        <md-icon>open_in_browser</md-icon>
+                      <a *ngIf="row.name.includes('.mp4')" mat-button (click)="viewSession(filesUrlPrefix + row.url, row.name)"
+                        class="iconBtn" target="_blank" matTooltip="Open as dialog">
+                        <mat-icon>open_in_browser</mat-icon>
                       </a>
                     </div>
                   </ng-template>
@@ -45,8 +45,8 @@
             </ng-template>
           </ng-template>
 
-        </md-card-content>
-      </md-card>
+        </mat-card-content>
+      </mat-card>
     </div>
   </div>
 </div>

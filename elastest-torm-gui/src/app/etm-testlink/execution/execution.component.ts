@@ -1,10 +1,8 @@
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../shared/services/titles.service';
-import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
-import { TestProjectModel } from '../models/test-project-model';
+import { Component, OnInit, Input } from '@angular/core';
 import { TestLinkService } from '../testlink.service';
-import { MdDialog } from '@angular/material';
+import { MatDialog } from '@angular/material';
 import { TestCaseExecutionModel } from '../models/test-case-execution-model';
 
 @Component({
@@ -23,9 +21,7 @@ export class ExecutionComponent implements OnInit {
     private testLinkService: TestLinkService,
     private route: ActivatedRoute,
     private router: Router,
-    private _dialogService: TdDialogService,
-    private _viewContainerRef: ViewContainerRef,
-    public dialog: MdDialog,
+    public dialog: MatDialog,
   ) {}
   ngOnInit() {
     this.titlesService.setHeadTitle('Test Case');

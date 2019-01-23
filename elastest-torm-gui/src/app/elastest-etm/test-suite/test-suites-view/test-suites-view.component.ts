@@ -6,7 +6,7 @@ import { TestCaseModel } from '../../test-case/test-case-model';
 import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { FileModel } from '../../files-manager/file-model';
 import { ConfigurationService } from '../../../config/configuration-service.service';
-import { MdDialogRef } from '@angular/material';
+import { MatDialogRef } from '@angular/material';
 import { ElastestEusDialog } from '../../../elastest-eus/elastest-eus.dialog';
 import { ElastestEusDialogService } from '../../../elastest-eus/elastest-eus.dialog.service';
 
@@ -24,15 +24,15 @@ export class TestSuitesViewComponent implements OnInit {
   filesUrlPrefix: string;
 
   testCaseColumns: any[] = [
-    { name: 'result', label: 'Result' },
-    { name: 'logAnalyzer', label: 'Log' },
+    { name: 'result', label: 'Result', width: 68 },
+    { name: 'logAnalyzer', label: 'Log', width: 60 },
     { name: 'name', label: 'Name' },
+    { name: 'files', label: 'Files' },
     { name: 'time', label: 'Time (s)' },
     { name: 'failureMessage', label: 'Failure Msg' },
     { name: 'failureType', label: 'Failure Type' },
-    { name: 'failureErrorLine', label: 'Failure Error Line' },
+    { name: 'failureErrorLine', label: 'Error Line', width: 96 },
     { name: 'failureDetail', label: 'Failure Detail' },
-    { name: 'files', label: 'Files' },
   ];
 
   constructor(
@@ -103,7 +103,7 @@ export class TestSuitesViewComponent implements OnInit {
   }
 
   viewSession(url: string, title: string = 'Recorded Video'): void {
-    let dialog: MdDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
+    let dialog: MatDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
     dialog.componentInstance.title = title;
     dialog.componentInstance.iframeUrl = url;
     dialog.componentInstance.sessionType = 'video';

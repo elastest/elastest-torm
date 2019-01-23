@@ -61,6 +61,8 @@ export class ComboChartComponent extends BaseChartComponent {
   @Input()
   legend = false;
   @Input()
+  legendPosition = 'right';
+  @Input()
   legendTitle: string = 'Legend';
   @Input()
   xAxis;
@@ -182,6 +184,7 @@ export class ComboChartComponent extends BaseChartComponent {
   timelineXDomain: any;
   timelineTransform: any;
   timelinePadding: number = 10;
+  location: any;
 
   // TimeLine Observable
   _timelineObs: Subject<any> = new Subject<any>();
@@ -214,6 +217,7 @@ export class ComboChartComponent extends BaseChartComponent {
       showYLabel: this.showYAxisLabel,
       showLegend: this.legend,
       legendType: this.schemeType,
+      legendPosition: this.legendPosition,
     });
   }
 
@@ -282,7 +286,7 @@ export class ComboChartComponent extends BaseChartComponent {
     this.transform = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
     this.transformRightTwo = `translate(${this.dims.xOffset} , ${this.margin[0]})`;
 
-    const pageUrl = this.location instanceof PathLocationStrategy ? this.location.path() : '';
+    const pageUrl: string = this.location instanceof PathLocationStrategy ? this.location.path() : '';
 
     this.clipPathId = 'clip' + id().toString();
     this.clipPath = `url(${pageUrl}#${this.clipPathId})`;
@@ -595,6 +599,7 @@ export class ComboChartComponent extends BaseChartComponent {
       colors: undefined,
       domain: [],
       title: undefined,
+      position: this.legendPosition,
     };
     if (opts.scaleType === 'ordinal') {
       opts.domain = this.seriesDomain;

@@ -1,112 +1,153 @@
-<auto-height-grid layout="column">
-    <normal-height-row *ngIf="standalone">
-        <div flex-gt-xs="100">
-            <md-card tdMediaToggle="gt-xs">
-                <md-card-title>
-                    <div layout="row">
-                        <span>
-                            Manual Web Browsers
-                        </span>
-                        <span flex></span>
-                        <button md-icon-button color="accent" id="refreshBrowsers" (click)="refreshBrowsers()"
-                            mdTooltip="Refresh available browsers">
-                            <md-icon>sync</md-icon>
-                        </button>
-                    </div>
-                </md-card-title>
-                <md-divider></md-divider>
-                <md-card-content class="push-bottom-none">
-                    <div *ngIf="loading; else showBrowsersSelection" layout="row" layout-align="start center">
-                        <span>
-                            <md-spinner strokeWidth="6" color="accent"></md-spinner>
-                        </span>
-                        <span class="md-title push-left-sm">
-                            Loading browsers...</span>
-                    </div>
-                    <ng-template #showBrowsersSelection>
-                        <md-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
-                            <div *ngFor="let browser of browserNamesList">
-                                <md-radio-button [value]="browser" flex-gt-xs="50" id="{{browser + '_radio'}}">{{browser
-                                    |
-                                    capitalize}}</md-radio-button>
-                                <md-select class="push-left-sm" placeholder="version" [(ngModel)]="selectedVersion[browser]"
-                                    name="version" flex-gt-xs="50" (ngModelChange)="selectBrowser(browser)">
-                                    <md-option *ngFor="let version of browserVersions[browser]" [value]="version">
-                                        {{version}}
-                                    </md-option>
-                                </md-select>
-                                <br>
-                                <br>
-                            </div>
-                        </md-radio-group>
-                        <div layout="row" class="push-top">
-                            <button md-raised-button color="accent" (click)="startSession()" id="start_session">Start
-                                Web Browser</button>
-                        </div>
-                    </ng-template>
-                </md-card-content>
-            </md-card>
-        </div>
-    </normal-height-row>
+<auto-height-grid fxLayout="column">
+  <normal-height-row *ngIf="standalone">
+    <div fxFlex.gt-xs="100">
+      <mat-card>
+        <mat-card-title>
+          <div fxLayout="row">
+            <span> Manual Web Browsers </span> <span fxFlex></span>
+            <button
+              mat-icon-button
+              color="accent"
+              id="refreshBrowsers"
+              (click)="refreshBrowsers()"
+              matTooltip="Refresh available browsers"
+            >
+              <mat-icon>sync</mat-icon>
+            </button>
+          </div>
+        </mat-card-title>
+        <mat-divider></mat-divider>
+        <mat-card-content class="push-bottom-none">
+          <div *ngIf="loading; else showBrowsersSelection" fxLayout="row" fxLayoutAlign="start center">
+            <span> <mat-spinner strokeWidth="6" color="accent"></mat-spinner> </span>
+            <span class="mat-title push-left-sm"> Loading browsers...</span>
+          </div>
+          <ng-template #showBrowsersSelection>
+            <mat-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
+              <div *ngFor="let browser of browserNamesList">
+                <mat-radio-button [value]="browser" fxFlex.gt-xs="6" id="{{ browser + '_radio' }}">{{
+                  browser | capitalize
+                }}</mat-radio-button>
+                <mat-select
+                  class="push-left-sm"
+                  placeholder="version"
+                  [(ngModel)]="selectedVersion[browser]"
+                  name="version"
+                  fxFlex.gt-xs="8"
+                  (ngModelChange)="selectBrowser(browser)"
+                >
+                  <mat-option *ngFor="let version of browserVersions[browser]" [value]="version"> {{ version }} </mat-option>
+                </mat-select>
+                <br />
+                <br />
+              </div>
+            </mat-radio-group>
+            <div fxLayout="row" class="push-top">
+              <button mat-raised-button color="accent" (click)="startSession()" id="start_session">Start Web Browser</button>
+            </div>
+          </ng-template>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </normal-height-row>
 
-    <auto-height-row>
-        <auto-height-grid layout="column">
-            <auto-height-row>
-                <self-adjustable-card tdMediaToggle="gt-xs">
-                    <sa-card-title>
-                        <div layout="column">
-                            <div>
-                                {{ !standalone ? "Web Browsers" : "WebDriver Web Browsers" }}
-                            </div>
-                            <md-card-subtitle *ngIf="standalone" class="pad-left-none">Remote Web Driver URL:
-                                <strong>{{eusUrl}}</strong>
-                            </md-card-subtitle>
-                        </div>
-                    </sa-card-title>
-                    <sa-card-content class="push-bottom-none">
-                        <centered-element *ngIf="activeBrowsers.length === 0; else showBrowsersTable" class="push-top-important messageEmptyCard">
-                            <md-icon>assignment</md-icon>
-                            <p>No Browsers created yet</p>
-                        </centered-element>
-                        <ng-template #showBrowsersTable>
-                            <td-data-table class="scroll_table" id="activBrowsersTable" [data]="activeBrowsers" [columns]="activeBrowsersColumns">
-                                <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
-                                    <ng-container *ngIf="row !== undefined && row !== null">
-                                        <i class="material-icons" (click)="getLiveUrl(row.url)" style="cursor: pointer"
-                                        mdTooltip="Open in new tab" *ngIf="row.url !== undefined && row.url !== null">open_in_new</i>
-                                        <i class="material-icons" (click)="viewSession(row.url, row, ' - Automated Test')"
-                                        id="view_automated" mdTooltip="Open as dialog" *ngIf="row.url !== undefined && row.url !== null">open_in_browser</i>
-                                    </ng-container>
-                                </ng-template>
-                            </td-data-table>
-                        </ng-template>
-                    </sa-card-content>
-                </self-adjustable-card>
-            </auto-height-row>
+  <auto-height-row>
+    <auto-height-grid fxLayout="column">
+      <auto-height-row>
+        <self-adjustable-card>
+          <sa-card-title>
+            <div fxLayout="column">
+              <div>{{ !standalone ? 'Web Browsers' : 'WebDriver Web Browsers' }}</div>
+              <mat-card-subtitle *ngIf="standalone" class="pad-left-none push-top-none"
+                >Remote Web Driver URL: <strong>{{ eusUrl }}</strong>
+              </mat-card-subtitle>
+            </div>
+          </sa-card-title>
+          <sa-card-content class="push-bottom-none">
+            <centered-element
+              *ngIf="activeBrowsers.length === 0; else showBrowsersTable"
+              class="push-top-important messageEmptyCard"
+            >
+              <mat-icon>assignment</mat-icon>
+              <p>No Browsers created yet</p>
+            </centered-element>
+            <ng-template #showBrowsersTable>
+              <td-data-table
+                class="scroll_table"
+                id="activeBrowsersTable"
+                [data]="activeBrowsers"
+                [columns]="activeBrowsersColumns"
+                [resizableColumns]="true"
+              >
+                <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
+                  <ng-container *ngIf="row !== undefined && row !== null">
+                    <i
+                      class="material-icons"
+                      (click)="getLiveUrl(row.url)"
+                      style="cursor: pointer"
+                      matTooltip="Open in new tab"
+                      *ngIf="row.url !== undefined && row.url !== null"
+                      >open_in_new</i
+                    >
+                    <i
+                      class="material-icons"
+                      (click)="viewSession(row.url, row, ' - Automated Test')"
+                      id="view_automated"
+                      matTooltip="Open as dialog"
+                      *ngIf="row.url !== undefined && row.url !== null"
+                      >open_in_browser</i
+                    >
+                  </ng-container>
+                </ng-template>
+              </td-data-table>
+            </ng-template>
+          </sa-card-content>
+        </self-adjustable-card>
+      </auto-height-row>
 
-            <auto-height-row *ngIf="standalone">
-                <self-adjustable-card id="recordings" tdMediaToggle="gt-xs">
-                    <sa-card-title>Recordings</sa-card-title>
-                    <sa-card-content class="push-bottom-none">
-                        <centered-element *ngIf="recordings.length === 0; else showRecordingsTable" class="push-top-important messageEmptyCard">
-                            <md-icon>assignment</md-icon>
-                            <p>No Recordings created yet</p>
-                        </centered-element>
-                        <ng-template #showRecordingsTable>
-                            <td-data-table class="scroll_table" id="recordingsTable" [data]="recordings" [columns]="recordingColumns">
-                                <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
-                                    <i class="material-icons" (click)="deleteRecording(row)" id="delete_recording_{{row.id}}"
-                                        mdTooltip="Delete recording">delete</i>
-                                    <i class="material-icons" (click)="getRecordingUrl(row)" id="view_recording_new_tab"
-                                        mdTooltip="Open in new tab">open_in_new</i>
-                                    <i class="material-icons" (click)="viewRecording(row)" id="view_recording"
-                                        mdTooltip="Open as dialog">open_in_browser</i>
-                                </ng-template>
-                            </td-data-table>
-                        </ng-template>
-                    </sa-card-content>
-                </self-adjustable-card>
-            </auto-height-row>
-        </auto-height-grid>
-    </auto-height-row>
+      <auto-height-row *ngIf="standalone">
+        <self-adjustable-card id="recordings">
+          <sa-card-title>Recordings</sa-card-title>
+          <sa-card-content class="push-bottom-none">
+            <centered-element
+              *ngIf="recordings.length === 0; else showRecordingsTable"
+              class="push-top-important messageEmptyCard"
+            >
+              <mat-icon>assignment</mat-icon>
+              <p>No Recordings created yet</p>
+            </centered-element>
+            <ng-template #showRecordingsTable>
+              <td-data-table
+                class="scroll_table"
+                id="recordingsTable"
+                [data]="recordings"
+                [columns]="recordingColumns"
+                [resizableColumns]="true"
+              >
+                <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
+                  <i
+                    class="material-icons"
+                    (click)="deleteRecording(row)"
+                    id="delete_recording_{{ row.id }}"
+                    matTooltip="Delete recording"
+                    >delete</i
+                  >
+                  <i
+                    class="material-icons"
+                    (click)="getRecordingUrl(row)"
+                    id="view_recording_new_tab"
+                    matTooltip="Open in new tab"
+                    >open_in_new</i
+                  >
+                  <i class="material-icons" (click)="viewRecording(row)" id="view_recording" matTooltip="Open as dialog"
+                    >open_in_browser</i
+                  >
+                </ng-template>
+              </td-data-table>
+            </ng-template>
+          </sa-card-content>
+        </self-adjustable-card>
+      </auto-height-row>
+    </auto-height-grid>
+  </auto-height-row>
 </auto-height-grid>

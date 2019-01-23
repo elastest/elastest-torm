@@ -12,22 +12,21 @@ import { ETTestlinkModelsTransformService } from './shared/services/et-testlink-
 import { TitlesService } from './shared/services/titles.service';
 import { EtPluginsService } from './elastest-test-engines/et-plugins.service';
 import { EsmService } from './elastest-esm/esm-service.service';
-import { TdLayoutManageListComponent } from '@covalent/core/layout/layout-manage-list/layout-manage-list.component';
+import { TdLayoutManageListComponent } from '@covalent/core';
 import { CovalentExpansionPanelModule, CovalentMessageModule } from '@covalent/core';
-import { APP_INITIALIZER, NgModule, Type, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { APP_INITIALIZER, NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { CovalentHttpModule } from '@covalent/http';
+import { AutosizeModule } from 'ngx-autosize';
 import { CovalentHighlightModule } from '@covalent/highlight';
 import { CovalentMarkdownModule } from '@covalent/markdown';
 
 import { AppComponent } from './app.component';
-import { RequestInterceptor } from '../config/interceptors/request.interceptor';
 
 import { routedComponents, AppRoutingModule, appRoutes } from './app-routing.module';
-
+import { HttpClientModule } from '@angular/common/http';
 import { BreadcrumbService } from './shared/breadcrumb/breadcrumb.service';
 import { SharedModule } from './shared/shared.module';
 import { StompRService } from '@stomp/ng2-stompjs';
@@ -40,14 +39,14 @@ import { ProjectService } from './elastest-etm/project/project.service';
 import { TestSuiteService } from './elastest-etm/test-suite/test-suite.service';
 import { TestCaseService } from './elastest-etm/test-case/test-case.service';
 import {
-  MdDatepickerModule,
-  MdNativeDateModule,
-  MdRadioModule,
-  MdButtonToggleModule,
-  MdDialogModule,
-  MdSidenavModule,
-  MdProgressSpinnerModule,
-  MdDialogRef,
+  MatDatepickerModule,
+  MatNativeDateModule,
+  MatRadioModule,
+  MatButtonToggleModule,
+  MatDialogModule,
+  MatFormFieldModule,
+  MatSidenavModule,
+  MatProgressSpinnerModule,
 } from '@angular/material';
 import { ConfigurationService } from './config/configuration-service.service';
 import { configServiceFactory } from './config/configServiceFactory';
@@ -103,7 +102,6 @@ import { TestCaseStepFormComponent } from './etm-testlink/test-case-step/test-ca
 import { ExecuteCaseModalComponent } from './etm-testlink/build/execute-case-modal/execute-case-modal.component';
 import { ExecutionComponent } from './etm-testlink/execution/execution.component';
 import { TestCaseExecsComponent } from './etm-testlink/build/test-case-execs/test-case-execs.component';
-import { Autosize } from 'angular2-autosize';
 import { ExternalProjectComponent } from './elastest-etm/external/external-project/external-project.component';
 import { ExternalTestCaseComponent } from './elastest-etm/external/external-test-case/external-test-case.component';
 import { ExternalTestExecutionComponent } from './elastest-etm/external/external-test-execution/external-test-execution.component';
@@ -133,8 +131,13 @@ import { ChildTjobExecsViewComponent } from './elastest-etm/tjob-exec/child-tjob
 import { TjobExecViewComponent } from './elastest-etm/tjob-exec/tjob-exec-view/tjob-exec-view.component';
 import { ParentTjobExecReportViewComponent } from './elastest-etm/tjob-exec/parent-tjob-exec-report-view/parent-tjob-exec-report-view.component';
 import { CredentialsDialogComponent } from './shared/credentials-dialog/credentials-dialog.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faJenkins } from '@fortawesome/free-brands-svg-icons';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
 
-const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
+library.add(faJenkins);
 
 @NgModule({
   declarations: [
@@ -184,7 +187,6 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     ExecuteCaseModalComponent,
     ExecutionComponent,
     TestCaseExecsComponent,
-    Autosize,
     CaseExecutionViewComponent,
     ExternalProjectComponent,
     ExternalTestCaseComponent,
@@ -218,34 +220,30 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
     appRoutes,
     AppRoutingModule,
     AgGridModule.withComponents([]),
+    AutosizeModule,
     BrowserModule,
     BrowserAnimationsModule,
     CovalentExpansionPanelModule,
     CovalentMessageModule,
-    CovalentHttpModule.forRoot({
-      interceptors: [
-        {
-          interceptor: RequestInterceptor,
-          paths: ['**'],
-        },
-      ],
-    }),
+
     CovalentHighlightModule,
     CovalentMarkdownModule,
+    FontAwesomeModule,
     FormsModule,
+    HttpClientModule,
     InputTrimModule,
-    MdDatepickerModule,
-    MdButtonToggleModule,
-    MdDialogModule,
-    MdNativeDateModule,
-    MdProgressSpinnerModule,
-    MdRadioModule,
-    MdSidenavModule,
+    MatButtonToggleModule,
+    MatDatepickerModule,
+    MatFormFieldModule,
+    MatDialogModule,
+    MatNativeDateModule,
+    MatProgressSpinnerModule,
+    MatRadioModule,
+    MatSidenavModule,
     SharedModule,
     TreeModule,
   ], // modules needed to run this module
   providers: [
-    httpInterceptorProviders,
     Title,
     TdLayoutManageListComponent,
     StompWSManager,
@@ -297,4 +295,8 @@ const httpInterceptorProviders: Type<any>[] = [RequestInterceptor];
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private matIconRegistry: MatIconRegistry, private domSanitizer: DomSanitizer) {
+    matIconRegistry.addSvgIconSet(domSanitizer.bypassSecurityTrustResourceUrl('/assets/symbol-defs.svg'));
+  }
+}

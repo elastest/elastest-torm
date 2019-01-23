@@ -1,23 +1,23 @@
-<auto-height-grid layout="column">
+<auto-height-grid fxLayout="column">
     <normal-height-row>
-        <md-card>
-            <md-card-title>Support Services</md-card-title>
-            <md-divider></md-divider>
-            <md-card-content>
+        <mat-card>
+            <mat-card-title>Support Services</mat-card-title>
+            <mat-divider></mat-divider>
+            <mat-card-content>
                 <form #ServiceForm="ngForm">
-                    <div layout-gt-md="row" layout-md="row" layout="column" class="push-top push-bottom">
-                        <md-select [(ngModel)]="selectedService" placeholder="Select a Service" required name="service"
+                    <div fxLayout.gt-md="row" fxLayout.md="row" fxLayout="column" class="push-top push-bottom">
+                        <mat-select [(ngModel)]="selectedService" placeholder="Select a Service" required name="service"
                             class="push-right">
-                            <md-option *ngFor="let service of supportServices" [value]="service.id">
+                            <mat-option *ngFor="let service of supportServices" [value]="service.id">
                                 {{service.name}}
-                            </md-option>
-                        </md-select>
-                        <button md-raised-button color="accent" (click)="provisionServiceInstance()" id="create_instance">Create
+                            </mat-option>
+                        </mat-select>
+                        <button mat-raised-button color="accent" (click)="provisionServiceInstance()" id="create_instance">Create
                             Instance</button>
                     </div>
                 </form>
-            </md-card-content>
-        </md-card>
+            </mat-card-content>
+        </mat-card>
     </normal-height-row>
 
     <auto-height-row>
@@ -25,33 +25,33 @@
             <sa-card-title>Created Instances</sa-card-title>
             <sa-card-content>
                 <centered-element *ngIf="showSpinner">
-                    <md-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
+                    <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
                 </centered-element>
                 <centered-element *ngIf="!showSpinner && instancesData.length === 0" class="messageEmptyCard">
-                    <md-icon>assignment</md-icon>
+                    <mat-icon>assignment</mat-icon>
                     <p>No Instances created</p>
                 </centered-element>
                 <td-data-table #servicesTable *ngIf="instancesData && instancesData.length > 0" class="useMaxHeight"
                     [data]="instancesData" [columns]="serviceColumns" [selectable]="false" [clickable]="true"
                     [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder" (sortChange)="sort($event)"  id="tss-instances">
                     <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-                        <div layout="row" class="optionsColumn">
-                            <button md-button *ngIf="row.serviceReady && (deleting && deleting[row.serviceName] === undefined)"
+                        <div fxLayout="row" class="optionsColumn">
+                            <button mat-button *ngIf="row.serviceReady && (deleting && deleting[row.serviceName] === undefined)"
                                 (click)="goToServiceDetail(row)" class="iconBtn-lg" title="View Service Detail" id="viewService-{{row.id}}" name="view_service">
-                                <md-icon>remove_red_eye</md-icon>
+                                <mat-icon>remove_red_eye</mat-icon>
                             </button>
-                            <button md-button *ngIf="row.serviceReady && (deleting && deleting[row.serviceName] === undefined)"
+                            <button mat-button *ngIf="row.serviceReady && (deleting && deleting[row.serviceName] === undefined)"
                                 (click)="deprovisionService(row)" class="iconBtn-lg" title="Deprovision Service" id="deleteService-{{row.id}}" name="delete_service">
-                                <md-icon>delete</md-icon>
+                                <mat-icon>delete</mat-icon>
                             </button>
                         </div>
                         <ng-container *ngIf="!row.serviceReady || deleting && deleting[row.serviceName]">
-                            <img id="serviceSpinner-{{row.id}}" class="iconBtn-lg" src="./assets/img/spinner.gif" style="width:23px;height: 23px;">
+                            <mat-spinner id="serviceSpinner-{{row.id}}" strokeWidth="3" diameter="20" color="accent" style="vertical-align: middle; display: inline-block"></mat-spinner>
                         </ng-container>
                     </ng-template>
                 </td-data-table>
 
-            </sa-card-content>
+            </sa-card-content>  
         </self-adjustable-card>
     </auto-height-row>
 

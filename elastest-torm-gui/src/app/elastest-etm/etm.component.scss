@@ -1,3 +1,33 @@
 :host /deep/ #menusideLeft > .td-layout-manage-list .list {
   overflow-x: hidden !important;
 }
+
+:host /deep/ span.td-layout-nav-toolbar-content,
+:host /deep/ span.td-layout-nav-toolbar-content > mat-icon.mat-icon-logo {
+  height: 100%;
+}
+
+:host /deep/ mat-sidenav .mat-list-item-content fa-icon {
+  margin-right: 16px;
+}
+
+:host /deep/ mat-sidenav .mat-list-item-content mat-icon > svg {
+  display: inline-block;
+  overflow-x: visible;
+  overflow-y: visible;
+  text-align: start;
+  visibility: visible;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  height: 1em;
+  width: 1em;
+  margin-left: -2px;
+  font-size: inherit;
+}
+
+:host /deep/ mat-nav-list [mat-list-item].active fa-icon[mat-list-icon] {
+  color: #ffac2f;
+}
+
+:host /deep/ mat-nav-list [mat-list-item].active mat-icon[mat-list-icon] > svg {
+  fill: #ffac2f;
+}

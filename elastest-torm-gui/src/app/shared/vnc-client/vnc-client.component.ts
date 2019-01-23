@@ -1,6 +1,7 @@
 import { VncUI } from './ui';
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { fromEvent } from 'rxjs';
 import { getUrlObj } from '../utils';
 
 @Component({
@@ -8,7 +9,7 @@ import { getUrlObj } from '../utils';
   templateUrl: './vnc-client.component.html',
   styleUrls: ['./vnc-client.component.scss'],
 })
-export class VncClientComponent implements  OnInit, OnDestroy {
+export class VncClientComponent implements OnInit, OnDestroy {
   @ViewChild('canvas') vncCanvas: ElementRef;
 
   @Input() public host: string;
@@ -41,7 +42,7 @@ export class VncClientComponent implements  OnInit, OnDestroy {
 
   ngOnInit() {
     this.manageKeyboard();
-    
+
     if (this.host && this.port) {
       this.initVnc();
     } else {
@@ -110,13 +111,13 @@ export class VncClientComponent implements  OnInit, OnDestroy {
   manageKeyboard(): void {
     const canvasNE: any = this.vncCanvas.nativeElement;
 
-    const mouseOutObs: Observable<any> = Observable.fromEvent(canvasNE, 'mouseout');
-    const mouseOverObs: Observable<any> = Observable.fromEvent(canvasNE, 'mouseover');
-    const mouseDownObs: Observable<any> = Observable.fromEvent(canvasNE, 'mousedown');
-    const mouseUpObs: Observable<any> = Observable.fromEvent(canvasNE, 'mouseup');
+    const mouseOutObs: Observable<any> = fromEvent(canvasNE, 'mouseout');
+    const mouseOverObs: Observable<any> = fromEvent(canvasNE, 'mouseover');
+    const mouseDownObs: Observable<any> = fromEvent(canvasNE, 'mousedown');
+    const mouseUpObs: Observable<any> = fromEvent(canvasNE, 'mouseup');
 
     mouseOutObs.subscribe(
-      (mouseEvent) => {
+      (mouseEvent: any) => {
         if (!this.canvasFocused || !this.canvasMouseDown) {
           this.switchHTMLClickEventListener(true);
           mouseEvent.stopPropagation();
@@ -124,34 +125,34 @@ export class VncClientComponent implements  OnInit, OnDestroy {
           this.canvasFocused = false;
         }
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
     mouseOverObs.subscribe(
-      (mouseEvent) => {
+      (mouseEvent: any) => {
         this.switchHTMLClickEventListener(false);
         mouseEvent.stopPropagation();
         mouseEvent.preventDefault();
         this.canvasFocused = true;
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
 
     mouseDownObs.subscribe(
-      (mouseEvent) => {
+      (mouseEvent: any) => {
         this.canvasMouseDown = true;
         mouseEvent.stopPropagation();
         mouseEvent.preventDefault();
         this.switchFocus();
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
     mouseUpObs.subscribe(
-      (mouseEvent) => {
+      (mouseEvent: any) => {
         this.canvasMouseDown = false;
         mouseEvent.stopPropagation();
         mouseEvent.preventDefault();
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
     this.switchHTMLClickEventListener(true);
   }
@@ -176,7 +177,7 @@ export class VncClientComponent implements  OnInit, OnDestroy {
   }
 
   suscribeToStatus(): void {
-    this.vncUi.statusObs.subscribe((status) => {
+    this.vncUi.statusObs.subscribe((status: string) => {
       this.statusInfo = status;
       if (status.startsWith('Error')) {
         this.statusColor = '#cc200f';

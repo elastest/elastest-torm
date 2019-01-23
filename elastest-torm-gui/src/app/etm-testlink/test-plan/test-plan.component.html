@@ -1,145 +1,205 @@
-<div layout-gt-sm="row" tdMediaToggle="gt-xs">
-  <div flex-gt-sm="100">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        <div layout="row">
-          <span>Test Plan {{testPlan.name}}</span>
-          <span flex></span>
-          <div *ngIf="exTJob != undefined">
-            <button md-button id="btnEditPlan" [routerLink]="['/external/projects/', exTJob.exProject.id ,'tjob', 'edit',exTJob.id]"
-              class="iconBtn-lg" mdTooltip="Edit Test Plan">
-              <md-icon>mode_edit</md-icon>
-            </button>
-            <button md-raised-button id="runTestPlan" color="accent" (click)="runTestPlan()" mdTooltip="Run Test Plan"
-              [disabled]="testPlanCases.length === 0">
-              <md-icon>play_circle_outline</md-icon>
-              Execute Test Plan
-            </button>
-          </div>
+<auto-height-grid fxLayout="column">
+  <normal-height-row>
+    <div flex>
+      <div fxFlex.gt-sm="100">
+        <mat-card tdMediaToggle="gt-xs">
+          <mat-card-title>
+            <div fxLayout="row">
+              <span>Test Plan {{ testPlan.name }}</span> <span fxFlex></span>
+              <div *ngIf="exTJob != undefined">
+                <button
+                  mat-button
+                  id="btnEditPlan"
+                  [routerLink]="['/external/projects/', exTJob.exProject.id, 'tjob', 'edit', exTJob.id]"
+                  class="iconBtn-lg"
+                  matTooltip="Edit Test Plan"
+                >
+                  <mat-icon>mode_edit</mat-icon>
+                </button>
+                <button
+                  mat-raised-button
+                  id="runTestPlan"
+                  color="accent"
+                  (click)="runTestPlan()"
+                  matTooltip="Run Test Plan"
+                  [disabled]="testPlanCases.length === 0"
+                >
+                  <mat-icon>play_circle_outline</mat-icon>
+                  Execute Test Plan
+                </button>
+              </div>
+            </div>
+          </mat-card-title>
+          <mat-divider></mat-divider>
+          <mat-card-content>
+            <div fxLayout="row">
+              <div fxFlex="47">
+                <mat-list class="listInfoToLeft">
+                  <mat-list-item>
+                    <h4>Name</h4>
+                    <p>{{ testPlan.name }}</p>
+                  </mat-list-item>
+                  <mat-divider></mat-divider>
+                  <mat-list-item *ngIf="exTJob !== undefined">
+                    <h4>SuT</h4>
+                    <p *ngIf="exTJob.sut !== undefined && exTJob.sut.id > 0; else noSut">{{ exTJob.sut.name }}</p>
+                    <ng-template #noSut> <p>None</p> </ng-template>
+                  </mat-list-item>
+                </mat-list>
+              </div>
+              <div fxFlex="5"></div>
+              <div fxFlex="47" class="listInfoToLeft">
+                <mat-list>
+                  <mat-list-item>
+                    <h4>Active</h4>
+                    <p>{{ testPlan.active }}</p>
+                  </mat-list-item>
+                  <mat-divider></mat-divider>
+                  <mat-list-item>
+                    <h4>Public</h4>
+                    <p>{{ testPlan.public }}</p>
+                  </mat-list-item>
+                </mat-list>
+              </div>
+            </div>
+            <mat-divider></mat-divider>
+            <div fxLayout="column" class="push-top" id="testPlanBottomInfo">
+              <span fxFlex.gt-xs="100">
+                <h4 class="pad-left-none">Notes</h4>
+                <div id="notes" [innerHTML]="testPlan.notes"></div>
+              </span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </normal-height-row>
 
-        </div>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content>
-        <div layout="row">
-          <div flex="47">
-            <md-list class="listInfoToLeft">
-              <md-list-item>
-                <h4>Name</h4>
-                <p>{{testPlan.name}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item *ngIf="exTJob !== undefined">
-                <h4>SuT</h4>
-                <p *ngIf="exTJob.sut !== undefined && exTJob.sut.id > 0; else noSut">{{exTJob.sut.name}}</p>
-                <ng-template #noSut>
-                  <p>None</p>
+  <auto-height-row>
+    <auto-height-grid fxLayout="column">
+      <auto-height-row>
+        <self-adjustable-card *ngIf="testPlan">
+          <sa-card-title>
+            <div fxLayout="row"><span>Builds</span> <span fxFlex></span></div>
+          </sa-card-title>
+          <sa-card-content #scrollMeTest>
+            <mat-spinner strokeWidth="6" *ngIf="showSpinnerBuilds" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
+            <centered-element
+              *ngIf="!showSpinnerBuilds && builds.length === 0; else showBuilds"
+              class="push-top-important messageEmptyCard"
+            >
+              <mat-icon>assignment</mat-icon>
+              <p>No Builds created</p>
+            </centered-element>
+            <ng-template #showBuilds>
+              <td-data-table
+                *ngIf="builds && builds.length > 0"
+                #buildTable
+                id="tlBuilds"
+                class="scroll_table"
+                [data]="builds"
+                [columns]="buildColumns"
+                [selectable]="false"
+                [clickable]="true"
+                [sortable]="false"
+                [sortBy]="sortBy"
+                [sortOrder]="sortOrder"
+                [resizableColumns]="true"
+              >
+                <ng-template
+                  *ngFor="let column of buildColumns"
+                  tdDataTableTemplate="{{ column.name }}"
+                  let-value="value"
+                  let-row="row"
+                >
+                  <div
+                    *ngIf="column.name !== 'options'"
+                    [routerLink]="['/testlink/projects', testProjectId, 'plans', testPlan.id, 'builds', row.id]"
+                    class="hover-pointer"
+                  >
+                    <div *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
+                    <div *ngIf="column.name !== 'notes'">{{ value }}</div>
+                  </div>
                 </ng-template>
-              </md-list-item>
-            </md-list>
-          </div>
-          <div flex="5"></div>
-          <div flex="47" class="listInfoToLeft">
-            <md-list>
-              <md-list-item>
-                <h4>Active</h4>
-                <p>{{testPlan.active}}</p>
-              </md-list-item>
-              <md-divider></md-divider>
-              <md-list-item>
-                <h4>Public</h4>
-                <p>{{testPlan.public}}</p>
-              </md-list-item>
-            </md-list>
-          </div>
-        </div>
-        <md-divider></md-divider>
-        <div layout="column" class="push-top" id="testPlanBottomInfo">
-          <span flex-gt-xs="100">
-            <h4 class="pad-left-none">Notes</h4>
-            <div id="notes" [innerHTML]="testPlan.notes"></div>
-          </span>
-        </div>
-      </md-card-content>
-    </md-card>
-  </div>
-</div>
-
-<div layout="column" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testPlan">
-  <div flex-gt-lg="50" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        <div layout="row">
-          <span>Builds</span>
-          <span flex></span>
-        </div>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-card-content #scrollMeTest>
-        <md-spinner strokeWidth="6" *ngIf="showSpinnerBuilds" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-        <centered-element *ngIf="!showSpinnerBuilds && builds.length === 0; else showBuilds" class="push-top-important messageEmptyCard">
-          <md-icon>assignment</md-icon>
-          <p>No Builds created</p>
-        </centered-element>
-        <ng-template #showBuilds>
-          <td-data-table #buildTable id="tlBuilds" class="scroll_table" [data]="builds" [columns]="buildColumns"
-            [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-            <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
-              let-row="row">
-              <div *ngIf="column.name !== 'options'" [routerLink]="['/testlink/projects',testProjectId, 'plans', testPlan.id, 'builds', row.id]"
-                class="hover-pointer">
-                <div *ngIf="column.name === 'notes'" [innerHTML]="value"></div>
-                <div *ngIf="column.name !== 'notes'">{{value}}</div>
-              </div>
-            </ng-template>
-            <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-              <div layout="row" class="optionsColumn">
-
-              </div>
-            </ng-template>
-          </td-data-table>
-        </ng-template>
-      </md-card-content>
-    </md-card>
-  </div>
-
-</div>
-
-<div layout="row" layout-gt-xl="row" tdMediaToggle="gt-xs" *ngIf="testPlan">
-  <div flex-gt-lg="50" layout-gt-sm="column">
-    <md-card tdMediaToggle="gt-xs">
-      <md-card-title>
-        <div layout="row">
-          <span>Test Cases</span>
-          <span flex></span>
-          <!-- <button md-raised-button color="accent" (click)="newTJob()">New Build</button> -->
-        </div>
-      </md-card-title>
-      <md-divider></md-divider>
-      <md-spinner strokeWidth="6" *ngIf="showSpinnerCases" color="accent" class="push-top-sm spinnerCenter"></md-spinner>
-      <md-card-content #scrollMeTest>
-        <centered-element *ngIf="!showSpinnerCases && testPlanCases.length === 0; else showTestCases" class="push-top-important messageEmptyCard">
-          <md-icon>assignment</md-icon>
-          <p>No Test Cases associated</p>
-        </centered-element>
-        <ng-template #showTestCases>
-          <td-data-table #tcTable id="tlCases" class="scroll_table" [data]="testPlanCases" [columns]="testCaseColumns"
-            [selectable]="false" [clickable]="false" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-            <ng-template *ngFor="let column of buildColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
-              let-row="row">
-              <div *ngIf="column.name !== 'options'" class="">
-                <div *ngIf="column.name === 'summary' || column.name === 'preconditions'; else normalValue" [innerHTML]="value"></div>
-                <ng-template #normalValue>
-                  <span>{{value}}</span>
+                <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+                  <div fxLayout="row" class="optionsColumn"></div>
                 </ng-template>
-              </div>
+              </td-data-table>
             </ng-template>
-          </td-data-table>
-        </ng-template>
-      </md-card-content>
-    </md-card>
-  </div>
-  <div flex-gt-lg="50" layout-gt-sm="column">
-    <etm-external-tjob-execs-view *ngIf="exTJob" [exTJobId]="exTJob.id"></etm-external-tjob-execs-view>
-  </div>
-</div>
+          </sa-card-content>
+        </self-adjustable-card>
+      </auto-height-row>
+
+      <auto-height-row>
+        <auto-height-grid fxLayout="column" fxLayout.gt-lg="row" tdMediaToggle="gt-xs" *ngIf="testPlan">
+          <auto-height-row fxFlex.gt-lg="50" fxFlex>
+            <self-adjustable-card tdMediaToggle="gt-xs">
+              <sa-card-title>
+                <div fxLayout="row">
+                  <span>Test Cases</span> <span fxFlex></span>
+                  <!-- <button mat-raised-button color="accent" (click)="newTJob()">New Build</button> -->
+                </div>
+              </sa-card-title>
+              <sa-card-content #scrollMeTest>
+                <mat-spinner
+                  strokeWidth="6"
+                  *ngIf="showSpinnerCases"
+                  color="accent"
+                  class="push-top-sm spinnerCenter"
+                ></mat-spinner>
+                <centered-element
+                  *ngIf="!showSpinnerCases && testPlanCases.length === 0; else showTestCases"
+                  class="push-top-important messageEmptyCard"
+                >
+                  <mat-icon>assignment</mat-icon>
+                  <p>No Test Cases associated</p>
+                </centered-element>
+                <ng-template #showTestCases>
+                  <td-data-table
+                    *ngIf="testPlanCases && testPlanCases.length > 0"
+                    #tcTable
+                    id="tlCases"
+                    class="scroll_table"
+                    [data]="testPlanCases"
+                    [columns]="testCaseColumns"
+                    [selectable]="false"
+                    [clickable]="false"
+                    [sortable]="false"
+                    [sortBy]="sortBy"
+                    [sortOrder]="sortOrder"
+                    [resizableColumns]="true"
+                  >
+                    <ng-template
+                      *ngFor="let column of buildColumns"
+                      tdDataTableTemplate="{{ column.name }}"
+                      let-value="value"
+                      let-row="row"
+                    >
+                      <div *ngIf="column.name !== 'options'" class="">
+                        <div
+                          *ngIf="column.name === 'summary' || column.name === 'preconditions'; else normalValue"
+                          [innerHTML]="value"
+                        ></div>
+                        <ng-template #normalValue>
+                          <span>{{ value }}</span>
+                        </ng-template>
+                      </div>
+                    </ng-template>
+                  </td-data-table>
+                </ng-template>
+              </sa-card-content>
+            </self-adjustable-card>
+          </auto-height-row>
+          <auto-height-row fxFlex.gt-lg="50" fxFlex>
+            <etm-external-tjob-execs-view
+              fxLayout="column"
+              fxFlexFill
+              *ngIf="exTJob"
+              [exTJobId]="exTJob.id"
+            ></etm-external-tjob-execs-view>
+          </auto-height-row>
+        </auto-height-grid>
+      </auto-height-row>
+    </auto-height-grid>
+  </auto-height-row>
+</auto-height-grid>

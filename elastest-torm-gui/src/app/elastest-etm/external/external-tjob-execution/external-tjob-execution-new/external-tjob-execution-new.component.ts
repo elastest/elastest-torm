@@ -71,7 +71,7 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit(): void {}
 
   loadExternalTJob(id: number): void {
     this.externalService.getExternalTJobById(id).subscribe(
@@ -79,7 +79,7 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
         this.exTJob = exTJob;
         this.createTJobExecution();
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -128,7 +128,7 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
           this.eusService.setEusUrl(this.eusUrl);
           this.loadChromeBrowser();
         },
-        (error) => console.log(error),
+        (error: Error) => console.log(error),
       );
     }
   }
@@ -151,10 +151,10 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
             this.vncPassword = urlObj.queryParams.password;
             this.vncBrowserUrl = urlObj.href;
           },
-          (error) => console.error(error),
+          (error: Error) => console.error(error),
         );
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -173,11 +173,11 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
       this.browserLoadingMsg = 'Shutting down Browser...';
       this.vncBrowserUrl = undefined;
       this.eusService.stopSession(this.sessionId).subscribe(
-        (ok) => {
+        (ok: any) => {
           this.sessionId = undefined;
           this.deprovisionEUS();
         },
-        (error) => {
+        (error: Error) => {
           console.error(error);
           this.deprovisionEUS();
         },
@@ -195,7 +195,7 @@ export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
           this.browserLoadingMsg = 'FINISHED';
           this.showFiles = true;
         },
-        (error) => console.log(error),
+        (error: Error) => console.log(error),
       );
     }
     this.unsubscribeEus();

@@ -1,28 +1,28 @@
-<md-card tdMediaToggle="gt-xs">
-  <md-card-title>
-    <div layout="column" layout-gt-md="row">
-      <div custom-flex-gt-xl="75" custom-flex-xl="85" flex-gt-lg="75" flex-gt-md="65" flex-md="100" flex-gt-sm="100" flex-gt-xs="100"
-        flex-xs="100" style="word-break: break-all;">{{model.name}}</div>
-      <span flex></span>
-      <div hide-gt-md flex="100" class="pad-top-sm"></div>
-      <div layout="row" style="text-align: right;">
+<mat-card tdMediaToggle="gt-xs">
+  <mat-card-title>
+    <div fxLayout="column" fxLayout.gt-md="row">
+      <div custom-fxFlex.gt-xl="75" custom-fxFlex-xl="85" fxFlex.gt-lg="75" fxFlex.gt-md="65" fxFlex.md="100" fxFlex.gt-sm="100" fxFlex.gt-xs="100"
+        fxFlex.xs="100" style="word-break: break-all;">{{model.name}}</div>
+      <span fxFlex></span>
+      <div hide-gt-md fxFlex="100" class="pad-top-sm"></div>
+      <div fxLayout="row" style="text-align: right;">
         <div>
-          <button md-button (click)="lockLogScroll()" class="iconBtn pad-left-none" *ngIf="logsViewText && live">
-            <md-icon *ngIf="logsViewText.lockScroll" color="accent" title="Unlock scroll">lock_outline</md-icon>
-            <md-icon *ngIf="!logsViewText.lockScroll" title="Lock scroll">lock_open</md-icon>
+          <button mat-button (click)="lockLogScroll()" class="iconBtn pad-left-none" *ngIf="logsViewText && live">
+            <mat-icon *ngIf="logsViewText.lockScroll" color="accent" title="Unlock scroll">lock_outline</mat-icon>
+            <mat-icon *ngIf="!logsViewText.lockScroll" title="Lock scroll">lock_open</mat-icon>
           </button>
         </div>
         <load-previous-view [model]="model"></load-previous-view>
         <div>
-          <button md-button (click)="remove()" aria-label="Remove" title="Remove" class="iconBtn pad-left-none">
-            <md-icon>clear</md-icon>
+          <button mat-button (click)="remove()" aria-label="Remove" title="Remove" class="iconBtn pad-left-none">
+            <mat-icon>clear</mat-icon>
           </button>
         </div>
       </div>
     </div>
-  </md-card-title>
-  <md-divider></md-divider>
-  <md-card-content>
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <mat-card-content>
     <logs-view-text #logsViewText [model]="model"></logs-view-text>
-  </md-card-content>
-</md-card>
+  </mat-card-content>
+</mat-card>
