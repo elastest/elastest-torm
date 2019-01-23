@@ -87,7 +87,7 @@
         Web Browsers
       </a>
       <a
-        *ngIf="configService.configModel.elasTestExecMode !== 'normal'"
+        *ngIf="configService.configModel.elasTestExecMode !== 'experimental'"
         mat-list-item
         (click)="!media.query('gt-sm') && manageList.close()"
         mat-ripple
@@ -104,7 +104,7 @@
         Test Engines
       </a>
       <a
-        *ngIf="configService.configModel.elasTestExecMode !== 'normal'"
+        *ngIf="configService.configModel.elasTestExecMode !== 'experimental'"
         mat-list-item
         (click)="!media.query('gt-sm') && manageList.close()"
         mat-ripple

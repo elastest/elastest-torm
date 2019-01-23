@@ -43,14 +43,13 @@ import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SupportServiceInstance.SSIStatusEnum;
-import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.service.client.SupportServiceClientInterface;
-import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.ParserService;
 import io.elastest.etm.utils.UtilTools;
@@ -232,7 +231,7 @@ public class EsmService {
 
                     tssLoadedOnInitMap.put(serviceName, tssInstanceId);
 
-                    logger.debug("{} is started from ElasTest in normal mode",
+                    logger.debug("{} is started from ElasTest in mini mode",
                             serviceName);
                 });
 
@@ -360,11 +359,8 @@ public class EsmService {
                     String serviceName = serviceFile.getName().split("-")[0]
                             .toUpperCase();
 
-                    // If is exp-lite OR is Normal and is valid TSS (only EUS)
-                    if (!execMode.equals(ElastestConstants.MODE_NORMAL)
-                            || (execMode.equals(ElastestConstants.MODE_NORMAL)
-                                    && tSSNameLoadedOnInit
-                                            .contains(serviceName))) {
+                    // If is valid TSS (only EUS)
+                    if (tSSNameLoadedOnInit.contains(serviceName)) {
                         logger.debug("TSS {} will be registered in {} mode.",
                                 serviceName, execMode);
                         registerElasTestService(serviceDefJson);
@@ -374,6 +370,8 @@ public class EsmService {
                         if (tSSNameLoadedOnInit.contains(serviceName)) {
                             tSSIdLoadedOnInit.add(tssId);
                         }
+                    } else {
+                        registerElasTestService(serviceDefJson);
                     }
                 } else {
                     registerElasTestService(serviceDefJson);
@@ -1730,14 +1728,12 @@ public class EsmService {
                 etSharedFolder + fileSeparator
                         + supportServiceInstance.getServiceName().toLowerCase()
                         + fileSeparator);
-        if (execMode.equals(ElastestConstants.MODE_EXPERIMENTAL)
-                || execMode.equals(ElastestConstants.MODE_EXPERIMENTAL_LITE)) {
-            supportServiceInstance.getParameters().put("ET_FILES_PATH_IN_HOST",
-                    etDataInHost
-                            + fileSeparator + supportServiceInstance
-                                    .getServiceName().toLowerCase()
-                            + fileSeparator);
-        }
+
+        supportServiceInstance.getParameters().put("ET_FILES_PATH_IN_HOST",
+                etDataInHost + fileSeparator
+                        + supportServiceInstance.getServiceName().toLowerCase()
+                        + fileSeparator);
+
         supportServiceInstance.getParameters().put("ET_SHARED_FOLDER",
                 etSharedFolder);
         supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
@@ -1998,7 +1994,7 @@ public class EsmService {
     }
 
     public String getSharedTssInstanceId(String serviceName) {
-        // If mode normal and is shared tss
+        // If mode mini and is shared tss
         if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName.toUpperCase())) {
             return tssLoadedOnInitMap.get(serviceName.toUpperCase());
@@ -2007,7 +2003,7 @@ public class EsmService {
     }
 
     public SupportServiceInstance getSharedTssInstance(String instanceId) {
-        // If mode normal and is shared tss
+        // If mode mini and is shared tss
         if (instanceId != null && utilsService.isElastestMini()
                 && servicesInstances.containsKey(instanceId)) {
             return servicesInstances.get(instanceId);

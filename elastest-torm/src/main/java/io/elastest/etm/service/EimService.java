@@ -67,7 +67,7 @@ public class EimService {
     }
 
     private void startEimIfNotStarted() {
-        // Only in normal mode
+        // Only in mini mode
         String eimProjectName = "eim";
         if (utilsService.isElastestMini()
                 && !etPluginsService.isRunning(eimProjectName)) {

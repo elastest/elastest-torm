@@ -2,9 +2,14 @@ package io.elastest.etm.utils;
 
 public interface ElastestConstants {
 
+    // TODO REMOVE
     public static final String MODE_EXPERIMENTAL_LITE = "experimental-lite";
     public static final String MODE_EXPERIMENTAL = "experimental";
     public static final String MODE_NORMAL = "normal";
+
+    public static final String MODE_MINI = "mini";
+    public static final String MODE_SINGLENODE = "singlenode";
+    public static final String MODE_CLUSTER = "cluster";
 
     public static final String TJOBS_FOLDER = "tjobs";
     public static final String TJOB_FOLDER_PREFIX = "tjob_";

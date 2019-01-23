@@ -46,7 +46,8 @@ public class UtilsService {
 
     public boolean isElastestMini() {
         return enableETMini && (execMode.equals(ElastestConstants.MODE_NORMAL)
-                || execMode.equals(ElastestConstants.MODE_EXPERIMENTAL_LITE));
+                || execMode.equals(ElastestConstants.MODE_EXPERIMENTAL_LITE)
+                || execMode.equals(ElastestConstants.MODE_MINI));
     }
 
     public boolean isEtmInDevelopment() {

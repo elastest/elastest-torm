@@ -128,6 +128,9 @@ public class EtPluginsService {
     private String uniqueEtPluginsYmlFolder;
     private String tmpTssInstancesYmlFolder;
 
+    // Temporally disabled
+    private boolean ereEnabled = false;
+
     public EtPluginsService(DockerComposeService dockerComposeService,
             DockerEtmService dockerEtmService, UtilsService utilsService) {
         this.dockerComposeService = dockerComposeService;
@@ -139,8 +142,11 @@ public class EtPluginsService {
         this.enginesMap.put(ECE_NAME, new EtPlugin(ECE_NAME, ECE_DISPLAY_NAME));
         // It's necessary to auth:
         // https://docs.google.com/document/d/1RMMnJO3rA3KRg-q_LRgpmmvSTpaCPsmfAQjs9obVNeU
-        this.enginesMap.put(ERE_NAME, new EtPlugin(ERE_NAME, ERE_DISPLAY_NAME));
 
+        if (ereEnabled) {
+            this.enginesMap.put(ERE_NAME,
+                    new EtPlugin(ERE_NAME, ERE_DISPLAY_NAME));
+        }
         this.uniqueEtPluginsMap.put(EIM_NAME,
                 new EtPlugin(EIM_NAME, EIM_DISPLAY_NAME));
         this.uniqueEtPluginsMap.put(TESTLINK_NAME,

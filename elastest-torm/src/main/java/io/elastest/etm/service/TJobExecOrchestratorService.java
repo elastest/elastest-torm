@@ -713,7 +713,7 @@ public class TJobExecOrchestratorService {
         envVars.putAll(
                 etmContextService.getTJobExecMonitoringEnvVars(tJobExec));
 
-        // In normal mode, tjobs make use of started EUS
+        // In mini mode, tjobs make use of started EUS
         String etEusApiKey = "ET_EUS_API";
         if (utilsService.isElastestMini() && envVars.containsKey(etEusApiKey)) {
             String eusApi = envVars.get(etEusApiKey);
