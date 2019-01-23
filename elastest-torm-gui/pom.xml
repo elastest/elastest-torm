@@ -43,7 +43,7 @@
                                 <!-- argument>-aot=false</argument-->
                                 <!-- argument>base-href</argument>
                                 <argument>"/torm/"</argument-->
-                                <argument>--env=prod</argument>
+                                <argument>--configuration=prod</argument>
                             </arguments>
                         </configuration>
                         <phase>generate-resources</phase>
