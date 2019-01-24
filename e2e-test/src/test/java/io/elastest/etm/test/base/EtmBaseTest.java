@@ -183,7 +183,7 @@ public class EtmBaseTest {
     protected void navigateToRoot(WebDriver driver) {
         log.info("Navigating to Root Path (/)");
         driver.findElement(By.xpath(
-                "//*[@id='main_nav']/div/md-toolbar/div/md-toolbar-row/span"))
+                "//*[@id=\\\"main_nav\\\"]/div/mat-toolbar/span"))
                 .click();
     }
 
@@ -766,11 +766,11 @@ public class EtmBaseTest {
 
         if (sutName != null) {
             this.getElementByXpath(driver,
-                    "//md-option[contains(string(), '" + sutName + "')]")
+                    "//mat-option/span[contains(string(), '" + sutName + "')]")
                     .click();
         } else {
             this.getElementByXpath(driver,
-                    "//md-option[contains(string(), 'None')]").click();
+                    "//mat-option/span[contains(string(), 'None')]").click();
         }
 
         // Image and commands

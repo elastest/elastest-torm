@@ -215,11 +215,11 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
         if (sutName != null) {
             this.getElementByXpath(driver,
-                    "//md-option[contains(string(), '" + sutName + "')]")
+                    "///mat-option/span[contains(string(), '" + sutName + "')]")
                     .click();
         } else {
             this.getElementByXpath(driver,
-                    "//md-option[contains(string(), 'None')]").click();
+                    "//mat-option/span[contains(string(), 'None')]").click();
         }
 
         getElementByXpath(driver, "//button[contains(string(), 'SAVE')]")
