@@ -87,7 +87,6 @@
         Web Browsers
       </a>
       <a
-        *ngIf="configService.configModel.elasTestExecMode !== 'experimental'"
         mat-list-item
         (click)="!media.query('gt-sm') && manageList.close()"
         mat-ripple
