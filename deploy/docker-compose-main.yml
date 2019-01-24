@@ -15,7 +15,7 @@ services:
         environment:
             - ET_PUBLIC_HOST_TYPE=default
             - ET_PUBLIC_HOST=localhost
-            - EXEC_MODE=experimental
+            - EXEC_MODE=singlenode
             - ET_USER=none
             - ET_PASS=none
             - ET_IMAGES=elastest/platform

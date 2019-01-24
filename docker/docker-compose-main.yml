@@ -10,7 +10,7 @@ services:
         environment:
             - ET_PUBLIC_HOST_TYPE=default
             - ET_PUBLIC_HOST=localhost
-            - EXEC_MODE=normal
+            - EXEC_MODE=mini
             - ET_ETM_INTERNAL_HOST=etm
             - ET_USER=none
             - ET_PASS=none
