@@ -210,7 +210,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     }
 
     protected void selectInternalSut(WebDriver driver, String sutName) {
-        String sutSelectXpath = "//md-select/div/span[contains(string(), 'Select a SuT')]";
+        String sutSelectXpath = "//mat-select/div/div/span[contains(string(), 'Select a SuT')]";
         this.getElementByXpath(driver, sutSelectXpath).click();
 
         if (sutName != null) {
