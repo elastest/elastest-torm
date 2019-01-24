@@ -249,6 +249,41 @@ public class EimService {
     /* ****************** */
     /* *** Additional *** */
     /* ****************** */
+
+    @Async
+    public void instrumentalizeAsync(EimConfig eimConfig) throws Exception {
+        try {
+            dbmanager.bindSession();
+            this.startEimIfNotStarted();
+
+            eimConfig = this.instrumentalize(eimConfig);
+        } catch (Exception e) {
+            dbmanager.unbindSession();
+            throw new Exception(
+                    "EIM is not started or response is a 500 Internal Server Error",
+                    e);
+        }
+        dbmanager.unbindSession();
+    }
+
+    @Async
+    public void deployBeatsAsync(EimConfig eimConfig,
+            EimMonitoringConfig eimMonitoringConfig) throws Exception {
+        try {
+            dbmanager.bindSession();
+            this.startEimIfNotStarted();
+
+            eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                    eimMonitoringConfig, BeatsStatusEnum.ACTIVATING);
+            this.deployBeats(eimConfig, eimMonitoringConfig);
+
+        } catch (Exception e) {
+            dbmanager.unbindSession();
+            throw new Exception("Error on activate Beats: not activated", e);
+        }
+        dbmanager.unbindSession();
+    }
+
     @Async
     public void instrumentalizeAndDeployBeats(EimConfig eimConfig,
             EimMonitoringConfig eimMonitoringConfig) throws Exception {
@@ -271,6 +306,23 @@ public class EimService {
                     "EIM is not started or response is a 500 Internal Server Error",
                     e);
         }
+        dbmanager.unbindSession();
+    }
+
+    @Async
+    public void deinstrumentalizeAsync(EimConfig eimConfig) {
+        dbmanager.bindSession();
+        this.deinstrumentalize(eimConfig);
+        dbmanager.unbindSession();
+    }
+
+    @Async
+    public void undeployBeatsAsync(EimConfig eimConfig,
+            EimMonitoringConfig eimMonitoringConfig) {
+        dbmanager.bindSession();
+        eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                eimMonitoringConfig, BeatsStatusEnum.DEACTIVATING);
+        this.unDeployBeats(eimConfig, eimMonitoringConfig);
         dbmanager.unbindSession();
     }
 

@@ -357,28 +357,9 @@
               </mat-form-field>
 
               <!-- Instrumentalize? -->
-              <mat-list fxFlex.gt-md="20" fxFlex.md="30" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
-                <mat-list-item *ngIf="!instrumentalized">
-                  <div>
-                    <h3 style="margin-bottom: 0px">Not Instrumentalized</h3>
-                    <p style="margin-top: 8px">
-                      <mat-checkbox [(ngModel)]="this.sut.instrumentalize" name="instrumentalizeCheckbox"
-                        >Instrumentalize</mat-checkbox
-                      >
-                    </p>
-                  </div>
-                </mat-list-item>
-                <mat-list-item *ngIf="instrumentalized">
-                  <div>
-                    <h3 style="margin-bottom: 0px">Instrumentalized</h3>
-                    <p style="margin-top: 8px">
-                      <mat-checkbox [(ngModel)]="!this.sut.instrumentalize" name="deInstrumentalizeCheckbox"
-                        >De-Instrumentalize</mat-checkbox
-                      >
-                    </p>
-                  </div>
-                </mat-list-item>
-              </mat-list>
+              <div fxFlex.gt-md="20" fxFlex.md="30" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
+                <mat-checkbox [(ngModel)]="this.sut.instrumentalize" name="instrumentalizeCheckbox">Instrumentalize</mat-checkbox>
+              </div>
             </div>
             <!-- Eim Logs Paths -->
             <td-expansion-panel expand="true" class="push-bottom push-top">
@@ -399,13 +380,15 @@
               class="push-bottom push-top"
             >
               <ng-template td-expansion-panel-label>
-                <mat-checkbox
-                  matTooltip="Is Dockerized"
-                  id="isDockerizedSut"
-                  [(ngModel)]="this.sut.eimMonitoringConfig.dockerized"
-                  name="isDockerizedSutCheckbox"
-                ></mat-checkbox>
-                <span class="mat-headline">Dockerized SuT</span>
+                <div fxLayout="row" fxLayoutAlign="start center">
+                  <mat-checkbox
+                    matTooltip="Is Dockerized"
+                    id="isDockerizedSut"
+                    [(ngModel)]="this.sut.eimMonitoringConfig.dockerized"
+                    name="isDockerizedSutCheckbox"
+                  ></mat-checkbox>
+                  <span class="mat-headline push-bottom-none" fxFlexOffset="0.5">Dockerized SuT</span>
+                </div>
               </ng-template>
               <div class="pad-sm pad-top-xs" fxLayout="column">
                 <div class="pad-xs">
@@ -423,8 +406,8 @@
                   >
                   </string-list-view>
                 </div>
-                <mat-divider></mat-divider>
                 <div class="pad-xs push-top-md">
+                  <mat-divider [inset]="true"></mat-divider>
                   <div class="mat-title push-bottom-sm">Docker sock path</div>
                   <td-message #dockerizedSutMetricbeatInfo label="{{ eimDockerSockPathHelpDesc }}" color="primary" icon="info">
                   </td-message>

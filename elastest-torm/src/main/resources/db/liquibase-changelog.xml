@@ -56,5 +56,8 @@
         file="classpath:db/changelogs/liquibase-diff-changeLog-20181121103335.xml" />
     <include
         file="classpath:db/changelogs/liquibase-diff-changeLog-20181210095451.xml" />
+    <include
+        file="classpath:db/changelogs/liquibase-diff-changeLog-20190124100309.xml" />        
+        
     <!--includeAll path="src/main/resources/db/changelogs/"/ -->
 </databaseChangeLog>

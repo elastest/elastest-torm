@@ -14,7 +14,10 @@ export class SutModel {
   project: ProjectModel;
   eimConfig: EimConfigModel;
   eimMonitoringConfig: EimMonitoringConfigModel;
+  // Indicates if you want to instrumentalize the sut
   instrumentalize: boolean;
+  // Indicates if the Sut is instrumentalized
+  instrumentalized: boolean;
   currentSutExec: string;
   instrumentedBy: 'WITHOUT' | 'ELASTEST' | 'ADMIN' | 'EXTERNAL_ELASTICSEARCH' | '';
   protocol: 'http' | 'https' | ''; // On add new, add too in getProtocolsList
@@ -41,6 +44,7 @@ export class SutModel {
       this.eimConfig = new EimConfigModel();
       this.eimMonitoringConfig = new EimMonitoringConfigModel('', 'sut', false);
       this.instrumentalize = false;
+      this.instrumentalized = false;
       this.currentSutExec = undefined;
       this.instrumentedBy = '';
       this.protocol = 'http';
@@ -64,6 +68,7 @@ export class SutModel {
       this.eimConfig = sut.eimConfig;
       this.eimMonitoringConfig = sut.eimMonitoringConfig;
       this.instrumentalize = sut.instrumentalize;
+      this.instrumentalized = sut.instrumentalized;
       this.currentSutExec = sut.currentSutExec;
       this.instrumentedBy = sut.instrumentedBy;
       this.protocol = sut.protocol;

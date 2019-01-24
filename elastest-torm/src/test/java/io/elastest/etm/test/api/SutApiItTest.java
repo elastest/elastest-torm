@@ -163,6 +163,7 @@ public class SutApiItTest extends EtmApiItTest {
         sut.setSpecification("elastest/demo-web-java-test-sut");
         sut.setCommandsOption(CommandsOptionEnum.DEFAULT);
         sut.setInstrumentalize(false);
+        sut.setInstrumentalized(false);
         sut.setCurrentSutExec(null);
         sut.setInstrumentedBy(InstrumentedByEnum.WITHOUT);
         sut.setProtocol(ProtocolEnum.HTTP);

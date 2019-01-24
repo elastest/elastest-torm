@@ -304,6 +304,7 @@ public class EtmApiItTest {
         sut.setManagedDockerType(ManagedDockerType.COMMANDS);
         sut.setCommands("env");
         sut.setInstrumentalize(false);
+        sut.setInstrumentalized(false);
         sut.setCurrentSutExec(null);
         sut.setInstrumentedBy(InstrumentedByEnum.WITHOUT);
         sut.setPort(null);

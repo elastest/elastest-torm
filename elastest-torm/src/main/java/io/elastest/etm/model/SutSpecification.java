@@ -103,24 +103,34 @@ public class SutSpecification {
     private SutTypeEnum sutType;
 
     @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+            ExternalTJobView.class, BasicAttTJob.class,
+            BasicAttTJobExec.class })
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "eimConfig")
     @JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)
     private EimConfig eimConfig;
 
     @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+            ExternalTJobView.class, BasicAttTJob.class,
+            BasicAttTJobExec.class })
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "eimMonitoringConfig")
     @JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)
     private EimMonitoringConfig eimMonitoringConfig;
 
+    // Indicates if you want to instrumentalize the sut
     @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
             ExternalTJobView.class, BasicAttTJob.class })
     @Column(name = "instrumentalize")
     @JsonProperty("instrumentalize")
     private boolean instrumentalize = false;
+
+    // Indicates if the Sut is instrumentalized
+    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
+            ExternalTJobView.class, BasicAttTJob.class })
+    @Column(name = "instrumentalized")
+    @JsonProperty("instrumentalized")
+    private Boolean instrumentalized = false;
 
     @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
             ExternalTJobView.class, BasicAttTJob.class })
@@ -206,11 +216,13 @@ public class SutSpecification {
         this.id = new Long(0);
         this.commandsOption = CommandsOptionEnum.DEFAULT;
         this.instrumentedBy = InstrumentedByEnum.WITHOUT;
+        this.instrumentalized = false;
     }
 
     public SutSpecification(Long id, String name, String specification,
             String description, Project project, List<TJob> tJobs,
-            SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec,
+            SutTypeEnum sutType, boolean instrumentalize,
+            Boolean instrumentalized, Long currentSutExec,
             InstrumentedByEnum instrumentedBy, String port,
             ManagedDockerType managedDockerType,
             CommandsOptionEnum commandsOption, ProtocolEnum protocol) {
@@ -222,6 +234,8 @@ public class SutSpecification {
         this.tJobs = tJobs;
         this.sutType = sutType;
         this.instrumentalize = instrumentalize;
+        this.instrumentalized = instrumentalized != null ? instrumentalized
+                : false;
         this.currentSutExec = currentSutExec;
         this.instrumentedBy = instrumentedBy;
         this.port = port;
@@ -232,7 +246,8 @@ public class SutSpecification {
 
     public SutSpecification(Long id, String name, String specification,
             String description, ExternalProject exProject, List<TJob> tJobs,
-            SutTypeEnum sutType, boolean instrumentalize, Long currentSutExec,
+            SutTypeEnum sutType, boolean instrumentalize,
+            Boolean instrumentalized, Long currentSutExec,
             InstrumentedByEnum instrumentedBy, String port,
             ManagedDockerType managedDockerType,
             CommandsOptionEnum commandsOption, ProtocolEnum protocol) {
@@ -244,6 +259,8 @@ public class SutSpecification {
         this.tJobs = tJobs;
         this.sutType = sutType;
         this.instrumentalize = instrumentalize;
+        this.instrumentalized = instrumentalized != null ? instrumentalized
+                : false;
         this.currentSutExec = currentSutExec;
         this.instrumentedBy = instrumentedBy;
         this.port = port;
@@ -267,6 +284,7 @@ public class SutSpecification {
         this.tJobs = null;
         this.sutType = sut.sutType;
         this.instrumentalize = false;
+        this.instrumentalized = false;
         this.currentSutExec = null;
         this.instrumentedBy = sut.instrumentedBy;
         this.protocol = sut.protocol;
@@ -610,6 +628,21 @@ public class SutSpecification {
     }
 
     /**
+     * Get instrumentalized
+     * 
+     * @return instrumentalized
+     **/
+
+    public Boolean isInstrumentalized() {
+        return instrumentalized != null ? instrumentalized : false;
+    }
+
+    public void setInstrumentalized(Boolean instrumentalized) {
+        this.instrumentalized = instrumentalized != null ? instrumentalized
+                : false;
+    }
+
+    /**
      * Get currentSutExec
      * 
      * @return currentSutExec
@@ -841,6 +874,8 @@ public class SutSpecification {
                         sutSpecification.eimMonitoringConfig)
                 && Objects.equals(this.instrumentalize,
                         sutSpecification.instrumentalize)
+                && Objects.equals(this.instrumentalized,
+                        sutSpecification.instrumentalized)
                 && Objects.equals(this.currentSutExec,
                         sutSpecification.currentSutExec)
                 && Objects.equals(this.instrumentedBy,
@@ -883,6 +918,7 @@ public class SutSpecification {
         sb = toStringAppender(sb, "eimConfig", eimConfig);
         sb = toStringAppender(sb, "eimMonitoringConfig", eimMonitoringConfig);
         sb = toStringAppender(sb, "instrumentalize", instrumentalize);
+        sb = toStringAppender(sb, "instrumentalized", instrumentalized);
         sb = toStringAppender(sb, "currentSutExec", currentSutExec);
         sb = toStringAppender(sb, "instrumentedBy", instrumentedBy);
         sb = toStringAppender(sb, "protocol", protocol);

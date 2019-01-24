@@ -32,7 +32,14 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.elastest.etm.model.EimBeatConfig.EimBeatConfigView;
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.SutSpecification.SutView;
+import io.elastest.etm.model.TJob.BasicAttTJob;
+import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
+import io.elastest.etm.model.external.ExternalTJob.ExternalTJobView;
+
+/*
+ * The Eim monitoring config to deploy the beats into the Sut 
+ */
 
 @Entity
 public class EimMonitoringConfig {
@@ -42,7 +49,9 @@ public class EimMonitoringConfig {
 
     @Id
     @JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class,
-            SutView.class, ExternalProjectView.class, BasicAttProject.class })
+            SutView.class, ExternalProjectView.class, BasicAttProject.class,
+            ExternalTJobView.class, BasicAttTJob.class,
+            BasicAttTJobExec.class })
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
     @Column(name = "id")
@@ -50,25 +59,33 @@ public class EimMonitoringConfig {
     private Long id = null;
 
     @JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class,
-            SutView.class, ExternalProjectView.class, BasicAttProject.class })
+            SutView.class, ExternalProjectView.class, BasicAttProject.class,
+            ExternalTJobView.class, BasicAttTJob.class,
+            BasicAttTJobExec.class })
     @Column(name = "exec")
     @JsonProperty("exec")
     private String exec = null;
 
     @JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class,
-            SutView.class, ExternalProjectView.class, BasicAttProject.class })
+            SutView.class, ExternalProjectView.class, BasicAttProject.class,
+            ExternalTJobView.class, BasicAttTJob.class,
+            BasicAttTJobExec.class })
     @Column(name = "component")
     @JsonProperty("component")
     private String component = null;
 
     @JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class,
-            SutView.class, ExternalProjectView.class, BasicAttProject.class })
+            SutView.class, ExternalProjectView.class, BasicAttProject.class,
+            ExternalTJobView.class, BasicAttTJob.class,
+            BasicAttTJobExec.class })
     @Column(name = "dockerized")
     @JsonProperty("dockerized")
     private Boolean dockerized;
 
     @JsonView({ EimMonitoringConfigView.class, SutView.class,
-            ExternalProjectView.class, BasicAttProject.class })
+            ExternalProjectView.class, BasicAttProject.class,
+            ExternalTJobView.class, BasicAttTJob.class,
+            BasicAttTJobExec.class })
     @OneToMany(mappedBy = "eimMonitoringConfig", cascade = CascadeType.REMOVE)
     @MapKey(name = "name")
     @JsonIgnoreProperties(value = { "eimMonitoringConfig" })
@@ -81,7 +98,9 @@ public class EimMonitoringConfig {
     private SutSpecification sutSpecification;
 
     @JsonView({ EimMonitoringConfigView.class, EimBeatConfigView.class,
-            SutView.class, ExternalProjectView.class, BasicAttProject.class })
+            SutView.class, ExternalProjectView.class, BasicAttProject.class,
+            ExternalTJobView.class, BasicAttTJob.class,
+            BasicAttTJobExec.class })
     @Column(name = "beatsStatus")
     @JsonProperty("beatsStatus")
     private BeatsStatusEnum beatsStatus;

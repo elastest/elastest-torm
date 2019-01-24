@@ -47,14 +47,14 @@ public class ModelsTest {
 
         SutSpecification sut = new SutSpecification(34l, "name",
                 "specification", "description", project, new ArrayList<>(),
-                SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT,
-                null, ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT,
-                ProtocolEnum.HTTP);
+                SutTypeEnum.REPOSITORY, false, false, null,
+                InstrumentedByEnum.WITHOUT, null, ManagedDockerType.IMAGE,
+                CommandsOptionEnum.DEFAULT, ProtocolEnum.HTTP);
         SutSpecification sut2 = new SutSpecification(34l, "name",
                 "specification", "description", project2, new ArrayList<>(),
-                SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT,
-                null, ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT,
-                ProtocolEnum.HTTP);
+                SutTypeEnum.REPOSITORY, false, false, null,
+                InstrumentedByEnum.WITHOUT, null, ManagedDockerType.IMAGE,
+                CommandsOptionEnum.DEFAULT, ProtocolEnum.HTTP);
 
         TJob tjob = new TJob(34l, "name", "imageName", sut, project, false,
                 "execDashboardConfig", null);
@@ -72,9 +72,9 @@ public class ModelsTest {
                 new ArrayList<SutSpecification>());
         SutSpecification sut = new SutSpecification(34l, "name",
                 "specification", "description", project, new ArrayList<>(),
-                SutTypeEnum.REPOSITORY, false, null, InstrumentedByEnum.WITHOUT,
-                null, ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT,
-                ProtocolEnum.HTTP);
+                SutTypeEnum.REPOSITORY, false, false, null,
+                InstrumentedByEnum.WITHOUT, null, ManagedDockerType.IMAGE,
+                CommandsOptionEnum.DEFAULT, ProtocolEnum.HTTP);
         TJob tjob = new TJob(34l, "name", "imageName", sut, project, false,
                 "execDashboardConfig", null);
 

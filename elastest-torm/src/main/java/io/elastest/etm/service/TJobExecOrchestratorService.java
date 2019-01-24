@@ -927,11 +927,18 @@ public class TJobExecOrchestratorService {
         SutExecution sutExec;
         String sutIP = "";
 
-        // If it's DEPLOYED SuT
         try {
             String resultMsg = "Preparing External SuT";
             dockerEtmService.updateTJobExecResultStatus(tJobExec,
                     ResultEnum.WAITING_SUT, resultMsg);
+
+            // Sut instrumented by EIM
+            if (sut.isInstrumentedByElastest() && sut.isInstrumentalized()) {
+                dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                        ResultEnum.WAITING_SUT, "Deploying beats");
+                logger.debug("TJob Exec {} => Deploy Beats", tJobExec.getId());
+                sut = sutService.deployEimSutBeats(sut, false);
+            }
 
             Long currentSutExecId = sut.getCurrentSutExec();
             sutExec = sutService.getSutExecutionById(currentSutExecId);
@@ -952,7 +959,8 @@ public class TJobExecOrchestratorService {
 
             return sutExec;
         } catch (Exception e) {
-            throw new Exception("Error preparing the Sut to use in a test.");
+            throw new Exception("Error preparing the Sut to use in a test: "
+                    + e.getMessage() + ".");
         }
     }
 
@@ -1420,6 +1428,12 @@ public class TJobExecOrchestratorService {
             }
         } else {
             logger.info("SuT not ended by ElasTest -> Deployed SuT");
+            // Sut instrumented by EIM
+            if (sut.isInstrumentedByElastest() && sut.isInstrumentalized()) {
+                logger.debug("TJob Exec {} => Undeploying Beats",
+                        dockerExec.getTJobExec().getId());
+                sut = sutService.undeployEimSutBeats(sut, false);
+            }
         }
         endCheckSutExec(dockerExec);
     }

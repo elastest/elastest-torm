@@ -273,6 +273,12 @@ export class ETModelsTransformServices {
     if (sut.instrumentalize === undefined || sut.instrumentalize === null) {
       sut.instrumentalize = false;
     }
+
+    newSut.instrumentalized = sut.instrumentalized;
+    if (sut.instrumentalized === undefined || sut.instrumentalized === null) {
+      sut.instrumentalized = false;
+    }
+
     newSut.currentSutExec = sut.currentSutExec;
     newSut.instrumentedBy = sut.instrumentedBy;
     newSut.protocol = sut.protocol !== undefined && sut.protocol !== null ? sut.protocol : 'http';

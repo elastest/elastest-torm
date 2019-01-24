@@ -125,12 +125,17 @@ public class TJobService {
         TJob tJob = tJobRepo.findById(tJobId).get();
 
         SutSpecification sut = tJob.getSut();
-        // Checks if has Sut instrumented by ElasTest and beats status is
-        // activating yet
+
+        // Checks if has Sut instrumented by ElasTest and is instrumentalizing
+        // yet
         if (sut != null && sut.isInstrumentedByElastest()
-                && sut.getEimMonitoringConfig() != null
-                && sut.getEimMonitoringConfig()
-                        .getBeatsStatus() == BeatsStatusEnum.ACTIVATING) {
+                && sut.isInstrumentalize()
+                && (sut.getEimConfig() == null || (sut.getEimConfig() != null
+                        && sut.getEimConfig().getAgentId() == null))
+        // && sut.getEimMonitoringConfig() != null
+        // && sut.getEimMonitoringConfig()
+        // .getBeatsStatus() == BeatsStatusEnum.ACTIVATING
+        ) {
             throw new HttpClientErrorException(HttpStatus.ACCEPTED);
         }
 
@@ -308,7 +313,7 @@ public class TJobService {
                         "Error desprovisioning a SUT used in a TJob run from Jenkins.");
             }
         }
-        
+
         tJobExec.setResult(ResultEnum.values()[result]);
         tJobExec.setResultMsg("Finished: " + tJobExec.getResult());
         tJobExec.setEndDate(new Date());

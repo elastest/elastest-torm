@@ -10,18 +10,16 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import io.elastest.etm.dao.SutExecutionRepository;
 import io.elastest.etm.dao.SutRepository;
+import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
-import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
@@ -55,8 +53,9 @@ public class SutServiceTest {
         sutId = 1L;
         sut = new SutSpecification(sutId, "sut name", "sut Specification",
                 "sut desc", new Project(), null, SutTypeEnum.MANAGED, false,
-                null, InstrumentedByEnum.ELASTEST, null,
-                ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT, ProtocolEnum.HTTP);
+                false, null, InstrumentedByEnum.ELASTEST, null,
+                ManagedDockerType.IMAGE, CommandsOptionEnum.DEFAULT,
+                ProtocolEnum.HTTP);
         sutExecId = 1L;
         sutExec = new SutExecution(sutExecId, sut, null, null);
 

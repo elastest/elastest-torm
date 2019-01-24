@@ -68,32 +68,38 @@ public class SutService {
                 monitoringService.createMonitoringIndex(index);
 
                 if (sut.isInstrumentalize()) {
-                    sut = this.instrumentalizeSut(sut);
+                    sut = this.instrumentalizeSut(sut, true);
                 }
             }
         } else {
             SutSpecification savedSut = sutRepository.getOne(sut.getId());
             if (sut.isInstrumentedByElastest()) {
-                if (!savedSut.isInstrumentalize() && sut.isInstrumentalize()) { // Instrumentalize
-                    sut = this.instrumentalizeSut(sut);
+                if (!savedSut.isInstrumentalize()
+                        && !savedSut.isInstrumentalized()
+                        && sut.isInstrumentalize()) { // Instrumentalize
+                    sut = this.instrumentalizeSut(sut, true);
                 } else if (savedSut.isInstrumentalize()
+                        && savedSut.isInstrumentalized()
                         && !sut.isInstrumentalize()) { // Deinstrumentalize
-                    logger.debug("Starting 'Deinstrumentalizing SuT \""
-                            + sut.getName() + "\"'");
-                    this.eimService.deInstrumentalizeAndUnDeployBeats(
-                            sut.getEimConfig(), sut.getEimMonitoringConfig());
+                    logger.debug("Starting 'Deinstrumentalizing SuT \"{}\"'",
+                            sut.getName());
+                    this.deinstrumentalizeSut(sut, true);
                 } else {
                     logger.debug("SuT is already instrumentalized. No changes");
                 }
             } else {
-                if (savedSut.isInstrumentalize()) {
-                    this.eimService.deInstrumentalizeAndUnDeployBeats(
-                            sut.getEimConfig(), sut.getEimMonitoringConfig());
+                if (savedSut.isInstrumentalize()
+                        && savedSut.isInstrumentalized()) {
+                    this.deinstrumentalizeSut(sut, true);
                 }
             }
         }
         return sut;
     }
+
+    /* ******************************************************************* */
+    /* ******************************* EIM ******************************* */
+    /* ******************************************************************* */
 
     public SutSpecification prepareEimMonitoringConfig(SutSpecification sut) {
         if (!sut.isInstrumentedByElastest()) {
@@ -107,7 +113,113 @@ public class SutService {
         return sut;
     }
 
-    public SutSpecification instrumentalizeSut(SutSpecification sut) {
+    public SutSpecification instrumentalizeSut(SutSpecification sut,
+            boolean async) {
+        SutExecution sutExec = createSutExecutionBySut(sut);
+        sut.setCurrentSutExec(sutExec.getId());
+
+        String[] index = { sut.getSutMonitoringIndex() };
+        monitoringService.createMonitoringIndex(index);
+
+        sutExec.setUrl(sut.getSpecification());
+
+        logger.debug("Starting 'Instrumentalizing SuT \"{}\"'", sut.getName());
+        try {
+            if (async) {
+                this.eimService.instrumentalizeAsync(sut.getEimConfig());
+            } else {
+                this.eimService.instrumentalize(sut.getEimConfig());
+            }
+            sut.setInstrumentalized(true);
+        } catch (Exception e) {
+            logger.error("Error on instrumentalizing SuT {}", sut.getName(), e);
+            sut.setInstrumentalize(false);
+            sut.setInstrumentalized(false);
+
+            try {
+                this.eimService.deinstrumentalizeAsync(sut.getEimConfig());
+            } catch (Exception e1) {
+            }
+        }
+
+        return sut;
+    }
+
+    public SutSpecification deinstrumentalizeSut(SutSpecification sut,
+            boolean async) {
+        // Todo queue if there are tjob execs
+        try {
+            if (async) {
+                this.eimService.deinstrumentalizeAsync(sut.getEimConfig());
+            } else {
+                this.eimService.deinstrumentalize(sut.getEimConfig());
+            }
+            sut.setInstrumentalize(false);
+            sut.setInstrumentalized(false);
+        } catch (Exception e) {
+            logger.error("Error on deinstrumentalizing SuT {}", sut.getName(),
+                    e);
+        }
+
+        return sut;
+    }
+
+    public SutSpecification deployEimSutBeats(SutSpecification sut,
+            boolean async) throws Exception {
+        // Deploy beats
+        EimMonitoringConfig eimMonitoringConfig = sut.getEimMonitoringConfig();
+        eimMonitoringConfig.setExec(sut.getSutMonitoringIndex());
+        sut.setEimMonitoringConfig(eimMonitoringConfig);
+
+        logger.debug("Starting 'Deploying EIM Beats in SuT \"{}\"'",
+                sut.getName());
+        try {
+            if (async) {
+                this.eimService.deployBeatsAsync(sut.getEimConfig(),
+                        sut.getEimMonitoringConfig());
+            } else {
+                this.eimService.deployBeats(sut.getEimConfig(),
+                        sut.getEimMonitoringConfig());
+            }
+        } catch (Exception e) {
+            String msg = "Error on 'Deploying EIM Beats in SuT " + sut.getName()
+                    + "'";
+            logger.error(msg, e);
+
+            try {
+                this.eimService.undeployBeatsAsync(sut.getEimConfig(),
+                        sut.getEimMonitoringConfig());
+            } catch (Exception e1) {
+            }
+
+            throw new Exception(msg, e);
+        }
+        return sut;
+
+    }
+
+    public SutSpecification undeployEimSutBeats(SutSpecification sut,
+            boolean async) throws Exception {
+        try {
+            if (async) {
+                this.eimService.undeployBeatsAsync(sut.getEimConfig(),
+                        sut.getEimMonitoringConfig());
+            } else {
+                this.eimService.unDeployBeats(sut.getEimConfig(),
+                        sut.getEimMonitoringConfig());
+            }
+
+        } catch (Exception e) {
+            String msg = "Error on 'Undeploying EIM Beats in SuT "
+                    + sut.getName() + "'";
+            logger.error(msg, e);
+            throw new Exception(msg, e);
+        }
+        return sut;
+    }
+
+    public SutSpecification instrumentalizeSutAndDeployBeats(
+            SutSpecification sut) {
         SutExecution sutExec = createSutExecutionBySut(sut);
         sut.setCurrentSutExec(sutExec.getId());
 
@@ -134,9 +246,13 @@ public class SutService {
         return sut;
     }
 
+    /* ******************************************************************* */
+    /* ***************************** END EIM ***************************** */
+    /* ******************************************************************* */
+
     public void deleteSut(Long sutId) {
         SutSpecification sut = sutRepository.findById(sutId).get();
-        if (sut.isInstrumentalize()) {
+        if (sut.isInstrumentalize() && sut.isInstrumentalized()) {
             this.eimService.deInstrumentalizeAndUnDeployBeats(
                     sut.getEimConfig(), sut.getEimMonitoringConfig());
         }
