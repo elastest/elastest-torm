@@ -401,7 +401,7 @@ public class EtmBaseTest {
 
     protected String getProjectXpathFromProjectPage(String projectName) {
         String xpath = getProjectsTableXpathFromProjectPage();
-        xpath += "//*/td/div[text()='" + projectName + "']";
+        xpath += "//*/td/div/div[text()='" + projectName + "']";
 
         return xpath;
     }
