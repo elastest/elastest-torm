@@ -712,7 +712,7 @@ public class EtmBaseTest {
 
     protected String getTJobXpathFromProjectPage(String tJobName) {
         String xpath = getTJobsTableXpathFromProjectPage();
-        xpath += "//*/td/div/div/span[text()='" + tJobName + "']";
+        xpath += "//*/td/div/span[text()='" + tJobName + "']";
 
         return xpath;
     }
