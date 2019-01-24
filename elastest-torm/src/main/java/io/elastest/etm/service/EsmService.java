@@ -359,7 +359,7 @@ public class EsmService {
                     String serviceName = serviceFile.getName().split("-")[0]
                             .toUpperCase();
 
-                    // If is valid TSS (only EUS)
+                    // If is loaded on init (EUS)
                     if (tSSNameLoadedOnInit.contains(serviceName)) {
                         logger.debug("TSS {} will be registered in {} mode.",
                                 serviceName, execMode);
@@ -371,7 +371,11 @@ public class EsmService {
                             tSSIdLoadedOnInit.add(tssId);
                         }
                     } else {
-                        registerElasTestService(serviceDefJson);
+                        // Register only if not disabled in mini (EBS only
+                        // disabled)
+                        if (!serviceName.equals("EBS")) {
+                            registerElasTestService(serviceDefJson);
+                        }
                     }
                 } else {
                     registerElasTestService(serviceDefJson);
