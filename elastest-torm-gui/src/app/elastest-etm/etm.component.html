@@ -70,7 +70,7 @@
         Projects
       </a>
       <a
-        *ngIf="configService.configModel.elasTestExecMode !== 'experimental'"
+        *ngIf="configService.configModel.elasTestExecMode !== 'singlenode'"
         mat-list-item
         (click)="!media.query('gt-sm') && manageList.close()"
         mat-ripple
@@ -103,7 +103,7 @@
         Test Engines
       </a>
       <a
-        *ngIf="configService.configModel.elasTestExecMode === 'experimental'"
+        *ngIf="configService.configModel.elasTestExecMode === 'singlenode'"
         mat-list-item
         (click)="!media.query('gt-sm') && manageList.close()"
         mat-ripple
@@ -169,7 +169,7 @@
         Jenkins
       </a>
       <a
-        *ngIf="configService.configModel.elasTestExecMode === 'experimental'"
+        *ngIf="configService.configModel.elasTestExecMode === 'singlenode'"
         mat-list-item
         (click)="!media.query('gt-sm') && manageList.close()"
         mat-ripple
@@ -186,7 +186,7 @@
         Data Manager (EDM)
       </a>
       <a
-        *ngIf="configService.configModel.elasTestExecMode === 'experimental'"
+        *ngIf="configService.configModel.elasTestExecMode === 'singlenode'"
         mat-list-item
         (click)="!media.query('gt-sm') && manageList.close()"
         mat-ripple

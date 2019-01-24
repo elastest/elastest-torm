@@ -626,7 +626,7 @@ public class TJobExecOrchestratorService {
             TJobExecution tJobExec) {
         String instanceId = "";
 
-        // If normal/experimental-lite mode, provision async and show pulling
+        // If mini mode, provision async and show pulling
         // information
         String tssId = service.getId();
         if (utilsService.isElastestMini()) {

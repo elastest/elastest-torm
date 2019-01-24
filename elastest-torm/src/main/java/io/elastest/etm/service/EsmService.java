@@ -1293,7 +1293,7 @@ public class EsmService {
         externalTJobServicesInstances = null;
 
         servicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
-            // If is not EUS in normal mode, deprovision
+            // If is not EUS in mini mode, deprovision
             if (!isIntegratedEUS(tSSInstance)) {
                 deprovisionServiceInstance(tSSInstanceId, servicesInstances);
             }
