@@ -123,8 +123,12 @@ public class EtPluginsService {
 
     @Value("${et.etm.jenkins.binded.port}")
     public String etEtmJenkinsBindedPort;
+
     @Value("${et.test.engines.ere.enabled}")
     private boolean ereEnabled;
+
+    @Value("${et.test.engines.ere.enabled}")
+    private String ereEnabledString;
 
     private String tmpEnginesYmlFolder;
     private String uniqueEtPluginsYmlFolder;
@@ -142,7 +146,8 @@ public class EtPluginsService {
         // It's necessary to auth:
         // https://docs.google.com/document/d/1RMMnJO3rA3KRg-q_LRgpmmvSTpaCPsmfAQjs9obVNeU
 
-        if (ereEnabled) {
+        if (ereEnabled || "true".equals(ereEnabledString)) {
+            logger.debug("ERE is enabled");
             this.enginesMap.put(ERE_NAME,
                     new EtPlugin(ERE_NAME, ERE_DISPLAY_NAME));
         }
