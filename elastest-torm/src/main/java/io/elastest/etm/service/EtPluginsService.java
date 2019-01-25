@@ -123,13 +123,12 @@ public class EtPluginsService {
 
     @Value("${et.etm.jenkins.binded.port}")
     public String etEtmJenkinsBindedPort;
+    @Value("${et.test.engines.ere.enabled}")
+    private boolean ereEnabled;
 
     private String tmpEnginesYmlFolder;
     private String uniqueEtPluginsYmlFolder;
     private String tmpTssInstancesYmlFolder;
-
-    // Temporally disabled
-    private boolean ereEnabled = false;
 
     public EtPluginsService(DockerComposeService dockerComposeService,
             DockerEtmService dockerEtmService, UtilsService utilsService) {

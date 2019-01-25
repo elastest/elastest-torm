@@ -58,6 +58,7 @@ services:
             - ET_MASTER_SLAVE_MODE=false
             - ET_EPM_BINDED_PORT=8180
             - HOST_TIMEZONE=UTC
+            - ET_TEST_ENGINES_ERE_ENABLED=false
         entrypoint: /run.sh
         expose:
             - 8091
