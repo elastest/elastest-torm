@@ -360,7 +360,7 @@ public class EtPluginsService {
         if (!isRunning(projectName)) {
             this.startEtPlugin(projectName);
         }
-        url = getEtPluginUrl(projectName);
+        url = initAndGetEtPluginUrl(projectName);
         this.waitForReady(projectName, 2500);
         this.getEtPlugin(projectName).setUrl(url);
         return this.getEtPlugin(projectName);
@@ -428,139 +428,152 @@ public class EtPluginsService {
     /* *** Wait/Check methods *** */
     /* ************************** */
 
-    public String getEtPluginUrl(String serviceName) {
+    public String initAndGetEtPluginUrl(String serviceName) {
+        if (serviceName == null) {
+            return "";
+        }
+        return initAndGetEtPluginUrl(serviceName, serviceName + "_1");
+    }
+
+    public String initAndGetEtPluginUrl(String serviceName,
+            String containerNameSuffix) {
         String url = "";
-        try {
-            // Check first if is Unique EtPlugin started on init
-            if (isUniqueEtPluginStartedOnInit(serviceName)) {
-                return this.getUniqueEtPlugin(serviceName).getUrl();
-            }
+        if (serviceName != null && containerNameSuffix != null) {
+            try {
+                // Check first if is Unique EtPlugin started on init
+                if (isUniqueEtPluginStartedOnInit(serviceName)) {
+                    return this.getUniqueEtPlugin(serviceName).getUrl();
+                }
 
-            for (DockerContainer container : dockerComposeService
-                    .getContainers(serviceName).getContainers()) {
-                String containerName = container.getName(); // example:
-                                                            // ece_ece_1
-                if (containerName != null
-                        && containerName.endsWith(serviceName + "_1")) {
-                    logger.debug("Container info: {}", container);
+                for (DockerContainer container : dockerComposeService
+                        .getContainers(serviceName).getContainers()) {
+                    String containerName = container.getName(); // example:
+                                                                // ece_ece_1
+                    if (containerName != null
+                            && containerName.endsWith(containerNameSuffix)) {
+                        logger.debug("Container info: {}", container);
 
-                    String bindedIp = utilsService.getEtPublicHostValue();
-                    String internalIp = "";
-                    String ip = bindedIp;
-                    boolean useBindedPort = true;
+                        String bindedIp = utilsService.getEtPublicHostValue();
+                        String internalIp = "";
+                        String ip = bindedIp;
+                        boolean useBindedPort = true;
 
-                    if (dockerEtmService.dockerService
-                            .isContainerIntoNetwork(network, containerName)) {
-                        internalIp = dockerEtmService.dockerService
-                                .getContainerIpByNetwork(containerName,
-                                        network);
-                    }
-
-                    // If not server-address, use internal ip
-                    if (utilsService.isDefaultEtPublicHost()) {
-                        useBindedPort = false;
-                        ip = internalIp;
-                        if ("".equals(internalIp)) {
-                            return "";
+                        if (dockerEtmService.dockerService
+                                .isContainerIntoNetwork(network,
+                                        containerName)) {
+                            internalIp = dockerEtmService.dockerService
+                                    .getContainerIpByNetwork(containerName,
+                                            network);
                         }
-                    }
 
-                    String port = "";
-                    String internalPort = "";
-                    String bindedPort = "";
-
-                    switch (serviceName) {
-                    case TESTLINK_NAME:
-                        internalPort = "80";
-                        bindedPort = "37071";
-                        break;
-
-                    case ERE_NAME:
-                        internalPort = "9080";
-                        bindedPort = "37007";
-                        break;
-
-                    case ECE_NAME:
-                        internalPort = "8888";
-                        bindedPort = "37008";
-                        break;
-
-                    case EIM_NAME:
-                        internalPort = "8080";
-                        bindedPort = "37004";
-                        break;
-                    case JENKINS_NAME:
-                        internalPort = "8080";
-                        bindedPort = "37092";
-                        break;
-                    default:
-                        for (Entry<String, List<PortInfo>> portList : container
-                                .getPorts().entrySet()) {
-                            if (portList.getValue() != null) {
-                                internalPort = portList.getKey().split("/")[0];
-                                bindedPort = portList.getValue().get(0)
-                                        .getHostPort();
-                                break;
+                        // If not server-address, use internal ip
+                        if (utilsService.isDefaultEtPublicHost()) {
+                            useBindedPort = false;
+                            ip = internalIp;
+                            if ("".equals(internalIp)) {
+                                return "";
                             }
                         }
+
+                        String port = "";
+                        String internalPort = "";
+                        String bindedPort = "";
+
+                        switch (serviceName) {
+                        case TESTLINK_NAME:
+                            internalPort = "80";
+                            bindedPort = "37071";
+                            break;
+
+                        case ERE_NAME:
+                            internalPort = "9080";
+                            bindedPort = "37007";
+                            break;
+
+                        case ECE_NAME:
+                            internalPort = "8888";
+                            bindedPort = "37008";
+                            break;
+
+                        case EIM_NAME:
+                            internalPort = "8080";
+                            bindedPort = "37004";
+                            break;
+                        case JENKINS_NAME:
+                            internalPort = "8080";
+                            bindedPort = "37092";
+                            break;
+                        default:
+                            for (Entry<String, List<PortInfo>> portList : container
+                                    .getPorts().entrySet()) {
+                                if (portList.getValue() != null) {
+                                    internalPort = portList.getKey()
+                                            .split("/")[0];
+                                    bindedPort = portList.getValue().get(0)
+                                            .getHostPort();
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+
+                        if (!useBindedPort) {
+                            port = internalPort;
+                        } else {
+                            port = bindedPort;
+                        }
+
+                        if ("".equals(port)) {
+                            throw new Exception("Port not found");
+                        }
+
+                        String protocol = "http";
+                        if ("443".equals(port)) {
+                            protocol = "https";
+                        }
+
+                        url = protocol + "://" + ip + ":" + port;
+                        if (ERE_NAME.equals(serviceName)) {
+                            url += "/ere-app";
+                        }
+                        logger.debug("Url: " + url);
+
+                        // Update EtPlugin Urls
+                        Map<String, EtPlugin> map = getMapThatContainsEtPlugin(
+                                serviceName);
+                        if (map != null && map.containsKey(serviceName)) {
+                            map.get(serviceName).setUrl(url);
+
+                            String internalUrl = "";
+                            if (protocol != null && !"".equals(protocol)
+                                    && internalIp != null
+                                    && !"".equals(internalIp)
+                                    && internalPort != null
+                                    && !"".equals(internalPort)) {
+                                internalUrl = protocol + "://" + internalIp
+                                        + ":" + internalPort;
+                            }
+
+                            map.get(serviceName).setInternalUrl(internalUrl);
+
+                            String bindedUrl = "";
+                            if (protocol != null && !"".equals(protocol)
+                                    && bindedIp != null && !"".equals(bindedIp)
+                                    && internalPort != null
+                                    && !"".equals(internalPort)) {
+                                bindedUrl = protocol + "://" + bindedIp + ":"
+                                        + bindedPort;
+                            }
+                            map.get(serviceName).setBindedUrl(bindedUrl);
+
+                        }
                         break;
                     }
-
-                    if (!useBindedPort) {
-                        port = internalPort;
-                    } else {
-                        port = bindedPort;
-                    }
-
-                    if ("".equals(port)) {
-                        throw new Exception("Port not found");
-                    }
-
-                    String protocol = "http";
-                    if ("443".equals(port)) {
-                        protocol = "https";
-                    }
-
-                    url = protocol + "://" + ip + ":" + port;
-                    if (ERE_NAME.equals(serviceName)) {
-                        url += "/ere-app";
-                    }
-                    logger.debug("Url: " + url);
-
-                    // Update EtPlugin Urls
-                    Map<String, EtPlugin> map = getMapThatContainsEtPlugin(
-                            serviceName);
-                    if (map != null && map.containsKey(serviceName)) {
-                        map.get(serviceName).setUrl(url);
-
-                        String internalUrl = "";
-                        if (protocol != null && !"".equals(protocol)
-                                && internalIp != null && !"".equals(internalIp)
-                                && internalPort != null
-                                && !"".equals(internalPort)) {
-                            internalUrl = protocol + "://" + internalIp + ":"
-                                    + internalPort;
-                        }
-
-                        map.get(serviceName).setInternalUrl(internalUrl);
-
-                        String bindedUrl = "";
-                        if (protocol != null && !"".equals(protocol)
-                                && bindedIp != null && !"".equals(bindedIp)
-                                && internalPort != null
-                                && !"".equals(internalPort)) {
-                            bindedUrl = protocol + "://" + bindedIp + ":"
-                                    + bindedPort;
-                        }
-                        map.get(serviceName).setBindedUrl(bindedUrl);
-
-                    }
-                    break;
                 }
-            }
 
-        } catch (Exception e) {
-            logger.error("Service url not exist {}", serviceName, e);
+            } catch (Exception e) {
+                logger.error("Service url not exist {}", serviceName, e);
+            }
         }
         return url;
     }
@@ -772,7 +785,7 @@ public class EtPluginsService {
             etPlugin.setStatusMsg("Ready");
             updateStatus(serviceName, DockerServiceStatusEnum.READY, "Ready");
         } else {
-            etPlugin.setUrl(getEtPluginUrl(serviceName));
+            etPlugin.setUrl(initAndGetEtPluginUrl(serviceName));
             // Check if ready and update
             if (!etPlugin.getStatus().equals(DockerServiceStatusEnum.READY)) {
                 this.checkIfEtPluginUrlIsUp(etPlugin);
@@ -823,7 +836,7 @@ public class EtPluginsService {
     }
 
     public String getUrlIfIsRunning(String engineName) {
-        return getEtPluginUrl(engineName);
+        return initAndGetEtPluginUrl(engineName);
     }
 
     public String getDockerCompose(String engineName) {

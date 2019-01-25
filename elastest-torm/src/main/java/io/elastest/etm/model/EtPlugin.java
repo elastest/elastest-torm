@@ -8,15 +8,15 @@ import java.util.Map;
 import io.elastest.epm.client.model.DockerServiceStatus;
 
 public class EtPlugin extends DockerServiceStatus {
-    private String name;
-    private String internalUrl;
-    private String bindedUrl;
-    private String url;
-    private List<String> imagesList = new ArrayList<>();
-    private Map<String, String> parameters;
-    private String user;
-    private String pass;
-    private String displayName;
+    protected String name;
+    protected String internalUrl;
+    protected String bindedUrl;
+    protected String url;
+    protected List<String> imagesList = new ArrayList<>();
+    protected Map<String, String> parameters;
+    protected String user;
+    protected String pass;
+    protected String displayName;
 
     public EtPlugin() {
     }
@@ -120,7 +120,8 @@ public class EtPlugin extends DockerServiceStatus {
         return "EtPlugin [name=" + name + ", internalUrl=" + internalUrl
                 + ", bindedUrl=" + bindedUrl + ", url=" + url + ", imagesList="
                 + imagesList + ", parameters=" + parameters + ", user=" + user
-                + ", pass=" + pass + ", displayName=" + displayName + "]";
+                + ", pass=" + pass + ", displayName=" + displayName
+                + ", toString()=" + super.toString() + "]";
     }
 
     public void initToDefault() {

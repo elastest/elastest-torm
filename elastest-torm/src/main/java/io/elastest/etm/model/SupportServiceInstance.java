@@ -205,6 +205,9 @@ public class SupportServiceInstance extends EtPlugin {
         this.organization_guid = "org";
         this.space_guid = "space";
         this.manifestId = "";
+
+        // EtPlugin
+        this.name = instanceId;
     }
 
     /**
@@ -446,28 +449,6 @@ public class SupportServiceInstance extends EtPlugin {
         this.context = context;
     }
 
-    @Override
-    public String toString() {
-        return "SupportServiceInstance [instanceId=" + instanceId
-                + ", service_id=" + service_id + ", serviceName=" + serviceName
-                + ", serviceShortName=" + serviceShortName + ", serviceReady="
-                + serviceReady + ", serviceStatus=" + serviceStatus
-                + ", plan_id=" + plan_id + ", organization_guid="
-                + organization_guid + ", context=" + context + ", space_guid="
-                + space_guid + ", tJobExecIdList=" + tJobExecIdList
-                + ", internalServiceIp=" + internalServiceIp
-                + ", internalServicePort=" + internalServicePort
-                + ", bindedServiceIp=" + bindedServiceIp
-                + ", bindedServicePort=" + bindedServicePort + ", serviceIp="
-                + serviceIp + ", servicePort=" + servicePort + ", containerIp="
-                + containerIp + ", containerName=" + containerName
-                + ", manifestId=" + manifestId + ", urls=" + urls
-                + ", subServices=" + subServices + ", endpointName="
-                + endpointName + ", endpointsData=" + endpointsData
-                + ", portBindingContainers=" + portBindingContainers
-                + ", endpointsBindingsPorts=" + endpointsBindingsPorts + "]";
-    }
-
     public String getApiUrlIfExist() {
         for (Map.Entry<String, String> urlHash : getUrls().entrySet()) {
             if (!urlHash.getKey().equals(API_STATUS_KEY)
@@ -507,6 +488,29 @@ public class SupportServiceInstance extends EtPlugin {
             return getUrls().get(API_STATUS_KEY);
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "SupportServiceInstance [instanceId=" + instanceId
+                + ", service_id=" + service_id + ", serviceName=" + serviceName
+                + ", serviceShortName=" + serviceShortName + ", serviceReady="
+                + serviceReady + ", serviceStatus=" + serviceStatus
+                + ", plan_id=" + plan_id + ", organization_guid="
+                + organization_guid + ", context=" + context + ", space_guid="
+                + space_guid + ", tJobExecIdList=" + tJobExecIdList
+                + ", internalServiceIp=" + internalServiceIp
+                + ", internalServicePort=" + internalServicePort
+                + ", bindedServiceIp=" + bindedServiceIp
+                + ", bindedServicePort=" + bindedServicePort + ", serviceIp="
+                + serviceIp + ", servicePort=" + servicePort + ", containerIp="
+                + containerIp + ", containerName=" + containerName
+                + ", manifestId=" + manifestId + ", urls=" + urls
+                + ", subServices=" + subServices + ", endpointName="
+                + endpointName + ", endpointsData=" + endpointsData
+                + ", portBindingContainers=" + portBindingContainers
+                + ", endpointsBindingsPorts=" + endpointsBindingsPorts
+                + ", toString()=" + super.toString() + "]";
     }
 
 }

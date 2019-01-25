@@ -705,9 +705,10 @@ public class EsmService {
                 servicesInstances.put(instanceId, newServiceInstance);
             }
 
-            this.provisionServiceInstanceByObject(newServiceInstance,
-                    instanceId);
+            newServiceInstance = this.provisionServiceInstanceByObject(
+                    newServiceInstance, instanceId);
 
+            tJobServicesInstances.put(instanceId, newServiceInstance);
         } catch (Exception e) {
             if (newServiceInstance != null) {
                 deprovisionServiceInstance(newServiceInstance.getInstanceId(),
@@ -790,6 +791,8 @@ public class EsmService {
 
         SupportServiceInstance tssInstance = (SupportServiceInstance) etPluginsService
                 .getEtPlugin(instanceId);
+        logger.error("11111111 {}", tssInstance);
+        // If is not started
         if (tssInstance == null) {
             try {
                 Thread.sleep(1500);
@@ -799,11 +802,12 @@ public class EsmService {
             this.waitForTssStartedInMini(tJobExec, instanceId, serviceName);
 
         } else {
+            // If not started and is not ready
             if (!DockerServiceStatusEnum.STARTING
                     .equals(tssInstance.getStatus())
                     && !DockerServiceStatusEnum.READY
                             .equals(tssInstance.getStatus())) {
-
+                logger.error("222222222 {}", tssInstance);
                 dockerEtmService.updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.STARTING_TSS,
                         tssInstance.getStatusMsg());
@@ -814,6 +818,46 @@ public class EsmService {
                     e.printStackTrace();
                 }
                 this.waitForTssStartedInMini(tJobExec, instanceId, serviceName);
+
+                // } else if (DockerServiceStatusEnum.STARTING
+                // .equals(tssInstance.getStatus())
+                // || DockerServiceStatusEnum.READY
+                // .equals(tssInstance.getStatus())) {
+                // // TODO use etPluginsService.waitForReady(projectName, 2500);
+                // // Now it's only wait for STARTING status
+                // // Update instance in map to have the entrypoint values
+                // tssInstance = supportServiceClient
+                // .initSupportServiceInstanceData(tssInstance);
+                // tJobServicesInstances.put(instanceId, tssInstance);
+                //
+                // }
+
+                // If starting
+            } else if (DockerServiceStatusEnum.STARTING
+                    .equals(tssInstance.getStatus())) {
+                logger.error("33333333333 {}", tssInstance);
+                dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                        TJobExecution.ResultEnum.WAITING_TSS,
+                        tssInstance.getStatusMsg());
+
+                etPluginsService.initAndGetEtPluginUrl(instanceId,
+                        tssInstance.getContainerName());
+                etPluginsService.checkIfEtPluginUrlIsUp(instanceId);
+
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                this.waitForTssStartedInMini(tJobExec, instanceId, serviceName);
+                // If ready
+            } else if (DockerServiceStatusEnum.READY
+                    .equals(tssInstance.getStatus())) {
+                logger.error("44444444444 {}", tssInstance);
+                // Update instance in map to have the entrypoint values
+                tssInstance = supportServiceClient
+                        .initSupportServiceInstanceData(tssInstance);
+                tJobServicesInstances.put(instanceId, tssInstance);
             }
         }
 
@@ -1857,7 +1901,7 @@ public class EsmService {
 
     public Map<String, String> getTSSInstanceEnvVars(SupportServiceInstance ssi,
             boolean publicEnvVars, boolean withPublicPrefix) {
-        logger.debug("Creating env vars from TSSs");
+        logger.debug("Creating env vars from TSS: {}", ssi); // TODO change
         Map<String, String> envVars = new HashMap<String, String>();
         String servicePrefix = ssi.getServiceName().toUpperCase()
                 .replaceAll("-", "_");
