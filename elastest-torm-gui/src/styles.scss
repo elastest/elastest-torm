@@ -137,7 +137,8 @@ tbody > tr.td-data-table-row {
   // word-break: break-word;
 }
 
-.td-data-table-cell > div > div > span {
+.td-data-table-cell > div > div > span,
+.td-data-table-cell > div > span {
   word-break: break-word;
 }
 
