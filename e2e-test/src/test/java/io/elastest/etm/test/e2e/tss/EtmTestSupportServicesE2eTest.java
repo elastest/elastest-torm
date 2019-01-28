@@ -68,7 +68,7 @@ public class EtmTestSupportServicesE2eTest extends EtmBaseTest {
 
         String instanceRowXpath = "//esm-instance-manager//td-data-table//tr[1]";
 
-        String statusXpath = instanceRowXpath + "/td[3]/span";
+        String statusXpath = instanceRowXpath + "/td[3]/div/span";
 
         log.debug("Waiting for the Test Support Service to be ready");
         getElementByXpath(driver, statusXpath + "[contains(string(),'Ready')]",
