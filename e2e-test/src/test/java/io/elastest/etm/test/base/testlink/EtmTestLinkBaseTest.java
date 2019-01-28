@@ -221,6 +221,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected void navigateToTLEtmSuite(WebDriver driver, String suiteName) {
         String xpath = this.getTLEtmSuiteXpath(suiteName);
+        log.info("Navigate to Suite case with id {} and path {}", suitesTableId, xpath);
         this.navigateToElementByIdXpath(driver, suitesTableId, xpath);
     }
 
