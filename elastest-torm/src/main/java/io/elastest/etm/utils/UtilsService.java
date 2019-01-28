@@ -44,6 +44,10 @@ public class UtilsService {
     @Value("${et.public.host.type}")
     public String etPublicHostType;
 
+    public String getExecMode() {
+        return execMode;
+    }
+
     public boolean isElastestMini() {
         return enableETMini && execMode.equals(ElastestConstants.MODE_MINI);
     }

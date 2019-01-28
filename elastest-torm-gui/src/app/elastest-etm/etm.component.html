@@ -70,7 +70,6 @@
         Projects
       </a>
       <a
-        *ngIf="configService.configModel.elasTestExecMode !== 'singlenode'"
         mat-list-item
         (click)="!media.query('gt-sm') && manageList.close()"
         mat-ripple
@@ -102,8 +101,9 @@
         <mat-icon mat-list-icon>battery_charging_full</mat-icon>
         Test Engines
       </a>
+      <!-- Hidden -->
       <a
-        *ngIf="configService.configModel.elasTestExecMode === 'singlenode'"
+        *ngIf="configService.configModel.elasTestExecMode === 'NONE'"
         mat-list-item
         (click)="!media.query('gt-sm') && manageList.close()"
         mat-ripple

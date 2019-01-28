@@ -216,26 +216,26 @@ public class EsmService {
         logger.info("EsmService initialization.");
         try {
             registerElastestServices();
-            if (utilsService.isElastestMini()) {
-                tSSIdLoadedOnInit.forEach((serviceId) -> {
-                    String serviceName = getServiceNameByServiceId(serviceId)
-                            .toUpperCase();
+            tSSIdLoadedOnInit.forEach((serviceId) -> {
+                String serviceName = getServiceNameByServiceId(serviceId)
+                        .toUpperCase();
 
-                    String tssInstanceId = null;
-                    if (serviceName.equals("EUS")) {
-                        tssInstanceId = startIntegratedEus(serviceId);
+                String tssInstanceId = null;
 
-                    } else {
-                        tssInstanceId = provisionServiceInstanceSync(serviceId);
-                    }
+                // If mini and EUS, use integrated EUS
+                if (utilsService.isElastestMini()
+                        && serviceName.equals("EUS")) {
+                    tssInstanceId = startIntegratedEus(serviceId);
 
-                    tssLoadedOnInitMap.put(serviceName, tssInstanceId);
+                } else {
+                    tssInstanceId = provisionServiceInstanceSync(serviceId);
+                }
 
-                    logger.debug("{} is started from ElasTest in mini mode",
-                            serviceName);
-                });
+                tssLoadedOnInitMap.put(serviceName, tssInstanceId);
 
-            }
+                logger.debug("{} is started from ElasTest in {} mode",
+                        serviceName, utilsService.getExecMode());
+            });
         } catch (Exception e) {
             logger.warn("Error during the services registry. ", e);
         }

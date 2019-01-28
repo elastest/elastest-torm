@@ -28,7 +28,9 @@ export class ConfigurationService {
     return new Promise((resolve: any, reject: any) => {
       this.getServicesInfo().subscribe((servicesInfo: any) => {
         let eusUrl: URL =
-          servicesInfo.elasTestExecMode !== 'singlenode' && servicesInfo.eusSSInstance !== null
+          servicesInfo.eusSSInstance !== null &&
+          servicesInfo.eusSSInstance !== undefined &&
+          servicesInfo.eusSSInstance.url !== undefined
             ? new URL(servicesInfo.eusSSInstance.urls.api)
             : null;
 
