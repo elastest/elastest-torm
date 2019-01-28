@@ -218,10 +218,11 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         log.info("Select the Job's type");
         driver.findElement(By.xpath("//li[contains(string(), 'Pipeline')]"))
                 .click();
-        WebDriverWait waitForOkButton = new WebDriverWait(driver, 5);
-        By okButtonId = By.id("ok-button");
-        waitForOkButton.until(elementToBeClickable(okButtonId));
-        driver.findElement(okButtonId).click();
+        WebDriverWait waitForOkButton = new WebDriverWait(driver, 10);
+//        By okButtonId = By.id("ok-button");
+//        waitForOkButton.until(elementToBeClickable(okButtonId));
+//        driver.findElement(okButtonId).click();
+        getElementById(driver, "ok-button").click();
         driver.findElement(By.xpath("//*[@id=\"workflow-editor-1\"]/textarea"))
                 .sendKeys(script);
         driver.findElement(By.xpath("//button[contains(string(), 'Save')]"))
