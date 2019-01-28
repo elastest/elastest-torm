@@ -439,7 +439,7 @@ public class EsmService {
     public String generateNewOrGetInstanceId(String serviceId) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
 
-        if (serviceName != null && utilsService.isElastestMini()
+        if (serviceName != null
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
             return tssLoadedOnInitMap.get(serviceName);
         } else {
@@ -2036,8 +2036,8 @@ public class EsmService {
     }
 
     public String getSharedTssInstanceId(String serviceName) {
-        // If mode mini and is shared tss
-        if (serviceName != null && utilsService.isElastestMini()
+        // If is shared tss
+        if (serviceName != null
                 && tssLoadedOnInitMap.containsKey(serviceName.toUpperCase())) {
             return tssLoadedOnInitMap.get(serviceName.toUpperCase());
         }
@@ -2045,8 +2045,8 @@ public class EsmService {
     }
 
     public SupportServiceInstance getSharedTssInstance(String instanceId) {
-        // If mode mini and is shared tss
-        if (instanceId != null && utilsService.isElastestMini()
+        // If is shared tss
+        if (instanceId != null 
                 && servicesInstances.containsKey(instanceId)) {
             return servicesInstances.get(instanceId);
         }
