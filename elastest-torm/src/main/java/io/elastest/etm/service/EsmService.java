@@ -354,31 +354,27 @@ public class EsmService {
             if (content != null) {
                 ObjectNode serviceDefJson = ParserService
                         .fromStringToJson(content);
-                if (utilsService.isElastestMini()) {
-                    logger.debug("TSS file {}", serviceFile.getName());
-                    String serviceName = serviceFile.getName().split("-")[0]
-                            .toUpperCase();
+                logger.debug("TSS file {}", serviceFile.getName());
+                String serviceName = serviceFile.getName().split("-")[0]
+                        .toUpperCase();
 
-                    // If is loaded on init (EUS)
+                // If is loaded on init (EUS)
+                if (tSSNameLoadedOnInit.contains(serviceName)) {
+                    logger.debug("TSS {} will be registered in {} mode.",
+                            serviceName, execMode);
+                    registerElasTestService(serviceDefJson);
+
+                    String tssId = serviceDefJson.get("register").get("id")
+                            .toString().replaceAll("\"", "");
                     if (tSSNameLoadedOnInit.contains(serviceName)) {
-                        logger.debug("TSS {} will be registered in {} mode.",
-                                serviceName, execMode);
-                        registerElasTestService(serviceDefJson);
-
-                        String tssId = serviceDefJson.get("register").get("id")
-                                .toString().replaceAll("\"", "");
-                        if (tSSNameLoadedOnInit.contains(serviceName)) {
-                            tSSIdLoadedOnInit.add(tssId);
-                        }
-                    } else {
-                        // Register only if not disabled in mini (EBS only
-                        // disabled)
-                        if (!serviceName.equals("EBS")) {
-                            registerElasTestService(serviceDefJson);
-                        }
+                        tSSIdLoadedOnInit.add(tssId);
                     }
                 } else {
-                    registerElasTestService(serviceDefJson);
+                    // Register only if not disabled in mini (EBS only
+                    // disabled)
+                    if (!serviceName.equals("EBS")) {
+                        registerElasTestService(serviceDefJson);
+                    }
                 }
             }
 
