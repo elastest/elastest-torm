@@ -60,7 +60,7 @@ public class EtmTestEnginesE2eTest extends EtmBaseTest {
         getElementByXpath(driver,
                 firstEngineButtonsXpath + "[@title='Start Engine']").click();
 
-        String statusXpath = "//elastest-test-engines//tr[1]/td[2]/span";
+        String statusXpath = "//elastest-test-engines//tr[1]/td[2]/div/span";
 
         log.debug("Waiting for the Test Engine (ECE) to be ready");
         getElementByXpath(driver, statusXpath + "[contains(string(),'Ready')]",
