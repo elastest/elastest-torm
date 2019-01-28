@@ -1027,7 +1027,7 @@ public class EtmBaseTest {
     
     protected void deleteTSSInstance(WebDriver driver) {
         WebElement tssId = getElementByXpath(driver,
-                "//*[@id=\"tss-instances\"]/div/table/tbody/tr[1]/td[1]/span");
+                "//*[@id=\"tss-instances\"]/div/table/tbody/tr[1]/td[1]/div/span");
         log.info("TSS session id: {}", tssId.getText());
         By deleteServices = By.id("deleteService-" + tssId.getText().trim());
         driver.findElement(deleteServices).click();
