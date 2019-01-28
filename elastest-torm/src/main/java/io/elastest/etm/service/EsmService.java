@@ -229,6 +229,11 @@ public class EsmService {
 
                 } else {
                     tssInstanceId = provisionServiceInstanceSync(serviceId);
+                    if (serviceName.equals("EUS")) {
+                        etmContextAuxService.getContextInfo().setEusSSInstance(
+                                servicesInstances.get(tssInstanceId));
+                    }
+
                 }
 
                 tssLoadedOnInitMap.put(serviceName, tssInstanceId);
@@ -439,7 +444,8 @@ public class EsmService {
     public String generateNewOrGetInstanceId(String serviceId) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
 
-        if (serviceName != null
+        // Only in mini. In others, use new instance
+        if (serviceName != null && utilsService.isElastestMini()
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
             return tssLoadedOnInitMap.get(serviceName);
         } else {
@@ -2046,8 +2052,7 @@ public class EsmService {
 
     public SupportServiceInstance getSharedTssInstance(String instanceId) {
         // If is shared tss
-        if (instanceId != null 
-                && servicesInstances.containsKey(instanceId)) {
+        if (instanceId != null && servicesInstances.containsKey(instanceId)) {
             return servicesInstances.get(instanceId);
         }
         return null;

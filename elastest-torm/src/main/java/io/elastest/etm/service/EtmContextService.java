@@ -23,7 +23,6 @@ import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.LogAnalyzerConfig;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
-import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class EtmContextService {
@@ -34,7 +33,6 @@ public class EtmContextService {
 
     EtmContextAuxService etmContextAuxService;
     DockerEtmService dockerEtmService;
-    UtilsService utilsService;
 
     @Value("${et.etm.rabbit.path.with-proxy}")
     public String etEtmRabbitPathWithProxy;
@@ -111,11 +109,10 @@ public class EtmContextService {
 
     public EtmContextService(LogAnalyzerRepository logAnalyzerRepository,
             EsmService esmService, EtmContextAuxService etmContextAuxService,
-            DockerEtmService dockerEtmService, UtilsService utilsService) {
+            DockerEtmService dockerEtmService) {
         this.logAnalyzerRepository = logAnalyzerRepository;
         this.etmContextAuxService = etmContextAuxService;
         this.dockerEtmService = dockerEtmService;
-        this.utilsService = utilsService;
     }
 
     @PostConstruct
@@ -125,11 +122,11 @@ public class EtmContextService {
 
     public ContextInfo getContextInfo() {
         logger.debug("Loading ElasTest Context");
-        if (utilsService.isElastestMini()) {
-            while (contextInfo.getEusSSInstance() == null) {
-                logger.debug("Waiting for the ElasTest Context to be ready");
-            }
+        // TODO timeout
+        while (contextInfo.getEusSSInstance() == null) {
+            logger.debug("Waiting for the ElasTest Context to be ready");
         }
+        
         return contextInfo;
     }
 
@@ -322,7 +319,8 @@ public class EtmContextService {
                 // Override
                 String host = etmContextAuxService.getLogstashHostForExtJob();
 
-                monEnvs.put("ET_MON_LSHTTP_API", contextInfo.getLogstashHttpUrl());
+                monEnvs.put("ET_MON_LSHTTP_API",
+                        contextInfo.getLogstashHttpUrl());
                 monEnvs.put("ET_MON_LSBEATS_HOST", host);
                 monEnvs.put("ET_MON_LSBEATS_PORT", etEtmBindedLsbeatsPort);
                 monEnvs.put("ET_MON_INTERNAL_LSBEATS_PORT",
