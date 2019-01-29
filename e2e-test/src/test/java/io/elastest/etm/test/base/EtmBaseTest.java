@@ -629,7 +629,7 @@ public class EtmBaseTest {
 
     protected void selectItem(WebDriver driver, String item,
             String selectDesc) {
-        String sutSelectXpath = "//*[@placeholder='" + selectDesc + "')]";
+        String sutSelectXpath = "//*[@placeholder='" + selectDesc + "']";
                 
         this.getElementByXpath(driver, sutSelectXpath).click();
 
