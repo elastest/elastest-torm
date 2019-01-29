@@ -629,13 +629,13 @@ public class EtmBaseTest {
 
     protected void selectItem(WebDriver driver, String item,
             String selectDesc) {
-        String sutSelectXpath = "//mat-select/div/div/span[contains(string(), '"
-                + selectDesc + "')]";
+        String sutSelectXpath = "//*[@placeholder='" + selectDesc + "')]";
+                
         this.getElementByXpath(driver, sutSelectXpath).click();
 
         if (item != null) {
             this.getElementByXpath(driver,
-                    "//mat-option/span[contains(string(), '" + item + "')]").click();
+                    "//*/span[contains(string(), '" + item + "')]").click();
         }
     }
 
