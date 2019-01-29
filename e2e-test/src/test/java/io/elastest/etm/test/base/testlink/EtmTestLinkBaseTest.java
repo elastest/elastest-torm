@@ -216,7 +216,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected String getTLEtmSuiteXpath(String suiteName) {
         return "//td-data-table[@id='" + suitesTableId
-                + "']//*/td/div[contains(string(), '" + suiteName + "')]";
+                + "']//*/td/div/div[contains(string(), '" + suiteName + "')]";
     }
 
     protected void navigateToTLEtmSuite(WebDriver driver, String suiteName) {
