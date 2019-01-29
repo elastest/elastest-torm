@@ -55,7 +55,7 @@ export class ConfigurationService {
                 : servicesInfo.eusSSInstance.urls.api
               : null,
           eusWebSocketUrl:
-            servicesInfo.elasTestExecMode !== 'singlenode' && servicesInfo.eusSSInstance !== null
+            servicesInfo.eusSSInstance !== null
               ? this.protocol === 'https:'
                 ? String(servicesInfo.eusSSInstance.urls.eusWSapi).replace('ws://', 'wss://')
                 : servicesInfo.eusSSInstance.urls.eusWSapi
