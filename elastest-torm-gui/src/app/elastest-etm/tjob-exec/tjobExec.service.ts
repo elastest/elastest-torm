@@ -87,7 +87,7 @@ export class TJobExecService {
   }*/
 
   // Get a specific TJob Execution
-  public getTJobExecution(tJob: TJobModel, idTJobExecution: number): Observable<TJobExecModel> {
+  public getTJobExecution(tJob: TJobModel, idTJobExecution: number | string): Observable<TJobExecModel> {
     return this.getTJobExecutionByTJobId(tJob.id, idTJobExecution);
   }
 
@@ -201,7 +201,7 @@ export class TJobExecService {
     });
   }
 
-  public getTJobExecutionByTJobId(tJobId: number, idTJobExecution: number): Observable<TJobExecModel> {
+  public getTJobExecutionByTJobId(tJobId: number, idTJobExecution: number | string): Observable<TJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + idTJobExecution;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {

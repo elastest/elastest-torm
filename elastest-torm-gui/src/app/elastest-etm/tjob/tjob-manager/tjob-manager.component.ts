@@ -8,11 +8,11 @@ import { TJobService } from '../tjob.service';
 
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { IConfirmConfig, TdDialogService } from '@covalent/core';
+import { IConfirmConfig, TdDialogService, ITdDataTableSelectEvent, ITdDataTableSelectAllEvent } from '@covalent/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
 
 @Component({
-  selector: 'app-tjob-manager',
+  selector: 'etm-tjob-manager',
   templateUrl: './tjob-manager.component.html',
   styleUrls: ['./tjob-manager.component.scss'],
 })
@@ -36,6 +36,8 @@ export class TjobManagerComponent implements OnInit {
   ];
   tJobExecData: TJobExecModel[] = [];
   showSpinner: boolean = true;
+
+  selectedExecsIds: number[] = [];
 
   constructor(
     private titlesService: TitlesService,
@@ -179,5 +181,37 @@ export class TjobManagerComponent implements OnInit {
 
   viewInLogAnalyzer(tJobExec: TJobExecModel): void {
     this.router.navigate(['/loganalyzer'], { queryParams: { tjob: this.tJob.id, exec: tJobExec.id } });
+  }
+
+  switchExecSelectionByData(tJobExec: TJobExecModel, selected: boolean): void {
+    if (selected) {
+      this.selectedExecsIds.push(tJobExec.id);
+    } else {
+      const index: number = this.selectedExecsIds.indexOf(tJobExec.id, 0);
+      if (index > -1) {
+        this.selectedExecsIds.splice(index, 1);
+      }
+    }
+  }
+
+  switchExecSelection(event: ITdDataTableSelectEvent): void {
+    if (event && event.row) {
+      let tJobExec: TJobExecModel = event.row;
+      this.switchExecSelectionByData(tJobExec, event.selected);
+    }
+  }
+
+  switchAllExecsSelection(event: ITdDataTableSelectAllEvent): void {
+    if (event && event.rows) {
+      for (let tJobExec of event.rows) {
+        this.switchExecSelectionByData(tJobExec, event.selected);
+      }
+    }
+  }
+
+  compareExecutions(): void {
+    this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'comparator'], {
+      queryParams: { execs: this.selectedExecsIds.join(',') },
+    });
   }
 }

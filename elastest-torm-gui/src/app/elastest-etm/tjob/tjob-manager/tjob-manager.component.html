@@ -75,7 +75,24 @@
 
   <auto-height-row fxLayout="column">
     <self-adjustable-card>
-      <sa-card-title> Executions </sa-card-title>
+      <sa-card-title>
+        <div fxLayout="row">
+          <span>Executions</span> <span fxFlex></span>
+          <div>
+            <button
+              mat-raised-button
+              color="accent"
+              (click)="compareExecutions()"
+              [disabled]="selectedExecsIds.length < 2"
+              class="iconBtn-lg"
+              matTooltip="Compare selected Executions"
+            >
+              Compare Executions
+              <mat-icon>compare</mat-icon>
+            </button>
+          </div>
+        </div>
+      </sa-card-title>
       <sa-card-content>
         <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
         <centered-element *ngIf="!showSpinner && tJobExecData.length === 0" class="push-top-sm messageEmptyCard">
@@ -88,12 +105,14 @@
           class="useMaxHeight"
           [data]="tJobExecData"
           [columns]="tJobExecColumns"
-          [selectable]="false"
+          [selectable]="true"
           [clickable]="true"
           [sortable]="false"
           [sortBy]="sortBy"
           [sortOrder]="sortOrder"
           [resizableColumns]="true"
+          (rowSelect)="switchExecSelection($event)"
+          (selectAll)="switchAllExecsSelection($event)"
         >
           <ng-template
             *ngFor="let column of tJobExecColumns"

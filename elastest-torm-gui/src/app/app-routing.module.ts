@@ -52,6 +52,7 @@ import { TestCaseComponent } from './elastest-etm/test-case/test-case.component'
 import { EtmJenkinsComponent } from './etm-jenkins/etm-jenkins.component';
 import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component';
 import { TjobExecViewComponent } from './elastest-etm/tjob-exec/tjob-exec-view/tjob-exec-view.component';
+import { TjobExecsComparatorComponent } from './elastest-etm/tjob-exec/tjob-execs-comparator/tjob-execs-comparator.component';
 
 const routes: Routes = [
   {
@@ -109,6 +110,10 @@ const routes: Routes = [
                       {
                         path: '',
                         component: TjobManagerComponent,
+                      },
+                      {
+                        path: 'comparator',
+                        component: TjobExecsComparatorComponent,
                       },
                       {
                         path: 'tjob-exec',

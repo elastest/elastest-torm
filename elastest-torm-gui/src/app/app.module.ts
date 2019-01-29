@@ -136,6 +136,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { faJenkins } from '@fortawesome/free-brands-svg-icons';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
+import { TjobExecsComparatorComponent } from './elastest-etm/tjob-exec/tjob-execs-comparator/tjob-execs-comparator.component';
 
 library.add(faJenkins);
 
@@ -215,6 +216,7 @@ library.add(faJenkins);
     TjobExecViewComponent,
     ParentTjobExecReportViewComponent,
     CredentialsDialogComponent,
+    TjobExecsComparatorComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

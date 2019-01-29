@@ -5,7 +5,6 @@ import { ProjectService } from '../../elastest-etm/project/project.service';
 import { TJobService } from '../../elastest-etm/tjob/tjob.service';
 import { ProjectModel } from '../../elastest-etm/project/project-model';
 import { TJobModel } from '../../elastest-etm/tjob/tjob-model';
-import { TJobExecService } from '../../elastest-etm/tjob-exec/tjobExec.service';
 import { TestLinkService } from '../../etm-testlink/testlink.service';
 import { TestProjectModel } from '../../etm-testlink/models/test-project-model';
 import { TLTestSuiteModel } from '../../etm-testlink/models/test-suite-model';
@@ -29,7 +28,6 @@ export class TitlesService {
     private breadcrumbService: BreadcrumbService,
     private projectService: ProjectService,
     private tJobService: TJobService,
-    private tJobExecService: TJobExecService,
     private testLinkService: TestLinkService,
     private externalService: ExternalService,
     private testCaseService: TestCaseService,
@@ -91,7 +89,7 @@ export class TitlesService {
     return this._titleService;
   }
 
-  private addPathName(group: string) {
+  private addPathName(group: string): void {
     let groupArr: string[] = group.split('/');
     switch (groupArr[0]) {
       case 'projects':
@@ -99,7 +97,7 @@ export class TitlesService {
           (project: ProjectModel) => {
             this.breadcrumbService.addFriendlyNameForRouteRegex('.*/projects/' + groupArr[1] + '$', '/ ' + project.name);
           },
-          (error) => console.log(error),
+          (error: Error) => console.log(error),
         );
         break;
       case 'tjob':
@@ -112,7 +110,7 @@ export class TitlesService {
             (tjob: TJobModel) => {
               this.breadcrumbService.addFriendlyNameForRouteRegex('.*/tjob/' + groupArr[1] + '$', '/ ' + tjob.name);
             },
-            (error) => console.log(error),
+            (error: Error) => console.log(error),
           );
         }
         break;
@@ -137,7 +135,7 @@ export class TitlesService {
             (testCase: TLTestCaseModel) => {
               this.breadcrumbService.addFriendlyNameForRouteRegex('.*cases/' + groupArr[1] + '$', '/ ' + testCase.name);
             },
-            (error) => console.log(error),
+            (error: Error) => console.log(error),
           );
         }
         break;
@@ -147,7 +145,7 @@ export class TitlesService {
           (testPlan: TestPlanModel) => {
             this.breadcrumbService.addFriendlyNameForRouteRegex('.*plans/' + groupArr[1] + '$', '/ ' + testPlan.name);
           },
-          (error) => console.log(error),
+          (error: Error) => console.log(error),
         );
         break;
       case 'builds':
@@ -155,7 +153,7 @@ export class TitlesService {
           (build: BuildModel) => {
             this.breadcrumbService.addFriendlyNameForRouteRegex('.*builds/' + groupArr[1] + '$', '/ ' + build.name);
           },
-          (error) => console.log(error),
+          (error: Error) => console.log(error),
         );
         break;
       case 'testlink':
@@ -167,7 +165,7 @@ export class TitlesService {
                 '/ ' + project.name,
               );
             },
-            (error) => console.log(error),
+            (error: Error) => console.log(error),
           );
         }
         break;
@@ -181,7 +179,7 @@ export class TitlesService {
                 '/ ' + exProject.name,
               );
             },
-            (error) => console.log(error),
+            (error: Error) => console.log(error),
           );
         }
         break;

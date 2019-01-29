@@ -1,0 +1,144 @@
+<auto-height-grid fxLayout="column">
+  <normal-height-row>
+    <div fxFlex.gt-sm="100">
+      <mat-card>
+        <mat-card-title>
+          <div fxLayout="row">
+            <span>Comparing Executions</span><span *ngIf="tJob">&nbsp;from TJob "{{ tJob.name }}"</span>
+          </div>
+        </mat-card-title>
+      </mat-card>
+    </div>
+  </normal-height-row>
+
+  <auto-height-row>
+    <auto-height-grid fxLayout="column">
+      <auto-height-row *ngIf="execs && execs.length > 0">
+        <self-adjustable-card>
+          <sa-card-title>Executions to compare</sa-card-title>
+          <sa-card-content>
+            <centered-element *ngIf="loadingExecs">
+              <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
+            </centered-element>
+
+            <td-data-table
+              #servicesTable
+              *ngIf="!loadingExecs"
+              class="useMaxHeight"
+              [data]="execs"
+              [columns]="tJobExecColumns"
+              [selectable]="false"
+              [clickable]="true"
+              [sortable]="false"
+              [sortBy]="sortBy"
+              [sortOrder]="sortOrder"
+              (sortChange)="sort($event)"
+            >
+              <ng-template
+                *ngFor="let column of tJobExecColumns"
+                tdDataTableTemplate="{{ column.name }}"
+                let-value="value"
+                let-row="row"
+              >
+                <div
+                  *ngIf="
+                    column.name !== 'options' &&
+                    column.name !== 'startDate' &&
+                    column.name !== 'endDate' &&
+                    column.name !== 'lastExecutionDate'
+                  "
+                  (click)="viewTJobExec(row)"
+                  class="hover-pointer"
+                >
+                  <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
+                    <ng-container *ngIf="column.name === 'result'">
+                      <mat-spinner
+                        *ngIf="!row.finished()"
+                        strokeWidth="3"
+                        diameter="20"
+                        color="accent"
+                        style="vertical-align: middle; display: inline-block"
+                      ></mat-spinner>
+                      <mat-icon
+                        *ngIf="row.finished()"
+                        style="vertical-align: middle;"
+                        [style.color]="row.getResultIcon().color"
+                        >{{ row.getResultIcon().name }}</mat-icon
+                      >
+                    </ng-container>
+                    <span style="vertical-align: middle; margin-left: 4px;">{{ value }}</span>
+                  </span>
+                  <ng-template #tjobSutValue>
+                    <span *ngIf="row.hasSutExec()">{{ row.sutExec.id }}</span> <span *ngIf="!row.hasSutExec()">None</span>
+                  </ng-template>
+                </div>
+                <div *ngIf="column.name === 'startDate' || column.name === 'endDate'" (click)="viewTJobExec(row)">
+                  {{ value | date: 'dd/MM/yyyy HH:mm:ss' }}
+                </div>
+                <div *ngIf="column.name === 'lastExecutionDate'" (click)="viewTJobExec(row)">
+                  <ng-container *ngIf="value !== undefined; else notExecuted"> {{ value | timeAgo }} </ng-container>
+                  <ng-template #notExecuted> Not Executed Yet </ng-template>
+                </div>
+              </ng-template>
+
+              <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+                <div fxLayout="row" class="optionsColumn">
+                  <button
+                    mat-button
+                    (click)="deleteTJobExec(row)"
+                    [disabled]="deletingInProgress"
+                    stopRowClick
+                    title="Delete TJob Execution"
+                    class="iconBtn-lg"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                  <button
+                    mat-button
+                    (click)="viewInLogAnalyzer(row)"
+                    stopRowClick
+                    title="View in Log Analyzer"
+                    class="iconBtn-lg"
+                  >
+                    <mat-icon>library_books</mat-icon>
+                  </button>
+                </div>
+              </ng-template>
+            </td-data-table>
+          </sa-card-content>
+        </self-adjustable-card>
+      </auto-height-row>
+
+      <auto-height-row *ngIf="testCasesComparations && testCasesComparations.length > 0">
+        <self-adjustable-card>
+          <sa-card-title>Test Cases Comparison</sa-card-title>
+          <sa-card-content>
+            <centered-element *ngIf="loadingTCComparations">
+              <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
+            </centered-element>
+
+            <td-data-table
+              #servicesTable
+              *ngIf="!loadingTCComparations"
+              class="useMaxHeight"
+              [data]="testCasesComparations"
+              [columns]="testCasesComparationsColumns"
+              [selectable]="false"
+              [clickable]="true"
+              [sortable]="false"
+            >
+              <ng-template
+                *ngFor="let column of testCasesComparationsColumns"
+                tdDataTableTemplate="{{ column.name }}"
+                let-value="value"
+                let-row="row"
+              >
+                <div class="td-data-table-column fontBold" [style.color]="getResultIconByString(value).color">{{ value }}</div>
+              </ng-template>
+            </td-data-table>
+          </sa-card-content>
+        </self-adjustable-card>
+      </auto-height-row>
+    </auto-height-grid>
+  </auto-height-row>
+</auto-height-grid>
