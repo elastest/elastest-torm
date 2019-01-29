@@ -49,7 +49,7 @@ export class ConfigurationService {
           eusPort: eusUrl !== null ? eusUrl.port : null,
           eusServiceUrlNoPath: (this.protocol === 'https:' ? 'https://' : 'http://') + environment.eus,
           eusServiceUrl:
-            servicesInfo.elasTestExecMode !== 'singlenode' && servicesInfo.eusSSInstance !== null
+            servicesInfo.eusSSInstance !== null
               ? this.protocol === 'https:'
                 ? String(servicesInfo.eusSSInstance.urls.api).replace('http://', 'https://')
                 : servicesInfo.eusSSInstance.urls.api
