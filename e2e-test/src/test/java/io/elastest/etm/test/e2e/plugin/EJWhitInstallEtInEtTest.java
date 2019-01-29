@@ -55,7 +55,7 @@ public class EJWhitInstallEtInEtTest extends EtmPluginBaseTest {
             executeJob(driver);
             goToElasTest(driver);
             log.info("Wait for TJob end with sucess");
-            checkFinishTJobExec(driver, 300, "SUCCESS", false);
+            checkFinishTJobExec(driver, 500, "SUCCESS", false);
         }finally {
             deletePipelineJob(driver, jobName);
         }
