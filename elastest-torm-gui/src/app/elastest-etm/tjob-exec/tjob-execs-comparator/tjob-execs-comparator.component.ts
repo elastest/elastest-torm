@@ -37,7 +37,8 @@ export class TjobExecsComparatorComponent implements OnInit {
   loadingTCComparations: boolean = false;
 
   testCasesComparationsColumns: any[] = [{ name: 'execId', label: 'Exec Id', width: 80 }];
-  testCasesComparationsColumnsInverted: any[] = [{ name: 'testCase', label: 'Test Case', width: 80 }];
+  testCasesComparationsColumnsInverted: any[] = [{ name: 'testCase', label: 'Test Case' }];
+  invertTestCasesComparation: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -124,13 +125,12 @@ export class TjobExecsComparatorComponent implements OnInit {
       }
     }
 
-    // this.loadTestCasesComparationsInverted();
+    this.loadTestCasesComparationsInverted();
 
     this.loadingTCComparations = false;
   }
 
   loadTestCasesComparationsInverted(): void {
-    // TODO
     this.loadingTCComparations = true;
     if (this.execs) {
       let firstTJobExec: TJobExecModel = this.execs[0];
@@ -154,18 +154,21 @@ export class TjobExecsComparatorComponent implements OnInit {
                   let testCaseName: string = testCase.name;
                   let currentRow: any = tmpMap.get(testCaseName);
                   if (currentRow) {
-                    currentRow[tJobExec.id] = testCase.getResult();
+                    currentRow[tJobExec.getIdAsString()] = testCase.getResult();
                   }
                 }
               }
             }
-            this.testCasesComparationsColumnsInverted.push({ name: tJobExec.id, label: tJobExec.id });
+            this.testCasesComparationsColumnsInverted.push({ name: tJobExec.getIdAsString(), label: tJobExec.getIdAsString() });
           }
         }
         this.testCasesComparationsInverted = this.testCasesComparationsInverted.concat(Array.from(tmpMap.values()));
-        console.log(this.testCasesComparationsInverted);
       }
     }
+  }
+
+  switchInvertTestCasesComparisonAxis(): void {
+    this.invertTestCasesComparation = !this.invertTestCasesComparation;
   }
 
   getResultIconByString(result: string): any {

@@ -153,6 +153,10 @@ export class TJobExecModel extends AbstractTJobExecModel {
     monitoringMarkIds = removeDuplicates(monitoringMarkIds);
     return monitoringMarkIds;
   }
+
+  getIdAsString(): string {
+    return '' + this.id;
+  }
 }
 
 export type TJobExecTypeEnum = 'SIMPLE' | 'PARENT' | 'CHILD' | '';

@@ -31,6 +31,7 @@
               [clickable]="true"
               [sortable]="false"
               [sortBy]="sortBy"
+              [resizableColumns]="true"
               [sortOrder]="sortOrder"
               (sortChange)="sort($event)"
             >
@@ -111,24 +112,59 @@
 
       <auto-height-row *ngIf="testCasesComparations && testCasesComparations.length > 0">
         <self-adjustable-card>
-          <sa-card-title>Test Cases Comparison</sa-card-title>
+          <sa-card-title>
+            <div fxLayout="row">
+              <span>Test Cases Comparison</span> <span fxFlex></span>
+              <div>
+                <button
+                  mat-raised-button
+                  color="accent"
+                  *ngIf="testCasesComparations.length > 0 && testCasesComparationsInverted.length > 0"
+                  (click)="switchInvertTestCasesComparisonAxis()"
+                  class="push-bottom"
+                >
+                  Invert Axis
+                </button>
+              </div>
+            </div>
+          </sa-card-title>
           <sa-card-content>
             <centered-element *ngIf="loadingTCComparations">
               <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
             </centered-element>
 
             <td-data-table
-              #servicesTable
-              *ngIf="!loadingTCComparations"
+              *ngIf="invertTestCasesComparation && !loadingTCComparations"
               class="useMaxHeight"
               [data]="testCasesComparations"
               [columns]="testCasesComparationsColumns"
               [selectable]="false"
               [clickable]="true"
               [sortable]="false"
+              [resizableColumns]="true"
             >
               <ng-template
                 *ngFor="let column of testCasesComparationsColumns"
+                tdDataTableTemplate="{{ column.name }}"
+                let-value="value"
+                let-row="row"
+              >
+                <div class="td-data-table-column fontBold" [style.color]="getResultIconByString(value).color">{{ value }}</div>
+              </ng-template>
+            </td-data-table>
+
+            <td-data-table
+              *ngIf="!invertTestCasesComparation && !loadingTCComparations"
+              class="useMaxHeight"
+              [data]="testCasesComparationsInverted"
+              [columns]="testCasesComparationsColumnsInverted"
+              [selectable]="false"
+              [clickable]="true"
+              [sortable]="false"
+              [resizableColumns]="true"
+            >
+              <ng-template
+                *ngFor="let column of testCasesComparationsColumnsInverted"
                 tdDataTableTemplate="{{ column.name }}"
                 let-value="value"
                 let-row="row"
