@@ -229,9 +229,12 @@ public class EsmService {
 
                 } else {
                     tssInstanceId = provisionServiceInstanceSync(serviceId);
+                    SupportServiceInstance tssInstance = servicesInstances
+                            .get(tssInstanceId);
+                    waitForServiceIsReady(tssInstance);
                     if (serviceName.equals("EUS")) {
-                        etmContextAuxService.getContextInfo().setEusSSInstance(
-                                servicesInstances.get(tssInstanceId));
+                        etmContextAuxService.getContextInfo()
+                                .setEusSSInstance(tssInstance);
                     }
 
                 }
@@ -482,7 +485,7 @@ public class EsmService {
 
     public void provisionTJobExecServiceInstanceSync(String serviceId,
             TJobExecution tJobExec, String tssInstanceId) {
-        // If ET mini and is shared tss
+        // If is shared tss
         if (isSharedTssInstanceByServiceId(serviceId)) {
             provisionTJobExecSharedTSSSync(serviceId, tJobExec, tssInstanceId);
         } else {
@@ -750,16 +753,17 @@ public class EsmService {
         logger.info("TSSs availables!");
     }
 
-    public void waitForServiceIsReady(SupportServiceInstance service) {
-        while (!checkInstanceUrlIsUp(service)) {
-            logger.debug("Wait for service {}", service.getEndpointName());
+    public void waitForServiceIsReady(SupportServiceInstance serviceInstance) {
+        while (!checkInstanceUrlIsUp(serviceInstance)) {
+            logger.debug("Wait for service {}",
+                    serviceInstance.getEndpointName());
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ie) {
                 logger.error("Interrupted Exception {}: " + ie.getMessage());
             }
         }
-        service.getSubServices().forEach((subService) -> {
+        serviceInstance.getSubServices().forEach((subService) -> {
             waitForServiceIsReady(subService);
         });
     }
@@ -875,13 +879,15 @@ public class EsmService {
                             + supportServiceInstance.getServiceName()
                                     .toLowerCase()
                             + fileSeparator);
-
-            supportServiceInstance.getParameters().put("ET_FILES_PATH_IN_HOST",
-                    etDataInHost + this.getTJobExecFolderPath(tJobExec, true)
-                            + supportServiceInstance.getServiceName()
-                                    .toLowerCase()
-                            + fileSeparator);
-
+            // Not mini
+            if (!utilsService.isElastestMini()) {
+                supportServiceInstance.getParameters()
+                        .put("ET_FILES_PATH_IN_HOST", etDataInHost
+                                + this.getTJobExecFolderPath(tJobExec, true)
+                                + supportServiceInstance.getServiceName()
+                                        .toLowerCase()
+                                + fileSeparator);
+            }
             supportServiceInstance.getParameters().put("ET_SHARED_FOLDER",
                     etSharedFolder);
             supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
@@ -1081,14 +1087,17 @@ public class EsmService {
                             + supportServiceInstance.getServiceName()
                                     .toLowerCase()
                             + fileSeparator);
-            supportServiceInstance.getParameters().put("ET_FILES_PATH_IN_HOST",
-                    etDataInHost
-                            + this.getExternalTJobExecFolderPath(exTJobExec,
-                                    true)
-                            + supportServiceInstance.getServiceName()
-                                    .toLowerCase()
-                            + fileSeparator);
 
+            // Not mini
+            if (!utilsService.isElastestMini()) {
+                supportServiceInstance.getParameters()
+                        .put("ET_FILES_PATH_IN_HOST", etDataInHost
+                                + this.getExternalTJobExecFolderPath(exTJobExec,
+                                        true)
+                                + supportServiceInstance.getServiceName()
+                                        .toLowerCase()
+                                + fileSeparator);
+            }
             supportServiceInstance.getParameters().put("ET_SHARED_FOLDER",
                     etSharedFolder);
             supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
@@ -1366,7 +1375,7 @@ public class EsmService {
         String serviceName = tssInstance != null
                 ? tssInstance.getServiceName().toUpperCase()
                 : null;
-        // If Et Mini and is shared tss
+        // If is shared tss
         if (isSharedTssInstance(serviceName)) {
             if (serviceName.equals("EUS")) {
                 TJobExecution tJobExec = tJobExecRepositoryImpl
@@ -1396,7 +1405,7 @@ public class EsmService {
         String serviceName = tssInstance != null
                 ? tssInstance.getServiceName().toUpperCase()
                 : null;
-        // If Et Mini and is shared tss
+        // If is shared tss
         if (isSharedTssInstance(serviceName)) {
 
             if (serviceName.equals("EUS")) {
