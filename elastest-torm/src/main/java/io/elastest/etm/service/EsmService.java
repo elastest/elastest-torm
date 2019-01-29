@@ -444,8 +444,7 @@ public class EsmService {
     public String generateNewOrGetInstanceId(String serviceId) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
 
-        // Only in mini. In others, use new instance
-        if (serviceName != null && utilsService.isElastestMini()
+        if (serviceName != null
                 && tssLoadedOnInitMap.containsKey(serviceName)) {
             return tssLoadedOnInitMap.get(serviceName);
         } else {

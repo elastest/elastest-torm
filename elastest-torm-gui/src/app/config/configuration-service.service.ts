@@ -30,7 +30,7 @@ export class ConfigurationService {
         let eusUrl: URL =
           servicesInfo.eusSSInstance !== null &&
           servicesInfo.eusSSInstance !== undefined &&
-          servicesInfo.eusSSInstance.url !== undefined
+          servicesInfo.eusSSInstance.urls !== undefined
             ? new URL(servicesInfo.eusSSInstance.urls.api)
             : null;
 
