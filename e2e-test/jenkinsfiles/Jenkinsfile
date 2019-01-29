@@ -1,0 +1,52 @@
+node {
+    result = 'SUCCESS'
+   
+    stage ('Execute etm-demoprojects-e2e-test-elastest Job')
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-demoprojects-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: 'franciscoramon.diaz@urjc.es, edu.jg@urjc.es']], propagate: false).result
+        result = aux != 'SUCCESS' ? aux : result
+        sleep 5
+    
+    stage ('Execute etm-loganalyzer-e2e-test-elastest Job')
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-loganalyzer-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: 'franciscoramon.diaz@urjc.es, edu.jg@urjc.es']], propagate: false).result
+        result = aux != 'SUCCESS' ? aux : result
+        sleep 5
+
+    stage ('Execute etm-plugin-e2e-test-elastest Job')
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-plugin-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: 'franciscoramon.diaz@urjc.es, edu.jg@urjc.es']], propagate: false).result
+        result = aux != 'SUCCESS' ? aux : result
+        sleep 5
+        
+    stage ('Execute etm-plugin-with-installation-e2e-test-elastest Job')
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-plugin-with-installation-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: 'franciscoramon.diaz@urjc.es, edu.jg@urjc.es']], propagate: false).result
+        result = aux != 'SUCCESS' ? aux : result
+        sleep 5        
+
+    stage ('Execute etm-testlink-e2e-test-elastest Job')
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-testlink-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: 'franciscoramon.diaz@urjc.es, edu.jg@urjc.es']], propagate: false).result
+        result = aux != 'SUCCESS' ? aux : result
+        sleep 5
+    
+    stage ('Execute etm-general-e2e-test-elastest Job')
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-general-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: 'franciscoramon.diaz@urjc.es, edu.jg@urjc.es']], propagate: false).result
+        result = aux != 'SUCCESS' ? aux : result
+        sleep 5
+    
+    stage ('Execute etm-testengines-e2e-test-elastest Job')
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-testengines-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: 'franciscoramon.diaz@urjc.es, edu.jg@urjc.es']], propagate: false).result
+        result = aux != 'SUCCESS' ? aux : result
+        sleep 5
+    
+    // stage ('Execute etm-tss-e2e-test-elastest Job')
+    //    aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-tss-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: 'franciscoramon.diaz@urjc.es, edu.jg@urjc.es']], propagate: false).result
+    //    result = aux != 'SUCCESS' ? aux : result
+    //    sleep 5
+
+    currentBuild.result = result
+    if (result  != 'SUCCESS'){
+        echo 'Error!!! Send email to the people responsible for the builds.'
+        emailext body: 'Please go to  ${BUILD_URL}  and verify the build',
+        replyTo: '${BUILD_USER_EMAIL}', 
+        subject: 'Job ${JOB_NAME} - ${BUILD_NUMBER} RESULT: ${BUILD_STATUS}', 
+        to: '${MAIL_LIST}'
+    }
+}
