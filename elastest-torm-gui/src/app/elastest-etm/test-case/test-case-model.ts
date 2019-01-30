@@ -76,14 +76,7 @@ export class TestCaseModel {
   public isSkipped(): boolean {
     let skipped: boolean = false;
 
-    if (
-      this.failureType !== undefined &&
-      this.failureType !== null &&
-      this.failureType === 'skipped' &&
-      this.failureMessage !== undefined &&
-      this.failureMessage !== null &&
-      this.failureMessage === 'skipped'
-    ) {
+    if (this.failureType !== undefined && this.failureType !== null && this.failureType === 'skipped') {
       skipped = true;
     }
 
