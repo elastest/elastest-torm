@@ -242,6 +242,32 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         return sourceBuilder;
     }
 
+    private BoolQueryBuilder getTimeRangeByMonitoringQuery(
+            MonitoringQuery monitoringQuery,
+            BoolQueryBuilder boolQueryBuilder) {
+        TimeRange timeRange = monitoringQuery.getTimeRange();
+        if (timeRange != null && !timeRange.isEmpty()) {
+            // Range Time
+            RangeQueryBuilder timeRangeBuilder = new RangeQueryBuilder(
+                    "@timestamp");
+            if (timeRange.getLt() != null && timeRange.getLte() == null) {
+                timeRangeBuilder.lt(timeRange.getLt());
+            }
+            if (timeRange.getLte() != null) {
+                timeRangeBuilder.lte(timeRange.getLte());
+            }
+            if (timeRange.getGt() != null && timeRange.getGte() == null) {
+                timeRangeBuilder.gt(timeRange.getGt());
+            }
+            if (timeRange.getGte() != null) {
+                timeRangeBuilder.gte(timeRange.getGte());
+            }
+
+            boolQueryBuilder.must(timeRangeBuilder);
+        }
+        return boolQueryBuilder;
+    }
+
     /* ************** */
     /* *** Search *** */
     /* ************** */
@@ -415,6 +441,9 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         BoolQueryBuilder boolQueryBuilder = getBoolQueryBuilderByMonitoringQuery(
                 monitoringQuery);
 
+        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery,
+                boolQueryBuilder);
+
         SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
                 boolQueryBuilder);
         SearchRequest searchRequest = new SearchRequest(
@@ -563,26 +592,8 @@ public class ElasticsearchService implements MonitoringServiceInterface {
                 monitoringQuery.getComponent(), monitoringQuery.getStream(),
                 false);
 
-        TimeRange timeRange = monitoringQuery.getTimeRange();
-        if (timeRange != null && !timeRange.isEmpty()) {
-            // Range Time
-            RangeQueryBuilder timeRangeBuilder = new RangeQueryBuilder(
-                    "@timestamp");
-            if (timeRange.getLt() != null && timeRange.getLte() == null) {
-                timeRangeBuilder.lt(timeRange.getLt());
-            }
-            if (timeRange.getLte() != null) {
-                timeRangeBuilder.lte(timeRange.getLte());
-            }
-            if (timeRange.getGt() != null && timeRange.getGte() == null) {
-                timeRangeBuilder.gt(timeRange.getGt());
-            }
-            if (timeRange.getGte() != null) {
-                timeRangeBuilder.gte(timeRange.getGte());
-            }
-
-            boolQueryBuilder.must(timeRangeBuilder);
-        }
+        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery,
+                boolQueryBuilder);
 
         SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
                 boolQueryBuilder);

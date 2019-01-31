@@ -189,6 +189,11 @@ export class EtmChartGroupComponent implements OnInit {
                 metric.component,
                 metricName,
                 passTJobExec ? tJobExec : undefined,
+                tJobExec.startDate,
+                tJobExec.endDate,
+                true,
+                true,
+                'metric',
               )
               .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error) => console.log(error));
           }
