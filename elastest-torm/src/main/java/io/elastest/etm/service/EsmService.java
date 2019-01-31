@@ -378,11 +378,8 @@ public class EsmService {
                         tSSIdLoadedOnInit.add(tssId);
                     }
                 } else {
-                    // Register only if not disabled in mini (EBS only
-                    // disabled)
-                    if (!serviceName.equals("EBS")) {
-                        registerElasTestService(serviceDefJson);
-                    }
+                    // Disable here TSS if you want. Now none
+                    registerElasTestService(serviceDefJson);
                 }
             }
 
