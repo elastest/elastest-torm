@@ -5,7 +5,7 @@
     <groupId>io.elastest</groupId>
     <artifactId>torm</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.0-beta5</version>
+    <version>1.0.0-beta7</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>Test Orchestration and Recommendation Manager (TORM) reactor</description>
