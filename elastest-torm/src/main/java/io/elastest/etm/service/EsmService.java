@@ -1523,7 +1523,12 @@ public class EsmService {
     public List<SupportServiceInstance> getServicesInstancesAsList() {
         ArrayList<SupportServiceInstance> servicesInstancesList = new ArrayList<>();
         servicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
-            if (!this.isIntegratedEUS(tSSInstance)) {
+
+            String serviceName = tSSInstance.getServiceName();
+
+            // If not is integrated EUS (mini) and not is shared TSS
+            if (!this.isIntegratedEUS(tSSInstance) && this
+                    .getSharedTssInstanceId(serviceName) != tSSInstanceId) {
                 boolean isUp = checkInstanceUrlIsUp(tSSInstance);
                 tSSInstance.setServiceReady(isUp);
 
