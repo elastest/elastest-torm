@@ -28,8 +28,9 @@ handlebars:1.1.1
 workflow-aggregator:2.5
 workflow-scm-step:2.7
 docker-java-api:3.0.14
-elastest:1.0.0-beta7
+elastest:1.0.0-beta8
 junit:1.26.1
+junit-attachments
 pipeline-model-api:1.3.3
 pipeline-model-definition:1.3.3
 pipeline-graph-analysis:1.9
@@ -38,7 +39,7 @@ display-url-api:2.3.0
 timestamper:1.8.10
 git-client:2.7.4
 external-monitor-job:1.7
-token-macro:2.5
+token-macro:2.6
 command-launcher:1.2
 workflow-cps-global-lib:2.12
 pipeline-milestone-step:1.3.1
@@ -69,11 +70,11 @@ workflow-cps:2.60
 jdk-tool:1.1
 pipeline-stage-tags-metadata:1.3.3
 gradle:1.29
-git:3.9.1
+git:3.9.2
 scm-api:2.3.0
 pipeline-stage-step:2.3
 git-server:1.7
-script-security:1.48
+script-security:1.51
 github:1.29.3
 matrix-project:1.13
 windows-slaves:1.3.1
