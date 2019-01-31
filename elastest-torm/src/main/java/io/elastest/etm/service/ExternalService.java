@@ -78,7 +78,7 @@ public class ExternalService {
 
     @Value("${et.etm.internal.host}")
     private String etEtmInternalHost;
-    
+
     @Value("${et.etm.logstash.service}")
     private String etLogstashService;
 
@@ -559,8 +559,23 @@ public class ExternalService {
                 exec.getEnvVars().put("ET_EUS_PORT", eusPort);
 
             } else { // Start new EUS instance
-                esmService.provisionExternalTJobExecServiceInstanceAsync(
-                        eus.getId(), exec, instanceId);
+                String serviceId = eus.getId();
+                boolean isShared = false;
+                if (esmService.isSharedTssInstance("EUS")) {
+                    String tssInstanceId = esmService
+                            .provisionExternalTJobExecSharedTSSSync(serviceId,
+                                    exec);
+
+                    if (tssInstanceId != null) {
+                        instanceId = tssInstanceId;
+                        isShared = true;
+                    }
+                }
+
+                if (!isShared) {
+                    esmService.provisionExternalTJobExecServiceInstanceAsync(
+                            serviceId, exec, instanceId);
+                }
             }
             exec.getEnvVars().put("EUS_ID", eus.getId());
             exec.getEnvVars().put("EUS_INSTANCE_ID", instanceId);

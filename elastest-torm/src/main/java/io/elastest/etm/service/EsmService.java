@@ -605,12 +605,27 @@ public class EsmService {
 
     public String provisionExternalTJobExecServiceInstanceSync(String serviceId,
             ExternalTJobExecution exTJobExec, String instanceId) {
-
-        String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
         // If is shared tss
+        if (isSharedTssInstanceByServiceId(serviceId)) {
+            String tssInstanceId = provisionExternalTJobExecSharedTSSSync(
+                    serviceId, exTJobExec);
+            if (tssInstanceId != null) {
+                return tssInstanceId;
+            }
+        }
+
+        // Else start new Eus instance
+        provisionExternalTJobExecServiceInstance(serviceId, exTJobExec,
+                instanceId);
+        return instanceId;
+    }
+
+    public String provisionExternalTJobExecSharedTSSSync(String serviceId,
+            ExternalTJobExecution exTJobExec) {
+        String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
+
         if (isSharedTssInstance(serviceName)) {
             String tssInstanceId = tssLoadedOnInitMap.get(serviceName);
-
             if (serviceName.equals("EUS")) {
                 this.registerExternalTJobExecutionInEus(tssInstanceId,
                         serviceName, exTJobExec);
@@ -620,14 +635,9 @@ public class EsmService {
                     .get(tssInstanceId);
             instance.gettJobExecIdList().add(exTJobExec.getId());
             externalTJobServicesInstances.put(tssInstanceId, instance);
-
             return tssInstanceId;
         }
-
-        // Else start new Eus instance
-        provisionExternalTJobExecServiceInstance(serviceId, exTJobExec,
-                instanceId);
-        return instanceId;
+        return null;
     }
 
     public SupportServiceInstance createNewServiceInstance(String serviceId,
