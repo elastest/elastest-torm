@@ -14,6 +14,7 @@ import { ProjectModel } from '../../elastest-etm/project/project-model';
 import { ExternalProjectModel } from '../../elastest-etm/external/external-project/external-project-model';
 import { ExternalTJobModel } from '../../elastest-etm/external/external-tjob/external-tjob-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
+import { TestLinkService } from '../../etm-testlink/testlink.service';
 
 @Component({
   selector: 'get-index-modal',
@@ -58,11 +59,18 @@ export class GetIndexModalComponent implements OnInit {
     private externalService: ExternalService,
     private dialogRef: MatDialogRef<GetIndexModalComponent>,
     private configService: ConfigurationService,
+    private testLinkService: TestLinkService,
     @Optional()
     @Inject(MAT_DIALOG_DATA)
     public fromExec: any,
   ) {
-    this.testLinkStarted = this.configService.configModel.testLinkStarted;
+    this.testLinkService.isReady().subscribe(
+      (ready: boolean) => {
+        this.testLinkStarted = ready;
+      },
+      (error: Error) => console.log(error),
+    );
+
     this.init();
     if (fromExec) {
       if (fromExec.type === 'normal') {
@@ -75,7 +83,7 @@ export class GetIndexModalComponent implements OnInit {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit(): void {}
 
   init(): void {
     this.abstractProjects = [];
@@ -107,13 +115,16 @@ export class GetIndexModalComponent implements OnInit {
     if (this.internalSelected) {
       this.projectService
         .getProjects()
-        .subscribe((projectsList: ProjectModel[]) => (this.abstractProjects = projectsList), (error) => this.dialogRef.close());
+        .subscribe(
+          (projectsList: ProjectModel[]) => (this.abstractProjects = projectsList),
+          (error: Error) => this.dialogRef.close(),
+        );
     } else {
       this.externalService
         .getAllExternalProjects()
         .subscribe(
           (projectsList: ExternalProjectModel[]) => (this.abstractProjects = projectsList),
-          (error) => this.dialogRef.close(),
+          (error: Error) => this.dialogRef.close(),
         );
     }
   }
