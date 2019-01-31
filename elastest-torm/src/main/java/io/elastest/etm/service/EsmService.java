@@ -586,15 +586,28 @@ public class EsmService {
     @Async
     public void provisionExternalTJobExecServiceInstanceAsync(String serviceId,
             ExternalTJobExecution exTJobExec, String instanceId) {
-        provisionExternalTJobExecServiceInstance(serviceId, exTJobExec,
+        provisionExternalTJobExecServiceInstanceSync(serviceId, exTJobExec,
                 instanceId);
+    }
+
+    @Async
+    public void provisionExternalTJobExecServiceInstanceAsync(String serviceId,
+            ExternalTJobExecution exTJobExec) {
+        provisionExternalTJobExecServiceInstanceSync(serviceId, exTJobExec);
     }
 
     public String provisionExternalTJobExecServiceInstanceSync(String serviceId,
             ExternalTJobExecution exTJobExec) {
+        String instanceId = UtilTools.generateUniqueId();
+        return this.provisionExternalTJobExecServiceInstanceSync(serviceId,
+                exTJobExec, instanceId);
+    }
+
+    public String provisionExternalTJobExecServiceInstanceSync(String serviceId,
+            ExternalTJobExecution exTJobExec, String instanceId) {
 
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
-        // If Et Mini and is shared tss
+        // If is shared tss
         if (isSharedTssInstance(serviceName)) {
             String tssInstanceId = tssLoadedOnInitMap.get(serviceName);
 
@@ -610,9 +623,8 @@ public class EsmService {
 
             return tssInstanceId;
         }
-        // Else start new Eus instance
 
-        String instanceId = UtilTools.generateUniqueId();
+        // Else start new Eus instance
         provisionExternalTJobExecServiceInstance(serviceId, exTJobExec,
                 instanceId);
         return instanceId;
