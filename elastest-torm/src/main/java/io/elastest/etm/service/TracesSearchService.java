@@ -42,6 +42,7 @@ import io.elastest.etm.model.Enums.StreamType;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.model.QTrace;
+import io.elastest.etm.model.TimeRange;
 import io.elastest.etm.model.Trace;
 import io.elastest.etm.utils.UtilsService;
 
@@ -150,11 +151,83 @@ public class TracesSearchService implements MonitoringServiceInterface {
     @Override
     public List<Map<String, Object>> searchAllLogs(
             MonitoringQuery monitoringQuery) throws Exception {
-        List<Trace> traces = traceRepository.findByExecInAndStreamAndComponent(
-                monitoringQuery.getIndices(), monitoringQuery.getStream(),
-                monitoringQuery.getComponent());
+        List<Trace> traces;
+        if (monitoringQuery.getTimeRange() != null
+                && !monitoringQuery.getTimeRange().isEmpty()) {
+            traces = this.searchAllLogsByTimeRange(monitoringQuery);
+
+        } else {
+            traces = traceRepository.findByExecInAndStreamAndComponent(
+                    monitoringQuery.getIndices(), monitoringQuery.getStream(),
+                    monitoringQuery.getComponent());
+        }
 
         return this.getTracesMapListByTracesList(traces);
+    }
+
+    public List<Trace> searchAllLogsByTimeRange(MonitoringQuery monitoringQuery)
+            throws Exception {
+        List<Trace> traces = null;
+        TimeRange timeRange = monitoringQuery.getTimeRange();
+        if (timeRange != null && !timeRange.isEmpty()) {
+            List<String> indices = monitoringQuery.getIndices();
+            String stream = monitoringQuery.getStream();
+            String component = monitoringQuery.getComponent();
+
+            Date gt = timeRange.getGt();
+            Date gte = timeRange.getGte();
+            Date lt = timeRange.getLt();
+            Date lte = timeRange.getLte();
+            if (gt != null) {
+                // gt and lt
+                if (lt != null) {
+                    traces = traceRepository
+                            .findByExecInAndStreamAndComponentAndTimestampGreaterThanAndTimestampLessThan(
+                                    indices, stream, component, gt, lt);
+                } else {
+                    // gt and lte
+                    if (lte != null) {
+                        traces = traceRepository
+                                .findByExecInAndStreamAndComponentAndTimestampGreaterThanAndTimestampLessThanEqual(
+                                        indices, stream, component, gt, lte);
+                    } else { // gt only
+                        traces = traceRepository
+                                .findByExecInAndStreamAndComponentAndTimestampGreaterThan(
+                                        indices, stream, component, gt);
+                    }
+                }
+
+            } else if (gte != null) {
+                // gte and lt
+                if (lt != null) {
+                    traces = traceRepository
+                            .findByExecInAndStreamAndComponentAndTimestampGreaterThanEqualAndTimestampLessThan(
+                                    indices, stream, component, gte, lt);
+                } else {
+                    // gte and lte
+                    if (lte != null) {
+                        traces = traceRepository
+                                .findByExecInAndStreamAndComponentAndTimestampGreaterThanEqualAndTimestampLessThanEqual(
+                                        indices, stream, component, gte, lte);
+                    } else { // gte only
+                        traces = traceRepository
+                                .findByExecInAndStreamAndComponentAndTimestampGreaterThanEqual(
+                                        indices, stream, component, gte);
+                    }
+                }
+            } else if (lte != null) {
+                traces = traceRepository
+                        .findByExecInAndStreamAndComponentAndTimestampLessThanEqual(
+                                indices, stream, component, lte);
+            } else if (lt != null) {
+                traces = traceRepository
+                        .findByExecInAndStreamAndComponentAndTimestampLessThan(
+                                indices, stream, component, lt);
+            }
+        }
+
+        return traces;
+
     }
 
     @Override
@@ -438,7 +511,11 @@ public class TracesSearchService implements MonitoringServiceInterface {
                                 logAnalyzerQuery.getRangeLT()));
             }
             if (logAnalyzerQuery.getRangeLTE() != null
-                    && !logAnalyzerQuery.getRangeLTE().equals("now")) { // now is used for tail
+                    && !logAnalyzerQuery.getRangeLTE().equals("now")) { // now
+                                                                        // is
+                                                                        // used
+                                                                        // for
+                                                                        // tail
                 BooleanExpression timeRangeQueryLte = dateStrTemplate
                         .loe(utilsService
                                 .getStrIso8601With6MillisUTCFromLogAnalyzerDateStr(

@@ -45,6 +45,9 @@ public class MonitoringQuery {
     @JsonProperty("rawData")
     StreamType rawData;
 
+    @JsonProperty("timeRange")
+    TimeRange timeRange;
+
     public MonitoringQuery() {
         this.indices = new ArrayList<>();
         this.selectedTerms = new ArrayList<>();
@@ -134,6 +137,23 @@ public class MonitoringQuery {
         this.message = message;
     }
 
+    public StreamType getRawData() {
+        return rawData;
+    }
+
+    public void setRawData(StreamType rawData) {
+        this.rawData = rawData;
+    }
+
+    public TimeRange getTimeRange() {
+        return timeRange;
+    }
+
+    public void setTimeRange(TimeRange timeRange) {
+        this.timeRange = timeRange;
+    }
+
+    // For Elasticsearch
     public TermQueryBuilder getAttributeTermByGivenName(String attrName) {
         switch (attrName) {
 
@@ -258,6 +278,9 @@ public class MonitoringQuery {
 
         case "rawData":
             return rawData;
+
+        case "timeRange":
+            return timeRange;
 
         default:
             return null;

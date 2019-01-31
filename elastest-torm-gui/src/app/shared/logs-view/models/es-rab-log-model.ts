@@ -32,14 +32,22 @@ export class ESRabLogModel implements LogViewModel {
     this.monitoringService = monitoringService;
   }
 
-  getAllLogs(): void {
-    this.getAllLogsSubscription().subscribe((data) => {
+  getAllLogs(from?: Date, to?: Date, includedFrom: boolean = true, includedTo: boolean = true): void {
+    this.getAllLogsSubscription(from, to, includedFrom, includedTo).subscribe((data) => {
       this.traces = data;
     });
   }
 
-  getAllLogsSubscription(): Observable<any[]> {
-    return this.monitoringService.getAllLogs(this.monitoringIndex, this.stream, this.component);
+  getAllLogsSubscription(from?: Date, to?: Date, includedFrom: boolean = true, includedTo: boolean = true): Observable<any[]> {
+    return this.monitoringService.getAllLogs(
+      this.monitoringIndex,
+      this.stream,
+      this.component,
+      from,
+      to,
+      includedFrom,
+      includedTo,
+    );
   }
 
   loadPrevious(): void {

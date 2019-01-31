@@ -59,6 +59,7 @@ import org.springframework.beans.factory.annotation.Value;
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
+import io.elastest.etm.model.TimeRange;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
@@ -561,6 +562,27 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
                 monitoringQuery.getComponent(), monitoringQuery.getStream(),
                 false);
+
+        TimeRange timeRange = monitoringQuery.getTimeRange();
+        if (timeRange != null && !timeRange.isEmpty()) {
+            // Range Time
+            RangeQueryBuilder timeRangeBuilder = new RangeQueryBuilder(
+                    "@timestamp");
+            if (timeRange.getLt() != null && timeRange.getLte() == null) {
+                timeRangeBuilder.lt(timeRange.getLt());
+            }
+            if (timeRange.getLte() != null) {
+                timeRangeBuilder.lte(timeRange.getLte());
+            }
+            if (timeRange.getGt() != null && timeRange.getGte() == null) {
+                timeRangeBuilder.gt(timeRange.getGt());
+            }
+            if (timeRange.getGte() != null) {
+                timeRangeBuilder.gte(timeRange.getGte());
+            }
+
+            boolQueryBuilder.must(timeRangeBuilder);
+        }
 
         SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
                 boolQueryBuilder);

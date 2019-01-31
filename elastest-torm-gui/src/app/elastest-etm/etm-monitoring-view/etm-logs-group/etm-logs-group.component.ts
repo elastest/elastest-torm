@@ -39,9 +39,7 @@ export class EtmLogsGroupComponent implements OnInit {
 
   constructor(private monitoringService: MonitoringService, private elastestRabbitmqService: ElastestRabbitmqService) {}
 
-  ngOnInit() {}
-
-  ngAfterViewInit(): void {}
+  ngOnInit(): void {}
 
   // When a log card is already activated
   initLogsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
@@ -64,7 +62,7 @@ export class EtmLogsGroupComponent implements OnInit {
           individualLogs.hidePrevBtn = !this.live;
           individualLogs.monitoringIndex = this.tJobExec.monitoringIndex;
           if (!this.live) {
-            individualLogs.getAllLogs();
+            individualLogs.getAllLogs(this.tJobExec.startDate, this.tJobExec.endDate);
           } else {
             if (log.component !== 'sut') {
               this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);

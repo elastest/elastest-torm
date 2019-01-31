@@ -106,8 +106,8 @@ export class EtmMonitoringViewComponent implements OnInit {
   }
 
   // Adds new monitoring card
-  addMore(withSave: boolean = false, showPopup: boolean = true): void {
-    this.addMoreSubscribe().subscribe(
+  addMore(withSave: boolean = false, showPopup: boolean = true, traceType?: 'log' | 'metric'): void {
+    this.addMoreSubscribe(traceType).subscribe(
       (obj: any) => {
         let added: boolean = this.addMoreFromObj(obj);
         if (showPopup) {
@@ -126,7 +126,7 @@ export class EtmMonitoringViewComponent implements OnInit {
   }
 
   // Gets data of the new monitoring card to be added
-  addMoreSubscribe(): Observable<any> {
+  addMoreSubscribe(traceType?: 'log' | 'metric'): Observable<any> {
     let _addMoreSubject: Subject<any> = new Subject<any>();
     let addMoreObs: Observable<any> = _addMoreSubject.asObservable();
 
@@ -143,9 +143,25 @@ export class EtmMonitoringViewComponent implements OnInit {
           this.component,
           this.metricName,
           this.tJobExec,
+          this.tJobExec.startDate,
+          this.tJobExec.endDate,
+          true,
+          true,
+          traceType,
         );
       } else {
-        searchAllObs = this.monitoringService.searchAllDynamic(monitoringIndex, this.stream, this.component, this.metricName);
+        searchAllObs = this.monitoringService.searchAllDynamic(
+          monitoringIndex,
+          this.stream,
+          this.component,
+          this.metricName,
+          undefined,
+          this.tJobExec.startDate,
+          this.tJobExec.endDate,
+          true,
+          true,
+          traceType,
+        );
       }
 
       searchAllObs.subscribe(
@@ -260,7 +276,7 @@ export class EtmMonitoringViewComponent implements OnInit {
     this.component = log.component;
     this.stream = log.stream;
     this.metricName = '';
-    this.addMore(withSave, showPopup);
+    this.addMore(withSave, showPopup, 'log');
   }
 
   removeLogCard(log: any): void {
@@ -291,7 +307,7 @@ export class EtmMonitoringViewComponent implements OnInit {
     this.component = metric.component;
     this.stream = metric.stream;
     this.metricName = metric.metricName;
-    this.addMore(withSave, showPopup);
+    this.addMore(withSave, showPopup, 'metric');
   }
 
   removeMetricCard(metric: any): void {

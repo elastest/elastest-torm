@@ -14,9 +14,44 @@ public interface TraceRepository
         extends JpaRepository<Trace, Long>, QuerydslPredicateExecutor<Trace> {
     public List<Trace> findByTimestamp(Date timestamp);
 
-    /* *** Logs *** */
+    /* ************************** */
+    /* ********** Logs ********** */
+    /* ************************** */
+
+    /* *** By Exec, Stream, Component | and Date Ranges *** */
+
     public List<Trace> findByExecInAndStreamAndComponent(List<String> execs,
             String stream, String component);
+
+    public List<Trace> findByExecInAndStreamAndComponentAndTimestampGreaterThan(
+            List<String> execs, String stream, String component, Date start);
+
+    public List<Trace> findByExecInAndStreamAndComponentAndTimestampGreaterThanEqual(
+            List<String> execs, String stream, String component, Date start);
+
+    public List<Trace> findByExecInAndStreamAndComponentAndTimestampLessThan(
+            List<String> execs, String stream, String component, Date end);
+
+    public List<Trace> findByExecInAndStreamAndComponentAndTimestampLessThanEqual(
+            List<String> execs, String stream, String component, Date end);
+
+    public List<Trace> findByExecInAndStreamAndComponentAndTimestampGreaterThanAndTimestampLessThan(
+            List<String> execs, String stream, String component, Date start,
+            Date end);
+
+    public List<Trace> findByExecInAndStreamAndComponentAndTimestampGreaterThanEqualAndTimestampLessThan(
+            List<String> execs, String stream, String component, Date start,
+            Date end);
+
+    public List<Trace> findByExecInAndStreamAndComponentAndTimestampGreaterThanEqualAndTimestampLessThanEqual(
+            List<String> execs, String stream, String component, Date start,
+            Date end);
+
+    public List<Trace> findByExecInAndStreamAndComponentAndTimestampGreaterThanAndTimestampLessThanEqual(
+            List<String> execs, String stream, String component, Date start,
+            Date end);
+
+    /* *** By Exec, Stream, Component | and Id Ranges *** */
 
     public List<Trace> findByExecInAndStreamAndComponentAndMessageAndTimestamp(
             List<String> execs, String stream, String component, String message,
@@ -28,7 +63,10 @@ public interface TraceRepository
     public List<Trace> findByExecInAndStreamAndComponentOrderByIdDesc(
             List<String> execs, String stream, String component);
 
-    /* *** Metrics *** */
+    /* *************************** */
+    /* ********* Metrics ********* */
+    /* *************************** */
+
     public List<Trace> findByExecInAndEtTypeAndComponent(List<String> execs,
             String etType, String component);
 

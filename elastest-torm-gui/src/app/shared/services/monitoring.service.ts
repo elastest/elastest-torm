@@ -153,6 +153,10 @@ export class MonitoringService {
     component: string = undefined,
     timestamp: Date = undefined,
     message: string = undefined,
+    from: Date = undefined,
+    to: Date = undefined,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
   ): MonitoringQueryModel {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
     query.indices = indices.split(',');
@@ -168,14 +172,35 @@ export class MonitoringService {
     if (message !== undefined) {
       query.message = message;
     }
+
+    query.setTimeRange(from, to, includedFrom, includedTo);
+
     return query;
   }
 
-  getAllLogs(index: string, stream: string, component: string, theQuery?: any): Observable<string[]> {
+  getAllLogs(
+    index: string,
+    stream: string,
+    component: string,
+    from?: Date,
+    to?: Date,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
+  ): Observable<string[]> {
     let _logs: Subject<string[]> = new Subject<string[]>();
     let logs: Observable<string[]> = _logs.asObservable();
 
-    let query: MonitoringQueryModel = this.getLogsMonitoringQuery(index, stream, component);
+    let query: MonitoringQueryModel = this.getLogsMonitoringQuery(
+      index,
+      stream,
+      component,
+      undefined,
+      undefined,
+      from,
+      to,
+      includedFrom,
+      includedTo,
+    );
     this.searchAllLogs(query).subscribe((data) => {
       _logs.next(this.convertToLogTraces(data));
     });
@@ -692,6 +717,11 @@ export class MonitoringService {
     component: string,
     metricName?: string,
     tJobExec?: AbstractTJobExecModel,
+    from: Date = undefined,
+    to: Date = undefined,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
+    traceType: 'log' | 'metric' = undefined,
   ): Observable<any> {
     let _obs: Subject<any> = new Subject<any>();
     let obs: Observable<any> = _obs.asObservable();
@@ -700,6 +730,7 @@ export class MonitoringService {
     query.indices = index.split(',');
     query.stream = stream;
     query.component = component;
+    query.setTimeRange(from, to, includedFrom, includedTo);
 
     query.selectedTerms.push('stream', 'component');
     let metricSubtype: string;
@@ -709,7 +740,18 @@ export class MonitoringService {
       query.etType = metricType;
       query.selectedTerms.push('etType');
     }
-    this.searchAllByTerms(query).subscribe((data: any[]) => {
+
+    let getTracesSubscription: Observable<any> = this.searchAllByTerms(query);
+
+    if (traceType !== undefined) {
+      if (traceType === 'log') {
+        getTracesSubscription = this.searchAllLogs(query);
+      } else if (traceType === 'metric') {
+        // use by terms
+      }
+    }
+
+    getTracesSubscription.subscribe((data: any[]) => {
       if (data.length > 0) {
         let convertedData: any;
         let firstElement: any = data[0];
