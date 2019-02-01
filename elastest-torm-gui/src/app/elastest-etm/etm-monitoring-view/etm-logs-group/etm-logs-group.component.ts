@@ -61,6 +61,9 @@ export class EtmLogsGroupComponent implements OnInit {
           individualLogs.stream = log.stream;
           individualLogs.hidePrevBtn = !this.live;
           individualLogs.monitoringIndex = this.tJobExec.monitoringIndex;
+          individualLogs.startDate = this.tJobExec.startDate;
+          individualLogs.endDate = this.tJobExec.endDate;
+
           if (!this.live) {
             individualLogs.getAllLogs(this.tJobExec.startDate, this.tJobExec.endDate);
           } else {

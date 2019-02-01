@@ -20,6 +20,9 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
   rightChartOneAllData: LineChartMetricModel[];
   rightChartTwoAllData: LineChartMetricModel[];
 
+  startDate: Date;
+  endDate: Date;
+
   constructor(monitoringService: MonitoringService, ignoreComponent: string = '') {
     super();
     this.monitoringService = monitoringService;
@@ -224,7 +227,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
       // Load previous of all charts, not only this
       for (let metric of this.allMetricsFields.fieldsList) {
         this.monitoringService
-          .getPrevMetricsFromTrace(this.monitoringIndex, compareTrace, metric)
+          .getPrevMetricsFromTrace(this.monitoringIndex, compareTrace, metric, this.startDate, this.endDate)
           .subscribe((data: LineChartMetricModel[]) => {
             if (data.length > 0) {
               this.addData(metric, data[0].series);
@@ -243,7 +246,7 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
       );
       if (individualChart) {
         this.monitoringService
-          .getPrevMetricsFromTrace(this.monitoringIndex, compareTrace, individualChart)
+          .getPrevMetricsFromTrace(this.monitoringIndex, compareTrace, individualChart, this.startDate, this.endDate)
           .subscribe((data: LineChartMetricModel[]) => {
             if (data.length > 0) {
               this.addSimpleMetricTraces(data);

@@ -17,6 +17,9 @@ export class ESRabLogModel implements LogViewModel {
   monitoringIndex: string;
   maxsize: number = 1000;
 
+  startDate: Date;
+  endDate: Date;
+
   constructor(monitoringService: MonitoringService) {
     this.name = '';
     this.prevTraces = [];
@@ -28,6 +31,9 @@ export class ESRabLogModel implements LogViewModel {
     this.component = '';
     this.stream = '';
     this.monitoringIndex = '';
+
+    this.startDate = undefined;
+    this.endDate = undefined;
 
     this.monitoringService = monitoringService;
   }
@@ -56,7 +62,7 @@ export class ESRabLogModel implements LogViewModel {
       tracesArrayToCompare = this.prevTraces;
     }
     this.monitoringService
-      .getPrevLogsFromTrace(this.monitoringIndex, tracesArrayToCompare, this.stream, this.component)
+      .getPrevLogsFromTrace(this.monitoringIndex, tracesArrayToCompare, this.stream, this.component, this.startDate, this.endDate)
       .subscribe(
         (data) => {
           if (data.length > 0) {
@@ -65,7 +71,7 @@ export class ESRabLogModel implements LogViewModel {
 
           this.prevLoaded = true; // If data.length > 0 already loaded all traces, else, there aren't traces to load
         },
-        (error) => (this.prevLoaded = true), // 'There isn\'t reference traces yet to load previous'
+        (error: Error) => (this.prevLoaded = true), // 'There isn\'t reference traces yet to load previous'
       );
   }
 

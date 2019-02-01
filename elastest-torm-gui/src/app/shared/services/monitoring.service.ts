@@ -208,13 +208,32 @@ export class MonitoringService {
     return logs;
   }
 
-  getPrevLogsFromTrace(index: string, traces: any[], stream: string, component: string): Observable<string[]> {
+  getPrevLogsFromTrace(
+    index: string,
+    traces: any[],
+    stream: string,
+    component: string,
+    from: Date = undefined,
+    to: Date = undefined,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
+  ): Observable<string[]> {
     let _logs: Subject<string[]> = new Subject<string[]>();
     let logs: Observable<string[]> = _logs.asObservable();
 
     if (traces.length > 0) {
       let trace: any = traces[0];
-      let query: MonitoringQueryModel = this.getLogsMonitoringQuery(index, stream, component, trace.timestamp, trace.message);
+      let query: MonitoringQueryModel = this.getLogsMonitoringQuery(
+        index,
+        stream,
+        component,
+        trace.timestamp,
+        trace.message,
+        from,
+        to,
+        includedFrom,
+        includedTo,
+      );
       this.searchPreviousLogs(query).subscribe((data) => {
         _logs.next(this.convertToLogTraces(data));
         if (data.length > 0) {
@@ -264,6 +283,10 @@ export class MonitoringService {
     etType: string,
     component: string = undefined,
     timestamp: Date = undefined,
+    from: Date = undefined,
+    to: Date = undefined,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
   ): MonitoringQueryModel {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
     query.indices = indices.split(',');
@@ -275,14 +298,34 @@ export class MonitoringService {
     if (component !== undefined && component !== '') {
       query.component = component;
     }
+
+    query.setTimeRange(from, to, includedFrom, includedTo);
+
     return query;
   }
 
-  getAllMetrics(index: string, metricsField: MetricsFieldModel, theQuery?: any): Observable<LineChartMetricModel[]> {
+  getAllMetrics(
+    index: string,
+    metricsField: MetricsFieldModel,
+    theQuery?: any,
+    from: Date = undefined,
+    to: Date = undefined,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
+  ): Observable<LineChartMetricModel[]> {
     let _metrics: Subject<LineChartMetricModel[]> = new Subject<LineChartMetricModel[]>();
     let metrics: Observable<LineChartMetricModel[]> = _metrics.asObservable();
 
-    let query: MonitoringQueryModel = this.getMetricsMonitoringQuery(index, metricsField.etType, metricsField.component);
+    let query: MonitoringQueryModel = this.getMetricsMonitoringQuery(
+      index,
+      metricsField.etType,
+      metricsField.component,
+      undefined,
+      from,
+      to,
+      includedFrom,
+      includedTo,
+    );
 
     this.searchAllMetrics(query).subscribe((data: any[]) => {
       _metrics.next(this.convertToMetricTraces(data, metricsField));
@@ -291,7 +334,15 @@ export class MonitoringService {
     return metrics;
   }
 
-  getPrevMetricsFromTrace(index: string, trace: any, metricsField: MetricsFieldModel): Observable<LineChartMetricModel[]> {
+  getPrevMetricsFromTrace(
+    index: string,
+    trace: any,
+    metricsField: MetricsFieldModel,
+    from: Date = undefined,
+    to: Date = undefined,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
+  ): Observable<LineChartMetricModel[]> {
     let _metrics: Subject<LineChartMetricModel[]> = new Subject<LineChartMetricModel[]>();
     let metrics: Observable<LineChartMetricModel[]> = _metrics.asObservable();
 
@@ -301,6 +352,10 @@ export class MonitoringService {
         metricsField.etType,
         metricsField.component,
         trace.timestamp,
+        from,
+        to,
+        includedFrom,
+        includedTo,
       );
 
       this.searchPreviousMetrics(query).subscribe((data) => {
@@ -747,7 +802,7 @@ export class MonitoringService {
       if (traceType === 'log') {
         getTracesSubscription = this.searchAllLogs(query);
       } else if (traceType === 'metric') {
-        // use by terms
+        getTracesSubscription = this.searchAllMetrics(query);
       }
     }
 

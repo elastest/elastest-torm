@@ -28,6 +28,9 @@ export class MetricsModel implements MetricsViewModel {
   prevLoaded: boolean;
   hidePrevBtn: boolean;
 
+  startDate: Date;
+  endDate: Date;
+
   constructor() {
     this.name = '';
 
@@ -55,5 +58,5 @@ export class MetricsModel implements MetricsViewModel {
     return new TdDigitsPipe().transform(val);
   }
 
-  loadPrevious() { }
+  loadPrevious() {}
 }

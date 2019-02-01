@@ -163,6 +163,8 @@ export class EtmChartGroupComponent implements OnInit {
       if (metric.activated) {
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
         individualMetrics.monitoringIndex = monitoringIndex;
+        individualMetrics.startDate = this.tJobExec.startDate;
+        individualMetrics.endDate = this.tJobExec.endDate;
         if (metric.component === '') {
           // If no component, is a default metric (dockbeat whit more than 1 component)
           if (ignoreDefaultDockbeatMetrics) {

@@ -2,110 +2,111 @@ import { LoadPreviousModel } from '../../../load-previous-view/load-previous-mod
 import { LineChartMetricModel } from '../../models/linechart-metric-model';
 import { ColorSchemeModel } from '../../models/color-scheme-model';
 export class ComplexMetricsModel implements LoadPreviousModel {
-    name: string;
-    scheme: ColorSchemeModel;
-    timeline: boolean;
-    leftChart: LineChartMetricModel[];
-    rightChartOne: LineChartMetricModel[];
-    rightChartTwo: LineChartMetricModel[];
+  name: string;
+  scheme: ColorSchemeModel;
+  timeline: boolean;
+  leftChart: LineChartMetricModel[];
+  rightChartOne: LineChartMetricModel[];
+  rightChartTwo: LineChartMetricModel[];
 
-    tooltipDisabled: boolean;
-    yLeftAxisTickFormatting;
-    yRightOneAxisTickFormatting;
-    yRightTwoAxisTickFormatting;
+  tooltipDisabled: boolean;
+  yLeftAxisTickFormatting;
+  yRightOneAxisTickFormatting;
+  yRightTwoAxisTickFormatting;
 
-    yLeftAxisScaleFactor;
-    yRightAxisScaleFactor;
+  yLeftAxisScaleFactor;
+  yRightAxisScaleFactor;
 
-    gradient: boolean;
-    showXAxis: boolean;
-    showYAxis: boolean;
-    showLegend: boolean;
-    legendTitle: string;
-    showGridLines: boolean;
+  gradient: boolean;
+  showXAxis: boolean;
+  showYAxis: boolean;
+  showLegend: boolean;
+  legendTitle: string;
+  showGridLines: boolean;
 
-    showXAxisLabel: boolean;
-    showLeftYAxisLabel: boolean;
-    showRightOneYAxisLabel: boolean;
-    showRightTwoYAxisLabel: boolean;
+  showXAxisLabel: boolean;
+  showLeftYAxisLabel: boolean;
+  showRightOneYAxisLabel: boolean;
+  showRightTwoYAxisLabel: boolean;
 
-    xAxisLabel: string;
-    yAxisLabelLeft: string;
-    yAxisLabelRightOne: string;
-    yAxisLabelRightTwo: string;
+  xAxisLabel: string;
+  yAxisLabelLeft: string;
+  yAxisLabelRightOne: string;
+  yAxisLabelRightTwo: string;
 
-    autoScale: boolean;
+  autoScale: boolean;
 
-    prevTraces: string[];
-    prevLoaded: boolean;
-    hidePrevBtn: boolean;
+  prevTraces: string[];
+  prevLoaded: boolean;
+  hidePrevBtn: boolean;
 
-    constructor() {
-        this.name = '';
-        this.scheme = new ColorSchemeModel();
-        this.timeline = true;
-        this.leftChart = [];
-        this.rightChartOne = [];
-        this.rightChartTwo = [];
+  startDate: Date;
+  endDate: Date;
 
-        this.tooltipDisabled = false;
-        this.yLeftAxisTickFormatting = this.normalFormat;
-        this.yRightOneAxisTickFormatting = this.percentFormat;
-        this.yRightTwoAxisTickFormatting = this.compressNumberFormat;
+  constructor() {
+    this.name = '';
+    this.scheme = new ColorSchemeModel();
+    this.timeline = true;
+    this.leftChart = [];
+    this.rightChartOne = [];
+    this.rightChartTwo = [];
 
-        this.yLeftAxisScaleFactor = this.yLeftAxisScale;
-        this.yRightAxisScaleFactor = this.yRightAxisScale;
+    this.tooltipDisabled = false;
+    this.yLeftAxisTickFormatting = this.normalFormat;
+    this.yRightOneAxisTickFormatting = this.percentFormat;
+    this.yRightTwoAxisTickFormatting = this.compressNumberFormat;
 
-        this.gradient = false;
+    this.yLeftAxisScaleFactor = this.yLeftAxisScale;
+    this.yRightAxisScaleFactor = this.yRightAxisScale;
 
-        this.showXAxis = true;
-        this.showYAxis = true;
-        this.showLegend = true;
-        this.legendTitle = 'Legend';
-        this.showGridLines = true;
+    this.gradient = false;
 
-        this.showXAxisLabel = true;
-        this.showLeftYAxisLabel = true;
-        this.showRightOneYAxisLabel = true;
-        this.showRightTwoYAxisLabel = true;
+    this.showXAxis = true;
+    this.showYAxis = true;
+    this.showLegend = true;
+    this.legendTitle = 'Legend';
+    this.showGridLines = true;
 
-        this.xAxisLabel = '';
-        this.yAxisLabelLeft = '';
-        this.yAxisLabelRightOne = '';
-        this.yAxisLabelRightTwo = '';
+    this.showXAxisLabel = true;
+    this.showLeftYAxisLabel = true;
+    this.showRightOneYAxisLabel = true;
+    this.showRightTwoYAxisLabel = true;
 
-        this.autoScale = true;
-        
-        this.prevTraces = [];
-        this.prevLoaded = false;
-        this.hidePrevBtn = false;
-    }
+    this.xAxisLabel = '';
+    this.yAxisLabelLeft = '';
+    this.yAxisLabelRightOne = '';
+    this.yAxisLabelRightTwo = '';
 
-    loadPrevious() { }
+    this.autoScale = true;
 
-    onSelect(event) { }
+    this.prevTraces = [];
+    this.prevLoaded = false;
+    this.hidePrevBtn = false;
+  }
 
-    normalFormat(data) {
-        return `${data.toLocaleString()}`;
-    }
+  loadPrevious() {}
 
-    percentFormat(data) {
-        return `${data}%`;
-    }
+  onSelect(event) {}
 
+  normalFormat(data) {
+    return `${data.toLocaleString()}`;
+  }
 
-    compressNumberFormat(data) {
-        let base = Math.floor(Math.log(Math.abs(data)) / Math.log(1000));
-        let suffix = 'kmb'[base - 1];
-        return suffix ? String(data / Math.pow(1000, base)).substring(0, 3) + suffix : '' + data;
+  percentFormat(data) {
+    return `${data}%`;
+  }
 
-    }
+  compressNumberFormat(data) {
+    let base = Math.floor(Math.log(Math.abs(data)) / Math.log(1000));
+    let suffix = 'kmb'[base - 1];
+    return suffix ? String(data / Math.pow(1000, base)).substring(0, 3) + suffix : '' + data;
+  }
 
-    yLeftAxisScale(min, max) {
-        return { min: `${min}`, max: `${max}` };
-    }
+  yLeftAxisScale(min, max) {
+    return { min: `${min}`, max: `${max}` };
+  }
 
-    yRightAxisScale(min, max) {
-        return { min: `${min}`, max: `${max}` };
-    }
+  yRightAxisScale(min, max) {
+    return { min: `${min}`, max: `${max}` };
+  }
 }

@@ -227,7 +227,6 @@ public class TracesSearchService implements MonitoringServiceInterface {
         }
 
         return traces;
-
     }
 
     @Override
@@ -263,16 +262,99 @@ public class TracesSearchService implements MonitoringServiceInterface {
 
         List<Trace> traces = new ArrayList<>();
         if (tracesWithSameTimestamp.size() > 0) {
+            Long referenceTraceId = tracesWithSameTimestamp.get(0).getId();
             // Get previous
-            traces = traceRepository
-                    .findByExecInAndStreamAndComponentAndIdLessThan(
-                            monitoringQuery.getIndices(),
-                            monitoringQuery.getStream(),
-                            monitoringQuery.getComponent(),
-                            tracesWithSameTimestamp.get(0).getId());
 
+            // By time Range
+            if (monitoringQuery.getTimeRange() != null
+                    && !monitoringQuery.getTimeRange().isEmpty()) {
+                traces = this.getPreviousLogsFromTraceIdByTimeRange(
+                        monitoringQuery, referenceTraceId);
+
+            } else { // Without range
+                traces = traceRepository
+                        .findByExecInAndStreamAndComponentAndIdLessThan(
+                                monitoringQuery.getIndices(),
+                                monitoringQuery.getStream(),
+                                monitoringQuery.getComponent(),
+                                referenceTraceId);
+            }
         }
         return this.getTracesMapListByTracesList(traces);
+    }
+
+    public List<Trace> getPreviousLogsFromTraceIdByTimeRange(
+            MonitoringQuery monitoringQuery, Long referenceTraceId)
+            throws Exception {
+        List<Trace> traces = null;
+        TimeRange timeRange = monitoringQuery.getTimeRange();
+        if (timeRange != null && !timeRange.isEmpty()) {
+            List<String> indices = monitoringQuery.getIndices();
+            String stream = monitoringQuery.getStream();
+            String component = monitoringQuery.getComponent();
+
+            Date gt = timeRange.getGt();
+            Date gte = timeRange.getGte();
+            Date lt = timeRange.getLt();
+            Date lte = timeRange.getLte();
+            if (gt != null) {
+                // gt and lt
+                if (lt != null) {
+                    traces = traceRepository
+                            .findByExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanAndTimestampLessThan(
+                                    indices, stream, component,
+                                    referenceTraceId, gt, lt);
+                } else {
+                    // gt and lte
+                    if (lte != null) {
+                        traces = traceRepository
+                                .findByExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanAndTimestampLessThanEqual(
+                                        indices, stream, component,
+                                        referenceTraceId, gt, lte);
+                    } else { // gt only
+                        traces = traceRepository
+                                .findByExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThan(
+                                        indices, stream, component,
+                                        referenceTraceId, gt);
+                    }
+                }
+
+            } else if (gte != null) {
+                // gte and lt
+                if (lt != null) {
+                    traces = traceRepository
+                            .findByExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanEqualAndTimestampLessThan(
+                                    indices, stream, component,
+                                    referenceTraceId, gte, lt);
+                } else {
+                    // gte and lte
+                    if (lte != null) {
+                        traces = traceRepository
+                                .findByExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanEqualAndTimestampLessThanEqual(
+                                        indices, stream, component,
+                                        referenceTraceId, gte, lte);
+                    } else { // gte only
+                        traces = traceRepository
+                                .findByExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanEqual(
+                                        indices, stream, component,
+                                        referenceTraceId, gte);
+                    }
+                }
+            } else if (lte != null) {
+                traces = traceRepository
+                        .findByExecInAndStreamAndComponentAndIdLessThanAndTimestampLessThanEqual(
+                                indices, stream, component, referenceTraceId,
+                                lte);
+            } else if (lt != null) {
+                traces = traceRepository
+                        .findByExecInAndStreamAndComponentAndIdLessThanAndTimestampLessThan(
+                                indices, stream, component, referenceTraceId,
+                                lt);
+            }
+        }
+
+        return traces;
+
     }
 
     @Override
@@ -362,16 +444,159 @@ public class TracesSearchService implements MonitoringServiceInterface {
     public List<Map<String, Object>> searchAllMetrics(
             MonitoringQuery monitoringQuery) throws Exception {
         List<Trace> traces = new ArrayList<>();
+
+        boolean withTimeRange = monitoringQuery.getTimeRange() != null
+                && !monitoringQuery.getTimeRange().isEmpty();
+
         if (monitoringQuery.getComponent() != null) {
-            traces = traceRepository.findByExecInAndEtTypeAndComponent(
-                    monitoringQuery.getIndices(), monitoringQuery.getEtType(),
-                    monitoringQuery.getComponent());
+            if (withTimeRange) {
+                traces = this.searchAllMetricsByTimeRangeWithComponent(
+                        monitoringQuery);
+            } else {
+                traces = traceRepository.findByExecInAndEtTypeAndComponent(
+                        monitoringQuery.getIndices(),
+                        monitoringQuery.getEtType(),
+                        monitoringQuery.getComponent());
+            }
         } else {
-            traces = traceRepository.findByExecInAndEtType(
-                    monitoringQuery.getIndices(), monitoringQuery.getEtType());
+            if (withTimeRange) {
+                traces = this.searchAllMetricsByTimeRangeWithoutComponent(
+                        monitoringQuery);
+            } else {
+                traces = traceRepository.findByExecInAndEtType(
+                        monitoringQuery.getIndices(),
+                        monitoringQuery.getEtType());
+            }
         }
 
         return this.getTracesMapListByTracesList(traces);
+    }
+
+    public List<Trace> searchAllMetricsByTimeRangeWithComponent(
+            MonitoringQuery monitoringQuery) throws Exception {
+        List<Trace> traces = null;
+        TimeRange timeRange = monitoringQuery.getTimeRange();
+        if (timeRange != null && !timeRange.isEmpty()) {
+            List<String> indices = monitoringQuery.getIndices();
+            String etType = monitoringQuery.getEtType();
+            String component = monitoringQuery.getComponent();
+
+            Date gt = timeRange.getGt();
+            Date gte = timeRange.getGte();
+            Date lt = timeRange.getLt();
+            Date lte = timeRange.getLte();
+            if (gt != null) {
+                // gt and lt
+                if (lt != null) {
+                    traces = traceRepository
+                            .findByExecInAndEtTypeAndComponentAndTimestampGreaterThanAndTimestampLessThan(
+                                    indices, etType, component, gt, lt);
+                } else {
+                    // gt and lte
+                    if (lte != null) {
+                        traces = traceRepository
+                                .findByExecInAndEtTypeAndComponentAndTimestampGreaterThanAndTimestampLessThanEqual(
+                                        indices, etType, component, gt, lte);
+                    } else { // gt only
+                        traces = traceRepository
+                                .findByExecInAndEtTypeAndComponentAndTimestampGreaterThan(
+                                        indices, etType, component, gt);
+                    }
+                }
+
+            } else if (gte != null) {
+                // gte and lt
+                if (lt != null) {
+                    traces = traceRepository
+                            .findByExecInAndEtTypeAndComponentAndTimestampGreaterThanEqualAndTimestampLessThan(
+                                    indices, etType, component, gte, lt);
+                } else {
+                    // gte and lte
+                    if (lte != null) {
+                        traces = traceRepository
+                                .findByExecInAndEtTypeAndComponentAndTimestampGreaterThanEqualAndTimestampLessThanEqual(
+                                        indices, etType, component, gte, lte);
+                    } else { // gte only
+                        traces = traceRepository
+                                .findByExecInAndEtTypeAndComponentAndTimestampGreaterThanEqual(
+                                        indices, etType, component, gte);
+                    }
+                }
+            } else if (lte != null) {
+                traces = traceRepository
+                        .findByExecInAndEtTypeAndComponentAndTimestampLessThanEqual(
+                                indices, etType, component, lte);
+            } else if (lt != null) {
+                traces = traceRepository
+                        .findByExecInAndEtTypeAndComponentAndTimestampLessThan(
+                                indices, etType, component, lt);
+            }
+        }
+
+        return traces;
+    }
+
+    public List<Trace> searchAllMetricsByTimeRangeWithoutComponent(
+            MonitoringQuery monitoringQuery) throws Exception {
+        List<Trace> traces = null;
+        TimeRange timeRange = monitoringQuery.getTimeRange();
+        if (timeRange != null && !timeRange.isEmpty()) {
+            List<String> indices = monitoringQuery.getIndices();
+            String etType = monitoringQuery.getEtType();
+
+            Date gt = timeRange.getGt();
+            Date gte = timeRange.getGte();
+            Date lt = timeRange.getLt();
+            Date lte = timeRange.getLte();
+            if (gt != null) {
+                // gt and lt
+                if (lt != null) {
+                    traces = traceRepository
+                            .findByExecInAndEtTypeAndTimestampGreaterThanAndTimestampLessThan(
+                                    indices, etType, gt, lt);
+                } else {
+                    // gt and lte
+                    if (lte != null) {
+                        traces = traceRepository
+                                .findByExecInAndEtTypeAndTimestampGreaterThanAndTimestampLessThanEqual(
+                                        indices, etType, gt, lte);
+                    } else { // gt only
+                        traces = traceRepository
+                                .findByExecInAndEtTypeAndTimestampGreaterThan(
+                                        indices, etType, gt);
+                    }
+                }
+
+            } else if (gte != null) {
+                // gte and lt
+                if (lt != null) {
+                    traces = traceRepository
+                            .findByExecInAndEtTypeAndTimestampGreaterThanEqualAndTimestampLessThan(
+                                    indices, etType, gte, lt);
+                } else {
+                    // gte and lte
+                    if (lte != null) {
+                        traces = traceRepository
+                                .findByExecInAndEtTypeAndTimestampGreaterThanEqualAndTimestampLessThanEqual(
+                                        indices, etType, gte, lte);
+                    } else { // gte only
+                        traces = traceRepository
+                                .findByExecInAndEtTypeAndTimestampGreaterThanEqual(
+                                        indices, etType, gte);
+                    }
+                }
+            } else if (lte != null) {
+                traces = traceRepository
+                        .findByExecInAndEtTypeAndTimestampLessThanEqual(indices,
+                                etType, lte);
+            } else if (lt != null) {
+                traces = traceRepository
+                        .findByExecInAndEtTypeAndTimestampLessThan(indices,
+                                etType, lt);
+            }
+        }
+
+        return traces;
     }
 
     @Override

@@ -613,6 +613,9 @@ public class ElasticsearchService implements MonitoringServiceInterface {
                 monitoringQuery.getComponent(), monitoringQuery.getStream(),
                 false);
 
+        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery,
+                boolQueryBuilder);
+
         List<SearchHit> hits = this.getPreviousFromTimestamp(
                 monitoringQuery.getIndicesAsArray(), boolQueryBuilder,
                 monitoringQuery.getTimestamp());
@@ -741,6 +744,9 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(
                 monitoringQuery, false);
 
+        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery,
+                boolQueryBuilder);
+
         SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
                 boolQueryBuilder);
         SearchRequest searchRequest = new SearchRequest(
@@ -768,6 +774,9 @@ public class ElasticsearchService implements MonitoringServiceInterface {
 
         BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(
                 monitoringQuery, false);
+
+        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery,
+                boolQueryBuilder);
 
         List<SearchHit> hits = this.getPreviousFromTimestamp(
                 monitoringQuery.getIndicesAsArray(), boolQueryBuilder,

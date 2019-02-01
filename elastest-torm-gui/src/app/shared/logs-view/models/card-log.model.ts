@@ -9,6 +9,10 @@ export class CardLogModel implements LogViewModel {
   hidePrevBtn: boolean;
   etType: string;
   monitoringIndex: string;
+
+  startDate: Date;
+  endDate: Date;
+
   previousFunctionObj: { function: Function };
 
   constructor() {
