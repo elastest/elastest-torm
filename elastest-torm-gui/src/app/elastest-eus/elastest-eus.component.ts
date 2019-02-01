@@ -77,7 +77,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     private configurationService: ConfigurationService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (!this.isNested) {
       this.titlesService.setHeadTitle('Web Browsers');
     }
@@ -114,7 +114,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.end();
   }
 

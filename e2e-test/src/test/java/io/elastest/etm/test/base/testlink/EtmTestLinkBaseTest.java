@@ -154,13 +154,35 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     protected void startTLEtmPlanExecution(WebDriver driver) {
         String runPlanBtnId = "runTestPlan";
         String runPlanBtnXpath = "//button[@id='" + runPlanBtnId + "']";
+
+        // Run and Modal Open
         this.getElementByIdXpath(driver, runPlanBtnId, runPlanBtnXpath).click();
+        sleep(1000);
+        this.runTLEtmPlanExecutionFromModal(driver);
     }
 
     protected void startTLEtmPlanExecutionWithNavigate(WebDriver driver,
             String projectName, String planName) {
         this.navigateToTLEtmPlanByAbsolute(driver, projectName, planName);
         this.startTLEtmPlanExecution(driver);
+    }
+
+    protected void runTLEtmPlanExecutionFromModal(WebDriver driver) {
+        String selectBuildId = "selectBuild";
+        String selectBuildXpath = "//*[@id='" + selectBuildId + "']";
+        this.getElementByIdXpath(driver, selectBuildId, selectBuildXpath)
+                .click();
+
+        this.getElementsByTagName(driver, "md-option").get(0).click();
+
+        String runPlanModalBtnId = "runPlanModalBtn";
+        String runPlanModalXpath = "//*[@id='" + runPlanModalBtnId + "']";
+
+        WebElement runBtn = this.getElementByIdXpath(driver, runPlanModalBtnId,
+                runPlanModalXpath);
+        WebDriverWait waitService = new WebDriverWait(driver, 45);
+        waitService.until(elementToBeClickable(runBtn));
+        runBtn.click();
     }
 
     protected void waitForBrowserStarted(WebDriver driver) {
@@ -221,7 +243,8 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected void navigateToTLEtmSuite(WebDriver driver, String suiteName) {
         String xpath = this.getTLEtmSuiteXpath(suiteName);
-        log.info("Navigate to Suite case with id {} and path {}", suitesTableId, xpath);
+        log.info("Navigate to Suite case with id {} and path {}", suitesTableId,
+                xpath);
         this.navigateToElementByIdXpath(driver, suitesTableId, xpath);
     }
 

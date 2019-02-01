@@ -1,25 +1,67 @@
 <h2 mat-dialog-title>Select a Build</h2>
 <mat-dialog-content>
-  <div fxLayout="row" class="push-bottom-md" *ngIf="ready; else notReadyMsg">
+  <div fxLayout="column" class="push-bottom-md" *ngIf="ready; else notReadyMsg">
     <ng-container *ngIf="testPlanCases !== undefined && testPlanCases.length > 0; else noTestCases">
-      <mat-select fxFlex [(ngModel)]="selectedBuild" placeholder="Select a build" id="selectBuild" name="selectBuild"
-        #nameControl="ngModel" required>
-        <mat-option *ngFor="let build of builds; let i = index" id="build{{i}}" [value]="build">
-          {{build.name}}
-        </mat-option>
+      <!-- BUILDS -->
+      <mat-select
+        fxFlex
+        [(ngModel)]="selectedBuild"
+        placeholder="Select a build"
+        id="selectBuild"
+        name="selectBuild"
+        #nameControl="ngModel"
+        required
+      >
+        <mat-option *ngFor="let build of builds; let i = index" id="build{{ i }}" [value]="build"> {{ build.name }} </mat-option>
       </mat-select>
+      <div fxFlex class="push-top-md">
+        <!-- BROWSERS -->
+        <div *ngIf="loadingBrowsers; else showBrowsersSelection" fxLayout="row" fxLayoutAlign="start center">
+          <span> <mat-spinner strokeWidth="6" color="accent"></mat-spinner> </span>
+          <span class="mat-title push-left-sm"> Loading browsers...</span>
+        </div>
+        <ng-template #showBrowsersSelection>
+          <mat-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
+            <div *ngFor="let browser of browserNamesList">
+              <mat-radio-button [value]="browser" fxFlex id="{{ browser + '_radio' }}">{{
+                browser | capitalize
+              }}</mat-radio-button>
+              <mat-select
+                class="push-left-sm"
+                placeholder="version"
+                [(ngModel)]="selectedVersion[browser]"
+                name="version"
+                fxFlex
+                (ngModelChange)="selectBrowser(browser)"
+              >
+                <mat-option *ngFor="let version of browserVersions[browser]" [value]="version"> {{ version }} </mat-option>
+              </mat-select>
+              <br />
+              <br />
+            </div>
+          </mat-radio-group>
+        </ng-template>
+      </div>
     </ng-container>
     <ng-template #noTestCases>
       <div class="mat-title">There are not associated test cases. Cannot run Test Plan</div>
     </ng-template>
   </div>
   <ng-template #notReadyMsg>
-    <div class="mat-title" *ngIf="!builds || builds.length > 0; else noBuilds">There are not builds. Cannot run Test
-      Plan</div>
+    <div class="mat-title" *ngIf="!builds || builds.length > 0; else noBuilds">There are not builds. Cannot run Test Plan</div>
   </ng-template>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <button mat-raised-button color="accent" [mat-dialog-close]="true" #runPlanModalBtn id="runPlanModalBtn" (click)="runTestPlan()"
-    [disabled]="selectedBuild === undefined">Run Test Plan</button>
+  <button
+    mat-raised-button
+    color="accent"
+    [mat-dialog-close]="true"
+    #runPlanModalBtn
+    id="runPlanModalBtn"
+    (click)="runTestPlan()"
+    [disabled]="selectedBuild === undefined || loadingBrowsers"
+  >
+    Run Test Plan
+  </button>
   <button mat-button mat-dialog-close>Cancel</button>
 </mat-dialog-actions>

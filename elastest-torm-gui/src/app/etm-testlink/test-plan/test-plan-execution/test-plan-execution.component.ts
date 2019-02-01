@@ -1,5 +1,5 @@
 import { ExecutionFormComponent } from '../../execution/execution-form/execution-form.component';
-import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener, OnDestroy } from '@angular/core';
 import { ExternalTJobModel } from '../../../elastest-etm/external/external-tjob/external-tjob-model';
 import {
   ExternalTJobExecModel,
@@ -31,7 +31,7 @@ import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbi
   templateUrl: './test-plan-execution.component.html',
   styleUrls: ['./test-plan-execution.component.scss'],
 })
-export class TestPlanExecutionComponent implements OnInit {
+export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   @ViewChild('logsAndMetrics')
   logsAndMetrics: EtmMonitoringViewComponent;
   @ViewChild('tlExecutionForm')
@@ -78,6 +78,9 @@ export class TestPlanExecutionComponent implements OnInit {
   autoconnect: boolean = true;
   viewOnly: boolean = false;
 
+  browserName: string = 'chrome';
+  browserVersion: string = 'latest';
+
   // Files
   showFiles: boolean = false;
 
@@ -102,6 +105,14 @@ export class TestPlanExecutionComponent implements OnInit {
     private titlesService: TitlesService,
     private elastestRabbitmqService: ElastestRabbitmqService,
   ) {
+    let queryParams: any = router.parseUrl(router.url).queryParams;
+    if (queryParams && queryParams.browserName) {
+      this.browserName = queryParams.browserName;
+      if (queryParams.browserVersion) {
+        this.browserVersion = queryParams.browserVersion;
+      }
+    }
+
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe((params: Params) => {
         this.params = params;
@@ -110,7 +121,7 @@ export class TestPlanExecutionComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setPathName(this.router.routerState.snapshot.url);
   }
 
@@ -150,7 +161,7 @@ export class TestPlanExecutionComponent implements OnInit {
         this.selectedBuild = build;
         this.loadExternalTJob();
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -164,7 +175,7 @@ export class TestPlanExecutionComponent implements OnInit {
         this.exTJob = exTJob;
         this.createTJobExecution();
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -218,7 +229,7 @@ export class TestPlanExecutionComponent implements OnInit {
           this.eusService.getEusWsByHostAndPort(exTJobExec.envVars['ET_EUS_HOST'], exTJobExec.envVars['ET_EUS_PORT']),
         );
 
-        this.loadBrowser();
+        this.initLoadBrowser();
       } else {
         let responseObj: PullingObjectModel = this.esmService.waitForTssInstanceUp(
           this.eusInstanceId,
@@ -233,35 +244,35 @@ export class TestPlanExecutionComponent implements OnInit {
             this.eusUrl = eus.apiUrl;
             this.eusService.setEusUrl(this.eusUrl);
             this.startWebSocket(this.eusService.getEusWsByHostAndPort(eus.ip, eus.port));
-            this.loadBrowser();
+            this.initLoadBrowser();
           },
-          (error) => console.log(error),
+          (error: Error) => console.log(error),
         );
       }
     }
   }
 
-  loadBrowser(withWait: boolean = true) {
+  initLoadBrowser(withWait: boolean = true): void {
     if (this.exTJob.withSut()) {
       this.browserCardMsg = 'The session will start once the SuT is ready';
       this.executionCardMsg = 'Waiting for SuT...';
       if (!this.exTJobExec.executing()) {
         sleep(2000).then(() => {
-          this.loadBrowser(withWait);
+          this.initLoadBrowser(withWait);
         });
       } else {
-        this.loadChromeBrowser();
+        this.loadBrowser();
       }
     } else {
-      this.loadChromeBrowser();
+      this.loadBrowser();
     }
   }
 
-  loadChromeBrowser(): void {
+  loadBrowser(): void {
     this.browserCardMsg = 'Waiting for Browser...';
     this.executionCardMsg = 'Just a little more...';
     let extraCapabilities: any = { manualRecording: true };
-    this.eusService.startSession('chrome', 'latest', extraCapabilities, false).subscribe(
+    this.eusService.startSession(this.browserName, this.browserVersion, extraCapabilities, false).subscribe(
       (eusTestModel: EusTestModel) => {
         this.eusTestModel = eusTestModel;
         this.sessionId = eusTestModel.id;
@@ -279,10 +290,10 @@ export class TestPlanExecutionComponent implements OnInit {
             this.browserAndEusLoading = false;
             this.startExecution();
           },
-          (error) => console.error(error),
+          (error: Error) => console.error(error),
         );
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -314,7 +325,7 @@ export class TestPlanExecutionComponent implements OnInit {
           this.sessionId = undefined;
           this.deprovisionEUS();
         },
-        (error) => {
+        (error: Error) => {
           console.error(error);
           this.deprovisionEUS();
         },
@@ -333,7 +344,7 @@ export class TestPlanExecutionComponent implements OnInit {
           this.browserAndEusDeprovided = true;
           this.showFiles = true;
         },
-        (error) => console.log(error),
+        (error: Error) => console.log(error),
       );
     }
     this.unsubscribeEus();
@@ -456,7 +467,7 @@ export class TestPlanExecutionComponent implements OnInit {
           this.saveTLCaseExecution();
         }
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -480,11 +491,11 @@ export class TestPlanExecutionComponent implements OnInit {
                 (error: Error) => console.log(error),
               );
             },
-            (error) => console.log(error),
+            (error: Error) => console.log(error),
           );
         }
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -504,7 +515,7 @@ export class TestPlanExecutionComponent implements OnInit {
 
         this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
       },
-      (error) => {
+      (error: Error) => {
         this.exTJobExec.result = 'SUCCESS';
         this.externalService.popupService.openSnackBar('There is no more Test Cases to Execute');
         this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();

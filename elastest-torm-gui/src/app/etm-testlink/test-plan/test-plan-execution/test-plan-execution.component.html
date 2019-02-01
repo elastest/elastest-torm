@@ -87,7 +87,8 @@
         <mat-card-title>
           <div fxLayout="column" fxLayoutAlign="none">
             <div fxLayout="row">
-              <span>Browser</span> <span fxFlex></span>
+              <span>Browser</span> <span class="mat-subheading-2">&nbsp;({{ browserName }} {{ browserVersion }})</span>
+              <span fxFlex></span>
               <a
                 *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined"
                 mat-button
@@ -110,7 +111,9 @@
               fxLayout="row"
               class="push-top-sm"
             >
-              <span id="resultMsgText" class="mat-subheading-1" style="vertical-align: middle;">{{ eusTestModel.statusMsg }}</span>
+              <span id="resultMsgText" class="mat-subheading-1" style="vertical-align: middle;">{{
+                eusTestModel.statusMsg
+              }}</span>
             </div>
           </div>
         </mat-card-title>
