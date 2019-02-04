@@ -84,8 +84,8 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadTJobExecs(firstLoad: boolean = false): void {
-    if (this.reloadRunning || firstLoad) {
+  loadTJobExecs(firstLoadOrForce: boolean = false): void {
+    if (this.reloadRunning || firstLoadOrForce) {
       this.loadingRunning = true;
       this.tJobExecService.getAllRunningTJobExecutionsWithoutChilds().subscribe(
         (runningTJobExecs: TJobExecModel[]) => {
@@ -101,7 +101,7 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
       );
     }
 
-    if (this.reloadFinished || firstLoad) {
+    if (this.reloadFinished || firstLoadOrForce) {
       this.loadingFinished = true;
       this.loadFinishedTJobExecs().subscribe(
         (finishedTJobExecs: TJobExecModel[]) => {
@@ -171,6 +171,6 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
 
   showAllFinished(): void {
     this.loadAllFinished = true;
-    this.loadTJobExecs();
+    this.loadTJobExecs(true);
   }
 }

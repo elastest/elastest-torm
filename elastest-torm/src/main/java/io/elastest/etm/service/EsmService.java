@@ -815,7 +815,6 @@ public class EsmService {
 
         SupportServiceInstance tssInstance = (SupportServiceInstance) etPluginsService
                 .getEtPlugin(instanceId);
-        logger.error("11111111 {}", tssInstance);
         // If is not started
         if (tssInstance == null) {
             try {
@@ -831,7 +830,6 @@ public class EsmService {
                     .equals(tssInstance.getStatus())
                     && !DockerServiceStatusEnum.READY
                             .equals(tssInstance.getStatus())) {
-                logger.error("222222222 {}", tssInstance);
                 dockerEtmService.updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.STARTING_TSS,
                         tssInstance.getStatusMsg());
