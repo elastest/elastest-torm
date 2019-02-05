@@ -132,6 +132,24 @@ export class TjobExecsComparatorComponent implements OnInit {
     tJobExec.tJob.multiConfigurations.push(this.multiConfig);
     tJobExec.type = 'CHILD';
     tJobExec.parameters.push({ name: 'exec', value: tJobExec.id, multiConfig: true });
+
+    // Parent start/end date
+    if (!this.tJobExecParentAux.startDate) {
+      this.tJobExecParentAux.startDate = tJobExec.startDate;
+    } else {
+      this.tJobExecParentAux.startDate =
+        tJobExec.startDate.getTime() < this.tJobExecParentAux.startDate.getTime()
+          ? tJobExec.startDate
+          : this.tJobExecParentAux.startDate;
+    }
+
+    if (!this.tJobExecParentAux.endDate) {
+      this.tJobExecParentAux.endDate = tJobExec.endDate;
+    } else {
+      this.tJobExecParentAux.endDate =
+        tJobExec.endDate.getTime() > this.tJobExecParentAux.endDate.getTime() ? tJobExec.endDate : this.tJobExecParentAux.endDate;
+    }
+
     return tJobExec;
   }
 

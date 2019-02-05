@@ -51,7 +51,9 @@ export class TjobExecViewComponent implements OnInit {
       this.checkResultSubscription = timer.subscribe(() => {
         this.tJobExecService.getResultStatus(this.tJobId, this.tJobExec).subscribe(
           (data) => {
-            this.tJobExec.result = data.result;
+            if (data.result !== this.tJobExec.result) {
+              this.tJobExec.result = data.result;
+            }
             this.tJobExec.resultMsg = data.msg;
             if (this.tJobExec.finished()) {
               this.unsubscribeCheckResult();

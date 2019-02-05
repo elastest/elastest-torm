@@ -1,7 +1,7 @@
 import { Router } from '@angular/router';
 import { ETModelsTransformServices } from '../../../shared/services/et-models-transform.service';
 import { TJobExecModel } from '../tjobExec-model';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { Subscription, Observable, interval } from 'rxjs';
 import { TJobExecService } from '../tjobExec.service';
 
@@ -10,7 +10,7 @@ import { TJobExecService } from '../tjobExec.service';
   templateUrl: './child-tjob-execs-view.component.html',
   styleUrls: ['./child-tjob-execs-view.component.scss'],
 })
-export class ChildTjobExecsViewComponent implements OnInit {
+export class ChildTjobExecsViewComponent implements OnInit, OnDestroy {
   @Input()
   model: TJobExecModel;
 
@@ -38,7 +38,7 @@ export class ChildTjobExecsViewComponent implements OnInit {
     private tJobExecService: TJobExecService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     // override the route reuse strategy
     this.router.routeReuseStrategy.shouldReuseRoute = function() {
       return false;
@@ -52,7 +52,7 @@ export class ChildTjobExecsViewComponent implements OnInit {
     }
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.unsubscribeReloadChilds();
   }
 

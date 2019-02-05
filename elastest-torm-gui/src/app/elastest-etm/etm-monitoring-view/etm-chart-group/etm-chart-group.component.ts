@@ -94,7 +94,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   getIgnoreComponent(): string {
-    return this.tJob.hasSut() ? '' : 'sut'; // if is without sut, ignore sut metrics
+    return this.tJob && this.tJob.hasSut() ? '' : 'sut'; // if is without sut, ignore sut metrics
   }
 
   initModels(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {

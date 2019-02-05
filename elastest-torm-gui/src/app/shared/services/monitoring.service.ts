@@ -411,7 +411,6 @@ export class MonitoringService {
     } else {
       tracesList = this.getInitMetricsDataComplex(metricsField);
     }
-
     let marks: MonitorMarkModel[];
     for (let metricTrace of data) {
       let source: any = metricTrace._source;
@@ -923,7 +922,7 @@ export class MonitoringService {
 
     let nonEmpty: boolean = false;
     for (let metricsTrace of metricsTraces) {
-      nonEmpty = nonEmpty || metricsTrace.series.length > 0;
+      nonEmpty = nonEmpty || (metricsTrace && metricsTrace.series && metricsTrace.series.length > 0);
     }
     if (nonEmpty) {
       // If chart is not empty, add it

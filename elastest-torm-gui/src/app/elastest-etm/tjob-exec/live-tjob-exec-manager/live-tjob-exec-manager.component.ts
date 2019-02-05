@@ -186,7 +186,9 @@ export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
       this.checkResultSubscription = timer.subscribe(() => {
         this.tJobExecService.getResultStatusByTJob(this.tJob, this.tJobExec).subscribe(
           (data) => {
-            this.tJobExec.result = data.result;
+            if (data.result !== this.tJobExec.result) {
+              this.tJobExec.result = data.result;
+            }
             this.tJobExec.resultMsg = data.msg;
             if (this.tJobExec.finished()) {
               this.unsubscribeCheckResult();

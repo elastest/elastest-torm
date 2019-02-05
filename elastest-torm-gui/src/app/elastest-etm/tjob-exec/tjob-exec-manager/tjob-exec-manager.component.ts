@@ -64,7 +64,7 @@ export class TjobExecManagerComponent implements OnInit {
     public dialog: MatDialog,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe((params: Params) => {
         this.tJobId = params.tJobId;

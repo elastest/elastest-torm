@@ -1,7 +1,13 @@
 <ng-container *ngIf="model">
-  <button mat-button color="{{model.color}}" (click)="model.clickMethod()" matTooltip="{{model.clickMethodTooltip}}"
-    [disabled]="model.disabled" class="mat-{{model.buttonType}}">
-    <span *ngIf="!model.showOnlyIcon">{{model.name}}</span>
-    <mat-icon *ngIf="!model.hideIcon || model.showOnlyIcon">{{model.icon}}</mat-icon>
+  <button
+    mat-button
+    color="{{ model.color }}"
+    (click)="model.clickMethod()"
+    matTooltip="{{ model.clickMethodTooltip }}"
+    [disabled]="model.disabled"
+    class="mat-{{ model.buttonType }} mat-{{ model.color }}"
+  >
+    <span *ngIf="!model.showOnlyIcon">{{ model.name }}</span>
+    <mat-icon *ngIf="!model.hideIcon || model.showOnlyIcon">{{ model.icon }}</mat-icon>
   </button>
 </ng-container>
