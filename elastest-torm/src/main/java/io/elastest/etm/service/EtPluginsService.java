@@ -508,6 +508,22 @@ public class EtPluginsService {
                             bindedPort = "37092";
                             break;
                         default:
+                            // TSS
+                            if (isTssInstance(serviceName)) {
+                                SupportServiceInstance tss = (SupportServiceInstance) getEtPlugin(
+                                        serviceName);
+
+                                if (tss.getInternalServicePort() != 0) {
+                                    internalPort = ""
+                                            + tss.getInternalServicePort();
+                                    bindedPort = ""
+                                            + tss.getBindedServicePort();
+                                    break;
+                                }
+
+                            }
+
+                            // Other
                             for (Entry<String, List<PortInfo>> portList : container
                                     .getPorts().entrySet()) {
                                 if (portList.getValue() != null) {
@@ -518,6 +534,7 @@ public class EtPluginsService {
                                     break;
                                 }
                             }
+
                             break;
                         }
 
@@ -824,6 +841,10 @@ public class EtPluginsService {
         } else {
             return tssInstancesMap.get(name);
         }
+    }
+
+    public boolean isTssInstance(String name) {
+        return tssInstancesMap.containsKey(name);
     }
 
     public Map<String, EtPlugin> getMapThatContainsEtPlugin(String serviceName)

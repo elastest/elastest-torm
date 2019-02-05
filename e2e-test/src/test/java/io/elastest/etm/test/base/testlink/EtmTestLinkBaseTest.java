@@ -173,7 +173,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         this.getElementByIdXpath(driver, selectBuildId, selectBuildXpath)
                 .click();
 
-        this.getElementsByTagName(driver, "md-option").get(0).click();
+        this.getElementsByTagName(driver, "mat-option").get(0).click();
 
         String runPlanModalBtnId = "runPlanModalBtn";
         String runPlanModalXpath = "//*[@id='" + runPlanModalBtnId + "']";

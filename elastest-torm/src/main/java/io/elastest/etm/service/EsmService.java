@@ -857,7 +857,6 @@ public class EsmService {
                 // If starting
             } else if (DockerServiceStatusEnum.STARTING
                     .equals(tssInstance.getStatus())) {
-                logger.error("33333333333 {}", tssInstance);
                 dockerEtmService.updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.WAITING_TSS,
                         tssInstance.getStatusMsg());
@@ -875,7 +874,6 @@ public class EsmService {
                 // If ready
             } else if (DockerServiceStatusEnum.READY
                     .equals(tssInstance.getStatus())) {
-                logger.error("44444444444 {}", tssInstance);
                 // Update instance in map to have the entrypoint values
                 tssInstance = supportServiceClient
                         .initSupportServiceInstanceData(tssInstance);
