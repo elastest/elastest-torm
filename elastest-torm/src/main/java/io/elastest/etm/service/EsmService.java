@@ -1213,7 +1213,7 @@ public class EsmService {
         logger.debug("Endpoints name: {}", serviceInstance.getEndpointName());
         JsonNode manifestEndpointService = manifestEndpoints
                 .get(serviceInstance.getEndpointName());
-        logger.debug("Endpoints defined insite the manifest: {}",
+        logger.debug("Endpoints defined inside the manifest: {}",
                 manifestEndpointService.toString());
         JsonNode manifestEndpointServiceApi = manifestEndpointService
                 .get("api");

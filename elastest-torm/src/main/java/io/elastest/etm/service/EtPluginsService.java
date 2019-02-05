@@ -44,6 +44,7 @@ import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.utils.PasswordFactory;
+import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
 @Service
@@ -616,7 +617,17 @@ public class EtPluginsService {
                     plugin.getBindedUrl());
         }
 
-        boolean isUp = checkIfUrlIsUp(url);
+        boolean isUp = false;
+
+        if (isTssInstance(plugin.getName())) {
+            try {
+                isUp = UtilTools.checkIfUrlIsUp(url);
+            } catch (IOException e) {
+            }
+        } else {
+            isUp = checkIfUrlIsUp(url);
+        }
+
         if (isUp) {
             this.updateStatus(serviceName, DockerServiceStatusEnum.READY,
                     "Ready");
