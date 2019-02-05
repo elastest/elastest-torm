@@ -53,7 +53,7 @@ export class EtmMonitoringViewComponent implements OnInit {
     public dialog: MatDialog,
   ) {}
 
-  ngOnInit() {}
+  ngOnInit(): void {}
 
   initView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
     this.tJob = tJob;

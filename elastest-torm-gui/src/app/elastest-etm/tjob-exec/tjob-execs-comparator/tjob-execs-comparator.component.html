@@ -5,6 +5,17 @@
         <mat-card-title>
           <div fxLayout="row">
             <span>Comparing Executions</span><span *ngIf="tJob">&nbsp;from TJob "{{ tJob.name }}"</span>
+            <span fxFlex></span>
+            <button
+              id="openMonitoringConfigBtn"
+              mat-button
+              *ngIf="showLogsAndMetrics"
+              (click)="logsAndMetrics.openMonitoringConfig()"
+              class="onlyIconBtn iconBtn-lg"
+              matTooltip="Open Monitoring Config"
+            >
+              <mat-icon>settings</mat-icon>
+            </button>
           </div>
         </mat-card-title>
       </mat-card>
@@ -174,6 +185,10 @@
             </td-data-table>
           </sa-card-content>
         </self-adjustable-card>
+      </auto-height-row>
+
+      <auto-height-row>
+        <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
       </auto-height-row>
     </auto-height-grid>
   </auto-height-row>

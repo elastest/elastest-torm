@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { TJobExecService } from '../tjobExec.service';
@@ -6,6 +6,9 @@ import { TJobExecModel } from '../tjobExec-model';
 import { TJobService } from '../../tjob/tjob.service';
 import { TJobModel } from '../../tjob/tjob-model';
 import { getResultIconByString } from '../../../shared/utils';
+import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
+import { ParameterModel } from '../../parameter/parameter-model';
+import { MultiConfigModel } from '../../../shared/multi-config-view/multi-config-view.component';
 
 @Component({
   selector: 'etm-tjob-execs-comparator',
@@ -13,11 +16,18 @@ import { getResultIconByString } from '../../../shared/utils';
   styleUrls: ['./tjob-execs-comparator.component.scss'],
 })
 export class TjobExecsComparatorComponent implements OnInit {
+  @ViewChild('logsAndMetrics')
+  logsAndMetrics: EtmMonitoringViewComponent;
+  showLogsAndMetrics: boolean = false;
+
   tJob: TJobModel;
   execsIds: number[] | string[] = [];
   execs: TJobExecModel[] = [];
+  tJobExecParentAux: TJobExecModel = new TJobExecModel();
 
   loadingExecs: boolean = false;
+
+  multiConfig: MultiConfigModel = new MultiConfigModel({ name: 'exec', configValues: [] });
 
   // TJob Exec Data
   tJobExecColumns: any[] = [
@@ -87,6 +97,9 @@ export class TjobExecsComparatorComponent implements OnInit {
       let execId: number | string = execsIdsToInit.shift();
       this.tJobExecService.getTJobExecution(this.tJob, execId).subscribe(
         (tJobExec: TJobExecModel) => {
+          // To simulate multiconfig tJob
+          tJobExec = this.initSimulateMulticonfigTJob(tJobExec);
+
           this.execs.push(tJobExec);
           this.loadTJobExecs(execsIdsToInit);
         },
@@ -98,7 +111,28 @@ export class TjobExecsComparatorComponent implements OnInit {
     } else {
       this.loadingExecs = false;
       this.loadTestCasesComparations();
+      this.tJobExecParentAux.type = 'PARENT';
+      this.tJobExecParentAux.result = 'SUCCESS';
+      this.tJobExecParentAux.execChilds = this.execs;
+      this.tJob.multiConfigurations.push(this.multiConfig);
+      if (this.logsAndMetrics) {
+        this.logsAndMetrics.initView(this.tJob, this.tJobExecParentAux);
+        this.showLogsAndMetrics = true;
+      }
     }
+  }
+
+  initSimulateMulticonfigTJob(tJobExec: TJobExecModel): TJobExecModel {
+    // To simulate multiconfig tJob
+    if (!tJobExec.tJob) {
+      tJobExec.tJob = new TJobModel();
+    }
+    this.multiConfig.configValues.push('' + tJobExec.id);
+    tJobExec.tJob.multi = true;
+    tJobExec.tJob.multiConfigurations.push(this.multiConfig);
+    tJobExec.type = 'CHILD';
+    tJobExec.parameters.push({ name: 'exec', value: tJobExec.id, multiConfig: true });
+    return tJobExec;
   }
 
   loadTestCasesComparations(): void {
@@ -173,5 +207,9 @@ export class TjobExecsComparatorComponent implements OnInit {
 
   getResultIconByString(result: string): any {
     return getResultIconByString(result);
+  }
+
+  viewTJobExec(tJobExec: TJobExecModel): void {
+    this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tJobExec.id]);
   }
 }

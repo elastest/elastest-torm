@@ -5,7 +5,17 @@ import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbi
 import { SingleMetricModel } from '../../../shared/metrics-view/models/single-metric-model';
 import { MetricsFieldModel } from '../../../shared/metrics-view/metrics-chart-card/models/metrics-field-model';
 import { Subject } from 'rxjs/Rx';
-import { Component, Input, OnInit, Output, QueryList, ViewChildren, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  Output,
+  QueryList,
+  ViewChildren,
+  EventEmitter,
+  AfterViewInit,
+  AfterViewChecked,
+} from '@angular/core';
 import { Subscription } from 'rxjs/Rx';
 import { AbstractTJobModel } from '../../models/abstract-tjob-model';
 import { AbstractTJobExecModel } from '../../models/abstract-tjob-exec-model';
@@ -19,7 +29,7 @@ import { ButtonModel } from '../../../shared/button-component/button.model';
   templateUrl: './etm-chart-group.component.html',
   styleUrls: ['./etm-chart-group.component.scss'],
 })
-export class EtmChartGroupComponent implements OnInit {
+export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewChecked {
   @ViewChildren(MetricsChartCardComponent)
   metricsChartCardComponents: QueryList<MetricsChartCardComponent>;
 
@@ -57,7 +67,7 @@ export class EtmChartGroupComponent implements OnInit {
 
   constructor(private monitoringService: MonitoringService, private elastestRabbitmqService: ElastestRabbitmqService) {}
 
-  ngOnInit() {}
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     this.metricsChartCardComponents.changes.subscribe((data) => this.subscribeAllToEvents());
@@ -66,7 +76,7 @@ export class EtmChartGroupComponent implements OnInit {
     }
   }
 
-  ngAfterViewChecked() {
+  ngAfterViewChecked(): void {
     if (!this.loaded) {
       this.subscribeAllToEvents();
     }
@@ -197,7 +207,7 @@ export class EtmChartGroupComponent implements OnInit {
                 true,
                 'metric',
               )
-              .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error) => console.log(error));
+              .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error: Error) => console.log(error));
           }
         }
       }
@@ -262,7 +272,7 @@ export class EtmChartGroupComponent implements OnInit {
               }
             }
           },
-          (error) => console.log(error),
+          (error: Error) => console.log(error),
         );
     }
     return pos;
@@ -410,19 +420,19 @@ export class EtmChartGroupComponent implements OnInit {
     this.chartsEventsSubscriptionsObs.push(eventSubscription);
   }
 
-  updateTimeline(domain) {
+  updateTimeline(domain): void {
     this.metricsChartCardComponents.forEach((element) => {
       element.updateDomain(domain);
     });
   }
 
-  hoverCharts(item) {
+  hoverCharts(item): void {
     this.metricsChartCardComponents.forEach((element) => {
       element.hoverCharts(item);
     });
   }
 
-  leaveCharts() {
+  leaveCharts(): void {
     this.metricsChartCardComponents.forEach((element) => {
       element.leaveCharts();
     });

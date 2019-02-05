@@ -13,7 +13,7 @@ export class MultiConfigViewComponent implements OnInit {
 
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit(): void {}
 
   addMultiConfig(multiConfig: MultiConfigModel = new MultiConfigModel()): void {
     this.model.push(multiConfig);
@@ -29,7 +29,7 @@ export class MultiConfigViewComponent implements OnInit {
 
   deleteValue(multiConfigModelPosition: number, valuePosition: number): void {
     this.model[multiConfigModelPosition].configValues.splice(valuePosition, 1);
-    if (this.model[multiConfigModelPosition].configValues.length == 0) {
+    if (this.model[multiConfigModelPosition].configValues.length === 0) {
       this.addValueToMultiConfig(multiConfigModelPosition);
     }
   }

@@ -67,7 +67,7 @@ export class DefaultESFieldModel {
     }
   }
 
-  changeActive($event) {
+  changeActive($event): void {
     this.activated = $event.checked;
   }
 
