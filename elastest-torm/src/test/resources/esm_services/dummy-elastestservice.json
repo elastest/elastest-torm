@@ -1,0 +1,75 @@
+{
+	"register": {
+		"description": "ElasTest service that provides user impersonation as a service",
+		"id": "873f23e8-256d-11e9-ab14-d663bd873d93",
+		"name": "DUMMY",
+		"short_name": "DUMMY",
+		"bindable": false,
+		"plan_updateable": false,
+		"plans": [
+			{
+				"bindable": false,
+				"description": "Basic plan for Dummy",
+				"free": true,
+				"id": "88a33c7a-ed05-4a25-a16d-69dfafe79f9f",
+				"metadata": {
+					"bullets": "basic plan",
+					"costs": {
+						"description": "cost model for eus",
+						"currency": "eur",
+						"model": "pay-as-you-go",
+						"model_param": {
+							"setup_cost": 3.5
+						},
+						"meter_list": [
+							{
+								"meter_name": "chrome_browser",
+								"meter_type": "counter",
+								"unit_cost": 5,
+								"unit": "instance-hour"
+							},
+							{
+								"meter_name": "firefox_browser",
+								"meter_type": "counter",
+								"unit_cost": 2.5,
+								"unit": "instance-hour"
+							},
+							{
+								"meter_name": "edge_browser",
+								"meter_type": "counter",
+								"unit_cost": 2,
+								"unit": "instance-hour"
+							}
+						]
+					}
+				},
+				"name": "EUS plan"
+			}
+		],
+		"requires": [],
+		"tags": [
+			"browser",
+			"selenium",
+			"webdriver",
+			"gui automation"
+		]
+	},
+	"manifest": {
+		"id": "04aa77ff-46c9-4a45-a0c5-0fa28014e306",
+		"manifest_content": "version: '2.1'\nservices:\n   dummy-tss:\n      image: elastest/dummy-tss\n      environment:\n         - USE_TORM=true\n      expose:\n         - 8095\n      networks:\n         - elastest_elastest\n      volumes:\n         - /var/run/docker.sock:/var/run/docker.sock\n         - ${ET_DATA_IN_HOST}:${ET_SHARED_FOLDER}\n      labels:\n         - io.elastest.type=tss\n         - io.elastest.tjob.tss.id=dummy-tss\n         - io.elastest.tjob.tss.type=main\nnetworks:\n  elastest_elastest:\n    external: true",
+		"manifest_type": "docker-compose",
+		"plan_id": "88a33c7a-ed05-4a25-a16d-69dfafe79f9f",
+		"service_id": "873f23e8-256d-11e9-ab14-d663bd873d93",
+		"endpoints": {
+			"dummy-tss": {
+				"description": "W3C WebDriver standard sessions operations",
+				"main": true,
+				"api": {
+					"protocol": "http",
+					"port": 8095,
+					"path": "/dummy/tss/env"
+				}
+			}
+		}
+	}
+}

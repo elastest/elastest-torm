@@ -1,0 +1,57 @@
+{
+    "register": {
+        "name": "ESS",
+        "short_name": "ESS",
+        "id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
+        "description": "The Elastest Security Service",
+        "bindable": false,
+        "plans": [
+            {
+                "id": "cfd3ebd1-5afa-420d-8313-43d681168cf7",
+                "name": "basic",
+                "description": "Plan for ESS",
+                "metadata": {
+                    "costs": {
+                        "name": "On Demand 5 + Charges",
+                        "type": "ONDEMAND",
+                        "fix_cost": {
+                            "deployment": 5
+                        },
+                        "var_rate": {
+                            "disk": 1,
+                            "memory": 10,
+                            "cpus": 50
+                        },
+                        "components": {
+                            
+                        },
+                        "description": "On Demand 5 per deployment, 50 per core, 10 per GB ram and 1 per GB disk"
+                    }
+                }
+            }
+        ]
+    },
+    "manifest": {
+        "id": "862c9c92-c875-40a6-ad7a-afe3f526bc5d",
+        "manifest_content": "version: '2.1'\nservices:\n   ess:\n      image: elastest/ess:latest\n      networks:\n         - elastest_elastest\n      volumes:\n         - /var/run/docker.sock:/var/run/docker.sock\n         - ${ET_DATA_IN_HOST}:${ET_SHARED_FOLDER}\n      labels:\n         - io.elastest.type=tss\n         - io.elastest.tjob.tss.id=ess\n         - io.elastest.tjob.tss.type=main\nnetworks:\n  elastest_elastest:\n    external: true",
+        "manifest_type": "docker-compose",
+        "plan_id": "cfd3ebd1-5afa-420d-8313-43d681168cf7",
+        "service_id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
+        "endpoints": {
+            "ess": {
+                "description": "The ESS API",
+                "main": true,
+                "api": {
+                    "protocol": "http",
+                    "port": 80,
+                    "path": "/ess/api/r4"
+                },
+        "gui": {
+            "protocol": "http",
+                    "path": "/gui/",
+                    "port": 80
+                }
+            }
+        }
+    }
+}

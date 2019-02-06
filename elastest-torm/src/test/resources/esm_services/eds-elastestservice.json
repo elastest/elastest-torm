@@ -1,0 +1,86 @@
+{
+    "register": {
+        "description": "this is a test service for ElasTest Device Emulator Service",
+        "id": "fe5e0531-b470-441f-9c69-721c2b4875f2",
+        "name": "EDS",
+        "short_name": "EDS",
+        "bindable": false,
+        "plan_updateable": false,
+        "plans": [
+            {
+                "bindable": false,
+                "description": "plan for testing",
+                "free": true,
+                "id": "94a1a0c7-21a0-42e3-abcd-f75f337b47c5",
+                "metadata": {
+                    "bullets": "basic plan",
+                    "costs": {
+                        "description": "cost model for eds",
+                        "currency": "eur",
+                        "model": "pay-as-you-go",
+                        "model_param": {
+                            "setup_cost": 10.0
+                        },
+                        "meter_list": [
+                            {
+                                "meter_name": "iot_device",
+                                "meter_type": "gauge",
+                                "unit_cost": 1.25,
+                                "unit": "instance-hour"
+                            },
+                            {
+                                "meter_name": "gw_msg_rx",
+                                "meter_type": "cumulative",
+                                "unit_cost": 0.0125,
+                                "unit": "kb"
+                            }
+                        ]
+                    }
+                },
+                "name": "testing plan"
+            }
+        ],
+        "requires": [],
+        "tags": [
+            "test",
+            "tester"
+        ]
+    },
+    "manifest": {
+        "id": "b1c59b9c-5c7d-48c3-bb40-2c4c2cdd57c7",
+        "manifest_content": "version: '2.1'\nservices:\n  frontend:\n    image: elastest/eds-frontend:latest\n    environment:\n      - ci_env=`bash <(curl -s https://codecov.io/env)`\n    expose:\n      - 4000\n      - 6065\n      - 8000\n    networks:\n      - elastest_elastest\n\n  memsipe:\n    image: elastest/eds-memsipe:latest\n    environment:\n      - ci_env=`bash <(curl -s https://codecov.io/env)`\n    expose:\n      - 5050\n      - 8000\n    links:\n      - frontend\n    networks:\n      - elastest_elastest\n\n  rest_app:\n    image: elastest/eds-api:latest\n    environment:\n      - ci_env=`bash <(curl -s https://codecov.io/env)`\n    expose:\n      - 8080\n      - 9090\n    links:\n      - frontend\n    networks:\n      - elastest_elastest\n\n  eds-base:\n    image: elastest/eds-base:latest\n    expose:\n      - 8000\n    networks:\n      - elastest_elastest\n\nnetworks:\n  elastest_elastest:\n    external: true\n",
+        "manifest_type": "docker-compose",
+        "plan_id": "94a1a0c7-21a0-42e3-abcd-f75f337b47c5",
+        "service_id": "fe5e0531-b470-441f-9c69-721c2b4875f2",
+        "endpoints": {
+            "frontend": {
+                "description": "Service to show emulated sensor data in the form of plots as well as to actuate sensors",
+                "main": true,
+                "api": {
+                    "name": "memsipe",
+                    "protocol": "http",
+                    "port": 8000,
+                    "path": "/onem2m/MemsIPE/sensor_data/"
+                }
+            },
+            "rest_app": {
+                "description": "Service to emulate mems data",
+                "main": false,
+                "api": {
+                    "protocol": "http",
+                    "port": 9090,
+                    "path": "/health"
+                }
+            },
+            "eds-base": {
+                "description": "Demonstrator application",
+                "main": false,
+                "api": {
+                    "protocol": "http",
+                    "port": 8000,
+                    "path": "/onem2m/"
+                }
+            }
+        }
+    }
+}
