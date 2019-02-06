@@ -131,7 +131,7 @@ export class EsmService {
       subscription = timer.subscribe(() => {
         this.getSupportServiceInstanceByType(esmServicesInstanceId, type).subscribe(
           (esmServicesInstance: EsmServiceInstanceModel) => {
-            if (esmServicesInstance.serviceReady) {
+            if (esmServicesInstance.isReady()) {
               if (subscription !== undefined) {
                 subscription.unsubscribe();
                 subscription = undefined;

@@ -115,7 +115,7 @@ export class InstancesManagerComponent implements OnInit, OnDestroy {
 
   allServicesReady(esmServicesInstances: EsmServiceInstanceModel[]): boolean {
     for (let tSSInstance of esmServicesInstances) {
-      if (tSSInstance.serviceReady) {
+      if (tSSInstance.isReady()) {
         this.tSSIOnTheFly.splice(this.tSSIOnTheFly.indexOf(tSSInstance.id), 1);
         console.log('tSSIOnTheFly size after splice:' + this.tSSIOnTheFly.length);
       } else {

@@ -13,7 +13,7 @@ export class EsmServiceInstanceModel extends DockerServiceStatus {
   urls: any;
   subServices: EsmServiceInstanceModel[] = [];
   endpointsOtherData: any;
-  serviceReady: boolean = false;
+  fullyInitialized: boolean = false;
   tssEnvVariables: any;
   tssEnvVariablesKeys: any[] = [];
 
@@ -27,7 +27,7 @@ export class EsmServiceInstanceModel extends DockerServiceStatus {
       this.apiUrl = serviceInstance.urls.api !== undefined ? serviceInstance.urls.api : '';
       this.ip = serviceInstance.serviceIp !== undefined ? serviceInstance.serviceIp : '';
       this.port = serviceInstance.servicePort;
-      this.serviceReady = serviceInstance.serviceReady;
+      this.fullyInitialized = serviceInstance.fullyInitialized;
       this.tssEnvVariables = serviceInstance.parameters;
       this.tssEnvVariablesKeys = Object.keys(serviceInstance.parameters);
       this.endpointsOtherData = serviceInstance.endpointsData;

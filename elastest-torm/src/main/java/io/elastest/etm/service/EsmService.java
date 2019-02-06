@@ -1618,7 +1618,6 @@ public class EsmService {
 
     public boolean checkInstanceUrlIsUp(SupportServiceInstance tSSInstance) {
         boolean up = false;
-        int responseCode = 0;
         if (tSSInstance != null) {
             if (tSSInstance.getUrls() != null
                     && !tSSInstance.getUrls().isEmpty()) {
@@ -1645,8 +1644,6 @@ public class EsmService {
                                 + " Service URL: " + urlValue);
 
                         up = up && UtilTools.checkIfUrlIsUp(urlValue);
-                        logger.debug(tSSInstance.getServiceName()
-                                + " Service response: " + responseCode);
 
                         if (!up) {
                             logger.debug(tSSInstance.getServiceName()
