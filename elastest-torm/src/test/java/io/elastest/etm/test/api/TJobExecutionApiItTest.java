@@ -8,6 +8,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,8 @@ import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
@@ -35,8 +39,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.elastest.etm.ElasTestTormApp;
+import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
@@ -44,15 +50,20 @@ import io.elastest.etm.model.TJobExecution.ResultEnum;
 @RunWith(JUnitPlatform.class)
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@Tag("it")
 public class TJobExecutionApiItTest extends EtmApiItTest {
     final Logger log = getLogger(lookup().lookupClass());
 
     long projectId;
+    Project project;
+    
+    List<String> tss = new ArrayList<>();
 
     @BeforeEach
     void setup() {
         log.info("App started on port {}", serverPort);
-        projectId = createProject("Test_Project").getId();
+        project = createProject("Test_Project");
+        projectId = project.getId();
     }
 
     @AfterEach
@@ -74,6 +85,51 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
             MultipleFailuresError, JsonProcessingException {
         log.info("Start the test testExecuteTJobWithoutSut");
         testExecuteTJob(false, false, false);
+    }
+    
+    @DisplayName("Run a TJob with parameters, TSS, SUT deployed from image and check the logs ")
+    @Test
+    public void testTJobExecutionWithConfig()
+            throws InterruptedException, ExecutionException, TimeoutException,
+            MultipleFailuresError, JsonProcessingException {
+        log.info("Start test testCheckTJobExecWithDummyTJob");
+        tss.add("{\"id\":\"873f23e8-256d-11e9-ab14-d663bd873d93\",\"name\":\"DUMMY\",\"selected\":true},{\"id\":\"bab3ae67-8c1d-46ec-a940-94183a443825\",\"name\":\"EMS\",\"selected\":false},{\"id\":\"a1920b13-7d11-4ebc-a732-f86a108ea49c\",\"name\":\"EBS\",\"selected\":false},{\"id\":\"fe5e0531-b470-441f-9c69-721c2b4875f2\",\"name\":\"EDS\",\"selected\":false},{\"id\":\"af7947d9-258b-4dd1-b1ca-17450db25ef7\",\"name\":\"ESS\",\"selected\":false},{\"id\":\"29216b91-497c-43b7-a5c4-6613f13fa0e9\",\"name\":\"EUS\",\"selected\":false,\"manifest\":{\"id\":\"2bd62bc2-f768-42d0-8194-562924b494ff\",\"endpoints\":{\"elastest-eus\":{\"description\":\"W3C WebDriver standard sessions operations\",\"main\":true,\"api\":[{\"protocol\":\"http\",\"port\":8040,\"path\":\"/eus/v1/\",\"definition\":{\"type\":\"openapi\",\"path\":\"/eus/v1/api.yaml\"}},{\"name\":\"eusWS\",\"protocol\":\"ws\",\"port\":8040,\"path\":\"/eus/v1/eus-ws\"}],\"gui\":{\"protocol\":\"angular\",\"path\":\"app-elastest-eus\"}}},\"config\":{\"webRtcStats\":{\"name\":\"webRtcStats\",\"type\":\"boolean\",\"label\":\"Gather WebRTC Statistics\",\"default\":false,\"value\":false}}}}");
+        TJob tJob = prepareTJob(true, false, false, "elastest/dummy-tjob", tss,
+                "elastest/dummy-tss", "8095", "sutFromImage");
+        tJob.setCommands(null);
+        tJob.setResultsPath("");
+        tJob = createTJob(tJob);
+        testExecuteTJob(tJob, false, false, true);
+    }
+    
+    @DisplayName("Run a TJob with parameters and commands, TSS, SUT deployed from image and check the logs ")
+    @Test
+    public void testTJobExecutionWithConfig1()
+            throws InterruptedException, ExecutionException, TimeoutException,
+            MultipleFailuresError, JsonProcessingException {
+        log.info("Start test testCheckTJobExecWithDummyTJob");
+        tss.add("{\"id\":\"873f23e8-256d-11e9-ab14-d663bd873d93\",\"name\":\"DUMMY\",\"selected\":true},{\"id\":\"bab3ae67-8c1d-46ec-a940-94183a443825\",\"name\":\"EMS\",\"selected\":false},{\"id\":\"a1920b13-7d11-4ebc-a732-f86a108ea49c\",\"name\":\"EBS\",\"selected\":false},{\"id\":\"fe5e0531-b470-441f-9c69-721c2b4875f2\",\"name\":\"EDS\",\"selected\":false},{\"id\":\"af7947d9-258b-4dd1-b1ca-17450db25ef7\",\"name\":\"ESS\",\"selected\":false},{\"id\":\"29216b91-497c-43b7-a5c4-6613f13fa0e9\",\"name\":\"EUS\",\"selected\":false,\"manifest\":{\"id\":\"2bd62bc2-f768-42d0-8194-562924b494ff\",\"endpoints\":{\"elastest-eus\":{\"description\":\"W3C WebDriver standard sessions operations\",\"main\":true,\"api\":[{\"protocol\":\"http\",\"port\":8040,\"path\":\"/eus/v1/\",\"definition\":{\"type\":\"openapi\",\"path\":\"/eus/v1/api.yaml\"}},{\"name\":\"eusWS\",\"protocol\":\"ws\",\"port\":8040,\"path\":\"/eus/v1/eus-ws\"}],\"gui\":{\"protocol\":\"angular\",\"path\":\"app-elastest-eus\"}}},\"config\":{\"webRtcStats\":{\"name\":\"webRtcStats\",\"type\":\"boolean\",\"label\":\"Gather WebRTC Statistics\",\"default\":false,\"value\":false}}}}");
+        TJob tJob = prepareTJob(true, false, false, "elastest/dummy-tjob", tss,
+                "elastest/dummy-tss", "8095", "sutFromImage");
+        tJob.setCommands("python main.py");
+        tJob.setResultsPath("");
+        tJob = createTJob(tJob);
+        testExecuteTJob(tJob, false, true, true);
+    }
+    
+    @DisplayName("Run a TJob with parameters and commands, TSS, SUT deployed from docker-compose and check the logs ")
+    @Test
+    public void testTJobExecutionWithConfig2()
+            throws InterruptedException, ExecutionException, TimeoutException,
+            MultipleFailuresError, JsonProcessingException {
+        log.info("Start test testCheckTJobExecWithDummyTJob");
+        tss.add("{\"id\":\"873f23e8-256d-11e9-ab14-d663bd873d93\",\"name\":\"DUMMY\",\"selected\":true},{\"id\":\"bab3ae67-8c1d-46ec-a940-94183a443825\",\"name\":\"EMS\",\"selected\":false},{\"id\":\"a1920b13-7d11-4ebc-a732-f86a108ea49c\",\"name\":\"EBS\",\"selected\":false},{\"id\":\"fe5e0531-b470-441f-9c69-721c2b4875f2\",\"name\":\"EDS\",\"selected\":false},{\"id\":\"af7947d9-258b-4dd1-b1ca-17450db25ef7\",\"name\":\"ESS\",\"selected\":false},{\"id\":\"29216b91-497c-43b7-a5c4-6613f13fa0e9\",\"name\":\"EUS\",\"selected\":false,\"manifest\":{\"id\":\"2bd62bc2-f768-42d0-8194-562924b494ff\",\"endpoints\":{\"elastest-eus\":{\"description\":\"W3C WebDriver standard sessions operations\",\"main\":true,\"api\":[{\"protocol\":\"http\",\"port\":8040,\"path\":\"/eus/v1/\",\"definition\":{\"type\":\"openapi\",\"path\":\"/eus/v1/api.yaml\"}},{\"name\":\"eusWS\",\"protocol\":\"ws\",\"port\":8040,\"path\":\"/eus/v1/eus-ws\"}],\"gui\":{\"protocol\":\"angular\",\"path\":\"app-elastest-eus\"}}},\"config\":{\"webRtcStats\":{\"name\":\"webRtcStats\",\"type\":\"boolean\",\"label\":\"Gather WebRTC Statistics\",\"default\":false,\"value\":false}}}}");
+        TJob tJob = prepareTJob(true, false, false, "elastest/dummy-tjob", tss,
+                null, "8095", "sutFromCompose");
+        tJob.setCommands("python main.py");
+        tJob.setResultsPath("");
+        tJob = createTJob(tJob);
+        testExecuteTJob(tJob, false, true, true);
     }
 
     @Test
@@ -110,10 +166,17 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
         this.deleteSuTExec(sutExec.getId());
     }
+    
+    private void testExecuteTJob(TJob tJob, boolean withStop,
+            boolean checkMonitoring)
+            throws MultipleFailuresError, JsonProcessingException,
+            InterruptedException, ExecutionException, TimeoutException {
+        testExecuteTJob(tJob, withStop, checkMonitoring, false);
+    }
 
     @SuppressWarnings("rawtypes")
     private void testExecuteTJob(TJob tJob, boolean withStop,
-            boolean checkMonitoring)
+            boolean checkMonitoring, boolean withSuccess)
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
         boolean passingTest = true;
@@ -123,8 +186,8 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-
-        String body = "{\"tJobParams\" : [{\"Param1\":\"NewValue1\"}], \"sutParams\" : [{\"Param1\":\"NewValue1\"}]}";
+        
+        String body = "{\"tJobParams\" : [{\"name\": \"Param1\", \"value\": \"Value1\", \"multiConfig\": false}]}";
         HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
         Map<String, Object> urlParams = new HashMap<>();
@@ -178,6 +241,12 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
                 break;
             }
             sleep(500);
+        }
+        
+        if (withSuccess && (exec.getResult().equals(ResultEnum.FAIL)
+                || exec.getResult().equals(ResultEnum.ERROR)
+                || exec.getResult().equals(ResultEnum.STOPPED))) {
+            passingTest = false;
         }
 
         if (withStop) {
@@ -241,6 +310,13 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
     private void testExecuteTJob(boolean withSut, boolean withStop,
             boolean checkMonitoring)
+            throws MultipleFailuresError, JsonProcessingException,
+            InterruptedException, ExecutionException, TimeoutException {
+        testExecuteTJob(withSut, withStop, checkMonitoring, null, null);
+    }
+    
+    private void testExecuteTJob(boolean withSut, boolean withStop,
+            boolean checkMonitoring, String image, List<String> tss)
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
         TJob tJob;
@@ -250,7 +326,48 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
         } else {
             tJob = createTJob(projectId);
         }
+        
+        if (image != null) {
+            tJob.setImageName(image);
+        }
+        if (tss != null && !tss.isEmpty()) {
+            log.info("TSS as string: {}", Arrays.toString(tss.toArray()));
+            tJob.setSelectedServices(Arrays.toString(tss.toArray()));
+        }
         this.testExecuteTJob(tJob, withStop, checkMonitoring);
+    }
+
+    private TJob prepareTJob(boolean withSut, boolean withStop,
+            boolean checkMonitoring, String image, List<String> tss,
+            String sutImage, String port, String sutSpecification) throws JsonProcessingException {
+        TJob tJob = getSampleTJob(projectId);
+        if (withSut) {
+            SutSpecification sut = sutExamples.get(sutSpecification);
+            sut.setProject(project);
+            if (sutImage != null && !sutImage.isEmpty()) {
+                sut.setManagedDockerType(ManagedDockerType.IMAGE);
+                sut.setSpecification(sutImage);
+                sut.setCommands(null);
+                sut.setCommandsOption(null);
+            }
+            
+            sut.setPort(
+                    (port != null && !port.isEmpty() ? port : sut.getPort()));
+            ResponseEntity<SutSpecification> response = createSutByGiven(sut);
+            log.info("Sut creation response: " + response);
+            sut = response.getBody();
+            if (sut.getId() > -1) {
+                tJob.setSut(sut);
+            }
+        }
+        if (image != null) {
+            tJob.setImageName(image);
+        }
+        if (tss != null && !tss.isEmpty()) {
+            log.info("TSS as string: {}", Arrays.toString(tss.toArray()));
+            tJob.setSelectedServices(Arrays.toString(tss.toArray()));
+        }
+        return tJob;
     }
 
     private void sleep(int waitTime) {
