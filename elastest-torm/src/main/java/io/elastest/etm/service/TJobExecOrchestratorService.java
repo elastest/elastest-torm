@@ -1291,7 +1291,7 @@ public class TJobExecOrchestratorService {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public HashMap.Entry<String, HashMap> setLoggingToDockerComposeYmlService(
             HashMap.Entry<String, HashMap> service, String composeProjectName,
-            DockerExecution dockerExec) throws TJobStoppedException {
+            DockerExecution dockerExec) throws Exception {
         HashMap<String, HashMap> serviceContent = service.getValue();
         String loggingKey = "logging";
         // If service has logging, remove it
@@ -1321,18 +1321,26 @@ public class TJobExecOrchestratorService {
                                 + e);
             }
         }
-        loggingOptionsContent.put("syslog-address",
-                "tcp://" + host + ":" + port);
-        loggingOptionsContent.put("syslog-format", "rfc5424micro");
 
-        loggingOptionsContent.put("tag",
-                composeProjectName + "_" + service.getKey() + "_exec");
+        if (host != null && !"".equals(host) && port != null
+                && !"".equals(port)) {
 
-        loggingContent.put("options", loggingOptionsContent);
+            loggingOptionsContent.put("syslog-address",
+                    "tcp://" + host + ":" + port);
+            loggingOptionsContent.put("syslog-format", "rfc5424micro");
 
-        serviceContent.put(loggingKey, loggingContent);
+            loggingOptionsContent.put("tag",
+                    composeProjectName + "_" + service.getKey() + "_exec");
 
-        return service;
+            loggingContent.put("options", loggingOptionsContent);
+
+            serviceContent.put(loggingKey, loggingContent);
+
+            return service;
+        } else {
+            throw new Exception("Error on get Logging config. Host(" + host
+                    + ") or Port(" + port + ") are null");
+        }
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
