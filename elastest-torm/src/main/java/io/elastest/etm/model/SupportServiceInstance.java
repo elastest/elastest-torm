@@ -40,8 +40,8 @@ public class SupportServiceInstance extends EtPlugin {
     private String serviceShortName;
 
     @JsonView(FrontView.class)
-    @JsonProperty("serviceReady")
-    private boolean serviceReady;
+    @JsonProperty("fullyInitialized")
+    private boolean fullyInitialized;
 
     @JsonView(ProvisionView.class)
     @JsonProperty("plan_id")
@@ -143,7 +143,7 @@ public class SupportServiceInstance extends EtPlugin {
         this.subServices = new ArrayList<>();
         this.endpointsData = new HashMap<>();
         this.portBindingContainers = new ArrayList<>();
-        this.serviceReady = false;
+        this.fullyInitialized = false;
         this.endpointsBindingsPorts = new HashMap<>();
         this.tJobExecIdList = new ArrayList<>();
 
@@ -163,6 +163,7 @@ public class SupportServiceInstance extends EtPlugin {
         this.organization_guid = "org";
         this.space_guid = "space";
         this.manifestId = "";
+        this.fullyInitialized = false;
 
         // EtPlugin
         this.name = instanceId;
@@ -211,17 +212,17 @@ public class SupportServiceInstance extends EtPlugin {
     }
 
     /**
-     * Indicates whether the TSS instance is ready
+     * Indicates whether the TSS instance is Fully initialized
      * 
      * @return True or false
      **/
     @ApiModelProperty(example = "EUS", value = "The short name of the TSS.")
-    public boolean isServiceReady() {
-        return serviceReady;
+    public boolean isFullyInitialized() {
+        return fullyInitialized;
     }
 
-    public void setServiceReady(boolean serviceInstanceUp) {
-        this.serviceReady = serviceInstanceUp;
+    public void setFullyInitialized(boolean fullyInitialized) {
+        this.fullyInitialized = fullyInitialized;
     }
 
     public String getPlan_id() {
@@ -438,8 +439,8 @@ public class SupportServiceInstance extends EtPlugin {
     public String toString() {
         return "SupportServiceInstance [instanceId=" + instanceId
                 + ", service_id=" + service_id + ", serviceName=" + serviceName
-                + ", serviceShortName=" + serviceShortName + ", serviceReady="
-                + serviceReady + ", plan_id=" + plan_id + ", organization_guid="
+                + ", serviceShortName=" + serviceShortName + ", fullyInitialized="
+                + fullyInitialized + ", plan_id=" + plan_id + ", organization_guid="
                 + organization_guid + ", context=" + context + ", space_guid="
                 + space_guid + ", tJobExecIdList=" + tJobExecIdList
                 + ", internalServiceIp=" + internalServiceIp

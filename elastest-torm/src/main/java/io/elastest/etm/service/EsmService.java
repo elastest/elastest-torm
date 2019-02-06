@@ -315,8 +315,6 @@ public class EsmService {
 
             eusInstance.getUrls().put("api-status", apiUrl + "status");
 
-            eusInstance.setServiceReady(true);
-
             dynamicDataService.setLogstashHttpsApi(etmContextAuxService
                     .getContextInfo().getLogstashSSLHttpUrl());
 
@@ -824,10 +822,10 @@ public class EsmService {
 
         } else {
             // If not started and is not ready
-            if (!DockerServiceStatusEnum.STARTING
-                    .equals(tssInstance.getStatus())
+            DockerServiceStatusEnum tssInstanceStatus = tssInstance.getStatus();
+            if (!DockerServiceStatusEnum.STARTING.equals(tssInstanceStatus)
                     && !DockerServiceStatusEnum.READY
-                            .equals(tssInstance.getStatus())) {
+                            .equals(tssInstanceStatus)) {
                 dockerEtmService.updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.STARTING_TSS,
                         tssInstance.getStatusMsg());
@@ -852,9 +850,17 @@ public class EsmService {
                 //
                 // }
 
-                // If starting
+                // If status STARTING OR (READY and not serviceReady)
+
+                /*
+                 * (*READY status is set in checkIfEtPluginUrl when ip and port
+                 * is available but TSS can not be started because socat is not
+                 * ready, for example)
+                 */
             } else if (DockerServiceStatusEnum.STARTING
-                    .equals(tssInstance.getStatus())) {
+                    .equals(tssInstanceStatus)
+                    || (DockerServiceStatusEnum.READY.equals(tssInstanceStatus)
+                            && !tssInstance.isFullyInitialized())) {
                 dockerEtmService.updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.WAITING_TSS,
                         tssInstance.getStatusMsg());
@@ -875,7 +881,7 @@ public class EsmService {
                 this.waitForTssStartedInMini(tJobExec, instanceId, serviceName);
                 // If ready
             } else if (DockerServiceStatusEnum.READY
-                    .equals(tssInstance.getStatus())) {
+                    .equals(tssInstanceStatus)) {
                 logger.debug("End of Wait for TSS {} in TJob Execution {}",
                         serviceName, tJobExec.getId());
 
@@ -1184,7 +1190,9 @@ public class EsmService {
                 .getServiceInstanceInfo(newServiceInstance);
 
         newServiceInstance = buildTssInstanceUrls(newServiceInstance);
-
+        newServiceInstance.setFullyInitialized(true);
+        logger.info("Service {} with instance id {} has been fully initialized",
+                newServiceInstance.getName(), instanceId);
         return newServiceInstance;
     }
 
@@ -1457,8 +1465,6 @@ public class EsmService {
 
         // If not empty and not integrated EUS
         if (serviceInstance != null && !this.isIntegratedEUS(serviceInstance)) {
-            serviceInstance.setServiceReady(false);
-
             for (String containerId : serviceInstance
                     .getPortBindingContainers()) {
                 logger.debug("Socat container to remove: {}", containerId);
@@ -1537,7 +1543,7 @@ public class EsmService {
             Map<String, SupportServiceInstance> ssiMap) {
         SupportServiceInstance tss = ssiMap.get(id);
         if (tss != null) {
-            tss.setServiceReady(checkInstanceUrlIsUp(tss));
+            checkInstanceUrlIsUp(tss);
         }
 
         return tss;
@@ -1553,7 +1559,6 @@ public class EsmService {
             if (!this.isIntegratedEUS(tSSInstance) && this
                     .getSharedTssInstanceId(serviceName) != tSSInstanceId) {
                 boolean isUp = checkInstanceUrlIsUp(tSSInstance);
-                tSSInstance.setServiceReady(isUp);
 
                 if (isUp) {
                     // TODO refactor to SupportServiceClient (to merge with
