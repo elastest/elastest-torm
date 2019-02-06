@@ -819,7 +819,7 @@ public class DockerEtmService {
     /* ******* Logging methods ******* */
     /* ******************************* */
     public LogConfig getLogConfig(String host, String port, String tagPrefix,
-            String tagSuffix, DockerExecution dockerExec) {
+            String tagSuffix, DockerExecution dockerExec) throws Exception {
         Map<String, String> configMap = new HashMap<String, String>();
 
         String monitoringIndex = "";
@@ -838,12 +838,18 @@ public class DockerEtmService {
 
         LogConfig logConfig = null;
 
-        configMap.put("syslog-address", "tcp://" + host + ":" + port);
-        configMap.put("syslog-format", "rfc5424micro");
+        if (host != null && !"".equals(host) && port != null
+                && !"".equals(port)) {
+            configMap.put("syslog-address", "tcp://" + host + ":" + port);
+            configMap.put("syslog-format", "rfc5424micro");
 
-        logConfig = LogConfig.create("syslog", configMap);
+            logConfig = LogConfig.create("syslog", configMap);
 
-        return logConfig;
+            return logConfig;
+        } else {
+            throw new Exception("Error on get Logging config. Host(" + host
+                    + ") or Port(" + port + ") are null");
+        }
     }
 
     public LogConfig getLogstashOrMiniLogConfig(String tag) throws Exception {
@@ -890,7 +896,8 @@ public class DockerEtmService {
             port = tJobExec.getEnvVars().get("ET_EMS_TCP_SUTLOGS_PORT");
         }
 
-        if (host != null && port != null) {
+        if (host != null && !"".equals(host) && port != null
+                && !"".equals(port)) {
             logger.info(
                     "EMS Host to send logs from {} container: {}. To port {}",
                     type, host, port);

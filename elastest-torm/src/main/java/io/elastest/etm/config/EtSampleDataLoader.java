@@ -654,7 +654,7 @@ public class EtSampleDataLoader {
                     + "     - /bin/bash\r\n"
                     + "     - \"-c\"\r\n"
                     + "     - \"dd if=/dev/random of=/usr/share/nginx/html/sparse bs=1024 count=1 seek=5242880000;nginx;sleep infinity\"\r\n"
-                    + "   expose:\r\n" + "     - \"80\"\r\n";
+                    + "   expose:\r\n" + "     - \"80\"";
                 
             String mainService = "nginx-service";
             ProtocolEnum sutProtocol = ProtocolEnum.HTTP;
