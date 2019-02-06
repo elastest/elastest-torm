@@ -622,7 +622,7 @@ public class EtPluginsService {
         if (isTssInstance(plugin.getName())) {
             try {
                 isUp = UtilTools.checkIfUrlIsUp(url);
-            } catch (IOException e) {
+            } catch (Exception e) {
             }
         } else {
             isUp = checkIfUrlIsUp(url);

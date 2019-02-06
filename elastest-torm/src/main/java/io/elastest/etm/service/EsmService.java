@@ -861,7 +861,11 @@ public class EsmService {
 
                 etPluginsService.initAndGetEtPluginUrl(instanceId,
                         tssInstance.getContainerName());
-                etPluginsService.checkIfEtPluginUrlIsUp(instanceId);
+                boolean isUp = etPluginsService
+                        .checkIfEtPluginUrlIsUp(instanceId);
+
+                logger.debug("Is up TSS {} in TJob Execution {}: {}",
+                        serviceName, tJobExec.getId(), isUp);
 
                 try {
                     Thread.sleep(1500);
@@ -872,9 +876,9 @@ public class EsmService {
                 // If ready
             } else if (DockerServiceStatusEnum.READY
                     .equals(tssInstance.getStatus())) {
-                logger.debug("End of Wait for TSS {} in TJob Execution {}", serviceName,
-                        tJobExec.getId());
-                
+                logger.debug("End of Wait for TSS {} in TJob Execution {}",
+                        serviceName, tJobExec.getId());
+
                 // Update instance in map to have the entrypoint values
                 tssInstance = supportServiceClient
                         .initSupportServiceInstanceData(tssInstance);
