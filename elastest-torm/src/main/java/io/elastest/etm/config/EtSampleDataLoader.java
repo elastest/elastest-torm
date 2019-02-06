@@ -84,9 +84,12 @@ public class EtSampleDataLoader {
             this.createWebapp();
             this.createOpenVidu();
             this.createFullteaching();
+            this.createEMS();
+
             if (etDataLoader.isStartedTestLink()) {
                 this.createTestLink();
             }
+
 
             if (!alreadyExists) {
                 try {
@@ -637,6 +640,48 @@ public class EtSampleDataLoader {
                     javaMvnImage, false, commands,
                     EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut, null);
         }
+    }
+
+    private void createEMS() {
+        String pjName = "EMS Example";
+        if (!etDataLoader.projectExists(pjName)) {
+            String sutName = "nginx";
+            String sutDesc = "nginx";
+
+            String sutCompose = "version: '3'\r\n" + "services:\r\n"
+                    + " nginx-service:\r\n" + "   image: nginx\r\n"
+                    + "   entrypoint:\r\n"
+                    + "     - /bin/bash\r\n"
+                    + "     - \"-c\"\r\n"
+                    + "     - \"dd if=/dev/random of=/usr/share/nginx/html/sparse bs=1024 count=1 seek=5242880000;nginx;sleep infinity\"\r\n"
+                    + "   expose:\r\n" + "     - \"80\"\r\n";
+                
+            String mainService = "nginx-service";
+            ProtocolEnum sutProtocol = ProtocolEnum.HTTP;
+            String sutPort = "80";
+
+            String tJobName = "Double bandwidth";
+            String resultsPath = "";
+            String tJobImage = "imdeasoftware/e2etjob";
+            String commands = "cd /go;./tjob";
+            List<String> tss = Arrays.asList("EMS");
+
+            this.printLog(pjName);
+            // Create Project
+            Project project = etDataLoader.createProject(pjName);
+
+            // Create Sut
+            SutSpecification sut = etDataLoader
+                    .createSutDeployedByElastestWithCompose(project, null,
+                            sutName, sutDesc, sutCompose, mainService,
+                            sutProtocol, sutPort, null);
+
+            // Create TJob
+            etDataLoader.createTJob(project, tJobName, resultsPath,
+                    tJobImage, false, commands,
+                    EXEC_DASHBOARD_CONFIG, null, tss, sut, null);
+        }
+
     }
 
     /* *** TestLink *** */
