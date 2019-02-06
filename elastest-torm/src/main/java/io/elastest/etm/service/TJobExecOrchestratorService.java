@@ -1308,6 +1308,7 @@ public class TJobExecOrchestratorService {
                 : logstashTcpPort;
 
         if (dockerEtmService.isEMSSelected(dockerExec)) {
+            // ET_EMS env vars created in EsmService setTssEnvVarByEndpoint()
             host = dockerExec.getTJobExec().getEnvVars()
                     .get("ET_EMS_TCP_SUTLOGS_HOST");
             port = dockerExec.getTJobExec().getEnvVars()

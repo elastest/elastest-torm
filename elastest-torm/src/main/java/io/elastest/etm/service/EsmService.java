@@ -874,6 +874,9 @@ public class EsmService {
                 // If ready
             } else if (DockerServiceStatusEnum.READY
                     .equals(tssInstance.getStatus())) {
+                logger.debug("End of Wait for TSS {} in TJob Execution {}", serviceName,
+                        tJobExec.getId());
+                
                 // Update instance in map to have the entrypoint values
                 tssInstance = supportServiceClient
                         .initSupportServiceInstanceData(tssInstance);
@@ -1555,6 +1558,7 @@ public class EsmService {
                     // testEngines)
                     tSSInstance.setStatus(DockerServiceStatusEnum.READY);
                     tSSInstance.setStatusMsg("Ready");
+                    tSSInstance.setServiceStatus(SSIStatusEnum.READY);
                 }
 
                 servicesInstancesList.add(tSSInstance);
