@@ -5,9 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -23,41 +21,6 @@ public class SupportServiceInstance extends EtPlugin {
     }
 
     public interface FrontView {
-    }
-
-    /**
-     * Gets or Sets status
-     */
-    public enum SSIStatusEnum {
-        INITIALIZATION("INITIALIZATION"),
-
-        FAILURE("FAILURE"),
-
-        READY("READY"),
-
-        STOPPING("STOPPING");
-
-        private String value;
-
-        SSIStatusEnum(String value) {
-            this.value = value;
-        }
-
-        @Override
-        @JsonValue
-        public String toString() {
-            return String.valueOf(value);
-        }
-
-        @JsonCreator
-        public static SSIStatusEnum fromValue(String text) {
-            for (SSIStatusEnum b : SSIStatusEnum.values()) {
-                if (String.valueOf(b.value).equals(text)) {
-                    return b;
-                }
-            }
-            return null;
-        }
     }
 
     @JsonView(FrontView.class)
@@ -79,10 +42,6 @@ public class SupportServiceInstance extends EtPlugin {
     @JsonView(FrontView.class)
     @JsonProperty("serviceReady")
     private boolean serviceReady;
-
-    @JsonView(FrontView.class)
-    @JsonProperty("serviceStatus")
-    private SSIStatusEnum serviceStatus;
 
     @JsonView(ProvisionView.class)
     @JsonProperty("plan_id")
@@ -185,7 +144,6 @@ public class SupportServiceInstance extends EtPlugin {
         this.endpointsData = new HashMap<>();
         this.portBindingContainers = new ArrayList<>();
         this.serviceReady = false;
-        this.serviceStatus = SSIStatusEnum.INITIALIZATION;
         this.endpointsBindingsPorts = new HashMap<>();
         this.tJobExecIdList = new ArrayList<>();
 
@@ -264,20 +222,6 @@ public class SupportServiceInstance extends EtPlugin {
 
     public void setServiceReady(boolean serviceInstanceUp) {
         this.serviceReady = serviceInstanceUp;
-    }
-
-    /**
-     * Get the current status of the TSS instance
-     * 
-     * @return The TSS status
-     **/
-    @ApiModelProperty(example = "EUS", value = "The short name of the TSS.")
-    public SSIStatusEnum getServiceStatus() {
-        return serviceStatus;
-    }
-
-    public void setServiceStatus(SSIStatusEnum serviceStatus) {
-        this.serviceStatus = serviceStatus;
     }
 
     public String getPlan_id() {
@@ -495,8 +439,7 @@ public class SupportServiceInstance extends EtPlugin {
         return "SupportServiceInstance [instanceId=" + instanceId
                 + ", service_id=" + service_id + ", serviceName=" + serviceName
                 + ", serviceShortName=" + serviceShortName + ", serviceReady="
-                + serviceReady + ", serviceStatus=" + serviceStatus
-                + ", plan_id=" + plan_id + ", organization_guid="
+                + serviceReady + ", plan_id=" + plan_id + ", organization_guid="
                 + organization_guid + ", context=" + context + ", space_guid="
                 + space_guid + ", tJobExecIdList=" + tJobExecIdList
                 + ", internalServiceIp=" + internalServiceIp

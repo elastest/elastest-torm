@@ -42,7 +42,6 @@ import io.elastest.etm.model.EusExecutionData;
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
-import io.elastest.etm.model.SupportServiceInstance.SSIStatusEnum;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
@@ -317,7 +316,6 @@ public class EsmService {
             eusInstance.getUrls().put("api-status", apiUrl + "status");
 
             eusInstance.setServiceReady(true);
-            eusInstance.setServiceStatus(SSIStatusEnum.READY);
 
             dynamicDataService.setLogstashHttpsApi(etmContextAuxService
                     .getContextInfo().getLogstashSSLHttpUrl());
@@ -1558,7 +1556,6 @@ public class EsmService {
                     // testEngines)
                     tSSInstance.setStatus(DockerServiceStatusEnum.READY);
                     tSSInstance.setStatusMsg("Ready");
-                    tSSInstance.setServiceStatus(SSIStatusEnum.READY);
                 }
 
                 servicesInstancesList.add(tSSInstance);
