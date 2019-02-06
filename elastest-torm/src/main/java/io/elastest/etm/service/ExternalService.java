@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.api.model.ExternalJob.ExternalJobStatusEnum;
 import io.elastest.etm.api.model.TestSupportServices;
@@ -335,15 +338,12 @@ public class ExternalService {
 
             if (externalJob.getTSServices() != null
                     && externalJob.getTSServices().size() > 0) {
-                tJob.setSelectedServices("[");
-
-                for (TestSupportServices tSService : externalJob
-                        .getTSServices()) {
-                    tJob.setSelectedServices(tJob.getSelectedServices()
-                            + tSService.toJsonString());
-                }
-
-                tJob.setSelectedServices(tJob.getSelectedServices() + "]");
+                ObjectMapper objectMapper = new ObjectMapper();
+                objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+                tJob.setSelectedServices(objectMapper
+                        .writeValueAsString(externalJob.getTSServices()));
+                logger.debug("TSS requested from a Jenkins job {}",
+                        tJob.getSelectedServices());
             } else {
                 tJob.setSelectedServices(null);
             }
