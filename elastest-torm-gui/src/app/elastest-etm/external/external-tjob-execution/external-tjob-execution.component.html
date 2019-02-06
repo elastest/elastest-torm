@@ -4,16 +4,33 @@
       <mat-card-title>
         <div fxLayout="row" fxLayoutAlign="space-between end">
           <span>
-            <mat-icon id="tJobExecResultIcon" *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTJobExec.getResultIcon().color"
-              matTooltip="{{exTJobExec.result}}">
-              {{exTJobExec.getResultIcon().name}}</mat-icon>
+            <mat-icon
+              id="tJobExecResultIcon"
+              *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()"
+              style="vertical-align: sub;"
+              [style.color]="exTJobExec.getResultIcon().color"
+              matTooltip="{{ exTJobExec.result }}"
+            >
+              {{ exTJobExec.getResultIcon().name }}</mat-icon
+            >
           </span>
           <a *ngIf="exTJob && exTJobExec" class="normalTextLink">
             <span>External TJob</span>
-            <span> "{{exTJob.name}}"</span>
+            <span> "{{ exTJob.name }}"</span>
           </a>
-          <span>: Execution {{exTJobExecId}}</span>
+          <span>: Execution {{ exTJobExecId }}</span>
           <span fxFlex></span>
+          <span>
+            <button
+              id="viewExecutionInLogAnalyzer"
+              mat-button
+              (click)="viewInLogAnalyzer()"
+              class="onlyIconBtn iconBtn-lg"
+              matTooltip="View in Log Analyzer"
+            >
+              <mat-icon>library_books</mat-icon>
+            </button>
+          </span>
           <span>
             <button mat-button (click)="logsAndMetrics.openMonitoringConfig()" title="Open Monitoring Config" class="iconBtn">
               <mat-icon>settings</mat-icon>
@@ -28,7 +45,7 @@
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>Start Date</h4>
-                <p>{{exTJobExec.startDate | date:'dd/MM/yyyy HH:mm:ss'}}</p>
+                <p>{{ exTJobExec.startDate | date: 'dd/MM/yyyy HH:mm:ss' }}</p>
               </mat-list-item>
               <mat-divider></mat-divider>
             </mat-list>
@@ -38,7 +55,7 @@
             <mat-list class="listInfoToLeft">
               <mat-list-item>
                 <h4>End Date</h4>
-                <p>{{exTJobExec.endDate | date:'dd/MM/yyyy HH:mm:ss'}}</p>
+                <p>{{ exTJobExec.endDate | date: 'dd/MM/yyyy HH:mm:ss' }}</p>
               </mat-list-item>
               <mat-divider></mat-divider>
             </mat-list>
@@ -50,11 +67,20 @@
 </div>
 
 <div fxLayout="column" *ngIf="exTJob && exTJobExec && exTestExecs">
-  <etm-external-test-executions-view [exTestExecs]="exTestExecs" [exTJobExec]="exTJobExec" fxFlex></etm-external-test-executions-view>
+  <etm-external-test-executions-view
+    [exTestExecs]="exTestExecs"
+    [exTJobExec]="exTJobExec"
+    fxFlex
+  ></etm-external-test-executions-view>
 </div>
 
 <!-- logs & Metrics -->
 <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
 
 <!-- Execution files -->
-<etm-files-manager *ngIf="exTJob && exTJobExec" [tJobId]="exTJob.id " [tJobExecId]="exTJobExec.id" [external]="true"></etm-files-manager>
+<etm-files-manager
+  *ngIf="exTJob && exTJobExec"
+  [tJobId]="exTJob.id"
+  [tJobExecId]="exTJobExec.id"
+  [external]="true"
+></etm-files-manager>

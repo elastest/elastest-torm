@@ -57,6 +57,11 @@ import { AutoHeightGridComponent } from './ng-self-adjustable-components/auto-he
 import { NormalHeightRowComponent } from './ng-self-adjustable-components/auto-height-grid/normal-height-row/normal-height-row.component';
 import { AutoHeightRowComponent } from './ng-self-adjustable-components/auto-height-grid/auto-height-row/auto-height-row.component';
 import { CenteredElementComponent } from './centered-element/centered-element.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faFileDownload } from '@fortawesome/free-solid-svg-icons';
+import { library } from '@fortawesome/fontawesome-svg-core';
+
+library.add(faFileDownload);
 
 const FLEX_LAYOUT_MODULES: any[] = [FlexLayoutModule];
 
@@ -104,6 +109,7 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     CHART_MODULES,
     FLEX_LAYOUT_MODULES,
     CovalentExpansionPanelModule,
+    FontAwesomeModule,
   ],
   declarations: [
     LogsViewComponent,

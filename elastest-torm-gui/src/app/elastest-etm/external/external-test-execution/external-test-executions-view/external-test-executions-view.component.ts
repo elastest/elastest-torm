@@ -15,7 +15,5 @@ export class ExternalTestExecutionsViewComponent implements OnInit {
 
   constructor(private router: Router, private externalService: ExternalService) {}
 
-  ngOnInit() {
-    
-  }
+  ngOnInit(): void {}
 }

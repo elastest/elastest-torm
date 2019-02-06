@@ -37,7 +37,7 @@ export class ExternalTjobExecutionComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.exTJobExec = new ExternalTJobExecModel();
     this.loadExternalTJobExec();
   }
@@ -54,7 +54,7 @@ export class ExternalTjobExecutionComponent implements OnInit {
         (exTestExecs: ExternalTestExecutionModel[]) => {
           this.exTestExecs = exTestExecs;
         },
-        (error) => console.log(error),
+        (error: Error) => console.log(error),
       );
 
       this.exTJob = this.exTJobExec.exTJob;
@@ -68,7 +68,7 @@ export class ExternalTjobExecutionComponent implements OnInit {
 
   viewInLogAnalyzer(): void {
     this.router.navigate(['/loganalyzer'], {
-      queryParams: { tjob: this.exTJob.id, exec: this.exTJobExec.id },
+      queryParams: { exTJob: this.exTJob.id, exTJobExec: this.exTJobExec.id },
     });
   }
 }

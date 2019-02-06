@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, HostListener, ElementRef, AfterViewChecked } from '@angular/core';
 import { LogViewModel } from '../logs-view/log-view-model';
 
 @Component({
@@ -6,7 +6,7 @@ import { LogViewModel } from '../logs-view/log-view-model';
   templateUrl: './logs-view-text.component.html',
   styleUrls: ['./logs-view-text.component.scss'],
 })
-export class LogsViewTextComponent implements OnInit {
+export class LogsViewTextComponent implements OnInit, AfterViewChecked {
   @ViewChild('scrollMe')
   private myScrollContainer: ElementRef;
   @Input()
@@ -16,9 +16,9 @@ export class LogsViewTextComponent implements OnInit {
 
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit(): void {}
 
-  ngAfterViewChecked() {
+  ngAfterViewChecked(): void {
     this.scrollToBottom();
   }
 
@@ -62,7 +62,7 @@ export class LogsViewTextComponent implements OnInit {
     return pos === max || max - pos < errorMarginOfDifference;
   }
 
-  scrollIsInTop(event: Event | any) {
+  scrollIsInTop(event: Event | any): boolean {
     return event.srcElement.scrollTop === 0;
   }
 

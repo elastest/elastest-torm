@@ -193,7 +193,7 @@ export class TjobExecManagerComponent implements OnInit {
           if (someTestSuiteWithDate) {
             this.downloading = false;
             jsonObj['tJobExec'] = this.tJobExec;
-            this.filesService.downloadObjectAsJson(jsonObj);
+            this.filesService.downloadObjectAsJson(jsonObj, this.getFileName());
           } else {
             this.downloadAsJsonWithoutTestCases();
           }
@@ -223,7 +223,7 @@ export class TjobExecManagerComponent implements OnInit {
           jsonObj['metrics'] = metricsTraces;
 
           // Create tmp url and link element for download
-          this.filesService.downloadObjectAsJson(jsonObj);
+          this.filesService.downloadObjectAsJson(jsonObj, this.getFileName());
           this.downloading = false;
         });
       },
@@ -232,6 +232,14 @@ export class TjobExecManagerComponent implements OnInit {
         this.monitoringService.popupService.openSnackBar('Error: the execution could not be downloaded as json');
       },
     );
+  }
+
+  getFileName(): string {
+    let namePrefix: string = this.tJob && this.tJob.name && this.tJob.name !== '' ? 'TJob_' + this.tJob.name : '';
+    let nameSuffix: string = this.tJobExec && this.tJobExec.id && this.tJobExec.id !== 0 ? 'execution_' + this.tJobExec.id : '';
+    let name: string = (namePrefix !== '' ? namePrefix + '-' : '') + (nameSuffix !== '' ? nameSuffix : '');
+
+    return name !== '' ? name : 'execution';
   }
 
   openExternalUrl(): void {

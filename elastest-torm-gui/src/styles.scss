@@ -1433,3 +1433,24 @@ td-data-table.useMaxHeight div {
 mat-card {
   flex-direction: column;
 }
+
+fa-icon.mat-icon {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+}
+
+fa-icon.mat-icon > svg {
+  vertical-align: middle;
+  width: 1em;
+  height: 1em;
+}

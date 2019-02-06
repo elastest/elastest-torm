@@ -2,6 +2,7 @@ import { LogViewModel } from './log-view-model';
 
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { LogsViewTextComponent } from '../logs-view-text/logs-view-text.component';
+import { FilesService } from '../services/files.service';
 
 @Component({
   selector: 'logs-view',
@@ -14,9 +15,9 @@ export class LogsViewComponent implements OnInit {
   @Input() public model: LogViewModel;
   @Input() public remove: Function;
 
-  constructor() {}
+  constructor(private filesService: FilesService) {}
 
-  ngOnInit() {}
+  ngOnInit(): void {}
 
   scrollToElement(position: number): void {
     this.logsViewText.scrollToElement(position);
@@ -31,5 +32,28 @@ export class LogsViewComponent implements OnInit {
 
   lockLogScroll(switchLock: boolean): void {
     this.logsViewText.lockLogScroll(switchLock);
+  }
+
+  downloadLog(): void {
+    if (this.model) {
+      let logArray: string[] = this.convertTracesToLogArray();
+      this.filesService.downloadStringAsTextFile(
+        logArray.join('\n'),
+        this.model.name && this.model.name !== '' ? this.model.name : 'logs',
+        'log',
+      );
+    }
+  }
+
+  convertTracesToLogArray(): string[] {
+    let logArray: string[] = [];
+    if (this.model) {
+      let traces: string[] = this.model.prevTraces.concat(this.model.traces);
+      for (let trace of traces) {
+        let logLine: string = (trace['timestamp'] ? trace['timestamp'] + ' : ' : '') + (trace['message'] ? trace['message'] : '');
+        logArray.push(logLine);
+      }
+    }
+    return logArray;
   }
 }
