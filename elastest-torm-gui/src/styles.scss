@@ -1451,6 +1451,7 @@ fa-icon.mat-icon {
 
 fa-icon.mat-icon > svg {
   vertical-align: middle;
-  width: 1em;
-  height: 1em;
+  width: 0.8em !important;
+  height: 0.8em !important;
+  padding: 0.1em;
 }
