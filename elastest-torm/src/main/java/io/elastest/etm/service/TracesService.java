@@ -163,8 +163,7 @@ public class TracesService {
     /* *********** */
 
     public void processTcpTrace(String message, Date timestamp) {
-        // todo change to logger.trace
-        logger.debug("Processing TCP trace {} with timestamp {}", message,
+        logger.trace("Processing TCP trace {} with timestamp {}", message,
                 timestamp);
 
         if (message != null && !message.isEmpty()) {
@@ -208,7 +207,7 @@ public class TracesService {
                 this.saveTrace(trace);
                 this.queueService.sendTrace(trace);
             } catch (Exception e) {
-                logger.debug("Error on processing TCP trace {}: ", message, e);
+                logger.trace("Error on processing TCP trace {}: ", message, e);
             }
         }
     }
