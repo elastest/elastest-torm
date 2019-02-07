@@ -41,7 +41,11 @@ export class ProjectService {
   }
 
   public deleteProject(project: ProjectModel): Observable<any> {
-    let url: string = this.configurationService.configModel.hostApi + '/project/' + project.id;
+    return this.deleteProjectById(project.id);
+  }
+
+  public deleteProjectById(projectId: string | number): Observable<any> {
+    let url: string = this.configurationService.configModel.hostApi + '/project/' + projectId;
     return this.http.delete(url).map((data: any) => data);
   }
 

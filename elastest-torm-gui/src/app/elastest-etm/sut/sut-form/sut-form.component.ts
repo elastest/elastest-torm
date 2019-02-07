@@ -98,24 +98,26 @@ export class SutFormComponent implements OnInit, DoCheck {
     private configurationService: ConfigurationService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setPathName(this.router.routerState.snapshot.url);
     this.elasTestExecMode = this.configurationService.configModel.elasTestExecMode;
     if (this.route.params !== null || this.route.params !== undefined) {
       this.currentPath = this.route.snapshot.url[0].path;
       if (this.currentPath === 'edit') {
         this.titlesService.setHeadTitle('Edit SuT');
-        this.route.params.switchMap((params: Params) => this.sutService.getSut(params['sutId'])).subscribe((sut: SutModel) => {
-          this.sut = sut;
-          this.titlesService.setPathName(this.router.routerState.snapshot.url, '/ Edit SuT ' + this.sut.getRouteString());
-          this.initSutType();
-          this.initInstrumentedBy();
-          this.initInstrumentalized();
-          this.initCommandOptions();
-          this.initManagedType();
+        this.route.params
+          .switchMap((params: Params) => this.sutService.getSut(params['sutId']))
+          .subscribe((sut: SutModel) => {
+            this.sut = sut;
+            this.titlesService.setPathName(this.router.routerState.snapshot.url, '/ Edit SuT ' + this.sut.getRouteString());
+            this.initSutType();
+            this.initInstrumentedBy();
+            this.initInstrumentalized();
+            this.initCommandOptions();
+            this.initManagedType();
 
-          this.sutExecIndex = this.sut.getSutESIndex();
-        });
+            this.sutExecIndex = this.sut.getSutESIndex();
+          });
       } else if (this.currentPath === 'new') {
         this.titlesService.setHeadTitle('New SuT');
         this.sut = new SutModel();

@@ -128,7 +128,7 @@ export class TjobExecManagerComponent implements OnInit {
             }
           }
         },
-        (error) => console.log(error),
+        (error: Error) => console.log(error),
       );
     });
   }
@@ -150,7 +150,6 @@ export class TjobExecManagerComponent implements OnInit {
   }
 
   deleteTJobExec(): void {
-    this.deletingInProgress = true;
     let iConfirmConfig: IConfirmConfig = {
       message: 'TJob Execution ' + this.tJobExec.id + ' will be deleted, do you want to continue?',
       disableClose: false,
@@ -164,6 +163,7 @@ export class TjobExecManagerComponent implements OnInit {
       .afterClosed()
       .subscribe((accept: boolean) => {
         if (accept) {
+          this.deletingInProgress = true;
           this.tJobExecService.deleteTJobExecution(this.tJob, this.tJobExec).subscribe(
             (exec) => {
               this.deletingInProgress = false;
@@ -172,7 +172,7 @@ export class TjobExecManagerComponent implements OnInit {
               );
               this.viewTJob();
             },
-            (error) => {
+            (error: Error) => {
               this.deletingInProgress = false;
               this.tJobExecService.popupService.openSnackBar('TJob Execution could not be deleted');
             },

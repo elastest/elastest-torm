@@ -5,11 +5,22 @@
         <div fxLayout="row">
           <span>Projects</span> <span fxFlex></span>
           <button
+            mat-button
+            (click)="removeSelectedProjects(row)"
+            [disabled]="selectedProjectsIds.length === 0 || deletingInProgress"
+            stopRowClick
+            class="iconBtn-lg"
+            title="Delete Project"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+          <button
             mat-raised-button
             color="primary"
             (click)="restoreDemoProjects()"
             id="restoreDemoProjects"
             matTooltip="Restore Demo Projects"
+            class="push-left-sm"
           >
             Restore Demo Projects
           </button>
@@ -39,13 +50,16 @@
           </centered-element>
           <td-data-table
             #projectsTable
+            id="projects"
             *ngIf="projectData && projectData.length > 0"
             [class]="tableStyle"
             [data]="projectData"
             [columns]="projectColumns"
             [clickable]="true"
             [resizableColumns]="true"
-            id="projects"
+            [selectable]="true"
+            (rowSelect)="switchProjectSelection($event)"
+            (selectAll)="switchAllProjectsSelection($event)"
           >
             <ng-template
               *ngFor="let column of projectColumns"

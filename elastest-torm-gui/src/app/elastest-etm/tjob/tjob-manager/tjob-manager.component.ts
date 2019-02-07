@@ -10,6 +10,7 @@ import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { IConfirmConfig, TdDialogService, ITdDataTableSelectEvent, ITdDataTableSelectAllEvent } from '@covalent/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
+import { Observable, Subject } from 'rxjs';
 
 @Component({
   selector: 'etm-tjob-manager',
@@ -38,6 +39,7 @@ export class TjobManagerComponent implements OnInit {
   showSpinner: boolean = true;
 
   selectedExecsIds: number[] = [];
+  execIdsWithErrorOnDelete: number[] = [];
 
   constructor(
     private titlesService: TitlesService,
@@ -213,5 +215,73 @@ export class TjobManagerComponent implements OnInit {
     this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'comparator'], {
       queryParams: { execs: this.selectedExecsIds.join(',') },
     });
+  }
+
+  removeSelectedExecs(): void {
+    if (this.selectedExecsIds.length > 0) {
+      let iConfirmConfig: IConfirmConfig = {
+        message: 'Selected Executions will be deleted, do you want to continue?',
+        disableClose: false, // defaults to false
+        viewContainerRef: this._viewContainerRef,
+        title: 'Confirm',
+        cancelButton: 'Cancel',
+        acceptButton: 'Yes, delete',
+      };
+      this._dialogService
+        .openConfirm(iConfirmConfig)
+        .afterClosed()
+        .subscribe((accept: boolean) => {
+          if (accept) {
+            this.deletingInProgress = true;
+
+            this.execIdsWithErrorOnDelete = [];
+            this.removeMultipleExecutionsRecursively([...this.selectedExecsIds]).subscribe(
+              (end: boolean) => {
+                if (this.execIdsWithErrorOnDelete.length > 0) {
+                  let errorMsg: string = 'Error on delete execs with ids: ' + this.execIdsWithErrorOnDelete;
+                  this.tJobExecService.popupService.openSnackBar(errorMsg);
+                } else {
+                  this.tJobExecService.popupService.openSnackBar('Executions ' + this.selectedExecsIds + ' has been removed!');
+                }
+
+                this.deletingInProgress = false;
+                this.reloadTJob();
+                this.execIdsWithErrorOnDelete = [];
+                this.selectedExecsIds = [];
+              },
+              (error: Error) => {
+                console.log(error);
+                this.deletingInProgress = false;
+                this.reloadTJob();
+                this.execIdsWithErrorOnDelete = [];
+                this.selectedExecsIds = [];
+              },
+            );
+          }
+        });
+    }
+  }
+
+  removeMultipleExecutionsRecursively(selectedExecsIds: number[], _obs: Subject<any> = new Subject<any>()): Observable<boolean> {
+    let obs: Observable<any> = _obs.asObservable();
+
+    if (selectedExecsIds.length > 0) {
+      let execId: number = selectedExecsIds.shift();
+
+      this.tJobExecService.deleteTJobExecutionById(this.tJob, execId).subscribe(
+        (tJobExec: TJobExecModel) => {
+          this.removeMultipleExecutionsRecursively(selectedExecsIds, _obs);
+        },
+        (error: Error) => {
+          console.log(error);
+          this.execIdsWithErrorOnDelete.push(execId);
+          this.removeMultipleExecutionsRecursively(selectedExecsIds, _obs);
+        },
+      );
+    } else {
+      _obs.next(true);
+    }
+
+    return obs;
   }
 }

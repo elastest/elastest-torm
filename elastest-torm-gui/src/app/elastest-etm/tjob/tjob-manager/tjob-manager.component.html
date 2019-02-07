@@ -78,19 +78,27 @@
       <sa-card-title>
         <div fxLayout="row">
           <span>Executions</span> <span fxFlex></span>
-          <div>
-            <button
-              mat-raised-button
-              color="accent"
-              (click)="compareExecutions()"
-              [disabled]="selectedExecsIds.length < 2"
-              class="iconBtn-lg"
-              matTooltip="Compare selected Executions"
-            >
-              Compare Executions
-              <mat-icon>compare</mat-icon>
-            </button>
-          </div>
+          <button
+            mat-button
+            (click)="removeSelectedExecs(row)"
+            [disabled]="selectedExecsIds.length === 0 || deletingInProgress"
+            stopRowClick
+            class="iconBtn-lg"
+            title="Delete Executions"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+          <button
+            mat-raised-button
+            color="accent"
+            (click)="compareExecutions()"
+            [disabled]="selectedExecsIds.length < 2 || deletingInProgress"
+            class="iconBtn-lg"
+            matTooltip="Compare selected Executions"
+          >
+            Compare Executions
+            <mat-icon>compare</mat-icon>
+          </button>
         </div>
       </sa-card-title>
       <sa-card-content>

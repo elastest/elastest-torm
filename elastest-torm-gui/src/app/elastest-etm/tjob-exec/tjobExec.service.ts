@@ -224,7 +224,11 @@ export class TJobExecService {
   }
 
   public deleteTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel): Observable<any> {
-    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id;
+    return this.deleteTJobExecutionById(tJob, tJobExecution.id);
+  }
+
+  public deleteTJobExecutionById(tJob: TJobModel, tJobExecutionId: number | string): Observable<any> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecutionId;
     return this.http.delete(url);
   }
 
