@@ -867,17 +867,19 @@ public class EsmService {
 
                 etPluginsService.initAndGetEtPluginUrl(instanceId,
                         tssInstance.getContainerName());
-                boolean isUp = etPluginsService
-                        .checkIfEtPluginUrlIsUp(instanceId);
+                boolean isUp = checkInstanceUrlIsUp(tssInstance);
 
                 logger.debug("Is up TSS {} in TJob Execution {}: {}",
                         serviceName, tJobExec.getId(), isUp);
+
+                // for(SupportServiceInstance)
 
                 try {
                     Thread.sleep(1500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
                 this.waitForTssStartedInMini(tJobExec, instanceId, serviceName);
                 // If ready
             } else if (DockerServiceStatusEnum.READY
@@ -1192,7 +1194,7 @@ public class EsmService {
         newServiceInstance = buildTssInstanceUrls(newServiceInstance);
         newServiceInstance.setFullyInitialized(true);
         logger.info("Service {} with instance id {} has been fully initialized",
-                newServiceInstance.getName(), instanceId);
+                newServiceInstance.getServiceName(), instanceId);
         return newServiceInstance;
     }
 
@@ -1313,10 +1315,13 @@ public class EsmService {
                         serviceInstance.getEndpointsBindingsPorts()
                                 .put(nodePort, String.valueOf(bindedPort));
                     } catch (Exception e) {
-                        logger.error("Ports binding fails: {} ",
-                                e.getMessage());
-                        throw new Exception(
-                                "Ports binding fails: " + e.getMessage());
+                        String message = "Ports binding fails in Service "
+                                + serviceInstance.getServiceName()
+                                + " with instance id "
+                                + serviceInstance.getInstanceId();
+
+                        logger.error("{}: {} ", message, e.getMessage());
+                        throw new Exception(message + ": " + e.getMessage());
                     }
 
                 }
@@ -1619,48 +1624,54 @@ public class EsmService {
     public boolean checkInstanceUrlIsUp(SupportServiceInstance tSSInstance) {
         boolean up = false;
         if (tSSInstance != null) {
+            String serviceName = tSSInstance.getServiceName();
+
             if (tSSInstance.getUrls() != null
                     && !tSSInstance.getUrls().isEmpty()) {
                 // First check if internal api url exists
                 String urlValue = tSSInstance.getInternalApiUrlIfExist();
-                logger.debug("Internal url {} ", urlValue);
+                logger.debug("{} Internal url {} ", serviceName, urlValue);
                 if (urlValue == null) {
 
                     // else if api status url exist (for integrated EUS)
                     urlValue = tSSInstance.getApiStatusUrlIfExist();
-                    logger.debug("Api status url {} ", urlValue);
+                    logger.debug("{} Api status url {} ", serviceName,
+                            urlValue);
 
                     // else normal url
                     if (urlValue == null) {
                         urlValue = tSSInstance.getApiUrlIfExist();
-                        logger.debug("Normal url {} ", urlValue);
+                        logger.debug("{} Normal url {} ", serviceName,
+                                urlValue);
                     }
                 }
 
                 up = true;
                 if (urlValue != null) {
                     try {
-                        logger.debug(tSSInstance.getServiceName()
-                                + " Service URL: " + urlValue);
+                        logger.debug(serviceName + " Service URL: " + urlValue);
 
                         up = up && UtilTools.checkIfUrlIsUp(urlValue);
 
                         if (!up) {
-                            logger.debug(tSSInstance.getServiceName()
-                                    + " Service is not ready.");
+                            logger.debug(
+                                    serviceName + " Service is not ready.");
                             return up;
                         }
                     } catch (Exception e) {
-                        logger.debug(tSSInstance.getServiceName()
+                        logger.debug(serviceName
                                 + " Service is not ready by exception error.");
                         return false;
                     }
                 }
             }
-            String checklMessage = up
-                    ? tSSInstance.getServiceName() + " Service is ready."
-                    : tSSInstance.getServiceName()
-                            + " Service is not ready yet.";
+            String checklMessage = up ? serviceName + " Service is ready."
+                    : serviceName + " Service is not ready yet.";
+
+            if (up && utilsService.isElastestMini()) {
+                etPluginsService.updateStatus(tSSInstance.getName(),
+                        DockerServiceStatusEnum.READY, "Ready");
+            }
 
             logger.info(checklMessage);
         }
