@@ -100,13 +100,15 @@ public class EimBeatConfig {
 
     public EimBeatConfig(EimBeatConfig beatConfig) {
         this.id = 0l;
-        this.stream = beatConfig.getStream();
-        this.name = beatConfig.getName();
-        if (beatConfig.getPaths() != null) {
-            this.paths = new ArrayList<>(beatConfig.getPaths());
-        }
-        if (beatConfig.getDockerized() != null) {
-            this.dockerized = new ArrayList<>(beatConfig.getDockerized());
+        if (beatConfig != null) {
+            this.stream = beatConfig.getStream();
+            this.name = beatConfig.getName();
+            if (beatConfig.getPaths() != null) {
+                this.paths = new ArrayList<>(beatConfig.getPaths());
+            }
+            if (beatConfig.getDockerized() != null) {
+                this.dockerized = new ArrayList<>(beatConfig.getDockerized());
+            }
         }
     }
 

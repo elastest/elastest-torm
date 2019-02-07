@@ -121,17 +121,20 @@ public class EimMonitoringConfig {
     public EimMonitoringConfig(EimMonitoringConfig eimMonitoringConfig) {
         this.setId(null);
         this.exec = null;
-        this.component = eimMonitoringConfig.getComponent();
-        this.dockerized = eimMonitoringConfig.isDockerized();
         this.beatsStatus = BeatsStatusEnum.DEACTIVATED;
 
-        if (eimMonitoringConfig.beats != null) {
-            this.beats = new HashMap<>();
-            for (Entry<String, EimBeatConfig> beatConfig : eimMonitoringConfig.beats
-                    .entrySet()) {
-                EimBeatConfig newBeatConfig = new EimBeatConfig(
-                        beatConfig.getValue());
-                beats.put(beatConfig.getKey(), newBeatConfig);
+        if (eimMonitoringConfig != null) {
+            this.component = eimMonitoringConfig.getComponent();
+            this.dockerized = eimMonitoringConfig.isDockerized();
+
+            if (eimMonitoringConfig.beats != null) {
+                this.beats = new HashMap<>();
+                for (Entry<String, EimBeatConfig> beatConfig : eimMonitoringConfig.beats
+                        .entrySet()) {
+                    EimBeatConfig newBeatConfig = new EimBeatConfig(
+                            beatConfig.getValue());
+                    beats.put(beatConfig.getKey(), newBeatConfig);
+                }
             }
         }
 

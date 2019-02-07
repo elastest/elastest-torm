@@ -208,22 +208,26 @@ public class EimConfig {
 
     public EimConfig(EimConfig eimConfig) {
         this.setId(null);
-        this.user = eimConfig.getUser();
-        this.password = eimConfig.getPassword();
-        this.privateKey = eimConfig.getPrivateKey();
-        this.ip = eimConfig.getIp();
-        this.agentId = eimConfig.getAgentId();
-        this.logstashIp = eimConfig.getLogstashIp();
-        this.logstashTcpHost = eimConfig.getLogstashTcpHost();
-        this.logstashTcpPort = eimConfig.getLogstashTcpPort();
-        this.logstashBeatsHost = eimConfig.getLogstashBeatsHost();
-        this.logstashBeatsPort = eimConfig.getLogstashBeatsPort();
-        this.logstashBindedTcpHost = eimConfig.getLogstashBindedTcpHost();
-        this.logstashBindedTcpPort = eimConfig.getLogstashBindedTcpPort();
-        this.logstashBindedBeatsHost = eimConfig.getLogstashBindedBeatsHost();
-        this.logstashBindedBeatsPort = eimConfig.getLogstashBindedBeatsPort();
-        this.logstashHttpPort = eimConfig.getLogstashHttpPort();
-        this.logstashHttpApiUrl = eimConfig.getLogstashHttpApiUrl();
+        if (eimConfig != null) {
+            this.user = eimConfig.getUser();
+            this.password = eimConfig.getPassword();
+            this.privateKey = eimConfig.getPrivateKey();
+            this.ip = eimConfig.getIp();
+            this.agentId = eimConfig.getAgentId();
+            this.logstashIp = eimConfig.getLogstashIp();
+            this.logstashTcpHost = eimConfig.getLogstashTcpHost();
+            this.logstashTcpPort = eimConfig.getLogstashTcpPort();
+            this.logstashBeatsHost = eimConfig.getLogstashBeatsHost();
+            this.logstashBeatsPort = eimConfig.getLogstashBeatsPort();
+            this.logstashBindedTcpHost = eimConfig.getLogstashBindedTcpHost();
+            this.logstashBindedTcpPort = eimConfig.getLogstashBindedTcpPort();
+            this.logstashBindedBeatsHost = eimConfig
+                    .getLogstashBindedBeatsHost();
+            this.logstashBindedBeatsPort = eimConfig
+                    .getLogstashBindedBeatsPort();
+            this.logstashHttpPort = eimConfig.getLogstashHttpPort();
+            this.logstashHttpApiUrl = eimConfig.getLogstashHttpApiUrl();
+        }
     }
 
     /* *************************** */
