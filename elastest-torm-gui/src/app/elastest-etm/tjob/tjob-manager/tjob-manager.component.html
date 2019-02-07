@@ -80,7 +80,7 @@
           <span>Executions</span> <span fxFlex></span>
           <button
             mat-button
-            (click)="removeSelectedExecs(row)"
+            (click)="removeSelectedExecs()"
             [disabled]="selectedExecsIds.length === 0 || deletingInProgress"
             stopRowClick
             class="iconBtn-lg"

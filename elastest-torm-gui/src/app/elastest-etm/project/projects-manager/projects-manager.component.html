@@ -6,7 +6,7 @@
           <span>Projects</span> <span fxFlex></span>
           <button
             mat-button
-            (click)="removeSelectedProjects(row)"
+            (click)="removeSelectedProjects()"
             [disabled]="selectedProjectsIds.length === 0 || deletingInProgress"
             stopRowClick
             class="iconBtn-lg"
