@@ -127,7 +127,9 @@ public class TcpServerService {
         @Override
         public void event(Object session, SyslogServerIF syslogServer,
                 SocketAddress socketAddress, SyslogRFC5424ServerEvent event) {
-            logger.info("EMS tcp beats trace: {}", event.getRaw());
+            logger.trace("EMS tcp beats trace: {}", event.getRaw());
+
+            // TODO when EMS working in mini
 
         }
 
