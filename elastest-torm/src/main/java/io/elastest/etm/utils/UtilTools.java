@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -223,6 +226,27 @@ public class UtilTools {
 
     public static ObjectNode convertObjToObjectNode(Object object) {
         return UtilTools.convertObjToJsonNode(object).deepCopy();
+    }
+
+    // String to Json
+
+    public static JsonNode stringToJsonNode(String jsonString)
+            throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readTree(jsonString);
+    }
+
+    public static boolean isJSONValid(String stringJson) {
+        try {
+            new JSONObject(stringJson);
+        } catch (JSONException ex) {
+            try {
+                new JSONArray(stringJson);
+            } catch (JSONException ex1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

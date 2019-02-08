@@ -29,6 +29,10 @@ import org.productivity.java.syslog4j.server.impl.event.SyslogRFC5424ServerEvent
 import org.productivity.java.syslog4j.util.SyslogUtility;
 import org.slf4j.Logger;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
+import io.elastest.etm.utils.UtilTools;
+
 /**
  * TCPNetSyslogRFC5424Server provides a simple threaded TCP/IP server
  * implementation.
@@ -76,10 +80,27 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                 if (line != null) {
                     handleSessionOpen(this.sessions, this.server, this.socket);
                 }
-                String currentCompleteLine = line;
 
-                logger.debug("(DELETEME) Current complete line: {}",
-                        currentCompleteLine);
+                // Check first if is JSON instead of message string
+                /*
+                 * Like {"@timestamp":"2019-02-08T10:08:10.477Z","port":53080,
+                 * "@version":"1","host":"172.27.0.1",
+                 * "message":"<27>1 2019-02-08T10:08:10.462059Z elastest-dev test_210_exec 1074 test_210_exec - Cloning into 'demo-projects'..."
+                 * ,"type":"et_logs"}
+                 */
+
+                String currentCompleteLine = line;
+                if (UtilTools.isJSONValid(currentCompleteLine)) {
+                    try {
+                        JsonNode json = UtilTools
+                                .stringToJsonNode(currentCompleteLine);
+                        if (json != null && json.has("message")) {
+                            currentCompleteLine = json.get("message")
+                                    .toString();
+                        }
+                    } catch (Exception e) {
+                    }
+                }
 
                 while (line != null && line.length() != 0) {
                     // Load next
