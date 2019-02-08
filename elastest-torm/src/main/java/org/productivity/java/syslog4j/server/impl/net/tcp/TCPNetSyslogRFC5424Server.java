@@ -102,6 +102,9 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                     }
                 }
 
+                logger.debug("(DELETEME) Current complete line: {}",
+                        currentCompleteLine);
+                
                 while (line != null && line.length() != 0) {
                     // Load next
                     String nextLine = null;
