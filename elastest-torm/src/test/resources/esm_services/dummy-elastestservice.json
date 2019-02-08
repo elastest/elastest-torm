@@ -1,6 +1,6 @@
 {
 	"register": {
-		"description": "ElasTest service that provides user impersonation as a service",
+		"description": "ElasTest service that provides a dummy service for testing",
 		"id": "873f23e8-256d-11e9-ab14-d663bd873d93",
 		"name": "DUMMY",
 		"short_name": "DUMMY",
