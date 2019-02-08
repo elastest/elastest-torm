@@ -108,26 +108,22 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                     // Load next
                     String nextLine = null;
 
-                    try {
-                        if (!fromJson && scanner.hasNextLine()) {
-                            nextLine = scanner.nextLine();
-                            
-                            Matcher matcher = pattern.matcher(nextLine);
-                            boolean areMatches = matcher.matches();
-                            // If are not matches, is the same trace
-                            while (!areMatches) {
-                                currentCompleteLine += "\\r" + nextLine;
-                                if (!scanner.hasNextLine()) {
-                                    break;
-                                }
-                                nextLine = scanner.nextLine();
+                    if (!fromJson && scanner.hasNextLine()) {
+                        nextLine = scanner.nextLine();
 
-                                matcher = pattern.matcher(nextLine);
-                                areMatches = matcher.matches();
+                        Matcher matcher = pattern.matcher(nextLine);
+                        boolean areMatches = matcher.matches();
+                        // If are not matches, is the same trace
+                        while (!areMatches) {
+                            currentCompleteLine += "\\r" + nextLine;
+                            if (!scanner.hasNextLine()) {
+                                break;
                             }
+                            nextLine = scanner.nextLine();
+
+                            matcher = pattern.matcher(nextLine);
+                            areMatches = matcher.matches();
                         }
-                    } catch (Exception e) {
-                        logger.error(e.getMessage());
                     }
 
                     SyslogRFC5424ServerEvent event = createEvent(
