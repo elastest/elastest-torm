@@ -90,6 +90,7 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                  */
 
                 String currentCompleteLine = line;
+                boolean fromJson = false;
                 if (UtilTools.isJSONValid(currentCompleteLine)) {
                     try {
                         JsonNode json = UtilTools
@@ -97,33 +98,36 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                         if (json != null && json.has("message")) {
                             currentCompleteLine = json.get("message")
                                     .toString();
+                            fromJson = true;
                         }
                     } catch (Exception e) {
                     }
                 }
 
-                logger.debug("(DELETEME) Current complete line: {}",
-                        currentCompleteLine);
-                
                 while (line != null && line.length() != 0) {
                     // Load next
                     String nextLine = null;
-                    if (scanner.hasNextLine()) {
-                        nextLine = scanner.nextLine();
 
-                        Matcher matcher = pattern.matcher(nextLine);
-                        boolean areMatches = matcher.matches();
-                        // If are not matches, is the same trace
-                        while (!areMatches) {
-                            currentCompleteLine += "\\r" + nextLine;
-                            if (!scanner.hasNextLine()) {
-                                break;
-                            }
+                    try {
+                        if (!fromJson && scanner.hasNextLine()) {
                             nextLine = scanner.nextLine();
+                            
+                            Matcher matcher = pattern.matcher(nextLine);
+                            boolean areMatches = matcher.matches();
+                            // If are not matches, is the same trace
+                            while (!areMatches) {
+                                currentCompleteLine += "\\r" + nextLine;
+                                if (!scanner.hasNextLine()) {
+                                    break;
+                                }
+                                nextLine = scanner.nextLine();
 
-                            matcher = pattern.matcher(nextLine);
-                            areMatches = matcher.matches();
+                                matcher = pattern.matcher(nextLine);
+                                areMatches = matcher.matches();
+                            }
                         }
+                    } catch (Exception e) {
+                        logger.error(e.getMessage());
                     }
 
                     SyslogRFC5424ServerEvent event = createEvent(
