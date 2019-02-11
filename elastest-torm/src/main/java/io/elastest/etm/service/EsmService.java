@@ -1668,8 +1668,8 @@ public class EsmService {
             String checklMessage = up ? serviceName + " Service is ready."
                     : serviceName + " Service is not ready yet.";
 
-            if (up && utilsService.isElastestMini()) {
-                etPluginsService.updateStatus(tSSInstance.getName(),
+            if (up && utilsService.isElastestMini() && !isSharedTssInstance(serviceName)) {
+                etPluginsService.updateStatus(tSSInstance.getInstanceId(),
                         DockerServiceStatusEnum.READY, "Ready");
             }
 

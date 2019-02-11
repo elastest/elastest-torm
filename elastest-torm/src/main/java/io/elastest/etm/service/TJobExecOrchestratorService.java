@@ -1428,7 +1428,8 @@ public class TJobExecOrchestratorService {
                 updateSutExecDeployStatus(dockerExec,
                         DeployStatusEnum.UNDEPLOYED);
             } finally {
-                if (dockerExec.getSutExec().getPublicPort() != null) {
+                if (dockerExec.getSutExec() != null
+                        && dockerExec.getSutExec().getPublicPort() != null) {
                     logger.debug("Removing sut socat container: {}",
                             "socat_sut_" + dockerExec.getSutExec().getId());
                     dockerEtmService.endContainer(
