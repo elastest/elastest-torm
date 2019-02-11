@@ -59,6 +59,7 @@ services:
             - ET_EPM_BINDED_PORT=8180
             - HOST_TIMEZONE=UTC
             - ET_TEST_ENGINES_ERE_ENABLED=false
+            - ET_ETM_LOG_LEVEL=DEBUG
         entrypoint: /run.sh
         expose:
             - 8091

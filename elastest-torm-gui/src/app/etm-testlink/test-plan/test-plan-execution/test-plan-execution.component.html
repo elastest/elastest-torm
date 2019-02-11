@@ -55,16 +55,24 @@
             fxLayout="column"
             fxFlexFill
           >
-            <div id="testLinkExec" fxFlex>
+            <div *ngIf="!savingAndLoadingTCase; else showTCLoadingSpinner" id="testLinkExec" fxFlex>
               <testlink-execution-form #tlExecutionForm *ngIf="data && data.testCase" [data]="data"></testlink-execution-form>
             </div>
+            <ng-template #showTCLoadingSpinner>
+              <mat-spinner
+                strokeWidth="6"
+                color="accent"
+                class="push-top-sm spinnerCenter"
+              ></mat-spinner>
+            </ng-template>
+
             <div fxLayout="row">
               <button
                 mat-raised-button
                 color="accent"
                 id="saveAndNext"
                 *ngIf="tlExecutionForm"
-                [disabled]="disableTLNextBtn || !tlExecutionForm.isValidForm()"
+                [disabled]="disableTLNextBtn || !tlExecutionForm.isValidForm() || savingAndLoadingTCase"
                 (click)="saveTLCaseExecution()"
               >
                 Save & Next

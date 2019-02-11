@@ -4,7 +4,7 @@
 		resource="org/springframework/boot/logging/logback/base.xml" />
 	<logger name="org" level="WARN" />
 	<logger name="springfox" level="WARN" />
-	<logger name="io.elastest" level="DEBUG" />
+	<logger name="io.elastest" level="${ET_ETM_LOG_LEVEL}" />
 	<logger name="org.productivity.java.syslog4j.server"
 		level="DEBUG" />
 	<logger name="com.zaxxer.hikari" level="OFF" />

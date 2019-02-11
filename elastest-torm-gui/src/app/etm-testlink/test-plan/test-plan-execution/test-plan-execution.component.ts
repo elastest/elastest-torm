@@ -88,6 +88,8 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   data: any;
   tJobExecUrl: string;
 
+  savingAndLoadingTCase: boolean = false;
+
   disableTLNextBtn: boolean = false;
   execFinished: boolean = false;
 
@@ -463,6 +465,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
             build: build,
             additionalNotes: additionalNotes,
           };
+          this.savingAndLoadingTCase = false;
         } else {
           this.saveTLCaseExecution();
         }
@@ -472,6 +475,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   }
 
   saveTLCaseExecution(): void {
+    this.savingAndLoadingTCase = true;
     this.saveExecution().subscribe(
       (savedObj: IExternalExecutionSaveModel) => {
         let tlExec: TestCaseExecutionModel = savedObj.response;
@@ -488,14 +492,23 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
                 (ok: any) => {
                   this.loadNextTestLinkCase();
                 },
-                (error: Error) => console.log(error),
+                (error: Error) => {
+                  console.log(error);
+                  this.savingAndLoadingTCase = false;
+                },
               );
             },
-            (error: Error) => console.log(error),
+            (error: Error) => {
+              console.log(error);
+              this.savingAndLoadingTCase = false;
+            },
           );
         }
       },
-      (error: Error) => console.log(error),
+      (error: Error) => {
+        console.log(error);
+        this.savingAndLoadingTCase = false;
+      },
     );
   }
 
