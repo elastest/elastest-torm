@@ -85,11 +85,11 @@ public class EtSampleDataLoader {
             this.createOpenVidu();
             this.createFullteaching();
             this.createEMS();
+            this.createEDS();
 
             if (etDataLoader.isStartedTestLink()) {
                 this.createTestLink();
             }
-
 
             if (!alreadyExists) {
                 try {
@@ -650,12 +650,11 @@ public class EtSampleDataLoader {
 
             String sutCompose = "version: '3'\r\n" + "services:\r\n"
                     + " nginx-service:\r\n" + "   image: nginx\r\n"
-                    + "   entrypoint:\r\n"
-                    + "     - /bin/bash\r\n"
+                    + "   entrypoint:\r\n" + "     - /bin/bash\r\n"
                     + "     - \"-c\"\r\n"
                     + "     - \"dd if=/dev/random of=/usr/share/nginx/html/sparse bs=1024 count=1 seek=5242880000;nginx;sleep infinity\"\r\n"
                     + "   expose:\r\n" + "     - \"80\"";
-                
+
             String mainService = "nginx-service";
             ProtocolEnum sutProtocol = ProtocolEnum.HTTP;
             String sutPort = "80";
@@ -677,9 +676,56 @@ public class EtSampleDataLoader {
                             sutProtocol, sutPort, null);
 
             // Create TJob
-            etDataLoader.createTJob(project, tJobName, resultsPath,
-                    tJobImage, false, commands,
-                    EXEC_DASHBOARD_CONFIG, null, tss, sut, null);
+            etDataLoader.createTJob(project, tJobName, resultsPath, tJobImage,
+                    false, commands, EXEC_DASHBOARD_CONFIG, null, tss, sut,
+                    null);
+        }
+
+    }
+
+    private void createEDS() {
+        String pjName = "EDS Example";
+        if (!etDataLoader.projectExists(pjName)) {
+            String sutName = "EDS SuT";
+            String sutDesc = "Sensor Actuator Logic SuT";
+            String sutImage = "elastest/eds-base";
+            String sutCommands = "git clone https://github.com/elastest/elastest-device-emulator-service.git /tmp/eds\n"
+                    + "\n" + "# create app template\n"
+                    + "./create-app-structure -d TestApplication\n"
+                    + "cp /tmp/eds/demo/eds_sut/TestApplication/* apps/TestApplication/src/testapplication/\n"
+                    + "\n" + "sh ./apps/test-application -v &\n" + "\n"
+                    + "python -m SimpleHTTPServer 9000";
+
+            ProtocolEnum sutProtocol = ProtocolEnum.HTTP;
+            String sutPort = "9000";
+
+            String tJobName = "EDS TJob";
+            String resultsPath = "/tmp/test-reports";
+            String tJobImage = "elastest/eds-base";
+            String commands = "# Give enough time for full initialization of SuT\n"
+                    + "sleep 10\n" + "\n"
+                    + "git clone https://github.com/elastest/elastest-device-emulator-service.git /tmp/eds\n"
+                    + "\n" + "# create TJob app template\n"
+                    + "./create-app-structure -d TestJob\n"
+                    + "cp /tmp/eds/demo/eds_tjob/tjob1/* apps/TestJob/src/testjob/\n"
+                    + "\n" + "sh ./apps/test-job -v";
+            List<String> tss = Arrays.asList("EDS");
+
+            this.printLog(pjName);
+            // Create Project
+            Project project = etDataLoader.createProject(pjName);
+
+            // Create Sut
+            SutSpecification sut = etDataLoader
+                    .createSutDeployedByElastestWithCommands(project, null,
+                            sutName, sutDesc, sutImage, sutCommands,
+                            CommandsOptionEnum.DEFAULT, sutProtocol, sutPort,
+                            null);
+
+            // Create TJob
+            etDataLoader.createTJob(project, tJobName, resultsPath, tJobImage,
+                    false, commands, EXEC_DASHBOARD_CONFIG, null, tss, sut,
+                    null);
         }
 
     }
