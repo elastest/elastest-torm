@@ -781,6 +781,8 @@ public class EsmService {
         serviceInstance.getSubServices().forEach((subService) -> {
             waitForServiceIsReady(subService);
         });
+        serviceInstance.setStatus(DockerServiceStatusEnum.READY);
+        serviceInstance.setStatusMsg("Ready");
     }
 
     public void waitForTssStartedInMini(TJobExecution tJobExec,
@@ -1548,7 +1550,10 @@ public class EsmService {
             Map<String, SupportServiceInstance> ssiMap) {
         SupportServiceInstance tss = ssiMap.get(id);
         if (tss != null) {
-            checkInstanceUrlIsUp(tss);
+            if (checkInstanceUrlIsUp(tss)) {
+                tss.setStatus(DockerServiceStatusEnum.READY);
+                tss.setStatusMsg("Ready");
+            }
         }
 
         return tss;
@@ -1614,6 +1619,8 @@ public class EsmService {
         tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
             if (tSSInstance.gettJobExecIdList().contains(tJobExecId.longValue())
                     && checkInstanceUrlIsUp(tSSInstance)) {
+                tSSInstance.setStatus(DockerServiceStatusEnum.READY);
+                tSSInstance.setStatusMsg("Ready");
                 tSSInstanceList.add(tSSInstance);
             }
         });
@@ -1668,7 +1675,8 @@ public class EsmService {
             String checklMessage = up ? serviceName + " Service is ready."
                     : serviceName + " Service is not ready yet.";
 
-            if (up && utilsService.isElastestMini() && !isSharedTssInstance(serviceName)) {
+            if (up && utilsService.isElastestMini()
+                    && !isSharedTssInstance(serviceName)) {
                 etPluginsService.updateStatus(tSSInstance.getInstanceId(),
                         DockerServiceStatusEnum.READY, "Ready");
             }
