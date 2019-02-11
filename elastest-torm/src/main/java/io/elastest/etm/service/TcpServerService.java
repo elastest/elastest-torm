@@ -21,7 +21,9 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import io.elastest.etm.beats.Message;
 import io.elastest.etm.utils.UtilsService;
+import io.netty.buffer.Unpooled;
 
 // docker run --name sut_3718_fullteaching --rm  -itd --log-driver=syslog --log-opt syslog-address=tcp://localhost:5000 --log-opt tag=sut_3718_fullteaching_exec elastest/test-etm-alpinegitjava sh -c "while true; do echo "aaaaa"; sleep 2; done"
 @Service
@@ -127,10 +129,18 @@ public class TcpServerService {
         @Override
         public void event(Object session, SyslogServerIF syslogServer,
                 SocketAddress socketAddress, SyslogRFC5424ServerEvent event) {
-            logger.trace("EMS tcp beats trace: {}", event.getRaw());
+            try {
+                if (event != null && event.getRaw() != null) {
+                    logger.trace("EMS tcp beats trace: {}",
+                            event.getRawString());
+                    Message msg = new Message(0,
+                            Unpooled.wrappedBuffer(event.getRaw()));
 
-            // TODO when EMS working in mini
+                    tracesService.processBeatTrace(msg.getData(), true);
+                }
+            } catch (Exception e) {
 
+            }
         }
 
         @Override

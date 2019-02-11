@@ -285,6 +285,10 @@ public class SyslogRFC5424ServerEvent implements SyslogServerEventIF {
         }
     }
 
+    public String getRawString() {
+        return this.rawString;
+    }
+
     public int getRawLength() {
         return this.rawLength;
     }

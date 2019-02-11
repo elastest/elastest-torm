@@ -93,36 +93,46 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                         line);
 
                 while (line != null && line.length() != 0) {
-                    // Load next
                     String nextLine = null;
-                    if (scanner.hasNextLine()) {
-                        nextLine = transformLogFromJsonIfNecessary(
-                                scanner.nextLine());
-                        Matcher matcher = pattern.matcher(nextLine);
-                        boolean areMatches = matcher.matches();
 
-                        // If are not matches, is the same trace
-                        while (!areMatches) {
-                            currentCompleteLine += "\\r" + nextLine;
-                            if (!scanner.hasNextLine()) {
-                                break;
-                            }
-
+                    // EMS beats
+                    if (isEMSBeatTrace(currentCompleteLine)) {
+                        this.sendEMSBeatsTrace(currentCompleteLine);
+                        if (scanner.hasNextLine()) {
+                            nextLine = scanner.nextLine();
+                        }
+                    } else { // Log
+                        // Load next
+                        if (scanner.hasNextLine()) {
                             nextLine = transformLogFromJsonIfNecessary(
                                     scanner.nextLine());
-                            matcher = pattern.matcher(nextLine);
-                            areMatches = matcher.matches();
+                            Matcher matcher = pattern.matcher(nextLine);
+                            boolean areMatches = matcher.matches();
+
+                            // If are not matches, is the same trace
+                            while (!areMatches) {
+                                currentCompleteLine += "\\r" + nextLine;
+                                if (!scanner.hasNextLine()) {
+                                    break;
+                                }
+
+                                nextLine = transformLogFromJsonIfNecessary(
+                                        scanner.nextLine());
+                                matcher = pattern.matcher(nextLine);
+                                areMatches = matcher.matches();
+                            }
                         }
-                    }
 
-                    SyslogRFC5424ServerEvent event = createEvent(
-                            (TCPNetSyslogRFC5424ServerConfigIF) this.server
-                                    .getConfig(),
-                            currentCompleteLine, this.socket.getInetAddress());
+                        SyslogRFC5424ServerEvent event = createEvent(
+                                (TCPNetSyslogRFC5424ServerConfigIF) this.server
+                                        .getConfig(),
+                                currentCompleteLine,
+                                this.socket.getInetAddress());
 
-                    if (event.isValidCurrentTraceArray()) {
-                        handleEvent(this.sessions, this.server, this.socket,
-                                event);
+                        if (event.isValidCurrentTraceArray()) {
+                            handleEvent(this.sessions, this.server, this.socket,
+                                    event);
+                        }
                     }
                     line = nextLine;
                     currentCompleteLine = line;
@@ -177,6 +187,28 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
             }
 
             return trace;
+        }
+
+        public boolean isEMSBeatTrace(String trace) {
+            if (UtilTools.isJSONValid(trace)) {
+                try {
+                    JsonNode json = UtilTools.stringToJsonNode(trace);
+                    if (json != null && json.has("ems_type")) {
+                        return json.get("ems_type").textValue().equals("beats");
+                    }
+                } catch (Exception e) {
+                }
+            }
+
+            return false;
+        }
+
+        public void sendEMSBeatsTrace(String trace) {
+            SyslogRFC5424ServerEvent event = createEvent(
+                    (TCPNetSyslogRFC5424ServerConfigIF) this.server.getConfig(),
+                    trace, this.socket.getInetAddress());
+
+            handleEvent(this.sessions, this.server, this.socket, event);
         }
 
         public static void handleSessionOpen(Sessions sessions,
