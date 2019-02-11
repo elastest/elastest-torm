@@ -89,38 +89,27 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                  * ,"type":"et_logs"}
                  */
 
-                String currentCompleteLine = line;
-                boolean fromJson = false;
-                if (UtilTools.isJSONValid(currentCompleteLine)) {
-                    try {
-                        JsonNode json = UtilTools
-                                .stringToJsonNode(currentCompleteLine);
-                        if (json != null && json.has("message")) {
-                            currentCompleteLine = json.get("message")
-                                    .toString();
-                            fromJson = true;
-                        }
-                    } catch (Exception e) {
-                    }
-                }
+                String currentCompleteLine = transformLogFromJsonIfNecessary(
+                        line);
 
                 while (line != null && line.length() != 0) {
                     // Load next
                     String nextLine = null;
-
-                    if (!fromJson && scanner.hasNextLine()) {
-                        nextLine = scanner.nextLine();
-
+                    if (scanner.hasNextLine()) {
+                        nextLine = transformLogFromJsonIfNecessary(
+                                scanner.nextLine());
                         Matcher matcher = pattern.matcher(nextLine);
                         boolean areMatches = matcher.matches();
+
                         // If are not matches, is the same trace
                         while (!areMatches) {
                             currentCompleteLine += "\\r" + nextLine;
                             if (!scanner.hasNextLine()) {
                                 break;
                             }
-                            nextLine = scanner.nextLine();
 
+                            nextLine = transformLogFromJsonIfNecessary(
+                                    scanner.nextLine());
                             matcher = pattern.matcher(nextLine);
                             areMatches = matcher.matches();
                         }
@@ -135,7 +124,6 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                         handleEvent(this.sessions, this.server, this.socket,
                                 event);
                     }
-
                     line = nextLine;
                     currentCompleteLine = line;
                 }
@@ -174,6 +162,21 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                 AbstractSyslogServer.handleException(this.sessions, this.server,
                         this.socket.getRemoteSocketAddress(), ioe);
             }
+        }
+
+        public String transformLogFromJsonIfNecessary(String trace)
+                throws IOException {
+            if (UtilTools.isJSONValid(trace)) {
+                try {
+                    JsonNode json = UtilTools.stringToJsonNode(trace);
+                    if (json != null && json.has("message")) {
+                        trace = json.get("message").textValue();
+                    }
+                } catch (Exception e) {
+                }
+            }
+
+            return trace;
         }
 
         public static void handleSessionOpen(Sessions sessions,
