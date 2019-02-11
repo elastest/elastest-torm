@@ -94,7 +94,7 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
 
                 while (line != null && line.length() != 0) {
                     String nextLine = null;
-
+                    logger.trace("TCP Server => Received trace : {}", line);
                     // EMS beats
                     if (isEMSBeatTrace(currentCompleteLine)) {
                         this.sendEMSBeatsTrace(currentCompleteLine);
