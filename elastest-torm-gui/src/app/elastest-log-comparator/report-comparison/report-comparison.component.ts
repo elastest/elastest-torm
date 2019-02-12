@@ -60,9 +60,9 @@ export class ReportComparisonComponent implements OnInit {
     // this.test = this.activatedRoute.snapshot.parent.params['exec'];
     // this.execution = await this.elasticsearchService.getExecutionByIdAsync(this.test);
     // this.project = this.activatedRoute.snapshot.parent.parent.params['project'];
-    // this.classesL = [];
-    // this.classesLc = [];
-    // this.updateViewMode(0, 0);
+    this.classesL = [];
+    this.classesLc = [];
+    this.viewMode = 0;
     // this.reloadTabContent();
     // const result: Execution = await this.elasticsearchService.getExecutionByIdAsync(this.test);
     // this.status = result.status;
@@ -435,16 +435,18 @@ export class ReportComparisonComponent implements OnInit {
   private async viewRaw(mode: number, maven: boolean): Promise<any> {
     this.ready = false;
     mode === 0 ? (this.classesL = []) : (this.classesLc = []);
-    const logs = await this.elasticsearchService.getLogsByTestAsync(
+    const logs: string[] = await this.elasticsearchService.getLogsByTestAsync(
       mode === 0 ? this.test : this.selected[0].id,
       this.project,
       false,
       maven,
     );
-    for (let i: number = 0; i < logs.length; i++) {
-      mode === 0 ? this.classesL.push(logs[i]) : this.classesLc.push(logs[i]);
+    if (logs) {
+      for (let i: number = 0; i < logs.length; i++) {
+        mode === 0 ? this.classesL.push(logs[i]) : this.classesLc.push(logs[i]);
+      }
+      this.ready = true;
     }
-    this.ready = true;
   }
 
   private containsTest(tests: TestC[], test: TestC): number {
