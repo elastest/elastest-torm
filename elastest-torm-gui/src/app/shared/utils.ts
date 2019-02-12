@@ -96,10 +96,37 @@ export function isString(s): boolean {
 
 export function removeDuplicates(arr: any[]): any[] {
   let uniqueArray: any[] = [];
-  for (let i = 0; i < arr.length; i++) {
+  for (let i: number = 0; i < arr.length; i++) {
     if (uniqueArray.indexOf(arr[i]) === -1) {
       uniqueArray.push(arr[i]);
     }
   }
   return uniqueArray;
+}
+
+export function allMatrixCombinations(arr: any[][]): any[][] {
+  if (arr.length === 1) {
+    return arr[0];
+  } else {
+    let result: any[] = [];
+    let allCasesOfRest: any[][] = allMatrixCombinations(arr.slice(1)); // recur with the rest of array
+    for (let i: number = 0; i < allCasesOfRest.length; i++) {
+      for (let j: number = 0; j < arr[0].length; j++) {
+        result.push(arr[0][j] + allCasesOfRest[i]);
+      }
+    }
+    return result;
+  }
+}
+
+export function allArrayPairCombinations(list: any[]): any[][] {
+  if (list.length < 2) {
+    return [];
+  }
+  let first: any = list[0];
+  let rest: any[] = list.slice(1);
+  let pairs: any[] = rest.map((x: any) => {
+    return [first, x];
+  });
+  return pairs.concat(allArrayPairCombinations(rest));
 }

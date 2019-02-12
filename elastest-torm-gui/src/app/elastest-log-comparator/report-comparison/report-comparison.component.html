@@ -1,0 +1,205 @@
+<mat-card class="toolbar-view-comp">
+  <div layout="row" class="padding-xl-sides">
+    <div class="half-part">
+      <div class="toolbar-text-container float-left">
+        <p class="text-18 text-center height-auto toolbar-text">View&nbsp;&nbsp;</p>
+      </div>
+      <div class="float-left">
+        <button mat-raised-button class="iconBtn-lg" color="{{ viewButtonsClasses[0] }}" (click)="updateViewMode(0, 0)">
+          <b>Complete logs</b></button
+        >&nbsp;&nbsp;
+        <button mat-raised-button class="iconBtn-lg" color="{{ viewButtonsClasses[3] }}" (click)="updateViewMode(0, 3)">
+          <b>Only tests logs</b></button
+        >&nbsp;&nbsp;
+        <button mat-raised-button class="iconBtn-lg" color="{{ viewButtonsClasses[1] }}" (click)="updateViewMode(0, 1)">
+          <b>All tests</b></button
+        >&nbsp;&nbsp;
+        <button mat-raised-button class="iconBtn-lg" color="{{ viewButtonsClasses[2] }}" (click)="updateViewMode(0, 2)">
+          <b>Failed tests</b>
+        </button>
+      </div>
+    </div>
+    <div *ngIf="selected[0] !== undefined; else notSelected" class="">
+      <mat-divider class="divider-vertical float-left"></mat-divider>
+      <div class="toolbar-text-container float-left">
+        <p class="text-18 text-center height-auto toolbar-text">&nbsp;&nbsp;&nbsp;Comparison&nbsp;&nbsp;</p>
+      </div>
+      <div class="float-left">
+        <button mat-raised-button class="iconBtn-lg" color="{{ comparisonButtonsClasses[0] }}" (click)="updateComparisonMode(0)">
+          <b>Complete</b></button
+        >&nbsp;&nbsp;
+        <button mat-raised-button class="iconBtn-lg" color="{{ comparisonButtonsClasses[1] }}" (click)="updateComparisonMode(1)">
+          <b>No timestamp</b></button
+        >&nbsp;&nbsp;
+        <button mat-raised-button class="iconBtn-lg" color="{{ comparisonButtonsClasses[2] }}" (click)="updateComparisonMode(2)">
+          <b>Time diff</b></button
+        >&nbsp;&nbsp;
+        <button mat-raised-button class="iconBtn-lg bgc-red-500" (click)="disableComparison()">
+          <span class="over-custom-button">Cancel comparison</span></button
+        >&nbsp;&nbsp;
+      </div>
+    </div>
+  </div>
+  <div *ngIf="execution !== undefined" class="cover-data">
+    <div *ngIf="selected[0] !== undefined; else showBasicMessage">
+      <div class="half-part float-left">
+        <div
+          class="cover-data padding-sides"
+          [ngClass]="execution.status.indexOf('SUCCESS') !== -1 ? 'bgc-green-50' : 'bgc-red-50'"
+          [ngStyle]="{ border: execution.status.indexOf('SUCCESS') !== -1 ? '2px solid #A5D6A7' : '2px solid #EF9A9A' }"
+        >
+          Execution <span class="md-title">{{ execution.id }}</span> has been completed in
+          <span class="md-title">{{ execution.time_elapsed }} seconds</span>, starting at
+          <span class="md-title">{{ execution.start_date }}</span> and its result is
+          <span class="md-title">{{ execution.status }}</span
+          >.
+        </div>
+      </div>
+      <div class="half-part float-right">
+        <div
+          class="cover-data padding-sides"
+          [ngClass]="selected[0].status.status.indexOf('SUCCESS') !== -1 ? 'bgc-green-50' : 'bgc-red-50'"
+          [ngStyle]="{
+            border: selected[0].status.status.indexOf('SUCCESS') !== -1 ? '2px solid #A5D6A7' : '2px solid #EF9A9A',
+            'border-right': '0px'
+          }"
+        >
+          Execution <span class="md-title">{{ selected[0].id }}</span> has been completed in
+          <span class="md-title">{{ selected[0].time_elapsed }} seconds</span>, starting at
+          <span class="md-title">{{ selected[0].start_date }}</span> and its result is
+          <span class="md-title">{{ selected[0].status.status }}</span
+          >.
+        </div>
+      </div>
+    </div>
+    <ng-template #showBasicMessage>
+      <div
+        class="cover-data padding-sides"
+        [ngClass]="execution.status.indexOf('SUCCESS') !== -1 ? 'bgc-green-50' : 'bgc-red-50'"
+        [ngStyle]="{ border: execution.status.indexOf('SUCCESS') !== -1 ? '2px solid #A5D6A7' : '2px solid #EF9A9A' }"
+      >
+        Execution <span class="md-title">{{ execution.id }}</span> has been completed in
+        <span class="md-title">{{ execution.time_elapsed }} seconds</span>, starting at
+        <span class="md-title">{{ execution.start_date }}</span> and its result is
+        <span class="md-title">{{ execution.status }}</span
+        >.
+      </div>
+    </ng-template>
+  </div>
+
+  <mat-card-content id="main-content">
+    <div *ngIf="loadingData; else notLoading" style="width: 100%; display: flex; align-content: center; justify-content: center;">
+      <div style="display: inline-block; align-content: center; justify-content: center;">
+        <mat-spinner diameter="25"></mat-spinner>
+        <br />
+        <p>Fetching data. Please wait...</p>
+      </div>
+    </div>
+    <ng-template #notLoading>
+      <div *ngIf="comparisonInProgress">
+        <table *ngIf="viewMode == 0 || viewMode == 3" class="diff-table">
+          <tbody>
+            <tr *ngFor="let result of resultData[0].logs">
+              <td [innerHTML]="result.index_p" class="index" style="width: 1% !important"></td>
+              <td [innerHTML]="result.com_p.content" [class]="result.com_p.class" style="width: 49% !important"></td>
+              <td [innerHTML]="result.indexp" class="index" style="width: 1% !important;"></td>
+              <td [innerHTML]="result.comp.content" [class]="result.comp.class" style="width: 49% !important;"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="viewMode == 1 || viewMode == 2">
+          <ng-template ngFor let-class [ngForOf]="resultData">
+            <h3>{{ class.name }}</h3>
+            <ng-template ngFor let-method [ngForOf]="class.methods">
+              <h5>{{ method.name }}</h5>
+              <table class="diff-table">
+                <tbody>
+                  <tr *ngFor="let result of method.logs">
+                    <td [innerHTML]="result.index_p" class="index" style="width: 1% !important;"></td>
+                    <td [innerHTML]="result.com_p.content" [class]="result.com_p.class" style="width: 49% !important;"></td>
+                    <td [innerHTML]="result.indexp" class="index" style="width: 1% !important"></td>
+                    <td [innerHTML]="result.comp.content" [class]="result.comp.class" style="width: 49% !important;"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </ng-template>
+          </ng-template>
+        </div>
+      </div>
+      <div *ngIf="!comparisonInProgress">
+        <div *ngIf="viewMode == 0 || viewMode == 3">
+          <table class="diff-table">
+            <tbody>
+              <tr *ngFor="let log of classesL; index as i">
+                <td class="index">{{ i }}.</td>
+                <td>{{ log.log }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="viewMode == 1 || viewMode == 2">
+          <ng-template ngFor let-item [ngForOf]="classesL">
+            <h3>{{ item.name }}</h3>
+            <ng-template ngFor let-itemm [ngForOf]="item.methods">
+              <h5>{{ itemm.name }}</h5>
+              <table class="diff-table">
+                <tbody>
+                  <tr *ngFor="let log of itemm.logs; index as i">
+                    <td class="index">{{ i }}.</td>
+                    <td>{{ log.timestamp }} [{{ log.thread }}] {{ log.level }} {{ log.logger }} - {{ log.message }}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <br />
+            </ng-template>
+          </ng-template>
+        </div>
+      </div>
+    </ng-template>
+  </mat-card-content>
+</mat-card>
+<ng-template #selection>
+  <td-data-table
+    [clickable]="true"
+    [columns]="execsData"
+    [data]="execsRow"
+    [multiple]="false"
+    [selectable]="true"
+    [sortable]="false"
+    (rowSelect)="selectEvent($event)"
+    [(ngModel)]="selected"
+    [style.height.px]="150"
+  >
+    <ng-template *ngFor="let column of execsData" tdDataTableTemplate="{{ column.name }}" let-value="value" let-row="row">
+      <div *ngIf="column.name !== 'options'" (click)="viewExec(row)">{{ value }}</div>
+    </ng-template>
+    <ng-template tdDataTableTemplate="status" let-value="value">
+      <mat-icon [ngClass]="value.class">{{ value.icon }}</mat-icon
+      >&nbsp;&nbsp;{{ value.status }}
+    </ng-template>
+    <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+      <div *ngIf="deleteInProgress && row.id === execDeleting; else notDeleting">
+        <div class="iconBtn-lg">
+          <mat-spinner diameter="25"></mat-spinner>
+        </div>
+      </div>
+      <ng-template #notDeleting>
+        <div layout="row">
+          <button
+            class="iconBtn-lg"
+            mat-button
+            stopRowClick
+            title="Delete execution"
+            (click)="delete(row)"
+            [disabled]="row.id !== execDeleting && deleteInProgress"
+          >
+            <mat-icon [ngClass]="{ 'tc-grey-300': row.id !== execDeleting && deleteInProgress }">delete</mat-icon>
+          </button>
+          <button class="iconBtn-lg" mat-button stopRowClick title="View execution" (click)="goTo(row)">
+            <mat-icon>remove_red_eye</mat-icon>
+          </button>
+        </div>
+      </ng-template>
+    </ng-template>
+  </td-data-table>
+</ng-template>

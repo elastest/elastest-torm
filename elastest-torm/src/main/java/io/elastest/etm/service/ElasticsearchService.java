@@ -60,6 +60,7 @@ import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.model.TimeRange;
+import io.elastest.etm.model.Trace;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
@@ -604,6 +605,36 @@ public class ElasticsearchService implements MonitoringServiceInterface {
                 IndicesOptions.fromOptions(true, false, false, false));
 
         return this.searchAllByRequest(searchRequest);
+    }
+
+    @Override
+    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery)
+            throws Exception {
+        List<String> logs = new ArrayList<>();
+        List<Map<String, Object>> logTraces = searchAllLogs(monitoringQuery);
+
+        if (logTraces != null) {
+            for (Map<String, Object> traces : logTraces) {
+                if (traces != null) {
+
+                    for (HashMap.Entry<String, Object> trace : traces
+                            .entrySet()) {
+                        if (trace != null) {
+                            String msg = null;
+                            try {
+                                msg = ((Trace) trace).getMessage();
+                            } catch (Exception e) {
+                            }
+                            if (msg != null) {
+                                logs.add(msg);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return logs;
     }
 
     public List<Map<String, Object>> getPreviousLogsFromTimestamp(

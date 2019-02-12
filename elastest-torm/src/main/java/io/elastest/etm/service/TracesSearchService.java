@@ -151,6 +151,13 @@ public class TracesSearchService implements MonitoringServiceInterface {
     @Override
     public List<Map<String, Object>> searchAllLogs(
             MonitoringQuery monitoringQuery) throws Exception {
+        List<Trace> traces = this.searchAllLogsTraces(monitoringQuery);
+
+        return this.getTracesMapListByTracesList(traces);
+    }
+
+    public List<Trace> searchAllLogsTraces(MonitoringQuery monitoringQuery)
+            throws Exception {
         List<Trace> traces;
         if (monitoringQuery.getTimeRange() != null
                 && !monitoringQuery.getTimeRange().isEmpty()) {
@@ -163,8 +170,24 @@ public class TracesSearchService implements MonitoringServiceInterface {
                             monitoringQuery.getStream(),
                             monitoringQuery.getComponent());
         }
+        return traces;
+    }
 
-        return this.getTracesMapListByTracesList(traces);
+    @Override
+    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery)
+            throws Exception {
+        List<String> logs = new ArrayList<>();
+        List<Trace> logTraces = searchAllLogsTraces(monitoringQuery);
+
+        if (logTraces != null) {
+            for (Trace trace : logTraces) {
+                if (trace != null && trace.getMessage() != null) {
+                    logs.add(trace.getMessage());
+                }
+            }
+        }
+
+        return logs;
     }
 
     public List<Trace> searchAllLogsByTimeRange(MonitoringQuery monitoringQuery)

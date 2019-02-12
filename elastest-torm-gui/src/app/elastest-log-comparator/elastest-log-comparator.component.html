@@ -1,0 +1,9 @@
+<mat-card>
+  <mat-card-title>
+    {{ titleName }}
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <mat-card-content>
+    <elastest-logcomparator-report-comparison *ngIf="model" [diff]="model"></elastest-logcomparator-report-comparison>
+  </mat-card-content>
+</mat-card>

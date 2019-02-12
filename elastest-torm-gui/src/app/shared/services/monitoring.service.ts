@@ -82,6 +82,31 @@ export class MonitoringService {
       .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
+  public compareLogsPairByQuery(query: MonitoringQueryModel): Observable<string> {
+    let url: string = this.etmApiUrl + '/monitoring/log/compare';
+    return this.http.post(url, query, { responseType: 'text' }).map((data: string) => data);
+  }
+
+  compareLogsPair(
+    pair: string[],
+    stream: string,
+    component: string,
+    tJobExec?: AbstractTJobExecModel,
+    from: Date = undefined,
+    to: Date = undefined,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
+  ): Observable<string> {
+    let query: MonitoringQueryModel = new MonitoringQueryModel();
+    query.indices = pair;
+    query.stream = stream;
+    query.component = component;
+    query.setTimeRange(from, to, includedFrom, includedTo);
+    query.selectedTerms.push('stream', 'component');
+
+    return this.compareLogsPairByQuery(query);
+  }
+
   /* *** Metrics *** */
 
   public searchAllMetrics(query: MonitoringQueryModel): Observable<any> {
@@ -262,8 +287,7 @@ export class MonitoringService {
 
   getLogsTree(tJobExec: AbstractTJobExecModel): Observable<any[]> {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
-    let enableParentBehaviour: boolean = false;
-    if (tJobExec instanceof TJobExecModel && tJobExec.isParent() && enableParentBehaviour) {
+    if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
       query.indices = tJobExec.getChildsMonitoringIndices().split(',');
     } else {
       query.indices = tJobExec.getMonitoringIndexAsList();

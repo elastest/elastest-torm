@@ -32,6 +32,7 @@ import {
   MatSidenavModule,
   MatTabsModule,
   MatSelectModule,
+  MatProgressSpinnerModule,
 } from '@angular/material';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { LogsViewComponent } from './logs-view/logs-view.component';
@@ -60,6 +61,8 @@ import { CenteredElementComponent } from './centered-element/centered-element.co
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faFileDownload } from '@fortawesome/free-solid-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
+import { ElastestLogComparatorComponent } from '../elastest-log-comparator/elastest-log-comparator.component';
+import { ReportComparisonComponent } from '../elastest-log-comparator/report-comparison/report-comparison.component';
 
 library.add(faFileDownload);
 
@@ -110,6 +113,7 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     FLEX_LAYOUT_MODULES,
     CovalentExpansionPanelModule,
     FontAwesomeModule,
+    MatProgressSpinnerModule,
   ],
   declarations: [
     LogsViewComponent,
@@ -122,6 +126,8 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     TooltipAreaComponent,
     TimelineComponent,
     EtmLogsGroupComponent,
+    ElastestLogComparatorComponent,
+    ReportComparisonComponent,
     VncClientComponent,
     TestVncComponent,
     StringListViewComponent,

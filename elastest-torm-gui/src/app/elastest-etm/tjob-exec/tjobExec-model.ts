@@ -110,6 +110,7 @@ export class TJobExecModel extends AbstractTJobExecModel {
     return this.execChilds !== undefined && this.execChilds !== null && this.execChilds.length > 0;
   }
 
+  // All monitoring indices separated by comma
   getChildsMonitoringIndices(): string {
     let monitoringIndices: string = '';
     if (this.isParent() && this.execChilds !== undefined) {
@@ -122,6 +123,19 @@ export class TJobExecModel extends AbstractTJobExecModel {
           monitoringIndices +=
             child.monitoringIndex !== undefined && child.monitoringIndex !== '' ? ',' + child.monitoringIndex : '';
           counter++;
+        }
+      }
+    }
+    return monitoringIndices;
+  }
+
+  // List of monitoring indices by exec (['325, s3_e54', '326, s3_e54', '327, s3_e54'])
+  getChildsMonitoringIndicesList(): string[] {
+    let monitoringIndices: string[] = [];
+    if (this.isParent() && this.execChilds !== undefined) {
+      for (let child of this.execChilds) {
+        if (child.monitoringIndex !== undefined && child.monitoringIndex !== '') {
+          monitoringIndices.push(child.monitoringIndex);
         }
       }
     }

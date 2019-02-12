@@ -39,6 +39,8 @@ export class MonitoringConfigurationComponent implements OnInit {
 
   metricbeatFieldGroupList: MetricFieldGroupModel[];
 
+  logsToCompare: any[] = [];
+
   constructor(
     private dialogRef: MatDialogRef<MonitoringConfigurationComponent>,
     private monitoringService: MonitoringService,
@@ -52,7 +54,7 @@ export class MonitoringConfigurationComponent implements OnInit {
     this.metricbeatFieldGroupList = getMetricBeatFieldGroupList();
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadTrees();
   }
 
@@ -98,7 +100,7 @@ export class MonitoringConfigurationComponent implements OnInit {
           this.logTree.updateCheckboxes(this.logsTreeComponent.treeModel.roots);
         }
       },
-      (error) => {
+      (error: Error) => {
         this.loadingLogs = false;
         this.noLogs = true;
       },
@@ -162,7 +164,7 @@ export class MonitoringConfigurationComponent implements OnInit {
           this.metricTree.updateCheckboxes(this.metricsTreeComponent.treeModel.roots);
         }
       },
-      (error) => {
+      (error: Error) => {
         this.loadingMetrics = false;
         this.noMetrics = true;
       },
@@ -215,7 +217,11 @@ export class MonitoringConfigurationComponent implements OnInit {
           stream: stream.name,
           activated: stream.checked,
         };
-        logsList.push(log);
+        if (this.tJobExec instanceof TJobExecModel && this.tJobExec.isParent()) {
+          this.logsToCompare.push(log);
+        } else {
+          logsList.push(log);
+        }
       }
     }
     return logsList;
@@ -264,6 +270,7 @@ export class MonitoringConfigurationComponent implements OnInit {
     let response: any = {
       logsList: logsList,
       metricsList: metricsList,
+      logsToCompare: this.logsToCompare,
       withSave: withSave,
     };
     this.dialogRef.close(response);

@@ -98,6 +98,17 @@ public interface TracesApi extends EtmApiRoot {
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws Exception;
 
+    @ApiOperation(value = "Returns Logs Pair comparation.", notes = "Returns Logs Pair comparation.", response = String.class, tags = {
+            "Monitoring", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/monitoring/log/compare", consumes = {
+            "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<String> compareLogsPair(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws Exception;
+
     /* ***************************************** */
     /* **************** Metrics **************** */
     /* ***************************************** */

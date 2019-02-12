@@ -31,6 +31,9 @@ export class EtmLogsGroupComponent implements OnInit {
   logsList: ESRabLogModel[] = [];
   groupedLogsList: ESRabLogModel[][] = [];
 
+  logsDiffList: string[] = [];
+  logsDiffPairsList: string[][] = [];
+
   subscriptions: Map<string, Subscription> = new Map();
 
   loaded: boolean = false;
@@ -269,5 +272,13 @@ export class EtmLogsGroupComponent implements OnInit {
     for (let log of this.logsList) {
       log.loadLastTraces();
     }
+  }
+
+  // Comparison
+
+  addMoreLogsComparison(logDiff: string, pair: string[]): boolean {
+    this.logsDiffList.push(logDiff);
+    this.logsDiffPairsList.push(pair);
+    return true;
   }
 }

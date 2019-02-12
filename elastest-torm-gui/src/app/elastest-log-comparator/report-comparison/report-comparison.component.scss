@@ -1,0 +1,239 @@
+.iconBtn-lg {
+  min-width: initial !important;
+  padding: 0 15px !important;
+}
+
+.toolbar-text {
+  vertical-align: middle;
+  margin-bottom: 0px;
+}
+
+.toolbar-text-container {
+  line-height: 40px;
+}
+
+h3,
+h5 {
+  font-family: 'Inconsolata', 'Consolas', 'Monaco';
+}
+
+.diff-table {
+  font-family: 'Inconsolata', 'Consolas', 'Monaco';
+  font-size: 0.9em;
+  background: white;
+  width: 100%;
+}
+
+.index {
+  color: rgb(102, 102, 102);
+}
+
+.execs {
+  background-color: rgb(195, 195, 195);
+  border: none;
+  color: #0e0e0e;
+  padding: 3px 8px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1.3em;
+}
+
+.title-icon {
+  color: white;
+}
+
+.active-icon {
+  color: #bf360c;
+}
+
+.active {
+  background-color: rgb(25, 118, 210);
+  border: none;
+  color: white;
+  padding: 3px 8px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1.3em;
+}
+
+.find {
+  background-color: rgb(251, 140, 0); /* Green */
+  font-size: 21px;
+  border: none;
+  color: white;
+  padding: 0.5em 0.8em;
+  border-radius: 0.2em;
+  width: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.title {
+  color: white;
+}
+
+.left {
+  float: left;
+}
+
+.clickable {
+  font-size: 0.75em;
+}
+
+.classname {
+  font-size: 0.75em;
+}
+
+.icon {
+  position: absolute;
+  right: 0px;
+}
+
+.no-margin {
+  margin: 0 0px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.not-displayed {
+  /*display: none;*/
+}
+
+.display {
+  display: block;
+}
+
+.delC {
+  background: rgb(252, 216, 217);
+  border: 1px solid rgb(154, 35, 40);
+}
+
+.insC {
+  background: rgb(224, 252, 208);
+  border: 1px solid rgb(26, 152, 31);
+}
+
+.added {
+  background: rgb(231, 231, 231);
+  border: 1px solid rgb(187, 187, 187);
+}
+
+.diff-table {
+  font-family: 'Inconsolata', 'Consolas', 'Monaco';
+  font-size: 0.9em;
+  background: white;
+  width: 100%;
+}
+
+.index {
+  color: rgb(102, 102, 102);
+}
+
+.method-selected {
+  background: rgba(0, 0, 0, 0.32);
+  color: hsla(0, 0%, 100%, 0.87);
+}
+
+.method-selected mat-icon {
+  color: hsla(0, 0%, 100%, 0.87);
+}
+
+.hide {
+  display: none;
+}
+
+.comparator-section {
+  float: left;
+  width: 50%;
+}
+
+.clear {
+  clear: both;
+  overflow: hidden;
+}
+
+.comp-title {
+  font-size: x-large;
+}
+
+.iconBtn {
+  min-width: initial !important;
+  padding: 0 !important;
+}
+
+.table-selection {
+}
+
+.pad-top {
+  padding-top: 10px;
+}
+
+.divider-vertical {
+  border-top-width: 0;
+  border-right-width: 1px;
+  border-right-color: #e0e0e0;
+  border-right-style: solid;
+  height: 40px;
+}
+
+.status-feedback {
+  background: #fff;
+  bottom: 0;
+  height: 60px;
+  margin-left: 8px;
+  margin-right: 8px;
+  position: fixed;
+  width: calc(100% - 2.063em);
+}
+
+.half-part {
+  width: 50%;
+}
+
+.span-title {
+  font-weight: bold;
+}
+
+.red-back {
+  background-color: red;
+}
+
+.green-black {
+  background-color: green;
+}
+
+.float-left {
+  float: left;
+}
+
+.float-right {
+  float: right;
+}
+
+#main-content {
+  margin-top: 145px;
+}
+
+.cover-data {
+  margin-top: 10px;
+  padding-top: 5px;
+}
+
+.padding-sides {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.padding-xl-sides {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.over-custom-button {
+  font-weight: bold;
+  color: #fff;
+}

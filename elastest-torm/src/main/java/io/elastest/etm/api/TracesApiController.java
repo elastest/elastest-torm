@@ -3,11 +3,14 @@ package io.elastest.etm.api;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,8 @@ import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.service.MonitoringServiceInterface;
 import io.elastest.etm.service.TracesService;
+import io.elastest.etm.utils.DiffMatchPatch;
+import io.elastest.etm.utils.DiffMatchPatch.Diff;
 import io.swagger.annotations.ApiParam;
 
 @Controller
@@ -85,16 +90,47 @@ public class TracesApiController implements TracesApi {
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws Exception {
         return new ResponseEntity<List<AggregationTree>>(
-                monitoringService.searchLogsTree(body),
-                HttpStatus.OK);
+                monitoringService.searchLogsTree(body), HttpStatus.OK);
     }
 
     public ResponseEntity<List<AggregationTree>> searchLogsLevelsTree(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws Exception {
         return new ResponseEntity<List<AggregationTree>>(
-                monitoringService.searchLogsLevelsTree(body),
-                HttpStatus.OK);
+                monitoringService.searchLogsLevelsTree(body), HttpStatus.OK);
+    }
+
+    public ResponseEntity<String> compareLogsPair(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws Exception {
+        if (body != null && body.getIndices() != null
+                && body.getIndices().size() == 2) {
+
+            String[] pairLogs = new String[2];
+            int pos = 0;
+            for (String index : body.getIndices()) {
+                MonitoringQuery newQuery = new MonitoringQuery(body);
+                newQuery.setIndices(Arrays.asList(index));
+                List<String> logs = monitoringService
+                        .searchAllLogsMessage(newQuery);
+
+                if (pos < 2) {
+                    pairLogs[pos] = StringUtils.join(logs, String.format("%n"));
+                }
+                pos++;
+            }
+
+            if (pairLogs[0] != null && pairLogs[1] != null) {
+                DiffMatchPatch dmp = new DiffMatchPatch();
+                LinkedList<Diff> diffs = dmp.diffMain(pairLogs[0], pairLogs[1]);
+                dmp.diffCleanupSemantic(diffs);
+                System.out.println(diffs);
+                return new ResponseEntity<>(dmp.diffPrettyHtml(diffs),
+                        HttpStatus.OK);
+            }
+
+        }
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     /* ***************************************** */

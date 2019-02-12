@@ -15,7 +15,7 @@ import { MonitoringService } from '../../shared/services/monitoring.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { LogAnalyzerService } from '../../elastest-log-analyzer/log-analyzer.service';
 import { MonitorMarkModel } from './monitor-mark.model';
-import { sleep, asyncSleep } from '../../shared/utils';
+import { sleep, allArrayPairCombinations } from '../../shared/utils';
 
 @Component({
   selector: 'etm-monitoring-view',
@@ -250,6 +250,9 @@ export class EtmMonitoringViewComponent implements OnInit {
         if (data.logsList) {
           this.updateLogsFromList(data.logsList, withSave);
         }
+        if (data.logsToCompare) {
+          this.updateLogsToCompareFromList(data.logsToCompare, withSave);
+        }
         if (data.metricsList) {
           this.updateMetricsFromList(data.metricsList, withSave);
         }
@@ -289,6 +292,66 @@ export class EtmMonitoringViewComponent implements OnInit {
       position++;
     }
   }
+
+  updateLogsToCompareFromList(logsList: any[], withSave: boolean): void {
+    for (let log of logsList) {
+      if (log.activated) {
+        this.updateLogToCompare(log, withSave);
+      } else {
+        // Remove
+        this.removeLogComparisonCard(log);
+        if (withSave) {
+          this.saveMonitoringConfig(false);
+        }
+      }
+    }
+  }
+
+  public updateLogToCompare(log: any, withSave: boolean, showPopup: boolean = false): void {
+    this.component = log.component;
+    this.stream = log.stream;
+    this.metricName = '';
+    if (this.tJobExec instanceof TJobExecModel && this.tJobExec.isParent()) {
+      let monitoringIndicesList: string[] = this.tJobExec.getChildsMonitoringIndicesList();
+      if (monitoringIndicesList.length > 1) {
+        let pairCombinations: string[][] = allArrayPairCombinations(monitoringIndicesList);
+
+        for (let pair of pairCombinations) {
+          this.monitoringService
+            .compareLogsPair(
+              pair,
+              this.stream,
+              this.component,
+              this.tJobExec,
+              this.tJobExec.startDate,
+              this.tJobExec.endDate,
+              true,
+              true,
+            )
+            .subscribe(
+              (diff: string) => {
+                this.logsGroup.addMoreLogsComparison(diff, pair);
+              },
+              (error: Error) => {
+                console.log(error);
+              },
+            );
+        }
+      }
+    }
+  }
+
+  removeLogComparisonCard(log: any): void {
+    let position: number = 0;
+    for (let logCard of this.logsGroup.logsList) {
+      if (logCard.component === log.component && logCard.stream === log.stream) {
+        this.logsGroup.removeAndUnsubscribe(position);
+        break;
+      }
+      position++;
+    }
+  }
+
   updateMetricsFromList(metricsList: any[], withSave: boolean): void {
     for (let metric of metricsList) {
       if (metric.activated) {
