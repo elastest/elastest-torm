@@ -243,13 +243,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
       metric.streamType,
       metric.activated,
     );
-    this.tJob.execDashboardConfigModel.allMetricsFields.addMetricsFieldToList(
-      metric,
-      individualMetrics.component,
-      individualMetrics.stream,
-      metric.streamType,
-      metric.activated,
-    );
+
 
     let pos: number = this.metricsList.length - 1;
 
@@ -454,8 +448,6 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     }
     this.metricsList.splice(pos, 1);
     this.createGroupedMetricList();
-
-    this.tJob.execDashboardConfigModel.allMetricsFields.disableMetricFieldByTitleName(name);
   }
 
   removeAndUnsubscribeAIO(): void {

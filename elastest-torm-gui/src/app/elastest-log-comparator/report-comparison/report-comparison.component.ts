@@ -1,5 +1,4 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ITdDataTableColumn } from '@covalent/core';
 import { TableService } from '../service/table.service';
 import { LogComparisonModel, comparisonMode } from '../model/log-comparison.model';
 import { MonitoringService } from '../../shared/services/monitoring.service';
@@ -15,8 +14,10 @@ export class ReportComparisonComponent implements OnInit {
   diff: string;
 
   comparisonInProgress: boolean = false;
-  comparisonButtonsClasses: string[] = ['primary', 'primary', 'primary'];
-  comparisonMode: number;
+  comparisonMode: number = 1;
+  comparisonCompleteBtnEnabled: boolean = true;
+  comparisonNoTimestampBtnEnabled: boolean = false;
+  comparisonTimeDiffBtnEnabled: boolean = true;
 
   execsRow: any[] = [];
   loadingData: boolean;
@@ -58,6 +59,7 @@ export class ReportComparisonComponent implements OnInit {
               logs: this.tableService.generateTable(this.diff),
             };
             this.comparisonInProgress = true;
+            this.resetComparisonButtons();
 
             this.loadingData = false;
           },
@@ -68,23 +70,26 @@ export class ReportComparisonComponent implements OnInit {
     }
   }
 
-  updateComparisonMode(mode: number): void {
+  updateComparisonMode(mode: number, $event: any): void {
     this.comparisonMode = mode;
     this.loadingData = true;
     let comparison: comparisonMode = 'notimestamp';
     switch (this.comparisonMode) {
+      // Complete
       case 0:
         comparison = 'complete';
         break;
+      // Timediff
       case 2:
         comparison = 'timediff';
         break;
+      // No timestamp
+
       case 1:
       default:
         break;
     }
     this.loadComparison(comparison);
-    this.resetComparisonButtonsClasses();
   }
 
   updateViewMode(comp: number, mode: number): void {
@@ -113,12 +118,25 @@ export class ReportComparisonComponent implements OnInit {
     // }
   }
 
-  private resetComparisonButtonsClasses(): void {
-    for (let i: number = 0; i < this.comparisonButtonsClasses.length; i++) {
-      this.comparisonButtonsClasses[i] = 'primary';
-    }
-    if (this.comparisonInProgress) {
-      this.comparisonButtonsClasses[this.comparisonMode] = 'accent';
+  private resetComparisonButtons(): void {
+    this.comparisonCompleteBtnEnabled = true;
+    this.comparisonNoTimestampBtnEnabled = true;
+    this.comparisonTimeDiffBtnEnabled = true;
+    switch (this.comparisonMode) {
+      // Complete
+      case 0:
+        this.comparisonCompleteBtnEnabled = false;
+        break;
+      // No timestamp
+      case 1:
+        this.comparisonNoTimestampBtnEnabled = false;
+        break;
+      // TimeDiff
+      case 2:
+        this.comparisonTimeDiffBtnEnabled = false;
+        break;
+      default:
+        break;
     }
   }
 

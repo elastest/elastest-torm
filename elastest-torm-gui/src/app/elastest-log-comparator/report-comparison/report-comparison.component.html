@@ -9,35 +9,21 @@
           <button
             mat-raised-button
             class="iconBtn-lg push-right-sm"
-            color="{{ viewButtonsClasses[0] }}"
+            color="accent"
             (click)="updateViewMode(0, 0)"
+            [disabled]="true"
           >
             <b>Complete logs</b>
           </button>
-          <button
-            mat-raised-button
-            class="iconBtn-lg push-right-sm"
-            color="{{ viewButtonsClasses[3] }}"
-            (click)="updateViewMode(0, 3)"
-          >
+          <!-- <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 3)">
             <b>Only tests logs</b>
           </button>
-          <button
-            mat-raised-button
-            class="iconBtn-lg push-right-sm"
-            color="{{ viewButtonsClasses[1] }}"
-            (click)="updateViewMode(0, 1)"
-          >
+          <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 1)">
             <b>All tests</b>
           </button>
-          <button
-            mat-raised-button
-            class="iconBtn-lg push-right-sm"
-            color="{{ viewButtonsClasses[2] }}"
-            (click)="updateViewMode(0, 2)"
-          >
+          <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 2)">
             <b>Failed tests</b>
-          </button>
+          </button> -->
         </div>
       </div>
       <mat-divider [vertical]="true" class="push-right-sm" style="height: 40px;"></mat-divider>
@@ -49,24 +35,30 @@
           <button
             mat-raised-button
             class="iconBtn-lg push-right-sm"
-            color="{{ comparisonButtonsClasses[0] }}"
-            (click)="updateComparisonMode(0)"
+            color="accent"
+            (click)="updateComparisonMode(0, $event)"
+            [disabled]="!comparisonCompleteBtnEnabled || loadingData"
+            matTooltip="Show complete logs"
           >
             <b>Complete</b>
           </button>
           <button
             mat-raised-button
             class="iconBtn-lg push-right-sm"
-            color="{{ comparisonButtonsClasses[1] }}"
-            (click)="updateComparisonMode(1)"
+            color="accent"
+            (click)="updateComparisonMode(1, $event)"
+            [disabled]="!comparisonNoTimestampBtnEnabled || loadingData"
+            matTooltip="Show logs without timestamp"
           >
             <b>No timestamp</b>
           </button>
           <button
             mat-raised-button
             class="iconBtn-lg push-right-sm"
-            color="{{ comparisonButtonsClasses[2] }}"
-            (click)="updateComparisonMode(2)"
+            color="accent"
+            (click)="updateComparisonMode(2, $event)"
+            [disabled]="!comparisonTimeDiffBtnEnabled || loadingData"
+            matTooltip="Show logs with timestamp in milliseconds"
           >
             <b>Time diff</b>
           </button>

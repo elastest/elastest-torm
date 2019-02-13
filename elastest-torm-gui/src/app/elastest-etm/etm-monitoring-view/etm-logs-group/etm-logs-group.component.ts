@@ -12,6 +12,7 @@ import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { MonitoringService } from '../../../shared/services/monitoring.service';
 import { TJobModel } from '../../tjob/tjob-model';
 import { LogComparisonModel } from '../../../elastest-log-comparator/model/log-comparison.model';
+import { allArrayPairCombinations } from '../../../shared/utils';
 
 @Component({
   selector: 'etm-logs-group',
@@ -49,18 +50,19 @@ export class EtmLogsGroupComponent implements OnInit {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
-    if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
-      // Do nothing
-    } else {
-      for (let log of this.tJob.execDashboardConfigModel.allLogsTypes.logsList) {
-        if (log.activated) {
+    for (let log of this.tJob.execDashboardConfigModel.allLogsTypes.logsList) {
+      if (log.activated) {
+        if (log.stream === undefined || log.stream === null || log.stream === '') {
+          log.stream = defaultStreamMap.log;
+        }
+
+        if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
+          this.addMoreLogsComparisons(tJobExec, log.stream, log.component);
+        } else {
           let individualLogs: ESRabLogModel = new ESRabLogModel(this.monitoringService);
           individualLogs.name = this.capitalize(log.component) + ' Logs';
           individualLogs.etType = log.component + 'logs';
           individualLogs.component = log.component;
-          if (log.stream === undefined || log.stream === null || log.stream === '') {
-            log.stream = defaultStreamMap.log;
-          }
           individualLogs.stream = log.stream;
           individualLogs.hidePrevBtn = !this.live;
           individualLogs.monitoringIndex = this.tJobExec.monitoringIndex;
@@ -96,8 +98,7 @@ export class EtmLogsGroupComponent implements OnInit {
     if (!this.alreadyExist(individualLogs)) {
       this.logsList.push(individualLogs);
       this.createGroupedLogsList();
-      let logField: LogFieldModel = new LogFieldModel(individualLogs.component, individualLogs.stream);
-      this.tJob.execDashboardConfigModel.allLogsTypes.addLogFieldToList(logField.name, logField.component, logField.stream, true);
+
       if (this.live) {
         this.createSubjectAndSubscribe(individualLogs.component, obj.stream, obj.streamType);
       }
@@ -242,8 +243,6 @@ export class EtmLogsGroupComponent implements OnInit {
     }
     this.logsList.splice(pos, 1);
     this.createGroupedLogsList();
-    let logField: LogFieldModel = new LogFieldModel(component, stream);
-    this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
   }
 
   getAbstractTJobExecIndex(component: string): string {
@@ -277,7 +276,58 @@ export class EtmLogsGroupComponent implements OnInit {
   // Comparison
 
   addMoreLogsComparison(logComparison: LogComparisonModel): boolean {
-    this.logsComparisonList.push(logComparison);
-    return true;
+    if (!this.alreadyExistComparison(logComparison)) {
+      this.logsComparisonList.push(logComparison);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  addMoreLogsComparisons(tJobExec: AbstractTJobExecModel, stream: string, component: string): boolean {
+    let added: boolean = false;
+    if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
+      let monitoringIndicesList: string[] = tJobExec.getChildsMonitoringIndicesList();
+      if (monitoringIndicesList.length > 1) {
+        let pairCombinations: string[][] = allArrayPairCombinations(monitoringIndicesList);
+
+        for (let pair of pairCombinations) {
+          let logComparison: LogComparisonModel = new LogComparisonModel();
+          logComparison.name = 'Comparing ' + pair.join(' | ');
+          logComparison.component = component;
+          logComparison.stream = stream;
+          logComparison.startDate = tJobExec.startDate;
+          logComparison.endDate = tJobExec.endDate;
+          logComparison.pair = pair;
+
+          added = this.addMoreLogsComparison(logComparison) || added;
+        }
+      }
+    }
+    return added;
+  }
+
+  alreadyExistComparison(comparation: LogComparisonModel): boolean {
+    for (let log of this.logsComparisonList) {
+      if (
+        log.component === comparation.component &&
+        log.stream === comparation.stream &&
+        log.startDate === comparation.startDate &&
+        log.endDate === comparation.endDate &&
+        log.isSamePair(comparation.pair)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  removeLogComparison(pos: number): void {
+    let component: string = this.logsComparisonList[pos].component;
+    let stream: string = this.logsComparisonList[pos].stream;
+
+    this.logsComparisonList.splice(pos, 1);
+    let logField: LogFieldModel = new LogFieldModel(component, stream);
+    this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
   }
 }

@@ -17,6 +17,8 @@ import { LogAnalyzerService } from '../../elastest-log-analyzer/log-analyzer.ser
 import { MonitorMarkModel } from './monitor-mark.model';
 import { sleep, allArrayPairCombinations } from '../../shared/utils';
 import { LogComparisonModel } from '../../elastest-log-comparator/model/log-comparison.model';
+import { LogFieldModel } from '../../shared/logs-view/models/log-field-model';
+import { MetricsFieldModel } from '../../shared/metrics-view/metrics-chart-card/models/metrics-field-model';
 
 @Component({
   selector: 'etm-monitoring-view',
@@ -107,7 +109,7 @@ export class EtmMonitoringViewComponent implements OnInit {
   }
 
   // Adds new monitoring card
-  addMore(withSave: boolean = false, showPopup: boolean = true, traceType?: 'log' | 'metric'): void {
+  addMore(showPopup: boolean = true, traceType?: 'log' | 'metric'): void {
     this.addMoreSubscribe(traceType).subscribe(
       (obj: any) => {
         let added: boolean = this.addMoreFromObj(obj);
@@ -117,9 +119,6 @@ export class EtmMonitoringViewComponent implements OnInit {
           } else {
             this.monitoringService.popupService.openSnackBar('Already exist', 'OK');
           }
-        }
-        if (withSave) {
-          this.saveMonitoringConfig(showPopup);
         }
       },
       (error: Error) => console.log(error),
@@ -203,7 +202,7 @@ export class EtmMonitoringViewComponent implements OnInit {
       case 'TJobModel':
         let tJobModel: TJobModel = this.tJob as TJobModel;
         this.tJobService.modifyTJob(tJobModel).subscribe(
-          (data) => {
+          (tJob: TJobModel) => {
             if (showPopup) {
               this.monitoringService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
             }
@@ -214,7 +213,7 @@ export class EtmMonitoringViewComponent implements OnInit {
       case 'ExternalTJobModel':
         let externalTJobModel: ExternalTJobModel = this.tJob as ExternalTJobModel;
         this.externalService.modifyExternalTJob(externalTJobModel).subscribe(
-          (data) => {
+          (exTJob: ExternalTJobModel) => {
             if (showPopup) {
               this.monitoringService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
             }
@@ -249,38 +248,47 @@ export class EtmMonitoringViewComponent implements OnInit {
           msg += ' and saved';
         }
         if (data.logsList) {
-          this.updateLogsFromList(data.logsList, withSave);
+          this.updateLogsFromList(data.logsList);
         }
         if (data.logsToCompare) {
-          this.updateLogsToCompareFromList(data.logsToCompare, withSave);
+          this.updateLogsToCompareFromList(data.logsToCompare);
         }
         if (data.metricsList) {
-          this.updateMetricsFromList(data.metricsList, withSave);
+          this.updateMetricsFromList(data.metricsList);
         }
+
+        if (withSave) {
+          this.saveMonitoringConfig(false);
+        }
+
         this.monitoringService.popupService.openSnackBar(msg);
       }
     });
   }
 
-  updateLogsFromList(logsList: any[], withSave: boolean): void {
+  updateLogsFromList(logsList: any[]): void {
     for (let log of logsList) {
       if (log.activated) {
-        this.updateLog(log, withSave);
+        this.updateLog(log);
       } else {
+        // Disable from tjob object before save
+        let logField: LogFieldModel = new LogFieldModel(log.component, log.stream);
+        this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
         // Remove
         this.removeLogCard(log);
-        if (withSave) {
-          this.saveMonitoringConfig(false);
-        }
       }
     }
   }
 
-  public updateLog(log: any, withSave: boolean, showPopup: boolean = false): void {
+  public updateLog(log: any, showPopup: boolean = false): void {
     this.component = log.component;
     this.stream = log.stream;
     this.metricName = '';
-    this.addMore(withSave, showPopup, 'log');
+    // Enable in tjob object before save
+    let logField: LogFieldModel = new LogFieldModel(log.component, log.stream);
+    this.tJob.execDashboardConfigModel.allLogsTypes.addLogFieldToList(logField.name, logField.component, logField.stream, true);
+
+    this.addMore(showPopup, 'log');
   }
 
   removeLogCard(log: any): void {
@@ -294,74 +302,96 @@ export class EtmMonitoringViewComponent implements OnInit {
     }
   }
 
-  updateLogsToCompareFromList(logsList: any[], withSave: boolean): void {
+  updateLogsToCompareFromList(logsList: any[]): void {
     for (let log of logsList) {
       if (log.activated) {
-        this.updateLogToCompare(log, withSave);
+        this.updateLogToCompare(log);
       } else {
+        // Disable from tjob object before save
+        let logField: LogFieldModel = new LogFieldModel(log.component, log.stream);
+        this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
         // Remove
         this.removeLogComparisonCard(log);
-        if (withSave) {
-          this.saveMonitoringConfig(false);
-        }
       }
     }
   }
 
-  public updateLogToCompare(log: any, withSave: boolean, showPopup: boolean = false): void {
+  public updateLogToCompare(log: any, showPopup: boolean = false): void {
     this.component = log.component;
     this.stream = log.stream;
     this.metricName = '';
-    if (this.tJobExec instanceof TJobExecModel && this.tJobExec.isParent()) {
-      let monitoringIndicesList: string[] = this.tJobExec.getChildsMonitoringIndicesList();
-      if (monitoringIndicesList.length > 1) {
-        let pairCombinations: string[][] = allArrayPairCombinations(monitoringIndicesList);
 
-        for (let pair of pairCombinations) {
-          let logComparison: LogComparisonModel = new LogComparisonModel();
-          logComparison.name = 'Comparing ' + pair.join(' | ');
-          logComparison.component = this.component;
-          logComparison.stream = this.stream;
-          logComparison.startDate = this.tJobExec.startDate;
-          logComparison.endDate = this.tJobExec.endDate;
-          logComparison.pair = pair;
+    // Enable in tjob object before save
+    let logField: LogFieldModel = new LogFieldModel(log.component, log.stream);
+    this.tJob.execDashboardConfigModel.allLogsTypes.addLogFieldToList(logField.name, logField.component, logField.stream, true);
 
-          this.logsGroup.addMoreLogsComparison(logComparison);
-        }
+    let added: boolean = this.logsGroup.addMoreLogsComparisons(this.tJobExec, this.stream, this.component);
+
+    if (showPopup) {
+      if (added) {
+        this.monitoringService.popupService.openSnackBar('Added succesfully!', 'OK');
+      } else {
+        this.monitoringService.popupService.openSnackBar('Already exist', 'OK');
       }
     }
   }
 
   removeLogComparisonCard(log: any): void {
     let position: number = 0;
-    for (let logCard of this.logsGroup.logsList) {
+    for (let logCard of this.logsGroup.logsComparisonList) {
       if (logCard.component === log.component && logCard.stream === log.stream) {
-        this.logsGroup.removeAndUnsubscribe(position);
+        this.logsGroup.removeLogComparison(position);
         break;
       }
       position++;
     }
   }
 
-  updateMetricsFromList(metricsList: any[], withSave: boolean): void {
+  updateMetricsFromList(metricsList: any[]): void {
     for (let metric of metricsList) {
       if (metric.activated) {
-        this.updateMetric(metric, withSave);
+        this.updateMetric(metric);
       } else {
+        // Diable from tjob object before save
+        let metricField: MetricsFieldModel = new MetricsFieldModel(
+          metric.etType,
+          metric.subtype,
+          metric.unit,
+          metric.component,
+          metric.stream,
+        );
+
+        this.tJob.execDashboardConfigModel.allMetricsFields.disableMetricFieldByTitleName(metricField.name);
         // Remove
         this.removeMetricCard(metric);
-        if (withSave) {
-          this.saveMonitoringConfig(false);
-        }
       }
     }
   }
 
-  updateMetric(metric: any, withSave: boolean, showPopup: boolean = false): void {
+  updateMetric(metric: any, showPopup: boolean = false): void {
     this.component = metric.component;
     this.stream = metric.stream;
     this.metricName = metric.metricName;
-    this.addMore(withSave, showPopup, 'metric');
+
+    // Enable in tjob object before save
+
+    let metricField: MetricsFieldModel = new MetricsFieldModel(
+      metric.etType,
+      metric.subtype,
+      metric.unit,
+      metric.component,
+      metric.stream,
+    );
+
+    this.tJob.execDashboardConfigModel.allMetricsFields.addMetricsFieldToList(
+      metricField,
+      metric.component,
+      metric.stream,
+      metric.streamType,
+      true,
+    );
+
+    this.addMore(showPopup, 'metric');
   }
 
   removeMetricCard(metric: any): void {

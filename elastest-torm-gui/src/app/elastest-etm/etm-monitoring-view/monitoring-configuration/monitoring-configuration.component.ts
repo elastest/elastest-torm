@@ -80,7 +80,7 @@ export class MonitoringConfigurationComponent implements OnInit {
           this.noLogs = true;
           this.loadingLogs = false;
         } else {
-          // If exist card, init checks
+          // If exist card in logsList , init checks
           for (let logCard of this.logCards.logsList) {
             for (let componentStream of this.logTree.tree) {
               if (logCard.component === componentStream.name) {
@@ -93,6 +93,21 @@ export class MonitoringConfigurationComponent implements OnInit {
               }
             }
           }
+
+          // If exist card in logsComparisonList , init checks
+          for (let logCard of this.logCards.logsComparisonList) {
+            for (let componentStream of this.logTree.tree) {
+              if (logCard.component === componentStream.name) {
+                for (let stream of componentStream.children) {
+                  if (logCard.stream === stream.name) {
+                    stream.checked = true;
+                  }
+                }
+                break;
+              }
+            }
+          }
+
           this.loadingLogs = false;
 
           this.logsTreeComponent.treeModel.update();
@@ -240,7 +255,9 @@ export class MonitoringConfigurationComponent implements OnInit {
               let metric: any = {
                 component: component,
                 stream: stream,
+                etType: etType,
                 metricName: etType + '.' + subtype.name,
+                subtype: subtype.name,
                 activated: subtype.checked,
               };
               metricsList.push(metric);
@@ -249,6 +266,7 @@ export class MonitoringConfigurationComponent implements OnInit {
             let metric: any = {
               component: component,
               stream: stream,
+              etType: etType,
               metricName: etType,
               activated: typeSubtype.checked,
             };

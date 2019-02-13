@@ -1,6 +1,26 @@
 <mat-card>
   <mat-card-title>
-    {{ model.name }}
+    <div fxLayout="column" fxLayout.gt-md="row">
+      <div
+        custom-fxFlex.gt-xl="75"
+        custom-fxFlex-xl="85"
+        fxFlex.gt-lg="75"
+        fxFlex.gt-md="65"
+        fxFlex.md="100"
+        fxFlex.gt-sm="100"
+        fxFlex.gt-xs="100"
+        fxFlex.xs="100"
+        style="word-break: break-all;"
+      >
+        {{ model.name }}
+      </div>
+      <span fxFlex></span>
+      <div>
+        <button mat-button (click)="remove()" aria-label="Remove" title="Remove" class="iconBtn pad-left-none">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
+    </div>
   </mat-card-title>
   <mat-divider></mat-divider>
   <mat-card-content>

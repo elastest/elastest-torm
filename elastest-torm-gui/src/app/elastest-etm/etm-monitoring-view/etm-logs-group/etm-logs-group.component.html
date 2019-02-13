@@ -28,7 +28,7 @@
     <elastest-log-comparator
       #individualLogDiff{{i}}
       [model]="logDiff"
-      [remove]="removeAndUnsubscribe.bind(this, i)"
+      [remove]="removeLogComparison.bind(this, i)"
       [live]="live"
       fxFlex
     ></elastest-log-comparator>
