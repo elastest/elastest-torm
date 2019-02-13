@@ -18,8 +18,8 @@ h5 {
 }
 
 .diff-table {
-  font-family: 'Inconsolata', 'Consolas', 'Monaco';
-  font-size: 0.9em;
+  font-family: 'monospace';
+  font-size: 0.86em;
   background: white;
   width: 100%;
 }
@@ -122,13 +122,6 @@ h5 {
   border: 1px solid rgb(187, 187, 187);
 }
 
-.diff-table {
-  font-family: 'Inconsolata', 'Consolas', 'Monaco';
-  font-size: 0.9em;
-  background: white;
-  width: 100%;
-}
-
 .index {
   color: rgb(102, 102, 102);
 }
@@ -212,10 +205,6 @@ h5 {
 
 .float-right {
   float: right;
-}
-
-#main-content {
-  margin-top: 145px;
 }
 
 .cover-data {

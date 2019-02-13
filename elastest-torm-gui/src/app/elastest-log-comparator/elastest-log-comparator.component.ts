@@ -14,6 +14,5 @@ export class ElastestLogComparatorComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
-    console.log(this.model);
   }
 }

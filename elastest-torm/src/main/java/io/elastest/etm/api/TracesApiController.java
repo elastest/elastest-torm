@@ -124,7 +124,6 @@ public class TracesApiController implements TracesApi {
                 DiffMatchPatch dmp = new DiffMatchPatch();
                 LinkedList<Diff> diffs = dmp.diffMain(pairLogs[0], pairLogs[1]);
                 dmp.diffCleanupSemantic(diffs);
-                System.out.println(diffs);
                 return new ResponseEntity<>(dmp.diffPrettyHtml(diffs),
                         HttpStatus.OK);
             }
