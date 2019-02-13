@@ -13,6 +13,11 @@ export class ReportComparisonComponent implements OnInit {
 
   diff: string;
 
+  // Cache
+  completeDiff: string;
+  noTimestampDiff: string;
+  timeDiffDiff: string;
+
   comparisonInProgress: boolean = false;
   comparisonMode: number = 1;
   comparisonCompleteBtnEnabled: boolean = true;
@@ -40,7 +45,32 @@ export class ReportComparisonComponent implements OnInit {
 
     this.resultData = [];
 
-    if (this.logComparison) {
+    let useCache: boolean = false;
+
+    switch (comparison) {
+      case 'complete':
+        if (this.completeDiff && this.completeDiff !== '') {
+          useCache = true;
+          this.loadFromDiffData(this.completeDiff);
+        }
+        break;
+      case 'notimestamp':
+        if (this.noTimestampDiff && this.noTimestampDiff !== '') {
+          useCache = true;
+          this.loadFromDiffData(this.noTimestampDiff);
+        }
+        break;
+      case 'timediff':
+        if (this.timeDiffDiff && this.timeDiffDiff !== '') {
+          useCache = true;
+          this.loadFromDiffData(this.timeDiffDiff);
+        }
+        break;
+      default:
+        break;
+    }
+
+    if (!useCache && this.logComparison) {
       this.monitoringService
         .compareLogsPair(
           this.logComparison.pair,
@@ -54,19 +84,46 @@ export class ReportComparisonComponent implements OnInit {
         )
         .subscribe(
           (diff: string) => {
-            this.diff = diff;
-            this.resultData[0] = {
-              logs: this.tableService.generateTable(this.diff),
-            };
-            this.comparisonInProgress = true;
-            this.resetComparisonButtons();
-
-            this.loadingData = false;
+            this.loadFromDiffData(diff);
           },
           (error: Error) => {
             console.log(error);
           },
         );
+    }
+  }
+
+  loadFromDiffData(diff: string): void {
+    this.diff = diff;
+    this.cacheDiff(diff);
+    this.resultData[0] = {
+      logs: this.tableService.generateTable(this.diff),
+    };
+    this.comparisonInProgress = true;
+    this.resetComparisonButtons();
+
+    this.loadingData = false;
+  }
+
+  cacheDiff(diff: string): void {
+    switch (this.comparisonMode) {
+      // Complete
+      case 0:
+        this.completeDiff = diff;
+        break;
+      // No timestamp
+
+      case 1:
+        this.noTimestampDiff = diff;
+        break;
+
+      // Timediff
+      case 2:
+        this.timeDiffDiff = diff;
+        break;
+
+      default:
+        break;
     }
   }
 

@@ -24,7 +24,7 @@
   </mat-card-title>
   <mat-divider></mat-divider>
   <mat-card-content>
-    <mat-tab-group [(selectedIndex)]="selectedLogComparisionTab">
+    <mat-tab-group *ngIf="!live; else showMsg" [(selectedIndex)]="selectedLogComparisionTab">
       <mat-tab
         fxLayout="column"
         *ngFor="let logComparison of model; let i = index; let f = first; let l = last"
@@ -36,5 +36,8 @@
         ></elastest-logcomparator-report-comparison>
       </mat-tab>
     </mat-tab-group>
+    <ng-template showMsg>
+      Execution has not finished yet.
+    </ng-template>
   </mat-card-content>
 </mat-card>
