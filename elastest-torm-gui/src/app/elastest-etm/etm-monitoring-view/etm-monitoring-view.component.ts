@@ -16,6 +16,7 @@ import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { LogAnalyzerService } from '../../elastest-log-analyzer/log-analyzer.service';
 import { MonitorMarkModel } from './monitor-mark.model';
 import { sleep, allArrayPairCombinations } from '../../shared/utils';
+import { LogComparisonModel } from '../../elastest-log-comparator/model/log-comparison.model';
 
 @Component({
   selector: 'etm-monitoring-view',
@@ -317,25 +318,15 @@ export class EtmMonitoringViewComponent implements OnInit {
         let pairCombinations: string[][] = allArrayPairCombinations(monitoringIndicesList);
 
         for (let pair of pairCombinations) {
-          this.monitoringService
-            .compareLogsPair(
-              pair,
-              this.stream,
-              this.component,
-              this.tJobExec,
-              this.tJobExec.startDate,
-              this.tJobExec.endDate,
-              true,
-              true,
-            )
-            .subscribe(
-              (diff: string) => {
-                this.logsGroup.addMoreLogsComparison(diff, pair);
-              },
-              (error: Error) => {
-                console.log(error);
-              },
-            );
+          let logComparison: LogComparisonModel = new LogComparisonModel();
+          logComparison.name = 'Comparing ' + pair.join(' | ');
+          logComparison.component = this.component;
+          logComparison.stream = this.stream;
+          logComparison.startDate = this.tJobExec.startDate;
+          logComparison.endDate = this.tJobExec.endDate;
+          logComparison.pair = pair;
+
+          this.logsGroup.addMoreLogsComparison(logComparison);
         }
       }
     }

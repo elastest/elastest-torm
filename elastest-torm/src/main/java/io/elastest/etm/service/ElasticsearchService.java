@@ -608,7 +608,7 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     }
 
     @Override
-    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery)
+    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery, boolean withTimestamp, boolean timeInMillis)
             throws Exception {
         List<String> logs = new ArrayList<>();
         List<Map<String, Object>> logTraces = searchAllLogs(monitoringQuery);

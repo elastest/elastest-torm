@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
@@ -101,18 +102,38 @@ public class TracesApiController implements TracesApi {
     }
 
     public ResponseEntity<String> compareLogsPair(
-            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body,
+            @RequestParam(value = "comparison", required = true) String comparison)
             throws Exception {
         if (body != null && body.getIndices() != null
                 && body.getIndices().size() == 2) {
+
+            boolean withTimestamp = false;
+            boolean timeInMillis = false;
+
+            if (comparison != null) {
+                switch (comparison) {
+                case "complete":
+                    withTimestamp = true;
+                    break;
+                case "timediff":
+                    withTimestamp = true;
+                    timeInMillis = true;
+                    break;
+                case "notimestamp":
+                default:
+                    break;
+                }
+
+            }
 
             String[] pairLogs = new String[2];
             int pos = 0;
             for (String index : body.getIndices()) {
                 MonitoringQuery newQuery = new MonitoringQuery(body);
                 newQuery.setIndices(Arrays.asList(index));
-                List<String> logs = monitoringService
-                        .searchAllLogsMessage(newQuery);
+                List<String> logs = monitoringService.searchAllLogsMessage(
+                        newQuery, withTimestamp, timeInMillis);
 
                 if (pos < 2) {
                     pairLogs[pos] = StringUtils.join(logs, String.format("%n"));

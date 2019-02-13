@@ -174,15 +174,27 @@ public class TracesSearchService implements MonitoringServiceInterface {
     }
 
     @Override
-    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery)
-            throws Exception {
+    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeInMillis) throws Exception {
         List<String> logs = new ArrayList<>();
         List<Trace> logTraces = searchAllLogsTraces(monitoringQuery);
 
         if (logTraces != null) {
             for (Trace trace : logTraces) {
                 if (trace != null && trace.getMessage() != null) {
-                    logs.add(trace.getMessage());
+                    String message = trace.getMessage();
+
+                    if (withTimestamp && trace.getTimestamp() != null) {
+                        if (timeInMillis) {
+                            message = trace.getTimestamp().getTime() + " "
+                                    + message;
+                        } else {
+                            message = trace.getTimestamp().toString() + " "
+                                    + message;
+                        }
+                    }
+
+                    logs.add(message);
                 }
             }
         }

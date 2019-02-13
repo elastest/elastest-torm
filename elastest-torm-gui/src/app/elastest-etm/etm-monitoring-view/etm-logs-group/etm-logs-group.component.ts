@@ -11,6 +11,7 @@ import { ExternalTJobExecModel } from '../../external/external-tjob-execution/ex
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { MonitoringService } from '../../../shared/services/monitoring.service';
 import { TJobModel } from '../../tjob/tjob-model';
+import { LogComparisonModel } from '../../../elastest-log-comparator/model/log-comparison.model';
 
 @Component({
   selector: 'etm-logs-group',
@@ -31,8 +32,7 @@ export class EtmLogsGroupComponent implements OnInit {
   logsList: ESRabLogModel[] = [];
   groupedLogsList: ESRabLogModel[][] = [];
 
-  logsDiffList: string[] = [];
-  logsDiffPairsList: string[][] = [];
+  logsComparisonList: LogComparisonModel[] = [];
 
   subscriptions: Map<string, Subscription> = new Map();
 
@@ -276,9 +276,8 @@ export class EtmLogsGroupComponent implements OnInit {
 
   // Comparison
 
-  addMoreLogsComparison(logDiff: string, pair: string[]): boolean {
-    this.logsDiffList.push(logDiff);
-    this.logsDiffPairsList.push(pair);
+  addMoreLogsComparison(logComparison: LogComparisonModel): boolean {
+    this.logsComparisonList.push(logComparison);
     return true;
   }
 }

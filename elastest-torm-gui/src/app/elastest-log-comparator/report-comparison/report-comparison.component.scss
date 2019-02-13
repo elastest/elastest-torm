@@ -165,14 +165,6 @@ h5 {
   padding-top: 10px;
 }
 
-.divider-vertical {
-  border-top-width: 0;
-  border-right-width: 1px;
-  border-right-color: #e0e0e0;
-  border-right-style: solid;
-  height: 40px;
-}
-
 .status-feedback {
   background: #fff;
   bottom: 0;
@@ -181,10 +173,6 @@ h5 {
   margin-right: 8px;
   position: fixed;
   width: calc(100% - 2.063em);
-}
-
-.half-part {
-  width: 50%;
 }
 
 .span-title {
@@ -225,4 +213,16 @@ h5 {
 .over-custom-button {
   font-weight: bold;
   color: #fff;
+}
+
+:host /deep/ ins {
+  color: black;
+  background: rgb(153, 255, 153);
+  text-decoration: none;
+}
+
+:host /deep/ del {
+  color: black;
+  background: rgb(255, 136, 136);
+  text-decoration: none;
 }

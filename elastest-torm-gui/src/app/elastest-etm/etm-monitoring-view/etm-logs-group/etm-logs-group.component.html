@@ -18,10 +18,10 @@
   </div>
 </ng-container>
 
-<ng-container *ngIf="logsDiffList.length > 0">
+<ng-container *ngIf="logsComparisonList.length > 0">
   <div
     #logsDiffContainer
-    *ngFor="let logDiff of logsDiffList; let i = index; let f = first; let l = last"
+    *ngFor="let logDiff of logsComparisonList; let i = index; let f = first; let l = last"
     fxLayout="column"
     tdMediaToggle="gt-xs"
   >
@@ -30,7 +30,6 @@
       [model]="logDiff"
       [remove]="removeAndUnsubscribe.bind(this, i)"
       [live]="live"
-      [titleName]="logsDiffPairsList[i].join(' | ')"
       fxFlex
     ></elastest-log-comparator>
   </div>

@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { LogComparisonModel } from './model/log-comparison.model';
 
 @Component({
   selector: 'elastest-log-comparator',
@@ -7,12 +8,10 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class ElastestLogComparatorComponent implements OnInit {
   @Input() public live: boolean;
-  @Input() public model: string;
-  @Input() public titleName: string;
+  @Input() public model: LogComparisonModel;
   @Input() public remove: Function;
 
   constructor() {}
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 }

@@ -23,6 +23,7 @@ import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { LogAnalyzerQueryModel } from '../loganalyzer-query.model';
 import { AbstractTJobExecModel } from '../../elastest-etm/models/abstract-tjob-exec-model';
 import { MonitorMarkModel } from '../../elastest-etm/etm-monitoring-view/monitor-mark.model';
+import { comparisonMode } from '../../elastest-log-comparator/model/log-comparison.model';
 @Injectable()
 export class MonitoringService {
   etmApiUrl: string;
@@ -82,8 +83,8 @@ export class MonitoringService {
       .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
-  public compareLogsPairByQuery(query: MonitoringQueryModel): Observable<string> {
-    let url: string = this.etmApiUrl + '/monitoring/log/compare';
+  public compareLogsPairByQuery(query: MonitoringQueryModel, comparison: comparisonMode = 'notimestamp'): Observable<string> {
+    let url: string = this.etmApiUrl + '/monitoring/log/compare?comparison=' + comparison;
     return this.http.post(url, query, { responseType: 'text' }).map((data: string) => data);
   }
 
@@ -91,11 +92,11 @@ export class MonitoringService {
     pair: string[],
     stream: string,
     component: string,
-    tJobExec?: AbstractTJobExecModel,
     from: Date = undefined,
     to: Date = undefined,
     includedFrom: boolean = true,
     includedTo: boolean = true,
+    comparison: comparisonMode = 'notimestamp',
   ): Observable<string> {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
     query.indices = pair;
@@ -104,7 +105,7 @@ export class MonitoringService {
     query.setTimeRange(from, to, includedFrom, includedTo);
     query.selectedTerms.push('stream', 'component');
 
-    return this.compareLogsPairByQuery(query);
+    return this.compareLogsPairByQuery(query, comparison);
   }
 
   /* *** Metrics *** */

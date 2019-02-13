@@ -138,7 +138,6 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TjobExecsComparatorComponent } from './elastest-etm/tjob-exec/tjob-execs-comparator/tjob-execs-comparator.component';
 import { TableService } from './elastest-log-comparator/service/table.service';
-import { ElasticsearchService } from './elastest-log-comparator/service/elasticsearch.service';
 
 library.add(faJenkins);
 
@@ -284,7 +283,6 @@ library.add(faJenkins);
     EtPluginsService,
     LogAnalyzerService,
     StompRService,
-    ElasticsearchService,
     TableService,
   ],
   entryComponents: [
