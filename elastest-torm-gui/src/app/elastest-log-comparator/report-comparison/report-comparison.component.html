@@ -1,9 +1,9 @@
 <auto-height-grid fxLayout="column" *ngIf="diff; else showSpinner">
   <normal-height-row>
-    <div layout="row" class="padding-xl-sides">
+    <div layout="row" class="padding-xl-sides push-top-sm">
       <div fxFlex="49" fxLayout="row" fxLayoutAlign="start center">
         <span class="push-right-sm">
-          View
+          View:
         </span>
         <div>
           <button
@@ -29,7 +29,7 @@
       <mat-divider [vertical]="true" class="push-right-sm" style="height: 40px;"></mat-divider>
       <div fxFlex="49" fxLayout="row" fxLayoutAlign="start center">
         <span class="push-right-sm">
-          Comparison
+          Comparison:
         </span>
         <div>
           <button
@@ -65,6 +65,7 @@
         </div>
       </div>
     </div>
+    <mat-divider class="push-top-sm"></mat-divider>
   </normal-height-row>
 
   <auto-height-row fxLayout="column" id="main-content" class="pad-top-md">

@@ -337,14 +337,7 @@ export class EtmMonitoringViewComponent implements OnInit {
   }
 
   removeLogComparisonCard(log: any): void {
-    let position: number = 0;
-    for (let logCard of this.logsGroup.logsComparisonList) {
-      if (logCard.component === log.component && logCard.stream === log.stream) {
-        this.logsGroup.removeLogComparison(position);
-        break;
-      }
-      position++;
-    }
+    this.logsGroup.removeLogComparator();
   }
 
   updateMetricsFromList(metricsList: any[]): void {
@@ -352,7 +345,7 @@ export class EtmMonitoringViewComponent implements OnInit {
       if (metric.activated) {
         this.updateMetric(metric);
       } else {
-        // Diable from tjob object before save
+        // Disable from tjob object before save
         let metricField: MetricsFieldModel = new MetricsFieldModel(
           metric.etType,
           metric.subtype,

@@ -19,16 +19,11 @@
 </ng-container>
 
 <ng-container *ngIf="logsComparisonList.length > 0">
-  <div
-    #logsDiffContainer
-    *ngFor="let logDiff of logsComparisonList; let i = index; let f = first; let l = last"
-    fxLayout="column"
-    tdMediaToggle="gt-xs"
-  >
+  <div #logsDiffContainer fxLayout="column" tdMediaToggle="gt-xs">
     <elastest-log-comparator
       #individualLogDiff{{i}}
-      [model]="logDiff"
-      [remove]="removeLogComparison.bind(this, i)"
+      [model]="logsComparisonList"
+      [remove]="removeLogComparator.bind(this)"
       [live]="live"
       fxFlex
     ></elastest-log-comparator>

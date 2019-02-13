@@ -293,7 +293,7 @@ export class EtmLogsGroupComponent implements OnInit {
 
         for (let pair of pairCombinations) {
           let logComparison: LogComparisonModel = new LogComparisonModel();
-          logComparison.name = 'Comparing ' + pair.join(' | ');
+          logComparison.name = pair.join(' | ');
           logComparison.component = component;
           logComparison.stream = stream;
           logComparison.startDate = tJobExec.startDate;
@@ -322,12 +322,11 @@ export class EtmLogsGroupComponent implements OnInit {
     return false;
   }
 
-  removeLogComparison(pos: number): void {
-    let component: string = this.logsComparisonList[pos].component;
-    let stream: string = this.logsComparisonList[pos].stream;
-
+  removeIndividualLogComparison(pos: number): void {
     this.logsComparisonList.splice(pos, 1);
-    let logField: LogFieldModel = new LogFieldModel(component, stream);
-    this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
+  }
+
+  removeLogComparator(): void {
+    this.logsComparisonList = [];
   }
 }
