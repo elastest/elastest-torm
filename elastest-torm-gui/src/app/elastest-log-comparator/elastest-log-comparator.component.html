@@ -1,0 +1,47 @@
+<mat-card>
+  <mat-card-title>
+    <div fxLayout="column" fxLayout.gt-md="row">
+      <div
+        custom-fxFlex.gt-xl="75"
+        custom-fxFlex-xl="85"
+        fxFlex.gt-lg="75"
+        fxFlex.gt-md="65"
+        fxFlex.md="100"
+        fxFlex.gt-sm="100"
+        fxFlex.gt-xs="100"
+        fxFlex.xs="100"
+        style="word-break: break-all;"
+      >
+        Log Comparator
+      </div>
+      <span fxFlex></span>
+      <div>
+        <button mat-button (click)="remove()" aria-label="Remove" title="Remove" class="iconBtn pad-left-none">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-card-title>
+  <mat-divider></mat-divider>
+  <mat-card-content>
+    <mat-tab-group *ngIf="!live && model && keys; else showMsg" [(selectedIndex)]="selectedLogTab">
+      <mat-tab fxLayout="column" *ngFor="let key of keys" label="{{ key }}">
+        <mat-tab-group [(selectedIndex)]="selectedLogComparisionTab">
+          <mat-tab
+            fxLayout="column"
+            *ngFor="let logComparison of model.get(key); let i = index; let f = first; let l = last"
+            label="{{ logComparison.name }}"
+          >
+            <elastest-logcomparator-report-comparison
+              *ngIf="logComparison"
+              [logComparison]="logComparison"
+            ></elastest-logcomparator-report-comparison>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-tab>
+    </mat-tab-group>
+    <ng-template showMsg>
+      Execution has not finished yet.
+    </ng-template>
+  </mat-card-content>
+</mat-card>

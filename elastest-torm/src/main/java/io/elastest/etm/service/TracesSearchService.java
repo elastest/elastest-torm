@@ -151,6 +151,13 @@ public class TracesSearchService implements MonitoringServiceInterface {
     @Override
     public List<Map<String, Object>> searchAllLogs(
             MonitoringQuery monitoringQuery) throws Exception {
+        List<Trace> traces = this.searchAllLogsTraces(monitoringQuery);
+
+        return this.getTracesMapListByTracesList(traces);
+    }
+
+    public List<Trace> searchAllLogsTraces(MonitoringQuery monitoringQuery)
+            throws Exception {
         List<Trace> traces;
         if (monitoringQuery.getTimeRange() != null
                 && !monitoringQuery.getTimeRange().isEmpty()) {
@@ -163,8 +170,46 @@ public class TracesSearchService implements MonitoringServiceInterface {
                             monitoringQuery.getStream(),
                             monitoringQuery.getComponent());
         }
+        return traces;
+    }
 
-        return this.getTracesMapListByTracesList(traces);
+    @Override
+    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff) throws Exception {
+        List<String> logs = new ArrayList<>();
+        List<Trace> logTraces = searchAllLogsTraces(monitoringQuery);
+
+        if (logTraces != null) {
+            Trace firstTrace = null;
+            for (Trace trace : logTraces) {
+                if (trace != null && trace.getMessage() != null) {
+                    String message = trace.getMessage();
+
+                    if (withTimestamp && trace.getTimestamp() != null) {
+                        if (timeDiff) {
+                            long traceTimeDiff = trace.getTimestamp().getTime();
+                            // First is 0
+                            if (firstTrace == null) {
+                                traceTimeDiff = 0;
+                                firstTrace = trace;
+                            } else { // Others is difference with the first
+                                traceTimeDiff -= firstTrace.getTimestamp()
+                                        .getTime();
+                            }
+
+                            message = traceTimeDiff + " " + message;
+                        } else {
+                            message = trace.getTimestamp().toString() + " "
+                                    + message;
+                        }
+                    }
+
+                    logs.add(message);
+                }
+            }
+        }
+
+        return logs;
     }
 
     public List<Trace> searchAllLogsByTimeRange(MonitoringQuery monitoringQuery)

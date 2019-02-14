@@ -77,7 +77,7 @@ export class TestCaseComponent implements OnInit {
     return file && file.name.endsWith('mp4');
   }
 
-  goToTab(num: number) {
+  goToTab(num: number): void {
     this.selectedTab = num;
   }
 }

@@ -21,6 +21,9 @@ public interface MonitoringServiceInterface {
     List<Map<String, Object>> searchAllLogs(MonitoringQuery monitoringQuery)
             throws Exception;
 
+    List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery, boolean withTimestamp, boolean timeInMillis)
+            throws Exception;
+
     List<Map<String, Object>> getLastLogs(MonitoringQuery monitoringQuery,
             int size) throws Exception;
 

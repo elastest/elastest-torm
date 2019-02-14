@@ -60,6 +60,7 @@ import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.model.TimeRange;
+import io.elastest.etm.model.Trace;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
@@ -604,6 +605,59 @@ public class ElasticsearchService implements MonitoringServiceInterface {
                 IndicesOptions.fromOptions(true, false, false, false));
 
         return this.searchAllByRequest(searchRequest);
+    }
+
+    @Override
+    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff) throws Exception {
+        List<String> logs = new ArrayList<>();
+        List<Map<String, Object>> logTraces = searchAllLogs(monitoringQuery);
+
+        if (logTraces != null) {
+            Trace firstTrace = null;
+            for (Map<String, Object> traceMap : logTraces) {
+                if (traceMap != null) {
+                    String message = null;
+                    try {
+                        Trace trace = (Trace) UtilTools
+                                .convertStringKeyMapToObj(traceMap,
+                                        Trace.class);
+                        trace.setTimestamp(
+                                utilsService.getIso8601UTCDateFromStr(
+                                        (String) traceMap.get("@timestamp")));
+                        message = trace.getMessage();
+
+                        if (withTimestamp && trace.getTimestamp() != null) {
+                            if (timeDiff) {
+                                long traceTimeDiff = trace.getTimestamp()
+                                        .getTime();
+                                // First is 0
+                                if (firstTrace == null) {
+                                    traceTimeDiff = 0;
+                                    firstTrace = trace;
+                                } else { // Others is diff with first
+                                    traceTimeDiff -= firstTrace.getTimestamp()
+                                            .getTime();
+                                }
+
+                                message = traceTimeDiff + " " + message;
+                            } else {
+                                message = trace.getTimestamp().toString() + " "
+                                        + message;
+                            }
+                        }
+
+                    } catch (Exception e) {
+                    }
+                    if (message != null) {
+                        logs.add(message);
+                    }
+                }
+
+            }
+        }
+
+        return logs;
     }
 
     public List<Map<String, Object>> getPreviousLogsFromTimestamp(

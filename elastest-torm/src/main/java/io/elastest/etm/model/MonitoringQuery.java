@@ -53,6 +53,25 @@ public class MonitoringQuery {
         this.selectedTerms = new ArrayList<>();
     }
 
+    public MonitoringQuery(MonitoringQuery monitoringQuery) {
+        this.indices = monitoringQuery.indices != null
+                ? new ArrayList<>(monitoringQuery.indices)
+                : new ArrayList<>();
+
+        this.component = monitoringQuery.component;
+        this.componentService = monitoringQuery.componentService;
+        this.etType = monitoringQuery.etType;
+        this.timestamp = monitoringQuery.timestamp;
+        this.stream = monitoringQuery.stream;
+        this.streamType = monitoringQuery.streamType;
+        this.containerName = monitoringQuery.containerName;
+        this.selectedTerms = monitoringQuery.selectedTerms;
+        this.message = monitoringQuery.message;
+        this.rawData = monitoringQuery.rawData;
+        this.timeRange = new TimeRange(monitoringQuery.timeRange);
+
+    }
+
     public List<String> getIndices() {
         return indices;
     }

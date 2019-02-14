@@ -11,6 +11,13 @@ public class TimeRange {
     public TimeRange() {
     }
 
+    public TimeRange(TimeRange timeRange) {
+        this.gt = timeRange.gt;
+        this.gte = timeRange.gte;
+        this.lt = timeRange.lt;
+        this.lte = timeRange.lte;
+    }
+
     public Date getGt() {
         return gt;
     }

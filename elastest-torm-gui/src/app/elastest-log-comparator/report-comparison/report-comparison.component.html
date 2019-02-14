@@ -1,0 +1,119 @@
+<auto-height-grid fxLayout="column">
+  <normal-height-row>
+    <div layout="row" class="padding-xl-sides push-top-sm">
+      <!-- <div fxLayout="row" fxLayoutAlign="start center">
+        <span class="push-right-sm">
+          View:
+        </span>
+        <div>
+          <button
+            mat-raised-button
+            class="iconBtn-lg push-right-sm"
+            color="accent"
+            (click)="updateViewMode(0, 0)"
+            [disabled]="true"
+          >
+            <b>Complete logs</b>
+          </button> -->
+      <!-- <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 3)">
+            <b>Only tests logs</b>
+          </button>
+          <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 1)">
+            <b>All tests</b>
+          </button>
+          <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 2)">
+            <b>Failed tests</b>
+          </button> -->
+      <!-- </div>
+      </div> -->
+      <!-- <mat-divider [vertical]="true" class="push-right-sm" style="height: 40px;"></mat-divider> -->
+      <div fxLayout="row" fxLayoutAlign="start center">
+        <span class="push-right-sm">
+          Comparison:
+        </span>
+        <div>
+          <button
+            mat-raised-button
+            class="iconBtn-lg push-right-sm"
+            color="accent"
+            (click)="updateComparisonMode(0, $event)"
+            [disabled]="!comparisonCompleteBtnEnabled || loadingData"
+            matTooltip="Show complete logs"
+          >
+            <b>Complete</b>
+          </button>
+          <button
+            mat-raised-button
+            class="iconBtn-lg push-right-sm"
+            color="accent"
+            (click)="updateComparisonMode(1, $event)"
+            [disabled]="!comparisonNoTimestampBtnEnabled || loadingData"
+            matTooltip="Show logs without timestamp"
+          >
+            <b>No timestamp</b>
+          </button>
+          <button
+            mat-raised-button
+            class="iconBtn-lg push-right-sm"
+            color="accent"
+            (click)="updateComparisonMode(2, $event)"
+            [disabled]="!comparisonTimeDiffBtnEnabled || loadingData"
+            matTooltip="Show logs with timestamp in milliseconds"
+          >
+            <b>Time diff</b>
+          </button>
+        </div>
+      </div>
+    </div>
+    <mat-divider class="push-top-sm"></mat-divider>
+  </normal-height-row>
+
+  <auto-height-row fxLayout="column" id="main-content" class="pad-top-md">
+    <div *ngIf="loadingData; else notLoading">
+      <div fxLayout="column" fxLayoutAlign="center center">
+        <centered-element>
+          <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
+        </centered-element>
+        <p>Fetching data. Please wait...</p>
+      </div>
+    </div>
+    <ng-template #notLoading>
+      <div fxFlex *ngIf="diff && comparisonInProgress; else noData">
+        <table *ngIf="viewMode == 0 || viewMode == 3" class="diff-table">
+          <tbody>
+            <tr *ngFor="let result of resultData[0].logs">
+              <td [innerHTML]="result.index_p" class="index" style="width: 1% !important"></td>
+              <td [innerHTML]="result.com_p.content" [class]="result.com_p.class" style="width: 49% !important"></td>
+              <td [innerHTML]="result.indexp" class="index" style="width: 1% !important;"></td>
+              <td [innerHTML]="result.comp.content" [class]="result.comp.class" style="width: 49% !important;"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="viewMode == 1 || viewMode == 2">
+          <ng-template ngFor let-class [ngForOf]="resultData">
+            <h3>{{ class.name }}</h3>
+            <ng-template ngFor let-method [ngForOf]="class.methods">
+              <h5>{{ method.name }}</h5>
+              <table class="diff-table">
+                <tbody>
+                  <tr *ngFor="let result of method.logs">
+                    <td [innerHTML]="result.index_p" class="index" style="width: 1% !important;"></td>
+                    <td [innerHTML]="result.com_p.content" [class]="result.com_p.class" style="width: 49% !important;"></td>
+                    <td [innerHTML]="result.indexp" class="index" style="width: 1% !important"></td>
+                    <td [innerHTML]="result.comp.content" [class]="result.comp.class" style="width: 49% !important;"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </ng-template>
+          </ng-template>
+        </div>
+      </div>
+      <ng-template #noData>
+        <centered-element class="push-top-important messageEmptyCard">
+          <mat-icon>assignment</mat-icon>
+          <p>No Data to show</p>
+        </centered-element>
+      </ng-template>
+    </ng-template>
+  </auto-height-row>
+</auto-height-grid>

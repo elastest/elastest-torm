@@ -39,6 +39,8 @@ export class MonitoringConfigurationComponent implements OnInit {
 
   metricbeatFieldGroupList: MetricFieldGroupModel[];
 
+  logsToCompare: any[] = [];
+
   constructor(
     private dialogRef: MatDialogRef<MonitoringConfigurationComponent>,
     private monitoringService: MonitoringService,
@@ -52,7 +54,7 @@ export class MonitoringConfigurationComponent implements OnInit {
     this.metricbeatFieldGroupList = getMetricBeatFieldGroupList();
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadTrees();
   }
 
@@ -78,7 +80,7 @@ export class MonitoringConfigurationComponent implements OnInit {
           this.noLogs = true;
           this.loadingLogs = false;
         } else {
-          // If exist card, init checks
+          // If exist card in logsList , init checks
           for (let logCard of this.logCards.logsList) {
             for (let componentStream of this.logTree.tree) {
               if (logCard.component === componentStream.name) {
@@ -91,6 +93,23 @@ export class MonitoringConfigurationComponent implements OnInit {
               }
             }
           }
+
+          // If exist card in logsComparisonMap , init checks
+          for (let key of Array.from(this.logCards.logsComparisonMap.keys())) {
+            for (let logComparison of this.logCards.logsComparisonMap.get(key)) {
+              for (let componentStream of this.logTree.tree) {
+                if (logComparison.component === componentStream.name) {
+                  for (let stream of componentStream.children) {
+                    if (logComparison.stream === stream.name) {
+                      stream.checked = true;
+                    }
+                  }
+                  break;
+                }
+              }
+            }
+          }
+
           this.loadingLogs = false;
 
           this.logsTreeComponent.treeModel.update();
@@ -98,7 +117,7 @@ export class MonitoringConfigurationComponent implements OnInit {
           this.logTree.updateCheckboxes(this.logsTreeComponent.treeModel.roots);
         }
       },
-      (error) => {
+      (error: Error) => {
         this.loadingLogs = false;
         this.noLogs = true;
       },
@@ -162,7 +181,7 @@ export class MonitoringConfigurationComponent implements OnInit {
           this.metricTree.updateCheckboxes(this.metricsTreeComponent.treeModel.roots);
         }
       },
-      (error) => {
+      (error: Error) => {
         this.loadingMetrics = false;
         this.noMetrics = true;
       },
@@ -215,7 +234,11 @@ export class MonitoringConfigurationComponent implements OnInit {
           stream: stream.name,
           activated: stream.checked,
         };
-        logsList.push(log);
+        if (this.tJobExec instanceof TJobExecModel && this.tJobExec.isParent()) {
+          this.logsToCompare.push(log);
+        } else {
+          logsList.push(log);
+        }
       }
     }
     return logsList;
@@ -234,7 +257,9 @@ export class MonitoringConfigurationComponent implements OnInit {
               let metric: any = {
                 component: component,
                 stream: stream,
+                etType: etType,
                 metricName: etType + '.' + subtype.name,
+                subtype: subtype.name,
                 activated: subtype.checked,
               };
               metricsList.push(metric);
@@ -243,6 +268,7 @@ export class MonitoringConfigurationComponent implements OnInit {
             let metric: any = {
               component: component,
               stream: stream,
+              etType: etType,
               metricName: etType,
               activated: typeSubtype.checked,
             };
@@ -264,6 +290,7 @@ export class MonitoringConfigurationComponent implements OnInit {
     let response: any = {
       logsList: logsList,
       metricsList: metricsList,
+      logsToCompare: this.logsToCompare,
       withSave: withSave,
     };
     this.dialogRef.close(response);

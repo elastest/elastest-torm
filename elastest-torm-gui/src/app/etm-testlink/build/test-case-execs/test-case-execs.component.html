@@ -1,5 +1,5 @@
-<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
-  <div fxFlex.gt-sm="100">
+<auto-height-grid fxLayout="column">
+  <normal-height-row>
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title> Test Case {{ testCase.name }} </mat-card-title>
       <mat-divider></mat-divider>
@@ -68,29 +68,26 @@
         </div>
       </mat-card-content>
     </mat-card>
-  </div>
-</div>
+  </normal-height-row>
 
-<div fxLayout="row" fxLayout.lt-xl="column" tdMediaToggle="gt-xs" *ngIf="testCase && buildId">
-  <div fxFlex.gt-lg="50" fxLayout.gt-sm="column">
-    <mat-card tdMediaToggle="gt-xs">
-      <mat-card-title>
+  <auto-height-row fxLayout="column" *ngIf="testCase && buildId">
+    <self-adjustable-card>
+      <sa-card-title>
         <div fxLayout="row">
           <span>Executions on Build {{ buildId }}</span> <span fxFlex></span>
           <!-- <button mat-raised-button color="accent" (click)="newTJob()">New Exec</button> -->
         </div>
-      </mat-card-title>
-      <mat-divider></mat-divider>
+      </sa-card-title>
       <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
       <centered-element *ngIf="!showSpinner && execs.length === 0" class="push-top-important messageEmptyCard">
         <mat-icon>assignment</mat-icon>
         <p>No Executions created</p>
       </centered-element>
-      <mat-card-content #scrollMeTest>
+      <sa-card-content>
         <td-data-table
           #execTable
           *ngIf="execs.length > 0"
-          class="scroll_table"
+          class="useMaxHeight"
           [data]="execs"
           [columns]="execColumns"
           [selectable]="false"
@@ -98,6 +95,7 @@
           [sortable]="false"
           [sortBy]="sortBy"
           [sortOrder]="sortOrder"
+          [resizableColumns]="true"
         >
           <ng-template *ngFor="let column of execColumns" tdDataTableTemplate="{{ column.name }}" let-value="value" let-row="row">
             <div
@@ -151,7 +149,7 @@
             </div>
           </ng-template>
         </td-data-table>
-      </mat-card-content>
-    </mat-card>
-  </div>
-</div>
+      </sa-card-content>
+    </self-adjustable-card>
+  </auto-height-row>
+</auto-height-grid>

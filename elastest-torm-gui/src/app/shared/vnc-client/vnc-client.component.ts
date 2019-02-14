@@ -40,7 +40,7 @@ export class VncClientComponent implements OnInit, OnDestroy {
     this.canvas = <HTMLCanvasElement>document.getElementById('vnc_canvas');
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.manageKeyboard();
 
     if (this.host && this.port) {

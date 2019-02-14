@@ -166,7 +166,7 @@ export class VncUI {
     }
   }
 
-  initFullscreen() {
+  initFullscreen(): void {
     // Only show the button if fullscreen is properly supported
     // * Safari doesn't support alphanumerical input while in fullscreen
     let fullScreenButton = document.getElementById('noVNC_fullscreen_button');
@@ -304,7 +304,7 @@ export class VncUI {
     );
   }
 
-  addControlbarHandlers() {
+  addControlbarHandlers(): void {
     let controlBar = document.getElementById('noVNC_control_bar');
     if (controlBar !== undefined && controlBar !== null) {
       controlBar.addEventListener('mousemove', this.activateControlbar);
@@ -1149,12 +1149,7 @@ export class VncUI {
 
     this.updateLocalCursor();
     this.updateViewOnly();
-    this.rfb.connect(
-      this.host,
-      this.port,
-      this.password,
-      path,
-    );
+    this.rfb.connect(this.host, this.port, this.password, path);
   }
 
   disconnect(): void {
@@ -1178,10 +1173,7 @@ export class VncUI {
       return;
     }
 
-    this.connect(
-      null,
-      this.reconnectPassword,
-    );
+    this.connect(null, this.reconnectPassword);
   }
 
   disconnectFinished(rfb, reason): void {
@@ -1331,7 +1323,7 @@ export class VncUI {
     let screen: ScreenSizeModel = this.screenSize();
 
     if (screen && this.connected && this.rfb.get_display()) {
-      let display = this.rfb.get_display();
+      let display: any = this.rfb.get_display();
 
       display.set_scale(1);
 
@@ -1360,7 +1352,11 @@ export class VncUI {
   // Gets the the size of the available viewport in the browser window
   screenSize(): ScreenSizeModel {
     let screen: HTMLElement = document.getElementById('vnc_screen');
-    return new ScreenSizeModel(screen.offsetWidth, screen.offsetHeight);
+    if (screen) {
+      return new ScreenSizeModel(screen.offsetWidth, screen.offsetHeight);
+    } else {
+      return new ScreenSizeModel();
+    }
   }
 
   // Normally we only apply the current resize mode after a window resize
@@ -1369,7 +1365,7 @@ export class VncUI {
   // We have to wait until the first FBU because this is where the client
   // will find the supported encodings of the server. Some calls later in
   // the chain is dependant on knowing the server-capabilities.
-  initialResize(rfb, fbu) {
+  initialResize(rfb, fbu): void {
     this.applyResizeMode();
     // After doing this once, we remove the callback.
     this.rfb.set_onFBUComplete(function() {});

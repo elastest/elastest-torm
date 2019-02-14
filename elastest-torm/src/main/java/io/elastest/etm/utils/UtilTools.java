@@ -180,6 +180,47 @@ public class UtilTools {
         return convertJsonString(obj, serializationView, Include.ALWAYS);
     }
 
+    // Map to Obj
+
+    @SuppressWarnings("unchecked")
+    public static <T> T convertMapToObj(Map<Object, Object> map,
+            Class<?> serializationView, JsonInclude.Include inclusion,
+            boolean failOnUnknownProperties) {
+        T object = null;
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(inclusion);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                false);
+
+        object = (T) mapper.convertValue(map, serializationView);
+        return object;
+    }
+
+    public static <T> T convertMapToObj(Map<Object, Object> map,
+            Class<?> serializationView) {
+        return convertMapToObj(map, serializationView, Include.ALWAYS, true);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T convertStringKeyMapToObj(Map<String, Object> map,
+            Class<?> serializationView, JsonInclude.Include inclusion,
+            boolean failOnUnknownProperties) {
+        T object = null;
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(inclusion);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                false);
+
+        object = (T) mapper.convertValue(map, serializationView);
+        return object;
+    }
+
+    public static <T> T convertStringKeyMapToObj(Map<String, Object> map,
+            Class<?> serializationView) {
+        return convertStringKeyMapToObj(map, serializationView, Include.ALWAYS,
+                true);
+    }
+
     // Json to Obj
     @SuppressWarnings("unchecked")
     public static <T> T convertJsonStringToObj(String json,

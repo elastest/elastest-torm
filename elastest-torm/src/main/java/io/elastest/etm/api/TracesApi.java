@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
@@ -96,6 +97,18 @@ public interface TracesApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<List<AggregationTree>> searchLogsLevelsTree(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
+            throws Exception;
+
+    @ApiOperation(value = "Returns Logs Pair comparation.", notes = "Returns Logs Pair comparation.", response = String.class, tags = {
+            "Monitoring", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/monitoring/log/compare", consumes = {
+            "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<String> compareLogsPair(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body,
+            @RequestParam(value = "comparison", required = true) String comparison)
             throws Exception;
 
     /* ***************************************** */

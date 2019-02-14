@@ -11,6 +11,8 @@ import { ExternalTJobExecModel } from '../../external/external-tjob-execution/ex
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { MonitoringService } from '../../../shared/services/monitoring.service';
 import { TJobModel } from '../../tjob/tjob-model';
+import { LogComparisonModel } from '../../../elastest-log-comparator/model/log-comparison.model';
+import { allArrayPairCombinations } from '../../../shared/utils';
 
 @Component({
   selector: 'etm-logs-group',
@@ -31,6 +33,9 @@ export class EtmLogsGroupComponent implements OnInit {
   logsList: ESRabLogModel[] = [];
   groupedLogsList: ESRabLogModel[][] = [];
 
+  logsComparisonMap: Map<string, LogComparisonModel[]> = new Map<string, LogComparisonModel[]>();
+  logsComparisonKeys: string[] = [];
+
   subscriptions: Map<string, Subscription> = new Map();
 
   loaded: boolean = false;
@@ -46,18 +51,19 @@ export class EtmLogsGroupComponent implements OnInit {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
-    if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
-      // Do nothing
-    } else {
-      for (let log of this.tJob.execDashboardConfigModel.allLogsTypes.logsList) {
-        if (log.activated) {
+    for (let log of this.tJob.execDashboardConfigModel.allLogsTypes.logsList) {
+      if (log.activated) {
+        if (log.stream === undefined || log.stream === null || log.stream === '') {
+          log.stream = defaultStreamMap.log;
+        }
+
+        if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
+          this.addMoreLogsComparisons(tJobExec, log.name, log.stream, log.component);
+        } else {
           let individualLogs: ESRabLogModel = new ESRabLogModel(this.monitoringService);
           individualLogs.name = this.capitalize(log.component) + ' Logs';
           individualLogs.etType = log.component + 'logs';
           individualLogs.component = log.component;
-          if (log.stream === undefined || log.stream === null || log.stream === '') {
-            log.stream = defaultStreamMap.log;
-          }
           individualLogs.stream = log.stream;
           individualLogs.hidePrevBtn = !this.live;
           individualLogs.monitoringIndex = this.tJobExec.monitoringIndex;
@@ -93,8 +99,7 @@ export class EtmLogsGroupComponent implements OnInit {
     if (!this.alreadyExist(individualLogs)) {
       this.logsList.push(individualLogs);
       this.createGroupedLogsList();
-      let logField: LogFieldModel = new LogFieldModel(individualLogs.component, individualLogs.stream);
-      this.tJob.execDashboardConfigModel.allLogsTypes.addLogFieldToList(logField.name, logField.component, logField.stream, true);
+
       if (this.live) {
         this.createSubjectAndSubscribe(individualLogs.component, obj.stream, obj.streamType);
       }
@@ -239,8 +244,6 @@ export class EtmLogsGroupComponent implements OnInit {
     }
     this.logsList.splice(pos, 1);
     this.createGroupedLogsList();
-    let logField: LogFieldModel = new LogFieldModel(component, stream);
-    this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
   }
 
   getAbstractTJobExecIndex(component: string): string {
@@ -268,6 +271,70 @@ export class EtmLogsGroupComponent implements OnInit {
   loadLastTraces(): void {
     for (let log of this.logsList) {
       log.loadLastTraces();
+    }
+  }
+
+  // Comparison
+
+  addMoreLogsComparison(logName: string, logComparison: LogComparisonModel): boolean {
+    if (!this.alreadyExistComparison(logName, logComparison)) {
+      if (!this.logsComparisonMap.has(logName)) {
+        this.logsComparisonMap.set(logName, []);
+        this.logsComparisonKeys = Array.from(this.logsComparisonMap.keys());
+      }
+
+      this.logsComparisonMap.get(logName).push(logComparison);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  addMoreLogsComparisons(tJobExec: AbstractTJobExecModel, logName: string, stream: string, component: string): boolean {
+    let added: boolean = false;
+    if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
+      let monitoringIndicesList: string[] = tJobExec.getChildsMonitoringIndicesList();
+      if (monitoringIndicesList.length > 1) {
+        let pairCombinations: string[][] = allArrayPairCombinations(monitoringIndicesList);
+
+        for (let pair of pairCombinations) {
+          let logComparison: LogComparisonModel = new LogComparisonModel();
+          logComparison.name = pair.join(' | ');
+          logComparison.component = component;
+          logComparison.stream = stream;
+          logComparison.startDate = tJobExec.startDate;
+          logComparison.endDate = tJobExec.endDate;
+          logComparison.pair = pair;
+
+          added = this.addMoreLogsComparison(logName, logComparison) || added;
+        }
+      }
+    }
+    return added;
+  }
+
+  alreadyExistComparison(logName: string, comparison: LogComparisonModel): boolean {
+    if (this.logsComparisonMap.has(logName) && this.logsComparisonMap.get(logName) !== undefined) {
+      for (let log of this.logsComparisonMap.get(logName)) {
+        if (
+          log.component === comparison.component &&
+          log.stream === comparison.stream &&
+          log.startDate === comparison.startDate &&
+          log.endDate === comparison.endDate &&
+          log.isSamePair(comparison.pair)
+        ) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  removeLogComparator(logField: LogFieldModel): void {
+    // Remove entire key-values pair
+    if (logField && this.logsComparisonMap && this.logsComparisonMap.has(logField.name)) {
+      this.logsComparisonMap.delete(logField.name);
+      this.logsComparisonKeys = Array.from(this.logsComparisonMap.keys());
     }
   }
 }

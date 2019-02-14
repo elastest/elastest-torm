@@ -23,6 +23,7 @@ import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { LogAnalyzerQueryModel } from '../loganalyzer-query.model';
 import { AbstractTJobExecModel } from '../../elastest-etm/models/abstract-tjob-exec-model';
 import { MonitorMarkModel } from '../../elastest-etm/etm-monitoring-view/monitor-mark.model';
+import { comparisonMode } from '../../elastest-log-comparator/model/log-comparison.model';
 @Injectable()
 export class MonitoringService {
   etmApiUrl: string;
@@ -80,6 +81,31 @@ export class MonitoringService {
     return this.http
       .post(url, query, { observe: 'response' })
       .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+  }
+
+  public compareLogsPairByQuery(query: MonitoringQueryModel, comparison: comparisonMode = 'notimestamp'): Observable<string> {
+    let url: string = this.etmApiUrl + '/monitoring/log/compare?comparison=' + comparison;
+    return this.http.post(url, query, { responseType: 'text' }).map((data: string) => data);
+  }
+
+  compareLogsPair(
+    pair: string[],
+    stream: string,
+    component: string,
+    from: Date = undefined,
+    to: Date = undefined,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
+    comparison: comparisonMode = 'notimestamp',
+  ): Observable<string> {
+    let query: MonitoringQueryModel = new MonitoringQueryModel();
+    query.indices = pair;
+    query.stream = stream;
+    query.component = component;
+    query.setTimeRange(from, to, includedFrom, includedTo);
+    query.selectedTerms.push('stream', 'component');
+
+    return this.compareLogsPairByQuery(query, comparison);
   }
 
   /* *** Metrics *** */
@@ -262,8 +288,7 @@ export class MonitoringService {
 
   getLogsTree(tJobExec: AbstractTJobExecModel): Observable<any[]> {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
-    let enableParentBehaviour: boolean = false;
-    if (tJobExec instanceof TJobExecModel && tJobExec.isParent() && enableParentBehaviour) {
+    if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
       query.indices = tJobExec.getChildsMonitoringIndices().split(',');
     } else {
       query.indices = tJobExec.getMonitoringIndexAsList();
