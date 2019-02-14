@@ -45,7 +45,7 @@ export class EsmService {
       serviceInstanceId +
       '/external/tjobexec/' +
       externalTJobExecId;
-    return this.http.delete(url).map((data: any) => console.log(data));
+    return this.http.delete(url, { responseType: 'text' }).map((data: string) => console.log(data));
   }
 
   getSupportServicesInstances(): Observable<EsmServiceInstanceModel[]> {
