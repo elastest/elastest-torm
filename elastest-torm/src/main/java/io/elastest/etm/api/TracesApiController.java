@@ -136,6 +136,7 @@ public class TracesApiController implements TracesApi {
                         newQuery, withTimestamp, timeDiff);
 
                 if (pos < 2) {
+                    // Join with carriage return
                     pairLogs[pos] = StringUtils.join(logs, String.format("%n"));
                 }
                 pos++;
