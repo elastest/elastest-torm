@@ -1,4 +1,4 @@
-<auto-height-grid fxLayout="column" *ngIf="diff; else showSpinner">
+<auto-height-grid fxLayout="column">
   <normal-height-row>
     <div layout="row" class="padding-xl-sides push-top-sm">
       <div fxFlex="49" fxLayout="row" fxLayoutAlign="start center">
@@ -78,7 +78,7 @@
       </div>
     </div>
     <ng-template #notLoading>
-      <div *ngIf="comparisonInProgress">
+      <div *ngIf="diff && comparisonInProgress; else noData">
         <table *ngIf="viewMode == 0 || viewMode == 3" class="diff-table">
           <tbody>
             <tr *ngFor="let result of resultData[0].logs">
@@ -108,12 +108,12 @@
           </ng-template>
         </div>
       </div>
+      <ng-template #noData>
+        <centered-element class="push-top-important messageEmptyCard">
+          <mat-icon>assignment</mat-icon>
+          <p>No Data to show</p>
+        </centered-element>
+      </ng-template>
     </ng-template>
   </auto-height-row>
 </auto-height-grid>
-
-<ng-template #showSpinner>
-  <centered-element>
-    <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
-  </centered-element>
-</ng-template>
