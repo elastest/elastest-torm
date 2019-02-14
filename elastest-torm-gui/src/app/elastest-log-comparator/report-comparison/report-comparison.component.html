@@ -15,7 +15,7 @@
           >
             <b>Complete logs</b>
           </button> -->
-          <!-- <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 3)">
+      <!-- <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 3)">
             <b>Only tests logs</b>
           </button>
           <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 1)">
@@ -24,7 +24,7 @@
           <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 2)">
             <b>Failed tests</b>
           </button> -->
-        <!-- </div>
+      <!-- </div>
       </div> -->
       <!-- <mat-divider [vertical]="true" class="push-right-sm" style="height: 40px;"></mat-divider> -->
       <div fxLayout="row" fxLayoutAlign="start center">
@@ -78,7 +78,7 @@
       </div>
     </div>
     <ng-template #notLoading>
-      <div *ngIf="diff && comparisonInProgress; else noData">
+      <div fxFlex *ngIf="diff && comparisonInProgress; else noData">
         <table *ngIf="viewMode == 0 || viewMode == 3" class="diff-table">
           <tbody>
             <tr *ngFor="let result of resultData[0].logs">

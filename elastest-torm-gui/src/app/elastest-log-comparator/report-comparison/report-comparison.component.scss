@@ -226,3 +226,9 @@ h5 {
   background: rgb(255, 136, 136);
   text-decoration: none;
 }
+
+:host /deep/ #main-content td span,
+:host /deep/ #main-content td ins,
+:host /deep/ #main-content td del {
+  word-break: break-word;
+}
