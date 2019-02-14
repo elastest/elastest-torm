@@ -33,7 +33,8 @@ export class EtmLogsGroupComponent implements OnInit {
   logsList: ESRabLogModel[] = [];
   groupedLogsList: ESRabLogModel[][] = [];
 
-  logsComparisonList: LogComparisonModel[] = [];
+  logsComparisonMap: Map<string, LogComparisonModel[]> = new Map<string, LogComparisonModel[]>();
+  logsComparisonKeys: string[] = [];
 
   subscriptions: Map<string, Subscription> = new Map();
 
@@ -57,7 +58,7 @@ export class EtmLogsGroupComponent implements OnInit {
         }
 
         if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
-          this.addMoreLogsComparisons(tJobExec, log.stream, log.component);
+          this.addMoreLogsComparisons(tJobExec, log.name, log.stream, log.component);
         } else {
           let individualLogs: ESRabLogModel = new ESRabLogModel(this.monitoringService);
           individualLogs.name = this.capitalize(log.component) + ' Logs';
@@ -275,16 +276,21 @@ export class EtmLogsGroupComponent implements OnInit {
 
   // Comparison
 
-  addMoreLogsComparison(logComparison: LogComparisonModel): boolean {
-    if (!this.alreadyExistComparison(logComparison)) {
-      this.logsComparisonList.push(logComparison);
+  addMoreLogsComparison(logName: string, logComparison: LogComparisonModel): boolean {
+    if (!this.alreadyExistComparison(logName, logComparison)) {
+      if (!this.logsComparisonMap.has(logName)) {
+        this.logsComparisonMap.set(logName, []);
+        this.logsComparisonKeys = Array.from(this.logsComparisonMap.keys());
+      }
+
+      this.logsComparisonMap.get(logName).push(logComparison);
       return true;
     } else {
       return false;
     }
   }
 
-  addMoreLogsComparisons(tJobExec: AbstractTJobExecModel, stream: string, component: string): boolean {
+  addMoreLogsComparisons(tJobExec: AbstractTJobExecModel, logName: string, stream: string, component: string): boolean {
     let added: boolean = false;
     if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
       let monitoringIndicesList: string[] = tJobExec.getChildsMonitoringIndicesList();
@@ -300,33 +306,35 @@ export class EtmLogsGroupComponent implements OnInit {
           logComparison.endDate = tJobExec.endDate;
           logComparison.pair = pair;
 
-          added = this.addMoreLogsComparison(logComparison) || added;
+          added = this.addMoreLogsComparison(logName, logComparison) || added;
         }
       }
     }
     return added;
   }
 
-  alreadyExistComparison(comparation: LogComparisonModel): boolean {
-    for (let log of this.logsComparisonList) {
-      if (
-        log.component === comparation.component &&
-        log.stream === comparation.stream &&
-        log.startDate === comparation.startDate &&
-        log.endDate === comparation.endDate &&
-        log.isSamePair(comparation.pair)
-      ) {
-        return true;
+  alreadyExistComparison(logName: string, comparison: LogComparisonModel): boolean {
+    if (this.logsComparisonMap.has(logName) && this.logsComparisonMap.get(logName) !== undefined) {
+      for (let log of this.logsComparisonMap.get(logName)) {
+        if (
+          log.component === comparison.component &&
+          log.stream === comparison.stream &&
+          log.startDate === comparison.startDate &&
+          log.endDate === comparison.endDate &&
+          log.isSamePair(comparison.pair)
+        ) {
+          return true;
+        }
       }
     }
     return false;
   }
 
-  removeIndividualLogComparison(pos: number): void {
-    this.logsComparisonList.splice(pos, 1);
-  }
-
-  removeLogComparator(): void {
-    this.logsComparisonList = [];
+  removeLogComparator(logField: LogFieldModel): void {
+    // Remove entire key-values pair
+    if (logField && this.logsComparisonMap && this.logsComparisonMap.has(logField.name)) {
+      this.logsComparisonMap.delete(logField.name);
+      this.logsComparisonKeys = Array.from(this.logsComparisonMap.keys());
+    }
   }
 }

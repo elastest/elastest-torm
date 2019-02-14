@@ -8,14 +8,21 @@ import { LogComparisonModel } from './model/log-comparison.model';
 })
 export class ElastestLogComparatorComponent implements OnInit {
   @Input() public live: boolean;
-  @Input() public model: LogComparisonModel[];
+  @Input() public model: Map<string, LogComparisonModel[]>;
   @Input() public remove: Function;
+  @Input() public keys: string[] = [];
 
+  selectedLogTab: number;
   selectedLogComparisionTab: number;
 
   constructor() {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
+
+  goToLogTab(num: number): void {
+    this.selectedLogTab = num;
+  }
 
   goToLogComparisonTab(num: number): void {
     this.selectedLogComparisionTab = num;

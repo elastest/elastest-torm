@@ -18,11 +18,12 @@
   </div>
 </ng-container>
 
-<ng-container *ngIf="logsComparisonList.length > 0">
+<ng-container *ngIf="logsComparisonMap && logsComparisonMap.size > 0">
   <div #logsDiffContainer fxLayout="column" tdMediaToggle="gt-xs">
     <elastest-log-comparator
       #individualLogDiff{{i}}
-      [model]="logsComparisonList"
+      [keys]="logsComparisonKeys"
+      [model]="logsComparisonMap"
       [remove]="removeLogComparator.bind(this)"
       [live]="live"
       fxFlex

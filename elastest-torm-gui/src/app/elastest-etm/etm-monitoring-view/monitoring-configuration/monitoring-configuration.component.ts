@@ -94,16 +94,18 @@ export class MonitoringConfigurationComponent implements OnInit {
             }
           }
 
-          // If exist card in logsComparisonList , init checks
-          for (let logCard of this.logCards.logsComparisonList) {
-            for (let componentStream of this.logTree.tree) {
-              if (logCard.component === componentStream.name) {
-                for (let stream of componentStream.children) {
-                  if (logCard.stream === stream.name) {
-                    stream.checked = true;
+          // If exist card in logsComparisonMap , init checks
+          for (let key of Array.from(this.logCards.logsComparisonMap.keys())) {
+            for (let logComparison of this.logCards.logsComparisonMap.get(key)) {
+              for (let componentStream of this.logTree.tree) {
+                if (logComparison.component === componentStream.name) {
+                  for (let stream of componentStream.children) {
+                    if (logComparison.stream === stream.name) {
+                      stream.checked = true;
+                    }
                   }
+                  break;
                 }
-                break;
               }
             }
           }

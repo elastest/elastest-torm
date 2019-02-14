@@ -24,16 +24,20 @@
   </mat-card-title>
   <mat-divider></mat-divider>
   <mat-card-content>
-    <mat-tab-group *ngIf="!live; else showMsg" [(selectedIndex)]="selectedLogComparisionTab">
-      <mat-tab
-        fxLayout="column"
-        *ngFor="let logComparison of model; let i = index; let f = first; let l = last"
-        label="{{ logComparison.name }}"
-      >
-        <elastest-logcomparator-report-comparison
-          *ngIf="logComparison"
-          [logComparison]="logComparison"
-        ></elastest-logcomparator-report-comparison>
+    <mat-tab-group *ngIf="!live && model && keys; else showMsg" [(selectedIndex)]="selectedLogTab">
+      <mat-tab fxLayout="column" *ngFor="let key of keys" label="{{ key }}">
+        <mat-tab-group [(selectedIndex)]="selectedLogComparisionTab">
+          <mat-tab
+            fxLayout="column"
+            *ngFor="let logComparison of model.get(key); let i = index; let f = first; let l = last"
+            label="{{ logComparison.name }}"
+          >
+            <elastest-logcomparator-report-comparison
+              *ngIf="logComparison"
+              [logComparison]="logComparison"
+            ></elastest-logcomparator-report-comparison>
+          </mat-tab>
+        </mat-tab-group>
       </mat-tab>
     </mat-tab-group>
     <ng-template showMsg>
