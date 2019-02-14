@@ -109,7 +109,7 @@ public class TracesApiController implements TracesApi {
                 && body.getIndices().size() == 2) {
 
             boolean withTimestamp = false;
-            boolean timeInMillis = false;
+            boolean timeDiff = false;
 
             if (comparison != null) {
                 switch (comparison) {
@@ -118,7 +118,7 @@ public class TracesApiController implements TracesApi {
                     break;
                 case "timediff":
                     withTimestamp = true;
-                    timeInMillis = true;
+                    timeDiff = true;
                     break;
                 case "notimestamp":
                 default:
@@ -133,7 +133,7 @@ public class TracesApiController implements TracesApi {
                 MonitoringQuery newQuery = new MonitoringQuery(body);
                 newQuery.setIndices(Arrays.asList(index));
                 List<String> logs = monitoringService.searchAllLogsMessage(
-                        newQuery, withTimestamp, timeInMillis);
+                        newQuery, withTimestamp, timeDiff);
 
                 if (pos < 2) {
                     pairLogs[pos] = StringUtils.join(logs, String.format("%n"));

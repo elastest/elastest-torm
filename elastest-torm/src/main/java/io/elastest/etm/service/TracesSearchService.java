@@ -175,19 +175,29 @@ public class TracesSearchService implements MonitoringServiceInterface {
 
     @Override
     public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
-            boolean withTimestamp, boolean timeInMillis) throws Exception {
+            boolean withTimestamp, boolean timeDiff) throws Exception {
         List<String> logs = new ArrayList<>();
         List<Trace> logTraces = searchAllLogsTraces(monitoringQuery);
 
         if (logTraces != null) {
+            Trace firstTrace = null;
             for (Trace trace : logTraces) {
                 if (trace != null && trace.getMessage() != null) {
                     String message = trace.getMessage();
 
                     if (withTimestamp && trace.getTimestamp() != null) {
-                        if (timeInMillis) {
-                            message = trace.getTimestamp().getTime() + " "
-                                    + message;
+                        if (timeDiff) {
+                            long traceTimeDiff = trace.getTimestamp().getTime();
+                            // First is 0
+                            if (firstTrace == null) {
+                                traceTimeDiff = 0;
+                                firstTrace = trace;
+                            } else { // Others is difference with the first
+                                traceTimeDiff -= firstTrace.getTimestamp()
+                                        .getTime();
+                            }
+
+                            message = traceTimeDiff + " " + message;
                         } else {
                             message = trace.getTimestamp().toString() + " "
                                     + message;

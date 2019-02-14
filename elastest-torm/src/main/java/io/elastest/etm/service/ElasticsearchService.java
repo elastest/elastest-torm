@@ -608,25 +608,50 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     }
 
     @Override
-    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery, boolean withTimestamp, boolean timeInMillis)
-            throws Exception {
+    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff) throws Exception {
         List<String> logs = new ArrayList<>();
         List<Map<String, Object>> logTraces = searchAllLogs(monitoringQuery);
 
         if (logTraces != null) {
             for (Map<String, Object> traces : logTraces) {
                 if (traces != null) {
+                    Trace firstTrace = null;
 
-                    for (HashMap.Entry<String, Object> trace : traces
+                    for (HashMap.Entry<String, Object> traceMap : traces
                             .entrySet()) {
-                        if (trace != null) {
-                            String msg = null;
+
+                        if (traceMap != null) {
+                            String message = null;
                             try {
-                                msg = ((Trace) trace).getMessage();
+                                Trace trace = (Trace) traceMap;
+                                message = trace.getMessage();
+
+                                if (withTimestamp
+                                        && trace.getTimestamp() != null) {
+                                    if (timeDiff) {
+                                        long traceTimeDiff = trace
+                                                .getTimestamp().getTime();
+                                        // First is 0
+                                        if (firstTrace == null) {
+                                            traceTimeDiff = 0;
+                                            firstTrace = trace;
+                                        } else { // Others is diff with first
+                                            traceTimeDiff -= firstTrace
+                                                    .getTimestamp().getTime();
+                                        }
+
+                                        message = traceTimeDiff + " " + message;
+                                    } else {
+                                        message = trace.getTimestamp()
+                                                .toString() + " " + message;
+                                    }
+                                }
+
                             } catch (Exception e) {
                             }
-                            if (msg != null) {
-                                logs.add(msg);
+                            if (message != null) {
+                                logs.add(message);
                             }
                         }
                     }
