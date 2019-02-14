@@ -20,13 +20,13 @@ export class TestCaseExecsComponent implements OnInit {
 
   // Exec Data
   execColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'status', label: 'Status' },
-    { name: 'testerId', label: 'testerId' },
-    { name: 'executionTimeStamp', label: 'Date' },
-    { name: 'testPlanId', label: 'Plan Id' },
-    { name: 'testCaseVersionId', label: 'Test Case Version Id' },
-    { name: 'testCaseVersionNumber', label: 'Test Case Version' },
+    { name: 'testerId', label: 'testerId', width: 95 },
+    { name: 'executionTimeStamp', label: 'Date', width: 215 },
+    { name: 'testPlanId', label: 'Plan Id', width: 80 },
+    { name: 'testCaseVersionId', label: 'Test Case Version Id', width: 150 },
+    { name: 'testCaseVersionNumber', label: 'Test Case Version', width: 150 },
     { name: 'executionType', label: 'Execution Type' },
     { name: 'notes', label: 'Notes' },
 
@@ -41,7 +41,7 @@ export class TestCaseExecsComponent implements OnInit {
     public dialog: MatDialog,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setHeadTitle('Test Case Execs');
     this.testCase = new TLTestCaseModel();
     this.loadCase();
