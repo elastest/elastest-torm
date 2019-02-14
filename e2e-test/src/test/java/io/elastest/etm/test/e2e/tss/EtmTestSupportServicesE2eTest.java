@@ -57,7 +57,6 @@ public class EtmTestSupportServicesE2eTest extends EtmBaseTest {
             throws InterruptedException, IOException, SecurityException {
         setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
 
-        navigateToTorm(driver);
         navigateToTssPage(driver);
 
         log.debug("Select a Test Support Service (EUS)");

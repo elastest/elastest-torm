@@ -71,6 +71,7 @@ public class EtmBaseTest {
 
     protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
     protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
+    protected static final String TSS_PAGE_SUFFIX = "#/support-services"; 
     protected String apiPath = "api";
     protected String tormApiUrl;
     protected String eUser = null;
@@ -204,7 +205,11 @@ public class EtmBaseTest {
 
     protected void navigateToTssPage(WebDriver driver) {
         log.debug("Navigating to Test Support Services page");
-        getElementById(driver, "nav_support_services").click();
+        if (secureElastest) {
+            navigateTo(driver, secureTorm + TSS_PAGE_SUFFIX);
+        } else {
+            navigateTo(driver, tormUrl + TSS_PAGE_SUFFIX);
+        }
     }
 
     protected void navigateToElementByIdXpath(WebDriver driver, String id,
