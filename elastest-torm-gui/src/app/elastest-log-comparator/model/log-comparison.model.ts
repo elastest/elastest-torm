@@ -1,6 +1,7 @@
 export class LogComparisonModel {
   name: string;
   component: string;
+  components: string[];
   stream: string;
   pair: string[];
 
@@ -11,6 +12,7 @@ export class LogComparisonModel {
     this.name = '';
 
     this.component = '';
+    this.components = [];
     this.stream = '';
     this.pair = [];
     this.startDate = undefined;

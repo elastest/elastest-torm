@@ -1,10 +1,12 @@
 export class MonitoringQueryModel {
   indices: string[];
   component: string;
+  components: string[];
   componentService: string;
   etType: string;
   timestamp: Date;
   stream: string;
+  streams: string[];
   streamType: string;
   containerName: string;
   selectedTerms: string[];
@@ -19,6 +21,8 @@ export class MonitoringQueryModel {
   constructor() {
     this.indices = [];
     this.selectedTerms = [];
+    this.components = [];
+    this.streams = [];
   }
 
   initTimeRange(): void {

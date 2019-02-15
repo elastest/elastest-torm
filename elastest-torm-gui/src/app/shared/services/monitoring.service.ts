@@ -91,7 +91,7 @@ export class MonitoringService {
   compareLogsPair(
     pair: string[],
     stream: string,
-    component: string,
+    components: string[],
     from: Date = undefined,
     to: Date = undefined,
     includedFrom: boolean = true,
@@ -101,7 +101,7 @@ export class MonitoringService {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
     query.indices = pair;
     query.stream = stream;
-    query.component = component;
+    query.components = components;
     query.setTimeRange(from, to, includedFrom, includedTo);
     query.selectedTerms.push('stream', 'component');
 

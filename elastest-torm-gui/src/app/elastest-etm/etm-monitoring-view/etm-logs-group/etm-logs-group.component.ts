@@ -12,7 +12,7 @@ import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { MonitoringService } from '../../../shared/services/monitoring.service';
 import { TJobModel } from '../../tjob/tjob-model';
 import { LogComparisonModel } from '../../../elastest-log-comparator/model/log-comparison.model';
-import { allArrayPairCombinations } from '../../../shared/utils';
+import { allArrayPairCombinations, isStringIntoArray } from '../../../shared/utils';
 
 @Component({
   selector: 'etm-logs-group',
@@ -35,6 +35,7 @@ export class EtmLogsGroupComponent implements OnInit {
 
   logsComparisonMap: Map<string, LogComparisonModel[]> = new Map<string, LogComparisonModel[]>();
   logsComparisonKeys: string[] = [];
+  aioKey: string = 'AIO';
 
   subscriptions: Map<string, Subscription> = new Map();
 
@@ -310,6 +311,9 @@ export class EtmLogsGroupComponent implements OnInit {
         }
       }
     }
+    if (added) {
+      this.generateAIOLogsComparisonTab();
+    }
     return added;
   }
 
@@ -335,6 +339,52 @@ export class EtmLogsGroupComponent implements OnInit {
     if (logField && this.logsComparisonMap && this.logsComparisonMap.has(logField.name)) {
       this.logsComparisonMap.delete(logField.name);
       this.logsComparisonKeys = Array.from(this.logsComparisonMap.keys());
+      this.generateAIOLogsComparisonTab();
+    }
+  }
+
+  generateAIOLogsComparisonTab(): void {
+    if (this.logsComparisonMap) {
+      // Has only 1 (AIO comparison tab) or two (1 normal and 1 AIO)
+      if (this.logsComparisonMap.size > 0 && this.logsComparisonMap.size < 3 && this.logsComparisonMap.has(this.aioKey)) {
+        // 1 or 2 and has AIO
+        if (this.logsComparisonMap.size > 0) {
+          this.logsComparisonMap.delete(this.aioKey);
+          this.logsComparisonKeys = Array.from(this.logsComparisonMap.keys());
+        }
+      } else {
+        if (this.logsComparisonMap.size > 0) {
+          if (this.logsComparisonMap.has(this.aioKey)) {
+            this.logsComparisonMap.delete(this.aioKey);
+            this.logsComparisonKeys = Array.from(this.logsComparisonMap.keys());
+          }
+
+          let componentsList: string[] = [];
+
+          for (let key of this.logsComparisonKeys) {
+            let currentLogComparisonList: LogComparisonModel[] = this.logsComparisonMap.get(key);
+            if (currentLogComparisonList.length > 0) {
+              let currentComponent: string = currentLogComparisonList[0].component;
+
+              if (!isStringIntoArray(currentComponent, componentsList)) {
+                componentsList.push(currentComponent);
+              }
+            }
+          }
+
+          let firstLogComparisonList: LogComparisonModel[] = Array.from(this.logsComparisonMap.values())[0];
+          for (let logComparison of firstLogComparisonList) {
+            let newLogComparison: LogComparisonModel = new LogComparisonModel();
+            newLogComparison.name = logComparison.pair.join(' | ');
+            newLogComparison.stream = logComparison.stream;
+            newLogComparison.startDate = logComparison.startDate;
+            newLogComparison.endDate = logComparison.endDate;
+            newLogComparison.pair = logComparison.pair;
+            newLogComparison.components = componentsList;
+            this.addMoreLogsComparison(this.aioKey, newLogComparison);
+          }
+        } // Else is empty
+      }
     }
   }
 }

@@ -43,6 +43,7 @@ import org.elasticsearch.index.query.MatchPhrasePrefixQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -559,14 +560,14 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     /* ****************** Logs ****************** */
     /* ****************************************** */
 
-    public BoolQueryBuilder getLogBoolQueryBuilder(String component,
+    public BoolQueryBuilder getLogBoolQueryBuilder(List<String> components,
             String stream, boolean underShould) {
         BoolQueryBuilder componentStreamBoolBuilder = QueryBuilders.boolQuery();
-        TermQueryBuilder componentTerm = QueryBuilders.termQuery("component",
-                component);
+        TermsQueryBuilder componentsTerms = QueryBuilders
+                .termsQuery("component", components);
         TermQueryBuilder streamTerm = QueryBuilders.termQuery("stream", stream);
 
-        componentStreamBoolBuilder.must(componentTerm);
+        componentStreamBoolBuilder.must(componentsTerms);
         componentStreamBoolBuilder.must(streamTerm);
 
         if (underShould) {
@@ -587,11 +588,22 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         }
     }
 
+    public BoolQueryBuilder getLogBoolQueryBuilder(String component,
+            String stream, boolean underShould) {
+        return getLogBoolQueryBuilder(Arrays.asList(component), stream,
+                underShould);
+    }
+
     public List<Map<String, Object>> searchAllLogs(
             MonitoringQuery monitoringQuery) throws IOException {
-        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
-                monitoringQuery.getComponent(), monitoringQuery.getStream(),
-                false);
+
+        // If components list not empty, use list. Else, use unique component
+        List<String> components = monitoringQuery.getComponents();
+        components = components != null && components.size() > 0 ? components
+                : Arrays.asList(monitoringQuery.getComponent());
+
+        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(components,
+                monitoringQuery.getStream(), false);
 
         boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery,
                 boolQueryBuilder);

@@ -71,11 +71,14 @@ export class ReportComparisonComponent implements OnInit {
     }
 
     if (!useCache && this.logComparison) {
+      let components: string[] = this.logComparison.components;
+      components = components && components.length > 0 ? components : [this.logComparison.component];
+
       this.monitoringService
         .compareLogsPair(
           this.logComparison.pair,
           this.logComparison.stream,
-          this.logComparison.component,
+          components,
           this.logComparison.startDate,
           this.logComparison.endDate,
           true,

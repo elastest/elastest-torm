@@ -18,6 +18,9 @@ public class MonitoringQuery {
     @JsonProperty("component")
     String component;
 
+    @JsonProperty("components")
+    List<String> components;
+
     @JsonProperty("componentService")
     String componentService;
 
@@ -29,6 +32,9 @@ public class MonitoringQuery {
 
     @JsonProperty("stream")
     String stream;
+
+    @JsonProperty("streams")
+    List<String> streams;
 
     @JsonProperty("streamType")
     StreamType streamType;
@@ -59,10 +65,16 @@ public class MonitoringQuery {
                 : new ArrayList<>();
 
         this.component = monitoringQuery.component;
+        this.components = monitoringQuery.components != null
+                ? new ArrayList<>(monitoringQuery.components)
+                : new ArrayList<>();
         this.componentService = monitoringQuery.componentService;
         this.etType = monitoringQuery.etType;
         this.timestamp = monitoringQuery.timestamp;
         this.stream = monitoringQuery.stream;
+        this.streams = monitoringQuery.streams != null
+                ? new ArrayList<>(monitoringQuery.streams)
+                : new ArrayList<>();
         this.streamType = monitoringQuery.streamType;
         this.containerName = monitoringQuery.containerName;
         this.selectedTerms = monitoringQuery.selectedTerms;
@@ -90,6 +102,14 @@ public class MonitoringQuery {
 
     public void setComponent(String component) {
         this.component = component;
+    }
+
+    public List<String> getComponents() {
+        return components;
+    }
+
+    public void setComponents(List<String> components) {
+        this.components = components;
     }
 
     public String getComponentService() {
@@ -122,6 +142,14 @@ public class MonitoringQuery {
 
     public void setStream(String stream) {
         this.stream = stream;
+    }
+
+    public List<String> getStreams() {
+        return streams;
+    }
+
+    public void setStreams(List<String> streams) {
+        this.streams = streams;
     }
 
     public String getContainerName() {

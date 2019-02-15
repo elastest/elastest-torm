@@ -164,11 +164,17 @@ public class TracesSearchService implements MonitoringServiceInterface {
             traces = this.searchAllLogsByTimeRange(monitoringQuery);
 
         } else {
+            // If components list not empty, use list. Else, use unique
+            // component
+            List<String> components = monitoringQuery.getComponents();
+            components = components != null && components.size() > 0
+                    ? components
+                    : Arrays.asList(monitoringQuery.getComponent());
+
             traces = traceRepository
-                    .findByStreamTypeAndExecInAndStreamAndComponent(
+                    .findByStreamTypeAndExecInAndStreamAndComponentIn(
                             StreamType.LOG, monitoringQuery.getIndices(),
-                            monitoringQuery.getStream(),
-                            monitoringQuery.getComponent());
+                            monitoringQuery.getStream(), components);
         }
         return traces;
     }
@@ -225,25 +231,33 @@ public class TracesSearchService implements MonitoringServiceInterface {
             Date gte = timeRange.getGte();
             Date lt = timeRange.getLt();
             Date lte = timeRange.getLte();
+
+            // If components list not empty, use list. Else, use unique
+            // component
+            List<String> components = monitoringQuery.getComponents();
+            components = components != null && components.size() > 0
+                    ? components
+                    : Arrays.asList(component);
+
             if (gt != null) {
                 // gt and lt
                 if (lt != null) {
                     traces = traceRepository
-                            .findByStreamTypeAndExecInAndStreamAndComponentAndTimestampGreaterThanAndTimestampLessThan(
-                                    StreamType.LOG, indices, stream, component,
+                            .findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanAndTimestampLessThan(
+                                    StreamType.LOG, indices, stream, components,
                                     gt, lt);
                 } else {
                     // gt and lte
                     if (lte != null) {
                         traces = traceRepository
-                                .findByStreamTypeAndExecInAndStreamAndComponentAndTimestampGreaterThanAndTimestampLessThanEqual(
+                                .findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanAndTimestampLessThanEqual(
                                         StreamType.LOG, indices, stream,
-                                        component, gt, lte);
+                                        components, gt, lte);
                     } else { // gt only
                         traces = traceRepository
-                                .findByStreamTypeAndExecInAndStreamAndComponentAndTimestampGreaterThan(
+                                .findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThan(
                                         StreamType.LOG, indices, stream,
-                                        component, gt);
+                                        components, gt);
                     }
                 }
 
@@ -251,32 +265,33 @@ public class TracesSearchService implements MonitoringServiceInterface {
                 // gte and lt
                 if (lt != null) {
                     traces = traceRepository
-                            .findByStreamTypeAndExecInAndStreamAndComponentAndTimestampGreaterThanEqualAndTimestampLessThan(
-                                    StreamType.LOG, indices, stream, component,
+                            .findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanEqualAndTimestampLessThan(
+                                    StreamType.LOG, indices, stream, components,
                                     gte, lt);
                 } else {
                     // gte and lte
                     if (lte != null) {
                         traces = traceRepository
-                                .findByStreamTypeAndExecInAndStreamAndComponentAndTimestampGreaterThanEqualAndTimestampLessThanEqual(
+                                .findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanEqualAndTimestampLessThanEqual(
                                         StreamType.LOG, indices, stream,
-                                        component, gte, lte);
+                                        components, gte, lte);
                     } else { // gte only
                         traces = traceRepository
-                                .findByStreamTypeAndExecInAndStreamAndComponentAndTimestampGreaterThanEqual(
+                                .findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanEqual(
                                         StreamType.LOG, indices, stream,
-                                        component, gte);
+                                        components, gte);
                     }
                 }
             } else if (lte != null) {
                 traces = traceRepository
-                        .findByStreamTypeAndExecInAndStreamAndComponentAndTimestampLessThanEqual(
-                                StreamType.LOG, indices, stream, component,
+                        .findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampLessThanEqual(
+                                StreamType.LOG, indices, stream, components,
                                 lte);
             } else if (lt != null) {
                 traces = traceRepository
-                        .findByStreamTypeAndExecInAndStreamAndComponentAndTimestampLessThan(
-                                StreamType.LOG, indices, stream, component, lt);
+                        .findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampLessThan(
+                                StreamType.LOG, indices, stream, components,
+                                lt);
             }
         }
 
