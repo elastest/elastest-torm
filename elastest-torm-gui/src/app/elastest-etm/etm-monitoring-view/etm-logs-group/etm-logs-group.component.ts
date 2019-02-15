@@ -353,7 +353,7 @@ export class EtmLogsGroupComponent implements OnInit {
           this.logsComparisonKeys = Array.from(this.logsComparisonMap.keys());
         }
       } else {
-        if (this.logsComparisonMap.size > 0) {
+        if (this.logsComparisonMap.size > 1) {
           if (this.logsComparisonMap.has(this.aioKey)) {
             this.logsComparisonMap.delete(this.aioKey);
             this.logsComparisonKeys = Array.from(this.logsComparisonMap.keys());

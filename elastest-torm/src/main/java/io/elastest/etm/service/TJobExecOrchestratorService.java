@@ -1567,13 +1567,13 @@ public class TJobExecOrchestratorService {
                         Date startDate = this.monitoringService
                                 .findFirstStartTestMsgAndGetTimestamp(
                                         tJobExec.getMonitoringIndex(),
-                                        tCase.getName(), "test");
+                                        tCase.getName(), Arrays.asList("test"));
                         tCase.setStartDate(startDate);
 
                         Date endDate = this.monitoringService
                                 .findFirstFinishTestMsgAndGetTimestamp(
                                         tJobExec.getMonitoringIndex(),
-                                        tCase.getName(), "test");
+                                        tCase.getName(), Arrays.asList("test"));
                         tCase.setEndDate(endDate);
                     } catch (Exception e) {
                         logger.debug(

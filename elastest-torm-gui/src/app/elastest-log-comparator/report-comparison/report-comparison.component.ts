@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { TableService } from '../service/table.service';
-import { LogComparisonModel, comparisonMode } from '../model/log-comparison.model';
+import { LogComparisonModel, comparisonMode, viewMode } from '../model/log-comparison.model';
 import { MonitoringService } from '../../shared/services/monitoring.service';
 
 @Component({
@@ -19,16 +19,20 @@ export class ReportComparisonComponent implements OnInit {
   timeDiffDiff: string;
 
   comparisonInProgress: boolean = false;
+
   comparisonMode: number = 1;
   comparisonCompleteBtnEnabled: boolean = true;
   comparisonNoTimestampBtnEnabled: boolean = false;
   comparisonTimeDiffBtnEnabled: boolean = true;
 
+  viewMode: number = 0;
+  viewCompleteBtnEnabled: boolean = false;
+  viewTestsLogsBtnEnabled: boolean = true;
+  viewFailedTestsBtnEnabled: boolean = true;
+
   execsRow: any[] = [];
   loadingData: boolean;
   resultData: any[] = [];
-  viewButtonsClasses: string[] = ['accent', 'primary', 'primary', 'primary'];
-  viewMode: number;
 
   constructor(private tableService: TableService, private monitoringService: MonitoringService) {
     this.comparisonInProgress = false;
@@ -39,10 +43,10 @@ export class ReportComparisonComponent implements OnInit {
     this.loadComparison();
   }
 
-  loadComparison(comparison: comparisonMode = 'notimestamp'): void {
-    this.loadingData = true;
-    this.viewMode = 0;
+  loadComparison(comparison: comparisonMode = 'notimestamp', view: viewMode = 'complete'): void {
+    //TODO view
 
+    this.loadingData = true;
     this.resultData = [];
 
     let useCache: boolean = false;
@@ -84,6 +88,7 @@ export class ReportComparisonComponent implements OnInit {
           true,
           true,
           comparison,
+          view,
         )
         .subscribe(
           (diff: string) => {
@@ -104,6 +109,7 @@ export class ReportComparisonComponent implements OnInit {
     };
     this.comparisonInProgress = true;
     this.resetComparisonButtons();
+    this.resetViewButtons();
 
     this.loadingData = false;
   }
@@ -130,11 +136,9 @@ export class ReportComparisonComponent implements OnInit {
     }
   }
 
-  updateComparisonMode(mode: number, $event: any): void {
-    this.comparisonMode = mode;
-    this.loadingData = true;
+  getComparisonModeNameById(mode: number): comparisonMode {
     let comparison: comparisonMode = 'notimestamp';
-    switch (this.comparisonMode) {
+    switch (mode) {
       // Complete
       case 0:
         comparison = 'complete';
@@ -144,38 +148,46 @@ export class ReportComparisonComponent implements OnInit {
         comparison = 'timediff';
         break;
       // No timestamp
-
       case 1:
       default:
         break;
     }
-    this.loadComparison(comparison);
+
+    return comparison;
   }
 
-  updateViewMode(comp: number, mode: number): void {
-    // this.viewMode = mode;
-    // this.loadingData = true;
-    // this.resetViewButtonsClasses();
-    // switch (this.viewMode) {
-    //   case 0:
-    //     this.viewRaw(comp, true);
-    //     break;
-    //   case 1:
-    //     this.viewByMethods(comp);
-    //     break;
-    //   case 2:
-    //     this.viewByMethods(comp);
-    //     break;
-    //   case 3:
-    //   default:
-    //     this.viewRaw(comp, false);
-    //     break;
-    // }
-    // if (this.comparisonInProgress) {
-    //   this.updateComparisonMode(this.comparisonMode);
-    // } else {
-    //   this.loadingData = false;
-    // }
+  updateComparisonMode(mode: number): void {
+    this.comparisonMode = mode;
+    this.loadingData = true;
+    let comparison: comparisonMode = this.getComparisonModeNameById(mode);
+    this.loadComparison(comparison, this.getViewModeNameById(this.viewMode));
+  }
+
+  getViewModeNameById(mode: number): viewMode {
+    let view: viewMode = 'complete';
+    switch (this.viewMode) {
+      // Tests Logs
+      case 1:
+        view = 'testslogs';
+        break;
+      // Failed tests
+      case 2:
+        view = 'failedtests';
+        break;
+      // Complete
+      case 0:
+      default:
+        break;
+    }
+
+    return view;
+  }
+  updateViewMode(mode: number): void {
+    this.viewMode = mode;
+    this.loadingData = true;
+    let view: viewMode = this.getViewModeNameById(mode);
+
+    this.loadComparison(this.getComparisonModeNameById(this.comparisonMode), view);
   }
 
   private resetComparisonButtons(): void {
@@ -200,10 +212,25 @@ export class ReportComparisonComponent implements OnInit {
     }
   }
 
-  private resetViewButtonsClasses(): void {
-    for (let i: number = 0; i < this.viewButtonsClasses.length; i++) {
-      this.viewButtonsClasses[i] = 'primary';
+  private resetViewButtons(): void {
+    this.viewCompleteBtnEnabled = true;
+    this.viewTestsLogsBtnEnabled = true;
+    this.viewFailedTestsBtnEnabled = true;
+    switch (this.viewMode) {
+      // Complete
+      case 0:
+        this.viewCompleteBtnEnabled = false;
+        break;
+      // Tests logs
+      case 1:
+        this.viewTestsLogsBtnEnabled = false;
+        break;
+      // Failed Tests
+      case 2:
+        this.viewFailedTestsBtnEnabled = false;
+        break;
+      default:
+        break;
     }
-    this.viewButtonsClasses[this.viewMode] = 'accent';
   }
 }

@@ -21,8 +21,15 @@ public interface MonitoringServiceInterface {
     List<Map<String, Object>> searchAllLogs(MonitoringQuery monitoringQuery)
             throws Exception;
 
-    List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery, boolean withTimestamp, boolean timeInMillis)
-            throws Exception;
+    List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff,
+            boolean discardStartFinishTestTraces) throws Exception;
+
+    List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeInMillis) throws Exception;
+
+    List<String> searchTestLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff) throws Exception;
 
     List<Map<String, Object>> getLastLogs(MonitoringQuery monitoringQuery,
             int size) throws Exception;
@@ -36,14 +43,29 @@ public interface MonitoringServiceInterface {
     List<AggregationTree> searchLogsLevelsTree(
             @Valid MonitoringQuery monitoringQuery) throws Exception;
 
-    Date findFirstMsgAndGetTimestamp(String index, String msg, String component)
+    Date findFirstMsgAndGetTimestamp(String index, String msg, List<String> components)
             throws Exception;
 
     Date findFirstStartTestMsgAndGetTimestamp(String index, String testName,
-            String component) throws Exception;
+            List<String> components) throws Exception;
 
     Date findFirstFinishTestMsgAndGetTimestamp(String index, String testName,
-            String component) throws Exception;
+            List<String> components) throws Exception;
+
+    Date findFirstStartTestMsgAndGetTimestamp(String index, List<String> components)
+            throws Exception;
+
+    Date findFirstFinishTestMsgAndGetTimestamp(String index, List<String> components)
+            throws Exception;
+
+    Date findLastMsgAndGetTimestamp(String index, String msg, List<String> components)
+            throws Exception;
+
+    Date findLastStartTestMsgAndGetTimestamp(String index, List<String> components)
+            throws Exception;
+
+    Date findLastFinishTestMsgAndGetTimestamp(String index, List<String> components)
+            throws Exception;
 
     /* *** Metrics *** */
     List<Map<String, Object>> searchAllMetrics(MonitoringQuery monitoringQuery)

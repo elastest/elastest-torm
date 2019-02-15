@@ -103,7 +103,8 @@ public class TracesApiController implements TracesApi {
 
     public ResponseEntity<String> compareLogsPair(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body,
-            @RequestParam(value = "comparison", required = true) String comparison)
+            @RequestParam(value = "comparison", required = true) String comparison,
+            @RequestParam(value = "view", required = true) String view)
             throws Exception {
         if (body != null && body.getIndices() != null
                 && body.getIndices().size() == 2) {

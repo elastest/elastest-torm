@@ -92,6 +92,10 @@ public class MonitoringQuery {
         return indices.toArray(new String[indices.size()]);
     }
 
+    public String getIndicesAsString() {
+        return String.join(",", indices);
+    }
+
     public void setIndices(List<String> indices) {
         this.indices = indices;
     }

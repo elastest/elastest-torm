@@ -30,3 +30,4 @@ export class LogComparisonModel {
 }
 
 export type comparisonMode = 'complete' | 'notimestamp' | 'timediff';
+export type viewMode = 'complete' | 'testslogs' | 'failedtests';

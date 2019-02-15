@@ -156,68 +156,6 @@ public class TracesSearchService implements MonitoringServiceInterface {
         return this.getTracesMapListByTracesList(traces);
     }
 
-    public List<Trace> searchAllLogsTraces(MonitoringQuery monitoringQuery)
-            throws Exception {
-        List<Trace> traces;
-        if (monitoringQuery.getTimeRange() != null
-                && !monitoringQuery.getTimeRange().isEmpty()) {
-            traces = this.searchAllLogsByTimeRange(monitoringQuery);
-
-        } else {
-            // If components list not empty, use list. Else, use unique
-            // component
-            List<String> components = monitoringQuery.getComponents();
-            components = components != null && components.size() > 0
-                    ? components
-                    : Arrays.asList(monitoringQuery.getComponent());
-
-            traces = traceRepository
-                    .findByStreamTypeAndExecInAndStreamAndComponentIn(
-                            StreamType.LOG, monitoringQuery.getIndices(),
-                            monitoringQuery.getStream(), components);
-        }
-        return traces;
-    }
-
-    @Override
-    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
-            boolean withTimestamp, boolean timeDiff) throws Exception {
-        List<String> logs = new ArrayList<>();
-        List<Trace> logTraces = searchAllLogsTraces(monitoringQuery);
-
-        if (logTraces != null) {
-            Trace firstTrace = null;
-            for (Trace trace : logTraces) {
-                if (trace != null && trace.getMessage() != null) {
-                    String message = trace.getMessage();
-
-                    if (withTimestamp && trace.getTimestamp() != null) {
-                        if (timeDiff) {
-                            long traceTimeDiff = trace.getTimestamp().getTime();
-                            // First is 0
-                            if (firstTrace == null) {
-                                traceTimeDiff = 0;
-                                firstTrace = trace;
-                            } else { // Others is difference with the first
-                                traceTimeDiff -= firstTrace.getTimestamp()
-                                        .getTime();
-                            }
-
-                            message = traceTimeDiff + " " + message;
-                        } else {
-                            message = trace.getTimestamp().toString() + " "
-                                    + message;
-                        }
-                    }
-
-                    logs.add(message);
-                }
-            }
-        }
-
-        return logs;
-    }
-
     public List<Trace> searchAllLogsByTimeRange(MonitoringQuery monitoringQuery)
             throws Exception {
         List<Trace> traces = null;
@@ -296,6 +234,108 @@ public class TracesSearchService implements MonitoringServiceInterface {
         }
 
         return traces;
+    }
+
+    public List<Trace> searchAllLogsTraces(MonitoringQuery monitoringQuery)
+            throws Exception {
+        List<Trace> traces;
+        if (monitoringQuery.getTimeRange() != null
+                && !monitoringQuery.getTimeRange().isEmpty()) {
+            traces = this.searchAllLogsByTimeRange(monitoringQuery);
+
+        } else {
+            // If components list not empty, use list. Else, use unique
+            // component
+            List<String> components = monitoringQuery.getComponents();
+            components = components != null && components.size() > 0
+                    ? components
+                    : Arrays.asList(monitoringQuery.getComponent());
+
+            traces = traceRepository
+                    .findByStreamTypeAndExecInAndStreamAndComponentIn(
+                            StreamType.LOG, monitoringQuery.getIndices(),
+                            monitoringQuery.getStream(), components);
+        }
+        return traces;
+    }
+
+    @Override
+    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff) throws Exception {
+        return searchAllLogsMessage(monitoringQuery, withTimestamp, timeDiff,
+                false);
+    }
+
+    @Override
+    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff,
+            boolean discardStartFinishTestTraces) throws Exception {
+        List<String> logs = new ArrayList<>();
+        List<Trace> logTraces = searchAllLogsTraces(monitoringQuery);
+
+        if (logTraces != null) {
+            Trace firstTrace = null;
+            for (Trace trace : logTraces) {
+                if (trace != null && trace.getMessage() != null) {
+                    String message = trace.getMessage();
+
+                    // If is not start/finish test trace
+                    if (!discardStartFinishTestTraces
+                            || (discardStartFinishTestTraces
+                                    && !utilsService
+                                            .containsTCStartMsgPrefix(message)
+                                    && !utilsService.containsTCFinishMsgPrefix(
+                                            message))) {
+                        if (withTimestamp && trace.getTimestamp() != null) {
+                            if (timeDiff) {
+                                long traceTimeDiff = trace.getTimestamp()
+                                        .getTime();
+                                // First is 0
+                                if (firstTrace == null) {
+                                    traceTimeDiff = 0;
+                                    firstTrace = trace;
+                                } else { // Others is difference with the first
+                                    traceTimeDiff -= firstTrace.getTimestamp()
+                                            .getTime();
+                                }
+
+                                message = traceTimeDiff + " " + message;
+                            } else {
+                                message = trace.getTimestamp().toString() + " "
+                                        + message;
+                            }
+                        }
+
+                        logs.add(message);
+                    }
+                }
+            }
+        }
+
+        return logs;
+    }
+
+    @Override
+    public List<String> searchTestLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff) throws Exception {
+        // If components list not empty, use list. Else, use unique
+        // component
+        List<String> components = monitoringQuery.getComponents();
+        components = components != null && components.size() > 0 ? components
+                : Arrays.asList(monitoringQuery.getComponent());
+
+        Date firstStartTestTrace = this.findFirstStartTestMsgAndGetTimestamp(
+                monitoringQuery.getIndicesAsString(), components);
+        Date lastFinishTestTrace = this.findLastFinishTestMsgAndGetTimestamp(
+                monitoringQuery.getIndicesAsString(), components);
+
+        TimeRange timeRange = new TimeRange();
+        timeRange.setGte(firstStartTestTrace);
+        timeRange.setLte(lastFinishTestTrace);
+        monitoringQuery.setTimeRange(timeRange);
+
+        return searchAllLogsMessage(monitoringQuery, withTimestamp, timeDiff,
+                true);
     }
 
     @Override
@@ -465,10 +505,10 @@ public class TracesSearchService implements MonitoringServiceInterface {
     }
     /* *** Messages *** */
 
-    public List<Trace> findMessage(String index, String msg, String component)
-            throws IOException {
+    public List<Trace> findMessage(String index, String msg,
+            List<String> components) throws IOException {
         BooleanExpression query = QTrace.trace.exec.eq(index)
-                .and(QTrace.trace.component.eq(component))
+                .and(QTrace.trace.component.in(components))
                 .and(QTrace.trace.stream.eq("default_log"))
                 .and(QTrace.trace.message.matches(".*" + msg.trim() + " .*")
                         .or(QTrace.trace.message.matches(".*" + msg.trim())));
@@ -477,13 +517,24 @@ public class TracesSearchService implements MonitoringServiceInterface {
                 .fetch();
     }
 
-    @Override
-    public Date findFirstMsgAndGetTimestamp(String index, String msg,
-            String component) throws Exception {
-        List<Trace> traces = this.findMessage(index, msg, component);
+    public Trace findFirstTrace(String index, String msg,
+            List<String> components) throws Exception {
+        List<Trace> traces = this.findMessage(index, msg, components);
         if (traces != null && traces.size() > 0) {
             Trace firstResult = traces.get(0);
-            Date timestamp = firstResult.getTimestamp();
+
+            return firstResult;
+        }
+
+        return null;
+    }
+
+    @Override
+    public Date findFirstMsgAndGetTimestamp(String index, String msg,
+            List<String> components) throws Exception {
+        Trace firstTrace = this.findFirstTrace(index, msg, components);
+        if (firstTrace != null) {
+            Date timestamp = firstTrace.getTimestamp();
 
             return timestamp;
         }
@@ -493,16 +544,69 @@ public class TracesSearchService implements MonitoringServiceInterface {
 
     @Override
     public Date findFirstStartTestMsgAndGetTimestamp(String index,
-            String testName, String component) throws Exception {
+            String testName, List<String> components) throws Exception {
         return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix() + testName, component);
+                utilsService.getETTestStartPrefix() + testName, components);
     }
 
     @Override
     public Date findFirstFinishTestMsgAndGetTimestamp(String index,
-            String testName, String component) throws Exception {
+            String testName, List<String> components) throws Exception {
         return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestFinishPrefix() + testName, component);
+                utilsService.getETTestFinishPrefix() + testName, components);
+    }
+
+    @Override
+    public Date findFirstStartTestMsgAndGetTimestamp(String index,
+            List<String> components) throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index,
+                utilsService.getETTestStartPrefix(), components);
+    }
+
+    @Override
+    public Date findFirstFinishTestMsgAndGetTimestamp(String index,
+            List<String> components) throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index,
+                utilsService.getETTestFinishPrefix(), components);
+    }
+
+    public Trace findLastTrace(String index, String msg,
+            List<String> components) throws Exception {
+        List<Trace> traces = this.findMessage(index, msg, components);
+        if (traces != null && traces.size() > 0) {
+            Trace lastResult = traces.get(traces.size() - 1);
+
+            return lastResult;
+        }
+
+        return null;
+    }
+
+    @Override
+    public Date findLastMsgAndGetTimestamp(String index, String msg,
+            List<String> components) throws Exception {
+        Trace lastTrace = this.findLastTrace(index, msg, components);
+        if (lastTrace != null) {
+            Date timestamp = lastTrace.getTimestamp();
+
+            return timestamp;
+        }
+
+        return null;
+    }
+
+    @Override
+    public Date findLastStartTestMsgAndGetTimestamp(String index,
+            List<String> components) throws Exception {
+        return this.findLastMsgAndGetTimestamp(index,
+                utilsService.getETTestStartPrefix(), components);
+    }
+
+    @Override
+    public Date findLastFinishTestMsgAndGetTimestamp(String index,
+            List<String> components) throws Exception {
+        return this.findLastMsgAndGetTimestamp(index,
+                utilsService.getETTestFinishPrefix(), components);
     }
 
     /* ***************************************** */
