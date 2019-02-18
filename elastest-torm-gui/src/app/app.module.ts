@@ -77,7 +77,7 @@ import { ProjectManagerComponent } from './elastest-etm/project/project-manager/
 import { TJobExecsManagerComponent } from './elastest-etm/tjob-exec/tjob-execs-manager/tjob-execs-manager.component';
 import { GetIndexModalComponent } from './elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { ElastestLogAnalyzerComponent } from './elastest-log-analyzer/elastest-log-analyzer.component';
-import { AgGridModule } from 'ag-grid-angular/main';
+import { AgGridModule } from 'ag-grid-angular';
 import { TreeModule } from 'angular-tree-component';
 
 import { HelpComponent } from './elastest-etm/help/help.component';

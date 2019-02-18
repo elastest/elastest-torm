@@ -2,13 +2,22 @@ import { LogAnalyzerService } from './log-analyzer.service';
 import { AgGridColumn } from 'ag-grid-angular/main';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Rx';
-import { RowSelectedEvent, RowDoubleClickedEvent } from 'ag-grid/dist/lib/events';
+import { RowSelectedEvent, RowDoubleClickedEvent } from 'ag-grid-community/dist/lib/events';
 import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
 import { dateToInputLiteral, invertColor } from './utils/Utils';
 import { MatDialog, MatDialogRef } from '@angular/material';
-import { ColumnApi, ComponentStateChangedEvent, GridApi, GridOptions, GridReadyEvent, RowNode, Column } from 'ag-grid/main';
+import {
+  ColumnApi,
+  ComponentStateChangedEvent,
+  GridApi,
+  GridOptions,
+  GridReadyEvent,
+  RowNode,
+  Column,
+} from 'ag-grid-community/main';
+
 import { TreeComponent } from 'angular-tree-component';
 import { ShowMessageModalComponent } from './show-message-modal/show-message-modal.component';
 import { LogAnalyzerConfigModel } from './log-analyzer-config-model';
@@ -23,6 +32,7 @@ import { MonitoringQueryModel } from '../shared/monitoring-query.model';
 import { LogAnalyzerQueryModel } from '../shared/loganalyzer-query.model';
 import { TreeCheckElementModel } from '../shared/ag-tree-model';
 import { interval } from 'rxjs';
+import { ColumnState } from 'ag-grid-community/dist/lib/columnController/columnController';
 
 @Component({
   selector: 'elastest-log-analyzer',
@@ -42,6 +52,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   public logColumns: any[] = [];
   public autoRowHeight: boolean = true;
   public gridOptions: GridOptions = {
+    defaultColDef: {
+      resizable: true,
+    },
+    suppressSetColumnStateEvents: true,
     rowHeight: 22,
     headerHeight: 42,
     rowSelection: 'single',
@@ -367,6 +381,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
 
   loadLogByGivenData(data: any[] = []): void {
     this.logRows = data;
+
     let logsLoaded: boolean = this.logRows.length > 0;
     if (logsLoaded) {
       this.setTableHeader();
@@ -526,7 +541,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     });
   }
 
-  public refreshView(): void {
+  public redrawRows(): void {
     if (this.gridApi) {
       this.gridApi.redrawRows();
     }
@@ -579,7 +594,27 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
 
   public loadColumnsConfig(showPopup: boolean = true): void {
     if (this.logAnalyzer.laConfig.columnsState) {
-      this.gridColumnApi.setColumnState(this.logAnalyzer.laConfig.columnsState);
+      // TMP fix for https://github.com/ag-grid/ag-grid/issues/2889
+      let columnsStates: ColumnState[] = this.logAnalyzer.laConfig.columnsState;
+      if (
+        this.gridColumnApi.getPrimaryColumns().length > 0 &&
+        this.gridColumnApi.getPrimaryColumns()[0].getColId() &&
+        this.gridColumnApi
+          .getPrimaryColumns()[0]
+          .getColId()
+          .endsWith('_1')
+      ) {
+        columnsStates = [];
+        for (let columnState of this.logAnalyzer.laConfig.columnsState) {
+          // Clone
+          let newColumnState: ColumnState = JSON.parse(JSON.stringify(columnState));
+
+          newColumnState.colId = newColumnState.colId + '_1';
+          columnsStates.push(newColumnState);
+        }
+      }
+
+      this.gridColumnApi.setColumnState(columnsStates);
       if (showPopup) {
         this.popup('Saved columns configuration has been loaded');
       }
