@@ -334,13 +334,18 @@ export class EtmLogsGroupComponent implements OnInit {
     return false;
   }
 
-  removeLogComparator(logField: LogFieldModel): void {
+  removeLogComparatorTab(logField: LogFieldModel): void {
     // Remove entire key-values pair
     if (logField && this.logsComparisonMap && this.logsComparisonMap.has(logField.name)) {
       this.logsComparisonMap.delete(logField.name);
       this.logsComparisonKeys = Array.from(this.logsComparisonMap.keys());
       this.generateAIOLogsComparisonTab();
     }
+  }
+
+  removeLogComparatorCard(): void {
+    this.logsComparisonMap = new Map();
+    this.logsComparisonKeys = [];
   }
 
   generateAIOLogsComparisonTab(): void {

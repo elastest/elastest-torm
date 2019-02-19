@@ -715,6 +715,10 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         Date lastFinishTestTrace = this.findLastFinishTestMsgAndGetTimestamp(
                 monitoringQuery.getIndicesAsString(), components);
 
+        if (firstStartTestTrace == null && lastFinishTestTrace == null) {
+            return new ArrayList<>();
+        }
+
         TimeRange timeRange = new TimeRange();
         timeRange.setGte(firstStartTestTrace);
         timeRange.setLte(lastFinishTestTrace);

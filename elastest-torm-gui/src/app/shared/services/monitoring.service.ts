@@ -1,6 +1,6 @@
 import { Observable, Subject } from 'rxjs/Rx';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { MonitoringQueryModel } from '../monitoring-query.model';
 import { PopupService } from './popup.service';
@@ -24,6 +24,8 @@ import { LogAnalyzerQueryModel } from '../loganalyzer-query.model';
 import { AbstractTJobExecModel } from '../../elastest-etm/models/abstract-tjob-exec-model';
 import { MonitorMarkModel } from '../../elastest-etm/etm-monitoring-view/monitor-mark.model';
 import { comparisonMode, viewMode } from '../../elastest-log-comparator/model/log-comparison.model';
+import { timeout } from 'rxjs/operators/timeout';
+
 @Injectable()
 export class MonitoringService {
   etmApiUrl: string;
@@ -89,7 +91,13 @@ export class MonitoringService {
     view: viewMode = 'complete',
   ): Observable<string> {
     let url: string = this.etmApiUrl + '/monitoring/log/compare?comparison=' + comparison + '&view=' + view;
-    return this.http.post(url, query, { responseType: 'text' }).map((data: string) => data);
+
+    return (
+      this.http
+        .post(url, query, { responseType: 'text' })
+        // .pipe(timeout(360000))
+        .map((data: string) => data)
+    );
   }
 
   compareLogsPair(

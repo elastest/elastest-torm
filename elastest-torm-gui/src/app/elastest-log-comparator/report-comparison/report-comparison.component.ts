@@ -9,7 +9,7 @@ import { MonitoringService } from '../../shared/services/monitoring.service';
   styleUrls: ['./report-comparison.component.scss'],
 })
 export class ReportComparisonComponent implements OnInit {
-  @Input() logComparison: LogComparisonModel;
+  @Input() public logComparison: LogComparisonModel;
 
   diff: string;
 
@@ -38,6 +38,10 @@ export class ReportComparisonComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.init();
+  }
+
+  init(): void {
     this.initcacheMatrix();
     this.loadComparison();
   }
@@ -93,6 +97,11 @@ export class ReportComparisonComponent implements OnInit {
           },
           (error: Error) => {
             console.log(error);
+            this.comparisonInProgress = true;
+            this.resetComparisonButtons();
+            this.resetViewButtons();
+
+            this.loadingData = false;
           },
         );
     }

@@ -104,8 +104,8 @@ public class TracesApiController implements TracesApi {
 
     public ResponseEntity<String> compareLogsPair(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body,
-            @RequestParam(value = "comparison", required = true) String comparison,
-            @RequestParam(value = "view", required = true) String view)
+            @RequestParam(value = "view", required = true) String view,
+            @RequestParam(value = "comparison", required = true) String comparison)
             throws Exception {
         if (body != null && body.getIndices() != null
                 && body.getIndices().size() == 2) {
@@ -132,6 +132,7 @@ public class TracesApiController implements TracesApi {
             String[] pairLogs = new String[2];
             int pos = 0;
             for (String index : body.getIndices()) {
+
                 MonitoringQuery newQuery = new MonitoringQuery(body);
                 newQuery.setIndices(Arrays.asList(index));
                 List<String> logs = new ArrayList<String>();
@@ -153,6 +154,7 @@ public class TracesApiController implements TracesApi {
                 }
 
                 if (pos < 2) {
+
                     // Join with carriage return
                     pairLogs[pos] = StringUtils.join(logs, String.format("%n"));
                 }
@@ -163,6 +165,7 @@ public class TracesApiController implements TracesApi {
                 DiffMatchPatch dmp = new DiffMatchPatch();
                 LinkedList<Diff> diffs = dmp.diffMain(pairLogs[0], pairLogs[1]);
                 dmp.diffCleanupSemantic(diffs);
+
                 return new ResponseEntity<>(dmp.diffPrettyHtml(diffs),
                         HttpStatus.OK);
             }

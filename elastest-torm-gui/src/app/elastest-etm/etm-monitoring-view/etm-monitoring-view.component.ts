@@ -311,7 +311,7 @@ export class EtmMonitoringViewComponent implements OnInit {
         let logField: LogFieldModel = new LogFieldModel(log.component, log.stream);
         this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
         // Remove
-        this.removeLogComparisonCard(logField);
+        this.removeLogComparisonTab(logField);
       }
     }
   }
@@ -336,8 +336,8 @@ export class EtmMonitoringViewComponent implements OnInit {
     }
   }
 
-  removeLogComparisonCard(logField: LogFieldModel): void {
-    this.logsGroup.removeLogComparator(logField);
+  removeLogComparisonTab(logField: LogFieldModel): void {
+    this.logsGroup.removeLogComparatorTab(logField);
   }
 
   updateMetricsFromList(metricsList: any[]): void {

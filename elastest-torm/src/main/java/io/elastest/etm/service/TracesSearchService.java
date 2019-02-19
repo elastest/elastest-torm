@@ -272,7 +272,6 @@ public class TracesSearchService implements MonitoringServiceInterface {
             boolean modifyStartFinishTestTraces) throws Exception {
         List<String> logs = new ArrayList<>();
         List<Trace> logTraces = searchAllLogsTraces(monitoringQuery);
-
         if (logTraces != null) {
             Trace firstTrace = null;
             for (Trace trace : logTraces) {
@@ -285,7 +284,7 @@ public class TracesSearchService implements MonitoringServiceInterface {
                                             message));
 
                     boolean noContinue = false;
-                    
+
                     // If is start/finish test trace and modify
                     // if (isStartFinishTraceAndModifyActivated) {
                     // String testCaseName = utilsService
@@ -295,7 +294,7 @@ public class TracesSearchService implements MonitoringServiceInterface {
                     // noContinue = true;
                     // }
                     // }
-                    
+
                     if (!noContinue && withTimestamp
                             && trace.getTimestamp() != null) {
                         if (timeDiff) {
@@ -338,6 +337,10 @@ public class TracesSearchService implements MonitoringServiceInterface {
                 monitoringQuery.getIndicesAsString(), components);
         Date lastFinishTestTrace = this.findLastFinishTestMsgAndGetTimestamp(
                 monitoringQuery.getIndicesAsString(), components);
+
+        if (firstStartTestTrace == null && lastFinishTestTrace == null) {
+            return new ArrayList<>();
+        }
 
         TimeRange timeRange = new TimeRange();
         timeRange.setGte(firstStartTestTrace);
