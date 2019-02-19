@@ -1,7 +1,7 @@
 <auto-height-grid fxLayout="column">
   <normal-height-row>
     <div layout="row" class="padding-xl-sides push-top-sm">
-      <!-- <div fxLayout="row" fxLayoutAlign="start center">
+      <div fxLayout="row" fxLayoutAlign="start center">
         <span class="push-right-sm">
           View:
         </span>
@@ -10,23 +10,26 @@
             mat-raised-button
             class="iconBtn-lg push-right-sm"
             color="accent"
-            (click)="updateViewMode(0, 0)"
-            [disabled]="true"
+            (click)="updateViewMode(0)"
+            [disabled]="!viewCompleteBtnEnabled || loadingData"
           >
             <b>Complete logs</b>
-          </button> -->
-      <!-- <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 3)">
-            <b>Only tests logs</b>
           </button>
-          <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 1)">
-            <b>All tests</b>
+          <button
+            mat-raised-button
+            class="iconBtn-lg push-right-sm"
+            color="accent"
+            (click)="updateViewMode(1)"
+            [disabled]="!viewTestsLogsBtnEnabled || loadingData"
+          >
+            <b>Tests Logs</b>
           </button>
-          <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(0, 2)">
+          <!-- <button mat-raised-button class="iconBtn-lg push-right-sm" color="accent" (click)="updateViewMode(2)">
             <b>Failed tests</b>
           </button> -->
-      <!-- </div>
-      </div> -->
-      <!-- <mat-divider [vertical]="true" class="push-right-sm" style="height: 40px;"></mat-divider> -->
+        </div>
+      </div>
+      <mat-divider [vertical]="true" class="push-left-md push-right-md" style="height: 40px;"></mat-divider>
       <div fxLayout="row" fxLayoutAlign="start center">
         <span class="push-right-sm">
           Comparison:
@@ -36,7 +39,7 @@
             mat-raised-button
             class="iconBtn-lg push-right-sm"
             color="accent"
-            (click)="updateComparisonMode(0, $event)"
+            (click)="updateComparisonMode(0)"
             [disabled]="!comparisonCompleteBtnEnabled || loadingData"
             matTooltip="Show complete logs"
           >
@@ -46,7 +49,7 @@
             mat-raised-button
             class="iconBtn-lg push-right-sm"
             color="accent"
-            (click)="updateComparisonMode(1, $event)"
+            (click)="updateComparisonMode(1)"
             [disabled]="!comparisonNoTimestampBtnEnabled || loadingData"
             matTooltip="Show logs without timestamp"
           >
@@ -56,7 +59,7 @@
             mat-raised-button
             class="iconBtn-lg push-right-sm"
             color="accent"
-            (click)="updateComparisonMode(2, $event)"
+            (click)="updateComparisonMode(2)"
             [disabled]="!comparisonTimeDiffBtnEnabled || loadingData"
             matTooltip="Show logs with timestamp in milliseconds"
           >
@@ -79,7 +82,7 @@
     </div>
     <ng-template #notLoading>
       <div fxFlex *ngIf="diff && comparisonInProgress; else noData">
-        <table *ngIf="viewMode == 0 || viewMode == 3" class="diff-table">
+        <table class="diff-table">
           <tbody>
             <tr *ngFor="let result of resultData[0].logs">
               <td [innerHTML]="result.index_p" class="index" style="width: 1% !important"></td>
@@ -89,7 +92,7 @@
             </tr>
           </tbody>
         </table>
-        <div *ngIf="viewMode == 1 || viewMode == 2">
+        <!-- <div *ngIf="currentViewMode == 1 || currentViewMode == 2">
           <ng-template ngFor let-class [ngForOf]="resultData">
             <h3>{{ class.name }}</h3>
             <ng-template ngFor let-method [ngForOf]="class.methods">
@@ -106,7 +109,7 @@
               </table>
             </ng-template>
           </ng-template>
-        </div>
+        </div> -->
       </div>
       <ng-template #noData>
         <centered-element class="push-top-important messageEmptyCard">

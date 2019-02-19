@@ -136,7 +136,7 @@ export class MarkComponent implements OnInit {
           this.model.logRows[result].marked = undefined;
         }
       }
-      this.model.refreshView();
+      this.model.redrawRows();
     }
   }
 
@@ -145,7 +145,7 @@ export class MarkComponent implements OnInit {
       row.marked = undefined;
       row.focused = false;
     }
-    this.model.refreshView();
+    this.model.redrawRows();
   }
 
   next(patternId: number): void {
@@ -191,7 +191,7 @@ export class MarkComponent implements OnInit {
     this.currentPos = newPos;
     if (this.model.logRows.length > 0) {
       this.model.logRows[this.currentPos].focused = true;
-      this.model.refreshView();
+      this.model.redrawRows();
       this.model.gridApi.ensureIndexVisible(this.currentPos, 'undefined'); // Make scroll if it's necessary
       this.model.gridApi.setFocusedCell(this.currentPos, 'message'); // It's not necessary with ensureIndexVisible, but highlight message
     }

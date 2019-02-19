@@ -130,3 +130,7 @@ export function allArrayPairCombinations(list: any[]): any[][] {
   });
   return pairs.concat(allArrayPairCombinations(rest));
 }
+
+export function isStringIntoArray(str: string, arr: string[]): boolean {
+  return arr.indexOf(str) > -1;
+}

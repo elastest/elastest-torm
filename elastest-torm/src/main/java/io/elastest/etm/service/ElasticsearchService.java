@@ -43,6 +43,7 @@ import org.elasticsearch.index.query.MatchPhrasePrefixQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -559,14 +560,14 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     /* ****************** Logs ****************** */
     /* ****************************************** */
 
-    public BoolQueryBuilder getLogBoolQueryBuilder(String component,
+    public BoolQueryBuilder getLogBoolQueryBuilder(List<String> components,
             String stream, boolean underShould) {
         BoolQueryBuilder componentStreamBoolBuilder = QueryBuilders.boolQuery();
-        TermQueryBuilder componentTerm = QueryBuilders.termQuery("component",
-                component);
+        TermsQueryBuilder componentsTerms = QueryBuilders
+                .termsQuery("component", components);
         TermQueryBuilder streamTerm = QueryBuilders.termQuery("stream", stream);
 
-        componentStreamBoolBuilder.must(componentTerm);
+        componentStreamBoolBuilder.must(componentsTerms);
         componentStreamBoolBuilder.must(streamTerm);
 
         if (underShould) {
@@ -587,11 +588,22 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         }
     }
 
+    public BoolQueryBuilder getLogBoolQueryBuilder(String component,
+            String stream, boolean underShould) {
+        return getLogBoolQueryBuilder(Arrays.asList(component), stream,
+                underShould);
+    }
+
     public List<Map<String, Object>> searchAllLogs(
             MonitoringQuery monitoringQuery) throws IOException {
-        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
-                monitoringQuery.getComponent(), monitoringQuery.getStream(),
-                false);
+
+        // If components list not empty, use list. Else, use unique component
+        List<String> components = monitoringQuery.getComponents();
+        components = components != null && components.size() > 0 ? components
+                : Arrays.asList(monitoringQuery.getComponent());
+
+        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(components,
+                monitoringQuery.getStream(), false);
 
         boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery,
                 boolQueryBuilder);
@@ -610,6 +622,15 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     @Override
     public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
             boolean withTimestamp, boolean timeDiff) throws Exception {
+        return searchAllLogsMessage(monitoringQuery, withTimestamp, timeDiff,
+                false);
+    }
+
+    @Override
+    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff,
+            boolean modifyStartFinishTestTraces) throws Exception {
+
         List<String> logs = new ArrayList<>();
         List<Map<String, Object>> logTraces = searchAllLogs(monitoringQuery);
 
@@ -627,7 +648,27 @@ public class ElasticsearchService implements MonitoringServiceInterface {
                                         (String) traceMap.get("@timestamp")));
                         message = trace.getMessage();
 
-                        if (withTimestamp && trace.getTimestamp() != null) {
+                        boolean isStartFinishTraceAndModifyActivated = modifyStartFinishTestTraces
+                                && (utilsService
+                                        .containsTCStartMsgPrefix(message)
+                                        || utilsService
+                                                .containsTCFinishMsgPrefix(
+                                                        message));
+
+                        boolean noContinue = false;
+
+                        // If is start/finish test trace and modify
+                        // if (isStartFinishTraceAndModifyActivated) {
+                        // String testCaseName = utilsService
+                        // .getTestCaseNameFromStartFinishTrace(message);
+                        // if (testCaseName != null && testCaseName != "") {
+                        // message = "Test Case: " + testCaseName;
+                        // noContinue = true;
+                        // }
+                        // }
+
+                        if (!noContinue && withTimestamp
+                                && trace.getTimestamp() != null) {
                             if (timeDiff) {
                                 long traceTimeDiff = trace.getTimestamp()
                                         .getTime();
@@ -658,6 +699,33 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         }
 
         return logs;
+    }
+
+    @Override
+    public List<String> searchTestLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff) throws Exception {
+        // If components list not empty, use list. Else, use unique
+        // component
+        List<String> components = monitoringQuery.getComponents();
+        components = components != null && components.size() > 0 ? components
+                : Arrays.asList(monitoringQuery.getComponent());
+
+        Date firstStartTestTrace = this.findFirstStartTestMsgAndGetTimestamp(
+                monitoringQuery.getIndicesAsString(), components);
+        Date lastFinishTestTrace = this.findLastFinishTestMsgAndGetTimestamp(
+                monitoringQuery.getIndicesAsString(), components);
+
+        if (firstStartTestTrace == null && lastFinishTestTrace == null) {
+            return new ArrayList<>();
+        }
+
+        TimeRange timeRange = new TimeRange();
+        timeRange.setGte(firstStartTestTrace);
+        timeRange.setLte(lastFinishTestTrace);
+        monitoringQuery.setTimeRange(timeRange);
+
+        return searchAllLogsMessage(monitoringQuery, withTimestamp, timeDiff,
+                true);
     }
 
     public List<Map<String, Object>> getPreviousLogsFromTimestamp(
@@ -704,12 +772,12 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     /* *** Messages *** */
 
     public SearchRequest getFindMessageSearchRequest(String index, String msg,
-            String component, String stream) {
+            List<String> components, String stream) {
 
         MatchPhrasePrefixQueryBuilder messageMatchTerm = QueryBuilders
                 .matchPhrasePrefixQuery("message", msg);
 
-        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(component,
+        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(components,
                 stream, true);
         boolQueryBuilder.must(messageMatchTerm);
 
@@ -724,15 +792,15 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     }
 
     public SearchResponse findMessageSync(String index, String msg,
-            String component) throws IOException {
+            List<String> components) throws IOException {
         SearchRequest searchRequest = this.getFindMessageSearchRequest(index,
-                msg, component, "default_log");
+                msg, components, "default_log");
         return this.esClient.search(searchRequest);
     }
 
     public Date findFirstMsgAndGetTimestamp(String index, String msg,
-            String component) throws IOException, ParseException {
-        SearchResponse response = this.findMessageSync(index, msg, component);
+            List<String> components) throws IOException, ParseException {
+        SearchResponse response = this.findMessageSync(index, msg, components);
         SearchHits hits = response.getHits();
         if (hits != null && hits.getTotalHits() > 0) {
             SearchHit firstResult = hits.getAt(0);
@@ -748,16 +816,61 @@ public class ElasticsearchService implements MonitoringServiceInterface {
 
     @Override
     public Date findFirstStartTestMsgAndGetTimestamp(String index,
-            String testName, String component) throws Exception {
+            String testName, List<String> components) throws Exception {
         return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix() + testName, component);
+                utilsService.getETTestStartPrefix() + testName, components);
     }
 
     @Override
     public Date findFirstFinishTestMsgAndGetTimestamp(String index,
-            String testName, String component) throws Exception {
+            String testName, List<String> components) throws Exception {
         return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestFinishPrefix() + testName, component);
+                utilsService.getETTestFinishPrefix() + testName, components);
+    }
+
+    @Override
+    public Date findFirstStartTestMsgAndGetTimestamp(String index,
+            List<String> components) throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index,
+                utilsService.getETTestStartPrefix(), components);
+    }
+
+    @Override
+    public Date findFirstFinishTestMsgAndGetTimestamp(String index,
+            List<String> components) throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index,
+                utilsService.getETTestFinishPrefix(), components);
+    }
+
+    @Override
+    public Date findLastMsgAndGetTimestamp(String index, String msg,
+            List<String> components) throws Exception {
+        SearchResponse response = this.findMessageSync(index, msg, components);
+        SearchHits hits = response.getHits();
+        if (hits != null && hits.getTotalHits() > 0) {
+            SearchHit lastResult = hits.getAt((int) (hits.getTotalHits() - 1));
+            String timestamp = lastResult.getSourceAsMap().get("@timestamp")
+                    .toString();
+            Date date = utilsService.getIso8601UTCDateFromStr(timestamp);
+
+            return date;
+        }
+
+        return null;
+    }
+
+    @Override
+    public Date findLastStartTestMsgAndGetTimestamp(String index,
+            List<String> components) throws Exception {
+        return this.findLastMsgAndGetTimestamp(index,
+                utilsService.getETTestStartPrefix(), components);
+    }
+
+    @Override
+    public Date findLastFinishTestMsgAndGetTimestamp(String index,
+            List<String> components) throws Exception {
+        return this.findLastMsgAndGetTimestamp(index,
+                utilsService.getETTestStartPrefix(), components);
     }
 
     /* ***************************************** */

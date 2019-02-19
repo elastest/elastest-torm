@@ -1,6 +1,6 @@
 import { Observable, Subject } from 'rxjs/Rx';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { MonitoringQueryModel } from '../monitoring-query.model';
 import { PopupService } from './popup.service';
@@ -23,7 +23,9 @@ import { TJobExecModel } from '../../elastest-etm/tjob-exec/tjobExec-model';
 import { LogAnalyzerQueryModel } from '../loganalyzer-query.model';
 import { AbstractTJobExecModel } from '../../elastest-etm/models/abstract-tjob-exec-model';
 import { MonitorMarkModel } from '../../elastest-etm/etm-monitoring-view/monitor-mark.model';
-import { comparisonMode } from '../../elastest-log-comparator/model/log-comparison.model';
+import { comparisonMode, viewMode } from '../../elastest-log-comparator/model/log-comparison.model';
+import { timeout } from 'rxjs/operators/timeout';
+
 @Injectable()
 export class MonitoringService {
   etmApiUrl: string;
@@ -83,29 +85,40 @@ export class MonitoringService {
       .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
-  public compareLogsPairByQuery(query: MonitoringQueryModel, comparison: comparisonMode = 'notimestamp'): Observable<string> {
-    let url: string = this.etmApiUrl + '/monitoring/log/compare?comparison=' + comparison;
-    return this.http.post(url, query, { responseType: 'text' }).map((data: string) => data);
+  public compareLogsPairByQuery(
+    query: MonitoringQueryModel,
+    comparison: comparisonMode = 'notimestamp',
+    view: viewMode = 'complete',
+  ): Observable<string> {
+    let url: string = this.etmApiUrl + '/monitoring/log/compare?comparison=' + comparison + '&view=' + view;
+
+    return (
+      this.http
+        .post(url, query, { responseType: 'text' })
+        // .pipe(timeout(360000))
+        .map((data: string) => data)
+    );
   }
 
   compareLogsPair(
     pair: string[],
     stream: string,
-    component: string,
+    components: string[],
     from: Date = undefined,
     to: Date = undefined,
     includedFrom: boolean = true,
     includedTo: boolean = true,
     comparison: comparisonMode = 'notimestamp',
+    view: viewMode = 'complete',
   ): Observable<string> {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
     query.indices = pair;
     query.stream = stream;
-    query.component = component;
+    query.components = components;
     query.setTimeRange(from, to, includedFrom, includedTo);
     query.selectedTerms.push('stream', 'component');
 
-    return this.compareLogsPairByQuery(query, comparison);
+    return this.compareLogsPairByQuery(query, comparison, view);
   }
 
   /* *** Metrics *** */

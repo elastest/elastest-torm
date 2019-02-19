@@ -3,6 +3,7 @@ package io.elastest.etm.api;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -103,6 +104,7 @@ public class TracesApiController implements TracesApi {
 
     public ResponseEntity<String> compareLogsPair(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body,
+            @RequestParam(value = "view", required = true) String view,
             @RequestParam(value = "comparison", required = true) String comparison)
             throws Exception {
         if (body != null && body.getIndices() != null
@@ -130,12 +132,29 @@ public class TracesApiController implements TracesApi {
             String[] pairLogs = new String[2];
             int pos = 0;
             for (String index : body.getIndices()) {
+
                 MonitoringQuery newQuery = new MonitoringQuery(body);
                 newQuery.setIndices(Arrays.asList(index));
-                List<String> logs = monitoringService.searchAllLogsMessage(
-                        newQuery, withTimestamp, timeDiff);
+                List<String> logs = new ArrayList<String>();
+
+                if (view != null) {
+                    switch (view) {
+                    case "failedtests":
+                        break;
+                    case "testslogs":
+                        logs = monitoringService.searchTestLogsMessage(newQuery,
+                                withTimestamp, timeDiff);
+                        break;
+                    case "complete":
+                    default:
+                        logs = monitoringService.searchAllLogsMessage(newQuery,
+                                withTimestamp, timeDiff);
+                        break;
+                    }
+                }
 
                 if (pos < 2) {
+
                     // Join with carriage return
                     pairLogs[pos] = StringUtils.join(logs, String.format("%n"));
                 }
@@ -146,6 +165,7 @@ public class TracesApiController implements TracesApi {
                 DiffMatchPatch dmp = new DiffMatchPatch();
                 LinkedList<Diff> diffs = dmp.diffMain(pairLogs[0], pairLogs[1]);
                 dmp.diffCleanupSemantic(diffs);
+
                 return new ResponseEntity<>(dmp.diffPrettyHtml(diffs),
                         HttpStatus.OK);
             }

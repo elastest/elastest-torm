@@ -1,21 +1,8 @@
-<mat-sidenav-container fullscreen>
-  <div id="content" fxFlexFill>
-    <mat-card id="logCard" class="push-none">
-      <mat-card-content class="push-bottom-none pad-bottom-none pad-top-none">
-        <ag-grid-angular #logsGrid id="logsGrid" *ngIf="logRows.length > 0" class="ag-theme-material" [rowData]="logRows"
-          [columnDefs]="logColumns" [gridOptions]="gridOptions" [enableColResize]="true" (gridReady)="onGridReady($event)"
-          (componentStateChanged)="componentStateChanged($event)" (rowSelected)="switchRowSelection($event)"
-          (columnResized)="saveColumnsConfig($event, false)" (columnMoved)="saveColumnsConfig(undefined,false)"
-          (rowDoubleClicked)="openMessageModal($event)" style="width: 100%; height: 80%;">
-        </ag-grid-angular>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
+<mat-sidenav-container autosize fullscreen>
   <!-- SIDENAV -->
-  <mat-sidenav position="end" mode="side" [opened]="true" [style.width.%]="25" [ngClass]="{'dontShow': isEmbed}">
-    <mat-card tdMediaToggle="gt-xs" *ngIf="logAnalyzer" id="logSidenav">
-      <mat-card-content class="push-bottom-none">
+  <mat-sidenav position="end" mode="side" [opened]="true" [style.width.%]="25">
+    <mat-card id="logSidenav">
+      <mat-card-content class="push-bottom-none" *ngIf="logAnalyzer">
         <mat-tab-group>
           <mat-tab>
             <ng-template mat-tab-label>
@@ -31,8 +18,17 @@
                       <!-- Indices  -->
                       <div fxLayout="row">
                         <mat-form-field class="noMarginInput" fxFlex="70">
-                          <input matInput type="string" class="form-control input-sm" id="selectedIndices" value="{{logAnalyzer.selectedIndicesToString()}}"
-                            name="selectedIndices" placeholder="Executions" required [disabled]="true">
+                          <input
+                            matInput
+                            type="string"
+                            class="form-control input-sm"
+                            id="selectedIndices"
+                            value="{{ logAnalyzer.selectedIndicesToString() }}"
+                            name="selectedIndices"
+                            placeholder="Executions"
+                            required
+                            [disabled]="true"
+                          />
                         </mat-form-field>
                         <!-- Select indices (MODAL) -->
                         <div id="executionsButton" fxFlex="20">
@@ -46,24 +42,40 @@
                     <div id="logDate" fxLayout="column" class="push-top">
                       <div fxLayout="row" class="">
                         <mat-form-field fxFlex="90" class="oveflowHidden">
-                          <input #fromDate matInput type="datetime-local" id="fromDate" placeholder="From Date (GMT+0)"
-                            required>
+                          <input
+                            #fromDate
+                            matInput
+                            type="datetime-local"
+                            id="fromDate"
+                            placeholder="From Date (GMT+0)"
+                            required
+                          />
                         </mat-form-field>
                       </div>
                       <div fxLayout="row" class="">
                         <div flex-xl="75">
                           <mat-form-field class="overflowHidden">
-                            <input #toDate matInput type="datetime-local" id="toDate" placeholder="To Date (GMT+0)"
-                              required [disabled]="tail.checked">
+                            <input
+                              #toDate
+                              matInput
+                              type="datetime-local"
+                              id="toDate"
+                              placeholder="To Date (GMT+0)"
+                              required
+                              [disabled]="tail.checked"
+                            />
                           </mat-form-field>
                         </div>
                         <div flex-xl="25" id="tail">
-                          <mat-checkbox #tail [checked]="logAnalyzer.tail" name="tail" (change)="setUseTail(tail.checked)"></mat-checkbox>
+                          <mat-checkbox
+                            #tail
+                            [checked]="logAnalyzer.tail"
+                            name="tail"
+                            (change)="setUseTail(tail.checked)"
+                          ></mat-checkbox>
                           <p>Tail</p>
                         </div>
-
                       </div>
-
                     </div>
                   </div>
                 </div>
@@ -74,9 +86,15 @@
                     <mat-card-subtitle class="pad-left-none">Components/Streams</mat-card-subtitle>
                     <tree-root #componentsTree [nodes]="logAnalyzer.componentsStreams.tree">
                       <ng-template #treeNodeTemplate let-node="node" let-index="index">
-                        <mat-checkbox (change)="logAnalyzer.componentsStreams.check(node, !node.data.checked)" type="checkbox"
-                          [indeterminate]="node.data.indeterminate" [checked]="node.data.checked" title="{{ node.data.name }}">
-                          {{ node.data.name }}</mat-checkbox>
+                        <mat-checkbox
+                          (change)="logAnalyzer.componentsStreams.check(node, !node.data.checked)"
+                          type="checkbox"
+                          [indeterminate]="node.data.indeterminate"
+                          [checked]="node.data.checked"
+                          title="{{ node.data.name }}"
+                        >
+                          {{ node.data.name }}</mat-checkbox
+                        >
                       </ng-template>
                     </tree-root>
                   </div>
@@ -84,23 +102,45 @@
                     <mat-card-subtitle class="pad-left-none">Levels</mat-card-subtitle>
                     <tree-root #levelsTree [nodes]="logAnalyzer.levels.tree">
                       <ng-template #treeNodeTemplate let-node="node" let-index="index">
-                        <mat-checkbox (change)="logAnalyzer.levels.check(node, !node.data.checked)" type="checkbox"
-                          [indeterminate]="node.data.indeterminate" [checked]="node.data.checked"> {{ node.data.name }}</mat-checkbox>
+                        <mat-checkbox
+                          (change)="logAnalyzer.levels.check(node, !node.data.checked)"
+                          type="checkbox"
+                          [indeterminate]="node.data.indeterminate"
+                          [checked]="node.data.checked"
+                        >
+                          {{ node.data.name }}</mat-checkbox
+                        >
                       </ng-template>
                     </tree-root>
                   </div>
                 </div>
 
                 <div *ngIf="testCaseName" class="" fxLayout="column">
-                  <mat-checkbox #testCase [checked]="withTestCase" id="testCase" name="testCase" (change)="setWithTestCase(testCase.checked)"
-                    style="line-height: 4;">TestCase: {{testCaseName}}</mat-checkbox>
+                  <mat-checkbox
+                    #testCase
+                    [checked]="withTestCase"
+                    id="testCase"
+                    name="testCase"
+                    (change)="setWithTestCase(testCase.checked)"
+                    style="line-height: 4;"
+                    >TestCase: {{ testCaseName }}</mat-checkbox
+                  >
                 </div>
 
                 <div class="" fxLayout="column">
                   <mat-form-field class="noMarginInput">
-                    <input matInput #messageCmp class="form-control input-sm" id="message" name="message" value=""
-                      [(ngModel)]="logAnalyzer.messageFilter" placeholder="Message" title="Search and filter by message"
-                      (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)">
+                    <input
+                      matInput
+                      #messageCmp
+                      class="form-control input-sm"
+                      id="message"
+                      name="message"
+                      value=""
+                      [(ngModel)]="logAnalyzer.messageFilter"
+                      placeholder="Message"
+                      title="Search and filter by message"
+                      (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)"
+                    />
                   </mat-form-field>
                 </div>
               </div>
@@ -112,14 +152,32 @@
                 <div fxLayout="row">
                   <div fxFlex="25">
                     <mat-form-field class="noMarginInput noPaddingInput" fxLayout="column">
-                      <input matInput type="number" class="form-control input-sm" id="max_results" value="1000" min="1"
-                        max="10000" [(ngModel)]="logAnalyzer.maxResults" name="max_results" placeholder="Nº Entries"
-                        #logAnalyzerFormElement #logAnalyzerFormControl="ngModel" (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)"
-                        required>
+                      <input
+                        matInput
+                        type="number"
+                        class="form-control input-sm"
+                        id="max_results"
+                        value="1000"
+                        min="1"
+                        max="10000"
+                        [(ngModel)]="logAnalyzer.maxResults"
+                        name="max_results"
+                        placeholder="Nº Entries"
+                        #logAnalyzerFormElement
+                        #logAnalyzerFormControl="ngModel"
+                        (keydown.enter)="verifyAndLoadLog($event, logAnalyzerForm.valid)"
+                        required
+                      />
                     </mat-form-field>
                   </div>
                   <div fxFlex="20" id="loadLogButton">
-                    <button mat-raised-button color="accent" class="iconBtn" (click)="loadLog()" [disabled]="!logAnalyzerForm.valid || disableBtns">
+                    <button
+                      mat-raised-button
+                      color="accent"
+                      class="iconBtn"
+                      (click)="loadLog()"
+                      [disabled]="!logAnalyzerForm.valid || disableBtns"
+                    >
                       <mat-icon>refresh</mat-icon>
                       <span *ngIf="logRows.length <= 0">Load log</span>
                       <span *ngIf="logRows.length > 0">Reload log</span>
@@ -128,13 +186,23 @@
                 </div>
                 <div fxLayout="row" class="">
                   <div fxFlex="50" id="addFromLast" *ngIf="showLoadMore && !showPauseTail">
-                    <button mat-button (click)="loadMore()" [disabled]="disableBtns" class="pad-left-none" title="Add more traces from last">
+                    <button
+                      mat-button
+                      (click)="loadMore()"
+                      [disabled]="disableBtns"
+                      class="pad-left-none"
+                      title="Add more traces from last"
+                    >
                       <mat-icon>vertical_align_bottom</mat-icon>
                     </button>
                   </div>
                   <div fxFlex="50" id="addFromSelected" *ngIf="showLoadMore && !showPauseTail">
-                    <button mat-button (click)="moreFromSelected()" [disabled]="logAnalyzer.selectedRow === undefined || disableBtns"
-                      title="Add more from selected trace">
+                    <button
+                      mat-button
+                      (click)="moreFromSelected()"
+                      [disabled]="logAnalyzer.selectedRow === undefined || disableBtns"
+                      title="Add more from selected trace"
+                    >
                       <mat-icon>vertical_align_center</mat-icon>
                     </button>
                   </div>
@@ -142,10 +210,16 @@
                   <mat-icon>link</mat-icon> Share link
                 </button>  -->
                   <div fxFlex="90" id="pauseTail" *ngIf="showPauseTail">
-                    <mat-checkbox fxLayout="column" fxLayoutAlign="start start" #pauseTail name="pauseTail" (change)="logAnalyzer.switchPauseTail(pauseTail.checked)"
-                      title="Pause Tail">Pause Tail</mat-checkbox>
+                    <mat-checkbox
+                      fxLayout="column"
+                      fxLayoutAlign="start start"
+                      #pauseTail
+                      name="pauseTail"
+                      (change)="logAnalyzer.switchPauseTail(pauseTail.checked)"
+                      title="Pause Tail"
+                      >Pause Tail</mat-checkbox
+                    >
                   </div>
-
                 </div>
               </div>
             </form>
@@ -164,24 +238,70 @@
             </ng-template>
             <div fxLayout="column" class="push-top-sm">
               <mat-card-subtitle class="push-bottom-xs">Columns Configuration</mat-card-subtitle>
-              <button mat-raised-button color="accent" (click)="saveColumnsConfig(undefined,true,true)" title="Save Columns Configuration"
-                class="iconBtn push-top-sm">
+              <button
+                mat-raised-button
+                color="accent"
+                (click)="saveColumnsConfig(undefined, true, true)"
+                title="Save Columns Configuration"
+                class="iconBtn push-top-sm"
+              >
                 <mat-icon>save</mat-icon> Save
               </button>
-              <button mat-raised-button color="accent" (click)="loadSavedColumnsConfig()" title="Load Saved Columns Configuration"
-                class="iconBtn push-top-sm">
+              <button
+                mat-raised-button
+                color="accent"
+                (click)="loadSavedColumnsConfig()"
+                title="Load Saved Columns Configuration"
+                class="iconBtn push-top-sm"
+              >
                 <mat-icon>settings_backup_restore</mat-icon> Load Saved
               </button>
-              <button mat-raised-button color="accent" (click)="loadDefaultColumnsConfig()" title="Load Default Columns Configuration"
-                class="iconBtn push-top-sm">
+              <button
+                mat-raised-button
+                color="accent"
+                (click)="loadDefaultColumnsConfig()"
+                title="Load Default Columns Configuration"
+                class="iconBtn push-top-sm"
+              >
                 <mat-icon>restore</mat-icon> Load Default
               </button>
-              <mat-checkbox #autoRowHeight id="toggleRowHeight" name="toggleRowHeightCheckbox" [checked]="autoRowHeight" (change)="toggleRowHeight(autoRowHeight.checked)">Auto
-                row height</mat-checkbox>
+              <mat-checkbox
+                #autoRowHeight
+                id="toggleRowHeight"
+                name="toggleRowHeightCheckbox"
+                [checked]="autoRowHeight"
+                (change)="toggleRowHeight(autoRowHeight.checked)"
+                >Auto row height</mat-checkbox
+              >
             </div>
           </mat-tab>
         </mat-tab-group>
       </mat-card-content>
     </mat-card>
   </mat-sidenav>
+
+  <!-- Ag Grid -->
+  <mat-sidenav-content id="content">
+    <mat-card id="logCard" class="push-none">
+      <mat-card-content class="push-bottom-none pad-bottom-none pad-top-none">
+        <ag-grid-angular
+          #logsGrid
+          id="logsGrid"
+          *ngIf="logRows.length > 0"
+          class="ag-theme-material"
+          [rowData]="logRows"
+          [columnDefs]="logColumns"
+          [gridOptions]="gridOptions"
+          (gridReady)="onGridReady($event)"
+          (componentStateChanged)="componentStateChanged($event)"
+          (rowSelected)="switchRowSelection($event)"
+          (columnResized)="saveColumnsConfig($event, false)"
+          (columnMoved)="saveColumnsConfig(undefined, false)"
+          (rowDoubleClicked)="openMessageModal($event)"
+          style="width: 100%; height: 80%;"
+        >
+        </ag-grid-angular>
+      </mat-card-content>
+    </mat-card>
+  </mat-sidenav-content>
 </mat-sidenav-container>
