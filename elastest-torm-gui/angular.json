@@ -22,7 +22,7 @@
               "src/theme.scss",
               "node_modules/@covalent/core/common/platform.css",
               "node_modules/ag-grid-community/dist/styles/ag-grid.css",
-              "node_modules/ag-grid-community/dist/styles/ag-theme-balham.css",
+              "node_modules/ag-grid-community/dist/styles/ag-theme-material.css",
               "node_modules/angular-tree-component/dist/angular-tree-component.css"
             ],
             "scripts": ["node_modules/hammerjs/hammer.min.js", "node_modules/showdown/dist/showdown.js"]
@@ -79,7 +79,7 @@
               "src/theme.scss",
               "node_modules/@covalent/core/common/platform.css",
               "node_modules/ag-grid-community/dist/styles/ag-grid.css",
-              "node_modules/ag-grid-community/dist/styles/ag-theme-balham.css",
+              "node_modules/ag-grid-community/dist/styles/ag-theme-material.css",
               "node_modules/angular-tree-component/dist/angular-tree-component.css"
             ],
             "assets": ["src/assets", "src/data", "src/favicon.ico"]

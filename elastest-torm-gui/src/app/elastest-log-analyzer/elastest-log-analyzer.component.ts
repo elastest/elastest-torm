@@ -607,9 +607,22 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
         columnsStates = [];
         for (let columnState of this.logAnalyzer.laConfig.columnsState) {
           // Clone
-          let newColumnState: ColumnState = JSON.parse(JSON.stringify(columnState));
+          let newColumnState: ColumnState = Object.assign({}, columnState);
 
           newColumnState.colId = newColumnState.colId + '_1';
+          columnsStates.push(newColumnState);
+        }
+      } else if (
+        this.logAnalyzer.laConfig.columnsState.length > 0 &&
+        this.logAnalyzer.laConfig.columnsState[0].colId &&
+        this.logAnalyzer.laConfig.columnsState[0].colId.endsWith('_1')
+      ) {
+        columnsStates = [];
+        for (let columnState of this.logAnalyzer.laConfig.columnsState) {
+          // Clone
+          let newColumnState: ColumnState = Object.assign({}, columnState);
+
+          newColumnState.colId = newColumnState.colId.split('_1')[0];
           columnsStates.push(newColumnState);
         }
       }
