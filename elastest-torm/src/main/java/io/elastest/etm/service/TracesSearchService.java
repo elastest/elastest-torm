@@ -269,7 +269,7 @@ public class TracesSearchService implements MonitoringServiceInterface {
     @Override
     public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
             boolean withTimestamp, boolean timeDiff,
-            boolean discardStartFinishTestTraces) throws Exception {
+            boolean modifyStartFinishTestTraces) throws Exception {
         List<String> logs = new ArrayList<>();
         List<Trace> logTraces = searchAllLogsTraces(monitoringQuery);
 
@@ -279,35 +279,45 @@ public class TracesSearchService implements MonitoringServiceInterface {
                 if (trace != null && trace.getMessage() != null) {
                     String message = trace.getMessage();
 
-                    // If is not start/finish test trace
-                    if (!discardStartFinishTestTraces
-                            || (discardStartFinishTestTraces
-                                    && !utilsService
-                                            .containsTCStartMsgPrefix(message)
-                                    && !utilsService.containsTCFinishMsgPrefix(
-                                            message))) {
-                        if (withTimestamp && trace.getTimestamp() != null) {
-                            if (timeDiff) {
-                                long traceTimeDiff = trace.getTimestamp()
+                    boolean isStartFinishTraceAndModifyActivated = modifyStartFinishTestTraces
+                            && (utilsService.containsTCStartMsgPrefix(message)
+                                    || utilsService.containsTCFinishMsgPrefix(
+                                            message));
+
+                    boolean noContinue = false;
+                    
+                    // If is start/finish test trace and modify
+                    // if (isStartFinishTraceAndModifyActivated) {
+                    // String testCaseName = utilsService
+                    // .getTestCaseNameFromStartFinishTrace(message);
+                    // if (testCaseName != null && testCaseName != "") {
+                    // message = "Test Case: " + testCaseName;
+                    // noContinue = true;
+                    // }
+                    // }
+                    
+                    if (!noContinue && withTimestamp
+                            && trace.getTimestamp() != null) {
+                        if (timeDiff) {
+                            long traceTimeDiff = trace.getTimestamp().getTime();
+                            // First is 0
+                            if (firstTrace == null) {
+                                traceTimeDiff = 0;
+                                firstTrace = trace;
+                            } else { // Others is difference with the first
+                                traceTimeDiff -= firstTrace.getTimestamp()
                                         .getTime();
-                                // First is 0
-                                if (firstTrace == null) {
-                                    traceTimeDiff = 0;
-                                    firstTrace = trace;
-                                } else { // Others is difference with the first
-                                    traceTimeDiff -= firstTrace.getTimestamp()
-                                            .getTime();
-                                }
-
-                                message = traceTimeDiff + " " + message;
-                            } else {
-                                message = trace.getTimestamp().toString() + " "
-                                        + message;
                             }
-                        }
 
-                        logs.add(message);
+                            message = traceTimeDiff + " " + message;
+                        } else {
+                            message = trace.getTimestamp().toString() + " "
+                                    + message;
+                        }
                     }
+
+                    logs.add(message);
+
                 }
             }
         }

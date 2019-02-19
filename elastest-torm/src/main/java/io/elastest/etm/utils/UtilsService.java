@@ -271,6 +271,17 @@ public class UtilsService {
         return str.contains(tcFinishMsgPrefix);
     }
 
+    public String getTestCaseNameFromStartFinishTrace(String trace) {
+        if (trace != null) {
+            if (containsTCStartMsgPrefix(trace)) {
+                return trace.split(getETTestStartPrefix())[1];
+            } else if (containsTCFinishMsgPrefix(trace)) {
+                return trace.split(getETTestFinishPrefix())[1];
+            }
+        }
+        return null;
+    }
+
     public Long convertToLong(Object o) {
         String stringToConvert = String.valueOf(o);
         Long convertedLong = Long.parseLong(stringToConvert);

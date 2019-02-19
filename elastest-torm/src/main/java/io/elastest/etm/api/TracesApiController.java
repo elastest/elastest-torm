@@ -3,6 +3,7 @@ package io.elastest.etm.api;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -133,8 +134,23 @@ public class TracesApiController implements TracesApi {
             for (String index : body.getIndices()) {
                 MonitoringQuery newQuery = new MonitoringQuery(body);
                 newQuery.setIndices(Arrays.asList(index));
-                List<String> logs = monitoringService.searchAllLogsMessage(
-                        newQuery, withTimestamp, timeDiff);
+                List<String> logs = new ArrayList<String>();
+
+                if (view != null) {
+                    switch (view) {
+                    case "failedtests":
+                        break;
+                    case "testslogs":
+                        logs = monitoringService.searchTestLogsMessage(newQuery,
+                                withTimestamp, timeDiff);
+                        break;
+                    case "complete":
+                    default:
+                        logs = monitoringService.searchAllLogsMessage(newQuery,
+                                withTimestamp, timeDiff);
+                        break;
+                    }
+                }
 
                 if (pos < 2) {
                     // Join with carriage return

@@ -14,18 +14,16 @@ export class ReportComparisonComponent implements OnInit {
   diff: string;
 
   // Cache
-  completeDiff: string;
-  noTimestampDiff: string;
-  timeDiffDiff: string;
+  cacheMatrix: string[][] = [];
 
   comparisonInProgress: boolean = false;
 
-  comparisonMode: number = 1;
+  currentComparisonMode: number = 1;
   comparisonCompleteBtnEnabled: boolean = true;
   comparisonNoTimestampBtnEnabled: boolean = false;
   comparisonTimeDiffBtnEnabled: boolean = true;
 
-  viewMode: number = 0;
+  currentViewMode: number = 0;
   viewCompleteBtnEnabled: boolean = false;
   viewTestsLogsBtnEnabled: boolean = true;
   viewFailedTestsBtnEnabled: boolean = true;
@@ -40,38 +38,37 @@ export class ReportComparisonComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.initcacheMatrix();
     this.loadComparison();
   }
 
-  loadComparison(comparison: comparisonMode = 'notimestamp', view: viewMode = 'complete'): void {
-    //TODO view
+  initcacheMatrix(): void {
+    // Matrix of comparisonMode/viewMode
+    this.cacheMatrix.push(['', '', '']);
+    this.cacheMatrix.push(['', '', '']);
+    this.cacheMatrix.push(['', '', '']);
+  }
 
+  getCurrentCacheValue(): string {
+    if (this.cacheMatrix[this.currentComparisonMode] && this.cacheMatrix[this.currentComparisonMode][this.currentViewMode]) {
+      return this.cacheMatrix[this.currentComparisonMode][this.currentViewMode];
+    }
+    return '';
+  }
+
+  cacheDiff(diff: string): void {
+    this.cacheMatrix[this.currentComparisonMode][this.currentViewMode] = diff;
+  }
+
+  loadComparison(comparison: comparisonMode = 'notimestamp', view: viewMode = 'complete'): void {
     this.loadingData = true;
     this.resultData = [];
 
     let useCache: boolean = false;
-
-    switch (comparison) {
-      case 'complete':
-        if (this.completeDiff && this.completeDiff !== '') {
-          useCache = true;
-          this.loadFromDiffData(this.completeDiff);
-        }
-        break;
-      case 'notimestamp':
-        if (this.noTimestampDiff && this.noTimestampDiff !== '') {
-          useCache = true;
-          this.loadFromDiffData(this.noTimestampDiff);
-        }
-        break;
-      case 'timediff':
-        if (this.timeDiffDiff && this.timeDiffDiff !== '') {
-          useCache = true;
-          this.loadFromDiffData(this.timeDiffDiff);
-        }
-        break;
-      default:
-        break;
+    let cacheValue: string = this.getCurrentCacheValue();
+    if (cacheValue && cacheValue !== '') {
+      useCache = true;
+      this.loadFromDiffData(cacheValue);
     }
 
     if (!useCache && this.logComparison) {
@@ -114,28 +111,6 @@ export class ReportComparisonComponent implements OnInit {
     this.loadingData = false;
   }
 
-  cacheDiff(diff: string): void {
-    switch (this.comparisonMode) {
-      // Complete
-      case 0:
-        this.completeDiff = diff;
-        break;
-      // No timestamp
-
-      case 1:
-        this.noTimestampDiff = diff;
-        break;
-
-      // Timediff
-      case 2:
-        this.timeDiffDiff = diff;
-        break;
-
-      default:
-        break;
-    }
-  }
-
   getComparisonModeNameById(mode: number): comparisonMode {
     let comparison: comparisonMode = 'notimestamp';
     switch (mode) {
@@ -157,15 +132,15 @@ export class ReportComparisonComponent implements OnInit {
   }
 
   updateComparisonMode(mode: number): void {
-    this.comparisonMode = mode;
+    this.currentComparisonMode = mode;
     this.loadingData = true;
     let comparison: comparisonMode = this.getComparisonModeNameById(mode);
-    this.loadComparison(comparison, this.getViewModeNameById(this.viewMode));
+    this.loadComparison(comparison, this.getViewModeNameById(this.currentViewMode));
   }
 
   getViewModeNameById(mode: number): viewMode {
     let view: viewMode = 'complete';
-    switch (this.viewMode) {
+    switch (mode) {
       // Tests Logs
       case 1:
         view = 'testslogs';
@@ -183,18 +158,18 @@ export class ReportComparisonComponent implements OnInit {
     return view;
   }
   updateViewMode(mode: number): void {
-    this.viewMode = mode;
+    this.currentViewMode = mode;
     this.loadingData = true;
     let view: viewMode = this.getViewModeNameById(mode);
 
-    this.loadComparison(this.getComparisonModeNameById(this.comparisonMode), view);
+    this.loadComparison(this.getComparisonModeNameById(this.currentComparisonMode), view);
   }
 
   private resetComparisonButtons(): void {
     this.comparisonCompleteBtnEnabled = true;
     this.comparisonNoTimestampBtnEnabled = true;
     this.comparisonTimeDiffBtnEnabled = true;
-    switch (this.comparisonMode) {
+    switch (this.currentComparisonMode) {
       // Complete
       case 0:
         this.comparisonCompleteBtnEnabled = false;
@@ -216,7 +191,7 @@ export class ReportComparisonComponent implements OnInit {
     this.viewCompleteBtnEnabled = true;
     this.viewTestsLogsBtnEnabled = true;
     this.viewFailedTestsBtnEnabled = true;
-    switch (this.viewMode) {
+    switch (this.currentViewMode) {
       // Complete
       case 0:
         this.viewCompleteBtnEnabled = false;

@@ -629,7 +629,7 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     @Override
     public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
             boolean withTimestamp, boolean timeDiff,
-            boolean discardStartFinishTestTraces) throws Exception {
+            boolean modifyStartFinishTestTraces) throws Exception {
 
         List<String> logs = new ArrayList<>();
         List<Map<String, Object>> logTraces = searchAllLogs(monitoringQuery);
@@ -646,36 +646,45 @@ public class ElasticsearchService implements MonitoringServiceInterface {
                         trace.setTimestamp(
                                 utilsService.getIso8601UTCDateFromStr(
                                         (String) traceMap.get("@timestamp")));
+                        message = trace.getMessage();
 
-                        // If is not start/finish test trace
-                        if (!discardStartFinishTestTraces
-                                || (discardStartFinishTestTraces
-                                        && !utilsService
-                                                .containsTCStartMsgPrefix(
-                                                        message)
-                                        && !utilsService
+                        boolean isStartFinishTraceAndModifyActivated = modifyStartFinishTestTraces
+                                && (utilsService
+                                        .containsTCStartMsgPrefix(message)
+                                        || utilsService
                                                 .containsTCFinishMsgPrefix(
-                                                        message))) {
-                            message = trace.getMessage();
+                                                        message));
 
-                            if (withTimestamp && trace.getTimestamp() != null) {
-                                if (timeDiff) {
-                                    long traceTimeDiff = trace.getTimestamp()
+                        boolean noContinue = false;
+
+                        // If is start/finish test trace and modify
+                        // if (isStartFinishTraceAndModifyActivated) {
+                        // String testCaseName = utilsService
+                        // .getTestCaseNameFromStartFinishTrace(message);
+                        // if (testCaseName != null && testCaseName != "") {
+                        // message = "Test Case: " + testCaseName;
+                        // noContinue = true;
+                        // }
+                        // }
+
+                        if (!noContinue && withTimestamp
+                                && trace.getTimestamp() != null) {
+                            if (timeDiff) {
+                                long traceTimeDiff = trace.getTimestamp()
+                                        .getTime();
+                                // First is 0
+                                if (firstTrace == null) {
+                                    traceTimeDiff = 0;
+                                    firstTrace = trace;
+                                } else { // Others is diff with first
+                                    traceTimeDiff -= firstTrace.getTimestamp()
                                             .getTime();
-                                    // First is 0
-                                    if (firstTrace == null) {
-                                        traceTimeDiff = 0;
-                                        firstTrace = trace;
-                                    } else { // Others is diff with first
-                                        traceTimeDiff -= firstTrace
-                                                .getTimestamp().getTime();
-                                    }
-
-                                    message = traceTimeDiff + " " + message;
-                                } else {
-                                    message = trace.getTimestamp().toString()
-                                            + " " + message;
                                 }
+
+                                message = traceTimeDiff + " " + message;
+                            } else {
+                                message = trace.getTimestamp().toString() + " "
+                                        + message;
                             }
                         }
 
