@@ -483,7 +483,6 @@ public class TracesService {
                     currentMap.remove("messages");
                     currentMap.put("message", message);
                     this.processHttpTrace(currentMap);
-                    return;
                 }
             } else {
                 this.processBeatTrace(dataMap, false);

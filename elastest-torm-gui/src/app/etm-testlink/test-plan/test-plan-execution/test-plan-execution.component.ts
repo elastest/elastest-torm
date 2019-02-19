@@ -63,6 +63,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   eusSubscription: Subscription;
   eusInstanceId: string;
   eusUrl: string;
+  manuallyClosed: boolean = false;
 
   browserCardMsg: string = 'Loading...';
   browserAndEusLoading: boolean = true;
@@ -367,6 +368,10 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   }
 
   end(): void {
+    if (this.websocket) {
+      this.manuallyClosed = true;
+      this.websocket.close();
+    }
     this.executionCardMsg = 'The execution has been finished!';
     this.executionCardSubMsg = 'The associated files will be shown when browser and eus have stopped';
     this.showStopBtn = false;
@@ -553,10 +558,14 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     if (!this.websocket && wsUrl !== undefined) {
       this.websocket = new WebSocket(wsUrl);
 
-      this.websocket.onopen = () => this.websocket.send('getSessions');
-      this.websocket.onopen = () => this.websocket.send('getRecordings');
+      this.websocket.onopen = () => {
+        this.websocket.send('getSessions');
+        this.websocket.send('getRecordings');
+      };
 
-      this.websocket.onmessage = (message) => {
+      this.websocket.onclose = () => this.reconnect(wsUrl);
+
+      this.websocket.onmessage = (message: any) => {
         let json: any = JSON.parse(message.data);
         if (json.newSession) {
           if (this.eusTestModel !== undefined) {
@@ -566,6 +575,16 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
         } else if (json.removeSession) {
         }
       };
+    }
+  }
+
+  reconnect(wsUrl: string): void {
+    if (!this.manuallyClosed) {
+      // try to reconnect websocket in 5 seconds
+      setTimeout(() => {
+        console.log('Trying to reconnect to EUS WS');
+        this.startWebSocket(wsUrl);
+      }, 5000);
     }
   }
 }
