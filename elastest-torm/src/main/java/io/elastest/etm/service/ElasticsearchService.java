@@ -53,6 +53,7 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Value;
 
+import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
@@ -74,8 +75,12 @@ public class ElasticsearchService extends AbstractMonitoringService {
 
     RestHighLevelClient esClient;
 
-    public ElasticsearchService(UtilsService utilsService) {
+    public ElasticsearchService(UtilsService utilsService,
+            TestSuiteRepository testSuiteRepository,
+            DatabaseSessionManager dbmanager) {
         this.utilsService = utilsService;
+        this.testSuiteRepository = testSuiteRepository;
+        this.dbmanager = dbmanager;
     }
 
     public ElasticsearchService(String esApiUrl, String user, String pass,
@@ -693,7 +698,6 @@ public class ElasticsearchService extends AbstractMonitoringService {
         return logs;
     }
 
-
     public List<Map<String, Object>> getPreviousLogsFromTimestamp(
             MonitoringQuery monitoringQuery) {
 
@@ -780,8 +784,6 @@ public class ElasticsearchService extends AbstractMonitoringService {
         return null;
     }
 
-
-
     @Override
     public Date findLastMsgAndGetTimestamp(String index, String msg,
             List<String> components) throws Exception {
@@ -798,8 +800,6 @@ public class ElasticsearchService extends AbstractMonitoringService {
 
         return null;
     }
-
-
 
     /* ***************************************** */
     /* **************** Metrics **************** */

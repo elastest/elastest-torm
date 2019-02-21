@@ -17,20 +17,25 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.scheduling.annotation.Async;
 
+import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
+import io.elastest.etm.model.TestCase;
+import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.TimeRange;
 import io.elastest.etm.utils.DiffMatchPatch;
-import io.elastest.etm.utils.UtilsService;
 import io.elastest.etm.utils.DiffMatchPatch.Diff;
+import io.elastest.etm.utils.UtilsService;
 
 public abstract class AbstractMonitoringService {
     protected final Logger logger = getLogger(lookup().lookupClass());
     String processingComparationMsg = "ET-PROCESSING";
     private Map<String, String> comparisonProcessMap = new HashMap<>();
 
+    protected TestSuiteRepository testSuiteRepository;
     protected UtilsService utilsService;
+    protected DatabaseSessionManager dbmanager;
 
     public abstract void createMonitoringIndex(String[] indicesList);
 
@@ -50,30 +55,51 @@ public abstract class AbstractMonitoringService {
             MonitoringQuery monitoringQuery, boolean withTimestamp,
             boolean timeInMillis) throws Exception;
 
-    public List<String> searchTestLogsMessage(MonitoringQuery monitoringQuery,
-            boolean withTimestamp, boolean timeDiff) throws Exception {
-        // If components list not empty, use list. Else, use unique
-        // component
-        List<String> components = monitoringQuery.getComponents();
-        components = components != null && components.size() > 0 ? components
-                : Arrays.asList(monitoringQuery.getComponent());
+    public List<List<String>> searchTestLogsMessage(
+            MonitoringQuery monitoringQuery, boolean withTimestamp,
+            boolean timeDiff, Long tJobExecId) throws Exception {
+        List<List<String>> testsLogs = new ArrayList<>();
+        if (tJobExecId != null) {
+            List<TestSuite> suites = testSuiteRepository
+                    .findByTJobExecId(tJobExecId);
 
-        Date firstStartTestTrace = this.findFirstStartTestMsgAndGetTimestamp(
-                monitoringQuery.getIndicesAsString(), components);
-        Date lastFinishTestTrace = this.findLastFinishTestMsgAndGetTimestamp(
-                monitoringQuery.getIndicesAsString(), components);
+            // If components list not empty, use list. Else, use unique
+            // component
+            List<String> components = monitoringQuery.getComponents();
+            components = components != null && components.size() > 0
+                    ? components
+                    : Arrays.asList(monitoringQuery.getComponent());
 
-        if (firstStartTestTrace == null && lastFinishTestTrace == null) {
-            return new ArrayList<>();
+            for (TestSuite suite : suites) {
+                if (suite.getTestCases() != null) {
+                    for (TestCase currentCase : suite.getTestCases()) {
+
+                        Date startTestTrace = this
+                                .findFirstStartTestMsgAndGetTimestamp(
+                                        monitoringQuery.getIndicesAsString(),
+                                        currentCase.getName(), components);
+                        Date finishTestTrace = this
+                                .findFirstFinishTestMsgAndGetTimestamp(
+                                        monitoringQuery.getIndicesAsString(),
+                                        currentCase.getName(), components);
+
+                        if (startTestTrace != null && finishTestTrace != null) {
+
+                            TimeRange timeRange = new TimeRange();
+                            timeRange.setGte(startTestTrace);
+                            timeRange.setLte(finishTestTrace);
+                            monitoringQuery.setTimeRange(timeRange);
+
+                            List<String> tcLogs = searchAllLogsMessage(
+                                    monitoringQuery, withTimestamp, timeDiff,
+                                    true);
+                            testsLogs.add(tcLogs);
+                        }
+                    }
+                }
+            }
         }
-
-        TimeRange timeRange = new TimeRange();
-        timeRange.setGte(firstStartTestTrace);
-        timeRange.setLte(lastFinishTestTrace);
-        monitoringQuery.setTimeRange(timeRange);
-
-        return searchAllLogsMessage(monitoringQuery, withTimestamp, timeDiff,
-                true);
+        return testsLogs;
     }
 
     public String compareLogsPair(MonitoringQuery body, String comparison,
@@ -100,55 +126,85 @@ public abstract class AbstractMonitoringService {
 
             }
 
-            String[] pairLogs = new String[2];
+            List<String>[] pairLogs = new List[2];
             int pos = 0;
             for (String index : body.getIndices()) {
 
                 MonitoringQuery newQuery = new MonitoringQuery(body);
                 newQuery.setIndices(Arrays.asList(index));
-                List<String> logs = new ArrayList<String>();
+
+                // List of Tests logs. For "complete" there will only be one
+                // item in the list
+                List<List<String>> logsList = new ArrayList<>();
 
                 if (view != null) {
                     switch (view) {
                     case "failedtests":
                         break;
                     case "testslogs":
-                        logs = searchTestLogsMessage(newQuery, withTimestamp,
-                                timeDiff);
+                        Long tJobExecId = new Long(index);
+                        logsList = searchTestLogsMessage(newQuery,
+                                withTimestamp, timeDiff, tJobExecId);
                         break;
                     case "complete":
                     default:
-                        logs = searchAllLogsMessage(newQuery, withTimestamp,
-                                timeDiff);
+                        logsList.add(searchAllLogsMessage(newQuery,
+                                withTimestamp, timeDiff));
                         break;
                     }
                 }
-
                 if (pos < 2) {
-                    // Join with carriage return
-                    pairLogs[pos] = StringUtils.join(logs, String.format("%n"));
+                    pairLogs[pos] = new ArrayList<>();
+                    for (List<String> currentLogs : logsList) {
+                        // Join with carriage return
+                        pairLogs[pos].add(StringUtils.join(currentLogs,
+                                String.format("%n")));
+                    }
                 }
                 pos++;
             }
 
-            if (pairLogs[0] != null && pairLogs[1] != null) {
-                DiffMatchPatch dmp = new DiffMatchPatch();
-                LinkedList<Diff> diffs = dmp.diffMain(pairLogs[0], pairLogs[1]);
-                dmp.diffCleanupSemantic(diffs);
-                return dmp.diffPrettyHtml(diffs);
+            String htmlComparison = "";
+            boolean firstConcat = true;
+            if (pairLogs[0].size() == pairLogs[1].size()) {
+                pos = 0;
+                for (String currentLog1 : pairLogs[0]) {
+                    if (!firstConcat) {
+                        htmlComparison += "<br>";
+                    } else {
+                        firstConcat = false;
+                    }
+                    htmlComparison += getDiffHtmlFromLogs(currentLog1,
+                            pairLogs[1].get(pos));
+                    pos++;
+                }
             }
+            return htmlComparison;
 
         }
         return null;
     }
 
+    public String getDiffHtmlFromLogs(String log1, String log2) {
+        String html = "";
+        if (log1 != null && log2 != null) {
+            DiffMatchPatch dmp = new DiffMatchPatch();
+            LinkedList<Diff> diffs = dmp.diffMain(log1, log2);
+            dmp.diffCleanupSemantic(diffs);
+            html = dmp.diffPrettyHtml(diffs);
+        }
+        return html;
+    }
+
     @Async
     public void compareLogsPairAsync(MonitoringQuery body, String comparison,
             String view, String processId) throws Exception {
+        dbmanager.bindSession();
         comparisonProcessMap.put(processId, processingComparationMsg);
         String comparisonString = this.compareLogsPair(body, comparison, view);
         logger.debug("Async comparison with process ID {} ends", processId);
         comparisonProcessMap.put(processId, comparisonString);
+        dbmanager.unbindSession();
     }
 
     // This method consumes the comparison if is available
