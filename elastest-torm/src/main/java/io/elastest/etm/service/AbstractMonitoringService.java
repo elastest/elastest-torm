@@ -25,7 +25,7 @@ import io.elastest.etm.utils.DiffMatchPatch;
 import io.elastest.etm.utils.UtilsService;
 import io.elastest.etm.utils.DiffMatchPatch.Diff;
 
-public abstract class MonitoringServiceInterface {
+public abstract class AbstractMonitoringService {
     protected final Logger logger = getLogger(lookup().lookupClass());
     String processingComparationMsg = "ET-PROCESSING";
     private Map<String, String> comparisonProcessMap = new HashMap<>();

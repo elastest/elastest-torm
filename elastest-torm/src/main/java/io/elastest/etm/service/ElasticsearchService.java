@@ -61,7 +61,7 @@ import io.elastest.etm.model.Trace;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
-public class ElasticsearchService extends MonitoringServiceInterface {
+public class ElasticsearchService extends AbstractMonitoringService {
     @Value("${et.edm.elasticsearch.api}")
     private String esApiUrl;
 

@@ -22,7 +22,7 @@ import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.service.DockerEtmService;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.EtPluginsService;
-import io.elastest.etm.service.MonitoringServiceInterface;
+import io.elastest.etm.service.AbstractMonitoringService;
 import io.elastest.etm.service.TracesSearchService;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.service.client.EtmMiniSupportServiceClient;
@@ -75,7 +75,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     }
 
     @Bean
-    public MonitoringServiceInterface getMonitoringService() {
+    public AbstractMonitoringService getMonitoringService() {
         if (utilsService.isElastestMini()) {
             return new TracesSearchService(traceRepository, utilsService);
         } else {

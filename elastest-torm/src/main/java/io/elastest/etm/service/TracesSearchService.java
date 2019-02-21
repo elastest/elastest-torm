@@ -42,7 +42,7 @@ import io.elastest.etm.model.TimeRange;
 import io.elastest.etm.model.Trace;
 import io.elastest.etm.utils.UtilsService;
 
-public class TracesSearchService extends MonitoringServiceInterface {
+public class TracesSearchService extends AbstractMonitoringService {
     TraceRepository traceRepository;
 
     @PersistenceContext

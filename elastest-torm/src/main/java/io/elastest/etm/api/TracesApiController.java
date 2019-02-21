@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
-import io.elastest.etm.service.MonitoringServiceInterface;
+import io.elastest.etm.service.AbstractMonitoringService;
 import io.elastest.etm.service.TracesService;
 import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiParam;
@@ -29,10 +29,10 @@ public class TracesApiController implements TracesApi {
     public final Logger logger = getLogger(lookup().lookupClass());
 
     private TracesService tracesService;
-    private MonitoringServiceInterface monitoringService;
+    private AbstractMonitoringService monitoringService;
 
     public TracesApiController(TracesService tracesService,
-            MonitoringServiceInterface monitoringService) {
+            AbstractMonitoringService monitoringService) {
         this.tracesService = tracesService;
         this.monitoringService = monitoringService;
     }
