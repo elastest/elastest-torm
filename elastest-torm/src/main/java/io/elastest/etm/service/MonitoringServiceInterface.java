@@ -129,11 +129,9 @@ public abstract class MonitoringServiceInterface {
             }
 
             if (pairLogs[0] != null && pairLogs[1] != null) {
-                logger.info("11111 {}", pairLogs[0]);
                 DiffMatchPatch dmp = new DiffMatchPatch();
                 LinkedList<Diff> diffs = dmp.diffMain(pairLogs[0], pairLogs[1]);
                 dmp.diffCleanupSemantic(diffs);
-                logger.info("22222 {}", diffs);
                 return dmp.diffPrettyHtml(diffs);
             }
 
