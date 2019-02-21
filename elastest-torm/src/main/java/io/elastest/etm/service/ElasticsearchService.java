@@ -1,8 +1,5 @@
 package io.elastest.etm.service;
 
-import static java.lang.invoke.MethodHandles.lookup;
-import static org.slf4j.LoggerFactory.getLogger;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -54,7 +51,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
 import io.elastest.etm.model.AggregationTree;
@@ -65,9 +61,7 @@ import io.elastest.etm.model.Trace;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
-public class ElasticsearchService implements MonitoringServiceInterface {
-    final Logger logger = getLogger(lookup().lookupClass());
-
+public class ElasticsearchService extends MonitoringServiceInterface {
     private final UtilsService utilsService;
 
     @Value("${et.edm.elasticsearch.api}")
@@ -701,32 +695,6 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         return logs;
     }
 
-    @Override
-    public List<String> searchTestLogsMessage(MonitoringQuery monitoringQuery,
-            boolean withTimestamp, boolean timeDiff) throws Exception {
-        // If components list not empty, use list. Else, use unique
-        // component
-        List<String> components = monitoringQuery.getComponents();
-        components = components != null && components.size() > 0 ? components
-                : Arrays.asList(monitoringQuery.getComponent());
-
-        Date firstStartTestTrace = this.findFirstStartTestMsgAndGetTimestamp(
-                monitoringQuery.getIndicesAsString(), components);
-        Date lastFinishTestTrace = this.findLastFinishTestMsgAndGetTimestamp(
-                monitoringQuery.getIndicesAsString(), components);
-
-        if (firstStartTestTrace == null && lastFinishTestTrace == null) {
-            return new ArrayList<>();
-        }
-
-        TimeRange timeRange = new TimeRange();
-        timeRange.setGte(firstStartTestTrace);
-        timeRange.setLte(lastFinishTestTrace);
-        monitoringQuery.setTimeRange(timeRange);
-
-        return searchAllLogsMessage(monitoringQuery, withTimestamp, timeDiff,
-                true);
-    }
 
     public List<Map<String, Object>> getPreviousLogsFromTimestamp(
             MonitoringQuery monitoringQuery) {

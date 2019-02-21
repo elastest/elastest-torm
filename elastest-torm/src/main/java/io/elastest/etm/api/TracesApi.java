@@ -112,6 +112,28 @@ public interface TracesApi extends EtmApiRoot {
             @RequestParam(value = "view", required = true) String view)
             throws Exception;
 
+    @ApiOperation(value = "Returns Logs Pair comparation process ID.", notes = "Returns Logs Pair comparation process ID.", response = String.class, tags = {
+            "Monitoring", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/monitoring/log/compare/async", consumes = {
+            "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<String> compareLogsPairAsync(
+            @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body,
+            @RequestParam(value = "comparison", required = true) String comparison,
+            @RequestParam(value = "view", required = true) String view)
+            throws Exception;
+
+    @ApiOperation(value = "Returns Logs Pair comparation By process ID.", notes = "Returns Logs Pair comparation By process ID.", response = String.class, tags = {
+            "Monitoring", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class),
+            @ApiResponse(code = 405, message = "Invalid input") })
+    @RequestMapping(value = "/monitoring/log/compare/{processId}", method = RequestMethod.GET)
+    ResponseEntity<String> compareLogsPairAsync(
+            @ApiParam(value = "Process Id of the comparison.", required = true) @PathVariable("processId") String processId);
+
     /* ***************************************** */
     /* **************** Metrics **************** */
     /* ***************************************** */

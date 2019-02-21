@@ -1,14 +1,15 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, HostListener, OnDestroy } from '@angular/core';
 import { TableService } from '../service/table.service';
 import { LogComparisonModel, comparisonMode, viewMode } from '../model/log-comparison.model';
 import { MonitoringService } from '../../shared/services/monitoring.service';
+import { Subscription, Observable, interval } from 'rxjs';
 
 @Component({
   selector: 'elastest-logcomparator-report-comparison',
   templateUrl: './report-comparison.component.html',
   styleUrls: ['./report-comparison.component.scss'],
 })
-export class ReportComparisonComponent implements OnInit {
+export class ReportComparisonComponent implements OnInit, OnDestroy {
   @Input() public logComparison: LogComparisonModel;
 
   diff: string;
@@ -32,6 +33,9 @@ export class ReportComparisonComponent implements OnInit {
   loadingData: boolean;
   resultData: any[] = [];
 
+  timer: Observable<number>;
+  subscription: Subscription;
+
   constructor(private tableService: TableService, private monitoringService: MonitoringService) {
     this.comparisonInProgress = false;
     this.loadingData = true;
@@ -39,6 +43,23 @@ export class ReportComparisonComponent implements OnInit {
 
   ngOnInit(): void {
     this.init();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe();
+  }
+
+  @HostListener('window:beforeunload')
+  beforeunloadHandler() {
+    // On window closed leave session
+    this.unsubscribe();
+  }
+
+  unsubscribe(): void {
+    if (this.subscription !== undefined) {
+      this.subscription.unsubscribe();
+      this.subscription = undefined;
+    }
   }
 
   init(): void {
@@ -81,6 +102,7 @@ export class ReportComparisonComponent implements OnInit {
 
       this.monitoringService
         .compareLogsPair(
+          true,
           this.logComparison.pair,
           this.logComparison.stream,
           components,
@@ -92,8 +114,16 @@ export class ReportComparisonComponent implements OnInit {
           view,
         )
         .subscribe(
-          (diff: string) => {
-            this.loadFromDiffData(diff);
+          (processId: string) => {
+            if (processId) {
+              this.subscribeToComparisonResult(processId);
+            } else {
+              this.comparisonInProgress = true;
+              this.resetComparisonButtons();
+              this.resetViewButtons();
+
+              this.loadingData = false;
+            }
           },
           (error: Error) => {
             console.log(error);
@@ -104,6 +134,24 @@ export class ReportComparisonComponent implements OnInit {
             this.loadingData = false;
           },
         );
+    }
+  }
+
+  subscribeToComparisonResult(processId: string): void {
+    let comparisonInProgressMsg: string = 'ET-PROCESSING';
+    let comparisonString: string = comparisonInProgressMsg;
+
+    this.timer = interval(4000);
+    if (this.subscription === null || this.subscription === undefined) {
+      this.subscription = this.timer.subscribe(() => {
+        this.monitoringService.getComparisonByProcessId(processId).subscribe((comparison: string) => {
+          comparisonString = comparison;
+          if (comparisonString !== comparisonInProgressMsg) {
+            this.unsubscribe();
+            this.loadFromDiffData(comparisonString);
+          }
+        });
+      });
     }
   }
 

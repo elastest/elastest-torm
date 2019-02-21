@@ -1,8 +1,5 @@
 package io.elastest.etm.service;
 
-import static java.lang.invoke.MethodHandles.lookup;
-import static org.slf4j.LoggerFactory.getLogger;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -19,7 +16,6 @@ import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
 
 import org.apache.commons.collections4.ListUtils;
-import org.slf4j.Logger;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.StringMatcher;
@@ -46,9 +42,7 @@ import io.elastest.etm.model.TimeRange;
 import io.elastest.etm.model.Trace;
 import io.elastest.etm.utils.UtilsService;
 
-public class TracesSearchService implements MonitoringServiceInterface {
-    final Logger logger = getLogger(lookup().lookupClass());
-
+public class TracesSearchService extends MonitoringServiceInterface {
     TraceRepository traceRepository;
     UtilsService utilsService;
 
@@ -321,33 +315,6 @@ public class TracesSearchService implements MonitoringServiceInterface {
         }
 
         return logs;
-    }
-
-    @Override
-    public List<String> searchTestLogsMessage(MonitoringQuery monitoringQuery,
-            boolean withTimestamp, boolean timeDiff) throws Exception {
-        // If components list not empty, use list. Else, use unique
-        // component
-        List<String> components = monitoringQuery.getComponents();
-        components = components != null && components.size() > 0 ? components
-                : Arrays.asList(monitoringQuery.getComponent());
-
-        Date firstStartTestTrace = this.findFirstStartTestMsgAndGetTimestamp(
-                monitoringQuery.getIndicesAsString(), components);
-        Date lastFinishTestTrace = this.findLastFinishTestMsgAndGetTimestamp(
-                monitoringQuery.getIndicesAsString(), components);
-
-        if (firstStartTestTrace == null && lastFinishTestTrace == null) {
-            return new ArrayList<>();
-        }
-
-        TimeRange timeRange = new TimeRange();
-        timeRange.setGte(firstStartTestTrace);
-        timeRange.setLte(lastFinishTestTrace);
-        monitoringQuery.setTimeRange(timeRange);
-
-        return searchAllLogsMessage(monitoringQuery, withTimestamp, timeDiff,
-                true);
     }
 
     @Override

@@ -100,7 +100,30 @@ export class MonitoringService {
     );
   }
 
+  public compareLogsPairAsyncByQuery(
+    query: MonitoringQueryModel,
+    comparison: comparisonMode = 'notimestamp',
+    view: viewMode = 'complete',
+  ): Observable<string> {
+    let url: string = this.etmApiUrl + '/monitoring/log/compare/async?comparison=' + comparison + '&view=' + view;
+
+    // Returns processId
+    return this.http.post(url, query, { responseType: 'text' }).map((data: string) => data);
+  }
+
+  public getComparisonByProcessId(processId: string): Observable<string> {
+    let url: string = this.etmApiUrl + '/monitoring/log/compare/' + processId;
+    // Returns comparison or null
+    return this.http.get(url, { responseType: 'text' });
+  }
+
+  /**
+   * Gets a Log Comparison of a Pair of execs
+   *
+   * @return a `String` with the comparison if is not asyc or a `String` with processId if async.
+   */
   compareLogsPair(
+    async: boolean = false,
     pair: string[],
     stream: string,
     components: string[],
@@ -118,7 +141,13 @@ export class MonitoringService {
     query.setTimeRange(from, to, includedFrom, includedTo);
     query.selectedTerms.push('stream', 'component');
 
-    return this.compareLogsPairByQuery(query, comparison, view);
+    if (async) {
+      // Returns processId
+      return this.compareLogsPairAsyncByQuery(query, comparison, view);
+    } else {
+      // Returns comparison
+      return this.compareLogsPairByQuery(query, comparison, view);
+    }
   }
 
   /* *** Metrics *** */
