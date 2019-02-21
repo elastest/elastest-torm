@@ -316,7 +316,6 @@ public class TracesSearchService implements MonitoringServiceInterface {
                     }
 
                     logs.add(message);
-
                 }
             }
         }
