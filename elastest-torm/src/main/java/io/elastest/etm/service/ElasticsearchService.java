@@ -62,8 +62,6 @@ import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
 public class ElasticsearchService extends MonitoringServiceInterface {
-    private final UtilsService utilsService;
-
     @Value("${et.edm.elasticsearch.api}")
     private String esApiUrl;
 
@@ -782,33 +780,7 @@ public class ElasticsearchService extends MonitoringServiceInterface {
         return null;
     }
 
-    @Override
-    public Date findFirstStartTestMsgAndGetTimestamp(String index,
-            String testName, List<String> components) throws Exception {
-        return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix() + testName, components);
-    }
 
-    @Override
-    public Date findFirstFinishTestMsgAndGetTimestamp(String index,
-            String testName, List<String> components) throws Exception {
-        return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestFinishPrefix() + testName, components);
-    }
-
-    @Override
-    public Date findFirstStartTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception {
-        return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix(), components);
-    }
-
-    @Override
-    public Date findFirstFinishTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception {
-        return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestFinishPrefix(), components);
-    }
 
     @Override
     public Date findLastMsgAndGetTimestamp(String index, String msg,
@@ -827,19 +799,7 @@ public class ElasticsearchService extends MonitoringServiceInterface {
         return null;
     }
 
-    @Override
-    public Date findLastStartTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception {
-        return this.findLastMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix(), components);
-    }
 
-    @Override
-    public Date findLastFinishTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception {
-        return this.findLastMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix(), components);
-    }
 
     /* ***************************************** */
     /* **************** Metrics **************** */

@@ -22,13 +22,15 @@ import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.model.TimeRange;
 import io.elastest.etm.utils.DiffMatchPatch;
+import io.elastest.etm.utils.UtilsService;
 import io.elastest.etm.utils.DiffMatchPatch.Diff;
 
 public abstract class MonitoringServiceInterface {
     protected final Logger logger = getLogger(lookup().lookupClass());
     String processingComparationMsg = "ET-PROCESSING";
-
     private Map<String, String> comparisonProcessMap = new HashMap<>();
+
+    protected UtilsService utilsService;
 
     public abstract void createMonitoringIndex(String[] indicesList);
 
@@ -145,7 +147,7 @@ public abstract class MonitoringServiceInterface {
             String view, String processId) throws Exception {
         comparisonProcessMap.put(processId, processingComparationMsg);
         String comparisonString = this.compareLogsPair(body, comparison, view);
-        logger.info("Async comparison with process ID {} ends", processId);
+        logger.debug("Async comparison with process ID {} ends", processId);
         comparisonProcessMap.put(processId, comparisonString);
     }
 
@@ -179,26 +181,44 @@ public abstract class MonitoringServiceInterface {
     public abstract Date findFirstMsgAndGetTimestamp(String index, String msg,
             List<String> components) throws Exception;
 
-    public abstract Date findFirstStartTestMsgAndGetTimestamp(String index,
-            String testName, List<String> components) throws Exception;
+    public Date findFirstStartTestMsgAndGetTimestamp(String index,
+            String testName, List<String> components) throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index,
+                utilsService.getETTestStartPrefix() + testName, components);
+    }
 
-    public abstract Date findFirstFinishTestMsgAndGetTimestamp(String index,
-            String testName, List<String> components) throws Exception;
+    public Date findFirstFinishTestMsgAndGetTimestamp(String index,
+            String testName, List<String> components) throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index,
+                utilsService.getETTestFinishPrefix() + testName, components);
+    }
 
-    public abstract Date findFirstStartTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception;
+    public Date findFirstStartTestMsgAndGetTimestamp(String index,
+            List<String> components) throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index,
+                utilsService.getETTestStartPrefix(), components);
+    }
 
-    public abstract Date findFirstFinishTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception;
+    public Date findFirstFinishTestMsgAndGetTimestamp(String index,
+            List<String> components) throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index,
+                utilsService.getETTestFinishPrefix(), components);
+    }
 
     public abstract Date findLastMsgAndGetTimestamp(String index, String msg,
             List<String> components) throws Exception;
 
-    public abstract Date findLastStartTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception;
+    public Date findLastStartTestMsgAndGetTimestamp(String index,
+            List<String> components) throws Exception {
+        return this.findLastMsgAndGetTimestamp(index,
+                utilsService.getETTestStartPrefix(), components);
+    }
 
-    public abstract Date findLastFinishTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception;
+    public Date findLastFinishTestMsgAndGetTimestamp(String index,
+            List<String> components) throws Exception {
+        return this.findLastMsgAndGetTimestamp(index,
+                utilsService.getETTestFinishPrefix(), components);
+    }
 
     /* *** Metrics *** */
     public abstract List<Map<String, Object>> searchAllMetrics(
