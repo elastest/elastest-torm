@@ -72,27 +72,35 @@
   </normal-height-row>
 
   <auto-height-row fxLayout="column" id="main-content" class="pad-top-md">
-    <div *ngIf="loadingData; else notLoading">
-      <div fxLayout="column" fxLayoutAlign="center center">
-        <centered-element>
-          <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
-        </centered-element>
-        <p>Fetching data. Please wait...</p>
-      </div>
+    <div *ngIf="!startComparisonAlreadyClicked; else comparisonStarted">
+      <centered-element>
+        <button mat-raised-button class="iconBtn-lg" color="accent" (click)="init()" matTooltip="Start Comparison">
+          Start Comparison
+        </button>
+      </centered-element>
     </div>
-    <ng-template #notLoading>
-      <div fxFlex *ngIf="diff && comparisonInProgress; else noData">
-        <table class="diff-table">
-          <tbody>
-            <tr *ngFor="let result of resultData[0].logs">
-              <td [innerHTML]="result.index_p" class="index" style="width: 1% !important"></td>
-              <td [innerHTML]="result.com_p.content" [class]="result.com_p.class" style="width: 49% !important"></td>
-              <td [innerHTML]="result.indexp" class="index" style="width: 1% !important;"></td>
-              <td [innerHTML]="result.comp.content" [class]="result.comp.class" style="width: 49% !important;"></td>
-            </tr>
-          </tbody>
-        </table>
-        <!-- <div *ngIf="currentViewMode == 1 || currentViewMode == 2">
+    <ng-template #comparisonStarted>
+      <div *ngIf="loadingData; else notLoading">
+        <div fxLayout="column" fxLayoutAlign="center center">
+          <centered-element>
+            <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
+          </centered-element>
+          <p>Fetching data. Please wait...</p>
+        </div>
+      </div>
+      <ng-template #notLoading>
+        <div fxFlex *ngIf="diff && comparisonInProgress; else noData">
+          <table class="diff-table">
+            <tbody>
+              <tr *ngFor="let result of resultData[0].logs">
+                <td [innerHTML]="result.index_p" class="index" style="width: 1% !important"></td>
+                <td [innerHTML]="result.com_p.content" [class]="result.com_p.class" style="width: 49% !important"></td>
+                <td [innerHTML]="result.indexp" class="index" style="width: 1% !important;"></td>
+                <td [innerHTML]="result.comp.content" [class]="result.comp.class" style="width: 49% !important;"></td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- <div *ngIf="currentViewMode == 1 || currentViewMode == 2">
           <ng-template ngFor let-class [ngForOf]="resultData">
             <h3>{{ class.name }}</h3>
             <ng-template ngFor let-method [ngForOf]="class.methods">
@@ -110,12 +118,13 @@
             </ng-template>
           </ng-template>
         </div> -->
-      </div>
-      <ng-template #noData>
-        <centered-element class="push-top-important messageEmptyCard">
-          <mat-icon>assignment</mat-icon>
-          <p>No Data to show</p>
-        </centered-element>
+        </div>
+        <ng-template #noData>
+          <centered-element class="push-top-important messageEmptyCard">
+            <mat-icon>assignment</mat-icon>
+            <p>No Data to show</p>
+          </centered-element>
+        </ng-template>
       </ng-template>
     </ng-template>
   </auto-height-row>

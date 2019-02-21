@@ -26,6 +26,7 @@ import io.elastest.etm.utils.DiffMatchPatch.Diff;
 
 public abstract class MonitoringServiceInterface {
     protected final Logger logger = getLogger(lookup().lookupClass());
+    String processingComparationMsg = "ET-PROCESSING";
 
     private Map<String, String> comparisonProcessMap = new HashMap<>();
 
@@ -142,17 +143,25 @@ public abstract class MonitoringServiceInterface {
     @Async
     public void compareLogsPairAsync(MonitoringQuery body, String comparison,
             String view, String processId) throws Exception {
-        comparisonProcessMap.put(processId, "ET-PROCESSING");
+        comparisonProcessMap.put(processId, processingComparationMsg);
         String comparisonString = this.compareLogsPair(body, comparison, view);
         logger.info("Async comparison with process ID {} ends", processId);
         comparisonProcessMap.put(processId, comparisonString);
     }
 
+    // This method consumes the comparison if is available
     public String getComparisonByProcessId(String processId) {
         if (processId == null) {
             return null;
         }
-        return comparisonProcessMap.get(processId);
+        String comparation = comparisonProcessMap.get(processId);
+
+        // Consume
+        if (!comparation.equals(processingComparationMsg)) {
+            comparisonProcessMap.remove(processId);
+
+        }
+        return comparation;
     }
 
     public abstract List<Map<String, Object>> getLastLogs(

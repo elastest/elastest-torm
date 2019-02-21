@@ -13,7 +13,7 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
   @Input() public logComparison: LogComparisonModel;
 
   diff: string;
-
+  startComparisonAlreadyClicked: boolean = false;
   // Cache
   cacheMatrix: string[][] = [];
 
@@ -30,7 +30,7 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
   viewFailedTestsBtnEnabled: boolean = true;
 
   execsRow: any[] = [];
-  loadingData: boolean;
+  loadingData: boolean = false;
   resultData: any[] = [];
 
   timer: Observable<number>;
@@ -38,12 +38,9 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
 
   constructor(private tableService: TableService, private monitoringService: MonitoringService) {
     this.comparisonInProgress = false;
-    this.loadingData = true;
   }
 
-  ngOnInit(): void {
-    this.init();
-  }
+  ngOnInit(): void {}
 
   ngOnDestroy(): void {
     this.unsubscribe();
@@ -63,8 +60,13 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
   }
 
   init(): void {
+    this.startComparisonAlreadyClicked = true;
+    this.loadingData = true;
     this.initcacheMatrix();
-    this.loadComparison();
+    this.loadComparison(
+      this.getComparisonModeNameById(this.currentComparisonMode),
+      this.getViewModeNameById(this.currentViewMode),
+    );
   }
 
   initcacheMatrix(): void {
@@ -141,7 +143,7 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
     let comparisonInProgressMsg: string = 'ET-PROCESSING';
     let comparisonString: string = comparisonInProgressMsg;
 
-    this.timer = interval(4000);
+    this.timer = interval(3000);
     if (this.subscription === null || this.subscription === undefined) {
       this.subscription = this.timer.subscribe(() => {
         this.monitoringService.getComparisonByProcessId(processId).subscribe((comparison: string) => {
@@ -190,9 +192,14 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
 
   updateComparisonMode(mode: number): void {
     this.currentComparisonMode = mode;
-    this.loadingData = true;
     let comparison: comparisonMode = this.getComparisonModeNameById(mode);
-    this.loadComparison(comparison, this.getViewModeNameById(this.currentViewMode));
+    if (this.startComparisonAlreadyClicked) {
+      this.loadingData = true;
+      this.loadComparison(comparison, this.getViewModeNameById(this.currentViewMode));
+    } else {
+      this.resetComparisonButtons();
+      this.resetViewButtons();
+    }
   }
 
   getViewModeNameById(mode: number): viewMode {
@@ -216,10 +223,15 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
   }
   updateViewMode(mode: number): void {
     this.currentViewMode = mode;
-    this.loadingData = true;
     let view: viewMode = this.getViewModeNameById(mode);
 
-    this.loadComparison(this.getComparisonModeNameById(this.currentComparisonMode), view);
+    if (this.startComparisonAlreadyClicked) {
+      this.loadingData = true;
+      this.loadComparison(this.getComparisonModeNameById(this.currentComparisonMode), view);
+    } else {
+      this.resetComparisonButtons();
+      this.resetViewButtons();
+    }
   }
 
   private resetComparisonButtons(): void {
