@@ -1,8 +1,5 @@
 package io.elastest.etm.service;
 
-import static java.lang.invoke.MethodHandles.lookup;
-import static org.slf4j.LoggerFactory.getLogger;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -54,9 +51,9 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
@@ -65,11 +62,7 @@ import io.elastest.etm.model.Trace;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
-public class ElasticsearchService implements MonitoringServiceInterface {
-    final Logger logger = getLogger(lookup().lookupClass());
-
-    private final UtilsService utilsService;
-
+public class ElasticsearchService extends AbstractMonitoringService {
     @Value("${et.edm.elasticsearch.api}")
     private String esApiUrl;
 
@@ -82,8 +75,12 @@ public class ElasticsearchService implements MonitoringServiceInterface {
 
     RestHighLevelClient esClient;
 
-    public ElasticsearchService(UtilsService utilsService) {
+    public ElasticsearchService(UtilsService utilsService,
+            TestSuiteRepository testSuiteRepository,
+            DatabaseSessionManager dbmanager) {
         this.utilsService = utilsService;
+        this.testSuiteRepository = testSuiteRepository;
+        this.dbmanager = dbmanager;
     }
 
     public ElasticsearchService(String esApiUrl, String user, String pass,
@@ -701,33 +698,6 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         return logs;
     }
 
-    @Override
-    public List<String> searchTestLogsMessage(MonitoringQuery monitoringQuery,
-            boolean withTimestamp, boolean timeDiff) throws Exception {
-        // If components list not empty, use list. Else, use unique
-        // component
-        List<String> components = monitoringQuery.getComponents();
-        components = components != null && components.size() > 0 ? components
-                : Arrays.asList(monitoringQuery.getComponent());
-
-        Date firstStartTestTrace = this.findFirstStartTestMsgAndGetTimestamp(
-                monitoringQuery.getIndicesAsString(), components);
-        Date lastFinishTestTrace = this.findLastFinishTestMsgAndGetTimestamp(
-                monitoringQuery.getIndicesAsString(), components);
-
-        if (firstStartTestTrace == null && lastFinishTestTrace == null) {
-            return new ArrayList<>();
-        }
-
-        TimeRange timeRange = new TimeRange();
-        timeRange.setGte(firstStartTestTrace);
-        timeRange.setLte(lastFinishTestTrace);
-        monitoringQuery.setTimeRange(timeRange);
-
-        return searchAllLogsMessage(monitoringQuery, withTimestamp, timeDiff,
-                true);
-    }
-
     public List<Map<String, Object>> getPreviousLogsFromTimestamp(
             MonitoringQuery monitoringQuery) {
 
@@ -815,34 +785,6 @@ public class ElasticsearchService implements MonitoringServiceInterface {
     }
 
     @Override
-    public Date findFirstStartTestMsgAndGetTimestamp(String index,
-            String testName, List<String> components) throws Exception {
-        return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix() + testName, components);
-    }
-
-    @Override
-    public Date findFirstFinishTestMsgAndGetTimestamp(String index,
-            String testName, List<String> components) throws Exception {
-        return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestFinishPrefix() + testName, components);
-    }
-
-    @Override
-    public Date findFirstStartTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception {
-        return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix(), components);
-    }
-
-    @Override
-    public Date findFirstFinishTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception {
-        return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestFinishPrefix(), components);
-    }
-
-    @Override
     public Date findLastMsgAndGetTimestamp(String index, String msg,
             List<String> components) throws Exception {
         SearchResponse response = this.findMessageSync(index, msg, components);
@@ -857,20 +799,6 @@ public class ElasticsearchService implements MonitoringServiceInterface {
         }
 
         return null;
-    }
-
-    @Override
-    public Date findLastStartTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception {
-        return this.findLastMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix(), components);
-    }
-
-    @Override
-    public Date findLastFinishTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception {
-        return this.findLastMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix(), components);
     }
 
     /* ***************************************** */

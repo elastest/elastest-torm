@@ -110,11 +110,22 @@ export class TableService {
   private solveBasicTableColors(): void {
     for (let i: number = 0; i < this.results.length; i++) {
       const result: any = this.results[i];
-      if (result.com_p.content.indexOf('<del>') !== -1 && result.com_p !== undefined) {
+      const caseNamePrefix: string = '<span>&lt;TEST&gt;: ';
+      if (
+        result.com_p !== undefined &&
+        result.com_p.content.indexOf(caseNamePrefix) !== -1 &&
+        result.comp !== undefined &&
+        result.comp.content.indexOf(caseNamePrefix) !== -1
+      ) {
+        result.com_p.class = 'comparisonTCaseName';
+        result.comp.class = 'comparisonTCaseName';
+      }
+
+      if (result.com_p !== undefined && result.com_p.content.indexOf('<del>') !== -1) {
         result.com_p.class = 'delC';
         result.comp.class = 'added';
       }
-      if (result.comp.content.indexOf('<ins>') !== -1 && result.comp !== undefined) {
+      if (result.comp !== undefined && result.comp.content.indexOf('<ins>') !== -1) {
         result.comp.class = 'insC';
         if (result.com_p.class !== 'delC') {
           result.com_p.class = 'added';

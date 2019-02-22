@@ -101,7 +101,7 @@ public class ExternalService {
     private EtmContextService etmContextService;
     private LogstashService logstashService;
 
-    private MonitoringServiceInterface monitoringService;
+    private AbstractMonitoringService monitoringService;
     private UtilsService utilsService;
     private SutService sutService;
 
@@ -112,7 +112,7 @@ public class ExternalService {
             ExternalTestExecutionRepository externalTestExecutionRepository,
             ExternalTJobRepository externalTJobRepository,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
-            EsmService esmService, MonitoringServiceInterface monitoringService,
+            EsmService esmService, AbstractMonitoringService monitoringService,
             EtmContextService etmContextService,
             LogstashService logstashService, UtilsService utilsService,
             TJobExecOrchestratorService tJobExecOrchestratorService,

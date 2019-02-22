@@ -33,13 +33,13 @@ public class SutService {
     private final SutRepository sutRepository;
     private final SutExecutionRepository sutExecutionRepository;
     private final EimService eimService;
-    private MonitoringServiceInterface monitoringService;
+    private AbstractMonitoringService monitoringService;
     private final UtilsService utilsService;
     private final TracesService tracesService;
 
     public SutService(SutRepository sutRepository,
             SutExecutionRepository sutExecutionRepository,
-            EimService eimService, MonitoringServiceInterface monitoringService,
+            EimService eimService, AbstractMonitoringService monitoringService,
             UtilsService utilsService, TracesService tracesService) {
         super();
         this.sutRepository = sutRepository;
