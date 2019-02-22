@@ -110,6 +110,17 @@ public abstract class AbstractMonitoringService {
                                 List<String> tcLogs = searchAllLogsMessage(
                                         monitoringQuery, withTimestamp,
                                         timeDiff, true);
+
+                                if (tcLogs.size() > 0) {
+                                    String completeTestName = "<TEST>: "
+                                            + suite.getName() + " -> "
+                                            + currentCase.getName();
+                                    List<String> aux = new ArrayList<>();
+                                    aux.add(completeTestName);
+                                    aux.addAll(tcLogs);
+                                    tcLogs = aux;
+                                }
+
                                 testsLogs.add(tcLogs);
                             }
                         }

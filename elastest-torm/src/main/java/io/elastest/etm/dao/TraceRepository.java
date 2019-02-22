@@ -21,82 +21,82 @@ public interface TraceRepository
 
     /* *** By Exec, Stream, Component | and Date Ranges *** */
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             List<String> components);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             List<String> components, Date start);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanEqualOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanEqualOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             List<String> components, Date start);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampLessThanOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampLessThanOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             List<String> components, Date end);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampLessThanEqualOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampLessThanEqualOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             List<String> components, Date end);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanAndTimestampLessThanOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanAndTimestampLessThanOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             List<String> components, Date start, Date end);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanEqualAndTimestampLessThanOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanEqualAndTimestampLessThanOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             List<String> components, Date start, Date end);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanEqualAndTimestampLessThanEqualOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanEqualAndTimestampLessThanEqualOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             List<String> components, Date start, Date end);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanAndTimestampLessThanEqualOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentInAndTimestampGreaterThanAndTimestampLessThanEqualOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             List<String> components, Date start, Date end);
 
     /* *** By Exec, Stream, Component, And Id Less Than | and Date Range *** */
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             String component, Long id);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             String component, Long id, Date start);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanEqualOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanEqualOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             String component, Long id, Date start);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampLessThanOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampLessThanOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             String component, Long id, Date end);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampLessThanEqualOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampLessThanEqualOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             String component, Long id, Date end);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanAndTimestampLessThanOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanAndTimestampLessThanOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             String component, Long id, Date start, Date end);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanEqualAndTimestampLessThanOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanEqualAndTimestampLessThanOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             String component, Long id, Date start, Date end);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanEqualAndTimestampLessThanEqualOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanEqualAndTimestampLessThanEqualOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             String component, Long id, Date start, Date end);
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanAndTimestampLessThanEqualOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanAndTimestampGreaterThanAndTimestampLessThanEqualOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             String component, Long id, Date start, Date end);
 
     /* *** By Exec, Stream, Component, etc *** */
 
-    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndMessageAndTimestampOrderByTimestampAsc(
+    public List<Trace> findByStreamTypeAndExecInAndStreamAndComponentAndMessageAndTimestampOrderByIdAscTimestampAsc(
             StreamType streamType, List<String> execs, String stream,
             String component, String message, Date timestamp);
 

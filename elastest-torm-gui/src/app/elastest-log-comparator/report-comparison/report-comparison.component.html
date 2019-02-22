@@ -106,24 +106,6 @@
               </tr>
             </tbody>
           </table>
-          <!-- <div *ngIf="currentViewMode == 1 || currentViewMode == 2">
-          <ng-template ngFor let-class [ngForOf]="resultData">
-            <h3>{{ class.name }}</h3>
-            <ng-template ngFor let-method [ngForOf]="class.methods">
-              <h5>{{ method.name }}</h5>
-              <table class="diff-table">
-                <tbody>
-                  <tr *ngFor="let result of method.logs">
-                    <td [innerHTML]="result.index_p" class="index" style="width: 1% !important;"></td>
-                    <td [innerHTML]="result.com_p.content" [class]="result.com_p.class" style="width: 49% !important;"></td>
-                    <td [innerHTML]="result.indexp" class="index" style="width: 1% !important"></td>
-                    <td [innerHTML]="result.comp.content" [class]="result.comp.class" style="width: 49% !important;"></td>
-                  </tr>
-                </tbody>
-              </table>
-            </ng-template>
-          </ng-template>
-        </div> -->
         </div>
         <ng-template #noData>
           <centered-element class="push-top-important messageEmptyCard">
