@@ -269,6 +269,46 @@ public class TestCase {
         this.endDate = endDate;
     }
 
+    // Status
+
+    public boolean isSuccess() {
+        if (this.isFailed() || this.isSkipped()) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isFailed() {
+        if (!this.isSkipped()) {
+            if (this.failureDetail != null) {
+                return true;
+            }
+
+            if (this.failureType != null) {
+                return true;
+            }
+
+            if (this.failureErrorLine != null) {
+                return true;
+            }
+
+            if (this.failureMessage != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isSkipped() {
+        boolean skipped = false;
+
+        if (this.failureType != null && "skipped".equals(this.failureType)) {
+            skipped = true;
+        }
+
+        return skipped;
+    }
+
     // Others
 
     @Override
