@@ -73,15 +73,21 @@ public abstract class AbstractMonitoringService {
             for (TestSuite suite : suites) {
                 if (suite.getTestCases() != null) {
                     for (TestCase currentCase : suite.getTestCases()) {
+                        List<String> testComponents = components;
+
+                        if (!components.contains("test")) {
+                            // Only test has start/finish trace
+                            testComponents = Arrays.asList("test");
+                        }
 
                         Date startTestTrace = this
                                 .findFirstStartTestMsgAndGetTimestamp(
                                         monitoringQuery.getIndicesAsString(),
-                                        currentCase.getName(), components);
+                                        currentCase.getName(), testComponents);
                         Date finishTestTrace = this
                                 .findFirstFinishTestMsgAndGetTimestamp(
                                         monitoringQuery.getIndicesAsString(),
-                                        currentCase.getName(), components);
+                                        currentCase.getName(), testComponents);
 
                         if (startTestTrace != null && finishTestTrace != null) {
 
