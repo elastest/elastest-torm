@@ -8,6 +8,9 @@ import {
   IConfirmConfig,
   ITdDataTableSelectEvent,
   ITdDataTableSelectAllEvent,
+  ITdDataTableColumn,
+  TdDataTableService,
+  ITdDataTableSortChangeEvent,
 } from '@covalent/core';
 import { AfterViewInit, Component, Input, OnInit, ViewContainerRef } from '@angular/core';
 import { MatDialog } from '@angular/material';
@@ -25,17 +28,17 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   tableStyle: string = 'useMaxHeight';
 
   // Project data
-  projectColumns: any[] = [
+  projectColumns: ITdDataTableColumn[] = [
     { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Project' },
-    { name: 'options', label: 'Options' },
+    { name: 'options', label: 'Options', sortable: false },
   ];
+
+  sortBy: string = 'id';
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
   projectData: ProjectModel[] = [];
   loading: boolean = true;
-
-  sortBy: string = 'name';
-  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
   projectChildsActived: boolean = false;
 
@@ -52,6 +55,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     private _viewContainerRef: ViewContainerRef,
     public dialog: MatDialog,
     private popupService: PopupService,
+    private dataTableService: TdDataTableService,
   ) {}
 
   ngOnInit(): void {
@@ -215,5 +219,11 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     }
 
     return obs;
+  }
+
+  sort(sortEvent: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent.name;
+    this.sortOrder = sortEvent.order;
+    this.projectData = this.dataTableService.sortData(this.projectData, this.sortBy, this.sortOrder);
   }
 }

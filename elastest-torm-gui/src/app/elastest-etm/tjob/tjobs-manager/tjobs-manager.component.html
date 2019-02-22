@@ -19,6 +19,10 @@
       [columns]="tjobColumns"
       id="tJobs"
       [resizableColumns]="true"
+      [sortable]="true"
+      [sortBy]="sortBy"
+      [sortOrder]="sortOrder"
+      (sortChange)="sort($event)"
     >
       <ng-template *ngFor="let column of tjobColumns" tdDataTableTemplate="{{ column.name }}" let-value="value" let-row="row">
         <ng-container *ngIf="column.name === 'name' || column.name === 'imageName'">

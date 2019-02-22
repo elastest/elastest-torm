@@ -115,12 +115,13 @@
           [columns]="tJobExecColumns"
           [selectable]="true"
           [clickable]="true"
-          [sortable]="false"
-          [sortBy]="sortBy"
-          [sortOrder]="sortOrder"
           [resizableColumns]="true"
           (rowSelect)="switchExecSelection($event)"
           (selectAll)="switchAllExecsSelection($event)"
+          [sortable]="true"
+          [sortBy]="sortBy"
+          [sortOrder]="sortOrder"
+          (sortChange)="sort($event)"
         >
           <ng-template
             *ngFor="let column of tJobExecColumns"

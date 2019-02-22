@@ -60,6 +60,10 @@
             [selectable]="true"
             (rowSelect)="switchProjectSelection($event)"
             (selectAll)="switchAllProjectsSelection($event)"
+            [sortable]="true"
+            [sortBy]="sortBy"
+            [sortOrder]="sortOrder"
+            (sortChange)="sort($event)"
           >
             <ng-template
               *ngFor="let column of projectColumns"

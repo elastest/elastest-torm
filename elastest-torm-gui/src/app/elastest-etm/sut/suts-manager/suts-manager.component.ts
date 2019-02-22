@@ -1,6 +1,6 @@
 import { TitlesService } from '../../../shared/services/titles.service';
 import { SutModel } from '../../sut/sut-model';
-import { TdDialogService } from '@covalent/core';
+import { TdDialogService, TdDataTableSortingOrder, TdDataTableService, ITdDataTableSortChangeEvent, ITdDataTableColumn } from '@covalent/core';
 import { SutService } from '../../sut/sut.service';
 import { IConfirmConfig } from '@covalent/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -33,14 +33,17 @@ export class SutsManagerComponent implements OnInit {
   duplicateInProgress: boolean = false;
 
   // SuT Data
-  sutColumns: any[] = [
+  sutColumns: ITdDataTableColumn[] = [
     { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
-    { name: 'specification', label: 'Specification' },
+    { name: 'specification', label: 'Specification', sortable: false },
     { name: 'sutType', label: 'SuT Type' },
-    { name: 'description', label: 'Description' },
-    { name: 'options', label: 'Options' },
+    { name: 'description', label: 'Description', sortable: false },
+    { name: 'options', label: 'Options', sortable: false },
   ];
+
+  sortBy: string = 'id';
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
   constructor(
     private titlesService: TitlesService,
@@ -52,6 +55,7 @@ export class SutsManagerComponent implements OnInit {
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
     public dialog: MatDialog,
+    private dataTableService: TdDataTableService,
   ) {}
 
   ngOnInit() {
@@ -187,5 +191,11 @@ export class SutsManagerComponent implements OnInit {
         this.duplicateInProgress = false;
       },
     );
+  }
+
+  sort(sortEvent: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent.name;
+    this.sortOrder = sortEvent.order;
+    this.suts = this.dataTableService.sortData(this.suts, this.sortBy, this.sortOrder);
   }
 }

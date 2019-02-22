@@ -3,7 +3,14 @@ import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { TJobService } from '../tjob.service';
 import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
-import { TdDialogService, IConfirmConfig } from '@covalent/core';
+import {
+  TdDialogService,
+  IConfirmConfig,
+  TdDataTableSortingOrder,
+  ITdDataTableSortChangeEvent,
+  TdDataTableService,
+  ITdDataTableColumn,
+} from '@covalent/core';
 import { MatDialog } from '@angular/material';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { TJobModel } from '../tjob-model';
@@ -29,16 +36,19 @@ export class TJobsManagerComponent implements OnInit {
   duplicateInProgress: boolean = false;
 
   // TJob Data
-  tjobColumns: any[] = [
+  tjobColumns: ITdDataTableColumn[] = [
     { name: 'id', label: 'Id', width: 80 },
-    { name: 'result', label: 'Result', width: 74 },
+    { name: 'result', label: 'Result', width: 74, sortable: false },
     { name: 'name', label: 'Name' },
     { name: 'imageName', label: 'Image Name' },
     { name: 'lastExecutionDate', label: 'Last Execution' },
     { name: 'sut', label: 'Sut', width: 80 },
-    { name: 'multi', label: 'Multi Axis', width: 92 },
-    { name: 'options', label: 'Options' },
+    { name: 'multi', label: 'Multi Axis', width: 100 },
+    { name: 'options', label: 'Options', sortable: false },
   ];
+
+  sortBy: string = 'id';
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
   constructor(
     private titlesService: TitlesService,
@@ -51,9 +61,10 @@ export class TJobsManagerComponent implements OnInit {
     private route: ActivatedRoute,
     private projectService: ProjectService,
     private eTModelsTransformServices: ETModelsTransformServices,
+    private dataTableService: TdDataTableService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.init();
   }
 
@@ -196,5 +207,11 @@ export class TJobsManagerComponent implements OnInit {
         this.duplicateInProgress = false;
       },
     );
+  }
+
+  sort(sortEvent: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent.name;
+    this.sortOrder = sortEvent.order;
+    this.tJobs = this.dataTableService.sortData(this.tJobs, this.sortBy, this.sortOrder);
   }
 }

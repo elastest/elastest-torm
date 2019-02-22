@@ -19,6 +19,10 @@
       [data]="suts"
       [columns]="sutColumns"
       [resizableColumns]="true"
+      [sortable]="true"
+      [sortBy]="sortBy"
+      [sortOrder]="sortOrder"
+      (sortChange)="sort($event)"
     >
       <ng-template *ngFor="let column of sutColumns" tdDataTableTemplate="{{ column.name }}" let-value="value" let-row="row">
         <ng-container *ngIf="column.name !== 'options'">

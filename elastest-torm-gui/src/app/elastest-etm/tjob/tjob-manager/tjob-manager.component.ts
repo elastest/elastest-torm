@@ -8,7 +8,16 @@ import { TJobService } from '../tjob.service';
 
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { IConfirmConfig, TdDialogService, ITdDataTableSelectEvent, ITdDataTableSelectAllEvent } from '@covalent/core';
+import {
+  IConfirmConfig,
+  TdDialogService,
+  ITdDataTableSelectEvent,
+  ITdDataTableSelectAllEvent,
+  ITdDataTableSortChangeEvent,
+  ITdDataTableColumn,
+  TdDataTableService,
+  TdDataTableSortingOrder,
+} from '@covalent/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { Observable, Subject } from 'rxjs';
 
@@ -25,17 +34,21 @@ export class TjobManagerComponent implements OnInit {
   deletingInProgress: boolean = false;
 
   // TJob Exec Data
-  tJobExecColumns: any[] = [
+  tJobExecColumns: ITdDataTableColumn[] = [
     { name: 'id', label: 'Id', width: 80 },
     { name: 'result', label: 'Result' },
     { name: 'lastExecutionDate', label: 'Last Execution' },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
     { name: 'duration', label: 'Duration(sec)' },
-    { name: 'sutExecution', label: 'Sut Execution', width: 116 },
+    { name: 'sutExecution', label: 'Sut Execution', width: 120 },
     { name: 'monitoringStorageType', label: 'Mon. Storage', width: 123 },
-    { name: 'options', label: 'Options' },
+    { name: 'options', label: 'Options', sortable: false },
   ];
+
+  sortBy: string = 'id';
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
+
   tJobExecData: TJobExecModel[] = [];
   showSpinner: boolean = true;
 
@@ -51,6 +64,7 @@ export class TjobManagerComponent implements OnInit {
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
     public dialog: MatDialog,
+    private dataTableService: TdDataTableService,
   ) {}
 
   ngOnInit(): void {
@@ -284,5 +298,11 @@ export class TjobManagerComponent implements OnInit {
     }
 
     return obs;
+  }
+
+  sort(sortEvent: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent.name;
+    this.sortOrder = sortEvent.order;
+    this.tJobExecData = this.dataTableService.sortData(this.tJobExecData, this.sortBy, this.sortOrder);
   }
 }
