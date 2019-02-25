@@ -67,6 +67,33 @@ public class SyslogRFC5424ServerEvent implements SyslogServerEventIF {
         parse();
     }
 
+    public SyslogRFC5424ServerEvent(SyslogRFC5424ServerEvent previousEvent) {
+        this.charSet = previousEvent.charSet;
+        this.rawString = previousEvent.rawString;
+        this.rawBytes = previousEvent.rawBytes;
+        this.rawLength = previousEvent.rawLength;
+        this.date = previousEvent.date;
+        this.level = previousEvent.level;
+        this.facility = previousEvent.facility;
+        this.hostName = previousEvent.hostName;
+        this.host = previousEvent.host;
+        this.appName = previousEvent.appName;
+        this.procid = previousEvent.procid;
+        this.msgid = previousEvent.msgid;
+        this.isHostStrippedFromMessage = previousEvent.isHostStrippedFromMessage;
+        this.message = previousEvent.message;
+        this.inetAddress = previousEvent.inetAddress;
+        this.currentTraceArray = previousEvent.currentTraceArray;
+        this.traceInfoArray = previousEvent.traceInfoArray;
+    }
+
+    public SyslogRFC5424ServerEvent(final String message,
+            InetAddress inetAddress, SyslogRFC5424ServerEvent previousEvent) {
+        // From previous trace (for splitted traces)
+        this(previousEvent);
+        initialize(message, inetAddress);
+    }
+
     protected void initialize(final String message, InetAddress inetAddress) {
         this.rawString = message;
         this.rawLength = message.length();

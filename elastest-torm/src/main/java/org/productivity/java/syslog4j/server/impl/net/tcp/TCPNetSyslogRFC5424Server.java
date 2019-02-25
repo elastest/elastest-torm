@@ -102,6 +102,7 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                             nextLine = scanner.nextLine();
                         }
                     } else { // Log
+
                         // Load next
                         if (scanner.hasNextLine()) {
                             nextLine = transformLogFromJsonIfNecessary(
@@ -111,6 +112,7 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
 
                             // If are not matches, is the same trace
                             while (!areMatches) {
+
                                 currentCompleteLine += "\\r" + nextLine;
                                 if (!scanner.hasNextLine()) {
                                     break;
@@ -122,17 +124,10 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                                 areMatches = matcher.matches();
                             }
                         }
+                        
+                        // Create event and send
+                        sendLine(currentCompleteLine);
 
-                        SyslogRFC5424ServerEvent event = createEvent(
-                                (TCPNetSyslogRFC5424ServerConfigIF) this.server
-                                        .getConfig(),
-                                currentCompleteLine,
-                                this.socket.getInetAddress());
-
-                        if (event.isValidCurrentTraceArray()) {
-                            handleEvent(this.sessions, this.server, this.socket,
-                                    event);
-                        }
                     }
                     line = nextLine;
                     currentCompleteLine = line;
@@ -171,6 +166,29 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
             } catch (IOException ioe) {
                 AbstractSyslogServer.handleException(this.sessions, this.server,
                         this.socket.getRemoteSocketAddress(), ioe);
+            }
+        }
+
+        public SyslogRFC5424ServerEvent sendLine(String line) {
+            SyslogRFC5424ServerEvent event = createEvent(
+                    (TCPNetSyslogRFC5424ServerConfigIF) this.server.getConfig(),
+                    line, this.socket.getInetAddress());
+
+            if (event.isValidCurrentTraceArray()) {
+                handleEvent(this.sessions, this.server, this.socket, event);
+            }
+
+            return event;
+        }
+
+        public void sendLineByPrevEvent(SyslogRFC5424ServerEvent previousEvent,
+                String line) {
+            SyslogRFC5424ServerEvent newEvent = createEvent(previousEvent,
+                    (TCPNetSyslogRFC5424ServerConfigIF) this.server.getConfig(),
+                    line, this.socket.getInetAddress());
+
+            if (newEvent.isValidCurrentTraceArray()) {
+                handleEvent(this.sessions, this.server, this.socket, newEvent);
             }
         }
 
@@ -288,6 +306,13 @@ public class TCPNetSyslogRFC5424Server extends TCPNetSyslogServer {
                 TCPNetSyslogRFC5424ServerConfigIF serverConfig, String line,
                 InetAddress inetAddr) {
             return new SyslogRFC5424ServerEvent(line, inetAddr);
+        }
+
+        protected static SyslogRFC5424ServerEvent createEvent(
+                SyslogRFC5424ServerEvent previousEvent,
+                TCPNetSyslogRFC5424ServerConfigIF serverConfig, String line,
+                InetAddress inetAddr) {
+            return new SyslogRFC5424ServerEvent(line, inetAddr, previousEvent);
         }
 
         public static void handleEvent(Sessions sessions,
