@@ -6,6 +6,12 @@
   padding: 0px !important;
 }
 
+#commands {
+  font-family: 'Lucida Console', monospace;
+  z-index: -500;
+  position: absolute;
+}
+
 #commandsCodeEditor {
   max-width: 100%;
   height: 220px;
