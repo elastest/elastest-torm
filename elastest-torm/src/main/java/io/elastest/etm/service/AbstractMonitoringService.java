@@ -199,13 +199,13 @@ public abstract class AbstractMonitoringService {
             boolean firstConcat = true;
             if (pairLogs[0].size() == pairLogs[1].size()) {
                 pos = 0;
-                for (String currentLog1 : pairLogs[0]) {
+                for (String currentLog : pairLogs[0]) {
                     if (!firstConcat) {
                         htmlComparison += "<br>";
                     } else {
                         firstConcat = false;
                     }
-                    htmlComparison += getDiffHtmlFromLogs(currentLog1,
+                    htmlComparison += getDiffHtmlFromLogs(currentLog,
                             pairLogs[1].get(pos));
                     pos++;
                 }
