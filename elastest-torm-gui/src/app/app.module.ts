@@ -13,7 +13,9 @@ import { TitlesService } from './shared/services/titles.service';
 import { EtPluginsService } from './elastest-test-engines/et-plugins.service';
 import { EsmService } from './elastest-esm/esm-service.service';
 import { TdLayoutManageListComponent } from '@covalent/core';
-import { CovalentExpansionPanelModule, CovalentMessageModule } from '@covalent/core';
+import { CovalentExpansionPanelModule, CovalentMessageModule, } from '@covalent/core';
+import { CovalentCodeEditorModule } from '@covalent/code-editor';
+
 import { APP_INITIALIZER, NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule, Title } from '@angular/platform-browser';
@@ -226,6 +228,7 @@ library.add(faJenkins);
     AutosizeModule,
     BrowserModule,
     BrowserAnimationsModule,
+    CovalentCodeEditorModule,
     CovalentExpansionPanelModule,
     CovalentMessageModule,
 

@@ -78,6 +78,7 @@
           <div fxLayout="column" *ngIf="!useImageCommand" class="push-top">
             <mat-form-field>
               <textarea
+                hidden
                 id="commands"
                 rows="10"
                 matInput
@@ -87,7 +88,18 @@
                 [(ngModel)]="tJob.commands"
                 name="commands"
                 required
-              ></textarea>
+              >
+              </textarea>
+              <td-code-editor
+                id="commandsCodeEditor"
+                name="commandsCodeEditor"
+                (registerLanguage)="(bash)"
+                [(ngModel)]="tJob.commands"
+                style="height: 220px; margin-top: 14px"
+                theme="vs-dark"
+                fxFlex
+                language="bash"
+              ></td-code-editor>
             </mat-form-field>
             <div class="push-bottom">
               <td-message

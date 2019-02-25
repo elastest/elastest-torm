@@ -1,3 +1,11 @@
 #commands {
-  font-family: "Lucida Console", monospace
+  font-family: 'Lucida Console', monospace;
+}
+
+#commandsCodeEditor {
+  max-width: 100%;
+}
+
+#commandsCodeEditor > div > div {
+  max-width: 100%;
 }
