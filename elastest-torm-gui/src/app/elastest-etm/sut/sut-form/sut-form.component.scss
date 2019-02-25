@@ -5,3 +5,13 @@
 :host /deep/ .noPaddingChilds .mat-list-item-content {
   padding: 0px !important;
 }
+
+#commandsCodeEditor {
+  max-width: 100%;
+  height: 220px;
+  margin-top: 15px;
+}
+
+#commandsCodeEditor > div > div {
+  max-width: 100%;
+}

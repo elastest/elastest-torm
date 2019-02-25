@@ -166,6 +166,7 @@
               <div fxLayout="column" *ngIf="!useImageCommand" class="push-top">
                 <mat-form-field>
                   <textarea
+                    hidden
                     id="commands"
                     rows="10"
                     matInput
@@ -176,6 +177,15 @@
                     name="commands"
                     required
                   ></textarea>
+                  <td-code-editor
+                    id="commandsCodeEditor"
+                    name="commandsCodeEditor"
+                    (registerLanguage)="(bash)"
+                    [(ngModel)]="sut.commands"
+                    theme="vs-dark"
+                    fxFlex
+                    language="bash"
+                  ></td-code-editor>
                 </mat-form-field>
               </div>
 

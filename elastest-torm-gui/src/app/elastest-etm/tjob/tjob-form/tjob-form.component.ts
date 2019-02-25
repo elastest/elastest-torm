@@ -47,11 +47,11 @@ export class TJobFormComponent implements OnInit, DoCheck {
     this.esmServicesCatalog = [];
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.init();
   }
 
-  ngDoCheck() {
+  ngDoCheck(): void {
     if (this.tjobNameInput !== undefined && !this.alreadyFocusedTJobNameInput) {
       this.alreadyFocusedTJobNameInput = true;
       this.tjobNameInput.nativeElement.focus();
