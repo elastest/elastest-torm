@@ -66,6 +66,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
     @Value("${et.edm.elasticsearch.api}")
     private String esApiUrl;
 
+    private String protocol;
     private String host;
     private int port;
 
@@ -98,12 +99,12 @@ public class ElasticsearchService extends AbstractMonitoringService {
         URL url;
         try {
             url = new URL(this.esApiUrl);
+            this.protocol = url.getProtocol();
             this.host = url.getHost();
             this.port = url.getPort();
-
             RestClientBuilder builder = RestClient
-                    .builder(new HttpHost(this.host, this.port, "http"));
-            if (this.path != null) {
+                    .builder(new HttpHost(this.host, this.port, this.protocol));
+            if (this.path != null && !this.path.isEmpty()) {
                 builder.setPathPrefix(this.path);
             }
 

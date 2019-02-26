@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.SutView;
@@ -55,6 +56,12 @@ public class ExternalElasticsearch {
 
     @JsonView({ BasicAttExternalElasticsearch.class, SutView.class,
             ExternalProjectView.class, BasicAttProject.class })
+    @Column(name = "protocol")
+    @JsonProperty("protocol")
+    private ProtocolEnum protocol = ProtocolEnum.HTTP;
+
+    @JsonView({ BasicAttExternalElasticsearch.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
     @Column(name = "user")
     @JsonProperty("user")
     private String user;
@@ -86,12 +93,13 @@ public class ExternalElasticsearch {
 
     public ExternalElasticsearch(Long id, String ip, String port, String path,
             String user, String pass, String indices,
-            SutSpecification sutSpecification) {
+            SutSpecification sutSpecification, ProtocolEnum protocol) {
         super();
         this.id = id;
         this.ip = ip;
         this.port = port;
         this.path = path;
+        this.protocol = protocol;
         this.user = user;
         this.pass = pass;
         this.indices = indices;
@@ -106,6 +114,7 @@ public class ExternalElasticsearch {
         this.user = externalElasticsearch.getUser();
         this.pass = externalElasticsearch.getPass();
         this.indices = externalElasticsearch.getIndices();
+        this.protocol = externalElasticsearch.getProtocol();
     }
 
     /* *************************** */
@@ -117,6 +126,14 @@ public class ExternalElasticsearch {
 
     public void setId(Long id) {
         this.id = id == null ? 0 : id;
+    }
+
+    public ProtocolEnum getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(ProtocolEnum protocol) {
+        this.protocol = protocol;
     }
 
     public String getIp() {

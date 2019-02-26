@@ -1,5 +1,6 @@
 export class ExternalElasticsearch {
   id: number;
+  protocol: 'http' | 'https' | ''; // On add new, add too in getProtocolsList
   ip: string;
   port: string;
   path: string;
@@ -10,6 +11,7 @@ export class ExternalElasticsearch {
   constructor(externalElasticsearchJson: any = undefined) {
     if (!externalElasticsearchJson) {
       this.id = 0;
+      this.protocol = 'http';
       this.ip = '';
       this.port = '';
       this.path = '';
@@ -18,6 +20,7 @@ export class ExternalElasticsearch {
       this.indices = '';
     } else {
       this.id = externalElasticsearchJson.id;
+      this.protocol = externalElasticsearchJson.protocol;
       this.ip = externalElasticsearchJson.ip;
       this.port = externalElasticsearchJson.port;
       this.path = externalElasticsearchJson.path;
@@ -25,5 +28,9 @@ export class ExternalElasticsearch {
       this.pass = externalElasticsearchJson.pass;
       this.indices = externalElasticsearchJson.indices;
     }
+  }
+
+  public getProtocolsList(): string[] {
+    return ['http', 'https'];
   }
 }

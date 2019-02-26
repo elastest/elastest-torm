@@ -13,45 +13,48 @@
               <mat-card-subtitle>Name</mat-card-subtitle>
               <h4>{{ tJob.name }}</h4>
             </span>
-            <span fxFlex.gt-xs="20">
+            <span fxFlex.gt-xs="24" fxFlexOffset="1">
               <mat-card-subtitle>Image Name</mat-card-subtitle>
-              <h4>{{ tJob.imageName }}</h4>
-            </span>
-            <span fxFlex.gt-xs="20" *ngIf="!tJob.hasSut()">
-              <mat-card-subtitle>Sut</mat-card-subtitle>
-              <h4>None</h4>
-            </span>
-            <span fxFlex.gt-xs="20" *ngIf="tJob.hasSut()">
-              <button mat-button (click)="editSut()" class="onlyIconBtn" title="Edit SuT">
-                <div fxLayout="row">
-                  <mat-card-subtitle style="line-height: initial; padding-right: 8px;">Sut</mat-card-subtitle>
-                  <mat-icon style="font-size: 18px;">mode_edit</mat-icon>
-                </div>
-              </button>
-              <h4 style="margin-top: 0;">{{ tJob.sut.name }}</h4>
+              <h4 style="word-break: break-all">{{ tJob.imageName }}</h4>
             </span>
 
-            <span fxFlex.gt-xs="20" *ngIf="!tJob.hasSut()">
+            <span fxFlex.gt-xs="20" fxFlexOffset="1">
+              <ng-container *ngIf="!tJob.hasSut(); else showSut">
+                <mat-card-subtitle>Sut</mat-card-subtitle>
+                <h4>None</h4>
+              </ng-container>
+              <ng-template #showSut>
+                <button mat-button (click)="editSut()" class="onlyIconBtn" title="Edit SuT">
+                  <div fxLayout="row">
+                    <mat-card-subtitle style="line-height: initial; padding-right: 8px;">Sut</mat-card-subtitle>
+                    <mat-icon style="font-size: 18px;">mode_edit</mat-icon>
+                  </div>
+                </button>
+                <h4 style="margin-top: 0;">{{ tJob.sut.name }}</h4>
+              </ng-template>
+            </span>
+
+            <span fxFlex.gt-xs="16" fxFlexOffset="1">
               <mat-card-subtitle>Is Multi Axis</mat-card-subtitle>
               <h4>{{ tJob.multi }}</h4>
             </span>
 
-            <span fxFlex.gt-xs="25">
+            <span fxFlex.gt-xs="20" fxFlexOffset="1">
               <mat-card-subtitle>Options</mat-card-subtitle>
               <div class="optionsColumn" fxLayout="column" fxLayout.gt-xs="row">
-                <button mat-button *ngIf="!tJob.external" (click)="runTJob()" class="iconBtn-lg" title="Run TJob">
+                <button mat-button *ngIf="!tJob.external" (click)="runTJob()" class="iconBtn" title="Run TJob">
                   <mat-icon>play_circle_outline</mat-icon>
                 </button>
                 <button
                   mat-button
                   *ngIf="!tJob.external || tJob.getExternalEditPage() !== undefined"
                   (click)="editTJob()"
-                  class="iconBtn-lg"
+                  class="iconBtn"
                   title="Edit TJob"
                 >
                   <mat-icon>mode_edit</mat-icon>
                 </button>
-                <button mat-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn-lg" title="Delete TJob">
+                <button mat-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn" title="Delete TJob">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>

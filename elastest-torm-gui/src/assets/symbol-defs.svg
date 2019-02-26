@@ -1,8 +1,33 @@
-<svg aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<defs>
-<symbol id="icon-testlink" viewBox="0 0 32 32">
-<title>testlink</title>
-<path d="M16.195 0.359l-0.058 3.347-1.659 0.32c-0.931 0.175-2.328 0.64-3.143 1.019-2.91 1.368-5.646 5.006-6.112 8.178l-0.204 1.368-4.133 0.116c-2.241 0.029 0.262 0.116 5.588 0.146l9.662 0.058 0.058 10.099c0.058 7.188 0.116 8.847 0.233 5.762l0.145-4.336 1.746-0.32c4.744-0.902 8.673-5.006 9.080-9.516l0.175-1.659 3.667-0.116c2.008-0.029-0.495-0.116-5.559-0.146l-9.255-0.058-0.087-8.818c-0.029-4.831-0.087-7.276-0.145-5.442z"></path>
-</symbol>
-</defs>
+<svg aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <symbol id="icon-elastic-beats" viewBox="0 0 32 32">
+            <title>elastic-beats</title>
+            <path fill="#07a5de" style="fill: var(--color1, #07a5de)" d="M15.52 18.040h-8.56v-13.84h8.56c3.84 0 6.92 3.080 6.92 6.92s-3.080 6.92-6.92 6.92z"></path>
+            <path fill="#3ebeb0" style="fill: var(--color2, #3ebeb0)" d="M18.12 27.8h-11.16v-13.84h11.16c3.84 0 6.92 3.080 6.92 6.92s-3.080 6.92-6.92 6.92z"></path>
+            <path fill="#353535" style="fill: var(--color3, #353535)" opacity="0.26" d="M23.36 16.36c-1.28-1.48-3.16-2.4-5.24-2.4h-11.16v6.4h10.36c3.68 0 6.24-3.8 6.040-4z"></path>
+            <path fill="#353535" style="fill: var(--color3, #353535)" d="M15.52 18.040c2.48 0 4.64-1.32 5.88-3.28-0.16-0.080-0.32-0.16-0.52-0.24-0.040 0-0.080-0.040-0.12-0.040-0.16-0.080-0.32-0.12-0.52-0.2h-0.040c-0.040 0-0.040 0-0.080-0.040l-0.48-0.12h-0.080c-0.040 0-0.080 0-0.080-0.040-0.16-0.040-0.32-0.040-0.48-0.080h-0.24c-0.2 0-0.36-0.040-0.56-0.040h-11.24v4.080h8.56z"></path>
+        </symbol>
+        <symbol id="icon-elastic-elasticsearch" viewBox="0 0 32 32">
+            <title>elastic-elasticsearch</title>
+            <path fill="#f0bf1a" style="fill: var(--color4, #f0bf1a)" d="M21.48 10.4h-17.48c-0.44 0-0.8-0.36-0.8-0.8v-5.6c0-0.44 0.36-0.8 0.8-0.8h22.8c0.44 0 0.8 0.36 0.8 0.8v0.28c-0.040 3.36-2.76 6.12-6.12 6.12z"></path>
+            <path fill="#3ebeb0" style="fill: var(--color2, #3ebeb0)" d="M27.64 28.8h-24.36v-7.2h18.28c3.36 0 6.080 2.72 6.080 6.080v1.12z"></path>
+            <path fill="#07a5de" style="fill: var(--color1, #07a5de)" d="M20.040 19.6h-18.12v-7.2h18.12c2 0 3.6 1.6 3.6 3.6s-1.64 3.6-3.6 3.6z"></path>
+            <path fill="#231f20" style="fill: var(--color5, #231f20)" d="M14.4 12.4h-11.84v7.2h11.84c0.28-1.080 0.44-2.28 0.44-3.6s-0.16-2.52-0.44-3.6z"></path>
+            <path fill="#d7a229" style="fill: var(--color6, #d7a229)" d="M9.56 4.92c-2.16 1.28-3.96 3.2-5.080 5.48h9.44c-0.96-2.2-2.48-4.040-4.36-5.48z"></path>
+            <path fill="#019b8f" style="fill: var(--color7, #019b8f)" d="M9.96 27.28c1.84-1.48 3.32-3.44 4.24-5.68h-9.72c1.2 2.4 3.12 4.4 5.48 5.68z"></path>
+        </symbol>
+        <symbol id="icon-elastic-logstash" viewBox="0 0 32 32">
+            <title>elastic-logstash</title>
+            <path fill="#f3bd19" style="fill: var(--color8, #f3bd19)" d="M16.44 16.76h-10.2v-11.76h3.080c3.96 0 7.12 3.2 7.12 7.12v4.64z"></path>
+            <path fill="#231f20" style="fill: var(--color5, #231f20)" d="M16.44 27c-5.64 0-10.24-4.56-10.24-10.24h10.24v10.24z"></path>
+            <path fill="#3ebeb0" style="fill: var(--color2, #3ebeb0)" d="M16.44 16.76h9.32v10.24h-9.32z"></path>
+            <path fill="#37a595" style="fill: var(--color9, #37a595)" d="M16.44 16.76h2.16v10.24h-2.16z"></path>
+        </symbol>
+        <symbol id="icon-testlink" viewBox="0 0 32 32">
+            <title>testlink</title>
+            <path d="M16.129 0.609l-0.058 3.347-1.659 0.32c-0.931 0.175-2.328 0.64-3.143 1.019-2.91 1.368-5.646 5.006-6.112 8.178l-0.204 1.368-4.133 0.116c-2.241 0.029 0.262 0.116 5.588 0.146l9.662 0.058 0.058 10.099c0.058 7.188 0.116 8.847 0.233 5.762l0.145-4.336 1.746-0.32c4.744-0.902 8.673-5.006 9.080-9.516l0.175-1.659 3.667-0.116c2.008-0.029-0.495-0.116-5.559-0.146l-9.255-0.058-0.087-8.818c-0.029-4.831-0.087-7.276-0.145-5.442z"></path>
+        </symbol>
+    </defs>
 </svg>

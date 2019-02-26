@@ -347,60 +347,66 @@ public class SutService {
         ExternalElasticsearch extES = sut.getExternalElasticsearch();
         Date startDate = new Date();
 
-        String esApiUrl = "http://" + extES.getIp() + ":" + extES.getPort();
+        String esApiUrl = extES.getProtocol() + "://" + extES.getIp() + ":"
+                + extES.getPort();
 
-        ElasticsearchService esService = new ElasticsearchService(esApiUrl,
-                extES.getUser(), extES.getPass(), extES.getPath(),
-                utilsService);
+        try {
+            ElasticsearchService esService = new ElasticsearchService(esApiUrl,
+                    extES.getUser(), extES.getPass(), extES.getPath(),
+                    utilsService);
 
-        List<Map<String, Object>> traces = new ArrayList<>();
+            List<Map<String, Object>> traces = new ArrayList<>();
 
-        Object[] searchAfter = null;
-        boolean finish = false;
-        while (!finish) {
-            String indexes = extES.getIndices();
-            for (Parameter param : sut.getParameters()) {
-                if (param.getName().equals("EXT_ELASTICSEARCH_INDICES")) {
-                    indexes = param.getValue();
-                    logger.debug("Indexes as String: {}", indexes);
-                    break;
-                }
-            }
-
-            try {
-                traces = esService.searchTraces(indexes.split(","), startDate,
-                        searchAfter, 10000);
-                if (traces.size() > 0) {
-                    Map<String, Object> lastTrace = traces
-                            .get(traces.size() - 1);
-
-                    String sortFieldKet = "sort";
-                    if (lastTrace.containsKey(sortFieldKet)) {
-                        searchAfter = (Object[]) lastTrace.get(sortFieldKet);
+            Object[] searchAfter = null;
+            boolean finish = false;
+            while (!finish) {
+                String indexes = extES.getIndices();
+                for (Parameter param : sut.getParameters()) {
+                    if (param.getName().equals("EXT_ELASTICSEARCH_INDICES")) {
+                        indexes = param.getValue();
+                        logger.debug("Indexes as String: {}", indexes);
+                        break;
                     }
                 }
 
-                for (Map<String, Object> trace : traces) {
-                    trace = tracesService
-                            .convertExternalElasticsearchTrace(trace);
-                    trace.put("exec", monitoringIndex);
-                    trace.put("component", "sut");
-                    tracesService.processBeatTrace(trace, false);
-                }
                 try {
-                    Thread.sleep(1500);
-                } catch (InterruptedException e) {
-                    logger.info(
-                            "TJob Execution {}: Manage Sut by External Elasticsearch thread has been interrupted ",
-                            monitoringIndex);
-                    break;
-                }
+                    traces = esService.searchTraces(indexes.split(","),
+                            startDate, searchAfter, 10000);
+                    if (traces.size() > 0) {
+                        Map<String, Object> lastTrace = traces
+                                .get(traces.size() - 1);
 
-            } catch (Exception e) {
-                logger.error(
-                        "Error on getting traces from external Elasticsearch",
-                        e);
+                        String sortFieldKet = "sort";
+                        if (lastTrace.containsKey(sortFieldKet)) {
+                            searchAfter = (Object[]) lastTrace
+                                    .get(sortFieldKet);
+                        }
+                    }
+
+                    for (Map<String, Object> trace : traces) {
+                        trace = tracesService
+                                .convertExternalElasticsearchTrace(trace);
+                        trace.put("exec", monitoringIndex);
+                        trace.put("component", "sut");
+                        tracesService.processBeatTrace(trace, false);
+                    }
+                    try {
+                        Thread.sleep(1500);
+                    } catch (InterruptedException e) {
+                        logger.info(
+                                "TJob Execution {}: Manage Sut by External Elasticsearch thread has been interrupted ",
+                                monitoringIndex);
+                        break;
+                    }
+
+                } catch (Exception e) {
+                    logger.error(
+                            "Error on getting traces from external Elasticsearch",
+                            e);
+                }
             }
+        } catch (Exception e) {
+            logger.error("Error on connect to external Elasticsearch", e);
         }
 
         return new AsyncResult<Void>(null);
