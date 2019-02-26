@@ -76,19 +76,21 @@
         <div fxLayout="column" class="push-top push-bottom pad-top">
           <mat-checkbox [(ngModel)]="useImageCommand" name="toggleCommands">Use docker image command</mat-checkbox>
           <div fxLayout="column" *ngIf="!useImageCommand" class="push-top">
-            <mat-form-field>
-              <textarea
-                id="commands"
-                rows="10"
-                matInput
-                #tJobFormElement
-                #tJobFormControl="ngModel"
-                placeholder="Commands"
-                [(ngModel)]="tJob.commands"
-                name="commands"
-                required
-              >
-              </textarea>
+            <div fxLayout="column" class="push-bottom-xs">
+              <mat-form-field id="commandsMatFormField">
+                <textarea
+                  id="commands"
+                  rows="10"
+                  matInput
+                  #tJobFormElement
+                  #tJobFormControl="ngModel"
+                  placeholder="Commands"
+                  [(ngModel)]="tJob.commands"
+                  name="commands"
+                  required
+                >
+                </textarea>
+              </mat-form-field>
               <td-code-editor
                 id="commandsCodeEditor"
                 name="commandsCodeEditor"
@@ -98,7 +100,7 @@
                 fxFlex
                 language="bash"
               ></td-code-editor>
-            </mat-form-field>
+            </div>
             <div class="push-bottom">
               <td-message
                 #dockerTypeInfo

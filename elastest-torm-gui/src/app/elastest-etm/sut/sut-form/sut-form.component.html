@@ -163,8 +163,8 @@
             <!-- Commands (Managed) -->
             <ng-container *ngIf="managedSut.checked && commands">
               <!-- Commands -->
-              <div fxLayout="column" *ngIf="!useImageCommand" class="push-top">
-                <mat-form-field>
+              <div fxLayout="column" *ngIf="!useImageCommand" class="push-top push-bottom-sm">
+                <mat-form-field id="commandsMatFormField">
                   <textarea
                     hidden
                     id="commands"
@@ -177,16 +177,16 @@
                     name="commands"
                     required
                   ></textarea>
-                  <td-code-editor
-                    id="commandsCodeEditor"
-                    name="commandsCodeEditor"
-                    (registerLanguage)="(bash)"
-                    [(ngModel)]="sut.commands"
-                    theme="vs-dark"
-                    fxFlex
-                    language="bash"
-                  ></td-code-editor>
                 </mat-form-field>
+                <td-code-editor
+                  id="commandsCodeEditor"
+                  name="commandsCodeEditor"
+                  (registerLanguage)="(bash)"
+                  [(ngModel)]="sut.commands"
+                  theme="vs-dark"
+                  fxFlex
+                  language="bash"
+                ></td-code-editor>
               </div>
 
               <!-- SuT DOCKER Type -->
