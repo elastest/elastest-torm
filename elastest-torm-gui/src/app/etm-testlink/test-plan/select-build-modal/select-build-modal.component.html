@@ -1,4 +1,6 @@
-<h2 mat-dialog-title>Select a Build</h2>
+<h2 mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle cdkDragBoundary=".cdk-overlay-container">
+  Select a Build
+</h2>
 <mat-dialog-content>
   <div fxLayout="column" class="push-bottom-md" *ngIf="ready; else notReadyMsg">
     <ng-container *ngIf="testPlanCases !== undefined && testPlanCases.length > 0; else noTestCases">

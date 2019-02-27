@@ -1,30 +1,55 @@
-<div fxLayout="row">
-    <h2 mat-dialog-title class="push-bottom-sm">{{ title }}
-    </h2>
-    <span fxFlex></span>
-    <a color="accent" *ngIf="!loading && sessionType && sessionType === 'live' && iframeUrl !== undefined" mat-button
-        [attr.href]="iframeUrl" class="iconBtn" target="_blank" matTooltip="Open in new tab">
-        <mat-icon>open_in_new</mat-icon>
-    </a>
+<div fxLayout="row" cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle cdkDragBoundary=".cdk-overlay-container">
+  <h2 mat-dialog-title class="push-bottom-sm">{{ title }}</h2>
+  <span fxFlex></span>
+  <a
+    color="accent"
+    *ngIf="!loading && sessionType && sessionType === 'live' && iframeUrl !== undefined"
+    mat-button
+    [attr.href]="iframeUrl"
+    class="iconBtn"
+    target="_blank"
+    matTooltip="Open in new tab"
+  >
+    <mat-icon>open_in_new</mat-icon>
+  </a>
 </div>
 <div *ngIf="testModel" class="push-bottom-xs" fxLayout="row">
-    <span class="mat-subheading-1">
-        {{testModel.statusMsg}}
-    </span>
+  <span class="mat-subheading-1">
+    {{ testModel.statusMsg }}
+  </span>
 </div>
 <mat-dialog-content style="max-height: 84vh">
-    <img *ngIf="loading === true; else showContent" src="./assets/img/spinner.gif" style="display: block; margin: 0 auto;">
-    <ng-template #showContent>
-        <div *ngIf="sessionType && sessionType === 'live'; else showVideo" fxLayout="column" style="width: 48vw; height: 30vw; max-height: 83vh">
-            <vnc-client id="eusBrowser" *ngIf="iframeUrl" [vncUrl]="iframeUrl" [showStatus]="false"
-                [showConnectionBtns]="false" fxFlex></vnc-client>
-        </div>
-        <ng-template #showVideo>
-            <video id="eusVideo" *ngIf="iframeUrl" [src]="iframeUrl" style="max-width: 82vw; max-height: 80vh" controls></video>
-        </ng-template>
+  <img *ngIf="loading === true; else showContent" src="./assets/img/spinner.gif" style="display: block; margin: 0 auto;" />
+  <ng-template #showContent>
+    <div
+      *ngIf="sessionType && sessionType === 'live'; else showVideo"
+      fxLayout="column"
+      style="width: 48vw; height: 30vw; max-height: 83vh"
+    >
+      <vnc-client
+        id="eusBrowser"
+        *ngIf="iframeUrl"
+        [vncUrl]="iframeUrl"
+        [showStatus]="false"
+        [showConnectionBtns]="false"
+        fxFlex
+      ></vnc-client>
+    </div>
+    <ng-template #showVideo>
+      <video id="eusVideo" *ngIf="iframeUrl" [src]="iframeUrl" style="max-width: 82vw; max-height: 80vh" controls></video>
     </ng-template>
-    {{message}}
+  </ng-template>
+  {{ message }}
 </mat-dialog-content>
-<br>
-<button *ngIf="closeButton" mat-raised-button color="accent" type="button" mat-raised-button (click)="dialogRef.close(true)"
-    id="close_dialog">Close</button>
+<br />
+<button
+  *ngIf="closeButton"
+  mat-raised-button
+  color="accent"
+  type="button"
+  mat-raised-button
+  (click)="dialogRef.close(true)"
+  id="close_dialog"
+>
+  Close
+</button>

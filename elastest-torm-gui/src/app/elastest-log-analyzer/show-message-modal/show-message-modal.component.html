@@ -1,4 +1,13 @@
-<h2 mat-dialog-title id="dialogTitle">Log entry</h2>
+<h2
+  mat-dialog-title
+  id="dialogTitle"
+  cdkDrag
+  cdkDragRootElement=".cdk-overlay-pane"
+  cdkDragHandle
+  cdkDragBoundary=".cdk-overlay-container"
+>
+  Log entry
+</h2>
 <div fxLayout="column" id="entryDiv" *ngIf="columns" class="pad-bottom-sm">
   <div fxLayout="row" class="push-bottom-sm">
     <div fxFlex="100" id="">
@@ -14,7 +23,7 @@
       <mat-list-item>
         <h5>{{ column.field }}</h5>
         <p class="monospaced">
-          <ng-container *ngIf="column.field !== '@timestamp'; else: timestamp">
+          <ng-container *ngIf="column.field !== '@timestamp'; else timestamp">
             {{ row[column.field] ? row[column.field] : 'Field ' + column.field + ' is empty' }}
           </ng-container>
           <ng-template #timestamp>

@@ -24,7 +24,7 @@ export class ProjectFormComponent implements OnInit, AfterViewInit {
     private router: Router,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setHeadTitle('Edit Project');
     this.project = new ProjectModel();
     this.currentPath = this.route.snapshot.url[0].path;
@@ -40,7 +40,7 @@ export class ProjectFormComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.projectNameInput.nativeElement.focus();
   }
 

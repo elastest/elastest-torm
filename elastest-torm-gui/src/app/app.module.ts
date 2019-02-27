@@ -13,7 +13,7 @@ import { TitlesService } from './shared/services/titles.service';
 import { EtPluginsService } from './elastest-test-engines/et-plugins.service';
 import { EsmService } from './elastest-esm/esm-service.service';
 import { TdLayoutManageListComponent } from '@covalent/core';
-import { CovalentExpansionPanelModule, CovalentMessageModule, } from '@covalent/core';
+import { CovalentExpansionPanelModule, CovalentMessageModule } from '@covalent/core';
 import { CovalentCodeEditorModule } from '@covalent/code-editor';
 
 import { APP_INITIALIZER, NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
@@ -26,6 +26,7 @@ import { CovalentHighlightModule } from '@covalent/highlight';
 import { CovalentMarkdownModule } from '@covalent/markdown';
 
 import { AppComponent } from './app.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { routedComponents, AppRoutingModule, appRoutes } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
@@ -234,6 +235,7 @@ library.add(faJenkins);
 
     CovalentHighlightModule,
     CovalentMarkdownModule,
+    DragDropModule,
     FontAwesomeModule,
     FormsModule,
     HttpClientModule,

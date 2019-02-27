@@ -1,4 +1,6 @@
-<h2 mat-dialog-title>Run TJob Parameters</h2>
+<h2 mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle cdkDragBoundary=".cdk-overlay-container">
+  Run TJob Parameters
+</h2>
 <mat-dialog-content>
   <ng-container *ngIf="!initializing && tJob; else showSpinner">
     <!-- <div *ngIf="tJob.hasMultiConfiguration()">
@@ -21,7 +23,8 @@
 </mat-dialog-content>
 
 <mat-dialog-actions fxLayout="row" fxLayoutAlign="end left">
-  <button mat-raised-button color="accent" [mat-dialog-close]="true" (click)="runTJob()" [disabled]="initializing">Run
-    TJob</button>
+  <button mat-raised-button color="accent" [mat-dialog-close]="true" (click)="runTJob()" [disabled]="initializing">
+    Run TJob
+  </button>
   <button mat-button mat-dialog-close>Cancel</button>
 </mat-dialog-actions>
