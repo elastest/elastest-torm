@@ -34,7 +34,7 @@ export class TestCaseComponent implements OnInit {
     this.filesUrlPrefix = configurationService.configModel.host.replace('4200', '8091');
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setPathName(this.router.routerState.snapshot.url);
     this.getTestCase();
   }
