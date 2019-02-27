@@ -3,7 +3,7 @@
     <!-- Md card with fxFlex like auto-height-row -->
     <mat-card fxFlex="100" class="sa-card">
       <auto-height-grid fxLayout="column">
-        <normal-height-row>
+        <normal-height-row *ngIf="!hideTitle">
           <!-- <mat-card-title fxLayoutAlign="{{titleAlignHorizontal}} {{titleAlignVertical}}" class="sa-card-title"> -->
           <mat-card-title class="sa-card-title"> <ng-content select="sa-card-title"></ng-content> </mat-card-title>
           <mat-divider class="sa-card-divider"></mat-divider>

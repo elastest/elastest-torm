@@ -18,6 +18,9 @@ export class SelfAdjustableCardComponent implements OnInit {
   @Input()
   private contentAlignVertical: fxLayoutAlignVertical | null = 'none';
 
+  @Input()
+  private hideTitle: boolean = false;
+
   constructor() {}
 
   ngOnInit() {}
