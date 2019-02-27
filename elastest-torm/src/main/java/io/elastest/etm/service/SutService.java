@@ -1,5 +1,6 @@
 package io.elastest.etm.service;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -364,6 +365,7 @@ public class SutService {
     public Future<Void> manageSutExecutionUsingExternalElasticsearch(
             SutSpecification sut, String monitoringIndex) {
         ExternalElasticsearch extES = sut.getExternalElasticsearch();
+
         Date startDate = new Date();
 
         String esApiUrl = extES.getProtocol() + "://" + extES.getIp() + ":"
@@ -373,7 +375,6 @@ public class SutService {
             ElasticsearchService esService = new ElasticsearchService(esApiUrl,
                     extES.getUser(), extES.getPass(), extES.getPath(),
                     utilsService);
-
             List<Map<String, Object>> traces = new ArrayList<>();
 
             Object[] searchAfter = null;
@@ -401,12 +402,12 @@ public class SutService {
                                     .get(sortFieldKet);
                         }
                     }
-
                     for (Map<String, Object> trace : traces) {
-                        trace = tracesService
-                                .convertExternalElasticsearchTrace(trace);
+                        trace = tracesService.convertExternalElasticsearchTrace(
+                                trace, extES.getStreamFieldsAsList());
                         trace.put("exec", monitoringIndex);
                         trace.put("component", "sut");
+
                         tracesService.processBeatTrace(trace, false);
                     }
                     try {

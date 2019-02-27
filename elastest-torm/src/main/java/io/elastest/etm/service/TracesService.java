@@ -240,7 +240,6 @@ public class TracesService {
                 utilsService.getIso8601UTCDateFromStr(timestampAsStr));
         trace.setUnit((String) dataMap.get("unit"));
 
-        
         // Units
         String units = null;
         try {
@@ -494,7 +493,7 @@ public class TracesService {
     /* *** Elasticsearch *** */
     /* ********************* */
     public Map<String, Object> convertExternalElasticsearchTrace(
-            Map<String, Object> dataMap) {
+            Map<String, Object> dataMap, List<String> streamFieldsList) {
         logger.trace("Converting external Elasticsearch trace {}",
                 dataMap.toString());
         if (dataMap != null && !dataMap.isEmpty()) {
@@ -508,13 +507,44 @@ public class TracesService {
             }
 
             // Stream
-            if (dataMap.containsKey("log_type")) {
-                dataMap.put("stream", dataMap.get("log_type"));
-                dataMap.put("stream_type", StreamType.LOG.toString());
-            } else if (dataMap.containsKey("type")) {
-                dataMap.put("stream", dataMap.get("log_type"));
+            boolean useDefaultStream = false;
+            if (streamFieldsList != null && streamFieldsList.size() > 0) {
+                String currentValue = "";
+                for (String field : streamFieldsList) {
+                    if (!dataMap.containsKey(field)) {
+                        useDefaultStream = true;
+                        break;
+                    }
+                    try {
+                        if (currentValue == "") {
+                            currentValue = (String) dataMap.get(field);
+
+                        } else {
+                            currentValue += "_" + (String) dataMap.get(field);
+                        }
+                    } catch (Exception e) {
+                    }
+                }
+
+                if (currentValue != null && !currentValue.isEmpty()) {
+                    dataMap.put("stream", currentValue);
+                    dataMap.put("stream_type", StreamType.LOG.toString());
+                } else {
+                    useDefaultStream = true;
+                }
             } else {
-                return dataMap;
+                useDefaultStream = true;
+            }
+
+            if (useDefaultStream) { // Default
+                if (dataMap.containsKey("log_type")) {
+                    dataMap.put("stream", dataMap.get("log_type"));
+                    dataMap.put("stream_type", StreamType.LOG.toString());
+                } else if (dataMap.containsKey("type")) {
+                    dataMap.put("stream", dataMap.get("log_type"));
+                } else {
+                    return dataMap;
+                }
             }
 
             // Message

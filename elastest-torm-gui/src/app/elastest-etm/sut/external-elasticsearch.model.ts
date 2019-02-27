@@ -7,6 +7,7 @@ export class ExternalElasticsearch {
   user: string;
   pass: string;
   indices: string;
+  streamFields: string;
 
   constructor(externalElasticsearchJson: any = undefined) {
     if (!externalElasticsearchJson) {
@@ -18,6 +19,7 @@ export class ExternalElasticsearch {
       this.user = '';
       this.pass = '';
       this.indices = '';
+      this.streamFields = '';
     } else {
       this.id = externalElasticsearchJson.id;
       this.protocol = externalElasticsearchJson.protocol;
@@ -27,6 +29,7 @@ export class ExternalElasticsearch {
       this.user = externalElasticsearchJson.user;
       this.pass = externalElasticsearchJson.pass;
       this.indices = externalElasticsearchJson.indices;
+      this.streamFields = externalElasticsearchJson.streamFields ? externalElasticsearchJson.streamFields : '';
     }
   }
 
