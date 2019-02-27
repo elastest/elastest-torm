@@ -17,6 +17,7 @@ import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutExecution.SutExecView;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.SutView;
+import io.elastest.etm.model.external.ExternalElasticsearch;
 import io.elastest.etm.service.SutService;
 import io.swagger.annotations.ApiParam;
 
@@ -106,5 +107,13 @@ public class SutApiController implements SutApi {
         sutService.deleteSutExec(sutExecId);
         return new ResponseEntity<Long>(sutExecId, HttpStatus.OK);
 
+    }
+
+    @JsonView(SutExecView.class)
+    public ResponseEntity<Boolean> checkExternalElasticsearchConnection(
+            @ApiParam(value = "External Elasticsearch", required = true) @Valid @RequestBody ExternalElasticsearch body) {
+        return new ResponseEntity<Boolean>(
+                sutService.checkExtElasticsearchConnection(body),
+                HttpStatus.OK);
     }
 }

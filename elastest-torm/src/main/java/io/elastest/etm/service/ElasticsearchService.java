@@ -28,6 +28,7 @@ import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.main.MainResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.IndicesOptions;
@@ -133,6 +134,14 @@ public class ElasticsearchService extends AbstractMonitoringService {
                     this.esApiUrl);
         }
 
+    }
+
+    /* ************** */
+    /* **** Info **** */
+    /* ************** */
+
+    public MainResponse getInfo() throws IOException {
+        return this.esClient.info();
     }
 
     /* ************* */

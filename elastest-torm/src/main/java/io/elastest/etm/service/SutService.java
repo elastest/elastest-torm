@@ -341,6 +341,25 @@ public class SutService {
         }
     }
 
+    public boolean checkExtElasticsearchConnection(
+            ExternalElasticsearch extES) {
+        boolean connected = false;
+        if (extES != null) {
+            try {
+                String esApiUrl = extES.getProtocol() + "://" + extES.getIp()
+                        + ":" + extES.getPort();
+                ElasticsearchService esService = new ElasticsearchService(
+                        esApiUrl, extES.getUser(), extES.getPass(),
+                        extES.getPath(), utilsService);
+                esService.getInfo();
+                connected = true;
+            } catch (Exception e) {
+            }
+        }
+
+        return connected;
+    }
+
     @Async
     public Future<Void> manageSutExecutionUsingExternalElasticsearch(
             SutSpecification sut, String monitoringIndex) {

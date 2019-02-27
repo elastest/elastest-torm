@@ -51,6 +51,8 @@ export class ProjectService {
 
   public restoreDemoProjects(): Observable<boolean> {
     let url: string = this.configurationService.configModel.hostApi + '/project/restore';
-    return this.http.get(url).map((data: any) => data);
+    return this.http.get(url).map((data: HttpResponse<boolean>) => {
+      return data.body;
+    });
   }
 }

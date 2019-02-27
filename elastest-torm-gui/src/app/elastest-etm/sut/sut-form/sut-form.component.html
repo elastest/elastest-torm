@@ -500,7 +500,7 @@
                     matInput
                     trim="blur"
                     type="text"
-                    placeholder="Elasticsearch IP"
+                    placeholder="IP"
                     [(ngModel)]="this.sut.externalElasticsearch.ip"
                     name="esIp"
                     required
@@ -519,7 +519,7 @@
                     matInput
                     trim="blur"
                     type="number"
-                    placeholder="ES Port"
+                    placeholder="Port"
                     [(ngModel)]="this.sut.externalElasticsearch.port"
                     name="esPort"
                     required
@@ -538,7 +538,7 @@
                     matInput
                     trim="blur"
                     type="text"
-                    placeholder="Elasticsearch PATH"
+                    placeholder="PATH"
                     [(ngModel)]="this.sut.externalElasticsearch.path"
                     name="esPath"
                   />
@@ -556,7 +556,7 @@
                     matInput
                     trim="blur"
                     type="text"
-                    placeholder="Elasticsearch User"
+                    placeholder="User"
                     [(ngModel)]="this.sut.externalElasticsearch.user"
                     name="esUser"
                   />
@@ -574,7 +574,7 @@
                     matInput
                     trim="blur"
                     type="password"
-                    placeholder="Elasticsearch Pass"
+                    placeholder="Pass"
                     [(ngModel)]="this.sut.externalElasticsearch.pass"
                     name="esPass"
                   />
@@ -606,6 +606,30 @@
                   fxFlexOffset.gt-md="2"
                   >Use indices by execution</mat-checkbox
                 >
+              </div>
+              <div class="push-sm" fxLayout="row" fxLayoutAlign="start center">
+                <button
+                  mat-raised-button
+                  color="accent"
+                  [disabled]="!sutForm.valid || extESCheckingConnection"
+                  (click)="checkExternalESConnection()"
+                  title="Check ES connection"
+                  fxFlexOffset="0.5"
+                >
+                  Check connection
+                </button>
+                <div fxLayout="row" *ngIf="extESConnectedStatus != '' && !extESCheckingConnection" fxFlexOffset="0.5">
+                  <mat-icon [style.color]="extESConnectedStatusColor">{{ extESConnectedStatusIcon }}</mat-icon>
+                  <div fxFlexOffset="1" fxLayoutAlign="start center">{{ extESConnectedStatus }}</div>
+                </div>
+                <mat-spinner
+                  *ngIf="extESCheckingConnection"
+                  strokeWidth="3"
+                  diameter="20"
+                  color="accent"
+                  style="vertical-align: middle; display: inline-block"
+                  fxFlexOffset="0.5"
+                ></mat-spinner>
               </div>
             </td-expansion-panel>
           </div>

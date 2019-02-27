@@ -88,6 +88,11 @@ export class SutFormComponent implements OnInit, DoCheck {
   useESIndicesByExecutionCheck: boolean = false;
   esIndicesParamName: string = 'EXT_ELASTICSEARCH_INDICES';
 
+  extESConnectedStatus: string = '';
+  extESConnectedStatusColor: string = '';
+  extESConnectedStatusIcon: string = '';
+  extESCheckingConnection: boolean = false;
+
   constructor(
     private titlesService: TitlesService,
     private sutService: SutService,
@@ -403,5 +408,27 @@ export class SutFormComponent implements OnInit, DoCheck {
       indiceParam.value = this.sut.externalElasticsearch.indices;
       this.sut.parameters.push(indiceParam);
     }
+  }
+
+  checkExternalESConnection(): void {
+    this.extESCheckingConnection = true;
+    this.sutService.checkExternalElasticsearchConnection(this.sut.externalElasticsearch).subscribe(
+      (connected: boolean) => {
+        if (connected) {
+          this.extESConnectedStatus = 'Connected';
+          this.extESConnectedStatusColor = '#7fac16';
+          this.extESConnectedStatusIcon = 'fiber_manual_record';
+        } else {
+          this.extESConnectedStatus = 'Error';
+          this.extESConnectedStatusColor = '#cc200f';
+          this.extESConnectedStatusIcon = 'error';
+        }
+        this.extESCheckingConnection = false;
+      },
+      (error: Error) => {
+        console.log(error);
+        this.extESCheckingConnection = false;
+      },
+    );
   }
 }

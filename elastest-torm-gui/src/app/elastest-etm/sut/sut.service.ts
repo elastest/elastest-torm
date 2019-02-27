@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import 'rxjs/Rx';
+import { ExternalElasticsearch } from './external-elasticsearch.model';
 
 @Injectable()
 export class SutService {
@@ -55,5 +56,12 @@ export class SutService {
     return this.http
       .post(url, sut, { observe: 'response' })
       .map((response: HttpResponse<any>) => this.eTModelsTransformServices.jsonToSutModel(response.body));
+  }
+
+  public checkExternalElasticsearchConnection(extES: ExternalElasticsearch): Observable<boolean> {
+    let url: string = this.configurationService.configModel.hostApi + '/sut/externalelasticsearch/connection';
+    return this.http.post(url, extES, { observe: 'response' }).map((data: HttpResponse<boolean>) => {
+      return data.body;
+    });
   }
 }
