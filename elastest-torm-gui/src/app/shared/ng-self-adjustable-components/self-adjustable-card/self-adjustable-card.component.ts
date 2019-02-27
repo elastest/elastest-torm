@@ -19,7 +19,7 @@ export class SelfAdjustableCardComponent implements OnInit {
   private contentAlignVertical: fxLayoutAlignVertical | null = 'none';
 
   @Input()
-  private hideTitle: boolean = false;
+  hideTitle: boolean = false;
 
   constructor() {}
 
