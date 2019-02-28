@@ -15,10 +15,12 @@ import { MonitoringService } from '../../shared/services/monitoring.service';
   styleUrls: ['./test-case.component.scss'],
 })
 export class TestCaseComponent implements OnInit {
+  private filesUrlPrefix: string;
   public params;
   public testCase: TestCaseModel;
   public selectedTab: number;
-  private filesUrlPrefix: string;
+
+  public loganalyzerTabEnabledList: boolean[] = [];
 
   @ViewChild('miniLogAnalyzer') private miniLogAnalyzer: ElastestLogAnalyzerComponent;
 
@@ -37,6 +39,11 @@ export class TestCaseComponent implements OnInit {
   ngOnInit(): void {
     this.titlesService.setPathName(this.router.routerState.snapshot.url);
     this.getTestCase();
+    if (this.miniLogAnalyzer) {
+      for (let component of this.miniLogAnalyzer.componentsTree.treeModel.nodes) {
+        this.loganalyzerTabEnabledList.push(false);
+      }
+    }
   }
 
   getTestCase(): void {

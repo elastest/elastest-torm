@@ -58,9 +58,32 @@
             ></elastest-log-analyzer>
           </mat-tab>
           <div *ngIf="miniLogAnalyzer">
-            <mat-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes" label="{{ component.name }}">
+            <mat-tab
+              *ngFor="
+                let component of miniLogAnalyzer.componentsTree.treeModel.nodes;
+                let $i = index;
+                let f = first;
+                let l = last
+              "
+              label="{{ component.name }}"
+            >
+              <div fxFlexFill *ngIf="!loganalyzerTabEnabledList[$i]">
+                <centered-element>
+                  <button
+                    mat-raised-button
+                    class="iconBtn-lg"
+                    color="accent"
+                    (click)="loganalyzerTabEnabledList[$i] = true"
+                    [disabled]="loganalyzerTabEnabledList[$i] === true"
+                    matTooltip="Start Comparison"
+                  >
+                    Load Log
+                  </button>
+                </centered-element>
+              </div>
+
               <elastest-log-analyzer
-                *ngIf="params && testCase"
+                *ngIf="loganalyzerTabEnabledList[$i] && params && testCase"
                 [isEmbed]="true"
                 [componentStreams]="[component]"
                 [tJobId]="params.tJobId"
