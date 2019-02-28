@@ -1,5 +1,5 @@
-<auto-height-grid fxLayout="row" *ngIf="testCase" id="testCaseContent" fxFlexFill>
-  <auto-height-row fxFlex="40" class="mat-content">
+<auto-height-grid fxLayout="row" fxLayout.lt-md="column" *ngIf="testCase" id="testCaseContent" fxFlexFill>
+  <auto-height-row fxFlex="35" fxFlex.gt-lg="30" class="mat-content">
     <self-adjustable-card id="testCaseCard" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
       <sa-card-title>
         <mat-icon *ngIf="testCase.result && testCase.result.name" [style.color]="testCase.result.color">{{
@@ -43,7 +43,7 @@
     </self-adjustable-card>
   </auto-height-row>
 
-  <auto-height-row fxFlex="60">
+  <auto-height-row fxFlex="65" fxFlex.gt-lg="70">
     <self-adjustable-card id="miniLogAnalyzerCard" [hideTitle]="true">
       <sa-card-content fxFlexFill fxLayout="column">
         <mat-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">

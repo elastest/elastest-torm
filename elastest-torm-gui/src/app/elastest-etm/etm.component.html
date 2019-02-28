@@ -29,6 +29,7 @@
     #manageList
     [opened]="media.registerQuery('gt-sm') | async"
     [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
+    [containerAutosize]="true"
     [sidenavWidth]="
       (media.registerQuery('gt-lg') | async)
         ? '244px'
