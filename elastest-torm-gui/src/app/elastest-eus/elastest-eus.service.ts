@@ -17,7 +17,13 @@ export class EusService {
 
   constructor(private http: HttpClient, private configurationService: ConfigurationService) {}
 
-  public startSession(browser: string, version: string, extraCapabilities?: any, live: boolean = true): Observable<EusTestModel> {
+  public startSession(
+    browser: string,
+    version: string,
+    extraCapabilities?: any,
+    live: boolean = true,
+    extraHosts: string[] = [],
+  ): Observable<EusTestModel> {
     let url: string = this.eusUrl + this.sessionPath;
     let versionValue: string = version;
     if (!versionValue) {
@@ -27,7 +33,16 @@ export class EusService {
     if (browser === 'opera') {
       browserName = 'operablink';
     }
-    let capabilities: any = { browserName: browserName, version: versionValue, platform: 'ANY', live: live };
+    if (typeof extraHosts === 'string') {
+      extraHosts = [extraHosts];
+    }
+    let capabilities: any = {
+      browserName: browserName,
+      version: versionValue,
+      platform: 'ANY',
+      live: live,
+      extraHosts: extraHosts,
+    };
     if (extraCapabilities) {
       capabilities = { ...capabilities, ...extraCapabilities };
     }

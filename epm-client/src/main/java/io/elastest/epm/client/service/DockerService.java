@@ -259,6 +259,12 @@ public class DockerService {
             logger.trace("Using capAdd: {}", capAdd.get());
             hostConfigBuilder.capAdd(capAdd.get());
         }
+        
+        Optional<List<String>> extraHosts = dockerContainer.getExtraHosts();
+        if (extraHosts.isPresent()) {
+            logger.trace("Using extraHosts: {}", extraHosts.get());
+            hostConfigBuilder.extraHosts(extraHosts.get());
+        }
 
         Optional<Map<String, String>> labels = dockerContainer.getLabels();
         if (labels.isPresent()) {

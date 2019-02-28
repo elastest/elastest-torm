@@ -3,6 +3,7 @@ package io.elastest.epm.client;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +33,7 @@ public class DockerContainer {
     private Optional<List<Bind>> volumeBindList;
     private final Optional<Long> shmSize;
     private Optional<List<String>> capAdd;
+    private Optional<List<String>> extraHosts;
     private Optional<Map<String, String>> labels;
 
     private String containerId;
@@ -65,6 +67,9 @@ public class DockerContainer {
         this.shmSize = builder.shmSize != null ? of(builder.shmSize) : empty();
 
         this.capAdd = builder.capAdd != null ? of(builder.capAdd) : empty();
+        this.extraHosts = builder.extraHosts != null ? of(builder.extraHosts)
+                : empty();
+
         this.labels = builder.labels != null ? of(builder.labels) : empty();
     }
 
@@ -152,6 +157,10 @@ public class DockerContainer {
         return capAdd;
     }
 
+    public Optional<List<String>> getExtraHosts() {
+        return extraHosts;
+    }
+
     public Optional<Map<String, String>> getLabels() {
         return labels;
     }
@@ -171,6 +180,7 @@ public class DockerContainer {
         private List<Bind> volumeBindList;
         private Long shmSize;
         private List<String> capAdd;
+        private List<String> extraHosts;
         private Map<String, String> labels;
 
         public DockerBuilder(String imageId) {
@@ -240,6 +250,19 @@ public class DockerContainer {
 
         public DockerBuilder capAdd(List<String> capAdd) {
             this.capAdd = capAdd;
+            return this;
+        }
+
+        public DockerBuilder extraHosts(List<String> extraHosts) {
+            this.extraHosts = new ArrayList<>();
+            for (String host : extraHosts) {
+                // Format: host:host
+                if (host != null && !host.isEmpty()
+                        && host.split(":").length == 2) {
+                    this.extraHosts.add(host);
+                }
+            }
+
             return this;
         }
 

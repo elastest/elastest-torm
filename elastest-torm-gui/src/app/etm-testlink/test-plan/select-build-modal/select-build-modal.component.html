@@ -44,6 +44,9 @@
           </mat-radio-group>
         </ng-template>
       </div>
+      <div fxFlex class="push-top-md">
+        <string-list-view [model]="extraHosts" [fieldName]="'Extra Hosts'"> </string-list-view>
+      </div>
     </ng-container>
     <ng-template #noTestCases>
       <div class="mat-title">There are not associated test cases. Cannot run Test Plan</div>

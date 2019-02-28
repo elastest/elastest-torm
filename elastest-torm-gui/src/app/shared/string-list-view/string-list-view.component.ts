@@ -14,7 +14,7 @@ export class StringListViewComponent implements OnInit {
 
   constructor() {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (this.fieldName !== undefined) {
       this.fieldNameAsPrefix = this.fieldName.replace(/\s/g, '');
     }

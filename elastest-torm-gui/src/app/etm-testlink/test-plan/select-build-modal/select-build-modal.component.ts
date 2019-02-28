@@ -30,6 +30,8 @@ export class SelectBuildModalComponent implements OnInit {
   ready: boolean = false;
   fail: boolean = false;
 
+  extraHosts: string[] = [];
+
   constructor(
     private router: Router,
     private testLinkService: TestLinkService,
@@ -37,11 +39,10 @@ export class SelectBuildModalComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<SelectBuildModalComponent>,
     private configurationService: ConfigurationService,
-
   ) {
     this.eusService.setEusUrl(this.configurationService.configModel.eusServiceUrl);
     this.eusService.setEusHost(this.configurationService.configModel.eusHost);
-    
+
     this.init();
   }
 
@@ -103,7 +104,13 @@ export class SelectBuildModalComponent implements OnInit {
   runTestPlan(): void {
     this.router.navigate(
       ['/testlink/projects', this.testProjectId, 'plans', this.testPlan.id, 'builds', this.selectedBuild.id, 'exec', 'new'],
-      { queryParams: { browserName: this.selectedBrowser, browserVersion: this.selectedVersion[this.selectedBrowser] } },
+      {
+        queryParams: {
+          browserName: this.selectedBrowser,
+          browserVersion: this.selectedVersion[this.selectedBrowser],
+          extraHosts: this.extraHosts,
+        },
+      },
     );
   }
 

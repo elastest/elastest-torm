@@ -25,6 +25,7 @@ import { EusTestModel } from '../../../elastest-eus/elastest-eus-test-model';
 import { TitlesService } from '../../../shared/services/titles.service';
 import { sleep } from '../../../shared/utils';
 import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'testlink-test-plan-execution',
@@ -81,6 +82,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   browserName: string = 'chrome';
   browserVersion: string = 'latest';
+  extraHosts: string[] = [];
 
   // Files
   showFiles: boolean = false;
@@ -109,10 +111,16 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     private elastestRabbitmqService: ElastestRabbitmqService,
   ) {
     let queryParams: any = router.parseUrl(router.url).queryParams;
-    if (queryParams && queryParams.browserName) {
-      this.browserName = queryParams.browserName;
-      if (queryParams.browserVersion) {
-        this.browserVersion = queryParams.browserVersion;
+    if (queryParams) {
+      if (queryParams.browserName) {
+        this.browserName = queryParams.browserName;
+        if (queryParams.browserVersion) {
+          this.browserVersion = queryParams.browserVersion;
+        }
+      }
+
+      if (queryParams.extraHosts) {
+        this.extraHosts = queryParams.extraHosts;
       }
     }
 
@@ -134,7 +142,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('window:beforeunload')
-  beforeunloadHandler() {
+  beforeunloadHandler(): void {
     // On window closed leave session
     this.clear();
   }
@@ -275,7 +283,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     this.browserCardMsg = 'Waiting for Browser...';
     this.executionCardMsg = 'Just a little more...';
     let extraCapabilities: any = { manualRecording: true };
-    this.eusService.startSession(this.browserName, this.browserVersion, extraCapabilities, false).subscribe(
+    this.eusService.startSession(this.browserName, this.browserVersion, extraCapabilities, false, this.extraHosts).subscribe(
       (eusTestModel: EusTestModel) => {
         this.eusTestModel = eusTestModel;
         this.sessionId = eusTestModel.id;
@@ -296,7 +304,11 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
           (error: Error) => console.error(error),
         );
       },
-      (error: Error) => console.log(error),
+      (errorResponse: HttpErrorResponse) => {
+        let error: any = errorResponse.error;
+        console.log(error);
+        this.forceEnd(true, 'Error on start browser session', 'ERROR', error ? error.stacktrace : '');
+      },
     );
   }
 
@@ -367,27 +379,34 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     }
   }
 
-  end(): void {
+  end(fromError: boolean = false): void {
     if (this.websocket) {
       this.manuallyClosed = true;
       this.websocket.close();
     }
-    this.executionCardMsg = 'The execution has been finished!';
-    this.executionCardSubMsg = 'The associated files will be shown when browser and eus have stopped';
+    if (!fromError) {
+      this.executionCardMsg = 'The execution has been finished!';
+      this.executionCardSubMsg = 'The associated files will be shown when browser and eus have stopped';
+    }
     this.showStopBtn = false;
     this.unsubscribeExecFinished();
     this.deprovideBrowserAndEus();
   }
 
-  forceEnd(): void {
+  forceEnd(
+    fromError: boolean = false,
+    execCardMsg: string = 'The execution has been stopped!',
+    result: string = 'STOPPED',
+    resultMsg: string = 'Stopping...',
+  ): void {
     this.stopping = true;
-    this.executionCardMsg = 'The execution has been stopped!';
+    this.executionCardMsg = execCardMsg;
     this.showStopBtn = false;
-    this.exTJobExec.result = 'STOPPED';
-    this.exTJobExec.resultMsg = 'Stopping...';
+    this.exTJobExec.result = result;
+    this.exTJobExec.resultMsg = resultMsg;
     this.exTJobExec.endDate = new Date();
     this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
-    this.end();
+    this.end(fromError);
   }
 
   setTJobExecutionUrl(label: string): void {
