@@ -1,6 +1,3 @@
-import { TdDialogService } from '@covalent/core/dialogs/services/dialog.service';
-import { Router } from '@angular/router';
-import { TdDataTableService } from '@covalent/core';
 import { TitlesService } from '../shared/services/titles.service';
 import { TestProjectModel } from './models/test-project-model';
 import { Component, Input, OnInit, ViewContainerRef, HostListener, OnDestroy } from '@angular/core';
@@ -177,14 +174,13 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
   }
 
   openDialog(): void {
-    let dialogRef:MatDialogRef<CredentialsDialogComponent> = this.dialog.open(CredentialsDialogComponent, {
+    let dialogRef: MatDialogRef<CredentialsDialogComponent> = this.dialog.open(CredentialsDialogComponent, {
       height: '30%',
       width: '40%',
       data: this.testLinkModel,
     });
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       console.log(`Dialog closed: ${result}`);
-      
     });
   }
 }

@@ -42,7 +42,7 @@
             "
             mat-button
             (click)="startTestEngine(row)"
-            class="iconBtn-lg"
+            class="iconBtn"
             title="Start Engine"
           >
             <mat-icon>play_circle_outline</mat-icon>
@@ -52,7 +52,7 @@
             *ngIf="row.isReady() && stopping[row.name] !== undefined && !stopping[row.name]; else waitServiceReady"
             mat-button
             (click)="viewTestEngine(row)"
-            class="iconBtn-lg"
+            class="iconBtn"
             title="View Engine"
           >
             <mat-icon>remove_red_eye</mat-icon>
@@ -62,7 +62,7 @@
             *ngIf="(row.isStarting() || row.isReady()) && stopping[row.name] !== undefined && !stopping[row.name]"
             mat-button
             (click)="stopTestEngine(row)"
-            class="iconBtn-lg"
+            class="iconBtn"
             title="Stop Engine"
           >
             <mat-icon>delete</mat-icon>
