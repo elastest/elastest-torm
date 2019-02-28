@@ -10,6 +10,9 @@ export class StringListViewComponent implements OnInit {
   model: string[];
   @Input()
   fieldName: string;
+  @Input()
+  description: StringListViewDescription;
+
   fieldNameAsPrefix: string = 'fieldName';
 
   constructor() {}
@@ -33,5 +36,14 @@ export class StringListViewComponent implements OnInit {
 
   trackByFn(index: any, item: any): any {
     return index;
+  }
+}
+
+export class StringListViewDescription {
+  label: string;
+  sublabel: string;
+  constructor(label?: string, sublabel?: string) {
+    this.label = label;
+    this.sublabel = sublabel;
   }
 }

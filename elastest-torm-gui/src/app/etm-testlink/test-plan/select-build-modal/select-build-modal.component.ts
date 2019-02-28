@@ -7,6 +7,7 @@ import { TestLinkService } from '../../testlink.service';
 import { TLTestCaseModel } from '../../models/test-case-model';
 import { EusService } from '../../../elastest-eus/elastest-eus.service';
 import { ConfigurationService } from '../../../config/configuration-service.service';
+import { StringListViewDescription } from '../../../shared/string-list-view/string-list-view.component';
 
 @Component({
   selector: 'select-build-modal',
@@ -31,6 +32,10 @@ export class SelectBuildModalComponent implements OnInit {
   fail: boolean = false;
 
   extraHosts: string[] = [];
+  extraHostsDescription: StringListViewDescription = new StringListViewDescription(
+    'Add Extra Host to the browser container /etc/hosts',
+    'Syntax => DNS:IP',
+  );
 
   constructor(
     private router: Router,

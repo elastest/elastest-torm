@@ -43,9 +43,11 @@
             </div>
           </mat-radio-group>
         </ng-template>
+        <mat-divider></mat-divider>
       </div>
       <div fxFlex class="push-top-md">
-        <string-list-view [model]="extraHosts" [fieldName]="'Extra Hosts'"> </string-list-view>
+        <string-list-view [model]="extraHosts" [fieldName]="'Extra Hosts'" [description]="extraHostsDescription">
+        </string-list-view>
       </div>
     </ng-container>
     <ng-template #noTestCases>

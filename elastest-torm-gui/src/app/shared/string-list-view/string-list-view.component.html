@@ -1,14 +1,37 @@
-<button mat-raised-button color="accent" (click)="addField()" matTooltip="Add {{fieldName}}" class="iconBtn push-top-sm">
-  <mat-icon>add</mat-icon>Add {{fieldName}}</button>
+<td-message
+  *ngIf="description && description.label"
+  #dockerTypeInfo
+  label="{{ description.label }}"
+  sublabel="{{ description.sublabel }}"
+  color="primary"
+  icon="info"
+>
+</td-message>
+<button mat-raised-button color="accent" (click)="addField()" matTooltip="Add {{ fieldName }}" class="iconBtn push-top-sm">
+  <mat-icon>add</mat-icon>Add {{ fieldName }}
+</button>
 
-<div *ngFor="let field of model; let i = index; trackBy:trackByFn" fxLayout.gt-xs="column" fxLayout.gt-md="row" class="pad-bottom push-top">
+<div
+  *ngFor="let field of model; let i = index; trackBy: trackByFn"
+  fxLayout.gt-xs="column"
+  fxLayout.gt-md="row"
+  class="pad-bottom push-top"
+>
   <mat-list-item fxFlex.gt-xs="100">
     <div fxLayout="row" fxLayoutAlign="center center">
       <mat-form-field>
-        <input matInput id="{{fieldNameAsPrefix}}{{i}}" value="" [(ngModel)]="model[i]" placeholder="{{fieldName}}" type="text" required>
+        <input
+          matInput
+          id="{{ fieldNameAsPrefix }}{{ i }}"
+          value=""
+          [(ngModel)]="model[i]"
+          placeholder="{{ fieldName }}"
+          type="text"
+          required
+        />
       </mat-form-field>
 
-      <button mat-button (click)="deleteField(i)" matTooltip="Delete {{fieldName}}" class="iconBtn push-top-sm">
+      <button mat-button (click)="deleteField(i)" matTooltip="Delete {{ fieldName }}" class="iconBtn push-top-sm">
         <mat-icon>delete</mat-icon>
       </button>
     </div>

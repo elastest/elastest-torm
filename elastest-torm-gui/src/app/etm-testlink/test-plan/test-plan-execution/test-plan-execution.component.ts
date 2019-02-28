@@ -307,7 +307,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       (errorResponse: HttpErrorResponse) => {
         let error: any = errorResponse.error;
         console.log(error);
-        this.forceEnd(true, 'Error on start browser session', 'ERROR', error ? error.stacktrace : '');
+        this.forceEnd(true, 'Error on start browser session', 'ERROR', error ? error.stacktraceMessage : '');
       },
     );
   }

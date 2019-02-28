@@ -16,6 +16,7 @@ import {
   CovalentStepsModule,
   CovalentCommonModule,
   CovalentDialogsModule,
+  CovalentMessageModule,
 } from '@covalent/core';
 import {
   MatButtonModule,
@@ -98,6 +99,7 @@ const COVALENT_MODULES: any[] = [
   CovalentSearchModule,
   CovalentStepsModule,
   CovalentCommonModule,
+  CovalentMessageModule,
   CovalentDialogsModule,
 ];
 
