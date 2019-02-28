@@ -58,69 +58,52 @@
             ></elastest-log-analyzer>
           </mat-tab>
           <div *ngIf="miniLogAnalyzer">
-            <mat-tab
-              *ngFor="
-                let component of miniLogAnalyzer.componentsTree.treeModel.nodes;
-                let $i = index;
-                let f = first;
-                let l = last
-              "
-              label="{{ component.name }}"
-            >
-              <div fxFlexFill *ngIf="!loganalyzerTabEnabledList[$i]">
-                <centered-element>
-                  <button
-                    mat-raised-button
-                    class="iconBtn-lg"
-                    color="accent"
-                    (click)="loganalyzerTabEnabledList[$i] = true"
-                    [disabled]="loganalyzerTabEnabledList[$i] === true"
-                    matTooltip="Start Comparison"
-                  >
-                    Load Log
-                  </button>
-                </centered-element>
-              </div>
-
-              <elastest-log-analyzer
-                *ngIf="loganalyzerTabEnabledList[$i] && params && testCase"
-                [isEmbed]="true"
-                [componentStreams]="[component]"
-                [tJobId]="params.tJobId"
-                [tJobExecId]="params.tJobExecId"
-                [testCase]="testCase.name"
-              ></elastest-log-analyzer>
+            <mat-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes" label="{{ component.name }}">
+              <ng-template matTabContent>
+                <elastest-log-analyzer
+                  *ngIf="params && testCase"
+                  [isEmbed]="true"
+                  [componentStreams]="[component]"
+                  [tJobId]="params.tJobId"
+                  [tJobExecId]="params.tJobExecId"
+                  [testCase]="testCase.name"
+                ></elastest-log-analyzer>
+              </ng-template>
             </mat-tab>
           </div>
 
           <mat-tab label="Files">
-            <div fxLayout="row" *ngFor="let file of testCase.files">
-              <div fxFlex id="filesContent">
-                <div>
-                  <p>Title</p>
-                  <span>{{ file.name }}</span>
+            <ng-template matTabContent>
+              <div fxLayout="row" *ngFor="let file of testCase.files">
+                <div fxFlex id="filesContent">
+                  <div>
+                    <p>Title</p>
+                    <span>{{ file.name }}</span>
+                  </div>
+                  <a mat-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
+                    Open Video
+                    <mat-icon>open_in_new</mat-icon>
+                  </a>
                 </div>
-                <a mat-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
-                  Open Video
-                  <mat-icon>open_in_new</mat-icon>
-                </a>
               </div>
-            </div>
-            <centered-element *ngIf="testCase && testCase.files.length === 0" class="push-top-important messageEmptyCard">
-              <mat-icon>assignment</mat-icon>
-              <p>No Files found</p>
-            </centered-element>
+              <centered-element *ngIf="testCase && testCase.files.length === 0" class="push-top-important messageEmptyCard">
+                <mat-icon>assignment</mat-icon>
+                <p>No Files found</p>
+              </centered-element>
+            </ng-template>
           </mat-tab>
 
-          <mat-tab *ngFor="let file of getMP4Files()">
+          <mat-tab *ngFor="let file of mp4Files">
             <ng-template mat-tab-label>
               <mat-icon matTooltip="Video" id="videoIcon">play_circle_filled</mat-icon>
             </ng-template>
-            <div id="videoContent">
-              <video controls id="video">
-                <source src="{{ filesUrlPrefix }}{{ file.url }}" type="video/mp4" />
-              </video>
-            </div>
+            <ng-template matTabContent>
+              <div id="videoContent">
+                <video controls id="video">
+                  <source src="{{ filesUrlPrefix }}{{ file.url }}" type="video/mp4" />
+                </video>
+              </div>
+            </ng-template>
           </mat-tab>
         </mat-tab-group>
       </sa-card-content>

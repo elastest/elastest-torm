@@ -8,6 +8,7 @@ import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { FileModel } from '../files-manager/file-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { MonitoringService } from '../../shared/services/monitoring.service';
+import { MatTabChangeEvent } from '@angular/material';
 
 @Component({
   selector: 'etm-test-case',
@@ -20,7 +21,7 @@ export class TestCaseComponent implements OnInit {
   public testCase: TestCaseModel;
   public selectedTab: number;
 
-  public loganalyzerTabEnabledList: boolean[] = [];
+  mp4Files: FileModel[] = [];
 
   @ViewChild('miniLogAnalyzer') private miniLogAnalyzer: ElastestLogAnalyzerComponent;
 
@@ -39,11 +40,6 @@ export class TestCaseComponent implements OnInit {
   ngOnInit(): void {
     this.titlesService.setPathName(this.router.routerState.snapshot.url);
     this.getTestCase();
-    if (this.miniLogAnalyzer) {
-      for (let component of this.miniLogAnalyzer.componentsTree.treeModel.nodes) {
-        this.loganalyzerTabEnabledList.push(false);
-      }
-    }
   }
 
   getTestCase(): void {
@@ -70,10 +66,12 @@ export class TestCaseComponent implements OnInit {
           }
         });
         this.testCase.setTestCaseFiles(tJobsExecFiles);
+        this.mp4Files = this.getMP4Files();
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
+
   getMP4Files(): FileModel[] {
     let mp4Files: FileModel[] = [];
     mp4Files = this.testCase.files.filter((file: FileModel) => this.isMP4(file));
