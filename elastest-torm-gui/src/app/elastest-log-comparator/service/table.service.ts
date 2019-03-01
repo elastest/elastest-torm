@@ -9,6 +9,8 @@ export class TableService {
   oldData: string;
   results: any[];
 
+  caseNamePrefix: string = '<span>&lt;TEST&gt;: ';
+
   constructor() {}
 
   generateTable(diff: string): any[] {
@@ -25,6 +27,11 @@ export class TableService {
       line = this.openClosedTags(line);
       comparatorLine = this.cleanBetweenTags('<ins>', '</ins>', line, 0);
       comparedLine = this.cleanBetweenTags('<del>', '</del>', line, 1);
+
+      if (line.indexOf(this.caseNamePrefix) !== -1) {
+        i = 1;
+      }
+
       this.concatResults(i, comparatorLine, comparedLine);
       i++;
     });
@@ -110,12 +117,11 @@ export class TableService {
   private solveBasicTableColors(): void {
     for (let i: number = 0; i < this.results.length; i++) {
       const result: any = this.results[i];
-      const caseNamePrefix: string = '<span>&lt;TEST&gt;: ';
       if (
         result.com_p !== undefined &&
-        result.com_p.content.indexOf(caseNamePrefix) !== -1 &&
+        result.com_p.content.indexOf(this.caseNamePrefix) !== -1 &&
         result.comp !== undefined &&
-        result.comp.content.indexOf(caseNamePrefix) !== -1
+        result.comp.content.indexOf(this.caseNamePrefix) !== -1
       ) {
         result.com_p.class = 'comparisonTCaseName';
         result.comp.class = 'comparisonTCaseName';
