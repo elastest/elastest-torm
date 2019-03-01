@@ -72,6 +72,21 @@
             <b>Time diff</b>
           </button>
         </div>
+        <mat-divider [vertical]="true" class="push-left-md push-right-md" style="height: 40px;"></mat-divider>
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <!-- Timeout -->
+          <mat-form-field>
+            <input
+              matInput
+              trim="blur"
+              type="number"
+              min="0"
+              placeholder="Diff Timeout (s) (0 infinite)"
+              [(ngModel)]="diffTimeout"
+              name="port"
+            />
+          </mat-form-field>
+        </div>
       </div>
     </div>
     <mat-divider class="push-top-sm"></mat-divider>
@@ -91,7 +106,7 @@
           <centered-element>
             <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
           </centered-element>
-          <p>Fetching data. Please wait...</p>
+          <p>Comparing logs. Please wait...</p>
         </div>
       </div>
       <ng-template #notLoading>

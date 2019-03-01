@@ -132,9 +132,14 @@ public abstract class AbstractMonitoringService {
     }
 
     public String compareLogsPair(MonitoringQuery body, String comparison,
-            String view) throws Exception {
+            String view, String timeout) throws Exception {
         if (body != null && body.getIndices() != null
                 && body.getIndices().size() == 2) {
+            float timeoutFloat = 0;
+            try {
+                timeoutFloat = Float.parseFloat(timeout);
+            } catch (Exception e) {
+            }
 
             boolean withTimestamp = false;
             boolean timeDiff = false;
@@ -206,7 +211,7 @@ public abstract class AbstractMonitoringService {
                         firstConcat = false;
                     }
                     htmlComparison += getDiffHtmlFromLogs(currentLog,
-                            pairLogs[1].get(pos));
+                            pairLogs[1].get(pos), timeoutFloat);
                     pos++;
                 }
             }
@@ -216,10 +221,11 @@ public abstract class AbstractMonitoringService {
         return null;
     }
 
-    public String getDiffHtmlFromLogs(String log1, String log2) {
+    public String getDiffHtmlFromLogs(String log1, String log2, float timeout) {
         String html = "";
         if (log1 != null && log2 != null) {
             DiffMatchPatch dmp = new DiffMatchPatch();
+            dmp.setDiff_Timeout(timeout);
             LinkedList<Diff> diffs = dmp.diffMain(log1, log2);
             dmp.diffCleanupSemantic(diffs);
             html = dmp.diffPrettyHtml(diffs);
@@ -229,10 +235,11 @@ public abstract class AbstractMonitoringService {
 
     @Async
     public void compareLogsPairAsync(MonitoringQuery body, String comparison,
-            String view, String processId) throws Exception {
+            String view, String timeout, String processId) throws Exception {
         dbmanager.bindSession();
         comparisonProcessMap.put(processId, processingComparationMsg);
-        String comparisonString = this.compareLogsPair(body, comparison, view);
+        String comparisonString = this.compareLogsPair(body, comparison, view,
+                timeout);
         logger.debug("Async comparison with process ID {} ends", processId);
         comparisonProcessMap.put(processId, comparisonString);
         dbmanager.unbindSession();

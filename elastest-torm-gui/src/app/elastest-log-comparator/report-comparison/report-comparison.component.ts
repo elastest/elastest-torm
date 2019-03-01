@@ -36,6 +36,8 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
   timer: Observable<number>;
   subscription: Subscription;
 
+  diffTimeout: number = 0;
+
   constructor(private tableService: TableService, private monitoringService: MonitoringService) {
     this.comparisonInProgress = false;
   }
@@ -47,7 +49,7 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('window:beforeunload')
-  beforeunloadHandler() {
+  beforeunloadHandler(): void {
     // On window closed leave session
     this.unsubscribe();
   }
@@ -114,6 +116,7 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
           true,
           comparison,
           view,
+          this.diffTimeout,
         )
         .subscribe(
           (processId: string) => {
@@ -143,7 +146,7 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
     let comparisonInProgressMsg: string = 'ET-PROCESSING';
     let comparisonString: string = comparisonInProgressMsg;
 
-    this.timer = interval(3000);
+    this.timer = interval(2300);
     if (this.subscription === null || this.subscription === undefined) {
       this.subscription = this.timer.subscribe(() => {
         this.monitoringService.getComparisonByProcessId(processId).subscribe((comparison: string) => {

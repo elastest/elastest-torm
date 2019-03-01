@@ -109,7 +109,8 @@ public interface TracesApi extends EtmApiRoot {
     ResponseEntity<String> compareLogsPair(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body,
             @RequestParam(value = "comparison", required = true) String comparison,
-            @RequestParam(value = "view", required = true) String view)
+            @RequestParam(value = "view", required = true) String view,
+            @RequestParam(value = "timeout", required = true) String timeout)
             throws Exception;
 
     @ApiOperation(value = "Returns Logs Pair comparation process ID.", notes = "Returns Logs Pair comparation process ID.", response = String.class, tags = {
@@ -122,7 +123,8 @@ public interface TracesApi extends EtmApiRoot {
     ResponseEntity<String> compareLogsPairAsync(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body,
             @RequestParam(value = "comparison", required = true) String comparison,
-            @RequestParam(value = "view", required = true) String view)
+            @RequestParam(value = "view", required = true) String view,
+            @RequestParam(value = "timeout", required = true) String timeout)
             throws Exception;
 
     @ApiOperation(value = "Returns Logs Pair comparation By process ID.", notes = "Returns Logs Pair comparation By process ID.", response = String.class, tags = {

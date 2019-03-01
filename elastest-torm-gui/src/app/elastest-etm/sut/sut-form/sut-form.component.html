@@ -309,6 +309,7 @@
                   matInput
                   trim="blur"
                   type="number"
+                  min="0"
                   placeholder="{{ managedSut.checked ? 'Wait for port' : 'Port' }}"
                   [(ngModel)]="sut.port"
                   name="port"
@@ -521,6 +522,7 @@
                       matInput
                       trim="blur"
                       type="number"
+                      min="0"
                       placeholder="Port"
                       [(ngModel)]="this.sut.externalElasticsearch.port"
                       name="esPort"

@@ -100,13 +100,14 @@ public class TracesApiController implements TracesApi {
     public ResponseEntity<String> compareLogsPair(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body,
             @RequestParam(value = "comparison", required = true) String comparison,
-            @RequestParam(value = "view", required = true) String view)
+            @RequestParam(value = "view", required = true) String view,
+            @RequestParam(value = "timeout", required = true) String timeout)
             throws Exception {
         String comparisonString = null;
 
         try {
             comparisonString = monitoringService.compareLogsPair(body,
-                    comparison, view);
+                    comparison, view, timeout);
         } catch (Exception e) {
             logger.error("Error on get coparison", e);
         }
@@ -117,10 +118,11 @@ public class TracesApiController implements TracesApi {
     public ResponseEntity<String> compareLogsPairAsync(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body,
             @RequestParam(value = "comparison", required = true) String comparison,
-            @RequestParam(value = "view", required = true) String view)
+            @RequestParam(value = "view", required = true) String view,
+            @RequestParam(value = "timeout", required = true) String timeout)
             throws Exception {
         String processId = UtilTools.generateUniqueId();
-        monitoringService.compareLogsPairAsync(body, comparison, view,
+        monitoringService.compareLogsPairAsync(body, comparison, view, timeout,
                 processId);
         return new ResponseEntity<>(processId, HttpStatus.OK);
     }

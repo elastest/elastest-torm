@@ -89,8 +89,10 @@ export class MonitoringService {
     query: MonitoringQueryModel,
     comparison: comparisonMode = 'notimestamp',
     view: viewMode = 'complete',
+    diffTimeout: number = 0,
   ): Observable<string> {
-    let url: string = this.etmApiUrl + '/monitoring/log/compare?comparison=' + comparison + '&view=' + view;
+    let url: string =
+      this.etmApiUrl + '/monitoring/log/compare?comparison=' + comparison + '&view=' + view + '&timeout=' + diffTimeout;
 
     return (
       this.http
@@ -104,8 +106,10 @@ export class MonitoringService {
     query: MonitoringQueryModel,
     comparison: comparisonMode = 'notimestamp',
     view: viewMode = 'complete',
+    diffTimeout: number = 0,
   ): Observable<string> {
-    let url: string = this.etmApiUrl + '/monitoring/log/compare/async?comparison=' + comparison + '&view=' + view;
+    let url: string =
+      this.etmApiUrl + '/monitoring/log/compare/async?comparison=' + comparison + '&view=' + view + '&timeout=' + diffTimeout;
 
     // Returns processId
     return this.http.post(url, query, { responseType: 'text' }).map((data: string) => data);
@@ -133,6 +137,7 @@ export class MonitoringService {
     includedTo: boolean = true,
     comparison: comparisonMode = 'notimestamp',
     view: viewMode = 'complete',
+    diffTimeout: number = 0,
   ): Observable<string> {
     let query: MonitoringQueryModel = new MonitoringQueryModel();
     query.indices = pair;
@@ -143,10 +148,10 @@ export class MonitoringService {
 
     if (async) {
       // Returns processId
-      return this.compareLogsPairAsyncByQuery(query, comparison, view);
+      return this.compareLogsPairAsyncByQuery(query, comparison, view, diffTimeout);
     } else {
       // Returns comparison
-      return this.compareLogsPairByQuery(query, comparison, view);
+      return this.compareLogsPairByQuery(query, comparison, view, diffTimeout);
     }
   }
 

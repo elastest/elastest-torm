@@ -87,6 +87,72 @@ public class DiffMatchPatch {
     private short Match_MaxBits = 32;
 
     /**
+     * Constructor
+     */
+    public DiffMatchPatch() {
+    }
+
+    /* ************************************* */
+    /* ********** Getters/Setters ********** */
+    /* ************************************* */
+
+    public float getDiff_Timeout() {
+        return Diff_Timeout;
+    }
+
+    public void setDiff_Timeout(float diff_Timeout) {
+        Diff_Timeout = diff_Timeout;
+    }
+
+    public short getDiff_EditCost() {
+        return Diff_EditCost;
+    }
+
+    public void setDiff_EditCost(short diff_EditCost) {
+        Diff_EditCost = diff_EditCost;
+    }
+
+    public float getMatch_Threshold() {
+        return Match_Threshold;
+    }
+
+    public void setMatch_Threshold(float match_Threshold) {
+        Match_Threshold = match_Threshold;
+    }
+
+    public int getMatch_Distance() {
+        return Match_Distance;
+    }
+
+    public void setMatch_Distance(int match_Distance) {
+        Match_Distance = match_Distance;
+    }
+
+    public float getPatch_DeleteThreshold() {
+        return Patch_DeleteThreshold;
+    }
+
+    public void setPatch_DeleteThreshold(float patch_DeleteThreshold) {
+        Patch_DeleteThreshold = patch_DeleteThreshold;
+    }
+
+    public short getPatch_Margin() {
+        return Patch_Margin;
+    }
+
+    public void setPatch_Margin(short patch_Margin) {
+        Patch_Margin = patch_Margin;
+    }
+
+    public short getMatch_MaxBits() {
+        return Match_MaxBits;
+    }
+
+    public void setMatch_MaxBits(short match_MaxBits) {
+        Match_MaxBits = match_MaxBits;
+    }
+
+    /**
      * Internal class for returning results from diff_linesToChars(). Other less
      * paranoid languages just use a three-element array.
      */

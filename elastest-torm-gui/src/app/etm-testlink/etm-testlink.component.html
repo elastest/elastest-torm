@@ -70,7 +70,7 @@
             #projectsTable
             id="tlProjects"
             *ngIf="projectsList.length > 0"
-            [class]="tableStyle"
+            class="useMaxHeight"
             [data]="projectsList"
             [columns]="projectColumns"
             [selectable]="false"
@@ -78,7 +78,6 @@
             [sortable]="false"
             [sortBy]="sortBy"
             [sortOrder]="sortOrder"
-            [style.height.px]="200"
           >
             <ng-template
               *ngFor="let column of projectColumns"

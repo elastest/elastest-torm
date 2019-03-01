@@ -1,4 +1,4 @@
-<auto-height-grid>
+<auto-height-grid fxLayout="column">
   <auto-height-row>
     <self-adjustable-card>
       <sa-card-title>
@@ -75,7 +75,7 @@
             </ng-template>
             <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
               <div fxLayout="row" class="optionsColumn">
-                <button mat-button (click)="editProject(row)" stopRowClick class="iconBtn-lg" title="Edit Project">
+                <button mat-button (click)="editProject(row)" stopRowClick class="iconBtn" title="Edit Project">
                   <mat-icon>mode_edit</mat-icon>
                 </button>
                 <button
@@ -83,7 +83,7 @@
                   (click)="deleteProject(row)"
                   [disabled]="deletingInProgress"
                   stopRowClick
-                  class="iconBtn-lg"
+                  class="iconBtn"
                   title="Delete Project"
                 >
                   <mat-icon>delete</mat-icon>
