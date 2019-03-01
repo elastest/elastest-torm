@@ -53,7 +53,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
     private etPluginsService: EtPluginsService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (!this.isNested) {
       this.titlesService.setHeadTitle('TestLink');
     }
@@ -77,7 +77,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('window:beforeunload')
-  beforeunloadHandler() {
+  beforeunloadHandler(): void {
     // On window closed leave session
     this.unsubscribe();
   }

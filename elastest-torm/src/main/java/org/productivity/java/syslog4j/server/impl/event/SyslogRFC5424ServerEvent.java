@@ -211,8 +211,6 @@ public class SyslogRFC5424ServerEvent implements SyslogServerEventIF {
                 this.date = new Date();
             }
         }
-
-        parseHost();
     }
 
     protected void parsePriority() {

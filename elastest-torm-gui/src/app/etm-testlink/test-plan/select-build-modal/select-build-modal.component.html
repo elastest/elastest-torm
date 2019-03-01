@@ -16,7 +16,8 @@
       >
         <mat-option *ngFor="let build of builds; let i = index" id="build{{ i }}" [value]="build"> {{ build.name }} </mat-option>
       </mat-select>
-      <div fxFlex class="push-top-md">
+      <mat-divider class="push-top-sm"></mat-divider>
+      <div fxFlex class="push-top-lg">
         <!-- BROWSERS -->
         <div *ngIf="loadingBrowsers; else showBrowsersSelection" fxLayout="row" fxLayoutAlign="start center">
           <span> <mat-spinner strokeWidth="6" color="accent"></mat-spinner> </span>
@@ -43,10 +44,10 @@
             </div>
           </mat-radio-group>
         </ng-template>
-        <mat-divider></mat-divider>
+        <mat-divider class="push-top-sm"></mat-divider>
       </div>
-      <div fxFlex class="push-top-md">
-        <string-list-view [model]="extraHosts" [fieldName]="'Extra Hosts'" [description]="extraHostsDescription">
+      <div fxFlex class="push-top-lg">
+        <string-list-view [model]="extraHosts" [fieldName]="'Extra Host'" [description]="extraHostsDescription">
         </string-list-view>
       </div>
     </ng-container>
