@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -283,7 +285,10 @@ public class TracesSearchService extends AbstractMonitoringService {
                     // If is start/finish test trace and modify
                     if (!isStartFinishTraceAndDiscardActivated) {
 
-                        if (withTimestamp && trace.getTimestamp() != null) {
+                        // Temporally withTimestamp is Complete message (
+                        // because some messages has timestamp into)
+                        // if (withTimestamp && trace.getTimestamp() != null) {
+                        if (withTimestamp) {
                             if (timeDiff) {
                                 long traceTimeDiff = trace.getTimestamp()
                                         .getTime();
@@ -298,9 +303,22 @@ public class TracesSearchService extends AbstractMonitoringService {
 
                                 message = traceTimeDiff + " " + message;
                             } else {
-                                message = trace.getTimestamp().toString() + " "
-                                        + message;
+                                // Temporally behavior changed
+                                // message = trace.getTimestamp().toString()
+                                // + " "
+                                // + message;
                             }
+                        } else {
+                            // Remove timestamp from message start (if has)
+
+                            // 2019-03-01 10:54:01.462
+                            String msgWithTimestampRegex = "^\\d\\d\\d\\d*-\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\d\\s\\s";
+                            // Feb 25, 2019 11:15:34 AM
+                            String msgWithTimestampRegex2 = "^[A-Z][a-z][a-z]\\s\\d\\d,\\s\\d\\d\\d\\d\\s\\d\\d:\\d\\d:\\d\\d\\s[A-Z][A-Z]\\s";
+                            message = message
+                                    .replaceFirst(msgWithTimestampRegex, "");
+                            message = message
+                                    .replaceFirst(msgWithTimestampRegex2, "");
                         }
 
                         logs.add(message);
