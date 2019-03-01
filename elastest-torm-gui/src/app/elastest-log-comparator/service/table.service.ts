@@ -28,11 +28,14 @@ export class TableService {
       comparatorLine = this.cleanBetweenTags('<ins>', '</ins>', line, 0);
       comparedLine = this.cleanBetweenTags('<del>', '</del>', line, 1);
 
+      // Restart numeration for each test case (only for Tests Logs view)
+      let hideNumeration: boolean = false;
       if (line.indexOf(this.caseNamePrefix) !== -1) {
-        i = 1;
+        i = 0;
+        hideNumeration = true;
       }
 
-      this.concatResults(i, comparatorLine, comparedLine);
+      this.concatResults(i, comparatorLine, comparedLine, hideNumeration);
       i++;
     });
     this.solveUselessDiffs();
@@ -78,7 +81,10 @@ export class TableService {
     return line;
   }
 
-  private concatResults(i: number, comparator: string, compared: string): void {
+  private concatResults(i: number, comparator: string, compared: string, hideNumeration: boolean = false): void {
+    if (hideNumeration) {
+      i = undefined;
+    }
     this.results = this.results.concat({
       index_p: i,
       com_p: {
