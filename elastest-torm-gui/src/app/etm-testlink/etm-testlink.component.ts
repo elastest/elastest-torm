@@ -7,6 +7,7 @@ import { EtPluginsService } from '../elastest-test-engines/et-plugins.service';
 import { EtPluginModel } from '../elastest-test-engines/et-plugin-model';
 import { Subscription, Observable, interval } from 'rxjs';
 import { CredentialsDialogComponent } from '../shared/credentials-dialog/credentials-dialog.component';
+import { TdDataTableSortingOrder, TdDataTableService, ITdDataTableSortChangeEvent } from '@covalent/core';
 
 @Component({
   selector: 'etm-testlink',
@@ -41,6 +42,9 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
     // { name: 'options', label: 'Options' },
   ];
 
+  sortBy: string = 'id';
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
+
   projectsList: TestProjectModel[] = [];
   showSpinner: boolean = true;
 
@@ -51,6 +55,7 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
     private testlinkService: TestLinkService,
     public dialog: MatDialog,
     private etPluginsService: EtPluginsService,
+    private dataTableService: TdDataTableService,
   ) {}
 
   ngOnInit(): void {
@@ -182,5 +187,11 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((result) => {
       console.log(`Dialog closed: ${result}`);
     });
+  }
+
+  sort(sortEvent: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent.name;
+    this.sortOrder = sortEvent.order;
+    this.projectsList = this.dataTableService.sortData(this.projectsList, this.sortBy, this.sortOrder);
   }
 }

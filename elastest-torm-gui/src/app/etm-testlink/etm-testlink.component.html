@@ -75,9 +75,11 @@
             [columns]="projectColumns"
             [selectable]="false"
             [clickable]="true"
-            [sortable]="false"
+            [sortable]="true"
             [sortBy]="sortBy"
             [sortOrder]="sortOrder"
+            (sortChange)="sort($event)"
+            [resizableColumns]="true"
           >
             <ng-template
               *ngFor="let column of projectColumns"
