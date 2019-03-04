@@ -1,8 +1,8 @@
 import { TestPlanModel } from '../models/test-plan-model';
-import { TdDialogService } from '@covalent/core';
+import { TdDataTableSortingOrder, TdDataTableService, ITdDataTableSortChangeEvent } from '@covalent/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../shared/services/titles.service';
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TestProjectModel } from '../models/test-project-model';
 import { TestLinkService } from '../testlink.service';
 import { MatDialog, MatDialogRef } from '@angular/material';
@@ -41,20 +41,22 @@ export class TestProjectComponent implements OnInit {
     { name: 'notes', label: 'Notes' },
     { name: 'active', label: 'Active' },
     { name: 'public', label: 'Public' },
-    { name: 'options', label: 'Options' },
+    { name: 'options', label: 'Options', sortable: false },
   ];
+
+  sortBy: string = 'id';
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
   constructor(
     private titlesService: TitlesService,
     private testLinkService: TestLinkService,
     private route: ActivatedRoute,
     private router: Router,
-    private _dialogService: TdDialogService,
-    private _viewContainerRef: ViewContainerRef,
     public dialog: MatDialog,
+    private dataTableService: TdDataTableService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setHeadTitle('Test Project');
     this.testProject = new TestProjectModel();
     this.loadProject();
@@ -80,7 +82,7 @@ export class TestProjectComponent implements OnInit {
         this.testSuites = suites;
         this.showSpinnerSuites = false;
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -90,7 +92,7 @@ export class TestProjectComponent implements OnInit {
         this.testPlans = plans;
         this.showSpinnerPlans = false;
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -99,7 +101,7 @@ export class TestProjectComponent implements OnInit {
       (exProject: ExternalProjectModel) => {
         this.exProject = exProject;
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -120,8 +122,20 @@ export class TestProjectComponent implements OnInit {
         (exTJob: ExternalTJobModel) => {
           this.router.navigate(['/external/projects', this.exProject.id, 'tjob', 'edit', exTJob.id]);
         },
-        (error) => console.log(error),
+        (error: Error) => console.log(error),
       );
     }
+  }
+
+  sortSuites(sortEvent: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent.name;
+    this.sortOrder = sortEvent.order;
+    this.testSuites = this.dataTableService.sortData(this.testSuites, this.sortBy, this.sortOrder);
+  }
+
+  sortPlans(sortEvent: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent.name;
+    this.sortOrder = sortEvent.order;
+    this.testPlans = this.dataTableService.sortData(this.testPlans, this.sortBy, this.sortOrder);
   }
 }

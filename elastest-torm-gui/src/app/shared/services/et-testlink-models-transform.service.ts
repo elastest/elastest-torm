@@ -202,12 +202,14 @@ export class ETTestlinkModelsTransformService {
   jsonToTestPlanModel(plan: any): TestPlanModel {
     let newSuite: TestPlanModel;
     newSuite = new TestPlanModel();
-    newSuite.id = plan.id;
-    newSuite.name = plan.name;
-    newSuite.projectName = plan.projectName;
-    newSuite.notes = plan.notes;
-    newSuite.active = plan.active;
-    newSuite.public = plan.public;
+    if (plan) {
+      newSuite.id = plan.id;
+      newSuite.name = plan.name;
+      newSuite.projectName = plan.projectName;
+      newSuite.notes = plan.notes;
+      newSuite.active = plan.active;
+      newSuite.public = plan.public;
+    }
     return newSuite;
   }
 

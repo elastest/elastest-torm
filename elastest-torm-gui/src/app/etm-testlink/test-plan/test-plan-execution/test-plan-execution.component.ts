@@ -322,7 +322,10 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   }
 
   startExecution(): void {
-    this.externalTestCases = this.exTJob.exTestCases;
+    this.externalTestCases = this.exTJob.exTestCases.sort((a: ExternalTestCaseModel, b: ExternalTestCaseModel) => {
+      return Number(a.externalId) - Number(b.externalId);
+    });
+
     this.setTJobExecutionUrl('Test Plan Execution:');
     this.data = {
       build: this.selectedBuild,

@@ -3,6 +3,8 @@ package io.elastest.etm.service;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -385,6 +387,9 @@ public class TestLinkService {
                     this.api.getTestCasesForTestPlan(planId, null, null, null,
                             null, null, null, null, null, null,
                             TestCaseDetails.FULL));
+
+            cases = this.sortTestCases(cases);
+
         } catch (TestLinkAPIException e) {
             // EMPTY
         }
@@ -403,6 +408,7 @@ public class TestLinkService {
                                     currentBuild.getId(), null, null, null,
                                     null, null, null, null,
                                     TestCaseDetails.FULL));
+                    cases = this.sortTestCases(cases);
                 } catch (TestLinkAPIException e) {
                     // EMPTY
                 }
@@ -430,6 +436,7 @@ public class TestLinkService {
             cases = this.api.getTestCasesForTestPlan(testPlanId, null, buildId,
                     null, null, null, null, null, null, true,
                     TestCaseDetails.FULL);
+            cases = this.sortTestCases(cases);
 
             cases = this.getFullDetailedTestCases(cases); // To get more info...
 
@@ -999,5 +1006,20 @@ public class TestLinkService {
         fields.put("plan", plan);
         fields.put("build", build);
         return fields.toString();
+    }
+
+    public TestCase[] sortTestCases(TestCase[] cases) {
+        try {
+            // Sort by Id ASC
+            Arrays.sort(cases, new Comparator<TestCase>() {
+                @Override
+                public int compare(TestCase c1, TestCase c2) {
+                    return c1.getId().compareTo(c2.getId());
+                }
+            });
+        } catch (Exception e) {
+        }
+        
+        return cases;
     }
 }

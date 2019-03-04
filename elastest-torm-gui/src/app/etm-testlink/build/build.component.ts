@@ -7,6 +7,7 @@ import { TLTestCaseModel } from '../models/test-case-model';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { ExecuteCaseModalComponent } from './execute-case-modal/execute-case-modal.component';
 import { ServiceType } from '../../elastest-etm/external/external-project/external-project-model';
+import { TdDataTableSortingOrder, TdDataTableService, ITdDataTableSortChangeEvent } from '@covalent/core';
 
 @Component({
   selector: 'testlink-build',
@@ -47,8 +48,11 @@ export class BuildComponent implements OnInit {
     // { name: 'customFields', label: 'Custom Fields' },
     // steps: TestCaseStepModel[];
 
-    { name: 'options', label: 'Options' },
+    { name: 'options', label: 'Options', sortable: false },
   ];
+
+  sortBy: string = 'id';
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
   constructor(
     private titlesService: TitlesService,
@@ -56,9 +60,10 @@ export class BuildComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     public dialog: MatDialog,
+    private dataTableService: TdDataTableService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setHeadTitle('Build');
     this.build = new BuildModel();
     this.loadBuild();
@@ -86,7 +91,7 @@ export class BuildComponent implements OnInit {
         this.testCases = testCases;
         this.loadingCases = false;
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -122,5 +127,11 @@ export class BuildComponent implements OnInit {
       } else {
       }
     });
+  }
+
+  sortCases(sortEvent: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent.name;
+    this.sortOrder = sortEvent.order;
+    this.testCases = this.dataTableService.sortData(this.testCases, this.sortBy, this.sortOrder);
   }
 }

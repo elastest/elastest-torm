@@ -68,9 +68,10 @@
           [columns]="testCasesColumns"
           [selectable]="false"
           [clickable]="true"
-          [sortable]="false"
+          [sortable]="true"
           [sortBy]="sortBy"
           [sortOrder]="sortOrder"
+          (sortChange)="sortCases($event)"
           [resizableColumns]="true"
         >
           <ng-template

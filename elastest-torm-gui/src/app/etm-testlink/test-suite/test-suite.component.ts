@@ -1,9 +1,9 @@
 import { TLTestCaseModel } from '../models/test-case-model';
 import { TLTestSuiteModel } from '../models/test-suite-model';
-import { TdDialogService } from '@covalent/core';
+import { TdDataTableSortingOrder, TdDataTableService, ITdDataTableSortChangeEvent } from '@covalent/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { TitlesService } from '../../shared/services/titles.service';
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TestLinkService } from '../testlink.service';
 import { MatDialog } from '@angular/material';
 
@@ -30,14 +30,14 @@ export class TLTestSuiteComponent implements OnInit {
     { name: 'testImportance', label: 'Importance' },
     { name: 'executionType', label: 'Exec Type' },
     { name: 'executionOrder', label: 'Exec Order' },
-    { name: 'order', label: 'Order' },
+    { name: 'order', label: 'Order', width: 77 },
     // { name: 'internalId', label: 'Internal ID' },
-    { name: 'fullExternalId', label: 'External ID' },
+    { name: 'fullExternalId', label: 'External ID', width: 105 },
     // { name: 'checkDuplicatedName', label: 'Check Duplicated Name' },
     // { name: 'actionOnDuplicatedName', label: 'Action On Duplicated Name' },
-    { name: 'versionId', label: 'Version ID' },
-    { name: 'version', label: 'Version' },
-    { name: 'parentId', label: 'Parent ID' },
+    { name: 'versionId', label: 'Version ID', width: 106 },
+    { name: 'version', label: 'Version', width: 88 },
+    { name: 'parentId', label: 'Parent ID', width: 98 },
     // { name: 'executionStatus', label: 'Execution Status' },
     { name: 'platform', label: 'Platform' },
     { name: 'featureId', label: 'Feature Id' },
@@ -47,17 +47,19 @@ export class TLTestSuiteComponent implements OnInit {
     // { name: 'options', label: 'Options' },
   ];
 
+  sortBy: string = 'id';
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
+
   constructor(
     private titlesService: TitlesService,
     private testLinkService: TestLinkService,
     private route: ActivatedRoute,
     private router: Router,
-    private _dialogService: TdDialogService,
-    private _viewContainerRef: ViewContainerRef,
     public dialog: MatDialog,
+    private dataTableService: TdDataTableService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setHeadTitle('Test Suite');
     this.testSuite = new TLTestSuiteModel();
     this.loadSuite();
@@ -83,7 +85,13 @@ export class TLTestSuiteComponent implements OnInit {
       (testCases: TLTestCaseModel[]) => {
         this.testCases = testCases;
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
+  }
+
+  sort(sortEvent: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent.name;
+    this.sortOrder = sortEvent.order;
+    this.testCases = this.dataTableService.sortData(this.testCases, this.sortBy, this.sortOrder);
   }
 }

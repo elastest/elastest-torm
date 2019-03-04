@@ -101,9 +101,10 @@
                 [columns]="buildColumns"
                 [selectable]="false"
                 [clickable]="true"
-                [sortable]="false"
+                [sortable]="true"
                 [sortBy]="sortBy"
                 [sortOrder]="sortOrder"
+                (sortChange)="sortBuilds($event)"
                 [resizableColumns]="true"
               >
                 <ng-template
@@ -164,9 +165,10 @@
                     [columns]="testCaseColumns"
                     [selectable]="false"
                     [clickable]="false"
-                    [sortable]="false"
+                    [sortable]="true"
                     [sortBy]="sortBy"
                     [sortOrder]="sortOrder"
+                    (sortChange)="sortCases($event)"
                     [resizableColumns]="true"
                   >
                     <ng-template

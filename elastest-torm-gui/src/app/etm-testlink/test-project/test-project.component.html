@@ -101,9 +101,10 @@
               [columns]="suiteColumns"
               [selectable]="false"
               [clickable]="true"
-              [sortable]="false"
+              [sortable]="true"
               [sortBy]="sortBy"
               [sortOrder]="sortOrder"
+              (sortChange)="sortSuites($event)"
             >
               <ng-template
                 *ngFor="let column of suiteColumns"
@@ -147,9 +148,10 @@
               [columns]="planColumns"
               [selectable]="false"
               [clickable]="true"
-              [sortable]="false"
+              [sortable]="true"
               [sortBy]="sortBy"
               [sortOrder]="sortOrder"
+              (sortChange)="sortPlans($event)"
             >
               <ng-template
                 *ngFor="let column of planColumns"

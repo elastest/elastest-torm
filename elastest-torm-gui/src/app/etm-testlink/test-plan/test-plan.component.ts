@@ -8,6 +8,7 @@ import { MatDialog, MatDialogRef } from '@angular/material';
 import { ExternalTJobModel } from '../../elastest-etm/external/external-tjob/external-tjob-model';
 import { TLTestCaseModel } from '../models/test-case-model';
 import { SelectBuildModalComponent } from './select-build-modal/select-build-modal.component';
+import { ITdDataTableSortChangeEvent, TdDataTableSortingOrder, TdDataTableService } from '@covalent/core';
 
 @Component({
   selector: 'testlink-test-plan',
@@ -45,15 +46,19 @@ export class TestPlanComponent implements OnInit {
     { name: 'fullExternalId', label: 'External ID' },
   ];
 
+  sortBy: string = 'id';
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
+
   constructor(
     private titlesService: TitlesService,
     private testLinkService: TestLinkService,
     private route: ActivatedRoute,
     private router: Router,
     public dialog: MatDialog,
+    private dataTableService: TdDataTableService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setHeadTitle('Test Plan');
     this.testPlan = new TestPlanModel();
     this.loadPlan();
@@ -83,7 +88,7 @@ export class TestPlanComponent implements OnInit {
         this.builds = builds;
         this.showSpinnerBuilds = false;
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -93,7 +98,7 @@ export class TestPlanComponent implements OnInit {
         this.testPlanCases = testCases;
         this.showSpinnerCases = false;
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -102,7 +107,7 @@ export class TestPlanComponent implements OnInit {
       (tJob: ExternalTJobModel) => {
         this.exTJob = tJob;
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -115,5 +120,17 @@ export class TestPlanComponent implements OnInit {
       },
       minWidth: '20%',
     });
+  }
+
+  sortBuilds(sortEvent: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent.name;
+    this.sortOrder = sortEvent.order;
+    this.builds = this.dataTableService.sortData(this.builds, this.sortBy, this.sortOrder);
+  }
+
+  sortCases(sortEvent: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent.name;
+    this.sortOrder = sortEvent.order;
+    this.testPlanCases = this.dataTableService.sortData(this.testPlanCases, this.sortBy, this.sortOrder);
   }
 }

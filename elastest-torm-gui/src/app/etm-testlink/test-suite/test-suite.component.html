@@ -86,10 +86,11 @@
           [columns]="testCaseColumns"
           [selectable]="false"
           [clickable]="true"
-          [sortable]="false"
+          [resizableColumns]="true"
+          [sortable]="true"
           [sortBy]="sortBy"
           [sortOrder]="sortOrder"
-          [resizableColumns]="true"
+          (sortChange)="sort($event)"
         >
           <ng-template
             *ngFor="let column of testCaseColumns"
