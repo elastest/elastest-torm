@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.model.Enums.ProtocolEnum;
+import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
@@ -30,7 +31,6 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TestSuite;
-import io.elastest.etm.service.DockerExecution;
 import pl.pojo.tester.api.assertion.Method;
 
 @RunWith(JUnitPlatform.class)
@@ -204,7 +204,7 @@ public class ModelsTest {
 
     @Test
     public void testPojoDockerExecution() {
-        final Class<?> pojoClass = DockerExecution.class;
+        final Class<?> pojoClass = Execution.class;
         // assertPojoMethodsFor(testCaseClass).areWellImplemented();
 
         assertPojoMethodsFor(pojoClass,

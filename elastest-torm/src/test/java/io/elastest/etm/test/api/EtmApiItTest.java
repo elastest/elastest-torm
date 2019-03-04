@@ -39,7 +39,7 @@ import io.elastest.etm.test.IntegrationBaseTest;
 
 public class EtmApiItTest extends IntegrationBaseTest {
 
-    final Logger log = getLogger(lookup().lookupClass());
+    static final Logger log = getLogger(lookup().lookupClass());
 
     @Autowired
     TestRestTemplate httpClient;
@@ -55,6 +55,7 @@ public class EtmApiItTest extends IntegrationBaseTest {
 
     @BeforeAll
     public static void initData() {
+        log.info("Initializing the test environment");
         sutExamples = new HashMap<>();
 
         SutSpecification sutExample1 = new SutSpecification();
@@ -98,6 +99,7 @@ public class EtmApiItTest extends IntegrationBaseTest {
 
         sutExamples.put("sutFromImage", sutExample1);
         sutExamples.put("sutFromCompose", sutExample2);
+        log.info("Finished Initializing the test environment");
     }
 
     /* *************** */

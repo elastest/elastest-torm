@@ -32,6 +32,7 @@ import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.EimMonitoringConfig.BeatsStatusEnum;
 import io.elastest.etm.model.Enums.MonitoringStorageType;
+import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutSpecification;
@@ -335,7 +336,7 @@ public class TJobService {
         }
         if (tJobExec.isWithSut()) {
             try {
-                DockerExecution dockerExec = new DockerExecution(tJobExec);
+                Execution dockerExec = new Execution(tJobExec);
                 dockerExec.setSutExec(tJobExec.getSutExecution());
                 tJobExecOrchestratorService.endDockbeatExec(dockerExec, true);
                 tJobExecOrchestratorService.endSutExec(dockerExec, false);
