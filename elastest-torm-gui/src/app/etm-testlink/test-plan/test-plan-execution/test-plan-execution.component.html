@@ -42,6 +42,10 @@
             </div>
             <div fxLayout="row" class="push-top-sm">
               <span id="resultMsgText" class="mat-subheading-1">{{ exTJobExec.resultMsg }}</span>
+              <span fxFlex></span>
+              <div *ngIf="totalCases > 0 && externalTestCases && data" class="mat-caption">
+                {{ totalCases - externalTestCases.length }}/{{ totalCases }}
+              </div>
             </div>
           </div>
         </mat-card-title>
@@ -90,6 +94,8 @@
       </div>
     </mat-card>
   </div>
+
+  <!-- BROWSER -->
   <div fxFlex.gt-sm="60" fxLayout.gt-sm="column" fxFlexFill>
     <mat-card tdMediaToggle="gt-xs" fxFlex>
       <div fxLayout="column" fxFlexFill>

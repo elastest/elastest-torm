@@ -100,6 +100,8 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   sutUrl: string = '';
 
+  totalCases: number = 0;
+
   constructor(
     private externalService: ExternalService,
     public router: Router,
@@ -325,6 +327,8 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     this.externalTestCases = this.exTJob.exTestCases.sort((a: ExternalTestCaseModel, b: ExternalTestCaseModel) => {
       return Number(a.externalId) - Number(b.externalId);
     });
+
+    this.totalCases = this.externalTestCases.length;
 
     this.setTJobExecutionUrl('Test Plan Execution:');
     this.data = {

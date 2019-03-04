@@ -45,8 +45,10 @@ export class ETTestlinkModelsTransformService {
 
   jsonToTestSuiteList(suites: any[]): TLTestSuiteModel[] {
     let suitesList: TLTestSuiteModel[] = [];
-    for (let suite of suites) {
-      suitesList.push(this.jsonToTestSuiteModel(suite));
+    if (suites) {
+      for (let suite of suites) {
+        suitesList.push(this.jsonToTestSuiteModel(suite));
+      }
     }
     return suitesList;
   }
