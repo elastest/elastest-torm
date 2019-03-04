@@ -7,8 +7,6 @@ import { AfterViewChecked, OnChanges, SimpleChanges } from '@angular/core/src/me
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { IExternalExecution } from '../../../elastest-etm/external/models/external-execution-interface';
-import { ExternalTJobExecModel } from '../../../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
-import { ExternalTestExecutionModel } from '../../../elastest-etm/external/external-test-execution/external-test-execution-model';
 import { IExternalExecutionSaveModel } from '../../../elastest-etm/external/models/external-execution-save.model';
 import { getResultIconByString } from '../../../shared/utils';
 ElementRef;
@@ -25,7 +23,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
 
   // TestCaseSteps Data
   testCaseStepsColumns: any[] = [
-    { name: 'id', label: 'Id' },
+    { name: 'id', label: 'Id', width: 80 },
     { name: 'actions', label: 'Actions' },
     { name: 'expectedResults', label: 'Expected Results' },
     { name: 'executionType', label: 'Exec Type' },

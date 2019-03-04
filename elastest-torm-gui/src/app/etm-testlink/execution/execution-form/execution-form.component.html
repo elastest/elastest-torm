@@ -9,8 +9,18 @@
   </normal-height-row>
   <auto-height-row fxLayout="column">
     <div fxLayout="column" fxFlex id="testCaseDiv" class="pad-bottom-sm">
-      <div fxLayout="row">
-        <div fxFlex="50" fxLayoutAlign="center center">
+      <div fxLayout="row" class="push-bottom-md">
+        <div fxFlex="33" fxLayoutAlign="center center">
+          <mat-list>
+            <mat-list-item>
+              <p>
+                Test Case Id:
+                <strong>{{ testCase.id }}</strong>
+              </p>
+            </mat-list-item>
+          </mat-list>
+        </div>
+        <div fxFlex="33" fxLayoutAlign="center center">
           <mat-list>
             <mat-list-item>
               <p>
@@ -20,7 +30,7 @@
             </mat-list-item>
           </mat-list>
         </div>
-        <div fxFlex="50" fxLayoutAlign="center center">
+        <div fxFlex="33" fxLayoutAlign="center center">
           <mat-list>
             <mat-list-item>
               <p>
@@ -35,7 +45,7 @@
         <mat-divider></mat-divider>
       </div>
 
-      <div fxLayout="row" class="push-top">
+      <div fxLayout="row" class="push-top push-bottom-md">
         <div fxFlex="50" id="testCaseInfo">
           <span class="mat-subheading-1">
             <strong>Summary</strong>

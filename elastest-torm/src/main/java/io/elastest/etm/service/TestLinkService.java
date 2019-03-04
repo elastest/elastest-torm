@@ -1,7 +1,6 @@
 
 package io.elastest.etm.service;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,10 +63,10 @@ public class TestLinkService {
 
     @Value("${et.etm.testlink.binded.port}")
     public String etEtmTestlinkBindedPort;
-    
+
     @Value("${et.etm.testlink.api.key}")
     public String etEtmTestLinkApiKey;
-    
+
     @Value("${et.user}")
     public String etUser;
 
@@ -117,10 +116,10 @@ public class TestLinkService {
             this.testLinkUrl = this.getTestLinkUrl();
             String apiUrl = this.testLinkUrl + "/lib/api/xmlrpc/v1/xmlrpc.php";
             logger.info("Testlink api url: {}", apiUrl);
-            
+
             try {
                 testlinkApiURL = new URL(apiUrl);
-             // Updated API key
+                // Updated API key
                 logger.debug("TL user info updated: {}", testLinkDBService
                         .updateApiKey(etEtmTestLinkApiKey, etUser));
                 api = new TestLinkAPI(testlinkApiURL, etEtmTestLinkApiKey);
@@ -169,7 +168,8 @@ public class TestLinkService {
     }
 
     public String getTestLinkUrl() {
-        return etPluginsService.getUniqueEtPlugin(testlinkName).getInternalUrl();
+        return etPluginsService.getUniqueEtPlugin(testlinkName)
+                .getInternalUrl();
     }
 
     /* *****************************************************************/
@@ -546,7 +546,7 @@ public class TestLinkService {
                 execution.getTestPlanId());
 
         ReportTCResultResponse response = this.api.reportTCResult(testCaseId,
-                null, execution.getTestPlanId(), execution.getStatus(),
+                null, execution.getTestPlanId(), execution.getStatus(), null,
                 execution.getBuildId(), null, execution.getNotes(), null, null,
                 platform != null ? platform.getId() : null, null, null, null);
         return response;

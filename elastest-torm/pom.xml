@@ -267,11 +267,13 @@
 			<version>0.7.5</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/br.eti.kinoshita/testlink-java-api -->
 		<dependency>
 			<groupId>br.eti.kinoshita</groupId>
 			<artifactId>testlink-java-api</artifactId>
-			<version>1.9.16-1</version>
+			<version>1.9.17-1</version>
 		</dependency>
+
 
 		<dependency>
 			<groupId>net.minidev</groupId>

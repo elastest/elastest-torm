@@ -46,7 +46,7 @@
           </div>
         </mat-card-title>
         <mat-divider></mat-divider>
-        <mat-card-content fxFlex class="push-bottom-none">
+        <mat-card-content fxFlex class="push-bottom-none" style="padding-top: 6px !important">
           <div
             *ngIf="
               !browserAndEusLoading && exTJob && exTJobExec && !exTJobExec.finished() && exTJobExec.executing();
@@ -59,11 +59,7 @@
               <testlink-execution-form #tlExecutionForm *ngIf="data && data.testCase" [data]="data"></testlink-execution-form>
             </div>
             <ng-template #showTCLoadingSpinner>
-              <mat-spinner
-                strokeWidth="6"
-                color="accent"
-                class="push-top-sm spinnerCenter"
-              ></mat-spinner>
+              <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
             </ng-template>
 
             <div fxLayout="row">
