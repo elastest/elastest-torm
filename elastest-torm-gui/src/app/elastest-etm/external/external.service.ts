@@ -27,6 +27,13 @@ export class ExternalService {
     this.hostApi = this.configurationService.configModel.hostApi;
   }
 
+  public dropAllExternalData(externalSystemId: string): Observable<boolean> {
+    let url: string = this.hostApi + '/external/drop/' + externalSystemId;
+    return this.http.delete(url, { observe: 'response' }).map((data: HttpResponse<boolean>) => {
+      return data.body;
+    });
+  }
+
   /*************************/
   /******** Projects *******/
   /*************************/

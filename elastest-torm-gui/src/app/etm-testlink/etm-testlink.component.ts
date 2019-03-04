@@ -7,7 +7,13 @@ import { EtPluginsService } from '../elastest-test-engines/et-plugins.service';
 import { EtPluginModel } from '../elastest-test-engines/et-plugin-model';
 import { Subscription, Observable, interval } from 'rxjs';
 import { CredentialsDialogComponent } from '../shared/credentials-dialog/credentials-dialog.component';
-import { TdDataTableSortingOrder, TdDataTableService, ITdDataTableSortChangeEvent } from '@covalent/core';
+import {
+  TdDataTableSortingOrder,
+  TdDataTableService,
+  ITdDataTableSortChangeEvent,
+  IConfirmConfig,
+  TdDialogService,
+} from '@covalent/core';
 
 @Component({
   selector: 'etm-testlink',
@@ -56,6 +62,8 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     private etPluginsService: EtPluginsService,
     private dataTableService: TdDataTableService,
+    private _viewContainerRef: ViewContainerRef,
+    private _dialogService: TdDialogService,
   ) {}
 
   ngOnInit(): void {
@@ -176,6 +184,49 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
         console.log(error);
       },
     );
+  }
+
+  dropExternalData(): void {
+    this.disableBtns = true;
+    if (this.projectsList.length > 0) {
+      let iConfirmConfig: IConfirmConfig = {
+        message:
+          'All synchronized data will be deleted from ElasTest (but not from TestLink) and re-synchronized again, do you want to continue?',
+        disableClose: false, // defaults to false
+        viewContainerRef: this._viewContainerRef,
+        title: 'Confirm',
+        cancelButton: 'Cancel',
+        acceptButton: 'Yes, delete',
+      };
+      this._dialogService
+        .openConfirm(iConfirmConfig)
+        .afterClosed()
+        .subscribe((accept: boolean) => {
+          if (accept) {
+            this.disableBtns = true;
+            this.testlinkService.dropAllExternalTLData().subscribe(
+              (dropped: boolean) => {
+                this.disableBtns = false;
+                if (dropped) {
+                  this.testlinkService.popupService.openSnackBar('All synchronized data has been dropped');
+                } else {
+                  this.testlinkService.popupService.openSnackBar('Error on drop all synchronized data');
+                }
+                this.projectsList = [];
+                this.showSpinner = true;
+                this.syncTestLink();
+                this.loadProjects();
+              },
+              (error: Error) => {
+                console.log(error);
+                this.disableBtns = false;
+              },
+            );
+          } else {
+            this.disableBtns = false;
+          }
+        });
+    }
   }
 
   openDialog(): void {

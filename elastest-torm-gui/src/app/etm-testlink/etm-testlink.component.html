@@ -48,6 +48,16 @@
             </span>
             <span fxFlex></span>
             <button
+              mat-button
+              (click)="dropExternalData()"
+              [disabled]="projectsList.length === 0 || disableBtns"
+              stopRowClick
+              class="iconBtn-lg"
+              title="Drop and Resync"
+            >
+              <fa-icon mat-list-icon class="mat-icon" [icon]="['fas', 'redo-alt']"></fa-icon>
+            </button>
+            <button
               mat-icon-button
               color="accent"
               id="syncTestLink"

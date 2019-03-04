@@ -373,6 +373,11 @@ public class TestLinkApiController implements TestLinkApi {
                 HttpStatus.OK);
     }
 
+    public ResponseEntity<Boolean> dropExternalTLData() {
+        return new ResponseEntity<Boolean>(testLinkService.dropExternalTLData(),
+                HttpStatus.OK);
+    }
+
     public ResponseEntity<ExternalProject> getExternalProjectByTestProjectId(
             @ApiParam(value = "ID of the project.", required = true) @PathVariable("projectId") Integer projectId) {
         return new ResponseEntity<ExternalProject>(

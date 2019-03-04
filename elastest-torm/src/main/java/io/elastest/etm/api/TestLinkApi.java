@@ -484,6 +484,15 @@ public interface TestLinkApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<Boolean> syncTestLink();
 
+    @ApiOperation(value = "Drop Synchronized External TestLink Data", notes = "Drop Synchronized External TestLink Data.", response = Boolean.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/drop", produces = {
+            "application/json" }, method = RequestMethod.DELETE)
+    ResponseEntity<Boolean> dropExternalTLData();
+
     @ApiOperation(value = "Returns an External Project By Given Test Project Id", notes = "Returns an External Project By Given Test Project Id.", response = ExternalProject.class, tags = {
             "TestLink", })
     @ApiResponses(value = {

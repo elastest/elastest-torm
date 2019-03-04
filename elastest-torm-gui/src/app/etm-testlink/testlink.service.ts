@@ -64,6 +64,13 @@ export class TestLinkService {
     return this.http.get(url).map((data: boolean) => data);
   }
 
+  public dropAllExternalTLData(): Observable<boolean> {
+    let url: string = this.hostApi + '/testlink/drop';
+    return this.http.delete(url, { observe: 'response' }).map((data: HttpResponse<boolean>) => {
+      return data.body;
+    });
+  }
+
   /*************************/
   /******** Projects *******/
   /*************************/

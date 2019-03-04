@@ -389,7 +389,6 @@ public class TestLinkService {
                             TestCaseDetails.FULL));
 
             cases = this.sortTestCases(cases);
-
         } catch (TestLinkAPIException e) {
             // EMPTY
         }
@@ -825,7 +824,19 @@ public class TestLinkService {
     public boolean syncTestLink() {
         this.syncProjects();
         return true;
+    }
 
+    public boolean dropExternalTLData() {
+        boolean dropped = false;
+        try {
+            this.externalProjectRepository
+                    .deleteByExternalSystemId(this.getSystemId());
+            dropped = true;
+        } catch (Exception e) {
+            logger.error("Error on drop synchronized External TestLink Data",
+                    e);
+        }
+        return dropped;
     }
 
     /* ** Project ** */
@@ -1019,7 +1030,8 @@ public class TestLinkService {
             });
         } catch (Exception e) {
         }
-        
+
         return cases;
     }
+
 }

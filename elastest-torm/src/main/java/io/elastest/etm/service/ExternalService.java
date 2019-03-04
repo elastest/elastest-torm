@@ -20,12 +20,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.api.model.ExternalJob.ExternalJobStatusEnum;
-import io.elastest.etm.api.model.TestSupportServices;
 import io.elastest.etm.dao.external.ExternalProjectRepository;
 import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
 import io.elastest.etm.dao.external.ExternalTJobRepository;
 import io.elastest.etm.dao.external.ExternalTestCaseRepository;
 import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
+import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.model.EusExecutionData;
 import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.Parameter;
@@ -37,7 +37,6 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.VersionInfo;
-import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTJob;
@@ -365,6 +364,19 @@ public class ExternalService {
         this.runningExternalJobs = runningExternalJobs;
     }
 
+    public boolean dropAllExternalData(String externalSystemId) {
+        boolean dropped = false;
+        try {
+            this.externalProjectRepository
+                    .deleteByExternalSystemId(externalSystemId);
+            dropped = true;
+        } catch (Exception e) {
+            logger.error("Error on drop synchronized External TestLink Data",
+                    e);
+        }
+        return dropped;
+    }
+
     /* *************************************************/
     /* *************** ExternalProject *************** */
     /* *************************************************/
@@ -675,4 +687,5 @@ public class ExternalService {
         exTestExec.setExTJobExec(exTJobExec);
         return this.externalTestExecutionRepository.save(exTestExec);
     }
+
 }

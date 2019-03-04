@@ -137,12 +137,14 @@ import { CredentialsDialogComponent } from './shared/credentials-dialog/credenti
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faJenkins } from '@fortawesome/free-brands-svg-icons';
+import { fas } from '@fortawesome/free-solid-svg-icons';
 import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TjobExecsComparatorComponent } from './elastest-etm/tjob-exec/tjob-execs-comparator/tjob-execs-comparator.component';
 import { TableService } from './elastest-log-comparator/service/table.service';
 
 library.add(faJenkins);
+library.add(fas);
 
 @NgModule({
   declarations: [

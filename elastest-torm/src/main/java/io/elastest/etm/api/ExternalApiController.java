@@ -41,13 +41,13 @@ public class ExternalApiController implements ExternalApi {
     @Override
     public ExternalJob execTJobFromExternalTJob(
             @ApiParam(value = "ExternalJob object that needs to create", required = true) @Valid @RequestBody ExternalJob body) {
-            return externalService.executeExternalTJob(body);
+        return externalService.executeExternalTJob(body);
     }
 
     @Override
     public void finishExternalJob(
             @ApiParam(value = "ExternalJob configuration", required = true) @Valid @RequestBody ExternalJob body) {
-            externalService.endExtTJobExecution(body);
+        externalService.endExtTJobExecution(body);
     }
 
     @Override
@@ -59,6 +59,15 @@ public class ExternalApiController implements ExternalApi {
     @Override
     public ResponseEntity<String> getElasTestVersion() {
         return new ResponseEntity<String>(externalService.getElasTestVersion(),
+                HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Boolean> dropAllExternalData(
+            @ApiParam(value = "External System Id.", required = true) @PathVariable("externalSystemId") String externalSystemId) {
+
+        return new ResponseEntity<Boolean>(
+                externalService.dropAllExternalData(externalSystemId),
                 HttpStatus.OK);
     }
 
