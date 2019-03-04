@@ -5,6 +5,11 @@
   text-align: center;
   font-size: 16px;
 }
+
+#testCaseInfoContainer {
+  overflow-y: auto;
+}
+
 #testCaseInfo {
   text-align: center;
   overflow-y: auto;
@@ -18,4 +23,9 @@
 
 ::ng-deep .scroll_table > div {
   max-height: 32vh !important;
+}
+
+:host /deep/ .scroll_table > div {
+  max-height: 46vh !important;
+  min-height: 4vh !important;
 }

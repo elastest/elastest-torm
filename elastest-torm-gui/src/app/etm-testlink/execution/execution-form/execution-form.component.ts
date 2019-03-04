@@ -9,7 +9,7 @@ import { Subject } from 'rxjs/Subject';
 import { IExternalExecution } from '../../../elastest-etm/external/models/external-execution-interface';
 import { IExternalExecutionSaveModel } from '../../../elastest-etm/external/models/external-execution-save.model';
 import { getResultIconByString } from '../../../shared/utils';
-ElementRef;
+
 @Component({
   selector: 'testlink-execution-form',
   templateUrl: './execution-form.component.html',
@@ -41,14 +41,14 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
     this.resultObj = getResultIconByString('');
   }
 
-  ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges): void {
     if (changes.data) {
       this.alreadyFocused = false;
       this.ngOnInit();
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.tcExec = new TestCaseExecutionModel();
     this.testCase = this.data.testCase;
     this.showSpinner = false;
@@ -65,7 +65,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
     this.resultObj = getResultIconByString(this.testCase.executionStatus);
   }
 
-  ngAfterViewChecked() {
+  ngAfterViewChecked(): void {
     if (!this.alreadyFocused) {
       this.notes.nativeElement.focus();
       this.alreadyFocused = true;
@@ -86,7 +86,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
         savedResponse.response = savedExecution;
         _obs.next(savedResponse);
       },
-      (error) => {
+      (error: Error) => {
         this.tcExec.notes = oldNotes;
         _obs.error(error);
       },
