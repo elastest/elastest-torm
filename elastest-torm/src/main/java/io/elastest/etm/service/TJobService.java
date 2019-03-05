@@ -65,7 +65,7 @@ public class TJobService {
     private DatabaseSessionManager dbmanager;
     private UtilsService utilsService;
     private AbstractMonitoringService monitoringService;
-
+    private EtmTestResultService etmTestResultService;
     Map<String, Future<Void>> asyncExecs = new HashMap<String, Future<Void>>();
 
     public TJobService(TJobRepository tJobRepo,
@@ -73,7 +73,8 @@ public class TJobService {
             TJobExecOrchestratorService epmIntegrationService,
             EsmService esmService, DatabaseSessionManager dbmanager,
             UtilsService utilsService,
-            AbstractMonitoringService monitoringService) {
+            AbstractMonitoringService monitoringService,
+            EtmTestResultService etmTestResultService) {
         super();
         this.tJobRepo = tJobRepo;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
@@ -82,6 +83,7 @@ public class TJobService {
         this.dbmanager = dbmanager;
         this.utilsService = utilsService;
         this.monitoringService = monitoringService;
+        this.etmTestResultService = etmTestResultService;
     }
 
     @PreDestroy
@@ -325,8 +327,7 @@ public class TJobService {
                 }
             }
 
-            tJobExecOrchestratorService.saveTestResults(testResultsReports,
-                    tJobExec);
+            etmTestResultService.saveTestResults(testResultsReports, tJobExec);
         }
         try {
             tJobExecOrchestratorService.deprovisionServices(tJobExec);

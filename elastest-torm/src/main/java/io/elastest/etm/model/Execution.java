@@ -1,7 +1,5 @@
 package io.elastest.etm.model;
 
-import com.spotify.docker.client.DockerClient;
-
 import io.elastest.epm.client.DockerContainer;
 import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTJobExecution;
@@ -11,11 +9,9 @@ import io.elastest.etm.model.external.ExternalTJobExecution;
  *
  */
 public class Execution {
-    private DockerClient dockerClient;
     private DockerContainer testcontainer, appContainer;
     private String testContainerId, appContainerId;
 
-    private String network;
     private int testContainerExitCode;
 
     private TJobExecution tJobExec;
@@ -26,7 +22,7 @@ public class Execution {
 
     private SutSpecification sut;
     private SutExecution sutExec;
-    
+
     public Execution() {
     }
 
@@ -42,8 +38,7 @@ public class Execution {
     }
 
     /* *** For External TJob *** */
-    public Execution(ExternalTJobExecution externalTJobExec,
-            boolean withSut) {
+    public Execution(ExternalTJobExecution externalTJobExec, boolean withSut) {
         this.externalTJobExec = externalTJobExec;
         this.updateFromExternalTJobExec(externalTJobExec);
     }
@@ -57,14 +52,6 @@ public class Execution {
 
     public DockerContainer getTestcontainer() {
         return testcontainer;
-    }
-
-    public DockerClient getDockerClient() {
-        return dockerClient;
-    }
-
-    public void setDockerClient(DockerClient dockerClient) {
-        this.dockerClient = dockerClient;
     }
 
     public void setTestcontainer(DockerContainer testcontainer) {
@@ -93,14 +80,6 @@ public class Execution {
 
     public void setAppContainerId(String appContainerId) {
         this.appContainerId = appContainerId;
-    }
-
-    public String getNetwork() {
-        return network;
-    }
-
-    public void setNetwork(String network) {
-        this.network = network;
     }
 
     public Long getExecutionId() {
@@ -169,7 +148,8 @@ public class Execution {
     }
 
     public boolean isWithSut() {
-        return isExternal() ? externalTJobExec.isWithSut() : tJobExec.isWithSut() ;
+        return isExternal() ? externalTJobExec.isWithSut()
+                : tJobExec.isWithSut();
     }
 
     public SutExecution getSutExec() {
@@ -190,10 +170,9 @@ public class Execution {
 
     @Override
     public String toString() {
-        return "DockerExecution [dockerClient=" + dockerClient
-                + ", testcontainer=" + testcontainer + ", appContainer="
-                + appContainer + ", testContainerId=" + testContainerId
-                + ", appContainerId=" + appContainerId + ", network=" + network
+        return "DockerExecution [testcontainer=" + testcontainer
+                + ", appContainer=" + appContainer + ", testContainerId="
+                + testContainerId + ", appContainerId=" + appContainerId
                 + ", testContainerExitCode=" + testContainerExitCode
                 + ", isExternal=" + isExternal() + ", tJobExec=" + tJobExec
                 + ", tJob=" + tJob + ", externalTJob=" + externalTJob

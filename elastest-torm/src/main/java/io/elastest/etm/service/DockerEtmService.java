@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,7 @@ import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.utils.ElastestConstants;
@@ -157,18 +159,21 @@ public class DockerEtmService {
     public TJobExecRepository tJobExecRepositoryImpl;
     public ExternalTJobExecutionRepository externalTJobExecutionRepository;
     public UtilsService utilsService;
+    private EtmTestResultService etmTestResultService;
 
     @Autowired
     public DockerEtmService(DockerService dockerService,
             EtmFilesService filesService,
             TJobExecRepository tJobExecRepositoryImpl,
             UtilsService utilsService,
-            ExternalTJobExecutionRepository externalTJobExecutionRepository) {
+            ExternalTJobExecutionRepository externalTJobExecutionRepository,
+            EtmTestResultService etmTestResultService) {
         this.dockerService = dockerService;
         this.filesService = filesService;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.utilsService = utilsService;
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
+        this.etmTestResultService = etmTestResultService;
     }
 
     public String getThisContainerIpCmd = "ip a | grep -m 1 global | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}\\/' | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}'";
@@ -207,20 +212,6 @@ public class DockerEtmService {
     /* ************************ */
     /* **** Config Methods **** */
     /* ************************ */
-
-    public void configureDocker(Execution dockerExec) throws Exception {
-        DockerClient client = dockerService.getDockerClient(true);
-        dockerExec.setDockerClient(client);
-    }
-
-    public void loadBasicServices(Execution dockerExec) throws Exception {
-        try {
-            this.configureDocker(dockerExec);
-            dockerExec.setNetwork(elastestNetwork);
-        } catch (Exception e) {
-            throw new Exception("Exception on load basic docker services", e);
-        }
-    }
 
     public void insertCreatedContainer(String containerId,
             String containerName) {
@@ -261,8 +252,8 @@ public class DockerEtmService {
                 elastestNetwork);
     }
 
-    public Map<String, String> getEtLabels(Execution dockerExec,
-            String type, String sutServiceName) {
+    public Map<String, String> getEtLabels(Execution dockerExec, String type,
+            String sutServiceName) {
         String etTypeLabelValue = "";
         if ("sut".equals(type.toLowerCase())) {
             etTypeLabelValue = etTypeSutLabelValue;
@@ -292,8 +283,7 @@ public class DockerEtmService {
         return labels;
     }
 
-    public Map<String, String> getEtLabels(Execution dockerExec,
-            String type) {
+    public Map<String, String> getEtLabels(Execution dockerExec, String type) {
         return this.getEtLabels(dockerExec, type, null);
     }
 
@@ -301,8 +291,8 @@ public class DockerEtmService {
     /* **** Container Methods **** */
     /* *************************** */
 
-    public DockerContainer createContainer(Execution dockerExec,
-            String type) throws Exception {
+    public DockerContainer createContainer(Execution dockerExec, String type)
+            throws Exception {
         SutSpecification sut = dockerExec.getSut();
 
         String image = "";
@@ -435,7 +425,7 @@ public class DockerEtmService {
         dockerBuilder.containerName(containerName);
         dockerBuilder.cmd(cmdList);
         dockerBuilder.entryPoint(entrypointList);
-        dockerBuilder.network(dockerExec.getNetwork());
+        dockerBuilder.network(elastestNetwork);
         dockerBuilder.labels(labels);
 
         boolean sharedDataVolume = false;
@@ -624,7 +614,8 @@ public class DockerEtmService {
             DockerBuilder dockerBuilder = new DockerBuilder(dockbeatImage);
             dockerBuilder.envs(envList);
             dockerBuilder.containerName(containerName);
-            dockerBuilder.network(dockerExec.getNetwork());
+            logger.debug("Adding dockbeat to network: {}", elastestNetwork);
+            dockerBuilder.network(elastestNetwork);
 
             dockerBuilder.volumeBindList(Arrays.asList(dockerSockVolumeBind));
 
@@ -719,7 +710,7 @@ public class DockerEtmService {
             DockerBuilder dockerBuilder = new DockerBuilder(checkImage);
             dockerBuilder.envs(envList);
             dockerBuilder.containerName(checkName);
-            dockerBuilder.network(dockerExec.getNetwork());
+            dockerBuilder.network(elastestNetwork);
 
             DockerContainer dockerContainer = dockerBuilder.build();
             String checkContainerId = dockerService.createAndStartContainer(
@@ -727,7 +718,8 @@ public class DockerEtmService {
 
             this.insertCreatedContainer(checkContainerId, checkName);
 
-            int statusCode = dockerExec.getDockerClient()
+            int statusCode = dockerService
+                    .getDockerClient(EpmService.etMasterSlaveMode)
                     .waitContainer(checkContainerId).statusCode();
             if (statusCode == 0) {
                 logger.info("Sut is ready " + dockerExec.getExecutionId());
@@ -762,8 +754,9 @@ public class DockerEtmService {
         return "test_" + dockerExec.getExecutionId();
     }
 
-    public List<ReportTestSuite> createAndStartTestContainer(
-            Execution dockerExec) throws Exception {
+    public void createAndRunTestContainer(Execution dockerExec)
+            throws Exception {
+        TJobExecution tJobExec = dockerExec.getTJobExec();
         try {
             // Create Container Object
             dockerExec.setTestcontainer(createContainer(dockerExec, "tjob"));
@@ -785,18 +778,28 @@ public class DockerEtmService {
             String testName = getTestName(dockerExec);
             this.insertCreatedContainer(testContainerId, testName);
 
-            int code = dockerExec.getDockerClient()
+            int exitCode = dockerService
+                    .getDockerClient(EpmService.etMasterSlaveMode)
                     .waitContainer(testContainerId).statusCode();
+            logger.info("Test container ends with code " + exitCode);
 
-            dockerExec.setTestContainerExitCode(code);
-            logger.info("Test container ends with code " + code);
+            // Test Results
+            resultMsg = "Waiting for Test Results";
+            updateExecutionResultStatus(dockerExec, ResultEnum.WAITING,
+                    resultMsg);
+            etmTestResultService.saveTestResults(getTestResults(dockerExec),
+                    tJobExec);
+
+            tJobExec.setEndDate(new Date());
+            logger.info("Ending Execution {}...", tJobExec.getId());
+            saveFinishStatus(tJobExec, dockerExec);
+
         } catch (TJobStoppedException | InterruptedException e) {
             throw new TJobStoppedException(
                     "Error on create and start TJob container: Stopped", e);
         } catch (Exception e) {
             throw new Exception("Error on create and start TJob container", e);
         }
-        return getTestResults(dockerExec);
     }
 
     public void updateExecutionResultStatus(Execution dockerExec,
@@ -839,6 +842,29 @@ public class DockerEtmService {
     public boolean isEMSSelected(Execution dockerExec) {
         return !dockerExec.isExternal()
                 && dockerExec.gettJob().isSelectedService("ems");
+    }
+
+    public void saveFinishStatus(TJobExecution tJobExec, Execution dockerExec) {
+        String resultMsg = "";
+        ResultEnum finishStatus = ResultEnum.SUCCESS;
+
+        if (tJobExec.getTestSuites() != null
+                && tJobExec.getTestSuites().size() > 0) {
+            for (TestSuite testSuite : tJobExec.getTestSuites()) {
+                if (testSuite.getFinalStatus() == ResultEnum.FAIL) {
+                    finishStatus = testSuite.getFinalStatus();
+                    break;
+                }
+            }
+
+        } else {
+            if (dockerExec.getTestContainerExitCode() != 0) {
+                finishStatus = ResultEnum.FAIL;
+            }
+        }
+
+        resultMsg = "Finished: " + finishStatus;
+        updateExecutionResultStatus(dockerExec, finishStatus, resultMsg);
     }
 
     /* ******************************* */
@@ -934,21 +960,20 @@ public class DockerEtmService {
     public String getContainerIpWithDockerExecution(String containerId,
             Execution dockerExec) throws Exception {
         return dockerService.getContainerIpWithDockerClient(
-                dockerExec.getDockerClient(), containerId,
-                dockerExec.getNetwork());
+                dockerService.getDockerClient(EpmService.etMasterSlaveMode),
+                containerId, elastestNetwork);
     }
 
     public String waitForContainerIpWithDockerExecution(String containerId,
             Execution dockerExec, long timeout) throws Exception {
         return dockerService.waitForContainerIpWithDockerClient(
-                dockerExec.getDockerClient(), containerId,
-                dockerExec.getNetwork(), timeout);
+                dockerService.getDockerClient(EpmService.etMasterSlaveMode),
+                containerId, elastestNetwork, timeout);
     }
 
-    public String getHostIp(Execution dockerExec)
-            throws DockerException, InterruptedException {
-        return dockerExec.getDockerClient()
-                .inspectNetwork(dockerExec.getNetwork()).ipam().config().get(0)
+    public String getHostIp(Execution dockerExec) throws Exception {
+        return dockerService.getDockerClient(EpmService.etMasterSlaveMode)
+                .inspectNetwork(elastestNetwork).ipam().config().get(0)
                 .gateway();
     }
 
@@ -1026,7 +1051,7 @@ public class DockerEtmService {
     /* **** Get TestResults **** */
     /* ************************* */
 
-    private List<ReportTestSuite> getTestResults(Execution dockerExec)
+    public List<ReportTestSuite> getTestResults(Execution dockerExec)
             throws Exception {
         try {
             List<ReportTestSuite> testSuites = null;
@@ -1088,6 +1113,14 @@ public class DockerEtmService {
         }
 
         return results;
+    }
+
+    public String getElastestNetwork() {
+        return elastestNetwork;
+    }
+
+    public void setElastestNetwork(String elastestNetwork) {
+        this.elastestNetwork = elastestNetwork;
     }
 
     private List<ReportTestSuite> testSuiteStringToReportTestSuite(
