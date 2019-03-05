@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import br.eti.kinoshita.testlinkjavaapi.model.Build;
 import br.eti.kinoshita.testlinkjavaapi.model.Execution;
+import br.eti.kinoshita.testlinkjavaapi.model.Platform;
 import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
@@ -392,6 +393,20 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<TestCase> getBuildTestCaseById(
             @ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId,
             @ApiParam(value = "Id of the Test Case.", required = true) @PathVariable("caseId") Integer caseId);
+
+    /* **********************************************************************/
+    /* ***************************** Platforms ******************************/
+    /* **********************************************************************/
+
+    @ApiOperation(value = "Returns all Platforms of a Test Plan", notes = "Returns all Platforms of a Test Plan", response = Platform.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Platform.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/plan/{planId}/platforms", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<Platform[]> getTestPlanPlatforms(
+            @ApiParam(value = "Id of the Test Plan.", required = true) @PathVariable("planId") Integer planId);
 
     /* ***********************************************************************/
     /* ***************************** Executions ******************************/

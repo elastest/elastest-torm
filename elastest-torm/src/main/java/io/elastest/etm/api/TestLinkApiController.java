@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import br.eti.kinoshita.testlinkjavaapi.model.Build;
 import br.eti.kinoshita.testlinkjavaapi.model.Execution;
+import br.eti.kinoshita.testlinkjavaapi.model.Platform;
 import br.eti.kinoshita.testlinkjavaapi.model.TestCase;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
@@ -304,6 +305,16 @@ public class TestLinkApiController implements TestLinkApi {
         return new ResponseEntity<TestCase>(
                 testLinkService.getBuildTestCaseById(buildId, caseId),
                 HttpStatus.OK);
+    }
+
+    /* **********************************************************************/
+    /* ***************************** Platforms ******************************/
+    /* **********************************************************************/
+
+    public ResponseEntity<Platform[]> getTestPlanPlatforms(
+            @ApiParam(value = "Id of the Test Plan.", required = true) @PathVariable("planId") Integer planId) {
+        return new ResponseEntity<Platform[]>(
+                testLinkService.getPlanPlatforms(planId), HttpStatus.OK);
     }
 
     /* ***********************************************************************/

@@ -172,18 +172,23 @@
                     [resizableColumns]="true"
                   >
                     <ng-template
-                      *ngFor="let column of buildColumns"
+                      *ngFor="let column of testCaseColumns"
                       tdDataTableTemplate="{{ column.name }}"
                       let-value="value"
                       let-row="row"
                     >
                       <div *ngIf="column.name !== 'options'" class="">
                         <div
-                          *ngIf="column.name === 'summary' || column.name === 'preconditions'; else normalValue"
+                          *ngIf="column.name === 'summary' || column.name === 'preconditions'; else otherValue"
                           [innerHTML]="value"
                         ></div>
-                        <ng-template #normalValue>
-                          <span>{{ value }}</span>
+                        <ng-template #otherValue>
+                          <span *ngIf="column.name === 'platform'; else normalValue">{{
+                            value && value.name ? value.name : 'NONE'
+                          }}</span>
+                          <ng-template #normalValue>
+                            <span>{{ value }}</span>
+                          </ng-template>
                         </ng-template>
                       </div>
                     </ng-template>

@@ -1,5 +1,5 @@
 import { PopupService } from '../shared/services/popup.service';
-import { TLTestCaseModel } from './models/test-case-model';
+import { TLTestCaseModel, PlatformModel } from './models/test-case-model';
 import { TLTestSuiteModel } from './models/test-suite-model';
 import { TestPlanModel } from './models/test-plan-model';
 import { Injectable } from '@angular/core';
@@ -182,6 +182,15 @@ export class TestLinkService {
   public createTestPlan(plan: TestPlanModel): Observable<TLTestCaseModel> {
     let url: string = this.hostApi + '/testlink/project/plan';
     return this.http.post(url, plan, { observe: 'response' }).map((response: HttpResponse<any>) => response.body);
+  }
+
+  /***************************/
+  /******** Platforms ********/
+  /***************************/
+
+  public getTestPlanPlatforms(planId: number | string): Observable<PlatformModel[]> {
+    let url: string = this.hostApi + '/testlink/project/plan' + planId + '/platforms';
+    return this.http.get(url).map((data: any[]) => this.eTTestlinkModelsTransformService.jsonToPlatformsList(data));
   }
 
   /************************/

@@ -44,6 +44,7 @@ export class TestPlanComponent implements OnInit {
     { name: 'preconditions', label: 'Preconditions' },
     { name: 'executionType', label: 'Exec Type' },
     { name: 'fullExternalId', label: 'External ID' },
+    { name: 'platform', label: 'Platform' },
   ];
 
   sortBy: string = 'id';

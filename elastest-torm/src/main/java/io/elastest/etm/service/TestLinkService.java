@@ -779,6 +779,18 @@ public class TestLinkService {
         return testCase.getPlatform();
     }
 
+    public Platform[] getPlanPlatforms(TestPlan plan) {
+        if (plan == null) {
+            return new Platform[0];
+        }
+        return getPlanPlatforms(plan.getId());
+    }
+
+    public Platform[] getPlanPlatforms(Integer planId) {
+        return api.getTestPlanPlatforms(planId);
+
+    }
+
     /* ************************************************************/
     /* ************************ External *************************/
     /* ************************************************************/
@@ -921,7 +933,7 @@ public class TestLinkService {
                         .syncProjectTestCase(currentTestCase, externalTJob);
                 savedExTestCase = externalTestCaseRepository
                         .findById(savedExTestCase.getId()).get();
-                
+
                 // NOTE: USE ADD/REMOVE for ManyToMany always
                 externalTJob.addExTestCase(savedExTestCase);
             }

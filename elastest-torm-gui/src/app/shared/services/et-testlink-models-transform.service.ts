@@ -178,6 +178,16 @@ export class ETTestlinkModelsTransformService {
     return newStep;
   }
 
+  jsonToPlatformsList(platforms: any[]): PlatformModel[] {
+    let platformsList: PlatformModel[] = [];
+    for (let platform of platforms) {
+      if (platform !== undefined && platform !== null) {
+        platformsList.push(this.jsonToPlatform(platform));
+      }
+    }
+    return platformsList;
+  }
+
   jsonToPlatform(platform: any): PlatformModel {
     let newPlatform: PlatformModel;
     if (platform !== undefined && platform !== null) {

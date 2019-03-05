@@ -328,6 +328,17 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       return Number(a.externalId) - Number(b.externalId);
     });
 
+    // remove duplicated tmp (are one for each platform)
+    let auxTCasesList: ExternalTestCaseModel[] = [];
+    let currentCase: ExternalTestCaseModel;
+    for (let tCase of this.externalTestCases) {
+      if (currentCase === undefined || currentCase.externalId !== tCase.externalId) {
+        currentCase = tCase;
+        auxTCasesList.push(tCase);
+      }
+    }
+    this.externalTestCases = auxTCasesList;
+
     this.totalCases = this.externalTestCases.length;
 
     this.setTJobExecutionUrl('Test Plan Execution:');
