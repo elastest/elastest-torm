@@ -911,33 +911,40 @@ public class TestLinkService {
     /* ** TestCase ** */
 
     public void syncTestPlanCases(Integer planId, ExternalTJob externalTJob) {
-        // Clean first TJob from all external TC (for unassigned TC)
+        // Clean this TJob first from all external TC (for unassigned TC)
         this.cleanExternalTJobFromExternalTestCases(externalTJob);
 
         TestCase[] casesList = this.getPlanTestCases(planId);
         if (casesList != null) {
             for (TestCase currentTestCase : casesList) {
-                this.syncProjectTestCase(currentTestCase, externalTJob);
+                ExternalTestCase savedExTestCase = this
+                        .syncProjectTestCase(currentTestCase, externalTJob);
+                savedExTestCase = externalTestCaseRepository
+                        .findById(savedExTestCase.getId()).get();
+                
+                // NOTE: USE ADD/REMOVE for ManyToMany always
+                externalTJob.addExTestCase(savedExTestCase);
             }
+            // Re-save with test cases for manytomany
+            externalTJob = externalTJobRepository.save(externalTJob);
         }
     }
 
     public void cleanExternalTJobFromExternalTestCases(
             ExternalTJob externalTJob) {
         List<ExternalTestCase> externalTestCases = externalTestCaseRepository
-                .findByExTJob(externalTJob);
+                .findByExTJobs_id(externalTJob.getId());
         if (externalTestCases != null) {
             for (ExternalTestCase currentCase : externalTestCases) {
-                currentCase.setExTJob(null);
+                currentCase.removeExTJob(externalTJob);
                 externalTestCaseRepository.save(currentCase);
             }
         }
     }
 
-    public void syncProjectTestCase(TestCase testCase,
+    public ExternalTestCase syncProjectTestCase(TestCase testCase,
             ExternalTJob externalTJob) {
         ExternalTestCase externalTestCase = new ExternalTestCase(new Long(0));
-        externalTestCase.setExTJob(externalTJob);
         externalTestCase.setName(testCase.getName());
         externalTestCase.setFields(this.getTestCaseFields(testCase));
         externalTestCase.setExternalId(testCase.getId().toString());
@@ -956,6 +963,7 @@ public class TestLinkService {
                     .save(externalTestCase);
         }
         this.syncTestCaseExecs(testCase.getId(), externalTestCase);
+        return externalTestCase;
     }
 
     /* ** Exec ** */

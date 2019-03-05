@@ -4,6 +4,7 @@ import { ExternalTJobExecModel } from '../external-tjob-execution/external-tjob-
 import { ServiceType } from '../external-project/external-project-model';
 import { TestCaseExecutionModel } from '../../../etm-testlink/models/test-case-execution-model';
 import { getResultIconByString } from '../../../shared/utils';
+import { ExternalTJobModel } from '../external-tjob/external-tjob-model';
 
 export class ExternalTestExecutionModel {
   id: number;
@@ -76,8 +77,8 @@ export class ExternalTestExecutionModel {
     this.fields = JSON.stringify(fieldsObj);
   }
 
-  public getRouteString(): string {
-    return this.exTestCase.getRouteString() + ' / Execution ' + this.id;
+  public getRouteString(specificExTJob?: ExternalTJobModel): string {
+    return this.exTestCase.getRouteString(specificExTJob) + ' / Execution ' + this.id;
   }
 
   getServiceType(): ServiceType {

@@ -63,6 +63,8 @@
 		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20190226085436.xml" />
 	<include
 		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20190227120039.xml" />
+	<include
+		file="src/main/resources/db/changelogs/liquibase-diff-changeLog-20190305141142.xml" />
 
 	<!--includeAll path="src/main/resources/db/changelogs/"/ -->
 </databaseChangeLog>

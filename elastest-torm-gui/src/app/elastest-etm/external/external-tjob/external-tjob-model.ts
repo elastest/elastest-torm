@@ -48,7 +48,7 @@ export class ExternalTJobModel extends AbstractTJobModel {
     return 'ExternalTJobModel';
   }
 
-  public withSut() {
+  public withSut(): boolean {
     return this.sut !== undefined && this.sut.id > 0;
   }
 }

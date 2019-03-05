@@ -48,11 +48,16 @@ export class ETExternalModelsTransformService {
   /********* TJobs *********/
   /*************************/
 
-  jsonToExternalTJobsList(tjobs: any[], fromProject: boolean = false): ExternalTJobModel[] {
+  jsonToExternalTJobsList(
+    tjobs: any[],
+    fromProject: boolean = false,
+    withoutTestCases: boolean = false,
+    withoutTJobExecs: boolean = false,
+  ): ExternalTJobModel[] {
     let tjobsList: ExternalTJobModel[] = [];
     if (tjobs && tjobs.length > 0) {
       for (let tjob of tjobs) {
-        tjobsList.push(this.jsonToExternalTJobModel(tjob, fromProject));
+        tjobsList.push(this.jsonToExternalTJobModel(tjob, fromProject, withoutTestCases, withoutTJobExecs));
       }
     }
     return tjobsList;
@@ -174,17 +179,17 @@ export class ETExternalModelsTransformService {
     if (!withoutTestExecs) {
       newCase.exTestExecs = testCase.exTestExecs;
     }
-    if (testCase.exTJob !== undefined && testCase.exTJob !== null) {
+    if (testCase.exTJobs !== undefined && testCase.exTJobs !== null) {
       if (!fromTJob) {
-        newCase.exTJob = this.jsonToExternalTJobModel(testCase.exTJob, false, true, false);
+        newCase.exTJobs = this.jsonToExternalTJobsList(testCase.exTJobs, false, true, false);
       } else {
-        newCase.exTJob = testCase.exTJob;
+        newCase.exTJobs = testCase.exTJobs;
       }
     } else {
       if (!fromTJob) {
-        newCase.exTJob = new ExternalTJobModel();
+        newCase.exTJobs = [];
       } else {
-        newCase.exTJob = undefined;
+        newCase.exTJobs = [];
       }
     }
 

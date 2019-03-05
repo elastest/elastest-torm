@@ -9,25 +9,34 @@ export class ExternalTestCaseModel {
   fields: any;
   externalId: string;
   externalSystemId: string;
-  exTJob: ExternalTJobModel;
+  exTJobs: ExternalTJobModel[];
   exTestExecs: ExternalTestExecutionModel[];
 
   constructor() {
     this.id = 0;
     this.name = '';
     this.fields = undefined;
-    this.exTJob = undefined;
+    this.exTJobs = [];
     this.exTestExecs = [];
   }
 
-  public getRouteString(): string {
-    return this.exTJob.getRouteString() + ' / Case ' + this.id;
+  public getRouteString(specificExTJob?: ExternalTJobModel): string {
+    if (specificExTJob === undefined) {
+      if (this.getFirstExTJob() !== undefined) {
+        specificExTJob = this.getFirstExTJob();
+      }
+    }
+
+    if (specificExTJob !== undefined) {
+      return specificExTJob.getRouteString() + ' / Case ' + this.id;
+    }
+    return undefined;
   }
 
   getServiceType(): ServiceType {
     let type: ServiceType;
-    if (this.exTJob !== undefined) {
-      type = this.exTJob.getServiceType();
+    if (this.getFirstExTJob() !== undefined) {
+      type = this.getFirstExTJob().getServiceType();
     }
     return type;
   }
@@ -40,5 +49,12 @@ export class ExternalTestCaseModel {
       }
     }
     return execFilesFiltered;
+  }
+
+  getFirstExTJob(): ExternalTJobModel {
+    if (this.exTJobs !== undefined && this.exTJobs.length > 0) {
+      return this.exTJobs[0];
+    }
+    return undefined;
   }
 }

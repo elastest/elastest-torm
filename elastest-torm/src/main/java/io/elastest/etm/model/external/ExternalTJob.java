@@ -1,6 +1,7 @@
 package io.elastest.etm.model.external;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -11,6 +12,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -89,14 +92,16 @@ public class ExternalTJob implements Serializable {
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
             ExternalTestExecutionView.class, ExternalTJobExecutionView.class })
     @JsonProperty("exTestCases")
-    @OneToMany(mappedBy = "exTJob", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @ManyToMany(cascade = { CascadeType.PERSIST }, fetch = FetchType.LAZY)
+    @JoinTable(name = "exTJob_exTestCase", joinColumns = @JoinColumn(name = "exTJob_id"), inverseJoinColumns = @JoinColumn(name = "exTestCase_id"))
     @JsonIgnoreProperties(value = "exTJob", allowSetters = true)
     @LazyCollection(LazyCollectionOption.FALSE)
-    private List<ExternalTestCase> exTestCases;
+    private List<ExternalTestCase> exTestCases = new ArrayList<ExternalTestCase>();
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
             ExternalTJobExecutionView.class, ExternalTestCaseView.class,
             ExternalTestExecutionView.class })
+    // MANDATORY add/remove methods for manyToOne below
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sut")
     @JsonProperty("sut")
@@ -104,8 +109,8 @@ public class ExternalTJob implements Serializable {
     private SutSpecification sut = null;
 
     @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
-        ExternalTJobExecutionView.class, ExternalTestCaseView.class,
-        ExternalTestExecutionView.class })
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
     @Column(name = "execDashboardConfig", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("execDashboardConfig")
     private String execDashboardConfig = null;
@@ -115,9 +120,11 @@ public class ExternalTJob implements Serializable {
     /* **************************/
 
     public ExternalTJob() {
+        exTestCases = new ArrayList<ExternalTestCase>();
     }
 
     public ExternalTJob(Long id) {
+        exTestCases = new ArrayList<ExternalTestCase>();
         this.id = id == null ? 0 : id;
     }
 
@@ -179,6 +186,23 @@ public class ExternalTJob implements Serializable {
 
     public void setExTestCases(List<ExternalTestCase> exTestCases) {
         this.exTestCases = exTestCases;
+    }
+
+    // MANDATORY add/remove methods for manyToOne
+    public void addExTestCase(ExternalTestCase exTestCase) {
+        if (exTestCases == null) {
+            exTestCases = new ArrayList<>();
+        }
+        exTestCases.add(exTestCase);
+        exTestCase.getExTJobs().add(this);
+    }
+
+    public void removeExTestCase(ExternalTestCase exTestCase) {
+        if (exTestCases == null) {
+            exTestCases = new ArrayList<>();
+        }
+        exTestCases.remove(exTestCase);
+        exTestCase.getExTJobs().remove(this);
     }
 
     public SutSpecification getSut() {

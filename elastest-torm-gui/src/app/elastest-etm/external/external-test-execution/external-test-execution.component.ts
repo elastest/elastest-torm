@@ -5,11 +5,9 @@ import { ActivatedRoute, Router, Params } from '@angular/router';
 import { ExternalTestExecutionModel } from './external-test-execution-model';
 import { ExternalTestCaseModel } from '../external-test-case/external-test-case-model';
 import { ServiceType } from '../external-project/external-project-model';
-import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
 import { ExternalTJobModel } from '../external-tjob/external-tjob-model';
 import { ExternalTJobExecModel } from '../external-tjob-execution/external-tjob-execution-model';
 import { ElastestLogAnalyzerComponent } from '../../../elastest-log-analyzer/elastest-log-analyzer.component';
-import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { FileModel } from '../../files-manager/file-model';
 import { ConfigurationService } from '../../../config/configuration-service.service';
 
@@ -27,6 +25,8 @@ export class ExternalTestExecutionComponent implements OnInit {
   files: FileModel[] = [];
   filesUrlPrefix: string;
   selectedTab: number = 0;
+
+  exTJobId: number;
   exTJob: ExternalTJobModel;
   exTJobExec: ExternalTJobExecModel;
 
@@ -43,11 +43,12 @@ export class ExternalTestExecutionComponent implements OnInit {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params.subscribe((params: Params) => {
         this.exTestExecId = params.execId;
+        this.exTJobId = params.tJobId;
       });
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setHeadTitle('External Test Execution');
     this.titlesService.setPathName(this.router.routerState.snapshot.url);
     this.exTestExec = new ExternalTestExecutionModel();
@@ -61,13 +62,18 @@ export class ExternalTestExecutionComponent implements OnInit {
         this.exTestCase = this.exTestExec.exTestCase;
         this.serviceType = this.exTestExec.getServiceType();
 
-        this.exTJob = this.exTestCase.exTJob;
-        this.exTJobExec = this.externalService.eTExternalModelsTransformService.jsonToExternalTJobExecModel(
-          this.exTestExec.exTJobExec,
+        this.externalService.getExternalTJobById(this.exTJobId).subscribe(
+          (exTJob: ExternalTJobModel) => {
+            this.exTJob = exTJob;
+            this.exTJobExec = this.externalService.eTExternalModelsTransformService.jsonToExternalTJobExecModel(
+              this.exTestExec.exTJobExec,
+            );
+            this.getExecutionFiles();
+          },
+          (error: Error) => console.log(error),
         );
-        this.getExecutionFiles();
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -82,7 +88,7 @@ export class ExternalTestExecutionComponent implements OnInit {
         });
         this.files = this.exTestCase.setTestCaseFiles(tJobsExecFiles);
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
 
@@ -103,7 +109,7 @@ export class ExternalTestExecutionComponent implements OnInit {
   viewInLogAnalyzer(): void {
     this.router.navigate(['/loganalyzer'], {
       queryParams: {
-        exTJob: this.exTestCase.exTJob.id,
+        exTJob: this.exTJob.id,
         exTJobExec: this.exTestExec.exTJobExec.id,
         exTestCase: this.exTestCase.name,
         exTestExec: this.exTestExec.id,

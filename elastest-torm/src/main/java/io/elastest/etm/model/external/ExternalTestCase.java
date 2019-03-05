@@ -1,6 +1,7 @@
 package io.elastest.etm.model.external;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -10,8 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -73,11 +73,10 @@ public class ExternalTestCase implements Serializable {
     private String externalSystemId;
 
     @JsonView({ ExternalTestCaseView.class, ExternalTestExecutionView.class })
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exTJob")
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "exTestCases")
     @JsonIgnoreProperties(value = { "exTestCases",
             "exTJobExecs" }, allowSetters = true)
-    private ExternalTJob exTJob;
+    private List<ExternalTJob> exTJobs = new ArrayList<ExternalTJob>();
 
     @JsonView({ ExternalTestCaseView.class, ExternalProjectView.class,
             ExternalTJobView.class, })
@@ -91,9 +90,11 @@ public class ExternalTestCase implements Serializable {
     /* **************************/
 
     public ExternalTestCase() {
+        this.exTJobs = new ArrayList<ExternalTJob>();
     }
 
     public ExternalTestCase(Long id) {
+        this.exTJobs = new ArrayList<ExternalTJob>();
         this.id = id == null ? 0 : id;
     }
 
@@ -141,12 +142,24 @@ public class ExternalTestCase implements Serializable {
         this.externalSystemId = externalSystemId;
     }
 
-    public ExternalTJob getExTJob() {
-        return exTJob;
+    public List<ExternalTJob> getExTJobs() {
+        if (exTJobs == null) {
+            exTJobs = new ArrayList<>();
+        }
+        return exTJobs;
     }
 
-    public void setExTJob(ExternalTJob exTJob) {
-        this.exTJob = exTJob;
+    public void setExTJobs(List<ExternalTJob> exTJobs) {
+        this.exTJobs = exTJobs;
+    }
+
+    // MANDATORY add/remove methods for manyToOne
+    public void addExTJob(ExternalTJob exTJob) {
+        exTJob.addExTestCase(this);
+    }
+
+    public void removeExTJob(ExternalTJob exTJob) {
+        exTJob.removeExTestCase(this);
     }
 
     public List<ExternalTestExecution> getExTestExecs() {
