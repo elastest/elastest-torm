@@ -77,17 +77,24 @@ public class EtmApiItTest extends IntegrationBaseTest {
         SutSpecification sutExample2 = new SutSpecification();
         sutExample2.setId(new Long(0));
         sutExample2.setName("sut_definition_1");
-        sutExample2.setDescription(
-                "This is a SuT description example using docker-compose");
-        sutExample2.setSpecification("version: '2.1'\n" + "services:\n"
-                + "   dummy-sut:\n" + "      image: elastest/dummy-tss\n"
-                + "      environment:\n" + "         - USE_TORM=true\n"
-                + "      expose:\n" + "         - 8095\n" + "      networks:\n"
-                + "         - elastest_elastest      \n" + "      labels:\n"
-                + "         - io.elastest.type=tss\n"
-                + "         - io.elastest.tjob.tss.id=dummy-tss\n"
-                + "         - io.elastest.tjob.tss.type=main\n" + "networks:\n"
-                + "  elastest_elastest:\n" + "    external: true");
+        sutExample2.setDescription("This is a SuT description example using docker-compose");
+        sutExample2.setSpecification("version: '2.1'\n" + 
+                "services:\n" + 
+                "   dummy-sut:\n" + 
+                "      image: elastest/etm-dummy-tss\n" + 
+                "      environment:\n" + 
+                "         - USE_TORM=true\n" + 
+                "      expose:\n" + 
+                "         - 8095\n" + 
+                "      networks:\n" + 
+                "         - elastest_elastest      \n" + 
+                "      labels:\n" + 
+                "         - io.elastest.type=tss\n" + 
+                "         - io.elastest.tjob.tss.id=elastest/etm-dummy-tss\n" + 
+                "         - io.elastest.tjob.tss.type=main\n" + 
+                "networks:\n" + 
+                "  elastest_elastest:\n" + 
+                "    external: true");
         sutExample2.setMainService("dummy-sut");
         sutExample2.setSutType(SutTypeEnum.MANAGED);
         sutExample2.setManagedDockerType(ManagedDockerType.COMPOSE);
