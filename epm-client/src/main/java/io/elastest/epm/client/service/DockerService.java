@@ -114,6 +114,7 @@ public class DockerService {
     private String dockerServerIp;
     private boolean isRunningInContainer = false;
     private boolean containerCheked = false;
+    private DockerClient dockerClient;
 
     @Autowired
     EpmService epmService;
@@ -141,8 +142,10 @@ public class DockerService {
             NetworkConfig networkConfig = NetworkConfig.builder()
                     .checkDuplicate(true).attachable(true)
                     .name(elastestDockerNetwork).build();
+            dockerClient = getDockerClient(false);
             getDockerClient(true).createNetwork(networkConfig);
-
+        } else {
+            dockerClient = getDockerClient(false);
         }
 
     }
@@ -185,8 +188,10 @@ public class DockerService {
         } else {
             dockerClientBuilder.uri(dockerServerUrl);
         }
+        
+        dockerClient = dockerClientBuilder.build(); 
 
-        return dockerClientBuilder.build();
+        return dockerClient;
     }
 
     /* *************************** */
