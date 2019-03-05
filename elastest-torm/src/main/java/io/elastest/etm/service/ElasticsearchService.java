@@ -1003,20 +1003,27 @@ public class ElasticsearchService extends AbstractMonitoringService {
     /* *** External Elasticsearch *** */
     /* ****************************** */
     public List<Map<String, Object>> searchTraces(String[] indices,
-            Date fromTime, Object[] searchAfter, int size) throws Exception {
+            Date fromTime, Date toTime, Object[] searchAfter, int size)
+            throws Exception {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.size(size);
         sourceBuilder
                 .sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
         sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.ASC));
 
-        if (fromTime != null) {
-            String fromTimeStr = utilsService
-                    .getIso8601UTCStrFromDate(fromTime);
-
+        if (fromTime != null || toTime != null) {
             RangeQueryBuilder timeRange = new RangeQueryBuilder("@timestamp");
-            timeRange.gte(fromTimeStr);
+            if (fromTime != null) {
+                String fromTimeStr = utilsService
+                        .getIso8601UTCStrFromDate(fromTime);
+                timeRange.gte(fromTimeStr);
+            }
 
+            if (toTime != null) {
+                String toTimeStr = utilsService
+                        .getIso8601UTCStrFromDate(toTime);
+                timeRange.lte(toTimeStr);
+            }
             BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
             boolQueryBuilder.must(timeRange);
             sourceBuilder.query(boolQueryBuilder);

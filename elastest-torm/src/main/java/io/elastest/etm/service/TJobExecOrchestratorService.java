@@ -42,6 +42,7 @@ import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
 import io.elastest.etm.model.EusExecutionData;
 import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
+import io.elastest.etm.model.SharedAsyncModel;
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
@@ -62,6 +63,8 @@ import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class TJobExecOrchestratorService {
+    private static final String EXEC_END_DATE_KEY = "execEndDate";
+
     private static final Logger logger = LoggerFactory
             .getLogger(TJobExecOrchestratorService.class);
 
@@ -94,7 +97,7 @@ public class TJobExecOrchestratorService {
 
     Map<String, Boolean> execsAreStopped = new HashMap<String, Boolean>();
 
-    Map<String, Future<Void>> asyncExternalElasticsearchSutExecs = new HashMap<String, Future<Void>>();
+    Map<String, SharedAsyncModel<Void>> asyncExternalElasticsearchSutExecs = new HashMap<String, SharedAsyncModel<Void>>();
 
     public TJobExecOrchestratorService(DockerEtmService dockerEtmService,
             TestSuiteRepository testSuiteRepo, TestCaseRepository testCaseRepo,
@@ -130,7 +133,7 @@ public class TJobExecOrchestratorService {
 
     @PreDestroy
     private void destroy() {
-        for (HashMap.Entry<String, Future<Void>> asyncMap : asyncExternalElasticsearchSutExecs
+        for (HashMap.Entry<String, SharedAsyncModel<Void>> asyncMap : asyncExternalElasticsearchSutExecs
                 .entrySet()) {
             this.stopManageSutByExternalElasticsearch(asyncMap.getKey());
         }
@@ -294,6 +297,9 @@ public class TJobExecOrchestratorService {
 
                 tJobExec.setEndDate(new Date());
 
+                // Only if using External ES
+                updateManageSutByExtESEndDate(tJobExec.getEndDate(), tJobExec);
+
                 logger.info("Ending Execution {}...", tJobExec.getId());
                 // End and purge services
                 endAllExecs(dockerExec);
@@ -310,6 +316,10 @@ public class TJobExecOrchestratorService {
                             ResultEnum.ERROR, resultMsg);
 
                     tJobExec.setEndDate(new Date());
+                    // Only if using External ES
+                    updateManageSutByExtESEndDate(tJobExec.getEndDate(),
+                            tJobExec);
+
                     try {
                         endAllExecs(dockerExec);
                     } catch (Exception e1) {
@@ -557,7 +567,11 @@ public class TJobExecOrchestratorService {
             }
             if (dockerExec.isWithSut()) {
                 endSutExec(dockerExec, force);
-                stopManageSutByExternalElasticsearch(dockerExec.getTJobExec());
+                if (force) {
+                    // Only stop if force, else stops automatically when ends
+                    stopManageSutByExternalElasticsearch(
+                            dockerExec.getTJobExec());
+                }
             }
             endDockbeatExec(dockerExec, force);
         } catch (Exception e) {
@@ -949,12 +963,24 @@ public class TJobExecOrchestratorService {
 
             // Sut logs from External Elasticsearch
             if (sut.isUsingExternalElasticsearch()) {
-                Future<Void> asyncExec = sutService
-                        .manageSutExecutionUsingExternalElasticsearch(sut,
-                                sutExec.getSutExecMonitoringIndex());
+                String key = getMapNameByTJobExec(tJobExec);
 
-                asyncExternalElasticsearchSutExecs
-                        .put(getMapNameByTJobExec(tJobExec), asyncExec);
+                Date startDate = tJobExec.getStartDate();
+                if (startDate == null) {
+                    startDate = new Date();
+                }
+
+                Future<Void> asyncExElasticsearch = sutService
+                        .manageSutExecutionUsingExternalElasticsearch(sut,
+                                sutExec.getSutExecMonitoringIndex(), startDate,
+                                asyncExternalElasticsearchSutExecs, key,
+                                EXEC_END_DATE_KEY);
+
+                SharedAsyncModel<Void> sharedExElasticsearchAsync = new SharedAsyncModel<>(
+                        asyncExElasticsearch);
+
+                asyncExternalElasticsearchSutExecs.put(key,
+                        sharedExElasticsearchAsync);
             }
 
             return sutExec;
@@ -1595,25 +1621,28 @@ public class TJobExecOrchestratorService {
         return tJobExec.getTjob().getId() + "_" + tJobExec.getId();
     }
 
+    public void updateManageSutByExtESEndDate(Date endDate,
+            TJobExecution tJobExec) {
+        this.updateManageSutByExtESEndDate(endDate,
+                getMapNameByTJobExec(tJobExec));
+    }
+
+    public void updateManageSutByExtESEndDate(Date endDate, String mapKey) {
+        if (!asyncExternalElasticsearchSutExecs.containsKey(mapKey)) {
+            return;
+        }
+
+        asyncExternalElasticsearchSutExecs.get(mapKey).getData()
+                .put(EXEC_END_DATE_KEY, endDate);
+    }
+
     public void stopManageSutByExternalElasticsearch(TJobExecution tJobExec) {
         this.stopManageSutByExternalElasticsearch(
                 getMapNameByTJobExec(tJobExec));
     }
 
     public void stopManageSutByExternalElasticsearch(String mapKey) {
-        if (!asyncExternalElasticsearchSutExecs.containsKey(mapKey)) {
-            return;
-        }
-        Future<Void> asyncExec = asyncExternalElasticsearchSutExecs.get(mapKey);
-
-        try {
-            asyncExec.cancel(true);
-            asyncExternalElasticsearchSutExecs.remove(mapKey);
-        } catch (Exception e) {
-            logger.info(
-                    "Error during stop Manage Sut by external Elasticsearch",
-                    e);
-        }
-
+        sutService.stopManageSutByExternalElasticsearch(
+                asyncExternalElasticsearchSutExecs, mapKey);
     }
 }

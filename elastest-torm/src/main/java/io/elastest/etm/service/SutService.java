@@ -19,6 +19,7 @@ import io.elastest.etm.dao.SutRepository;
 import io.elastest.etm.model.EimMonitoringConfig;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
+import io.elastest.etm.model.SharedAsyncModel;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.external.ExternalElasticsearch;
@@ -362,10 +363,10 @@ public class SutService {
 
     @Async
     public Future<Void> manageSutExecutionUsingExternalElasticsearch(
-            SutSpecification sut, String monitoringIndex) {
+            SutSpecification sut, String monitoringIndex, Date startDate,
+            Map<String, SharedAsyncModel<Void>> sharedAsyncModelMap,
+            String sharedAsyncModelKey, String endDateKey) {
         ExternalElasticsearch extES = sut.getExternalElasticsearch();
-
-        Date startDate = new Date();
 
         String esApiUrl = extES.getProtocol() + "://" + extES.getIp() + ":"
                 + extES.getPort();
@@ -378,7 +379,20 @@ public class SutService {
 
             Object[] searchAfter = null;
             boolean finish = false;
+
+            // LOOP
             while (!finish) {
+                Date endDate = null;
+                if (sharedAsyncModelMap.containsKey(sharedAsyncModelKey)
+                        && sharedAsyncModelMap.get(sharedAsyncModelKey)
+                                .getData().containsKey(endDateKey)) {
+                    try {
+                        endDate = (Date) sharedAsyncModelMap
+                                .get(sharedAsyncModelKey).getData()
+                                .get(endDateKey);
+                    } catch (Exception e) {
+                    }
+                }
                 String indexes = extES.getIndices();
                 for (Parameter param : sut.getParameters()) {
                     if (param.getName().equals("EXT_ELASTICSEARCH_INDICES")) {
@@ -390,7 +404,7 @@ public class SutService {
 
                 try {
                     traces = esService.searchTraces(indexes.split(","),
-                            startDate, searchAfter, 10000);
+                            startDate, endDate, searchAfter, 10000);
                     if (traces.size() > 0) {
                         Map<String, Object> lastTrace = traces
                                 .get(traces.size() - 1);
@@ -423,12 +437,40 @@ public class SutService {
                             "Error on getting traces from external Elasticsearch",
                             e);
                 }
-            }
+
+                if (endDate != null && traces.size() == 0) {
+                    finish = true;
+                }
+            } // End Loop
         } catch (Exception e) {
             logger.error("Error on connect to external Elasticsearch", e);
         }
 
+        stopManageSutByExternalElasticsearch(sharedAsyncModelMap,
+                sharedAsyncModelKey);
+
         return new AsyncResult<Void>(null);
     }
 
+    public void stopManageSutByExternalElasticsearch(
+            Map<String, SharedAsyncModel<Void>> asyncExternalElasticsearchSutExecs,
+            String mapKey) {
+        if (!asyncExternalElasticsearchSutExecs.containsKey(mapKey)) {
+            return;
+        }
+        Future<Void> asyncExec = asyncExternalElasticsearchSutExecs.get(mapKey)
+                .getFuture();
+
+        try {
+            asyncExec.cancel(true);
+            asyncExternalElasticsearchSutExecs.remove(mapKey);
+            logger.info("Stopped Async Manage Sut by external Elasticsearch {}",
+                    mapKey);
+        } catch (Exception e) {
+            logger.info(
+                    "Error during stop Manage Sut by external Elasticsearch {}",
+                    mapKey, e);
+        }
+
+    }
 }
