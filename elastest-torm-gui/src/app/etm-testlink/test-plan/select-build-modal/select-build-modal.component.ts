@@ -95,6 +95,7 @@ export class SelectBuildModalComponent implements OnInit {
           let nonePlatform: PlatformModel = new PlatformModel();
           if (platforms && platforms.length > 0) {
             this.platforms = platforms;
+            this.selectedPlatform = this.platforms[0];
           } else {
             nonePlatform.id = 0;
             nonePlatform.name = 'NONE';
