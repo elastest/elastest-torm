@@ -225,4 +225,15 @@ public class ExternalTJob implements Serializable {
         return this.sut != null;
     }
 
+    @Override
+    public String toString() {
+        return "ExternalTJob [id=" + id + ", name=" + name + ", externalId="
+                + externalId + ", externalSystemId=" + externalSystemId
+                + ", exProject="
+                + (exProject != null ? exProject.getId() : "null")
+                + ", exTJobExecs=" + exTJobExecs + ", exTestCases="
+                + exTestCases + ", sut=" + (sut != null ? sut.getId() : "null")
+                + ", execDashboardConfig=" + execDashboardConfig + "]";
+    }
+
 }

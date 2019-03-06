@@ -927,7 +927,8 @@ public class SutSpecification {
         sb = toStringAppender(sb, "mainService", mainService);
         sb = toStringAppender(sb, "parameters", parameters);
         sb = toStringAppender(sb, "commands", commands);
-        sb = toStringAppender(sb, "exProject", exProject);
+        sb = toStringAppender(sb, "exProject",
+                exProject != null ? exProject.getId() : "null");
         sb = toStringAppender(sb, "exTJobs", exTJobs);
         sb = toStringAppender(sb, "commandsOption", commandsOption);
         sb = toStringAppender(sb, "externalElasticsearch",

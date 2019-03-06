@@ -74,33 +74,38 @@ public class EtSampleDataLoader {
     }
 
     public boolean createData(boolean withForce) {
-        String sampleDataCreated = (configFolder.endsWith("/") ? configFolder
-                : configFolder + "/") + "sampleDataCreated";
-        File sampleDataCreatedFile = new File(sampleDataCreated);
-        boolean alreadyExists = sampleDataCreatedFile.exists();
-        if (withForce || (!withForce && !alreadyExists)) {
-            this.createUnitTests();
-            this.createRestApi();
-            this.createWebapp();
-            this.createOpenVidu();
-            this.createFullteaching();
-            this.createEMS();
-            this.createEDS();
+        try {
+            String sampleDataCreated = (configFolder.endsWith("/")
+                    ? configFolder
+                    : configFolder + "/") + "sampleDataCreated";
+            File sampleDataCreatedFile = new File(sampleDataCreated);
+            boolean alreadyExists = sampleDataCreatedFile.exists();
+            if (withForce || (!withForce && !alreadyExists)) {
+                this.createUnitTests();
+                this.createRestApi();
+                this.createWebapp();
+                this.createOpenVidu();
+                this.createFullteaching();
+                this.createEMS();
+                this.createEDS();
 
-            if (etDataLoader.isStartedTestLink()) {
-                this.createTestLink();
-            }
-
-            if (!alreadyExists) {
-                try {
-                    logger.info("Sample Data has been created!");
-                    sampleDataCreatedFile.createNewFile();
-                } catch (IOException e) {
-                    logger.error("File {} has not been created",
-                            sampleDataCreated);
+                if (etDataLoader.isStartedTestLink()) {
+                    this.createTestLink();
                 }
+
+                if (!alreadyExists) {
+                    try {
+                        logger.info("Sample Data has been created!");
+                        sampleDataCreatedFile.createNewFile();
+                    } catch (IOException e) {
+                        logger.error("File {} has not been created",
+                                sampleDataCreated);
+                    }
+                }
+                return true;
             }
-            return true;
+        } catch (Exception e) {
+            logger.error("Error on create Sample Data", e);
         }
         return false;
     }

@@ -191,4 +191,12 @@ public class ExternalProject implements Serializable {
     public void setSuts(List<SutSpecification> suts) {
         this.suts = suts;
     }
+
+    @Override
+    public String toString() {
+        return "ExternalProject [id=" + id + ", name=" + name + ", type=" + type
+                + ", externalId=" + externalId + ", externalSystemId="
+                + externalSystemId + ", exTJobs=" + exTJobs + ", suts=" + suts
+                + "]";
+    }
 }
