@@ -1,7 +1,11 @@
 package io.elastest.etm.api;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +34,9 @@ import io.swagger.annotations.ApiParam;
 
 @Controller
 public class TestLinkApiController implements TestLinkApi {
+    private static final Logger logger = LoggerFactory
+            .getLogger(TestLinkApiController.class);
+
     @Autowired
     TestLinkService testLinkService;
 
@@ -175,6 +182,35 @@ public class TestLinkApiController implements TestLinkApi {
             @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId) {
         return new ResponseEntity<TestCase[]>(
                 testLinkService.getPlanTestCases(planId), HttpStatus.OK);
+    }
+
+    public ResponseEntity<TestCase> getPlanTestCaseByPlatformId(
+            @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
+            @ApiParam(value = "Id of Test Case.", required = true) @PathVariable("caseId") Integer caseId,
+            @ApiParam(value = "Id of Platform.", required = true) @PathVariable("platformId") Integer platformId) {
+        return new ResponseEntity<TestCase>(
+                testLinkService.getPlanTestCaseByIdAndPlatformIdAndBuildId(
+                        planId, caseId, platformId),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<TestCase> getPlanTestCaseByPlatformIdAndBuildId(
+            @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
+            @ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId,
+            @ApiParam(value = "Id of Platform.", required = true) @PathVariable("platformId") Integer platformId,
+            @ApiParam(value = "Id of Test Case.", required = true) @PathVariable("caseId") Integer caseId) {
+        return new ResponseEntity<TestCase>(
+                testLinkService.getPlanTestCaseByIdAndPlatformIdAndBuildId(
+                        planId, caseId, platformId, buildId),
+                HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<TestCase>> getPlanTestCasesByPlatformId(
+            @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
+            @ApiParam(value = "Id of Platform.", required = true) @PathVariable("platformId") Integer platformId) {
+        return new ResponseEntity<List<TestCase>>(testLinkService
+                .getPlanTestCasesByPlatformId(planId, platformId),
+                HttpStatus.OK);
     }
 
     public ResponseEntity<TestCase> createTestCase(
@@ -323,14 +359,15 @@ public class TestLinkApiController implements TestLinkApi {
 
     public ResponseEntity<Execution> executeTestCase(
             @ApiParam(value = "ID of the test case.", required = true) @PathVariable("caseId") Integer caseId,
+            @ApiParam(value = "ID of the platform.", required = true) @PathVariable("platformId") Integer platformId,
             @ApiParam(value = "Object with the Test Case Results.", required = true) @Valid @RequestBody Execution body) {
         Execution exec = null;
 
         try {
-            exec = testLinkService.saveExecution(body, caseId);
+            exec = testLinkService.saveExecution(body, caseId, platformId);
             return new ResponseEntity<Execution>(exec, HttpStatus.OK);
         } catch (TestLinkAPIException e) {
-            System.out.println(e);
+            logger.error("Error on save Test Case execution {}", caseId, e);
             return new ResponseEntity<Execution>(exec, HttpStatus.CONFLICT);
         }
     }

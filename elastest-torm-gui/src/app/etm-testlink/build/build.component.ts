@@ -43,7 +43,7 @@ export class BuildComponent implements OnInit {
     { name: 'version', label: 'Version' },
     // { name: 'parentId', label: 'Parent ID' },
     { name: 'executionStatus', label: 'Execution Status' },
-    { name: 'platform.id', label: 'Platform' },
+    { name: 'platform.name', label: 'Platform' },
     { name: 'featureId', label: 'Feature Id' },
     // { name: 'customFields', label: 'Custom Fields' },
     // steps: TestCaseStepModel[];
@@ -110,6 +110,7 @@ export class BuildComponent implements OnInit {
     let data: any = {
       testCase: testCase,
       build: this.build,
+      platform: testCase.platform && testCase.platform.id ? testCase.platform.id : 0,
     };
     let dialogRef: MatDialogRef<ExecuteCaseModalComponent> = this.dialog.open(ExecuteCaseModalComponent, {
       data: data,

@@ -1,5 +1,7 @@
 package io.elastest.etm.api;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -213,6 +215,42 @@ public interface TestLinkApi extends EtmApiRoot {
     ResponseEntity<TestCase[]> getPlanTestCases(
             @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId);
 
+    @ApiOperation(value = "Returns the Test Case of a Test Plan with specific platform id", notes = "Returns the Test Case of a Test Plan with specific platform id", response = TestCase.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/plan/{planId}/platform/{platformId}/case/{caseId}", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<TestCase> getPlanTestCaseByPlatformId(
+            @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
+            @ApiParam(value = "Id of Test Case.", required = true) @PathVariable("caseId") Integer caseId,
+            @ApiParam(value = "Id of Platform.", required = true) @PathVariable("platformId") Integer platformId);
+
+    @ApiOperation(value = "Returns the Test Case of a Test Plan with specific platform id", notes = "Returns the Test Case of a Test Plan with specific platform id", response = TestCase.class, tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/plan/{planId}/build/{buildId}/platform/{platformId}/case/{caseId}", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<TestCase> getPlanTestCaseByPlatformIdAndBuildId(
+            @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
+            @ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId,
+            @ApiParam(value = "Id of Platform.", required = true) @PathVariable("platformId") Integer platformId,
+            @ApiParam(value = "Id of Test Case.", required = true) @PathVariable("caseId") Integer caseId);
+
+    @ApiOperation(value = "Returns All Test Cases of a Test Plan with specific platform", notes = "Returns All Test Cases of a Test Plan with specific platform", response = TestCase.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/plan/{planId}/platform/{platformId}/case", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<List<TestCase>> getPlanTestCasesByPlatformId(
+            @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
+            @ApiParam(value = "Id of Platform.", required = true) @PathVariable("platformId") Integer platformId);
+
     @ApiOperation(value = "Creates a new Test Case", notes = "Creates a new Test Case", response = TestCase.class, tags = {
             "TestLink", })
     @ApiResponses(value = {
@@ -403,7 +441,7 @@ public interface TestLinkApi extends EtmApiRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Platform.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
-    @RequestMapping(value = "/testlink/project/plan/{planId}/platforms", produces = {
+    @RequestMapping(value = "/testlink/project/plan/{planId}/platform", produces = {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<Platform[]> getTestPlanPlatforms(
             @ApiParam(value = "Id of the Test Plan.", required = true) @PathVariable("planId") Integer planId);
@@ -418,11 +456,12 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiResponse(code = 200, message = "Successful operation", response = Execution.class),
             @ApiResponse(code = 405, message = "Invalid input"),
             @ApiResponse(code = 409, message = "Already exist") })
-    @RequestMapping(value = "/testlink/project/plan/build/case/{caseId}/exec", produces = {
+    @RequestMapping(value = "/testlink/project/plan/build/platform/{platformId}/case/{caseId}/exec", produces = {
             "application/json" }, consumes = {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<Execution> executeTestCase(
             @ApiParam(value = "ID of the test case.", required = true) @PathVariable("caseId") Integer caseId,
+            @ApiParam(value = "ID of the platform.", required = true) @PathVariable("platformId") Integer platformId,
             @ApiParam(value = "Object with the Test Case Results.", required = true) @Valid @RequestBody Execution body);
 
     @ApiOperation(value = "Returns all execs", notes = "Returns all execs.", response = Execution.class, responseContainer = "List", tags = {

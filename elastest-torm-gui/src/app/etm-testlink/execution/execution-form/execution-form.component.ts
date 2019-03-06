@@ -32,6 +32,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
   testCase: TLTestCaseModel;
   showSpinner: boolean = true;
   build: BuildModel;
+  platformId: number = 0;
 
   tcExec: TestCaseExecutionModel;
 
@@ -53,6 +54,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
     this.testCase = this.data.testCase;
     this.showSpinner = false;
     this.build = this.data.build;
+    this.platformId = this.data.platformId ? this.data.platformId : 0;
 
     this.tcExec.testCaseVersionId = this.testCase.versionId;
     this.tcExec.testCaseVersionNumber = this.testCase.version;
@@ -79,7 +81,7 @@ export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewCheck
     if (this.data.additionalNotes) {
       this.tcExec.notes = this.tcExec.notes ? this.tcExec.notes + this.data.additionalNotes : this.data.additionalNotes;
     }
-    this.testLinkService.saveExecution(this.tcExec, this.testCase.id).subscribe(
+    this.testLinkService.saveExecution(this.tcExec, this.testCase.id, this.platformId).subscribe(
       (savedExecution: TestCaseExecutionModel) => {
         let savedResponse: IExternalExecutionSaveModel = new IExternalExecutionSaveModel();
         savedResponse.saved = true;

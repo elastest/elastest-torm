@@ -1,24 +1,32 @@
 <h2 mat-dialog-title cdkDrag cdkDragRootElement=".cdk-overlay-pane" cdkDragHandle cdkDragBoundary=".cdk-overlay-container">
-  Select a Build
+  Execution Configuration
 </h2>
 <mat-dialog-content>
   <div fxLayout="column" class="push-bottom-md" *ngIf="ready; else notReadyMsg">
     <ng-container *ngIf="testPlanCases !== undefined && testPlanCases.length > 0; else noTestCases">
-      <!-- BUILDS -->
-      <mat-select
-        fxFlex
-        [(ngModel)]="selectedBuild"
-        placeholder="Select a build"
-        id="selectBuild"
-        name="selectBuild"
-        #nameControl="ngModel"
-        required
-      >
-        <mat-option *ngFor="let build of builds; let i = index" id="build{{ i }}" [value]="build"> {{ build.name }} </mat-option>
-      </mat-select>
-      <mat-divider class="push-top-sm"></mat-divider>
-      <div fxFlex class="push-top-lg">
+      <div fxFlex>
+        <div fxLayout="column">
+          <!-- BUILDS -->
+          <h3>Select a Build</h3>
+          <mat-select
+            fxFlex
+            [(ngModel)]="selectedBuild"
+            placeholder="Select a build"
+            id="selectBuild"
+            name="selectBuild"
+            #nameControl="ngModel"
+            required
+          >
+            <mat-option *ngFor="let build of builds; let i = index" id="build{{ i }}" [value]="build">
+              {{ build.name }}
+            </mat-option>
+          </mat-select>
+          <mat-divider class="push-top"></mat-divider>
+        </div>
+      </div>
+      <div fxFlex class="push-top">
         <!-- BROWSERS -->
+        <h3>Select a Browser and Version</h3>
         <div *ngIf="loadingBrowsers; else showBrowsersSelection" fxLayout="row" fxLayoutAlign="start center">
           <span> <mat-spinner strokeWidth="6" color="accent"></mat-spinner> </span>
           <span class="mat-title push-left-sm"> Loading browsers...</span>
@@ -44,9 +52,30 @@
             </div>
           </mat-radio-group>
         </ng-template>
-        <mat-divider class="push-top-sm"></mat-divider>
+        <mat-divider class="push-top"></mat-divider>
       </div>
-      <div fxFlex class="push-top-lg">
+      <div fxFlex class="push-top">
+        <div fxLayout="column">
+          <!-- Platforms -->
+          <h3>Select a Platform</h3>
+          <mat-select
+            fxFlex
+            [(ngModel)]="selectedPlatform"
+            placeholder="Select a Platform"
+            id="selectPlatform"
+            name="selectPlatform"
+            #nameControl="ngModel"
+            required
+          >
+            <mat-option *ngFor="let platform of platforms; let i = index" id="platform{{ i }}" [value]="platform">
+              {{ platform.name }}
+            </mat-option>
+          </mat-select>
+          <mat-divider class="push-top"></mat-divider>
+        </div>
+      </div>
+      <div fxFlex class="push-top">
+        <h3>Enter a Extra Host (optional)</h3>
         <string-list-view [model]="extraHosts" [fieldName]="'Extra Host'" [description]="extraHostsDescription">
         </string-list-view>
       </div>

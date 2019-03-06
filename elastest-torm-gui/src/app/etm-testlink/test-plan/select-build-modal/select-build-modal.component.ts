@@ -4,7 +4,7 @@ import { TestPlanModel } from '../../models/test-plan-model';
 import { BuildModel } from '../../models/build-model';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { TestLinkService } from '../../testlink.service';
-import { TLTestCaseModel } from '../../models/test-case-model';
+import { TLTestCaseModel, PlatformModel } from '../../models/test-case-model';
 import { EusService } from '../../../elastest-eus/elastest-eus.service';
 import { ConfigurationService } from '../../../config/configuration-service.service';
 import { StringListViewDescription } from '../../../shared/string-list-view/string-list-view.component';
@@ -18,7 +18,13 @@ export class SelectBuildModalComponent implements OnInit {
   selectedBuild: BuildModel;
   testPlan: TestPlanModel;
   builds: BuildModel[];
+
+  platforms: PlatformModel[] = [];
+  selectedPlatform: PlatformModel;
+
   testProjectId: string | number;
+
+  // Loaded to check if there are no test cases (not run)
   testPlanCases: TLTestCaseModel[];
 
   selectedBrowser: string;
@@ -57,6 +63,7 @@ export class SelectBuildModalComponent implements OnInit {
     this.testProjectId = this.data.testProjectId;
     this.testPlan = this.data.testPlan;
     this.loadBrowsers();
+    this.loadPlatforms();
     if (this.data.builds) {
       this.builds = this.data.builds;
       this.setReady();
@@ -71,8 +78,37 @@ export class SelectBuildModalComponent implements OnInit {
     }
   }
 
+  isBasicDataLoaded(): boolean {
+    return (
+      this.testPlan &&
+      this.builds !== undefined &&
+      this.builds !== null &&
+      this.testProjectId !== undefined &&
+      this.testProjectId !== null
+    );
+  }
+
+  loadPlatforms(): void {
+    if (this.testPlan) {
+      this.testLinkService.getTestPlanPlatforms(this.testPlan.id).subscribe(
+        (platforms: PlatformModel[]) => {
+          let nonePlatform: PlatformModel = new PlatformModel();
+          if (platforms) {
+            this.platforms = this.platforms.concat(platforms);
+          } else {
+            nonePlatform.id = 0;
+            nonePlatform.name = 'NONE';
+            this.platforms.push(nonePlatform);
+            this.selectedPlatform = this.platforms[0];
+          }
+        },
+        (error: Error) => console.log(error),
+      );
+    }
+  }
+
   setReady(): void {
-    if (this.testPlan && this.builds !== undefined && this.builds !== null && this.testProjectId) {
+    if (this.isBasicDataLoaded()) {
       this.testLinkService.getPlanTestCases(this.testPlan).subscribe(
         (testCases: TLTestCaseModel[]) => {
           this.testPlanCases = testCases;
@@ -114,6 +150,7 @@ export class SelectBuildModalComponent implements OnInit {
           browserName: this.selectedBrowser,
           browserVersion: this.selectedVersion[this.selectedBrowser],
           extraHosts: this.extraHosts,
+          platform: this.selectedPlatform.id,
         },
       },
     );

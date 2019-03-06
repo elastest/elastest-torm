@@ -9,7 +9,7 @@ import { AfterViewChecked } from '@angular/core/src/metadata/lifecycle_hooks';
 @Component({
   selector: 'testlink-execute-case-modal',
   templateUrl: './execute-case-modal.component.html',
-  styleUrls: ['./execute-case-modal.component.scss']
+  styleUrls: ['./execute-case-modal.component.scss'],
 })
 export class ExecuteCaseModalComponent implements OnInit, AfterViewChecked {
   @ViewChild('notes') notes: ElementRef;
@@ -28,6 +28,7 @@ export class ExecuteCaseModalComponent implements OnInit, AfterViewChecked {
 
   testCase: TLTestCaseModel;
   build: BuildModel;
+  platformId: number = 0;
 
   tcExec: TestCaseExecutionModel;
 
@@ -39,9 +40,10 @@ export class ExecuteCaseModalComponent implements OnInit, AfterViewChecked {
     this.tcExec = new TestCaseExecutionModel();
     this.testCase = data.testCase;
     this.build = data.build;
+    this.platformId = this.data.platformId ? this.data.platformId : 0;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.tcExec.testCaseVersionId = this.testCase.versionId;
     this.tcExec.testCaseVersionNumber = this.testCase.version;
     this.tcExec.executionType = this.testCase.executionType;
@@ -49,7 +51,7 @@ export class ExecuteCaseModalComponent implements OnInit, AfterViewChecked {
     this.tcExec.buildId = this.build.id;
   }
 
-  ngAfterViewChecked() {
+  ngAfterViewChecked(): void {
     if (!this.alreadyFocused) {
       this.notes.nativeElement.focus();
       this.alreadyFocused = true;
@@ -57,14 +59,12 @@ export class ExecuteCaseModalComponent implements OnInit, AfterViewChecked {
   }
 
   saveExecution(): void {
-    this.testLinkService.saveExecution(this.tcExec, this.testCase.id)
-      .subscribe(
+    this.testLinkService.saveExecution(this.tcExec, this.testCase.id, this.platformId).subscribe(
       (data) => {
         let response: any = { saved: true };
         this.dialogRef.close(response);
       },
-      (error) => console.log(error)
-      );
+      (error: Error) => console.log(error),
+    );
   }
-
 }

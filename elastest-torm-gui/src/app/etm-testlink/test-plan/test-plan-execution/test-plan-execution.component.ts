@@ -82,6 +82,9 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   browserName: string = 'chrome';
   browserVersion: string = 'latest';
+
+  platformId: number = 0;
+
   extraHosts: string[] = [];
 
   // Files
@@ -123,6 +126,10 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
       if (queryParams.extraHosts) {
         this.extraHosts = queryParams.extraHosts;
+      }
+
+      if (queryParams.platform) {
+        this.platformId = queryParams.platform;
       }
     }
 
@@ -301,7 +308,8 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
             this.openSutUrl();
             this.vncBrowserUrl = vncUrl;
             this.browserAndEusLoading = false;
-            this.startExecution();
+            // Start
+            this.filterTestCasesAndStartExecution();
           },
           (error: Error) => console.error(error),
         );
@@ -323,30 +331,40 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     }
   }
 
-  startExecution(): void {
-    this.externalTestCases = this.exTJob.exTestCases.sort((a: ExternalTestCaseModel, b: ExternalTestCaseModel) => {
-      return Number(a.externalId) - Number(b.externalId);
-    });
-
-    // remove duplicated tmp (are one for each platform)
+  filterTestCasesAndStartExecution(): void {
     let auxTCasesList: ExternalTestCaseModel[] = [];
+    // Sort
+    let sortedExTestCases: ExternalTestCaseModel[] = this.exTJob.exTestCases.sort(
+      (a: ExternalTestCaseModel, b: ExternalTestCaseModel) => {
+        return Number(a.externalId) - Number(b.externalId);
+      },
+    );
+    // remove duplicated tmp (are one for each platform)
     let currentCase: ExternalTestCaseModel;
-    for (let tCase of this.externalTestCases) {
+    for (let tCase of sortedExTestCases) {
       if (currentCase === undefined || currentCase.externalId !== tCase.externalId) {
         currentCase = tCase;
         auxTCasesList.push(tCase);
       }
     }
     this.externalTestCases = auxTCasesList;
+    this.startExecution();
+  }
 
-    this.totalCases = this.externalTestCases.length;
+  startExecution(): void {
+    if (this.externalTestCases && this.externalTestCases.length > 0) {
+      this.totalCases = this.externalTestCases.length;
 
-    this.setTJobExecutionUrl('Test Plan Execution:');
-    this.data = {
-      build: this.selectedBuild,
-    };
-    // Load First TCase
-    this.loadNextTestLinkCase();
+      this.setTJobExecutionUrl('Test Plan Execution:');
+      this.data = {
+        build: this.selectedBuild,
+        platform: this.platformId,
+      };
+      // Load First TCase
+      this.loadNextTestLinkCase();
+    } else {
+      this.forceEnd(true, 'Error on start execution', 'ERROR', 'There are not test cases to execute');
+    }
   }
 
   deprovideBrowserAndEus(): void {
@@ -498,13 +516,15 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     let build: BuildModel = this.data.build;
     let additionalNotes: string = this.getCurrentTestExecutionUrl('Test Case Execution:');
     additionalNotes += this.tJobExecUrl;
-    this.testLinkService.getBuildTestCaseById(build.id, testCaseId).subscribe(
+
+    this.testLinkService.getPlanTestCaseByPlatformIdAndBuildId(this.testPlan.id, build.id, this.platformId, testCaseId).subscribe(
       (testCase: TLTestCaseModel) => {
         if (testCase !== undefined && testCase !== null) {
           // New object to detect on changes
           this.data = {
             testCase: testCase,
             build: build,
+            platform: this.platformId,
             additionalNotes: additionalNotes,
           };
           this.savingAndLoadingTCase = false;

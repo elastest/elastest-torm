@@ -38,13 +38,13 @@ export class TestPlanComponent implements OnInit {
   // TestCase Data
   testCaseColumns: any[] = [
     { name: 'id', label: 'Id', width: 80 },
+    { name: 'platform', label: 'Platform' },
     { name: 'name', label: 'Name' },
     { name: 'testCaseStatus', label: 'Status' },
     { name: 'summary', label: 'Summary' },
     { name: 'preconditions', label: 'Preconditions' },
     { name: 'executionType', label: 'Exec Type' },
     { name: 'fullExternalId', label: 'External ID' },
-    { name: 'platform', label: 'Platform' },
   ];
 
   sortBy: string = 'id';

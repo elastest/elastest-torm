@@ -189,7 +189,7 @@ export class TestLinkService {
   /***************************/
 
   public getTestPlanPlatforms(planId: number | string): Observable<PlatformModel[]> {
-    let url: string = this.hostApi + '/testlink/project/plan' + planId + '/platforms';
+    let url: string = this.hostApi + '/testlink/project/plan/' + planId + '/platform';
     return this.http.get(url).map((data: any[]) => this.eTTestlinkModelsTransformService.jsonToPlatformsList(data));
   }
 
@@ -220,6 +220,35 @@ export class TestLinkService {
     return this.getPlanTestCasesById(plan.id);
   }
 
+  public getPlanTestCaseByPlatformId(
+    planId: number | string,
+    platformId: number | string,
+    caseId: number | string,
+  ): Observable<TLTestCaseModel> {
+    let url: string = this.hostApi + '/testlink/project/plan/' + planId + '/platform/' + platformId + '/case/' + caseId;
+    return this.http.get(url).map((data: any[]) => this.eTTestlinkModelsTransformService.jsonToTestCaseModel(data));
+  }
+
+  public getPlanTestCaseByPlatformIdAndBuildId(
+    planId: number | string,
+    buildId: number | string,
+    platformId: number | string,
+    caseId: number | string,
+  ): Observable<TLTestCaseModel> {
+    let url: string =
+      this.hostApi + '/testlink/project/plan/' + planId + '/build/' + buildId + '/platform/' + platformId + '/case/' + caseId;
+    return this.http.get(url).map((data: any[]) => this.eTTestlinkModelsTransformService.jsonToTestCaseModel(data));
+  }
+
+  public getPlanTestCasesByIdAndPlatformId(planId: number | string, platformId: number | string): Observable<TLTestCaseModel[]> {
+    let url: string = this.hostApi + '/testlink/project/plan/' + planId + '/platform/' + platformId + '/case';
+    return this.http.get(url).map((data: any[]) => this.eTTestlinkModelsTransformService.jsonToTestCasesList(data));
+  }
+
+  public getPlanTestCasesByPlatform(plan: TestPlanModel, platform: PlatformModel): Observable<TLTestCaseModel[]> {
+    return this.getPlanTestCasesByIdAndPlatformId(plan.id, platform.id);
+  }
+
   public getLatestPlanBuild(plan: TestPlanModel): Observable<BuildModel> {
     let url: string = this.hostApi + '/testlink/project/' + plan.projectName + '/plan/' + plan.id + '/build/latestF';
     return this.http.get(url).map((data: any) => this.eTTestlinkModelsTransformService.jsonToBuildModel(data));
@@ -244,8 +273,12 @@ export class TestLinkService {
   /******** Execs ********/
   /***********************/
 
-  public saveExecution(execution: TestCaseExecutionModel, testCaseId: number | string): Observable<TestCaseExecutionModel> {
-    let url: string = this.hostApi + '/testlink/project/plan/build/case/' + testCaseId + '/exec';
+  public saveExecution(
+    execution: TestCaseExecutionModel,
+    testCaseId: number | string,
+    platformId: number | string,
+  ): Observable<TestCaseExecutionModel> {
+    let url: string = this.hostApi + '/testlink/project/plan/build/platform/' + platformId + '/case/' + testCaseId + '/exec';
     return this.http
       .post(url, execution, { observe: 'response' })
       .map((response: HttpResponse<any>) => this.eTTestlinkModelsTransformService.jsonToExecModel(response.body));
@@ -293,6 +326,14 @@ export class TestLinkService {
   public getExternalTestCaseByTestCaseId(caseId: number | string): Observable<ExternalTestCaseModel> {
     let url: string = this.hostApi + '/testlink/external/testcase/' + caseId;
     return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTestCaseModel(data));
+  }
+
+  public getExternalTestCasesByPlatformIdAndExternalTJobId(
+    platformId: number | string,
+    exTJobId: number | string,
+  ): Observable<ExternalTestCaseModel[]> {
+    let url: string = this.hostApi + '/testlink/external/exTJob/' + exTJobId + '/platform/' + platformId + '/externalcase';
+    return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTestCasesList(data));
   }
 
   public getExternalTestExecutionByExecutionId(execId: number | string): Observable<ExternalTestExecutionModel> {

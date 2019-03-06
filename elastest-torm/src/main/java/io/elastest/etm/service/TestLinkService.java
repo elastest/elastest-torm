@@ -364,6 +364,10 @@ public class TestLinkService {
         return cases;
     }
 
+    public TestCase[] getPlanTestCases(Integer planId) {
+        return getPlanBuildTestCases(planId, null);
+    }
+
     public TestCase getPlanTestCaseById(Integer planId, Integer caseId) {
         TestCase foundTestCase = null;
         try {
@@ -380,41 +384,59 @@ public class TestLinkService {
         return foundTestCase;
     }
 
-    public TestCase[] getPlanTestCases(Integer planId) {
-        TestCase[] cases = null;
+    public TestCase getPlanTestCaseByIdAndPlatformIdAndBuildId(Integer planId,
+            Integer caseId, Integer platformId, Integer buildId) {
+        TestCase foundTestCase = null;
         try {
-            cases = (TestCase[]) ArrayUtils.addAll(cases,
-                    this.api.getTestCasesForTestPlan(planId, null, null, null,
-                            null, null, null, null, null, null,
-                            TestCaseDetails.FULL));
-
-            cases = this.sortTestCases(cases);
+            List<TestCase> testCases = getPlanTestCasesByPlatformIdAndBuildId(
+                    planId, platformId, buildId);
+            for (TestCase testCase : testCases) {
+                if (testCase.getId().equals(caseId)) {
+                    foundTestCase = testCase;
+                }
+            }
         } catch (TestLinkAPIException e) {
-            // EMPTY
+            logger.error("Error during getting Test Case {} of Test Plan {}: ",
+                    caseId, planId, e.getMessage());
         }
-
-        return cases;
+        return foundTestCase;
     }
 
-    public TestCase[] getPlanBuildTestCases(Integer planId) {
-        TestCase[] cases = null;
-        Build[] builds = this.getPlanBuilds(planId);
-        if (builds != null) {
-            for (Build currentBuild : builds) {
-                try {
-                    cases = (TestCase[]) ArrayUtils.addAll(cases,
-                            this.api.getTestCasesForTestPlan(planId, null,
-                                    currentBuild.getId(), null, null, null,
-                                    null, null, null, null,
-                                    TestCaseDetails.FULL));
-                    cases = this.sortTestCases(cases);
-                } catch (TestLinkAPIException e) {
-                    // EMPTY
-                }
+    public TestCase getPlanTestCaseByIdAndPlatformIdAndBuildId(Integer planId,
+            Integer caseId, Integer platformId) {
+        return getPlanTestCaseByIdAndPlatformIdAndBuildId(planId, caseId,
+                platformId, null);
+    }
 
+    public List<TestCase> getPlanTestCasesByPlatformIdAndBuildId(Integer planId,
+            Integer platformId, Integer buildId) {
+        TestCase[] allCases = getPlanBuildTestCases(planId, buildId);
+        List<TestCase> platformCases = new ArrayList<>();
+
+        if (allCases != null) {
+            if (platformId != null && platformId > 0) {
+                if (allCases.length > 0) {
+                    for (TestCase currentCase : allCases) {
+                        if (currentCase != null
+                                && currentCase.getPlatform() != null) {
+                            if (currentCase.getPlatform()
+                                    .getId() == platformId) {
+                                platformCases.add(currentCase);
+                            }
+                        }
+                    }
+                }
+            } else { // No platform, return all
+                platformCases.addAll(Arrays.asList(allCases));
             }
         }
-        return cases;
+
+        return platformCases;
+    }
+
+    public List<TestCase> getPlanTestCasesByPlatformId(Integer planId,
+            Integer platformId) {
+        return getPlanTestCasesByPlatformIdAndBuildId(planId, platformId, null);
     }
 
     public TestCase createTestCase(TestCase testCase, Integer suiteId) {
@@ -428,16 +450,33 @@ public class TestLinkService {
                 testCase.getActionOnDuplicatedName());
     }
 
+    public TestCase[] getPlanBuildsTestCases(Integer planId) {
+        TestCase[] cases = null;
+        Build[] builds = this.getPlanBuilds(planId);
+        if (builds != null) {
+            for (Build currentBuild : builds) {
+                cases = this.getPlanBuildTestCases(planId,
+                        currentBuild.getId());
+            }
+        }
+        return cases;
+    }
+
     public TestCase[] getPlanBuildTestCases(Integer testPlanId,
             Integer buildId) {
         TestCase[] cases = null;
         try {
+            Boolean getStepInfo = buildId != null;
+
             cases = this.api.getTestCasesForTestPlan(testPlanId, null, buildId,
-                    null, null, null, null, null, null, true,
+                    null, null, null, null, null, null, getStepInfo,
                     TestCaseDetails.FULL);
             cases = this.sortTestCases(cases);
 
-            cases = this.getFullDetailedTestCases(cases); // To get more info...
+            if (buildId != null) {
+                // To get more info...
+                cases = this.getFullDetailedTestCases(cases);
+            }
 
         } catch (TestLinkAPIException e) {
             // EMPTY
@@ -536,25 +575,32 @@ public class TestLinkService {
     /* ************************** Executions ***************************/
     /* *****************************************************************/
 
-    public Execution saveExecution(Execution execution, Integer testCaseId) {
+    public Execution saveExecution(Execution execution, Integer testCaseId,
+            Integer platformId) {
         // Save TestCase Execution in Testlink
         ReportTCResultResponse response = this.executeTest(testCaseId,
-                execution);
+                execution, platformId);
         execution.setId(response.getExecutionId());
 
         return this.getTestExecById(testCaseId, response.getExecutionId());
     }
 
     public ReportTCResultResponse executeTest(Integer testCaseId,
-            Execution execution) {
+            Execution execution, Integer platformId) {
 
-        Platform platform = this.getPlanTestCasePlatform(testCaseId,
-                execution.getTestPlanId());
+        Integer platformIdToSave = null;
+        if (platformId != null && platformId > 0) {
+            platformIdToSave = platformId;
+        } else {
+            Platform platform = this.getPlanTestCasePlatform(testCaseId,
+                    execution.getTestPlanId());
+            platformIdToSave = platform != null ? platform.getId() : null;
+        }
 
         ReportTCResultResponse response = this.api.reportTCResult(testCaseId,
                 null, execution.getTestPlanId(), execution.getStatus(), null,
                 execution.getBuildId(), null, execution.getNotes(), null, null,
-                platform != null ? platform.getId() : null, null, null, null);
+                platformIdToSave, null, null, null);
         return response;
     }
 
@@ -787,8 +833,12 @@ public class TestLinkService {
     }
 
     public Platform[] getPlanPlatforms(Integer planId) {
-        return api.getTestPlanPlatforms(planId);
+        try {
+            return api.getTestPlanPlatforms(planId);
 
+        } catch (Exception e) {
+        }
+        return new Platform[0];
     }
 
     /* ************************************************************/
@@ -815,6 +865,26 @@ public class TestLinkService {
         return this.externalTestCaseRepository
                 .findByExternalIdAndExternalSystemId(testCaseId.toString(),
                         externalSystemId);
+    }
+
+    public List<ExternalTestCase> getExternalTestCasesByTestCases(
+            List<TestCase> testCases) {
+        List<ExternalTestCase> exTCases = new ArrayList<>();
+
+        try {
+            if (testCases != null) {
+                for (TestCase tCase : testCases) {
+                    ExternalTestCase exTCase = getExternalTestCaseByTestCaseId(
+                            tCase.getId());
+                    if (exTCase != null) {
+                        exTCases.add(exTCase);
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+
+        return exTCases;
     }
 
     public ExternalTestExecution getExternalTestExecByExecutionId(
