@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -160,6 +161,7 @@ public class DockerEtmService {
     public ExternalTJobExecutionRepository externalTJobExecutionRepository;
     public UtilsService utilsService;
     private EtmTestResultService etmTestResultService;
+    private Map<String, String> sutsByExecution;
 
     @Autowired
     public DockerEtmService(DockerService dockerService,
@@ -174,6 +176,7 @@ public class DockerEtmService {
         this.utilsService = utilsService;
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
         this.etmTestResultService = etmTestResultService;
+        sutsByExecution = new ConcurrentHashMap<String, String>();
     }
 
     public String getThisContainerIpCmd = "ip a | grep -m 1 global | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}\\/' | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}'";
@@ -668,7 +671,7 @@ public class DockerEtmService {
             throws Exception {
         try {
             // Create Container Object
-            dockerExec.setAppContainer(createContainer(dockerExec, "sut"));
+            DockerContainer sutContainer = createContainer(dockerExec, "sut");
 
             String resultMsg = "Starting dockerized SuT";
             updateExecutionResultStatus(dockerExec,
@@ -677,8 +680,9 @@ public class DockerEtmService {
 
             // Create and start container
             String sutContainerId = dockerService.createAndStartContainer(
-                    dockerExec.getAppContainer(), EpmService.etMasterSlaveMode);
-            dockerExec.setAppContainerId(sutContainerId);
+                    sutContainer, EpmService.etMasterSlaveMode);
+            sutsByExecution.put(dockerExec.getExecutionId().toString(),
+                    sutContainerId);
 
             String sutName = getSutName(dockerExec);
             this.insertCreatedContainer(sutContainerId, sutName);
@@ -759,7 +763,7 @@ public class DockerEtmService {
         TJobExecution tJobExec = dockerExec.getTJobExec();
         try {
             // Create Container Object
-            dockerExec.setTestcontainer(createContainer(dockerExec, "tjob"));
+            DockerContainer testContainer = createContainer(dockerExec, "tjob");
 
             String resultMsg = "Starting Test Execution";
             updateExecutionResultStatus(dockerExec,
@@ -767,9 +771,7 @@ public class DockerEtmService {
 
             // Create and start container
             String testContainerId = dockerService.createAndStartContainer(
-                    dockerExec.getTestcontainer(),
-                    EpmService.etMasterSlaveMode);
-            dockerExec.setTestContainerId(testContainerId);
+                    testContainer, EpmService.etMasterSlaveMode);
 
             resultMsg = "Executing Test";
             updateExecutionResultStatus(dockerExec,
@@ -787,12 +789,12 @@ public class DockerEtmService {
             resultMsg = "Waiting for Test Results";
             updateExecutionResultStatus(dockerExec, ResultEnum.WAITING,
                     resultMsg);
-            etmTestResultService.saveTestResults(getTestResults(dockerExec),
-                    tJobExec);
+            etmTestResultService.saveTestResults(
+                    getTestResults(dockerExec, testContainerId), tJobExec);
 
             tJobExec.setEndDate(new Date());
             logger.info("Ending Execution {}...", tJobExec.getId());
-            saveFinishStatus(tJobExec, dockerExec);
+            saveFinishStatus(tJobExec, dockerExec, exitCode);
 
         } catch (TJobStoppedException | InterruptedException e) {
             throw new TJobStoppedException(
@@ -844,7 +846,8 @@ public class DockerEtmService {
                 && dockerExec.gettJob().isSelectedService("ems");
     }
 
-    public void saveFinishStatus(TJobExecution tJobExec, Execution dockerExec) {
+    public void saveFinishStatus(TJobExecution tJobExec, Execution dockerExec,
+            int exitCode) {
         String resultMsg = "";
         ResultEnum finishStatus = ResultEnum.SUCCESS;
 
@@ -858,7 +861,7 @@ public class DockerEtmService {
             }
 
         } else {
-            if (dockerExec.getTestContainerExitCode() != 0) {
+            if (exitCode != 0) {
                 finishStatus = ResultEnum.FAIL;
             }
         }
@@ -1051,8 +1054,8 @@ public class DockerEtmService {
     /* **** Get TestResults **** */
     /* ************************* */
 
-    public List<ReportTestSuite> getTestResults(Execution dockerExec)
-            throws Exception {
+    public List<ReportTestSuite> getTestResults(Execution dockerExec,
+            String testContainerId) throws Exception {
         try {
             List<ReportTestSuite> testSuites = null;
             String resultsPath = dockerExec.gettJob().getResultsPath();
@@ -1060,9 +1063,7 @@ public class DockerEtmService {
             if (resultsPath != null && !resultsPath.isEmpty()) {
                 try {
                     InputStream inputStream = dockerService
-                            .getFileFromContainer(
-                                    dockerExec.getTestContainerId(),
-                                    resultsPath);
+                            .getFileFromContainer(testContainerId, resultsPath);
 
                     String result = IOUtils.toString(inputStream,
                             StandardCharsets.UTF_8);
@@ -1121,6 +1122,26 @@ public class DockerEtmService {
 
     public void setElastestNetwork(String elastestNetwork) {
         this.elastestNetwork = elastestNetwork;
+    }
+
+    public Map<String, String> getSutsByExecution() {
+        return sutsByExecution;
+    }
+
+    public void setSutsByExecution(Map<String, String> sutsByExecution) {
+        this.sutsByExecution = sutsByExecution;
+    }
+
+    public String getSutContainerIdByExec(String execId) {
+        return sutsByExecution.get(execId);
+    }
+
+    public void removeSutByExecution(String execId) {
+        sutsByExecution.remove(execId);
+    }
+
+    public void addSutByExecution(String executionId, String sutContainerId) {
+        sutsByExecution.put(executionId, sutContainerId);
     }
 
     private List<ReportTestSuite> testSuiteStringToReportTestSuite(

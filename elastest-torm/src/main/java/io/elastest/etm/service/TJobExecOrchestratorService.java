@@ -317,8 +317,6 @@ public class TJobExecOrchestratorService {
                         logger.error("Error on end TJob Exec {}",
                                 tJobExec.getId(), e1);
                     }
-                } else {
-                    dockerEtmService.saveFinishStatus(tJobExec, dockerExec);
                 }
             } finally {
                 if (tJobServices != null && tJobServices != "") {
@@ -999,7 +997,9 @@ public class TJobExecOrchestratorService {
                                 + sut.getMainService() + "_1");
                 logger.info("Sut main service ip: {}", sutIp);
             } else {
-                String sutContainerId = dockerExec.getAppContainerId();
+                String sutContainerId = dockerEtmService
+                        .getSutContainerIdByExec(
+                                dockerExec.getExecutionId().toString());
                 sutIp = dockerEtmService.getContainerIpWithDockerExecution(
                         sutContainerId, dockerExec);
             }
@@ -1088,7 +1088,8 @@ public class TJobExecOrchestratorService {
         if (isDockerCompose) {
             List<Container> containersList = this.dockerEtmService.dockerService
                     .getContainersCreatedSinceId(
-                            dockerExec.getAppContainerId());
+                            dockerEtmService.getSutContainerIdByExec(
+                                    dockerExec.getExecutionId().toString()));
             this.dockerEtmService.dockerService
                     .getContainersByNamePrefixByGivenList(containersList,
                             sutPrefix, ContainersListActionEnum.ADD,
@@ -1176,11 +1177,17 @@ public class TJobExecOrchestratorService {
                 // If is main service container, set app id
                 if (container.getName().equals(
                         composeProjectName + "_" + mainService + "_1")) {
-                    dockerExec.setAppContainerId(containerId);
+                    dockerEtmService.addSutByExecution(
+                            dockerExec.getExecutionId().toString(),
+                            containerId);
                 }
 
-                if (dockerExec.getAppContainerId() == null
-                        || dockerExec.getAppContainerId().isEmpty()) {
+                if (dockerEtmService.getSutContainerIdByExec(
+                        dockerExec.getExecutionId().toString()) == null
+                        || dockerEtmService
+                                .getSutContainerIdByExec(
+                                        dockerExec.getExecutionId().toString())
+                                .isEmpty()) {
                     throw new Exception(
                             "Main Sut service from docker compose not started");
                 }
@@ -1433,6 +1440,8 @@ public class TJobExecOrchestratorService {
                             "socat_sut_" + dockerExec.getSutExec().getId());
                     dockerEtmService.endContainer(
                             "socat_sut_" + dockerExec.getSutExec().getId());
+                    dockerEtmService.removeSutByExecution(
+                            dockerExec.getExecutionId().toString());
                 }
             }
         } else {
@@ -1476,7 +1485,8 @@ public class TJobExecOrchestratorService {
         if (isDockerCompose) {
             List<Container> containersList = this.dockerEtmService.dockerService
                     .getContainersCreatedSinceId(
-                            dockerExec.getAppContainerId());
+                            dockerEtmService.getSutsByExecution().get(
+                                    dockerExec.getExecutionId().toString()));
             this.dockerEtmService.dockerService
                     .getContainersByNamePrefixByGivenList(containersList,
                             sutPrefix, ContainersListActionEnum.REMOVE,

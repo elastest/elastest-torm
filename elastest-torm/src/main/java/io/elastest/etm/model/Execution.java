@@ -5,18 +5,12 @@ import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 
 /**
- * This class Execution stores the whole the context of a TJob Execution.
+ * This class stores the whole context of a TJob Execution.
  *
  */
 public class Execution {
-    private DockerContainer testcontainer, appContainer;
-    private String testContainerId, appContainerId;
-
-    private int testContainerExitCode;
-
     private TJobExecution tJobExec;
     private TJob tJob;
-
     private ExternalTJob externalTJob;
     private ExternalTJobExecution externalTJobExec;
 
@@ -49,39 +43,6 @@ public class Execution {
     }
 
     /* Getters and Setters */
-
-    public DockerContainer getTestcontainer() {
-        return testcontainer;
-    }
-
-    public void setTestcontainer(DockerContainer testcontainer) {
-        this.testcontainer = testcontainer;
-    }
-
-    public DockerContainer getAppContainer() {
-        return appContainer;
-    }
-
-    public void setAppContainer(DockerContainer appContainer) {
-        this.appContainer = appContainer;
-    }
-
-    public String getTestContainerId() {
-        return testContainerId;
-    }
-
-    public void setTestContainerId(String testContainerId) {
-        this.testContainerId = testContainerId;
-    }
-
-    public String getAppContainerId() {
-        return appContainerId;
-    }
-
-    public void setAppContainerId(String appContainerId) {
-        this.appContainerId = appContainerId;
-    }
-
     public Long getExecutionId() {
         if (isExternal()) {
             return externalTJobExec.getId();
@@ -160,21 +121,9 @@ public class Execution {
         this.sutExec = sutExec;
     }
 
-    public int getTestContainerExitCode() {
-        return testContainerExitCode;
-    }
-
-    public void setTestContainerExitCode(int testContainerExitCode) {
-        this.testContainerExitCode = testContainerExitCode;
-    }
-
     @Override
     public String toString() {
-        return "DockerExecution [testcontainer=" + testcontainer
-                + ", appContainer=" + appContainer + ", testContainerId="
-                + testContainerId + ", appContainerId=" + appContainerId
-                + ", testContainerExitCode=" + testContainerExitCode
-                + ", isExternal=" + isExternal() + ", tJobExec=" + tJobExec
+        return "DockerExecution [isExternal=" + isExternal() + ", tJobExec=" + tJobExec
                 + ", tJob=" + tJob + ", externalTJob=" + externalTJob
                 + ", externalTJobExec=" + externalTJobExec + ", sut=" + sut
                 + ", sutExec=" + sutExec + ", withSut=" + isWithSut() + "]";
