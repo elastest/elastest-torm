@@ -93,8 +93,8 @@ export class SelectBuildModalComponent implements OnInit {
       this.testLinkService.getTestPlanPlatforms(this.testPlan.id).subscribe(
         (platforms: PlatformModel[]) => {
           let nonePlatform: PlatformModel = new PlatformModel();
-          if (platforms) {
-            this.platforms = this.platforms.concat(platforms);
+          if (platforms && platforms.length > 0) {
+            this.platforms = platforms;
           } else {
             nonePlatform.id = 0;
             nonePlatform.name = 'NONE';
