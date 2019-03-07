@@ -325,6 +325,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   openSutUrl(): void {
     if (this.exTJob.withSut()) {
+      console.log(this.exTJobExec.envVars['ET_SUT_URL'])
       if (this.exTJobExec.envVars['ET_SUT_URL'] !== undefined) {
         this.sutUrl = this.exTJobExec.envVars['ET_SUT_URL'];
         this.eusService.navigateToUrl(this.sessionId, this.sutUrl).subscribe();

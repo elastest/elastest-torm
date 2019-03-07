@@ -569,7 +569,21 @@ public class DockerEtmService {
             String lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
                     + lsInternalBeatsPort;
 
-            TJobExecution tJobExec = dockerExec.getTJobExec();
+            Map<String, String> execEnvVars = new HashMap<>();
+            String execId = "";
+            String tJobId = "";
+
+            if (dockerExec.isExternal()) {
+                execEnvVars = dockerExec.getExternalTJobExec().getEnvVars();
+                execId = dockerExec.getExternalTJobExec().getId().toString();
+                tJobId = dockerExec.getExternalTJob().getId().toString();
+
+            } else {
+                execEnvVars = dockerExec.getTJobExec().getEnvVars();
+                execId = dockerExec.getTJobExec().getId().toString();
+                tJobId = dockerExec.gettJob().getId().toString();
+            }
+
             if (isEMSSelected(dockerExec)) {
 
                 String regexSuffix = "_?(" + execution + ")(_([^_]*(_\\d*)?))?";
@@ -582,14 +596,13 @@ public class DockerEtmService {
                 // envList.add(envVar);
 
                 lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
-                        + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_PORT");
+                        + execEnvVars.get("ET_EMS_LSBEATS_PORT");
 
                 lsHostEnvVar = "LOGSTASHHOST" + "="
-                        + tJobExec.getEnvVars().get("ET_EMS_LSBEATS_HOST");
+                        + execEnvVars.get("ET_EMS_LSBEATS_HOST");
             }
             envList.add(lsHostEnvVar);
             envList.add(lsInternalBeatsPortEnvVar);
-
             // dockerSock volume bind
             Bind dockerSockVolumeBind = Bind.from(dockerSock).to(dockerSock)
                     .build();
@@ -597,8 +610,8 @@ public class DockerEtmService {
             // ElasTest labels
             Map<String, String> labels = new HashMap<>();
             labels.put(etTypeLabel, etTypeMonitoringLabelValue);
-            labels.put(etTJobExecIdLabel, tJobExec.getId().toString());
-            labels.put(etTJobIdLabel, dockerExec.gettJob().getId().toString());
+            labels.put(etTJobExecIdLabel, execId);
+            labels.put(etTJobIdLabel, tJobId);
 
             // Pull Image
             this.pullETExecImage(dockbeatImage, "Dockbeat", false);
@@ -794,6 +807,16 @@ public class DockerEtmService {
         } else {
             TJobExecution tJobExec = dockerExec.getTJobExec();
             updateTJobExecResultStatus(tJobExec, result, msg);
+        }
+    }
+
+    public void updateGenericExecResultStatus(DockerExecution dockerExec,
+            ResultEnum result, String msg) {
+        if (dockerExec.isExternal()) {
+            updateExternalTJobExecResultStatus(dockerExec.getExternalTJobExec(),
+                    result, msg);
+        } else {
+            updateTJobExecResultStatus(dockerExec.getTJobExec(), result, msg);
         }
     }
 

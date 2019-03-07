@@ -831,7 +831,6 @@ public class TJobExecOrchestratorService {
     public Future<Void> executeExternalTJob(ExternalTJobExecution exec) {
         dbmanager.bindSession();
         exec = externalTJobExecutionRepository.findById(exec.getId()).get();
-
         DockerExecution dockerExec = new DockerExecution(exec);
         try {
             dockerEtmService.loadBasicServices(dockerExec);
@@ -848,7 +847,7 @@ public class TJobExecOrchestratorService {
             dockerEtmService.updateExecutionResultStatus(dockerExec,
                     ResultEnum.EXECUTING_TEST, resultMsg);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error on execute External TJob {}", exec.getId(), e);
         }
 
         dbmanager.unbindSession();
@@ -897,8 +896,7 @@ public class TJobExecOrchestratorService {
             // If it's SuT DEPLOYED outside ElasTest
             if (sut.getSutType() == SutTypeEnum.DEPLOYED) {
                 logger.info("Using SUT deployed outside ElasTest");
-                TJobExecution tJobExec = dockerExec.getTJobExec();
-                sutExec = startSutDeployedOutside(tJobExec);
+                sutExec = startSutDeployedOutside(dockerExec);
 
             }
             // If it's MANAGED SuT
@@ -935,22 +933,29 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    public SutExecution startSutDeployedOutside(TJobExecution tJobExec)
+    public SutExecution startSutDeployedOutside(DockerExecution dockerExec)
             throws Exception {
-        SutSpecification sut = tJobExec.getTjob().getSut();
+        SutSpecification sut = dockerExec.getSut();
         SutExecution sutExec;
         String sutIP = "";
 
         try {
             String resultMsg = "Preparing External SuT";
-            dockerEtmService.updateTJobExecResultStatus(tJobExec,
+            dockerEtmService.updateGenericExecResultStatus(dockerExec,
                     ResultEnum.WAITING_SUT, resultMsg);
 
             // Sut instrumented by EIM
             if (sut.isInstrumentedByElastest() && sut.isInstrumentalized()) {
-                dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                dockerEtmService.updateGenericExecResultStatus(dockerExec,
                         ResultEnum.WAITING_SUT, "Deploying beats");
-                logger.debug("TJob Exec {} => Deploy Beats", tJobExec.getId());
+
+                if (dockerExec.isExternal()) {
+                    logger.debug("External TJob Exec {} => Deploy Beats",
+                            dockerExec.getExternalTJobExec().getId());
+                } else {
+                    logger.debug("TJob Exec {} => Deploy Beats",
+                            dockerExec.getTJobExec().getId());
+                }
                 sut = sutService.deployEimSutBeats(sut, false);
             }
 
@@ -963,9 +968,14 @@ public class TJobExecOrchestratorService {
 
             // Sut logs from External Elasticsearch
             if (sut.isUsingExternalElasticsearch()) {
-                String key = getMapNameByTJobExec(tJobExec);
+                String key = getMapNameByExec(dockerExec);
+                Date startDate;
+                if (dockerExec.isExternal()) {
+                    startDate = dockerExec.getExternalTJobExec().getStartDate();
+                } else {
+                    startDate = dockerExec.getTJobExec().getStartDate();
+                }
 
-                Date startDate = tJobExec.getStartDate();
                 if (startDate == null) {
                     startDate = new Date();
                 }
@@ -1617,8 +1627,22 @@ public class TJobExecOrchestratorService {
         }
     }
 
+    public String getMapNameByExec(DockerExecution dockerExec) {
+        if (dockerExec.isExternal()) {
+            return getMapNameByExternalTJobExec(
+                    dockerExec.getExternalTJobExec());
+        } else {
+            return getMapNameByTJobExec(dockerExec.getTJobExec());
+        }
+    }
+
     public String getMapNameByTJobExec(TJobExecution tJobExec) {
         return tJobExec.getTjob().getId() + "_" + tJobExec.getId();
+    }
+
+    public String getMapNameByExternalTJobExec(
+            ExternalTJobExecution exTJobExec) {
+        return exTJobExec.getExTJob().getId() + "_" + exTJobExec.getId();
     }
 
     public void updateManageSutByExtESEndDate(Date endDate,

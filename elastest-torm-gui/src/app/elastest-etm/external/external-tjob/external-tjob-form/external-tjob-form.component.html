@@ -1,21 +1,20 @@
 <mat-card tdMediaToggle="gt-xs" [mediaClasses]="['push']">
   <mat-card-title>
     <span *ngIf="exTJob && exTJob.id == 0">New External TJob</span>
-    <span *ngIf="exTJob && exTJob.id > 0">Edit External TJob "{{exTJob.name}}"</span>
+    <span *ngIf="exTJob && exTJob.id > 0">Edit External TJob "{{ exTJob.name }}"</span>
   </mat-card-title>
   <mat-divider></mat-divider>
   <mat-card-content class="push-bottom-none">
     <form #tJobForm="ngForm">
       <div fxLayout.gt-md="row" fxLayout.md="row" fxLayout="column" class="push-top push-bottom">
-        <div *ngIf="exTJob.exProject !== undefined" class="push-top push-bottom" fxFlex.gt-md="30" fxFlex.md="30">
-          <mat-select [(ngModel)]="exTJob.sut" placeholder="Select a SuT" required name="tJobSut">
+        <div *ngIf="exTJob.exProject !== undefined" class="push-top push-bottom" fxFlex>
+          <mat-select [(ngModel)]="exTJob.sut" placeholder="Select a SuT" required name="tJobSut" fxFlex="25">
             <mat-option [value]="sutEmpty">None</mat-option>
             <mat-option *ngFor="let sut of exTJob.exProject.suts" [value]="sut">
-              {{sut.name}}
+              {{ sut.name }}
             </mat-option>
           </mat-select>
-          <span class="push-left">
-            <strong>Current SuT: </strong>{{currentSut}}</span>
+          <span class="push-left" fxFlex="75"> <strong>Current SuT: </strong>{{ currentSut }}</span>
         </div>
       </div>
     </form>
