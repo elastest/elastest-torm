@@ -43,6 +43,8 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   testPlan: TestPlanModel;
   selectedBuild: BuildModel;
 
+  testCases: TLTestCaseModel[] = [];
+
   exTJob: ExternalTJobModel;
   exTJobExec: ExternalTJobExecModel;
   externalTestCases: ExternalTestCaseModel[] = [];
@@ -308,8 +310,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
             this.openSutUrl();
             this.vncBrowserUrl = vncUrl;
             this.browserAndEusLoading = false;
-            // Start
-            this.filterTestCasesAndStartExecution();
+            this.loadTestCases();
           },
           (error: Error) => console.error(error),
         );
@@ -331,29 +332,19 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     }
   }
 
-  filterTestCasesAndStartExecution(): void {
-    let auxTCasesList: ExternalTestCaseModel[] = [];
-    // Sort
-    let sortedExTestCases: ExternalTestCaseModel[] = this.exTJob.exTestCases.sort(
-      (a: ExternalTestCaseModel, b: ExternalTestCaseModel) => {
-        return Number(a.externalId) - Number(b.externalId);
-      },
-    );
-    // remove duplicated tmp (are one for each platform)
-    let currentCase: ExternalTestCaseModel;
-    for (let tCase of sortedExTestCases) {
-      if (currentCase === undefined || currentCase.externalId !== tCase.externalId) {
-        currentCase = tCase;
-        auxTCasesList.push(tCase);
-      }
-    }
-    this.externalTestCases = auxTCasesList;
-    this.startExecution();
+  loadTestCases(): void {
+    this.testLinkService
+      .getPlanTestCasesByIdAndPlatformIdAndBuildId(this.testPlan.id, this.selectedBuild.id, this.platformId)
+      .subscribe((testCases: TLTestCaseModel[]) => {
+        this.testCases = testCases;
+
+        this.startExecution();
+      });
   }
 
   startExecution(): void {
-    if (this.externalTestCases && this.externalTestCases.length > 0) {
-      this.totalCases = this.externalTestCases.length;
+    if (this.testCases && this.testCases.length > 0) {
+      this.totalCases = this.testCases.length;
 
       this.setTJobExecutionUrl('Test Plan Execution:');
       this.data = {
@@ -479,21 +470,31 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   /**********************/
 
   loadNextTestLinkCase(): void {
-    let nextCase: ExternalTestCaseModel = this.externalTestCases.shift();
-    if (nextCase !== undefined) {
-      let videoName: string = nextCase.name.split(' ').join('-') + '_' + this.sessionId;
-      this.eusService.startRecording(this.sessionId, this.hubContainerName, videoName).subscribe(
-        (ok) => {
-          this.initCurrentExternalTestExecution(nextCase);
-          this.externalService.createExternalTestExecution(this.currentExternalTestExecution).subscribe(
-            (savedExTestExec: ExternalTestExecutionModel) => {
-              this.currentExternalTestExecution = savedExTestExec;
-              this.startTestLinkTestCaseExecution(nextCase.externalId);
+    let nextTLCase: TLTestCaseModel = this.testCases.shift();
+    if (nextTLCase !== undefined) {
+      // Load External Test Case
+      this.testLinkService.getExternalTestCaseByTestCaseId(nextTLCase.id).subscribe(
+        (exTestCase: ExternalTestCaseModel) => {
+          let videoName: string = nextTLCase.name.split(' ').join('-') + '_' + this.sessionId;
+          // Start recording
+          this.eusService.startRecording(this.sessionId, this.hubContainerName, videoName).subscribe(
+            (ok) => {
+              this.initCurrentExternalTestExecution(exTestCase);
+              this.externalService.createExternalTestExecution(this.currentExternalTestExecution).subscribe(
+                (savedExTestExec: ExternalTestExecutionModel) => {
+                  this.currentExternalTestExecution = savedExTestExec;
+                  this.startTestLinkTestCaseExecution(nextTLCase);
+                },
+                (error: Error) => console.log(error),
+              );
             },
             (error: Error) => console.log(error),
           );
         },
-        (error: Error) => console.log(error),
+        (error: Error) => {
+          console.log(error);
+          this.forceEnd(true, 'Error on load test case ' + nextTLCase.id, 'ERROR', error ? error.message : '');
+        },
       );
     } else {
       this.finishTJobExecution();
@@ -512,28 +513,23 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     this.currentExternalTestExecution.monitoringIndex = this.exTJobExec.monitoringIndex;
   }
 
-  startTestLinkTestCaseExecution(testCaseId: string): void {
+  startTestLinkTestCaseExecution(testCase: TLTestCaseModel): void {
     let build: BuildModel = this.data.build;
     let additionalNotes: string = this.getCurrentTestExecutionUrl('Test Case Execution:');
     additionalNotes += this.tJobExecUrl;
 
-    this.testLinkService.getPlanTestCaseByPlatformIdAndBuildId(this.testPlan.id, build.id, this.platformId, testCaseId).subscribe(
-      (testCase: TLTestCaseModel) => {
-        if (testCase !== undefined && testCase !== null) {
-          // New object to detect on changes
-          this.data = {
-            testCase: testCase,
-            build: build,
-            platform: this.platformId,
-            additionalNotes: additionalNotes,
-          };
-          this.savingAndLoadingTCase = false;
-        } else {
-          this.saveTLCaseExecution();
-        }
-      },
-      (error: Error) => console.log(error),
-    );
+    if (testCase !== undefined && testCase !== null) {
+      // New object to detect on changes
+      this.data = {
+        testCase: testCase,
+        build: build,
+        platform: this.platformId,
+        additionalNotes: additionalNotes,
+      };
+      this.savingAndLoadingTCase = false;
+    } else {
+      this.saveTLCaseExecution();
+    }
   }
 
   saveTLCaseExecution(): void {
