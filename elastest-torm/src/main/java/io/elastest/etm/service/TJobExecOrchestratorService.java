@@ -839,9 +839,7 @@ public class TJobExecOrchestratorService {
                     ResultEnum.IN_PROGRESS, "Initializing execution...");
 
             if (dockerExec.isWithSut()) {
-                dockerEtmService.startDockbeat(dockerExec);
                 this.initSut(dockerExec);
-
             }
             String resultMsg = "Executing Test";
             dockerEtmService.updateExecutionResultStatus(dockerExec,
@@ -897,12 +895,17 @@ public class TJobExecOrchestratorService {
             if (sut.getSutType() == SutTypeEnum.DEPLOYED) {
                 logger.info("Using SUT deployed outside ElasTest");
                 sutExec = startSutDeployedOutside(dockerExec);
-
             }
             // If it's MANAGED SuT
             else {
                 logger.info("Using SUT deployed by ElasTest");
                 try {
+                    if (dockerExec.isExternal()) {
+                        // If external start Dockbeat (for internal is already
+                        // started)
+                        dockerEtmService.startDockbeat(dockerExec);
+                    }
+
                     sutExec = startManagedSut(dockerExec);
                     if (publicSut) {
                         SocatBindedPort socatBindedPortObj = dockerEtmService
