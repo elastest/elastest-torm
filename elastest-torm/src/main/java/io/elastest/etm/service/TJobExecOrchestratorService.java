@@ -538,6 +538,28 @@ public class TJobExecOrchestratorService {
     public void endAllExecs(Execution execution) throws Exception {
         endAllExecs(execution, false);
     }
+
+    public void releaseResourcesFromExtExecution(TJobExecution tJobExec) {
+        try {
+            deprovisionServices(tJobExec);
+        } catch (Exception e) {
+            logger.error(
+                    "Exception deprovisioning TSSs associated with an external execution.");
+        }
+        if (tJobExec.isWithSut()) {
+            try {
+                Execution execution = new Execution(tJobExec);
+                execution.setSutExec(tJobExec.getSutExecution());
+                endDockbeatExec(execution, true);
+                endSutExec(execution, false);
+                stopManageSutByExternalElasticsearch(execution.getTJobExec());
+            } catch (Exception e) {
+                logger.error(
+                        "Error deprovisioning a SUT used from an external execution.");
+            }
+        }
+
+    }
     /* ******************* */
     /* *** TSS methods *** */
     /* ******************* */
@@ -957,8 +979,7 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    private SutExecution startManagedSut(Execution execution)
-            throws Exception {
+    private SutExecution startManagedSut(Execution execution) throws Exception {
         SutSpecification sut = execution.getSut();
 
         String resultMsg = "Preparing dockerized SuT";
@@ -1172,8 +1193,7 @@ public class TJobExecOrchestratorService {
                 if (container.getName().equals(
                         composeProjectName + "_" + mainService + "_1")) {
                     dockerEtmService.addSutByExecution(
-                            execution.getExecutionId().toString(),
-                            containerId);
+                            execution.getExecutionId().toString(), containerId);
                 }
 
                 if (dockerEtmService.getSutContainerIdByExec(
@@ -1502,8 +1522,7 @@ public class TJobExecOrchestratorService {
     }
 
     public void endCheckSutExec(Execution execution) throws Exception {
-        dockerEtmService
-                .endContainer(dockerEtmService.getCheckName(execution));
+        dockerEtmService.endContainer(dockerEtmService.getCheckName(execution));
     }
 
     /* **************** */
