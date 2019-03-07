@@ -102,8 +102,8 @@
                 [selectable]="false"
                 [clickable]="true"
                 [sortable]="true"
-                [sortBy]="sortBy"
-                [sortOrder]="sortOrder"
+                [sortBy]="sortBuildsBy"
+                [sortOrder]="sortBuildsOrder"
                 (sortChange)="sortBuilds($event)"
                 [resizableColumns]="true"
               >
@@ -166,8 +166,8 @@
                     [selectable]="false"
                     [clickable]="false"
                     [sortable]="true"
-                    [sortBy]="sortBy"
-                    [sortOrder]="sortOrder"
+                    [sortBy]="sortCasesBy"
+                    [sortOrder]="sortCasesOrder"
                     (sortChange)="sortCases($event)"
                     [resizableColumns]="true"
                   >

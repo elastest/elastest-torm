@@ -47,8 +47,11 @@ export class TestPlanComponent implements OnInit {
     { name: 'fullExternalId', label: 'External ID' },
   ];
 
-  sortBy: string = 'id';
-  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
+  sortBuildsBy: string = 'id';
+  sortBuildsOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
+
+  sortCasesBy: string = 'id';
+  sortCasesOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
   constructor(
     private titlesService: TitlesService,
@@ -124,14 +127,14 @@ export class TestPlanComponent implements OnInit {
   }
 
   sortBuilds(sortEvent: ITdDataTableSortChangeEvent): void {
-    this.sortBy = sortEvent.name;
-    this.sortOrder = sortEvent.order;
-    this.builds = this.dataTableService.sortData(this.builds, this.sortBy, this.sortOrder);
+    this.sortBuildsBy = sortEvent.name;
+    this.sortBuildsOrder = sortEvent.order;
+    this.builds = this.dataTableService.sortData(this.builds, this.sortBuildsBy, this.sortBuildsOrder);
   }
 
   sortCases(sortEvent: ITdDataTableSortChangeEvent): void {
-    this.sortBy = sortEvent.name;
-    this.sortOrder = sortEvent.order;
-    this.testPlanCases = this.dataTableService.sortData(this.testPlanCases, this.sortBy, this.sortOrder);
+    this.sortCasesBy = sortEvent.name;
+    this.sortCasesOrder = sortEvent.order;
+    this.testPlanCases = this.dataTableService.sortData(this.testPlanCases, this.sortCasesBy, this.sortCasesOrder);
   }
 }

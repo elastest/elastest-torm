@@ -166,7 +166,8 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
 
   loadProjects(): void {
     this.testlinkService.getAllTestProjects().subscribe((projects: TestProjectModel[]) => {
-      this.projectsList = [...projects];
+      this.projectsList = projects ? projects : [];
+      this.sort();
       this.showSpinner = false;
     });
   }
@@ -240,9 +241,11 @@ export class EtmTestlinkComponent implements OnInit, OnDestroy {
     });
   }
 
-  sort(sortEvent: ITdDataTableSortChangeEvent): void {
-    this.sortBy = sortEvent.name;
-    this.sortOrder = sortEvent.order;
+  sort(sortEvent?: ITdDataTableSortChangeEvent): void {
+    if (sortEvent) {
+      this.sortBy = sortEvent.name;
+      this.sortOrder = sortEvent.order;
+    }
     this.projectsList = this.dataTableService.sortData(this.projectsList, this.sortBy, this.sortOrder);
   }
 }
