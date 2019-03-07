@@ -142,8 +142,14 @@ public class ExternalService {
             TJob tJob = createElasTestEntitiesForExtJob(externalJob);
 
             logger.debug("Creating TJobExecution.");
-            TJobExecution tJobExec = tJobService.executeTJob(externalJob,
-                    tJob.getId(), new ArrayList<>(), new ArrayList<>());
+            Map<String, String> externalLinks = new HashMap<>();
+            if (externalJob.getExecutionUrl() != null) {
+                externalLinks.put("jenkins-build-url",
+                        externalJob.getExecutionUrl());
+            }
+            TJobExecution tJobExec = tJobService.executeTJob(tJob.getId(),
+                    new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                    externalLinks);
             tJobService.removeOldTJobExecsAsync(tJob.getId());
 
             String etPublicHost = utilsService.getEtPublicHostValue();

@@ -135,7 +135,7 @@ public class TJobService {
 
     public TJobExecution executeTJob(Long tJobId,
             List<Parameter> tJobParameters, List<Parameter> sutParameters,
-            List<MultiConfig> multiConfigs) throws HttpClientErrorException {
+            List<MultiConfig> multiConfigs, Map<String, String> externalLinks) throws HttpClientErrorException {
         TJob tJob = tJobRepo.findById(tJobId).get();
 
         SutSpecification sut = tJob.getSut();
@@ -146,9 +146,6 @@ public class TJobService {
                 && sut.isInstrumentalize()
                 && (sut.getEimConfig() == null || (sut.getEimConfig() != null
                         && sut.getEimConfig().getAgentId() == null))
-        // && sut.getEimMonitoringConfig() != null
-        // && sut.getEimMonitoringConfig()
-        // .getBeatsStatus() == BeatsStatusEnum.ACTIVATING
         ) {
             throw new HttpClientErrorException(HttpStatus.ACCEPTED);
         }
@@ -190,6 +187,7 @@ public class TJobService {
                     tJob.getSelectedServices());
             asyncExecs.put(getMapNameByTJobExec(tJobExec), asyncExec);
         } else {
+            tJobExec.getExternalUrls().putAll(externalLinks);
             tJobExecOrchestratorService.executeExternalJob(tJobExec, false);
         }
 
@@ -220,58 +218,6 @@ public class TJobService {
     }
 
     /* *** Execute Jenkins TJob *** */
-
-    public TJobExecution executeTJob(ExternalJob externalJob, Long tJobId,
-            List<Parameter> parameters, List<Parameter> sutParameters)
-            throws HttpClientErrorException {
-
-        // TODO MultiTJob
-        TJob tJob = tJobRepo.findById(tJobId).get();
-
-        SutSpecification sut = tJob.getSut();
-        // Checks if has sut instrumented by elastest and beats status is
-        // activating yet
-        if (sut != null && sut.isInstrumentedByElastest()
-                && sut.getEimMonitoringConfig() != null
-                && sut.getEimMonitoringConfig()
-                        .getBeatsStatus() == BeatsStatusEnum.ACTIVATING) {
-            throw new HttpClientErrorException(HttpStatus.ACCEPTED);
-        }
-
-        TJobExecution tJobExec = new TJobExecution();
-
-        if (utilsService.isElastestMini()) {
-            tJobExec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
-        } else {
-            tJobExec.setMonitoringStorageType(
-                    MonitoringStorageType.ELASTICSEARCH);
-        }
-
-        tJobExec.setStartDate(new Date());
-        if (tJob.getSut() != null && sutParameters != null
-                && !sutParameters.isEmpty()) {
-            tJob.getSut().setParameters(sutParameters);
-        }
-        tJobExec.setTjob(tJob);
-        if (parameters != null && !parameters.isEmpty()) {
-            tJobExec.setParameters(parameters);
-        }
-        if (externalJob.getBuildUrl() != null
-                && !externalJob.getBuildUrl().isEmpty()) {
-            tJobExec.getExternalUrls().put("jenkins-build-url",
-                    externalJob.getBuildUrl());
-        }
-        tJobExec = tJobExecRepositoryImpl.save(tJobExec);
-
-        // After first save, get real Id
-        tJobExec.generateMonitoringIndex();
-        tJobExec = tJobExecRepositoryImpl.save(tJobExec);
-
-        tJobExecOrchestratorService.executeExternalJob(tJobExec,
-                externalJob.isFromIntegratedJenkins());
-        return tJobExec;
-    }
-
     public TJobExecution stopTJobExec(Long tJobExecId) {
         TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId)
                 .get();
@@ -337,10 +283,10 @@ public class TJobService {
         }
         if (tJobExec.isWithSut()) {
             try {
-                Execution dockerExec = new Execution(tJobExec);
-                dockerExec.setSutExec(tJobExec.getSutExecution());
-                tJobExecOrchestratorService.endDockbeatExec(dockerExec, true);
-                tJobExecOrchestratorService.endSutExec(dockerExec, false);
+                Execution execution = new Execution(tJobExec);
+                execution.setSutExec(tJobExec.getSutExecution());
+                tJobExecOrchestratorService.endDockbeatExec(execution, true);
+                tJobExecOrchestratorService.endSutExec(execution, false);
             } catch (Exception e) {
                 logger.error(
                         "Error desprovisioning a SUT used in a TJob run from Jenkins.");

@@ -1,6 +1,5 @@
 package io.elastest.etm.model;
 
-import io.elastest.epm.client.DockerContainer;
 import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 
@@ -13,7 +12,6 @@ public class Execution {
     private TJob tJob;
     private ExternalTJob externalTJob;
     private ExternalTJobExecution externalTJobExec;
-
     private SutSpecification sut;
     private SutExecution sutExec;
 
@@ -123,7 +121,7 @@ public class Execution {
 
     @Override
     public String toString() {
-        return "DockerExecution [isExternal=" + isExternal() + ", tJobExec=" + tJobExec
+        return "Execution [isExternal=" + isExternal() + ", tJobExec=" + tJobExec
                 + ", tJob=" + tJob + ", externalTJob=" + externalTJob
                 + ", externalTJobExec=" + externalTJobExec + ", sut=" + sut
                 + ", sutExec=" + sutExec + ", withSut=" + isWithSut() + "]";

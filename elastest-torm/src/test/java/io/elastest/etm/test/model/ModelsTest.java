@@ -203,7 +203,7 @@ public class ModelsTest {
     }
 
     @Test
-    public void testPojoDockerExecution() {
+    public void testPojoExecution() {
         final Class<?> pojoClass = Execution.class;
         // assertPojoMethodsFor(testCaseClass).areWellImplemented();
 

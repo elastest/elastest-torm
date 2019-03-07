@@ -30,7 +30,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
-import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
@@ -53,8 +52,8 @@ import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
-import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
+import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
@@ -255,7 +254,7 @@ public class DockerEtmService {
                 elastestNetwork);
     }
 
-    public Map<String, String> getEtLabels(Execution dockerExec, String type,
+    public Map<String, String> getEtLabels(Execution execution, String type,
             String sutServiceName) {
         String etTypeLabelValue = "";
         if ("sut".equals(type.toLowerCase())) {
@@ -268,12 +267,12 @@ public class DockerEtmService {
         labels.put(etTypeLabel, etTypeLabelValue);
         String execId = null;
         String tJobId = null;
-        if (dockerExec.isExternal()) {
-            execId = dockerExec.getExternalTJobExec().getId().toString();
-            tJobId = dockerExec.getExternalTJob().getId().toString();
+        if (execution.isExternal()) {
+            execId = execution.getExternalTJobExec().getId().toString();
+            tJobId = execution.getExternalTJob().getId().toString();
         } else {
-            execId = dockerExec.getTJobExec().getId().toString();
-            tJobId = dockerExec.gettJob().getId().toString();
+            execId = execution.getTJobExec().getId().toString();
+            tJobId = execution.gettJob().getId().toString();
         }
 
         labels.put(etTJobExecIdLabel, execId);
@@ -286,17 +285,17 @@ public class DockerEtmService {
         return labels;
     }
 
-    public Map<String, String> getEtLabels(Execution dockerExec, String type) {
-        return this.getEtLabels(dockerExec, type, null);
+    public Map<String, String> getEtLabels(Execution execution, String type) {
+        return this.getEtLabels(execution, type, null);
     }
 
     /* *************************** */
     /* **** Container Methods **** */
     /* *************************** */
 
-    public DockerContainer createContainer(Execution dockerExec, String type)
+    public DockerContainer createContainer(Execution execution, String type)
             throws Exception {
-        SutSpecification sut = dockerExec.getSut();
+        SutSpecification sut = execution.getSut();
 
         String image = "";
         String commands = null;
@@ -318,22 +317,22 @@ public class DockerEtmService {
             if (sut.isSutInNewContainer()) {
                 suffix = sut.getSutInContainerAuxLabel();
             }
-            containerName = getSutName(dockerExec);
+            containerName = getSutName(execution);
 
-            sutPath = getSutPath(dockerExec);
+            sutPath = getSutPath(execution);
 
             filesService.createExecFilesFolder(sutPath);
         } else if ("tjob".equals(type.toLowerCase())) {
-            TJob tJob = dockerExec.gettJob();
-            TJobExecution tJobExec = dockerExec.getTJobExec();
+            TJob tJob = execution.gettJob();
+            TJobExecution tJobExec = execution.getTJobExec();
 
             parametersList = tJobExec.getParameters();
             commands = tJob.getCommands();
             image = tJob.getImageName();
             prefix = "test_";
-            containerName = getTestName(dockerExec);
-            if (dockerExec.isWithSut()) {
-                sutHost = dockerExec.getSutExec().getIp();
+            containerName = getTestName(execution);
+            if (execution.isWithSut()) {
+                sutHost = execution.getSutExec().getIp();
                 sutPort = sut.getPort();
                 sutProtocol = sut.getProtocol().toString();
             }
@@ -346,11 +345,11 @@ public class DockerEtmService {
 
         // Get (External)TJob Exec Env Vars
         Map<String, String> tJobEnvVars;
-        if (dockerExec.isExternal()) {
-            // tJobEnvVars = dockerExec.getExternalTJob().getEnvVars(); TODO
+        if (execution.isExternal()) {
+            // tJobEnvVars = execution.getExternalTJob().getEnvVars(); TODO
             tJobEnvVars = new HashMap<>();
         } else {
-            tJobEnvVars = dockerExec.getTJobExec().getEnvVars();
+            tJobEnvVars = execution.getTJobExec().getEnvVars();
         }
 
         for (Map.Entry<String, String> entry : tJobEnvVars.entrySet()) {
@@ -402,9 +401,9 @@ public class DockerEtmService {
 
         // Load Log Config
         LogConfig logConfig = null;
-        if (isEMSSelected(dockerExec)) {
+        if (isEMSSelected(execution)) {
             try {
-                logConfig = getEMSLogConfig(type, prefix, suffix, dockerExec);
+                logConfig = getEMSLogConfig(type, prefix, suffix, execution);
             } catch (Exception e) {
                 logger.error("Cannot get Ems Log config", e);
             }
@@ -412,14 +411,14 @@ public class DockerEtmService {
             logConfig = getDefaultLogConfig(
                     (EpmService.etMasterSlaveMode ? bindedLsTcpPort
                             : logstashTcpPort),
-                    prefix, suffix, dockerExec);
+                    prefix, suffix, execution);
         }
 
         // ElasTest labels
-        Map<String, String> labels = this.getEtLabels(dockerExec, type);
+        Map<String, String> labels = this.getEtLabels(execution, type);
 
         // Pull Image
-        this.pullETExecutionImage(dockerExec, image, type, false);
+        this.pullETExecutionImage(execution, image, type, false);
 
         /* ******************************************************** */
         DockerBuilder dockerBuilder = new DockerBuilder(image);
@@ -457,16 +456,16 @@ public class DockerEtmService {
         return dockerBuilder.build();
     }
 
-    private String getSutPath(Execution dockerExec) {
+    private String getSutPath(Execution execution) {
         String sutPath;
-        if (dockerExec.isExternal()) {
-            ExternalTJobExecution exTJobExec = dockerExec.getExternalTJobExec();
+        if (execution.isExternal()) {
+            ExternalTJobExecution exTJobExec = execution.getExternalTJobExec();
 
             sutPath = filesService.buildExternalTJobFilesPath(exTJobExec,
                     ElastestConstants.SUT_FOLDER);
 
         } else {
-            TJobExecution tJobExec = dockerExec.getTJobExec();
+            TJobExecution tJobExec = execution.getTJobExec();
 
             sutPath = filesService.buildTJobFilesPath(tJobExec,
                     ElastestConstants.SUT_FOLDER);
@@ -501,7 +500,7 @@ public class DockerEtmService {
                 });
     }
 
-    public void pullETExecutionImage(Execution dockerExec, String image,
+    public void pullETExecutionImage(Execution execution, String image,
             String name, boolean forcePull)
             throws DockerException, InterruptedException, Exception {
         DockerPullImageProgress dockerPullImageProgress = new DockerPullImageProgress();
@@ -516,10 +515,10 @@ public class DockerEtmService {
                 String msg = "Pulling " + name + " image (" + image + "): "
                         + dockerPullImageProgress.getCurrentPercentage() + "%";
 
-                if (dockerExec.isExternal()) {
+                if (execution.isExternal()) {
                     // TODO External status
                 } else {
-                    TJobExecution tJobExec = dockerExec.getTJobExec();
+                    TJobExecution tJobExec = execution.getTJobExec();
                     // tJobExec.setResult(result);
                     tJobExec.setResultMsg(msg);
                     tJobExecRepositoryImpl.save(tJobExec);
@@ -536,23 +535,23 @@ public class DockerEtmService {
     /* **** Dockbeat **** */
     /* ****************** */
 
-    public String getDockbeatContainerName(Execution dockerExec) {
+    public String getDockbeatContainerName(Execution execution) {
         String prefix = "elastest_dockbeat_";
 
         // elastest_dockbeat_X | elastest_dockbeat_extX_eX
-        String suffix = dockerExec.isExternal()
-                ? dockerExec.getExternalTJobExec()
+        String suffix = execution.isExternal()
+                ? execution.getExternalTJobExec()
                         .getExternalTJobExecMonitoringIndex()
-                : dockerExec.getExecutionId().toString();
+                : execution.getExecutionId().toString();
 
         return prefix + suffix;
     }
 
-    public void startDockbeat(Execution dockerExec) throws Exception {
+    public void startDockbeat(Execution execution) throws Exception {
         try {
-            Long execution = dockerExec.getExecutionId();
+            Long executionId = execution.getExecutionId();
 
-            String containerName = getDockbeatContainerName(dockerExec);
+            String containerName = getDockbeatContainerName(execution);
 
             // Environment variables
             ArrayList<String> envList = new ArrayList<>();
@@ -580,7 +579,7 @@ public class DockerEtmService {
 
             if (isEMSSelected(dockerExec)) {
 
-                String regexSuffix = "_?(" + execution + ")(_([^_]*(_\\d*)?))?";
+                String regexSuffix = "_?(" + executionId + ")(_([^_]*(_\\d*)?))?";
                 String testRegex = "^test" + regexSuffix;
                 String sutRegex = "^sut" + regexSuffix;
                 envVar = "FILTER_CONTAINERS" + "=" + testRegex + "|" + sutRegex;
@@ -644,20 +643,20 @@ public class DockerEtmService {
     /* **** Sut Methods **** */
     /* ********************* */
 
-    public String getSutName(Execution dockerExec) {
-        SutSpecification sut = dockerExec.getSut();
-        return this.getSutPrefix(dockerExec)
+    public String getSutName(Execution execution) {
+        SutSpecification sut = execution.getSut();
+        return this.getSutPrefix(execution)
                 + (sut.isDockerCommandsSut() && sut.isSutInNewContainer()
                         ? "_" + sut.getSutInContainerAuxLabel()
                         : "");
     }
 
     // Hardcoded in EUS, if you make changes here, make them too in EUS
-    public String getSutPrefix(Execution dockerExec) {
-        String suffix = dockerExec.isExternal()
-                ? dockerExec.getExternalTJobExec()
+    public String getSutPrefix(Execution execution) {
+        String suffix = execution.isExternal()
+                ? execution.getExternalTJobExec()
                         .getExternalTJobExecMonitoringIndex()
-                : dockerExec.getExecutionId().toString();
+                : execution.getExecutionId().toString();
 
         return getSutPrefixBySuffix(suffix);
     }
@@ -667,24 +666,24 @@ public class DockerEtmService {
         return prefix + "_" + suffix;
     }
 
-    public void createAndStartSutContainer(Execution dockerExec)
+    public void createAndStartSutContainer(Execution execution)
             throws Exception {
         try {
             // Create Container Object
-            DockerContainer sutContainer = createContainer(dockerExec, "sut");
+            DockerContainer sutContainer = createContainer(execution, "sut");
 
             String resultMsg = "Starting dockerized SuT";
-            updateExecutionResultStatus(dockerExec,
+            updateExecutionResultStatus(execution,
                     TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
-            logger.info(resultMsg + " " + dockerExec.getExecutionId());
+            logger.info(resultMsg + " " + execution.getExecutionId());
 
             // Create and start container
             String sutContainerId = dockerService.createAndStartContainer(
                     sutContainer, EpmService.etMasterSlaveMode);
-            sutsByExecution.put(dockerExec.getExecutionId().toString(),
+            sutsByExecution.put(execution.getExecutionId().toString(),
                     sutContainerId);
 
-            String sutName = getSutName(dockerExec);
+            String sutName = getSutName(execution);
             this.insertCreatedContainer(sutContainerId, sutName);
         } catch (TJobStoppedException e) {
             throw new TJobStoppedException(
@@ -694,11 +693,11 @@ public class DockerEtmService {
         }
     }
 
-    public String getCheckName(Execution dockerExec) {
-        return "check_" + dockerExec.getExecutionId();
+    public String getCheckName(Execution execution) {
+        return "check_" + execution.getExecutionId();
     }
 
-    public void checkSut(Execution dockerExec, String ip, String port)
+    public void checkSut(Execution execution, String ip, String port)
             throws DockerException, Exception {
         String envVar = "IP=" + ip;
         String envVar2 = "PORT=" + port;
@@ -709,7 +708,7 @@ public class DockerEtmService {
         try {
             dockerService.pullImageIfNotExist(checkImage);
 
-            String checkName = getCheckName(dockerExec);
+            String checkName = getCheckName(execution);
 
             DockerBuilder dockerBuilder = new DockerBuilder(checkImage);
             dockerBuilder.envs(envList);
@@ -726,7 +725,7 @@ public class DockerEtmService {
                     .getDockerClient(EpmService.etMasterSlaveMode)
                     .waitContainer(checkContainerId).statusCode();
             if (statusCode == 0) {
-                logger.info("Sut is ready " + dockerExec.getExecutionId());
+                logger.info("Sut is ready " + execution.getExecutionId());
 
             } else { // TODO timeout or catch stop execution
                 throw new TJobStoppedException(
@@ -739,8 +738,8 @@ public class DockerEtmService {
         }
     }
 
-    public void removeSutVolumeFolder(Execution dockerExec) {
-        String sutPath = getSutPath(dockerExec);
+    public void removeSutVolumeFolder(Execution execution) {
+        String sutPath = getSutPath(execution);
 
         try {
             filesService.removeExecFilesFolder(sutPath);
@@ -754,19 +753,19 @@ public class DockerEtmService {
     /* **** Test **** */
     /* ************** */
 
-    public String getTestName(Execution dockerExec) {
-        return "test_" + dockerExec.getExecutionId();
+    public String getTestName(Execution execution) {
+        return "test_" + execution.getExecutionId();
     }
 
-    public void createAndRunTestContainer(Execution dockerExec)
+    public void createAndRunTestContainer(Execution execution)
             throws Exception {
-        TJobExecution tJobExec = dockerExec.getTJobExec();
+        TJobExecution tJobExec = execution.getTJobExec();
         try {
             // Create Container Object
-            DockerContainer testContainer = createContainer(dockerExec, "tjob");
+            DockerContainer testContainer = createContainer(execution, "tjob");
 
             String resultMsg = "Starting Test Execution";
-            updateExecutionResultStatus(dockerExec,
+            updateExecutionResultStatus(execution,
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
 
             // Create and start container
@@ -774,10 +773,10 @@ public class DockerEtmService {
                     testContainer, EpmService.etMasterSlaveMode);
 
             resultMsg = "Executing Test";
-            updateExecutionResultStatus(dockerExec,
+            updateExecutionResultStatus(execution,
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
 
-            String testName = getTestName(dockerExec);
+            String testName = getTestName(execution);
             this.insertCreatedContainer(testContainerId, testName);
 
             int exitCode = dockerService
@@ -787,14 +786,14 @@ public class DockerEtmService {
 
             // Test Results
             resultMsg = "Waiting for Test Results";
-            updateExecutionResultStatus(dockerExec, ResultEnum.WAITING,
+            updateExecutionResultStatus(execution, ResultEnum.WAITING,
                     resultMsg);
             etmTestResultService.saveTestResults(
-                    getTestResults(dockerExec, testContainerId), tJobExec);
+                    getTestResults(execution, testContainerId), tJobExec);
 
             tJobExec.setEndDate(new Date());
             logger.info("Ending Execution {}...", tJobExec.getId());
-            saveFinishStatus(tJobExec, dockerExec, exitCode);
+            saveFinishStatus(tJobExec, execution, exitCode);
 
         } catch (TJobStoppedException | InterruptedException e) {
             throw new TJobStoppedException(
@@ -804,14 +803,14 @@ public class DockerEtmService {
         }
     }
 
-    public void updateExecutionResultStatus(Execution dockerExec,
+    public void updateExecutionResultStatus(Execution execution,
             ResultEnum result, String msg) {
-        if (dockerExec.isExternal()) {
-            ExternalTJobExecution externalTJobExec = dockerExec
+        if (execution.isExternal()) {
+            ExternalTJobExecution externalTJobExec = execution
                     .getExternalTJobExec();
             updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
         } else {
-            TJobExecution tJobExec = dockerExec.getTJobExec();
+            TJobExecution tJobExec = execution.getTJobExec();
             updateTJobExecResultStatus(tJobExec, result, msg);
         }
     }
@@ -841,12 +840,12 @@ public class DockerEtmService {
         externalTJobExecutionRepository.save(externalTJobExec);
     }
 
-    public boolean isEMSSelected(Execution dockerExec) {
-        return !dockerExec.isExternal()
-                && dockerExec.gettJob().isSelectedService("ems");
+    public boolean isEMSSelected(Execution execution) {
+        return !execution.isExternal()
+                && execution.gettJob().isSelectedService("ems");
     }
 
-    public void saveFinishStatus(TJobExecution tJobExec, Execution dockerExec,
+    public void saveFinishStatus(TJobExecution tJobExec, Execution execution,
             int exitCode) {
         String resultMsg = "";
         ResultEnum finishStatus = ResultEnum.SUCCESS;
@@ -867,23 +866,23 @@ public class DockerEtmService {
         }
 
         resultMsg = "Finished: " + finishStatus;
-        updateExecutionResultStatus(dockerExec, finishStatus, resultMsg);
+        updateExecutionResultStatus(execution, finishStatus, resultMsg);
     }
 
     /* ******************************* */
     /* ******* Logging methods ******* */
     /* ******************************* */
     public LogConfig getLogConfig(String host, String port, String tagPrefix,
-            String tagSuffix, Execution dockerExec) {
+            String tagSuffix, Execution execution) {
         Map<String, String> configMap = new HashMap<String, String>();
 
         String monitoringIndex = "";
 
-        if (dockerExec.isExternal()) {
-            monitoringIndex = dockerExec.getExternalTJobExec()
+        if (execution.isExternal()) {
+            monitoringIndex = execution.getExternalTJobExec()
                     .getExternalTJobExecMonitoringIndex();
         } else {
-            monitoringIndex = dockerExec.getExecutionId().toString();
+            monitoringIndex = execution.getExecutionId().toString();
         }
 
         if (tagSuffix != null && !tagSuffix.equals("")) {
@@ -919,7 +918,7 @@ public class DockerEtmService {
     }
 
     public LogConfig getDefaultLogConfig(String port, String tagPrefix,
-            String tagSuffix, Execution dockerExec) throws Exception {
+            String tagSuffix, Execution execution) throws Exception {
 
         initLogstashHostIfNecessary();
         port = masterSlavemode ? bindedLsTcpPort : port;
@@ -928,12 +927,12 @@ public class DockerEtmService {
                 logstashOrMiniHost, port);
 
         return this.getLogConfig(logstashOrMiniHost, port, tagPrefix, tagSuffix,
-                dockerExec);
+                execution);
     }
 
     public LogConfig getEMSLogConfig(String type, String tagPrefix,
-            String tagSuffix, Execution dockerExec) throws Exception {
-        TJobExecution tJobExec = dockerExec.getTJobExec();
+            String tagSuffix, Execution execution) throws Exception {
+        TJobExecution tJobExec = execution.getTJobExec();
         String host = null;
         String port = null;
         // ET_EMS env vars created in EsmService setTssEnvVarByEndpoint()
@@ -950,7 +949,7 @@ public class DockerEtmService {
                     "EMS Host to send logs from {} container: {}. To port {}",
                     type, host, port);
             return this.getLogConfig(host, port, tagPrefix, tagSuffix,
-                    dockerExec);
+                    execution);
         } else {
             throw new Exception("Error on get EMS Log config");
         }
@@ -961,20 +960,20 @@ public class DockerEtmService {
     /* *************** */
 
     public String getContainerIpWithDockerExecution(String containerId,
-            Execution dockerExec) throws Exception {
+            Execution execution) throws Exception {
         return dockerService.getContainerIpWithDockerClient(
                 dockerService.getDockerClient(EpmService.etMasterSlaveMode),
                 containerId, elastestNetwork);
     }
 
     public String waitForContainerIpWithDockerExecution(String containerId,
-            Execution dockerExec, long timeout) throws Exception {
+            Execution execution, long timeout) throws Exception {
         return dockerService.waitForContainerIpWithDockerClient(
                 dockerService.getDockerClient(EpmService.etMasterSlaveMode),
                 containerId, elastestNetwork, timeout);
     }
 
-    public String getHostIp(Execution dockerExec) throws Exception {
+    public String getHostIp(Execution execution) throws Exception {
         return dockerService.getDockerClient(EpmService.etMasterSlaveMode)
                 .inspectNetwork(elastestNetwork).ipam().config().get(0)
                 .gateway();
@@ -1054,11 +1053,11 @@ public class DockerEtmService {
     /* **** Get TestResults **** */
     /* ************************* */
 
-    public List<ReportTestSuite> getTestResults(Execution dockerExec,
+    public List<ReportTestSuite> getTestResults(Execution execution,
             String testContainerId) throws Exception {
         try {
             List<ReportTestSuite> testSuites = null;
-            String resultsPath = dockerExec.gettJob().getResultsPath();
+            String resultsPath = execution.gettJob().getResultsPath();
 
             if (resultsPath != null && !resultsPath.isEmpty()) {
                 try {

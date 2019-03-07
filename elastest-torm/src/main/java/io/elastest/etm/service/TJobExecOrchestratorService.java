@@ -13,8 +13,6 @@ import java.util.concurrent.Future;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.maven.plugins.surefire.report.ReportTestCase;
-import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,11 +34,9 @@ import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
 import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.dao.TJobExecRepository;
-import io.elastest.etm.dao.TestCaseRepository;
-import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
-import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.EusExecutionData;
+import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SharedAsyncModel;
@@ -56,8 +52,6 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
 import io.elastest.etm.model.TJobSupportService;
-import io.elastest.etm.model.TestCase;
-import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
@@ -176,25 +170,25 @@ public class TJobExecOrchestratorService {
         String resultMsg = "Initializing";
         tJobExec.setResultMsg(resultMsg);
         tJobExecRepositoryImpl.save(tJobExec);
-        Execution dockerExec = new Execution(tJobExec);
+        Execution execution = new Execution(tJobExec);
 
         try {
             initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
             setTJobExecEnvVars(tJobExec, true, false);
             tJobExec = tJobExecRepositoryImpl.save(tJobExec);
-            dockerExec.updateFromTJobExec(tJobExec);
+            execution.updateFromTJobExec(tJobExec);
 
             // Create queues and load basic services
             resultMsg = "Starting Dockbeat to get metrics...";
-            dockerEtmService.updateExecutionResultStatus(dockerExec,
+            dockerEtmService.updateExecutionResultStatus(execution,
                     ResultEnum.IN_PROGRESS, resultMsg);
 
             // Start SuT if it's necessary
-            if (dockerExec.isWithSut()) {
+            if (execution.isWithSut()) {
                 // Start Dockbeat
-                dockerEtmService.startDockbeat(dockerExec);
-                initSut(dockerExec, !integratedJenkins);
-                tJobExec.setSutExecution(dockerExec.getSutExec());
+                dockerEtmService.startDockbeat(execution);
+                initSut(execution, !integratedJenkins);
+                tJobExec.setSutExecution(execution.getSutExec());
             }
 
             setTJobExecEnvVars(tJobExec, true, false);
@@ -239,11 +233,11 @@ public class TJobExecOrchestratorService {
             tJobExec = tJobExecRepositoryImpl.save(tJobExec);
         }
 
-        Execution dockerExec = new Execution(tJobExec);
+        Execution execution = new Execution(tJobExec);
 
         if (tJobExec.isMultiExecutionParent()) { // Parent execution
             resultMsg = "Executing Test";
-            dockerEtmService.updateExecutionResultStatus(dockerExec,
+            dockerEtmService.updateExecutionResultStatus(execution,
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
 
             for (TJobExecution childExec : tJobExec.getExecChilds()) {
@@ -256,7 +250,7 @@ public class TJobExecOrchestratorService {
 
             tJobExec.setEndDate(new Date());
 
-            saveMultiParentFinishStatus(tJobExec, dockerExec);
+            saveMultiParentFinishStatus(tJobExec, execution);
 
         } else { // Simple/child execution
 
@@ -264,26 +258,26 @@ public class TJobExecOrchestratorService {
                 initTSS(tJobExec, tJobServices);
                 setTJobExecEnvVars(tJobExec, false, false);
                 tJobExec = tJobExecRepositoryImpl.save(tJobExec);
-                dockerExec.updateFromTJobExec(tJobExec);
+                execution.updateFromTJobExec(tJobExec);
 
                 // Create queues and load basic services
                 resultMsg = "Starting Dockbeat to get metrics...";
-                dockerEtmService.updateExecutionResultStatus(dockerExec,
+                dockerEtmService.updateExecutionResultStatus(execution,
                         ResultEnum.IN_PROGRESS, resultMsg);
 
                 // Start Dockbeat
-                dockerEtmService.startDockbeat(dockerExec);
+                dockerEtmService.startDockbeat(execution);
 
                 // Start SuT if it's necessary
-                if (dockerExec.isWithSut()) {
-                    initSut(dockerExec);
+                if (execution.isWithSut()) {
+                    initSut(execution);
                 }
 
                 // Run Test
                 resultMsg = "Preparing Test";
-                dockerEtmService.updateExecutionResultStatus(dockerExec,
+                dockerEtmService.updateExecutionResultStatus(execution,
                         ResultEnum.EXECUTING_TEST, resultMsg);
-                dockerEtmService.createAndRunTestContainer(dockerExec);
+                dockerEtmService.createAndRunTestContainer(execution);
 
 
                 tJobExec.setEndDate(new Date());
@@ -293,7 +287,7 @@ public class TJobExecOrchestratorService {
 
                 logger.info("Ending Execution {}...", tJobExec.getId());
                 // End and purge services
-                endAllExecs(dockerExec);
+                endAllExecs(execution);
 
             } catch (TJobStoppedException e) {
                 // Stop exception
@@ -303,7 +297,7 @@ public class TJobExecOrchestratorService {
                         e);
                 if (!"end error".equals(e.getMessage())) {
                     resultMsg = "Internal Error: " + e.getMessage();
-                    dockerEtmService.updateExecutionResultStatus(dockerExec,
+                    dockerEtmService.updateExecutionResultStatus(execution,
                             ResultEnum.ERROR, resultMsg);
 
                     tJobExec.setEndDate(new Date());
@@ -312,7 +306,7 @@ public class TJobExecOrchestratorService {
                             tJobExec);
 
                     try {
-                        endAllExecs(dockerExec);
+                        endAllExecs(execution);
                     } catch (Exception e1) {
                         logger.error("Error on end TJob Exec {}",
                                 tJobExec.getId(), e1);
@@ -332,7 +326,7 @@ public class TJobExecOrchestratorService {
             }
 
             // Setting execution data
-            tJobExec.setSutExecution(dockerExec.getSutExec());
+            tJobExec.setSutExecution(execution.getSutExec());
         }
         // Saving execution data
         tJobExecRepositoryImpl.save(tJobExec);
@@ -463,9 +457,9 @@ public class TJobExecOrchestratorService {
             }
         }
 
-        Execution dockerExec = new Execution(tJobExec);
+        Execution execution = new Execution(tJobExec);
         try {
-            endAllExecs(dockerExec, true);
+            endAllExecs(execution, true);
         } catch (TJobStoppedException e) {
             // Stop exception
         } catch (Exception e) {
@@ -482,11 +476,11 @@ public class TJobExecOrchestratorService {
 
         if (tJobExec.getTjob().isExternal()) {
             String resultMsg = "Success";
-            dockerEtmService.updateExecutionResultStatus(dockerExec,
+            dockerEtmService.updateExecutionResultStatus(execution,
                     ResultEnum.SUCCESS, resultMsg);
         } else {
             String resultMsg = "Stopped";
-            dockerEtmService.updateExecutionResultStatus(dockerExec,
+            dockerEtmService.updateExecutionResultStatus(execution,
                     ResultEnum.STOPPED, resultMsg);
         }
 
@@ -495,7 +489,7 @@ public class TJobExecOrchestratorService {
     }
 
     public void saveMultiParentFinishStatus(TJobExecution tJobExec,
-            Execution dockerExec) {
+            Execution execution) {
         ResultEnum finishStatus = ResultEnum.SUCCESS;
 
         for (TJobExecution childExec : tJobExec.getExecChilds()) {
@@ -514,35 +508,35 @@ public class TJobExecOrchestratorService {
         }
 
         String resultMsg = "Finished: " + finishStatus;
-        dockerEtmService.updateExecutionResultStatus(dockerExec, finishStatus,
+        dockerEtmService.updateExecutionResultStatus(execution, finishStatus,
                 resultMsg);
     }
 
-    public void endAllExecs(Execution dockerExec, boolean force)
+    public void endAllExecs(Execution execution, boolean force)
             throws Exception {
         try {
-            if (dockerExec.isExternal()) {
+            if (execution.isExternal()) {
 
             } else {
-                endTestExec(dockerExec, force);
+                endTestExec(execution, force);
             }
-            if (dockerExec.isWithSut()) {
-                endSutExec(dockerExec, force);
+            if (execution.isWithSut()) {
+                endSutExec(execution, force);
                 if (force) {
                     // Only stop if force, else stops automatically when ends
                     stopManageSutByExternalElasticsearch(
                             dockerExec.getTJobExec());
                 }
             }
-            endDockbeatExec(dockerExec, force);
+            endDockbeatExec(execution, force);
         } catch (Exception e) {
             logger.error("Error on end all execs");
             throw new Exception("end error", e); // TODO Customize Exception
         }
     }
 
-    public void endAllExecs(Execution dockerExec) throws Exception {
-        endAllExecs(dockerExec, false);
+    public void endAllExecs(Execution execution) throws Exception {
+        endAllExecs(execution, false);
     }
     /* ******************* */
     /* *** TSS methods *** */
@@ -793,16 +787,16 @@ public class TJobExecOrchestratorService {
         dbmanager.bindSession();
         exec = externalTJobExecutionRepository.findById(exec.getId()).get();
 
-        Execution dockerExec = new Execution(exec);
+        Execution execution = new Execution(exec);
         try {
-            dockerEtmService.updateExecutionResultStatus(dockerExec,
+            dockerEtmService.updateExecutionResultStatus(execution,
                     ResultEnum.IN_PROGRESS, "Initializing execution...");
 
-            if (dockerExec.isWithSut()) {
-                this.initSut(dockerExec);
+            if (execution.isWithSut()) {
+                this.initSut(execution);
             }
             String resultMsg = "Executing Test";
-            dockerEtmService.updateExecutionResultStatus(dockerExec,
+            dockerEtmService.updateExecutionResultStatus(execution,
                     ResultEnum.EXECUTING_TEST, resultMsg);
         } catch (Exception e) {
             logger.error("Error on execute External TJob {}", exec.getId(), e);
@@ -822,10 +816,10 @@ public class TJobExecOrchestratorService {
         if (externalTJobExec.isWithSut() && ResultEnum
                 .isFinishedOrNotExecuted(externalTJobExec.getResult())) {
 
-            Execution dockerExec = new Execution(externalTJobExec);
+            Execution execution = new Execution(externalTJobExec);
             try {
-                endDockbeatExec(dockerExec, false);
-                endSutExec(dockerExec, false);
+                endDockbeatExec(execution, false);
+                endSutExec(execution, false);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -839,20 +833,20 @@ public class TJobExecOrchestratorService {
     /* *** SuT Methods *** */
     /* ******************* */
 
-    public void initSut(Execution dockerExec) throws Exception {
-        initSut(dockerExec, false);
+    public void initSut(Execution execution) throws Exception {
+        initSut(execution, false);
     }
 
-    public void initSut(Execution dockerExec, boolean publicSut)
+    public void initSut(Execution execution, boolean publicSut)
             throws Exception {
         try {
-            SutSpecification sut = dockerExec.getSut();
+            SutSpecification sut = execution.getSut();
             SutExecution sutExec;
 
             // If it's SuT DEPLOYED outside ElasTest
             if (sut.getSutType() == SutTypeEnum.DEPLOYED) {
                 logger.info("Using SUT deployed outside ElasTest");
-                TJobExecution tJobExec = dockerExec.getTJobExec();
+                TJobExecution tJobExec = execution.getTJobExec();
                 sutExec = startSutDeployedOutside(tJobExec);
 
             }
@@ -863,15 +857,15 @@ public class TJobExecOrchestratorService {
                     if (dockerExec.isExternal()) {
                         // If external start Dockbeat (for internal is already
                         // started)
-                        dockerEtmService.startDockbeat(dockerExec);
+                        dockerEtmService.startDockbeat(execution);
                     }
 
-                    sutExec = startManagedSut(dockerExec);
+                    sutExec = startManagedSut(execution);
                     if (publicSut) {
                         SocatBindedPort socatBindedPortObj = dockerEtmService
                                 .bindingPort(sutExec.getIp(),
                                         "sut_" + sutExec.getId(),
-                                        dockerExec.getSut().getPort(),
+                                        execution.getSut().getPort(),
                                         elastestDockerNetwork,
                                         epmService.etMasterSlaveMode);
                         sutExec.setPublicPort(Long
@@ -883,10 +877,10 @@ public class TJobExecOrchestratorService {
                 }
             }
 
-            dockerExec.setSutExec(sutExec);
+            execution.setSutExec(sutExec);
 
-            if (dockerExec.isExternal()) {
-                dockerExec.getExternalTJobExec().getEnvVars().put("ET_SUT_URL",
+            if (execution.isExternal()) {
+                execution.getExternalTJobExec().getEnvVars().put("ET_SUT_URL",
                         sutExec.getUrl());
             }
         } catch (TJobStoppedException e) {
@@ -896,28 +890,28 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    public SutExecution startSutDeployedOutside(DockerExecution dockerExec)
+    public SutExecution startSutDeployedOutside(Execution execution)
             throws Exception {
-        SutSpecification sut = dockerExec.getSut();
+        SutSpecification sut = execution.getSut();
         SutExecution sutExec;
         String sutIP = "";
 
         try {
             String resultMsg = "Preparing External SuT";
-            dockerEtmService.updateGenericExecResultStatus(dockerExec,
+            dockerEtmService.updateGenericExecResultStatus(execution,
                     ResultEnum.WAITING_SUT, resultMsg);
 
             // Sut instrumented by EIM
             if (sut.isInstrumentedByElastest() && sut.isInstrumentalized()) {
-                dockerEtmService.updateGenericExecResultStatus(dockerExec,
+                dockerEtmService.updateGenericExecResultStatus(execution,
                         ResultEnum.WAITING_SUT, "Deploying beats");
 
-                if (dockerExec.isExternal()) {
+                if (execution.isExternal()) {
                     logger.debug("External TJob Exec {} => Deploy Beats",
-                            dockerExec.getExternalTJobExec().getId());
+                            execution.getExternalTJobExec().getId());
                 } else {
                     logger.debug("TJob Exec {} => Deploy Beats",
-                            dockerExec.getTJobExec().getId());
+                            execution.getTJobExec().getId());
                 }
                 sut = sutService.deployEimSutBeats(sut, false);
             }
@@ -931,12 +925,12 @@ public class TJobExecOrchestratorService {
 
             // Sut logs from External Elasticsearch
             if (sut.isUsingExternalElasticsearch()) {
-                String key = getMapNameByExec(dockerExec);
+                String key = getMapNameByExec(execution);
                 Date startDate;
-                if (dockerExec.isExternal()) {
-                    startDate = dockerExec.getExternalTJobExec().getStartDate();
+                if (execution.isExternal()) {
+                    startDate = execution.getExternalTJobExec().getStartDate();
                 } else {
-                    startDate = dockerExec.getTJobExec().getStartDate();
+                    startDate = execution.getTJobExec().getStartDate();
                 }
 
                 if (startDate == null) {
@@ -963,45 +957,45 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    private SutExecution startManagedSut(Execution dockerExec)
+    private SutExecution startManagedSut(Execution execution)
             throws Exception {
-        SutSpecification sut = dockerExec.getSut();
+        SutSpecification sut = execution.getSut();
 
         String resultMsg = "Preparing dockerized SuT";
-        dockerEtmService.updateExecutionResultStatus(dockerExec,
+        dockerEtmService.updateExecutionResultStatus(execution,
                 ResultEnum.EXECUTING_SUT, resultMsg);
-        logger.info(resultMsg + " " + dockerExec.getExecutionId());
+        logger.info(resultMsg + " " + execution.getExecutionId());
 
         SutExecution sutExec = sutService.createSutExecutionBySut(sut);
         try {
             // By Docker Image
             if (sut.getManagedDockerType() != ManagedDockerType.COMPOSE) {
                 logger.debug("Is Sut By Docker Image");
-                startSutByDockerImage(dockerExec);
+                startSutByDockerImage(execution);
             }
             // By Docker Compose
             else {
                 logger.debug("Is Sut By Docker Compose");
-                startSutByDockerCompose(dockerExec);
+                startSutByDockerCompose(execution);
             }
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
             String sutIp;
             if (EpmService.etMasterSlaveMode) {
                 logger.info("Sut main service name: {}",
-                        ("/" + dockerEtmService.getSutName(dockerExec)
+                        ("/" + dockerEtmService.getSutName(execution)
                                 .replaceAll("_", "") + "_"
                                 + sut.getMainService() + "_1"));
                 sutIp = epmService.getRemoteServiceIpByVduName(
-                        "/" + dockerEtmService.getSutName(dockerExec) + "_"
+                        "/" + dockerEtmService.getSutName(execution) + "_"
                                 + sut.getMainService() + "_1");
                 logger.info("Sut main service ip: {}", sutIp);
             } else {
                 String sutContainerId = dockerEtmService
                         .getSutContainerIdByExec(
-                                dockerExec.getExecutionId().toString());
+                                execution.getExecutionId().toString());
                 sutIp = dockerEtmService.getContainerIpWithDockerExecution(
-                        sutContainerId, dockerExec);
+                        sutContainerId, execution);
             }
 
             // If port is defined, wait for SuT ready
@@ -1009,20 +1003,20 @@ public class TJobExecOrchestratorService {
                 String sutPort = sut.getPort();
                 resultMsg = "Waiting for dockerized SuT";
                 logger.info(resultMsg);
-                dockerEtmService.updateExecutionResultStatus(dockerExec,
+                dockerEtmService.updateExecutionResultStatus(execution,
                         ResultEnum.WAITING_SUT, resultMsg);
 
                 // If is Sut In new Container
                 if (sut.isSutInNewContainer()) {
-                    sutIp = this.waitForSutInContainer(dockerExec, 480000); // 8min
+                    sutIp = this.waitForSutInContainer(execution, 480000); // 8min
                 }
 
                 // Wait for SuT started
                 resultMsg = "Waiting for SuT service ready at ip " + sutIp
                         + " and port " + sutPort;
                 logger.debug(resultMsg);
-                dockerEtmService.checkSut(dockerExec, sutIp, sutPort);
-                endCheckSutExec(dockerExec);
+                dockerEtmService.checkSut(execution, sutIp, sutPort);
+                endCheckSutExec(execution);
             }
 
             // Save SuT Url and Ip into sutexec
@@ -1036,7 +1030,7 @@ public class TJobExecOrchestratorService {
             logger.error("Exception during TJob execution", e);
             sutExec.setDeployStatus(SutExecution.DeployStatusEnum.ERROR);
             try {
-                sutService.modifySutExec(dockerExec.getSutExec());
+                sutService.modifySutExec(execution.getSutExec());
             } catch (Exception e1) {
 
             }
@@ -1045,17 +1039,17 @@ public class TJobExecOrchestratorService {
         return sutExec;
     }
 
-    public String waitForSutInContainer(Execution dockerExec, long timeout)
+    public String waitForSutInContainer(Execution execution, long timeout)
             throws Exception {
-        SutSpecification sut = dockerExec.getSut();
+        SutSpecification sut = execution.getSut();
         String containerName = null;
         String sutPrefix = null;
         boolean isDockerCompose = false;
         // If is Docker compose Sut
         if (sut.getCommandsOption() == CommandsOptionEnum.IN_DOCKER_COMPOSE) {
             containerName = this.getCurrentExecSutMainServiceName(sut,
-                    dockerExec);
-            sutPrefix = this.dockerEtmService.getSutPrefix(dockerExec);
+                    execution);
+            sutPrefix = this.dockerEtmService.getSutPrefix(execution);
             isDockerCompose = true;
             logger.debug(
                     "Is SuT in new container With Docker Compose. Main Service Container Name: {}",
@@ -1064,7 +1058,7 @@ public class TJobExecOrchestratorService {
         // If is unique Docker image Sut
         else if (sut
                 .getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
-            containerName = dockerEtmService.getSutPrefix(dockerExec);
+            containerName = dockerEtmService.getSutPrefix(execution);
             sutPrefix = containerName;
             logger.debug(
                     "Is SuT in new container With Docker Image. Container Name: {}",
@@ -1082,14 +1076,14 @@ public class TJobExecOrchestratorService {
 
         // Get Main sut/service ip from ET network
         String sutIp = dockerEtmService.waitForContainerIpWithDockerExecution(
-                containerName, dockerExec, timeout);
+                containerName, execution, timeout);
 
         // Add containers to dockerEtmService list
         if (isDockerCompose) {
             List<Container> containersList = this.dockerEtmService.dockerService
                     .getContainersCreatedSinceId(
                             dockerEtmService.getSutContainerIdByExec(
-                                    dockerExec.getExecutionId().toString()));
+                                    execution.getExecutionId().toString()));
             this.dockerEtmService.dockerService
                     .getContainersByNamePrefixByGivenList(containersList,
                             sutPrefix, ContainersListActionEnum.ADD,
@@ -1104,28 +1098,28 @@ public class TJobExecOrchestratorService {
     }
 
     public String getCurrentExecSutMainServiceName(SutSpecification sut,
-            Execution dockerExec) {
-        return dockerEtmService.getSutPrefix(dockerExec) + "_"
+            Execution execution) {
+        return dockerEtmService.getSutPrefix(execution) + "_"
                 + sut.getMainService() + "_1";
     }
 
-    public void startSutByDockerImage(Execution dockerExec) throws Exception {
+    public void startSutByDockerImage(Execution execution) throws Exception {
         // Create and Start container
-        dockerEtmService.createAndStartSutContainer(dockerExec);
+        dockerEtmService.createAndStartSutContainer(execution);
     }
 
-    public void startSutByDockerCompose(Execution dockerExec) throws Exception {
-        SutSpecification sut = dockerExec.getSut();
+    public void startSutByDockerCompose(Execution execution) throws Exception {
+        SutSpecification sut = execution.getSut();
         String mainService = sut.getMainService();
         logger.debug("The main service saved in DB is: {}", mainService);
-        String composeProjectName = dockerEtmService.getSutName(dockerExec);
+        String composeProjectName = dockerEtmService.getSutName(execution);
 
         // TMP replace sut exec and logstash sut tcp
         String dockerComposeYml = sut.getSpecification();
 
         // Set logging, network, labels and do pull of images
         dockerComposeYml = prepareElasTestConfigInDockerComposeYml(
-                dockerComposeYml, composeProjectName, dockerExec, mainService);
+                dockerComposeYml, composeProjectName, execution, mainService);
 
         // Environment variables (optional)
         ArrayList<String> envList = new ArrayList<>();
@@ -1141,18 +1135,18 @@ public class TJobExecOrchestratorService {
                 composeProjectName, dockerComposeYml, envList);
 
         String resultMsg = "Starting dockerized SuT";
-        dockerEtmService.updateExecutionResultStatus(dockerExec,
+        dockerEtmService.updateExecutionResultStatus(execution,
                 ResultEnum.EXECUTING_SUT, resultMsg);
-        logger.info(resultMsg + " " + dockerExec.getExecutionId());
+        logger.info(resultMsg + " " + execution.getExecutionId());
 
         // Create Containers
         String pathToSaveTmpYml = "";
-        if (dockerExec.isExternal()) {
+        if (execution.isExternal()) {
             pathToSaveTmpYml = esmService.getExternalTJobExecFolderPath(
-                    dockerExec.getExternalTJobExec());
+                    execution.getExternalTJobExec());
         } else {
             pathToSaveTmpYml = esmService
-                    .getTJobExecFolderPath(dockerExec.getTJobExec());
+                    .getTJobExecFolderPath(execution.getTJobExec());
         }
         boolean created = dockerComposeService.createProject(project,
                 pathToSaveTmpYml, false, false, false);
@@ -1178,15 +1172,15 @@ public class TJobExecOrchestratorService {
                 if (container.getName().equals(
                         composeProjectName + "_" + mainService + "_1")) {
                     dockerEtmService.addSutByExecution(
-                            dockerExec.getExecutionId().toString(),
+                            execution.getExecutionId().toString(),
                             containerId);
                 }
 
                 if (dockerEtmService.getSutContainerIdByExec(
-                        dockerExec.getExecutionId().toString()) == null
+                        execution.getExecutionId().toString()) == null
                         || dockerEtmService
                                 .getSutContainerIdByExec(
-                                        dockerExec.getExecutionId().toString())
+                                        execution.getExecutionId().toString())
                                 .isEmpty()) {
                     throw new Exception(
                             "Main Sut service from docker compose not started");
@@ -1198,7 +1192,7 @@ public class TJobExecOrchestratorService {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public String prepareElasTestConfigInDockerComposeYml(
             String dockerComposeYml, String composeProjectName,
-            Execution dockerExec, String mainService) throws Exception {
+            Execution execution, String mainService) throws Exception {
         YAMLFactory yf = new YAMLFactory();
         ObjectMapper mapper = new ObjectMapper(yf);
         Object object;
@@ -1211,20 +1205,20 @@ public class TJobExecOrchestratorService {
                     .entrySet()) {
                 // Pull images in a local execution
                 if (!etmContextService.etMasterSlaveMode) {
-                    this.pullDockerComposeYmlService(service, dockerExec);
+                    this.pullDockerComposeYmlService(service, execution);
                 }
 
                 // Set Logging
                 service = this.setLoggingToDockerComposeYmlService(service,
-                        composeProjectName, dockerExec);
+                        composeProjectName, execution);
 
                 // Set Elastest Network
                 service = this.setNetworkToDockerComposeYmlService(service,
-                        composeProjectName, dockerExec);
+                        composeProjectName, execution);
 
                 // Set Elastest Labels
                 service = this.setETLabelsToDockerComposeYmlService(service,
-                        composeProjectName, dockerExec);
+                        composeProjectName, execution);
 
                 // Binding port of the main service if ElasTest is running in
                 // Master/Slave mode
@@ -1236,7 +1230,7 @@ public class TJobExecOrchestratorService {
             }
 
             dockerComposeMap = this.setNetworkToDockerComposeYmlRoot(
-                    dockerComposeMap, composeProjectName, dockerExec);
+                    dockerComposeMap, composeProjectName, execution);
 
             StringWriter writer = new StringWriter();
 
@@ -1258,7 +1252,7 @@ public class TJobExecOrchestratorService {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Map<String, HashMap<String, HashMap>> setNetworkToDockerComposeYmlRoot(
             Map<String, HashMap<String, HashMap>> dockerComposeMap,
-            String composeProjectName, Execution dockerExec) {
+            String composeProjectName, Execution execution) {
 
         String networksKey = "networks";
         // If service has networks, remove it
@@ -1281,7 +1275,7 @@ public class TJobExecOrchestratorService {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private void pullDockerComposeYmlService(
-            HashMap.Entry<String, HashMap> service, Execution dockerExec)
+            HashMap.Entry<String, HashMap> service, Execution execution)
             throws DockerException, InterruptedException, Exception {
         HashMap<String, String> serviceContent = service.getValue();
 
@@ -1289,7 +1283,7 @@ public class TJobExecOrchestratorService {
         // If service has image, pull
         if (serviceContent.containsKey(imageKey)) {
             String image = serviceContent.get(imageKey);
-            dockerEtmService.pullETExecutionImage(dockerExec, image,
+            dockerEtmService.pullETExecutionImage(execution, image,
                     service.getKey(), false);
         }
     }
@@ -1297,7 +1291,7 @@ public class TJobExecOrchestratorService {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public HashMap.Entry<String, HashMap> setLoggingToDockerComposeYmlService(
             HashMap.Entry<String, HashMap> service, String composeProjectName,
-            Execution dockerExec) throws Exception {
+            Execution execution) throws Exception {
         HashMap<String, HashMap> serviceContent = service.getValue();
         String loggingKey = "logging";
         // If service has logging, remove it
@@ -1313,11 +1307,11 @@ public class TJobExecOrchestratorService {
         String port = EpmService.etMasterSlaveMode ? bindedLsTcpPort
                 : logstashTcpPort;
 
-        if (dockerEtmService.isEMSSelected(dockerExec)) {
+        if (dockerEtmService.isEMSSelected(execution)) {
             // ET_EMS env vars created in EsmService setTssEnvVarByEndpoint()
-            host = dockerExec.getTJobExec().getEnvVars()
+            host = execution.getTJobExec().getEnvVars()
                     .get("ET_EMS_TCP_SUTLOGS_HOST");
-            port = dockerExec.getTJobExec().getEnvVars()
+            port = execution.getTJobExec().getEnvVars()
                     .get("ET_EMS_TCP_SUTLOGS_PORT");
         } else {
             try {
@@ -1353,7 +1347,7 @@ public class TJobExecOrchestratorService {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public HashMap.Entry<String, HashMap> setNetworkToDockerComposeYmlService(
             HashMap.Entry<String, HashMap> service, String composeProjectName,
-            Execution dockerExec) {
+            Execution execution) {
 
         HashMap serviceContent = service.getValue();
         String networksKey = "networks";
@@ -1372,7 +1366,7 @@ public class TJobExecOrchestratorService {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public HashMap.Entry<String, HashMap> setETLabelsToDockerComposeYmlService(
             HashMap.Entry<String, HashMap> service, String composeProjectName,
-            Execution dockerExec) {
+            Execution execution) {
 
         HashMap serviceContent = service.getValue();
         String labelsKey = "labels";
@@ -1381,7 +1375,7 @@ public class TJobExecOrchestratorService {
             serviceContent.remove(labelsKey);
         }
 
-        Map<String, String> labelsMap = dockerEtmService.getEtLabels(dockerExec,
+        Map<String, String> labelsMap = dockerEtmService.getEtLabels(execution,
                 "sut", service.getKey());
 
         serviceContent.put(labelsKey,
@@ -1409,39 +1403,39 @@ public class TJobExecOrchestratorService {
         return service;
     }
 
-    public void endSutExec(Execution dockerExec, boolean force)
+    public void endSutExec(Execution execution, boolean force)
             throws Exception {
-        SutSpecification sut = dockerExec.getSut();
-        dockerEtmService.removeSutVolumeFolder(dockerExec);
+        SutSpecification sut = execution.getSut();
+        dockerEtmService.removeSutVolumeFolder(execution);
         // If it's Managed Sut, and container is created
         if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
-            updateSutExecDeployStatus(dockerExec, DeployStatusEnum.UNDEPLOYING);
+            updateSutExecDeployStatus(execution, DeployStatusEnum.UNDEPLOYING);
             try {
                 if (sut.getManagedDockerType() != ManagedDockerType.COMPOSE) {
                     if (sut.isSutInNewContainer()) {
-                        endSutInContainer(dockerExec);
+                        endSutInContainer(execution);
                     }
                     String sutContainerName = dockerEtmService
-                            .getSutName(dockerExec);
+                            .getSutName(execution);
                     if (force) {
                         dockerEtmService.endContainer(sutContainerName, 1);
                     } else {
                         dockerEtmService.endContainer(sutContainerName);
                     }
                 } else {
-                    endComposedSutExec(dockerExec);
+                    endComposedSutExec(execution);
                 }
-                updateSutExecDeployStatus(dockerExec,
+                updateSutExecDeployStatus(execution,
                         DeployStatusEnum.UNDEPLOYED);
             } finally {
-                if (dockerExec.getSutExec() != null
-                        && dockerExec.getSutExec().getPublicPort() != null) {
+                if (execution.getSutExec() != null
+                        && execution.getSutExec().getPublicPort() != null) {
                     logger.debug("Removing sut socat container: {}",
-                            "socat_sut_" + dockerExec.getSutExec().getId());
+                            "socat_sut_" + execution.getSutExec().getId());
                     dockerEtmService.endContainer(
-                            "socat_sut_" + dockerExec.getSutExec().getId());
+                            "socat_sut_" + execution.getSutExec().getId());
                     dockerEtmService.removeSutByExecution(
-                            dockerExec.getExecutionId().toString());
+                            execution.getExecutionId().toString());
                 }
             }
         } else {
@@ -1449,20 +1443,20 @@ public class TJobExecOrchestratorService {
             // Sut instrumented by EIM
             if (sut.isInstrumentedByElastest() && sut.isInstrumentalized()) {
                 logger.debug("TJob Exec {} => Undeploying Beats",
-                        dockerExec.getTJobExec().getId());
+                        execution.getTJobExec().getId());
                 sut = sutService.undeployEimSutBeats(sut, false);
             }
         }
-        endCheckSutExec(dockerExec);
+        endCheckSutExec(execution);
     }
 
-    public void endComposedSutExec(Execution dockerExec) throws Exception {
-        String composeProjectName = dockerEtmService.getSutName(dockerExec);
+    public void endComposedSutExec(Execution execution) throws Exception {
+        String composeProjectName = dockerEtmService.getSutName(execution);
         dockerComposeService.stopAndRemoveProject(composeProjectName);
     }
 
-    public void endSutInContainer(Execution dockerExec) throws Exception {
-        SutSpecification sut = dockerExec.getSut();
+    public void endSutInContainer(Execution execution) throws Exception {
+        SutSpecification sut = execution.getSut();
         String containerName = null;
         String sutPrefix = null;
         boolean isDockerCompose = false;
@@ -1470,14 +1464,14 @@ public class TJobExecOrchestratorService {
         // If is Docker compose Sut
         if (sut.getCommandsOption() == CommandsOptionEnum.IN_DOCKER_COMPOSE) {
             containerName = this.getCurrentExecSutMainServiceName(sut,
-                    dockerExec);
-            sutPrefix = this.dockerEtmService.getSutPrefix(dockerExec);
+                    execution);
+            sutPrefix = this.dockerEtmService.getSutPrefix(execution);
             isDockerCompose = true;
         }
         // If is unique Docker image Sut
         else if (sut
                 .getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
-            containerName = dockerEtmService.getSutPrefix(dockerExec);
+            containerName = dockerEtmService.getSutPrefix(execution);
             sutPrefix = containerName;
         }
 
@@ -1486,7 +1480,7 @@ public class TJobExecOrchestratorService {
             List<Container> containersList = this.dockerEtmService.dockerService
                     .getContainersCreatedSinceId(
                             dockerEtmService.getSutsByExecution().get(
-                                    dockerExec.getExecutionId().toString()));
+                                    execution.getExecutionId().toString()));
             this.dockerEtmService.dockerService
                     .getContainersByNamePrefixByGivenList(containersList,
                             sutPrefix, ContainersListActionEnum.REMOVE,
@@ -1497,29 +1491,29 @@ public class TJobExecOrchestratorService {
 
     }
 
-    public void updateSutExecDeployStatus(Execution dockerExec,
+    public void updateSutExecDeployStatus(Execution execution,
             DeployStatusEnum status) {
-        SutExecution sutExec = dockerExec.getSutExec();
+        SutExecution sutExec = execution.getSutExec();
 
         if (sutExec != null) {
             sutExec.setDeployStatus(status);
         }
-        dockerExec.setSutExec(sutExec);
+        execution.setSutExec(sutExec);
     }
 
-    public void endCheckSutExec(Execution dockerExec) throws Exception {
+    public void endCheckSutExec(Execution execution) throws Exception {
         dockerEtmService
-                .endContainer(dockerEtmService.getCheckName(dockerExec));
+                .endContainer(dockerEtmService.getCheckName(execution));
     }
 
     /* **************** */
     /* *** Dockbeat *** */
     /* **************** */
 
-    public void endDockbeatExec(Execution dockerExec, boolean force)
+    public void endDockbeatExec(Execution execution, boolean force)
             throws Exception {
         String containerName = dockerEtmService
-                .getDockbeatContainerName(dockerExec);
+                .getDockbeatContainerName(execution);
         if (force) {
             dockerEtmService.endContainer(containerName, 1);
         } else {
@@ -1531,9 +1525,9 @@ public class TJobExecOrchestratorService {
     /* *** TJob Exec Methods *** */
     /* ************************* */
 
-    public void endTestExec(Execution dockerExec, boolean force)
+    public void endTestExec(Execution execution, boolean force)
             throws Exception {
-        String testContainerName = dockerEtmService.getTestName(dockerExec);
+        String testContainerName = dockerEtmService.getTestName(execution);
         if (force) {
             dockerEtmService.endContainer(testContainerName, 1);
         } else {
@@ -1599,12 +1593,12 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    public String getMapNameByExec(DockerExecution dockerExec) {
-        if (dockerExec.isExternal()) {
+    public String getMapNameByExec(Execution execution) {
+        if (execution.isExternal()) {
             return getMapNameByExternalTJobExec(
-                    dockerExec.getExternalTJobExec());
+                    execution.getExternalTJobExec());
         } else {
-            return getMapNameByTJobExec(dockerExec.getTJobExec());
+            return getMapNameByTJobExec(execution.getTJobExec());
         }
     }
 
