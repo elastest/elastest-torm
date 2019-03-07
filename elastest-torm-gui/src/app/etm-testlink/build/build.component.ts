@@ -76,12 +76,18 @@ export class BuildComponent implements OnInit {
           this.testProjectId = params['projectId'];
           return this.testLinkService.getBuildById(params['buildId']);
         })
-        .subscribe((build: BuildModel) => {
-          this.build = build;
-          this.titlesService.setPathName(this.router.routerState.snapshot.url);
+        .subscribe(
+          (build: BuildModel) => {
+            this.build = build;
+            this.titlesService.setPathName(this.router.routerState.snapshot.url);
 
-          this.loadTestCases();
-        });
+            this.loadTestCases();
+          },
+          (error: Error) => {
+            console.log(error);
+            this.testLinkService.popupService.openSnackBar('Error on get build. Retry');
+          },
+        );
     }
   }
 
@@ -91,7 +97,10 @@ export class BuildComponent implements OnInit {
         this.testCases = testCases;
         this.loadingCases = false;
       },
-      (error: Error) => console.log(error),
+      (error: Error) => {
+        console.log(error);
+        this.testLinkService.popupService.openSnackBar('Error on get build test cases. Retry');
+      },
     );
   }
 
