@@ -227,7 +227,7 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiParam(value = "Id of Test Case.", required = true) @PathVariable("caseId") Integer caseId,
             @ApiParam(value = "Id of Platform.", required = true) @PathVariable("platformId") Integer platformId);
 
-    @ApiOperation(value = "Returns the Test Case of a Test Plan with specific platform id", notes = "Returns the Test Case of a Test Plan with specific platform id", response = TestCase.class, tags = {
+    @ApiOperation(value = "Returns the Test Case of a Test Plan with specific platform id and build id", notes = "Returns the Test Case of a Test Plan with specific platform id and build id", response = TestCase.class, tags = {
             "TestLink", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class),
@@ -249,6 +249,18 @@ public interface TestLinkApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<List<TestCase>> getPlanTestCasesByPlatformId(
             @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
+            @ApiParam(value = "Id of Platform.", required = true) @PathVariable("platformId") Integer platformId);
+
+    @ApiOperation(value = "Returns All Test Cases of a Test Plan with specific platform id and build id", notes = "Returns All Test Cases of a Test Plan with specific platform id and build id", response = TestCase.class, responseContainer = "List", tags = {
+            "TestLink", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TestCase.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/testlink/project/plan/{planId}/build/{buildId}/platform/{platformId}/case", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<List<TestCase>> getPlanTestCasesByPlatformIdAndBuildId(
+            @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
+            @ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId,
             @ApiParam(value = "Id of Platform.", required = true) @PathVariable("platformId") Integer platformId);
 
     @ApiOperation(value = "Creates a new Test Case", notes = "Creates a new Test Case", response = TestCase.class, tags = {

@@ -245,6 +245,16 @@ export class TestLinkService {
     return this.http.get(url).map((data: any[]) => this.eTTestlinkModelsTransformService.jsonToTestCasesList(data));
   }
 
+  public getPlanTestCasesByIdAndPlatformIdAndBuildId(
+    planId: number | string,
+    buildId: number | string,
+    platformId: number | string,
+  ): Observable<TLTestCaseModel[]> {
+    let url: string =
+      this.hostApi + '/testlink/project/plan/' + planId + '/build/' + buildId + '/platform/' + platformId + '/case';
+    return this.http.get(url).map((data: any[]) => this.eTTestlinkModelsTransformService.jsonToTestCasesList(data));
+  }
+
   public getPlanTestCasesByPlatform(plan: TestPlanModel, platform: PlatformModel): Observable<TLTestCaseModel[]> {
     return this.getPlanTestCasesByIdAndPlatformId(plan.id, platform.id);
   }

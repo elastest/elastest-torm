@@ -213,6 +213,17 @@ public class TestLinkApiController implements TestLinkApi {
                 HttpStatus.OK);
     }
 
+    public ResponseEntity<List<TestCase>> getPlanTestCasesByPlatformIdAndBuildId(
+            @ApiParam(value = "Id of Test Plan.", required = true) @PathVariable("planId") Integer planId,
+            @ApiParam(value = "Id of the Build.", required = true) @PathVariable("buildId") Integer buildId,
+            @ApiParam(value = "Id of Platform.", required = true) @PathVariable("platformId") Integer platformId) {
+
+        return new ResponseEntity<List<TestCase>>(
+                testLinkService.getPlanTestCasesByPlatformIdAndBuildId(planId,
+                        platformId, buildId),
+                HttpStatus.OK);
+    }
+
     public ResponseEntity<TestCase> createTestCase(
             @ApiParam(value = "Id of Test Suite.", required = true) @PathVariable("suiteId") Integer suiteId,
             @ApiParam(value = "Object with the Test Case data to create.", required = true) @Valid @RequestBody TestCase body) {
