@@ -584,6 +584,30 @@
                     />
                   </mat-form-field>
                 </div>
+                <div class="push-sm" fxLayout="row" fxLayoutAlign="start center">
+                  <button
+                    mat-raised-button
+                    color="accent"
+                    [disabled]="!sutForm.valid || extESCheckingConnection"
+                    (click)="checkExternalESConnection()"
+                    title="Check ES connection"
+                    fxFlexOffset="0.5"
+                  >
+                    Check connection
+                  </button>
+                  <div fxLayout="row" *ngIf="extESConnectedStatus != '' && !extESCheckingConnection" fxFlexOffset="0.5">
+                    <mat-icon [style.color]="extESConnectedStatusColor">{{ extESConnectedStatusIcon }}</mat-icon>
+                    <div fxFlexOffset="1" fxLayoutAlign="start center">{{ extESConnectedStatus }}</div>
+                  </div>
+                  <mat-spinner
+                    *ngIf="extESCheckingConnection"
+                    strokeWidth="3"
+                    diameter="20"
+                    color="accent"
+                    style="vertical-align: middle; display: inline-block"
+                    fxFlexOffset="0.5"
+                  ></mat-spinner>
+                </div>
                 <div
                   fxLayout="row"
                   fxLayout.lt-md="column"
@@ -637,29 +661,25 @@
                     >Use indices by execution</mat-checkbox
                   >
                 </div>
-                <div class="push-sm" fxLayout="row" fxLayoutAlign="start center">
-                  <button
-                    mat-raised-button
-                    color="accent"
-                    [disabled]="!sutForm.valid || extESCheckingConnection"
-                    (click)="checkExternalESConnection()"
-                    title="Check ES connection"
-                    fxFlexOffset="0.5"
-                  >
-                    Check connection
-                  </button>
-                  <div fxLayout="row" *ngIf="extESConnectedStatus != '' && !extESCheckingConnection" fxFlexOffset="0.5">
-                    <mat-icon [style.color]="extESConnectedStatusColor">{{ extESConnectedStatusIcon }}</mat-icon>
-                    <div fxFlexOffset="1" fxLayoutAlign="start center">{{ extESConnectedStatus }}</div>
-                  </div>
-                  <mat-spinner
-                    *ngIf="extESCheckingConnection"
-                    strokeWidth="3"
-                    diameter="20"
-                    color="accent"
-                    style="vertical-align: middle; display: inline-block"
-                    fxFlexOffset="0.5"
-                  ></mat-spinner>
+                <div fxLayout="column" class="push-sm">
+                  <td-expansion-panel expand="true">
+                    <ng-template td-expansion-panel-label> <span>Filter by fields values</span> </ng-template>
+                    <td-message
+                      label="{{ extESFilterFieldsLabel }}"
+                      sublabel="{{ extESFilterFieldsSubLabel }}"
+                      color="primary"
+                      icon="info"
+                    >
+                      <!-- <button td-message-actions mat-button (click)="dockerTypeInfo.close()">X</button> -->
+                    </td-message>
+                    <div class="pad">
+                      <multi-config-view
+                        [model]="this.sut.externalElasticsearch.fieldFilters"
+                        [name]="'field filters'"
+                        [btnText]="'Field Filters'"
+                      ></multi-config-view>
+                    </div>
+                  </td-expansion-panel>
                 </div>
               </div>
             </td-expansion-panel>

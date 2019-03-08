@@ -1,3 +1,5 @@
+import { MultiConfigModel } from '../../shared/multi-config-view/multi-config-view.component';
+
 export class ExternalElasticsearch {
   id: number;
   protocol: 'http' | 'https' | ''; // On add new, add too in getProtocolsList
@@ -8,6 +10,7 @@ export class ExternalElasticsearch {
   pass: string;
   indices: string;
   streamFields: string;
+  fieldFilters: MultiConfigModel[];
 
   constructor(externalElasticsearchJson: any = undefined) {
     if (!externalElasticsearchJson) {
@@ -20,6 +23,7 @@ export class ExternalElasticsearch {
       this.pass = '';
       this.indices = '';
       this.streamFields = '';
+      this.fieldFilters = [];
     } else {
       this.id = externalElasticsearchJson.id;
       this.protocol = externalElasticsearchJson.protocol;
@@ -30,6 +34,7 @@ export class ExternalElasticsearch {
       this.pass = externalElasticsearchJson.pass;
       this.indices = externalElasticsearchJson.indices;
       this.streamFields = externalElasticsearchJson.streamFields ? externalElasticsearchJson.streamFields : '';
+      this.fieldFilters = externalElasticsearchJson.fieldFilters ? externalElasticsearchJson.fieldFilters : [];
     }
   }
 

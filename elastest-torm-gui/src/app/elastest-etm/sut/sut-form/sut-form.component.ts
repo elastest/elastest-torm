@@ -92,6 +92,10 @@ export class SutFormComponent implements OnInit, DoCheck {
   extESConnectedStatusColor: string = '';
   extESConnectedStatusIcon: string = '';
   extESCheckingConnection: boolean = false;
+  extESFilterFieldsLabel: string = 'You can filter by fields and values';
+  extESFilterFieldsSubLabel: string =
+    'ElasTest will save only traces that contain the specified values of the specified fields.' +
+    ' If more than one field is specified, the combinatorics are performed using AND. Values for field are made by OR. Fields must be root fields';
 
   constructor(
     private titlesService: TitlesService,

@@ -404,7 +404,8 @@ public class SutService {
 
                 try {
                     traces = esService.searchTraces(indexes.split(","),
-                            startDate, endDate, searchAfter, 10000);
+                            startDate, endDate, searchAfter, 10000,
+                            extES.getFieldFilters());
                     if (traces.size() > 0) {
                         Map<String, Object> lastTrace = traces
                                 .get(traces.size() - 1);

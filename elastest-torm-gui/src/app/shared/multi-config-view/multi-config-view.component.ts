@@ -9,6 +9,12 @@ export class MultiConfigViewComponent implements OnInit {
   @Input()
   public model: MultiConfigModel[];
 
+  @Input()
+  public btnText: string = 'MultiConfig Axis';
+
+  @Input()
+  public name: string = 'multi config';
+
   public updateInProgress: boolean = false;
 
   constructor() {}

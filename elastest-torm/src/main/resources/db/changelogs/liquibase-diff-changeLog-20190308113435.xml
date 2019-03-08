@@ -1,0 +1,15 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="edu (generated)" id="1552041284831-1">
+        <createTable tableName="ExternalElasticsearchFieldFilters">
+            <column name="ExternalElasticsearch" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="configValues" type="MEDIUMBLOB"/>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1552041284831-2">
+        <addForeignKeyConstraint baseColumnNames="ExternalElasticsearch" baseTableName="ExternalElasticsearchFieldFilters" constraintName="FK23qu98gnxjxsroi5i6gm8m1g0" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="ExternalElasticsearch"/>
+    </changeSet>
+</databaseChangeLog>

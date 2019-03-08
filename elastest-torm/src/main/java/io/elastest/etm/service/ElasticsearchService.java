@@ -58,6 +58,7 @@ import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
+import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.TimeRange;
 import io.elastest.etm.model.Trace;
 import io.elastest.etm.utils.UtilTools;
@@ -1003,29 +1004,60 @@ public class ElasticsearchService extends AbstractMonitoringService {
     /* *** External Elasticsearch *** */
     /* ****************************** */
     public List<Map<String, Object>> searchTraces(String[] indices,
-            Date fromTime, Date toTime, Object[] searchAfter, int size)
-            throws Exception {
+            Date fromTime, Date toTime, Object[] searchAfter, int size,
+            List<MultiConfig> fieldFilters) throws Exception {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.size(size);
         sourceBuilder
                 .sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
         sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.ASC));
 
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+        boolean addBoolQueryBuilder = false;
+
         if (fromTime != null || toTime != null) {
             RangeQueryBuilder timeRange = new RangeQueryBuilder("@timestamp");
+            boolean filterByTime = false;
             if (fromTime != null) {
                 String fromTimeStr = utilsService
                         .getIso8601UTCStrFromDate(fromTime);
                 timeRange.gte(fromTimeStr);
+                filterByTime = true;
             }
 
             if (toTime != null) {
                 String toTimeStr = utilsService
                         .getIso8601UTCStrFromDate(toTime);
                 timeRange.lte(toTimeStr);
+                filterByTime = true;
             }
-            BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-            boolQueryBuilder.must(timeRange);
+            if (filterByTime) {
+                boolQueryBuilder.must(timeRange);
+                addBoolQueryBuilder = true;
+            }
+        }
+        if (fieldFilters != null && fieldFilters.size() > 0) {
+            for (MultiConfig fieldFilter : fieldFilters) {
+                if (fieldFilter.getName() != null
+                        && !fieldFilter.getName().isEmpty()
+                        && fieldFilter.getValues() != null
+                        && fieldFilter.getValues().size() > 0) {
+                    TermsQueryBuilder fieldFilterTerm = QueryBuilders
+                            .termsQuery(fieldFilter.getName(),
+                                    fieldFilter.getValues());
+
+                    BoolQueryBuilder shouldBoolBuilder = QueryBuilders
+                            .boolQuery();
+                    shouldBoolBuilder.should(fieldFilterTerm);
+                    boolQueryBuilder.must(shouldBoolBuilder);
+
+                    addBoolQueryBuilder = true;
+                }
+            }
+
+        }
+
+        if (addBoolQueryBuilder) {
             sourceBuilder.query(boolQueryBuilder);
         }
 

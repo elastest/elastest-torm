@@ -4,13 +4,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -20,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.Enums.ProtocolEnum;
+import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Project.BasicAttProject;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.SutView;
@@ -88,6 +92,14 @@ public class ExternalElasticsearch {
     @JsonProperty("streamFields")
     private String streamFields;
 
+    @JsonView({ BasicAttExternalElasticsearch.class, SutView.class,
+            ExternalProjectView.class, BasicAttProject.class })
+    @ElementCollection
+    @CollectionTable(name = "ExternalElasticsearchFieldFilters", joinColumns = @JoinColumn(name = "ExternalElasticsearch"))
+    @MapKeyColumn(name = "NAME")
+    @Column(name = "VALUES", length = 16777215)
+    private List<MultiConfig> fieldFilters = new ArrayList<MultiConfig>();
+
     @JsonView({ BasicAttExternalElasticsearch.class })
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "externalElasticsearch")
     @JoinColumn(name = "sutSpecification")
@@ -115,6 +127,7 @@ public class ExternalElasticsearch {
         this.pass = pass;
         this.indices = indices;
         this.streamFields = streamFields;
+        this.fieldFilters = new ArrayList<>();
         this.sutSpecification = sutSpecification;
     }
 
@@ -128,6 +141,7 @@ public class ExternalElasticsearch {
         this.indices = externalElasticsearch.getIndices();
         this.protocol = externalElasticsearch.getProtocol();
         this.streamFields = externalElasticsearch.getStreamFields();
+        this.fieldFilters = externalElasticsearch.getFieldFilters();
     }
 
     /* *************************** */
@@ -213,6 +227,14 @@ public class ExternalElasticsearch {
 
     public void setStreamFields(String streamFields) {
         this.streamFields = streamFields;
+    }
+
+    public List<MultiConfig> getFieldFilters() {
+        return fieldFilters;
+    }
+
+    public void setFieldFilters(List<MultiConfig> fieldFilters) {
+        this.fieldFilters = fieldFilters;
     }
 
     public SutSpecification getSutSpecification() {
