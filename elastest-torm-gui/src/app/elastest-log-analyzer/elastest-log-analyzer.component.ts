@@ -154,7 +154,13 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   }
 
   public getRowsData(): any[] {
-    return this.logRows;
+    if (this.gridApi) {
+      let rowData: any[] = [];
+      this.gridApi.forEachNode((node: RowNode) => rowData.push(node.data));
+      return rowData;
+    } else {
+      return this.logRows;
+    }
   }
 
   /***** INIT *****/
@@ -359,7 +365,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     } else {
       this.logRows = [];
     }
-    this.redrawRows();
+    if (this.gridApi) {
+      this.gridApi.setRowData(this.logRows);
+    }
   }
 
   verifyAndLoadLog($event, loadLog: boolean): void {

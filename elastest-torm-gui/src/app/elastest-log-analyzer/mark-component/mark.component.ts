@@ -97,7 +97,7 @@ export class MarkComponent implements OnInit {
       }
       i++;
     });
-    //TODO view if necessary update
+
     let j: number = 0;
     for (let pattern of this.patterns) {
       if (pattern.searchValue !== '') {
@@ -139,7 +139,7 @@ export class MarkComponent implements OnInit {
           rows[result].marked = undefined;
         }
       }
-      this.model.updateData(rows, 'assign');
+      this.model.redrawRows();
     }
   }
 
@@ -149,7 +149,7 @@ export class MarkComponent implements OnInit {
       row.marked = undefined;
       row.focused = false;
     }
-    this.model.updateData(rows, 'assign');
+    this.model.redrawRows();
   }
 
   next(patternId: number): void {
@@ -199,7 +199,7 @@ export class MarkComponent implements OnInit {
       this.model.redrawRows();
       this.model.gridApi.ensureIndexVisible(this.currentPos, 'undefined'); // Make scroll if it's necessary
       this.model.gridApi.setFocusedCell(this.currentPos, 'message'); // It's not necessary with ensureIndexVisible, but highlight message
-      this.model.updateData(rows, 'assign');
+      this.model.redrawRows();
     }
   }
 
@@ -208,7 +208,7 @@ export class MarkComponent implements OnInit {
       let rows: any[] = this.model.getRowsData();
       rows[this.currentPos].focused = false;
       this.model.gridApi.clearFocusedCell();
-      this.model.updateData(rows, 'assign');
+      this.model.redrawRows();
     }
   }
 
