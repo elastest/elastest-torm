@@ -15,7 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
-import io.elastest.etm.service.DockerEtmService;
+import io.elastest.etm.platform.service.DockerEtmService;
 import io.elastest.etm.test.IntegrationBaseTest;
 import io.elastest.etm.utils.UtilTools;
 

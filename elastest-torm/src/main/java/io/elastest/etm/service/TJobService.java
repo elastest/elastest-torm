@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.http.HTTPException;
@@ -85,9 +86,41 @@ public class TJobService {
 
     @PreDestroy
     private void preDestroy() {
-        dbmanager.bindSession();
         this.stopAllRunningTJobs();
-        dbmanager.unbindSession();
+    }
+
+    @PostConstruct
+    private void init() {
+        manageZombieJobs();
+    }
+
+    public void manageZombieJobs() {
+        logger.info("Looking for zombie Jobs");
+        // Clean non finished TJob Executions
+        List<TJobExecution> notFinishedOrExecutedExecs = this.tJobExecRepositoryImpl
+                .findByResults(ResultEnum.getNotFinishedOrExecutedResultList());
+        if (notFinishedOrExecutedExecs != null) {
+            logger.info("Cleaning non finished TJob Executions ({} total):",
+                    notFinishedOrExecutedExecs.size());
+            for (TJobExecution currentExec : notFinishedOrExecutedExecs) {
+                logger.debug("Cleaning TJobExecution {}...",
+                        currentExec.getId());
+                try {
+                    currentExec = tJobExecOrchestratorService
+                            .forceEndExecution(currentExec);
+                } catch (Exception e) {
+                    logger.error("Error on force end execution of {}",
+                            currentExec);
+                }
+                if (!currentExec.isFinished()) {
+                    String resultMsg = "Stopped";
+                    currentExec.setResult(ResultEnum.STOPPED);
+                    currentExec.setResultMsg(resultMsg);
+                    tJobExecRepositoryImpl.save(currentExec);
+                }
+            }
+        }
+        logger.info("End Manage zombie Jobs");
     }
 
     public void stopAllRunningTJobs() {
@@ -132,7 +165,8 @@ public class TJobService {
 
     public TJobExecution executeTJob(Long tJobId,
             List<Parameter> tJobParameters, List<Parameter> sutParameters,
-            List<MultiConfig> multiConfigs, Map<String, String> externalLinks) throws HttpClientErrorException {
+            List<MultiConfig> multiConfigs, Map<String, String> externalLinks)
+            throws HttpClientErrorException {
         TJob tJob = tJobRepo.findById(tJobId).get();
 
         SutSpecification sut = tJob.getSut();
@@ -142,8 +176,7 @@ public class TJobService {
         if (sut != null && sut.isInstrumentedByElastest()
                 && sut.isInstrumentalize()
                 && (sut.getEimConfig() == null || (sut.getEimConfig() != null
-                        && sut.getEimConfig().getAgentId() == null))
-        ) {
+                        && sut.getEimConfig().getAgentId() == null))) {
             throw new HttpClientErrorException(HttpStatus.ACCEPTED);
         }
 
@@ -185,7 +218,7 @@ public class TJobService {
             asyncExecs.put(getMapNameByTJobExec(tJobExec), asyncExec);
         } else {
             tJobExec.getExternalUrls().putAll(externalLinks);
-            tJobExecOrchestratorService.executeExternalJob(tJobExec, false);
+            tJobExecOrchestratorService.execFromExternalJob(tJobExec, false);
         }
 
         return tJobExec;

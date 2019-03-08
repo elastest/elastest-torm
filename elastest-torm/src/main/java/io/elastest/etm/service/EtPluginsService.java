@@ -43,6 +43,7 @@ import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.SupportServiceInstance;
+import io.elastest.etm.platform.service.DockerEtmService;
 import io.elastest.etm.utils.PasswordFactory;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;

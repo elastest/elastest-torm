@@ -20,11 +20,14 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.dao.TraceRepository;
-import io.elastest.etm.service.AbstractMonitoringService;
-import io.elastest.etm.service.DatabaseSessionManager;
-import io.elastest.etm.service.DockerEtmService;
+import io.elastest.etm.platform.service.DockerEtmService;
+import io.elastest.etm.platform.service.DockerServiceImpl;
+import io.elastest.etm.platform.service.K8ServiceImpl;
+import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.EtPluginsService;
+import io.elastest.etm.service.AbstractMonitoringService;
+import io.elastest.etm.service.DatabaseSessionManager;
 import io.elastest.etm.service.TracesSearchService;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.service.client.EtmMiniSupportServiceClient;
@@ -38,6 +41,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableAsync
 @ComponentScan(basePackages = { "io.elastest" })
 public class ElasTestTormApp extends AsyncConfigurerSupport {
+    @Value("${et.enable.cloud.mode}")
+    public boolean enableCloudMode;
+    
     @Autowired
     private UtilsService utilsService;
 
@@ -93,15 +99,29 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
                     dbmanager);
         }
     }
+    
+    @Bean
+    @Primary
+    public PlatformService getPlatformService() {
+        PlatformService platformService = null;
+        if (enableCloudMode) {
+            platformService = new K8ServiceImpl();
+        } else {
+            platformService = new DockerServiceImpl();
+        }
+        return platformService;
+    }
 
     @Bean
     @Primary
+    //TODO Change dockerEtmService for the right platform implementation
     public EtPluginsService getEtPluginsService() {
         return new EtPluginsService(dockerComposeService, dockerEtmService,
                 utilsService);
     }
 
     @Bean
+  //TODO Change dockerComposeService for the right platform implementation
     public SupportServiceClientInterface getSupportServiceClientInterface() {
         if (utilsService.isElastestMini()) {
             return new EtmMiniSupportServiceClient(dockerComposeService,

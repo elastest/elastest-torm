@@ -1,4 +1,4 @@
-package io.elastest.etm.service;
+package io.elastest.etm.platform.service;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -55,6 +55,8 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.external.ExternalTJobExecution;
+import io.elastest.etm.service.EtmTestResultService;
+import io.elastest.etm.service.TJobStoppedException;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.UtilTools;

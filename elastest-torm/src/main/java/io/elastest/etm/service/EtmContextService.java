@@ -24,6 +24,7 @@ import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.LogAnalyzerConfig;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
+import io.elastest.etm.platform.service.DockerEtmService;
 
 @Service
 public class EtmContextService {

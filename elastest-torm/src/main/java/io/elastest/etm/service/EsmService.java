@@ -49,6 +49,7 @@ import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.model.external.ExternalTJobExecution;
+import io.elastest.etm.platform.service.DockerEtmService;
 import io.elastest.etm.service.client.SupportServiceClientInterface;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.ParserService;

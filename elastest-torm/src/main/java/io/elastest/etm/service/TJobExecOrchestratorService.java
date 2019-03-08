@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
@@ -53,6 +52,7 @@ import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
 import io.elastest.etm.model.TJobSupportService;
 import io.elastest.etm.model.external.ExternalTJobExecution;
+import io.elastest.etm.platform.service.DockerEtmService;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
@@ -117,13 +117,6 @@ public class TJobExecOrchestratorService {
         this.etmTestResultService = etmTestResultService;
     }
 
-    @PostConstruct
-    private void init() {
-        dbmanager.bindSession();
-        manageZombieJobs();
-        dbmanager.unbindSession();
-    }
-
     @PreDestroy
     private void destroy() {
         for (HashMap.Entry<String, SharedAsyncModel<Void>> asyncMap : asyncExternalElasticsearchSutExecs
@@ -132,35 +125,8 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    public void manageZombieJobs() {
-        logger.info("Looking for zombie Jobs");
-        // Clean non finished TJob Executions
-        List<TJobExecution> notFinishedOrExecutedExecs = this.tJobExecRepositoryImpl
-                .findByResults(ResultEnum.getNotFinishedOrExecutedResultList());
-        if (notFinishedOrExecutedExecs != null) {
-            logger.info("Cleaning non finished TJob Executions ({} total):",
-                    notFinishedOrExecutedExecs.size());
-            for (TJobExecution currentExec : notFinishedOrExecutedExecs) {
-                logger.debug("Cleaning TJobExecution {}...",
-                        currentExec.getId());
-                try {
-                    currentExec = this.forceEndExecution(currentExec);
-                } catch (Exception e) {
-                    logger.error("Error on force end execution of {}",
-                            currentExec);
-                }
-                if (!currentExec.isFinished()) {
-                    String resultMsg = "Stopped";
-                    dockerEtmService.updateTJobExecResultStatus(currentExec,
-                            ResultEnum.STOPPED, resultMsg);
-                }
-            }
-        }
-        logger.info("End Manage zombie Jobs");
-    }
-
     @Async
-    public void executeExternalJob(TJobExecution tJobExec,
+    public void execFromExternalJob(TJobExecution tJobExec,
             boolean integratedJenkins) {
         dbmanager.bindSession();
         tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
@@ -173,7 +139,7 @@ public class TJobExecOrchestratorService {
         Execution execution = new Execution(tJobExec);
 
         try {
-            initTSS(tJobExec, tJobExec.getTjob().getSelectedServices());
+            initSupportServicesProvision(tJobExec, tJobExec.getTjob().getSelectedServices());
             setTJobExecEnvVars(tJobExec, true, false);
             tJobExec = tJobExecRepositoryImpl.save(tJobExec);
             execution.updateFromTJobExec(tJobExec);
@@ -255,7 +221,7 @@ public class TJobExecOrchestratorService {
         } else { // Simple/child execution
 
             try {
-                initTSS(tJobExec, tJobServices);
+                initSupportServicesProvision(tJobExec, tJobServices);
                 setTJobExecEnvVars(tJobExec, false, false);
                 tJobExec = tJobExecRepositoryImpl.save(tJobExec);
                 execution.updateFromTJobExec(tJobExec);
@@ -564,7 +530,7 @@ public class TJobExecOrchestratorService {
     /* *** TSS methods *** */
     /* ******************* */
 
-    private void initTSS(TJobExecution tJobExec, String tJobServices)
+    private void initSupportServicesProvision(TJobExecution tJobExec, String tJobServices)
             throws Exception {
         try {
             if (tJobServices != null && tJobServices != "") {

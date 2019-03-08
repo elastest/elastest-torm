@@ -23,7 +23,7 @@ import com.spotify.docker.client.messages.ImageInfo;
 import io.elastest.epm.client.service.DockerService;
 import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.model.SupportServiceInstance;
-import io.elastest.etm.service.DockerEtmService;
+import io.elastest.etm.platform.service.DockerEtmService;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.EtmContextAuxService;
 import io.elastest.etm.service.EtmContextService;
