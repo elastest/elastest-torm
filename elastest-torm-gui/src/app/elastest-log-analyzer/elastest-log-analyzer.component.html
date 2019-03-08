@@ -179,8 +179,8 @@
                       [disabled]="!logAnalyzerForm.valid || disableBtns"
                     >
                       <mat-icon>refresh</mat-icon>
-                      <span *ngIf="logRows.length <= 0">Load log</span>
-                      <span *ngIf="logRows.length > 0">Reload log</span>
+                      <span *ngIf="this.getRowsData().length <= 0">Load log</span>
+                      <span *ngIf="this.getRowsData().length > 0">Reload log</span>
                     </button>
                   </div>
                 </div>
@@ -225,14 +225,14 @@
             </form>
           </mat-tab>
           <!-- Mark (Patterns) -->
-          <mat-tab [disabled]="logRows.length === 0">
+          <mat-tab [disabled]="this.getRowsData().length === 0">
             <ng-template mat-tab-label>
               <mat-icon matTooltip="Mark">search</mat-icon>
               <p>Mark</p>
             </ng-template>
             <mark-component #mark [model]="this"></mark-component>
           </mat-tab>
-          <mat-tab [disabled]="logRows.length === 0">
+          <mat-tab [disabled]="this.getRowsData().length === 0">
             <ng-template mat-tab-label>
               <mat-icon matTooltip="Config">settings</mat-icon>
             </ng-template>
@@ -287,7 +287,6 @@
         <ag-grid-angular
           #logsGrid
           id="logsGrid"
-          *ngIf="logRows.length > 0"
           class="ag-theme-material"
           [rowData]="logRows"
           [columnDefs]="logColumns"

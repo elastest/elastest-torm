@@ -6,39 +6,40 @@ import { PopupService } from '../../shared/services/popup.service';
 @Component({
   selector: 'mark-component',
   templateUrl: './mark.component.html',
-  styleUrls: ['./mark.component.scss']
+  styleUrls: ['./mark.component.scss'],
 })
 export class MarkComponent implements OnInit {
-
   @Input()
   public model: ElastestLogAnalyzerComponent;
-
-
 
   patternDefault: SearchPatternModel = new SearchPatternModel();
   patterns: SearchPatternModel[] = [this.patternDefault];
   currentRowSelected: number = -1;
   currentPos: number = -1;
 
-  constructor(private popupService: PopupService) { }
+  constructor(private popupService: PopupService) {}
 
-  ngOnInit() {
-  }
+  ngOnInit(): void {}
 
   addPattern(): void {
     this.patterns.push(new SearchPatternModel());
   }
 
   removePattern(position: number): void {
-    if (position < this.patterns.length - 1) { // Not last pattern
+    if (position < this.patterns.length - 1) {
+      // Not last pattern
       this.patterns.splice(position, 1);
       if (this.patterns.length === 0) {
         this.addPattern();
       } else {
         this.searchByPatterns();
       }
-    } else if (position === this.patterns.length - 1
-      && this.patterns[position].searchValue !== '' && this.patterns[position].found < 0) { // Last pattern with search message and not searched
+    } else if (
+      position === this.patterns.length - 1 &&
+      this.patterns[position].searchValue !== '' &&
+      this.patterns[position].found < 0
+    ) {
+      // Last pattern with search message and not searched
       this.patterns.splice(position, 1);
       this.addPattern();
     }
@@ -66,7 +67,8 @@ export class MarkComponent implements OnInit {
 
   markOrClean(index: number): void {
     let pattern: SearchPatternModel = this.patterns[index];
-    if (pattern.found < 0 || (pattern.found >= 0 && pattern.foundButHidden)) { // If is unmarked, search this pattern to mark
+    if (pattern.found < 0 || (pattern.found >= 0 && pattern.foundButHidden)) {
+      // If is unmarked, search this pattern to mark
       pattern.foundButHidden = false;
       this.searchByPattern(index);
     } else {
@@ -80,22 +82,22 @@ export class MarkComponent implements OnInit {
     this.currentPos = -1;
     this.cleanRowsColor();
     let i: number = 0;
-    this.model.logRows
-      .map(
-      (row: any) => {
-        for (let pattern of this.patterns) {
-          if (i === 0) { // First iteration of map
-            pattern.results = []; // Initialize results to empty
-          }
-          if ((pattern.searchValue !== '') && (row.message.toUpperCase().indexOf(pattern.searchValue.toUpperCase()) > -1)) {
-            if (pattern.results.indexOf(i) === -1) {
-              pattern.results.push(i);
-            }
+    let rows: any[] = this.model.getRowsData();
+    rows.map((row: any) => {
+      for (let pattern of this.patterns) {
+        if (i === 0) {
+          // First iteration of map
+          pattern.results = []; // Initialize results to empty
+        }
+        if (pattern.searchValue !== '' && row.message.toUpperCase().indexOf(pattern.searchValue.toUpperCase()) > -1) {
+          if (pattern.results.indexOf(i) === -1) {
+            pattern.results.push(i);
           }
         }
-        i++;
-      });
-
+      }
+      i++;
+    });
+    //TODO view if necessary update
     let j: number = 0;
     for (let pattern of this.patterns) {
       if (pattern.searchValue !== '') {
@@ -128,24 +130,26 @@ export class MarkComponent implements OnInit {
   }
 
   paintResults(patternId: number): void {
-    if (this.model.logRows && this.model.logRows.length > 0) {
+    let rows: any[] = this.model.getRowsData();
+    if (rows && rows.length > 0) {
       for (let result of this.patterns[patternId].results) {
-        if (this.model.logRows[result] && !this.patterns[patternId].foundButHidden) {
-          this.model.logRows[result].marked = this.patterns[patternId].color;
+        if (rows[result] && !this.patterns[patternId].foundButHidden) {
+          rows[result].marked = this.patterns[patternId].color;
         } else {
-          this.model.logRows[result].marked = undefined;
+          rows[result].marked = undefined;
         }
       }
-      this.model.redrawRows();
+      this.model.updateData(rows, 'assign');
     }
   }
 
   cleanRowsColor(): void {
-    for (let row of this.model.logRows) {
+    let rows: any[] = this.model.getRowsData();
+    for (let row of rows) {
       row.marked = undefined;
       row.focused = false;
     }
-    this.model.redrawRows();
+    this.model.updateData(rows, 'assign');
   }
 
   next(patternId: number): void {
@@ -189,18 +193,22 @@ export class MarkComponent implements OnInit {
   focusRow(newPos: number): void {
     this.clearFocusedRow();
     this.currentPos = newPos;
-    if (this.model.logRows.length > 0) {
-      this.model.logRows[this.currentPos].focused = true;
+    let rows: any[] = this.model.getRowsData();
+    if (rows.length > 0) {
+      rows[this.currentPos].focused = true;
       this.model.redrawRows();
       this.model.gridApi.ensureIndexVisible(this.currentPos, 'undefined'); // Make scroll if it's necessary
       this.model.gridApi.setFocusedCell(this.currentPos, 'message'); // It's not necessary with ensureIndexVisible, but highlight message
+      this.model.updateData(rows, 'assign');
     }
   }
 
   clearFocusedRow(): void {
     if (this.currentPos >= 0) {
-      this.model.logRows[this.currentPos].focused = false;
+      let rows: any[] = this.model.getRowsData();
+      rows[this.currentPos].focused = false;
       this.model.gridApi.clearFocusedCell();
+      this.model.updateData(rows, 'assign');
     }
   }
 
@@ -231,6 +239,4 @@ export class MarkComponent implements OnInit {
   openColorPicker(i: number): void {
     document.getElementById('pattern' + i + 'Color').click();
   }
-
-
 }

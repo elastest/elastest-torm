@@ -153,6 +153,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     this.logAnalyzer.stopTail();
   }
 
+  public getRowsData(): any[] {
+    return this.logRows;
+  }
+
   /***** INIT *****/
 
   initLogAnalyzer(): void {
@@ -345,6 +349,19 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   /***** Load functions *****/
   /**************************/
 
+  public updateData(data: any[], operation: 'assign' | 'concat'): void {
+    if (data !== undefined && data !== null) {
+      if (operation === 'assign') {
+        this.logRows = data;
+      } else if (operation === 'concat') {
+        this.logRows = this.logRows.concat(data);
+      }
+    } else {
+      this.logRows = [];
+    }
+    this.redrawRows();
+  }
+
   verifyAndLoadLog($event, loadLog: boolean): void {
     $event.preventDefault(); // On enter key pressed always opens modal. Prevent this
     if (loadLog) {
@@ -380,9 +397,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   }
 
   loadLogByGivenData(data: any[] = []): void {
-    this.logRows = data;
+    this.updateData(data, 'assign');
 
-    let logsLoaded: boolean = this.logRows.length > 0;
+    let logsLoaded: boolean = this.getRowsData().length > 0;
     if (logsLoaded) {
       this.setTableHeader();
       this.mark.removeAllPatterns();
@@ -415,7 +432,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
 
   loadMore(fromTail: boolean = false): void {
     this.prepareLoadLog();
-    let lastTrace: any = this.logRows[this.logRows.length - 1];
+    let rows: any[] = this.getRowsData();
+    let lastTrace: any = rows[rows.length - 1];
     this.logAnalyzerQueryModel.searchAfterTrace = lastTrace;
     if (fromTail) {
       this.setRangeByGiven(lastTrace['@timestamp'], 'now');
@@ -426,7 +444,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
       (data: any) => {
         let moreRows: any[] = data;
         if (moreRows.length > 0) {
-          this.logRows = this.logRows.concat(moreRows);
+          this.updateData(moreRows, 'concat');
+
           this.popup('Loaded more logs');
           this.setTableHeader();
           this.updateButtons(!fromTail);
@@ -446,17 +465,18 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   moreFromSelected(): void {
     if (this.logAnalyzer.hasSelectedRow()) {
       let selected: number = this.logAnalyzer.selectedRow;
-      if (selected === this.logRows.length - 1) {
+      let rows: any[] = this.getRowsData();
+      if (selected === rows.length - 1) {
         // If selected is last
         this.loadMore();
       } else {
         this.prepareLoadLog();
-        let from: Date = this.logRows[selected]['@timestamp'];
-        let to: Date = this.logRows[selected + 1]['@timestamp'];
+        let from: Date = rows[selected]['@timestamp'];
+        let to: Date = rows[selected + 1]['@timestamp'];
         this.setRangeByGiven(from, to, true, false);
 
-        this.logAnalyzerQueryModel.searchAfterTrace = this.logRows[selected];
-        this.logAnalyzerQueryModel.searchBeforeTrace = this.logRows[selected + 1];
+        this.logAnalyzerQueryModel.searchAfterTrace = rows[selected];
+        this.logAnalyzerQueryModel.searchBeforeTrace = rows[selected + 1];
         this.monitoringService.searchLogAnalyzerQuery(this.logAnalyzerQueryModel).subscribe(
           (moreRows: any[]) => {
             if (moreRows.length > 0) {
@@ -481,11 +501,13 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     }
   }
 
-  insertRowsFromPosition(pos: number, rows: any[]): void {
-    let firstHalf: any[] = this.logRows.slice(0, pos + 1);
-    let secondHalf: any[] = this.logRows.slice(pos + 1);
+  insertRowsFromPosition(pos: number, newRows: any[]): void {
+    let rows: any[] = this.getRowsData();
 
-    this.logRows = firstHalf.concat(rows).concat(secondHalf);
+    let firstHalf: any[] = rows.slice(0, pos + 1);
+    let secondHalf: any[] = rows.slice(pos + 1);
+
+    this.updateData(firstHalf.concat(newRows).concat(secondHalf), 'assign');
   }
 
   /***************************/
@@ -497,7 +519,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     this.onGridReady($event);
     this.mark.model = this;
     if (this.logAnalyzer.usingTail) {
-      $event.api.ensureIndexVisible(this.logRows.length - 1, 'undefined');
+      $event.api.ensureIndexVisible(this.getRowsData().length - 1, 'undefined');
     }
   }
 
