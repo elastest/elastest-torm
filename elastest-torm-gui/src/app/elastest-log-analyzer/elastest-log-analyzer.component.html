@@ -292,6 +292,7 @@
           [columnDefs]="logColumns"
           [gridOptions]="gridOptions"
           (gridReady)="onGridReady($event)"
+          (rowDataChanged)="rowDataChanged($event)"
           (componentStateChanged)="componentStateChanged($event)"
           (rowSelected)="switchRowSelection($event)"
           (columnResized)="saveColumnsConfig($event, false)"

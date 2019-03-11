@@ -2,7 +2,7 @@ import { LogAnalyzerService } from './log-analyzer.service';
 import { AgGridColumn } from 'ag-grid-angular/main';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Rx';
-import { RowSelectedEvent, RowDoubleClickedEvent } from 'ag-grid-community/dist/lib/events';
+import { RowSelectedEvent, RowDoubleClickedEvent, RowDataChangedEvent } from 'ag-grid-community/dist/lib/events';
 import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
@@ -51,6 +51,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   public logRows: any[] = [];
   public logColumns: any[] = [];
   public autoRowHeight: boolean = true;
+
+  public overlayLoadingTemplate: string =
+    '<span class="ag-overlay-loading-center">Please wait while logs are loading</span>';
+
   public gridOptions: GridOptions = {
     defaultColDef: {
       resizable: true,
@@ -69,6 +73,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     /*getRowHeight: function(params) {
       return 18 * (Math.floor(params.data.message.length / 30) + 1);
     },*/
+    overlayLoadingTemplate: this.overlayLoadingTemplate,
   };
 
   @Input()
@@ -351,6 +356,18 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     this.showPauseTail = !show;
   }
 
+  showLoadMsg(): void {
+    if (this.gridOptions.api) {
+      this.gridOptions.api.showLoadingOverlay();
+    }
+  }
+
+  hideLoadMsg(): void {
+    if (this.gridApi) {
+      this.gridApi.hideOverlay();
+    }
+  }
+
   /**************************/
   /***** Load functions *****/
   /**************************/
@@ -379,11 +396,14 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     }
   }
 
+  // MAIN
   loadLog(withoutPrepare: boolean = false): void {
     if (this.withTestCase && this.testCaseName) {
       this.filterTestCase(this.testCaseName);
       return;
     }
+    this.showLoadMsg();
+
     this.logAnalyzer.usingTail = this.logAnalyzer.tail;
     this.logAnalyzer.stopTail();
 
@@ -400,6 +420,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
       },
       (error: Error) => {
         this.disableBtns = false;
+        this.hideLoadMsg();
       },
     );
   }
@@ -438,7 +459,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     });
   }
 
+  // MAIN
   loadMore(fromTail: boolean = false): void {
+    this.showLoadMsg();
     this.prepareLoadLog();
     let rows: any[] = this.getRowsData();
     let lastTrace: any = rows[rows.length - 1];
@@ -466,12 +489,15 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
       },
       (error: Error) => {
         this.disableBtns = false;
+        this.hideLoadMsg();
       },
     );
   }
 
+  // MAIN
   moreFromSelected(): void {
     if (this.logAnalyzer.hasSelectedRow()) {
+      this.showLoadMsg();
       let selected: number = this.logAnalyzer.selectedRow;
       let rows: any[] = this.getRowsData();
       if (selected === rows.length - 1) {
@@ -496,11 +522,13 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
               this.mark.searchByPatterns();
             } else {
               this.popup("There aren't logs to load or you don't change filters", 'OK');
+              this.hideLoadMsg();
             }
             this.disableBtns = false;
           },
           (error: Error) => {
             this.disableBtns = false;
+            this.hideLoadMsg();
           },
         );
       }
@@ -521,6 +549,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   /***************************/
   /***** Grid and Events *****/
   /***************************/
+
+  public rowDataChanged($event: RowDataChangedEvent): void {
+    this.hideLoadMsg();
+  }
 
   public componentStateChanged($event: ComponentStateChangedEvent): void {
     // On changes detected
