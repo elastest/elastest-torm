@@ -220,3 +220,8 @@ mat-sidenav-container {
   /* color: #ffffff; */
   font-weight: bold;
 }
+
+// Temp
+:host /deep/ #logsGrid div[ref='eLabel'] {
+  border-right: 1px solid rgba(189, 195, 199, 0.5);
+}
