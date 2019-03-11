@@ -102,12 +102,12 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     
     @Bean
     @Primary
-    public PlatformService getPlatformService() {
+    public PlatformService platformService() {
         PlatformService platformService = null;
         if (enableCloudMode) {
             platformService = new K8ServiceImpl();
         } else {
-            platformService = new DockerServiceImpl();
+            platformService = new DockerServiceImpl(dockerComposeService, dockerEtmService);
         }
         return platformService;
     }
@@ -116,8 +116,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Primary
     //TODO Change dockerEtmService for the right platform implementation
     public EtPluginsService getEtPluginsService() {
-        return new EtPluginsService(dockerComposeService, dockerEtmService,
-                utilsService);
+        return new EtPluginsService(platformService(),utilsService);
     }
 
     @Bean

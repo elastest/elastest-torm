@@ -869,7 +869,7 @@ public class EsmService {
                         TJobExecution.ResultEnum.WAITING_TSS,
                         tssInstance.getStatusMsg());
 
-                etPluginsService.initAndGetEtPluginUrl(instanceId,
+                etPluginsService.getEtPluginUrl(instanceId,
                         tssInstance.getContainerName());
                 boolean isUp = checkInstanceUrlIsUp(tssInstance);
 
