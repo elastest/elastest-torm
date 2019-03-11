@@ -81,8 +81,8 @@
                 </div>
 
                 <!-- Components/Streams And Levels -->
-                <div id="componentsLevels" fxLayout="column" class="">
-                  <div fxFlex="50">
+                <div id="componentsLevels" fxLayout="column">
+                  <div fxFlex>
                     <mat-card-subtitle class="pad-left-none">Components/Streams</mat-card-subtitle>
                     <tree-root #componentsTree [nodes]="logAnalyzer.componentsStreams.tree">
                       <ng-template #treeNodeTemplate let-node="node" let-index="index">
@@ -98,7 +98,10 @@
                       </ng-template>
                     </tree-root>
                   </div>
-                  <div fxFlex="45" class="">
+                  <div fxFlex>
+                    <div class="push-bottom">
+                      <mat-divider [inset]="true"></mat-divider>
+                    </div>
                     <mat-card-subtitle class="pad-left-none">Levels</mat-card-subtitle>
                     <tree-root #levelsTree [nodes]="logAnalyzer.levels.tree">
                       <ng-template #treeNodeTemplate let-node="node" let-index="index">

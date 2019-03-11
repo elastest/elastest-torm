@@ -52,8 +52,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   public logColumns: any[] = [];
   public autoRowHeight: boolean = true;
 
-  public overlayLoadingTemplate: string =
-    '<span class="ag-overlay-loading-center">Please wait while logs are loading</span>';
+  public overlayLoadingTemplate: string = '<span class="ag-overlay-loading-center">Please wait while logs are loading</span>';
 
   public gridOptions: GridOptions = {
     defaultColDef: {
@@ -346,6 +345,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
         }
 
         this.logColumns.push(columnObj);
+
+        if (this.gridApi) {
+          this.gridApi.refreshHeader();
+        }
       }
     }
   }
@@ -434,10 +437,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
       this.mark.removeAllPatterns();
       if (!this.isEmbed) {
         this.popup('Logs has been loaded');
+        this.hideLoadMsg();
       }
     } else {
       if (!this.isEmbed) {
         this.popup("There aren't logs to load", 'OK');
+        this.hideLoadMsg();
       }
     }
     this.updateButtons(logsLoaded);
@@ -483,6 +488,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
           this.mark.searchByPatterns();
         } else {
           this.popup("There aren't more logs to load", 'OK');
+          this.hideLoadMsg();
           this.disableLoadMore = true; // removed from html temporally
         }
         this.disableBtns = false;
@@ -613,7 +619,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     this.autoRowHeight = checked;
     if (this.autoRowHeight) {
       let messageColumn: any = this.gridOptions.columnApi.getAllDisplayedColumns().filter((column: Column) => {
-        return column.getColId() === 'message';
+        return column.getColId() === 'message' || column.getColId() === 'message_1';
       })[0];
       if (messageColumn && messageColumn.actualWidth) {
         this.setRowHeight(messageColumn.actualWidth);
