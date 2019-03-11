@@ -619,6 +619,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     this.autoRowHeight = checked;
     if (this.autoRowHeight) {
       let messageColumn: any = this.gridOptions.columnApi.getAllDisplayedColumns().filter((column: Column) => {
+        // message_1 temporally too
         return column.getColId() === 'message' || column.getColId() === 'message_1';
       })[0];
       if (messageColumn && messageColumn.actualWidth) {
@@ -630,10 +631,34 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   }
 
   public setRowHeight(columnWidth: number): void {
-    this.charsByLine = Math.trunc((columnWidth - 13) / 7.85);
+    let fontSize: number = 13;
+    // Left+right
+    let padding: number = 12;
+    // Left+right
+    let border: number = 2;
+    this.charsByLine = Math.trunc((columnWidth - padding - border) / 7.85);
     this.gridOptions.api.forEachNode((rowNode: RowNode) => {
-      let height: number = 20 * Math.ceil(rowNode.data.message.length / this.charsByLine);
-      height < 20 ? (height = 20) : (height = height);
+      let singleLineHeight: number = 20;
+
+      let lineBreaksMatches: any = rowNode.data.message.match(/\n/g);
+      let lineBreaks: number = 0;
+      if (lineBreaksMatches && lineBreaksMatches.length > 0) {
+        lineBreaks = lineBreaksMatches.length;
+      }
+
+      let height: number = 0;
+      if (lineBreaks > 0) {
+        let splittedMsg: string[] = rowNode.data.message.split('\n');
+
+        for (let msg of splittedMsg) {
+          height += singleLineHeight * Math.ceil(msg.length / this.charsByLine);
+        }
+      } else {
+        // Normal
+        height = singleLineHeight * Math.ceil(rowNode.data.message.length / this.charsByLine);
+      }
+
+      height < singleLineHeight ? (height = singleLineHeight) : (height = height);
       rowNode.setRowHeight(height);
     });
     this.gridOptions.api.onRowHeightChanged();
