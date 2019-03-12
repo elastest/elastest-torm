@@ -9,8 +9,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -141,6 +139,22 @@ public class TracesSearchService extends AbstractMonitoringService {
                     .where(whereExpression).fetch();
         }
         return treeValues;
+    }
+
+    /* ******************************************************************** */
+    /* ************************** Implementation ************************** */
+    /* ******************************************************************** */
+
+    public boolean deleteMonitoringDataByExec(String exec) {
+        boolean deleted = false;
+        try {
+            traceRepository.deleteByExec(exec);
+            deleted = true;
+        } catch (Exception e) {
+            logger.error("Error on delete monitoring data by exec {}", exec);
+        }
+
+        return deleted;
     }
 
     /* ****************************************** */

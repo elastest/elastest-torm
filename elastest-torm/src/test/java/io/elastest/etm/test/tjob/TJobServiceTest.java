@@ -16,10 +16,13 @@ import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.TJob;
+import io.elastest.etm.service.AbstractMonitoringService;
 import io.elastest.etm.service.DatabaseSessionManager;
+import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.TJobExecOrchestratorService;
 import io.elastest.etm.service.TJobService;
+import io.elastest.etm.service.TracesSearchService;
 import io.elastest.etm.test.extensions.MockitoExtension;
 import io.elastest.etm.utils.UtilsService;
 
@@ -28,7 +31,7 @@ import io.elastest.etm.utils.UtilsService;
 public class TJobServiceTest {
 
     private TJob tJob;
-    
+
     @BeforeAll
     void setUp() {
         tJob = new TJob();
@@ -43,16 +46,18 @@ public class TJobServiceTest {
     }
 
     @Test
-    public void createTJobTest(//@Autowired TJob tJob,
+    public void createTJobTest(// @Autowired TJob tJob,
             @Mock TJobRepository tJobRepo,
             @Mock TJobExecOrchestratorService epmIntegrationService,
             @Mock TJobExecRepository tJobExecRepo, @Mock EsmService esmService,
             @Mock DatabaseSessionManager dbmanager,
-            @Mock UtilsService utilsService) {
+            @Mock UtilsService utilsService,
+            @Mock AbstractMonitoringService abstractMonitoringService) {
         // TJob createdTJob =
         when(tJobRepo.save(tJob)).thenReturn(tJob);
         TJobService tJobService = new TJobService(tJobRepo, tJobExecRepo,
-                epmIntegrationService, esmService, dbmanager, utilsService);
+                epmIntegrationService, esmService, dbmanager, utilsService,
+                abstractMonitoringService);
         TJob tJob1 = tJobService.createTJob(tJob);
         System.out.println("ImageName:" + tJob1.getImageName());
         assertNotNull(tJob1.getId());

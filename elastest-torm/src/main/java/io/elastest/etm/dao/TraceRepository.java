@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import io.elastest.etm.model.Enums.StreamType;
 import io.elastest.etm.model.Trace;
@@ -14,6 +15,9 @@ import io.elastest.etm.model.Trace;
 public interface TraceRepository
         extends JpaRepository<Trace, Long>, QuerydslPredicateExecutor<Trace> {
     public List<Trace> findByTimestamp(Date timestamp);
+
+    @Transactional
+    public void deleteByExec(String exec);
 
     /* ************************** */
     /* ********** Logs ********** */

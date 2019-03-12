@@ -57,6 +57,7 @@ public class TJobService {
     private final EsmService esmService;
     private DatabaseSessionManager dbmanager;
     private UtilsService utilsService;
+    private AbstractMonitoringService monitoringService;
 
     Map<String, Future<Void>> asyncExecs = new HashMap<String, Future<Void>>();
 
@@ -64,7 +65,8 @@ public class TJobService {
             TJobExecRepository tJobExecRepositoryImpl,
             TJobExecOrchestratorService epmIntegrationService,
             EsmService esmService, DatabaseSessionManager dbmanager,
-            UtilsService utilsService) {
+            UtilsService utilsService,
+            AbstractMonitoringService monitoringService) {
         super();
         this.tJobRepo = tJobRepo;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
@@ -72,6 +74,7 @@ public class TJobService {
         this.esmService = esmService;
         this.dbmanager = dbmanager;
         this.utilsService = utilsService;
+        this.monitoringService = monitoringService;
     }
 
     @PreDestroy
@@ -323,7 +326,20 @@ public class TJobService {
     public void deleteTJobExec(Long tJobExecId) {
         TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId)
                 .get();
+        String[] monitoringIndices = tJobExec.getMonitoringIndicesList();
         tJobExecRepositoryImpl.delete(tJobExec);
+
+        if (monitoringIndices != null) {
+            for (String index : monitoringIndices) {
+                try {
+                    monitoringService.deleteMonitoringDataByExec(index);
+                } catch (Exception e) {
+                    logger.error(
+                            "Error on delete monitoring data exec {} of tJobExec {}",
+                            index, tJobExecId);
+                }
+            }
+        }
     }
 
     public TJob getTJobById(Long tJobId) {

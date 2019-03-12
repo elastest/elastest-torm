@@ -38,6 +38,8 @@ public abstract class AbstractMonitoringService {
     protected DatabaseSessionManager dbmanager;
 
     public abstract void createMonitoringIndex(String[] indicesList);
+    
+    public abstract boolean deleteMonitoringDataByExec(String exec);
 
     /* *** Logs *** */
     public abstract List<Map<String, Object>> searchAllByTerms(

@@ -264,6 +264,9 @@ public class ElasticsearchService extends AbstractMonitoringService {
             deleted = deleteIndexResponse.isAcknowledged();
         } catch (ElasticsearchException e) {
             if (e.status() == RestStatus.NOT_FOUND) {
+                logger.debug(
+                        "Index {} has not been removed because it has not been found",
+                        index);
                 deleted = true;
             }
         }
@@ -612,6 +615,21 @@ public class ElasticsearchService extends AbstractMonitoringService {
         List<AggregationTree> aggregationTreeList = getAggTreeList(aggs,
                 monitoringQuery.getSelectedTerms());
         return aggregationTreeList;
+    }
+
+    /* ******************************************************************** */
+    /* ************************** Implementation ************************** */
+    /* ******************************************************************** */
+
+    public boolean deleteMonitoringDataByExec(String exec) {
+        boolean deleted = false;
+        try {
+            deleted = this.deleteIndex(exec);
+        } catch (Exception e) {
+            logger.error("Error on delete monitoring data by exec {}", exec);
+        }
+
+        return deleted;
     }
 
     /* ****************************************** */
