@@ -660,6 +660,7 @@ public class ExternalService {
 
     public ExternalTestExecution createExternalTestExecution(
             ExternalTestExecution exec) {
+        // TODO catch
         this.logstashService.sendStartTestLogtrace(
                 exec.getTestMonitoringIndex(), exec.getExTestCase().getName());
         return this.externalTestExecutionRepository.save(exec);

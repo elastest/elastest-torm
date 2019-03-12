@@ -215,10 +215,11 @@ mat-sidenav-container {
 :host /deep/ .ag-overlay-loading-center {
   padding: 18px;
   font-size: 1.2em;
+  font-weight: bold;
+  background-color: #f9f9f9;
   /* border: 1px solid #cccccc; */
   /* background: #ffac2f; */
   /* color: #ffffff; */
-  font-weight: bold;
 }
 
 // Temp

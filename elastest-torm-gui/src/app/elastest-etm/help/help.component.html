@@ -18,15 +18,15 @@
         <div class="mat-title" fxLayout="row">
           <span> ElasTest Main Services </span> <span fxFlex></span>
           <span>
-            <div fxLayout="row">
-              <span *ngIf="lastRefresh" class="mat-subheading-1 tc-grey-600 pad-right-sm">
+            <div fxLayout="row" fxLayoutAlign="end center">
+              <span *ngIf="lastRefresh" class="mat-subheading-1 tc-grey-600 pad-right-sm push-bottom-none">
                 <span>Last refresh: </span> <span> {{ lastRefresh | timeAgo }} ({{ lastRefresh | date: 'HH:mm:ss' }})</span>
               </span>
 
               <mat-icon color="accent" class="hover-pointer pad-right-sm" (click)="init()" matTooltip="Refresh now"
                 >sync</mat-icon
               >
-              <span class="mat-subheading-1 pad-right-sm">AutoRefresh:</span>
+              <span class="mat-subheading-1 pad-right-sm push-bottom-none">AutoRefresh:</span>
               <mat-checkbox
                 #autorefresh
                 [checked]="autorefreshEnabled"

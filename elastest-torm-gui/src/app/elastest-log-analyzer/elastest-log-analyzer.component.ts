@@ -337,7 +337,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
             columnObj.hide = this.isEmbed;
             break;
           case 'exec':
-            columnObj.maxWidth = 60;
+            columnObj.maxWidth = 80;
             columnObj.hide = this.isEmbed;
             break;
           default:

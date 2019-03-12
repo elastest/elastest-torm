@@ -48,8 +48,8 @@ export class GetIndexModalComponent implements OnInit {
   tJobExecColumns: any[] = [
     { name: 'select', label: 'Select', width: 70 },
     { name: 'id', label: 'Id', width: 80 },
-    { name: 'result', label: 'Result' },
-    { name: 'startDate', label: 'Start Date' },
+    { name: 'result', label: 'Result', width: 150 },
+    { name: 'startDate', label: 'Start Date', width: 178 },
     { name: 'endDate', label: 'End Date' },
   ];
 
