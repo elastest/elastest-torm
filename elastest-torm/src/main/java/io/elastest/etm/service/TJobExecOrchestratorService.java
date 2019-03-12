@@ -218,11 +218,13 @@ public class TJobExecOrchestratorService {
     public Future<Void> executeTJob(TJobExecution tJobExec,
             String tJobServices) {
         dbmanager.bindSession();
-        tJobExec.setResult(ResultEnum.IN_PROGRESS);
-        String resultMsg = "Initializing";
         Date startDate = new Date();
         tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId()).get();
-
+        String resultMsg = "Initializing";
+        if (tJobExec.isSimpleExecution()) {
+            tJobExec.setResult(ResultEnum.IN_PROGRESS);
+            tJobExec = tJobExecRepositoryImpl.save(tJobExec);
+        }
         String tJobExecMapName = getMapNameByTJobExec(tJobExec);
         execsAreStopped.put(tJobExecMapName, false);
 

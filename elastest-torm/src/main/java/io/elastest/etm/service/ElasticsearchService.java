@@ -23,15 +23,21 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.action.main.MainResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.IndicesOptions;
+import org.elasticsearch.action.support.master.AcknowledgedResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
@@ -42,6 +48,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.query.TermsQueryBuilder;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -142,7 +149,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
     /* ************** */
 
     public MainResponse getInfo() throws IOException {
-        return this.esClient.info();
+        return this.esClient.info(RequestOptions.DEFAULT);
     }
 
     /* ************* */
@@ -164,12 +171,18 @@ public class ElasticsearchService extends AbstractMonitoringService {
                     + "\"et_type\": { \"type\": \"text\", \"fielddata\": true, \"fields\": { \"keyword\": { \"type\": \"keyword\" } } }"
                     + "} }" + "}");
             try {
-                this.createIndexSync(index, mappings, null, null);
-                logger.info("Index {} created", index);
+                if (indexExist(index)) {
+                    logger.info("ES Index {} already exist!", index);
+                } else {
+                    this.createIndexSync(index, mappings, null, null);
+                    logger.info("Index {} created", index);
+                }
             } catch (ElasticsearchStatusException e) {
                 if (e.getMessage()
                         .contains("resource_already_exists_exception")) {
                     logger.info("ES Index {} already exist!", index);
+                } else {
+                    logger.error("Error creating index {}", index, e);
                 }
             } catch (Exception e) {
                 hasFailures = true;
@@ -210,8 +223,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
             throws Exception {
         CreateIndexRequest request = this.createIndexRequest(index, mappings,
                 alias, timeout);
-
-        return this.esClient.indices().create(request);
+        return this.esClient.indices().create(request, RequestOptions.DEFAULT);
     }
 
     public void createIndexAsync(ActionListener<CreateIndexResponse> listener,
@@ -220,7 +232,42 @@ public class ElasticsearchService extends AbstractMonitoringService {
         CreateIndexRequest request = this.createIndexRequest(index, mappings,
                 alias, timeout);
 
-        this.esClient.indices().createAsync(request, listener);
+        this.esClient.indices().createAsync(request, RequestOptions.DEFAULT,
+                listener);
+    }
+
+    public List<String> getAllIndices() throws Exception {
+        List<String> indices = new ArrayList<>();
+        GetIndexRequest request = new GetIndexRequest().indices("*");
+        GetIndexResponse getIndexResponse = this.esClient.indices().get(request,
+                RequestOptions.DEFAULT);
+        String[] indicesArray = getIndexResponse.getIndices();
+        if (indicesArray != null) {
+            indices = Arrays.asList(indicesArray);
+        }
+
+        return indices;
+    }
+
+    public boolean indexExist(String index) throws Exception {
+        GetIndexRequest request = new GetIndexRequest();
+        request.indices(index);
+        return this.esClient.indices().exists(request, RequestOptions.DEFAULT);
+    }
+
+    public boolean deleteIndex(String index) throws Exception {
+        boolean deleted = false;
+        try {
+            DeleteIndexRequest request = new DeleteIndexRequest(index);
+            AcknowledgedResponse deleteIndexResponse = esClient.indices()
+                    .delete(request, RequestOptions.DEFAULT);
+            deleted = deleteIndexResponse.isAcknowledged();
+        } catch (ElasticsearchException e) {
+            if (e.status() == RestStatus.NOT_FOUND) {
+                deleted = true;
+            }
+        }
+        return deleted;
     }
 
     /* ********************* */
@@ -307,7 +354,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
                 IndicesOptions.fromOptions(true, false, false, false));
         searchRequest.indicesOptions(
                 IndicesOptions.fromOptions(true, false, false, false));
-        return this.esClient.search(searchRequest);
+        return this.esClient.search(searchRequest, RequestOptions.DEFAULT);
     }
 
     public List<SearchHit> searchAllHits(SearchRequest request) {
@@ -341,7 +388,8 @@ public class ElasticsearchService extends AbstractMonitoringService {
     public List<Map<String, Object>> searchRequestAndGetSourceMapList(
             SearchRequest request) throws IOException {
         List<Map<String, Object>> mapList = new ArrayList<>();
-        SearchResponse response = this.esClient.search(request);
+        SearchResponse response = this.esClient.search(request,
+                RequestOptions.DEFAULT);
 
         if (response.getHits() != null
                 && response.getHits().getHits() != null) {
@@ -406,7 +454,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
     }
 
     public List<SearchHit> getLast(String[] indices,
-            BoolQueryBuilder boolQueryBuilder, int size) throws IOException {
+            BoolQueryBuilder boolQueryBuilder, int size) throws Exception {
         // Inverse Search Source builder
         SearchSourceBuilder inverseSourceBuilder = getDefaultInverseSearchSourceBuilderByGivenBoolQueryBuilder(
                 boolQueryBuilder);
@@ -418,7 +466,8 @@ public class ElasticsearchService extends AbstractMonitoringService {
         searchRequest.indicesOptions(
                 IndicesOptions.fromOptions(true, false, false, false));
 
-        SearchResponse response = this.esClient.search(searchRequest);
+        SearchResponse response = this.esClient.search(searchRequest,
+                RequestOptions.DEFAULT);
         List<SearchHit> lastHits = new ArrayList<>();
         if (response.getHits() != null
                 && response.getHits().getHits() != null) {
@@ -537,7 +586,8 @@ public class ElasticsearchService extends AbstractMonitoringService {
         searchRequest.indicesOptions(
                 IndicesOptions.fromOptions(true, false, false, false));
 
-        return esClient.search(searchRequest).getAggregations();
+        return esClient.search(searchRequest, RequestOptions.DEFAULT)
+                .getAggregations();
 
     }
 
@@ -727,7 +777,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
     }
 
     public List<Map<String, Object>> getLastLogs(
-            MonitoringQuery monitoringQuery, int size) throws IOException {
+            MonitoringQuery monitoringQuery, int size) throws Exception {
         BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
                 monitoringQuery.getComponent(), monitoringQuery.getStream(),
                 false);
@@ -776,7 +826,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
             List<String> components) throws IOException {
         SearchRequest searchRequest = this.getFindMessageSearchRequest(index,
                 msg, components, "default_log");
-        return this.esClient.search(searchRequest);
+        return this.esClient.search(searchRequest, RequestOptions.DEFAULT);
     }
 
     public Date findFirstMsgAndGetTimestamp(String index, String msg,
@@ -865,7 +915,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
     }
 
     public List<Map<String, Object>> getLastMetrics(
-            MonitoringQuery monitoringQuery, int size) throws IOException {
+            MonitoringQuery monitoringQuery, int size) throws Exception {
         BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(
                 monitoringQuery, false);
 
@@ -1152,7 +1202,8 @@ public class ElasticsearchService extends AbstractMonitoringService {
                 }
 
                 try {
-                    currentPageResponse = esClient.search(initialRequest);
+                    currentPageResponse = esClient.search(initialRequest,
+                            RequestOptions.DEFAULT);
                 } catch (IOException e) {
                     return false;
                 }
@@ -1206,7 +1257,8 @@ public class ElasticsearchService extends AbstractMonitoringService {
             }
             SearchResponse response = null;
             try {
-                response = esClient.search(initialRequest);
+                response = esClient.search(initialRequest,
+                        RequestOptions.DEFAULT);
             } catch (IOException e) {
                 return false;
             }
@@ -1227,7 +1279,8 @@ public class ElasticsearchService extends AbstractMonitoringService {
             }
 
             try {
-                currentPageResponse = esClient.search(initialRequest);
+                currentPageResponse = esClient.search(initialRequest,
+                        RequestOptions.DEFAULT);
             } catch (IOException e) {
                 return new SearchHit[0];
             }

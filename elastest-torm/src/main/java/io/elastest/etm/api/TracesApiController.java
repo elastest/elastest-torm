@@ -3,6 +3,7 @@ package io.elastest.etm.api;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -79,8 +80,13 @@ public class TracesApiController implements TracesApi {
             @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("size") int size,
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws Exception {
-        return new ResponseEntity<List<Map<String, Object>>>(
-                monitoringService.getLastLogs(body, size), HttpStatus.OK);
+        try {
+            return new ResponseEntity<List<Map<String, Object>>>(
+                    monitoringService.getLastLogs(body, size), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<Map<String, Object>>>(
+                    HttpStatus.NOT_FOUND);
+        }
     }
 
     public ResponseEntity<List<AggregationTree>> searchLogsAggregationTree(
@@ -157,8 +163,14 @@ public class TracesApiController implements TracesApi {
             @ApiParam(value = "Number of Metrics to get.", required = true) @PathVariable("size") int size,
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws Exception {
-        return new ResponseEntity<List<Map<String, Object>>>(
-                monitoringService.getLastMetrics(body, size), HttpStatus.OK);
+        try {
+            return new ResponseEntity<List<Map<String, Object>>>(
+                    monitoringService.getLastMetrics(body, size),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<List<Map<String, Object>>>(
+                    HttpStatus.NOT_FOUND);
+        }
     }
 
     public ResponseEntity<List<AggregationTree>> searchMetricsAggregationTree(

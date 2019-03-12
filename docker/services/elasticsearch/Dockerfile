@@ -1,4 +1,4 @@
-FROM docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+FROM docker.elastic.co/elasticsearch/elasticsearch:6.6.1
 
 LABEL io.elastest.type=monitoring
 

@@ -131,11 +131,14 @@ export class ESRabLogModel implements LogViewModel {
   }
 
   loadLastTraces(size: number = 10): void {
-    this.monitoringService.getLastLogTraces(this.monitoringIndex, this.stream, this.component, size).subscribe((data) => {
-      if (this.prevTraces.length === 0) {
-        this.prevTraces = data.concat(this.prevTraces);
-        // Keep prevLoaded to false
-      }
-    });
+    this.monitoringService.getLastLogTraces(this.monitoringIndex, this.stream, this.component, size).subscribe(
+      (data) => {
+        if (this.prevTraces.length === 0) {
+          this.prevTraces = data.concat(this.prevTraces);
+          // Keep prevLoaded to false
+        }
+      },
+      (error: Error) => console.log(error),
+    );
   }
 }

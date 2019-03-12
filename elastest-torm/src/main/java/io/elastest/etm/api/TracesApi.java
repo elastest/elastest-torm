@@ -69,6 +69,7 @@ public interface TracesApi extends EtmApiRoot {
             "Monitoring", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = Map.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Index not found"),
             @ApiResponse(code = 405, message = "Invalid input") })
     @RequestMapping(value = "/monitoring/log/last/{size}", consumes = {
             "application/json" }, method = RequestMethod.POST)
@@ -166,6 +167,7 @@ public interface TracesApi extends EtmApiRoot {
             "Monitoring", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = Map.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Index not found"),
             @ApiResponse(code = 405, message = "Invalid input") })
     @RequestMapping(value = "/monitoring/metric/last/{size}", consumes = {
             "application/json" }, method = RequestMethod.POST)
