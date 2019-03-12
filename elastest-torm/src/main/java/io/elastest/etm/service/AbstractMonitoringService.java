@@ -38,8 +38,27 @@ public abstract class AbstractMonitoringService {
     protected DatabaseSessionManager dbmanager;
 
     public abstract void createMonitoringIndex(String[] indicesList);
-    
+
     public abstract boolean deleteMonitoringDataByExec(String exec);
+
+    public boolean deleteMonitoringDataByIndices(List<String> indices) {
+        boolean allDeleted = true;
+        if (indices != null) {
+            for (String index : indices) {
+                try {
+                    allDeleted = deleteMonitoringDataByExec(index)
+                            && allDeleted;
+                } catch (Exception e) {
+                    logger.error("Error on delete monitoring data exec {}",
+                            index);
+                    allDeleted = false;
+                }
+            }
+        }
+
+        return allDeleted;
+
+    }
 
     /* *** Logs *** */
     public abstract List<Map<String, Object>> searchAllByTerms(

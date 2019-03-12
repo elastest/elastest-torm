@@ -1,6 +1,7 @@
 package io.elastest.etm.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -257,6 +258,10 @@ public class SutService {
             this.eimService.deInstrumentalizeAndUnDeployBeats(
                     sut.getEimConfig(), sut.getEimMonitoringConfig());
         }
+
+        monitoringService
+                .deleteMonitoringDataByIndices(sut.getAllMonitoringIndices());
+
         sutRepository.delete(sut);
     }
 
@@ -318,6 +323,11 @@ public class SutService {
 
     public void deleteSutExec(Long sutExecId) {
         SutExecution sutExec = sutExecutionRepository.findById(sutExecId).get();
+        if (sutExec.getSutSpecification().isDeployedOutside()) {
+            String index = sutExec.getSutExecMonitoringIndex();
+            monitoringService
+                    .deleteMonitoringDataByIndices(Arrays.asList(index));
+        }
         sutExecutionRepository.delete(sutExec);
     }
 

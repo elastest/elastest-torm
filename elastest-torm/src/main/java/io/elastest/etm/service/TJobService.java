@@ -2,6 +2,7 @@ package io.elastest.etm.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -105,6 +106,8 @@ public class TJobService {
 
     public void deleteTJob(Long tJobId) {
         TJob tJob = tJobRepo.findById(tJobId).get();
+        monitoringService
+                .deleteMonitoringDataByIndices(tJob.getAllMonitoringIndices());
         tJobRepo.delete(tJob);
     }
 
@@ -326,20 +329,10 @@ public class TJobService {
     public void deleteTJobExec(Long tJobExecId) {
         TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId)
                 .get();
-        String[] monitoringIndices = tJobExec.getMonitoringIndicesList();
-        tJobExecRepositoryImpl.delete(tJobExec);
 
-        if (monitoringIndices != null) {
-            for (String index : monitoringIndices) {
-                try {
-                    monitoringService.deleteMonitoringDataByExec(index);
-                } catch (Exception e) {
-                    logger.error(
-                            "Error on delete monitoring data exec {} of tJobExec {}",
-                            index, tJobExecId);
-                }
-            }
-        }
+        String index = tJobExec.getOnlyTJobExecMonitoringIndex();
+        monitoringService.deleteMonitoringDataByIndices(Arrays.asList(index));
+        tJobExecRepositoryImpl.delete(tJobExec);
     }
 
     public TJob getTJobById(Long tJobId) {

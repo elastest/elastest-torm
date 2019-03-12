@@ -966,4 +966,16 @@ public class SutSpecification {
                 + (getPort() != null ? ":" + getPort()
                         : (":" + getDefaultPortByProtocol()));
     }
+
+    public List<String> getAllMonitoringIndices() {
+        List<String> indices = new ArrayList<>();
+        if (this.isDeployedOutside() && this.getSutExecution() != null) {
+            for (SutExecution sutExec : this.getSutExecution()) {
+                if (sutExec != null) {
+                    indices.add(sutExec.getSutExecMonitoringIndex());
+                }
+            }
+        }
+        return indices;
+    }
 }

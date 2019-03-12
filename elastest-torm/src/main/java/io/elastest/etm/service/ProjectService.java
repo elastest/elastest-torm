@@ -2,7 +2,6 @@ package io.elastest.etm.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.dao.ProjectRepository;
@@ -11,8 +10,14 @@ import io.elastest.etm.model.Project;
 @Service
 public class ProjectService {
 
-    @Autowired
-    ProjectRepository projectRepository;
+    private ProjectRepository projectRepository;
+    private AbstractMonitoringService monitoringService;
+
+    public ProjectService(ProjectRepository projectRepository,
+            AbstractMonitoringService monitoringService) {
+        this.projectRepository = projectRepository;
+        this.monitoringService = monitoringService;
+    }
 
     public Project saveProject(Project project) {
         return projectRepository.save(project);
@@ -32,6 +37,8 @@ public class ProjectService {
 
     public void deleteProject(Long projectId) {
         Project project = projectRepository.findById(projectId).get();
+        monitoringService.deleteMonitoringDataByIndices(
+                project.getAllMonitoringIndices());
         projectRepository.delete(project);
     }
 }

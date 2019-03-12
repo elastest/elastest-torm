@@ -3,6 +3,7 @@ package io.elastest.etm.model;
 import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -163,5 +164,26 @@ public class Project implements Serializable {
         sb.append("    suts: ").append(toIndentedString(suts)).append("\n");
         sb.append("}");
         return sb.toString();
+    }
+
+    public List<String> getAllMonitoringIndices() {
+        List<String> indices = new ArrayList<>();
+        if (this.getSuts() != null) {
+            for (SutSpecification sut : this.getSuts()) {
+                if (sut != null) {
+                    indices.addAll(sut.getAllMonitoringIndices());
+                }
+            }
+        }
+
+        if (this.getTJobs() != null) {
+            for (TJob tJob : this.getTJobs()) {
+                if (tJob != null) {
+                    indices.addAll(tJob.getAllMonitoringIndices());
+                }
+            }
+        }
+
+        return indices;
     }
 }

@@ -527,4 +527,16 @@ public class TJob {
 
         return tssConfigEnvVars;
     }
+
+    public List<String> getAllMonitoringIndices() {
+        List<String> indices = new ArrayList<>();
+        if (this.getTjobExecs() != null) {
+            for (TJobExecution tJobExec : this.getTjobExecs()) {
+                if (tJobExec != null) {
+                    indices.add(tJobExec.getOnlyTJobExecMonitoringIndex());
+                }
+            }
+        }
+        return indices;
+    }
 }
