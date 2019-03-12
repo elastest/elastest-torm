@@ -26,6 +26,8 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -41,6 +43,8 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.cluster.health.ClusterIndexHealth;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchPhrasePrefixQueryBuilder;
@@ -255,6 +259,35 @@ public class ElasticsearchService extends AbstractMonitoringService {
         return this.esClient.indices().exists(request, RequestOptions.DEFAULT);
     }
 
+    public ClusterHealthStatus getIndexHealth(String index) throws Exception {
+        ClusterHealthRequest request = new ClusterHealthRequest(index);
+        ClusterHealthResponse response = esClient.cluster().health(request,
+                RequestOptions.DEFAULT);
+        Map<String, ClusterIndexHealth> indices = response.getIndices();
+        ClusterIndexHealth indexHealth = indices.get(index);
+        return indexHealth.getStatus();
+    }
+
+    public List<String> getIndicesByHealth(ClusterHealthStatus health)
+            throws Exception {
+        List<String> indicesWithHealth = new ArrayList<>();
+
+        List<String> allIndices = getAllIndices();
+        if (allIndices != null) {
+            for (String index : allIndices) {
+                if (health == getIndexHealth(index)) {
+                    indicesWithHealth.add(index);
+                }
+            }
+        }
+
+        return indicesWithHealth;
+    }
+
+    public List<String> getIndicesByHealth(String health) throws Exception {
+        return getIndicesByHealth(ClusterHealthStatus.fromString(health));
+    }
+
     public boolean deleteIndex(String index) throws Exception {
         boolean deleted = false;
         try {
@@ -271,6 +304,31 @@ public class ElasticsearchService extends AbstractMonitoringService {
             }
         }
         return deleted;
+    }
+
+    public boolean deleteGivenIndices(List<String> indices) {
+        boolean allDeleted = true;
+        if (indices != null) {
+            for (String index : indices) {
+                try {
+                    allDeleted = deleteIndex(index) && allDeleted;
+                } catch (Exception e) {
+                    allDeleted = false;
+                }
+            }
+        }
+
+        return allDeleted;
+    }
+
+    public boolean deleteIndicesByHealth(ClusterHealthStatus health)
+            throws Exception {
+        List<String> indices = getIndicesByHealth(health);
+        return deleteGivenIndices(indices);
+    }
+
+    public boolean deleteIndicesByHealth(String health) throws Exception {
+        return deleteIndicesByHealth(ClusterHealthStatus.fromString(health));
     }
 
     /* ********************* */
