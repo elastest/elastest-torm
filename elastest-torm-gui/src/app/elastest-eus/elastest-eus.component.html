@@ -83,6 +83,13 @@
                   <ng-container *ngIf="row !== undefined && row !== null">
                     <i
                       class="material-icons"
+                      (click)="stopSession(row.id)"
+                      id="stop_session_{{ row.id }}"
+                      matTooltip="Stop session"
+                      >stop</i
+                    >
+                    <i
+                      class="material-icons"
                       (click)="getLiveUrl(row.url)"
                       style="cursor: pointer"
                       matTooltip="Open in new tab"

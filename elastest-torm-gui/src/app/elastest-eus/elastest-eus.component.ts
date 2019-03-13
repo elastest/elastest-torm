@@ -378,8 +378,8 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     }
   }
 
-  stopSession(): void {
-    this.eusService.stopSession(this.sessionId).subscribe(
+  stopSession(sessionId: string = this.sessionId): void {
+    this.eusService.stopSession(sessionId).subscribe(
       (data: any) => {
         this.vncUrl = null;
         this.liveSession = undefined;
