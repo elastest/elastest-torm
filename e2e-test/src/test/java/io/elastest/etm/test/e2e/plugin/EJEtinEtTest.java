@@ -1,5 +1,6 @@
 package io.elastest.etm.test.e2e.plugin;
 
+import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -12,10 +13,12 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmPluginBaseTest;
 import io.github.bonigarcia.BrowserType;
+import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
@@ -35,7 +38,8 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
 
     @Test
     @DisplayName("ETinET-Test: use plugin in a pipeline")
-    void testETInETPluginInPipelineJob(ChromeDriver localDriver,
+    void testETInETPluginInPipelineJob(
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
             TestInfo testInfo) throws Exception {
         setupTestBrowser(testInfo, BrowserType.CHROME, "71", localDriver);
         navigateTo(driver, jenkinsCIUrl);
@@ -44,7 +48,8 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
         try {
             if (!isJobCreated(jobName)) {
                 driver.findElement(By.linkText("New Item")).click();
-                createPipelineJob(driver, jobName, unitTestPipelineScriptOriginal);
+                createPipelineJob(driver, jobName,
+                        unitTestPipelineScriptOriginal);
             } else {
                 driver.findElement(By.linkText(jobName)).click();
             }

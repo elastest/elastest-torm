@@ -1,5 +1,6 @@
 package io.elastest.etm.test.e2e.plugin;
 
+import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -11,11 +12,12 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmPluginBaseTest;
 import io.github.bonigarcia.BrowserType;
+import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
@@ -35,8 +37,9 @@ public class EJWhitInstallEtInEtTest extends EtmPluginBaseTest {
 
     @Test
     @DisplayName("Pipeline plugin")
-    void testPipelineJob(ChromeDriver localDriver, TestInfo testInfo)
-            throws Exception {
+    void testPipelineJob(
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo) throws Exception {
         setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
         navigateTo(driver, jenkinsPluginManagerAd);
         loginOnJenkins(driver);
@@ -48,7 +51,8 @@ public class EJWhitInstallEtInEtTest extends EtmPluginBaseTest {
         try {
             if (!isJobCreated(jobName)) {
                 driver.findElement(By.linkText("New Item")).click();
-                createPipelineJob(driver, jobName, unitTestPipelineScriptOriginal);
+                createPipelineJob(driver, jobName,
+                        unitTestPipelineScriptOriginal);
             } else {
                 driver.findElement(By.linkText(jobName)).click();
             }
@@ -56,7 +60,7 @@ public class EJWhitInstallEtInEtTest extends EtmPluginBaseTest {
             goToElasTest(driver);
             log.info("Wait for TJob end with sucess");
             checkFinishTJobExec(driver, 300, "SUCCESS", false);
-        }finally {
+        } finally {
             deletePipelineJob(driver, jobName);
         }
     }

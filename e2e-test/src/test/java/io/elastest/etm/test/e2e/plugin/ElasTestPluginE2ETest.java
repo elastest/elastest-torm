@@ -16,6 +16,7 @@
  */
 package io.elastest.etm.test.e2e.plugin;
 
+import static io.github.bonigarcia.BrowserType.CHROME;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -31,12 +32,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
 import io.elastest.etm.test.base.EtmPluginBaseTest;
 import io.github.bonigarcia.BrowserType;
+import io.github.bonigarcia.DockerBrowser;
 import io.github.bonigarcia.SeleniumExtension;
 
 /**
@@ -68,8 +70,10 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
     @Test
     @DisplayName("Standar Job Plugin")
     @Disabled
-    void testInstallElasTestPlugin(ChromeDriver driver) throws Exception {
-        this.driver = driver;
+    void testInstallElasTestPlugin(
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver)
+            throws Exception {
+        this.driver = localDriver;
         navigateTo(driver, jenkinsPluginManagerAd);
         installElasTestPlugin(driver);
         navigateTo(driver, pluginSettings);
@@ -83,8 +87,9 @@ public class ElasTestPluginE2ETest extends EtmPluginBaseTest {
 
     @Test
     @DisplayName("Pipeline plugin")
-    void testPipelineJob(ChromeDriver localDriver, TestInfo testInfo)
-            throws Exception {
+    void testPipelineJob(
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo) throws Exception {
         setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
         navigateTo(driver, jenkinsPluginManagerAd);
         loginOnJenkins(driver);
