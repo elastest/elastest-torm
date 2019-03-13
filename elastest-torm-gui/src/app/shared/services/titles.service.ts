@@ -44,6 +44,7 @@ export class TitlesService {
     this.breadcrumbService.addFriendlyNameForRoute('/testlink', 'Testlink Projects');
     this.breadcrumbService.addFriendlyNameForRoute('/external', 'Testlink Projects');
     this.breadcrumbService.addFriendlyNameForRoute('/help', 'About Elastest');
+    this.breadcrumbService.addFriendlyNameForRoute('/manage', 'Manage Elastest');
     this.breadcrumbService.addFriendlyNameForRouteRegex('(.*/sut/new)$', '/ New SuT');
     this.breadcrumbService.addFriendlyNameForRouteRegex('(.*/tjob/new)$', '/ New TJob');
     this.breadcrumbService.addFriendlyNameForRouteRegex('(.*/exec/new)$', '/ New Execution');

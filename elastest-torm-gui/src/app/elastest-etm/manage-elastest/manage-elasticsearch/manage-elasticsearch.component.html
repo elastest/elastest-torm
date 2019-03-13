@@ -1,0 +1,106 @@
+<div fxLayout="column">
+  <mat-card>
+    <mat-card-title>
+      <div fxLayout="row">
+        <span>Manage Elasticsearch Red Indices</span>
+        <span fxFlex></span>
+        <button
+          mat-raised-button
+          [disabled]="loadingRedIndices"
+          color="accent"
+          id="loadRedIndices"
+          matTooltip="Load Red Indices"
+          (click)="loadRedIndices()"
+          class="push-left-sm"
+        >
+          Load Red Indices
+        </button>
+        <button
+          mat-raised-button
+          [disabled]="deleteRedIndices"
+          color="accent"
+          id="deleteRedIndices"
+          matTooltip="Delete Red Indices"
+          (click)="deleteRedIndices()"
+          class="push-left-sm"
+        >
+          Delete Red Indices
+        </button>
+      </div>
+    </mat-card-title>
+    <mat-divider></mat-divider>
+    <mat-card-content>
+      <div class="mat-title" fxLayout="row">
+        <td-message fxFlex label="{{ redIndicesLabel }}" sublabel="{{ redIndicesSublabel }}" color="primary" icon="info">
+        </td-message>
+      </div>
+
+      <mat-spinner
+        strokeWidth="6"
+        *ngIf="loadingRedIndices; else showRedIndices"
+        color="accent"
+        class="push-top-sm spinnerCenter"
+      ></mat-spinner>
+
+      <ng-template #showRedIndices>
+        <ng-container *ngIf="redIndices">
+          <centered-element *ngIf="redIndices.length === 0; else showRedIndicesList" class="push-top-important messageEmptyCard">
+            <mat-icon>assignment</mat-icon>
+            <p>There are not indices with status "red"</p>
+          </centered-element>
+
+          <ng-template #showRedIndicesList>
+            {{ redIndices.join(', ') }}
+          </ng-template>
+        </ng-container>
+      </ng-template>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-title>
+      <div fxLayout="row">
+        <span>All Indices</span>
+        <span fxFlex></span>
+        <button
+          mat-raised-button
+          [disabled]="loadingAllIndices"
+          color="accent"
+          id="getAllIndices"
+          matTooltip="Load All Indices"
+          (click)="getAllIndices()"
+          class="push-left-sm"
+        >
+          Load All Indices
+        </button>
+      </div>
+    </mat-card-title>
+    <ng-container *ngIf="allIndices">
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        <mat-spinner
+          strokeWidth="6"
+          *ngIf="loadingAllIndices; else showAllIndices"
+          color="accent"
+          class="push-top-sm spinnerCenter"
+        ></mat-spinner>
+        <ng-template #showAllIndices>
+          <centered-element
+            *ngIf="!allIndices || allIndices.length === 0; else showAllIndicesList"
+            class="push-top-important messageEmptyCard"
+          >
+            <mat-icon>assignment</mat-icon>
+            <p>There are not indices</p>
+          </centered-element>
+          <ng-template #showAllIndicesList>
+            <mat-list>
+              <mat-list-item *ngFor="let index of allIndices">
+                {{ index }}
+              </mat-list-item>
+            </mat-list>
+          </ng-template>
+        </ng-template>
+      </mat-card-content>
+    </ng-container>
+  </mat-card>
+</div>

@@ -24,7 +24,7 @@ export class EtmComponent implements AfterViewInit, OnInit {
     public configService: ConfigurationService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (this.titlesService.getTitle().getTitle() === 'Dashboard') {
       this.enableRefresh = true;
     }

@@ -19,9 +19,37 @@ export class SelfAdjustableCardComponent implements OnInit {
   private contentAlignVertical: fxLayoutAlignVertical | null = 'none';
 
   @Input()
+  private contentPaddingPixels: number = undefined;
+
+  @Input()
+  private noTitleBackground: boolean = false;
+
+  @Input()
+  private noContentBackground: boolean = false;
+
+  cardStyle: any = {};
+  titleStyle: any = {};
+  contentStyle: any = {};
+
+  @Input()
   hideTitle: boolean = false;
 
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    if (this.contentPaddingPixels !== undefined) {
+      this.contentStyle['padding'] = this.contentPaddingPixels + 'px';
+    }
+
+    if (this.noContentBackground) {
+      this.cardStyle['background'] = 'none';
+      this.cardStyle['box-shadow'] = 'none';
+
+      if (!this.noTitleBackground) {
+        this.titleStyle['background'] = '#ffffff';
+        this.titleStyle['box-shadow'] =
+          '0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12)';
+      }
+    }
+  }
 }

@@ -203,6 +203,22 @@
         <mat-icon mat-list-icon>insert_chart</mat-icon>
         Monitoring Platfrom (EMP)
       </a>
+      <a
+        mat-list-item
+        (click)="!media.query('gt-sm') && manageList.close()"
+        mat-ripple
+        class="block relative"
+        mat-ripple
+        class="block relative"
+        (click)="!media.query('gt-sm') && manageList.close()"
+        [routerLinkActive]="['active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/manage']"
+        id="nav_manage_elastest"
+      >
+        <fa-icon mat-list-icon class="mat-icon" [icon]="['fas', 'toolbox']"></fa-icon>
+        Manage Elastest
+      </a>
       <!-- <a mat-list-item (click)="!media.query('gt-sm') && manageList.close()" mat-ripple class="block relative" mat-ripple class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}"
         [routerLink]="['/vnc']">

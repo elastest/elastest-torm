@@ -1,0 +1,21 @@
+<auto-height-grid fxLayout="column">
+  <auto-height-row>
+    <self-adjustable-card [contentPaddingPixels]="0" [noContentBackground]="true">
+      <sa-card-title>Manage Elastest</sa-card-title>
+      <sa-card-content fxFlex fxLayout="column">
+        <mat-tab-group id="manage-tabs" [(selectedIndex)]="selectedTab">
+          <mat-tab label="Main Services Status">
+            <ng-template matTabContent>
+              <etm-manage-main-services> </etm-manage-main-services>
+            </ng-template>
+          </mat-tab>
+          <mat-tab *ngIf="configService.configModel.elasTestExecMode !== 'mini'" label="Manage Elasticsearch">
+            <ng-template matTabContent>
+              <etm-manage-elasticsearch></etm-manage-elasticsearch>
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
+      </sa-card-content>
+    </self-adjustable-card>
+  </auto-height-row>
+</auto-height-grid>

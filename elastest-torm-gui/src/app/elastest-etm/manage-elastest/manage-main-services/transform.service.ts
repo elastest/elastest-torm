@@ -1,6 +1,6 @@
-import { CoreServiceModel } from '../models/core-service.model';
-import { VersionInfo } from '../models/version-info.model';
-import { ContainerPortModel } from '../models/container-port.model';
+import { CoreServiceModel } from '../../models/core-service.model';
+import { VersionInfo } from '../../models/version-info.model';
+import { ContainerPortModel } from '../../models/container-port.model';
 import { Injectable } from '@angular/core';
 
 @Injectable()

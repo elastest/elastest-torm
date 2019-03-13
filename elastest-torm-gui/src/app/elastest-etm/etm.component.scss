@@ -24,10 +24,18 @@
   font-size: inherit;
 }
 
-:host /deep/ mat-nav-list [mat-list-item].active fa-icon[mat-list-icon] {
-  color: #ffac2f;
+:host /deep/ mat-sidenav .mat-list-item-content fa-icon {
+  color: #737373;
 }
 
-:host /deep/ mat-nav-list [mat-list-item].active mat-icon[mat-list-icon] > svg {
-  fill: #ffac2f;
+:host /deep/ mat-nav-list [mat-list-item].active fa-icon[mat-list-icon] {
+  color: #ffac2f !important;
+}
+
+:host /deep/ mat-nav-list [mat-list-item].active mat-icon[mat-list-icon] {
+  fill: #ffac2f !important;
+}
+
+:host /deep/ #nav_jenkins fa-icon {
+  color: #252525;
 }

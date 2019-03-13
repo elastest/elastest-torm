@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { MonitoringService } from './shared/services/monitoring.service';
 import { FilesService } from './shared/services/files.service';
-import { TransformService } from './elastest-etm/help/transform.service';
+import { TransformService } from './elastest-etm/manage-elastest/manage-main-services/transform.service';
 import { TestLinkService } from './etm-testlink/testlink.service';
 import { ExternalService } from './elastest-etm/external/external.service';
 import { LogAnalyzerService } from './elastest-log-analyzer/log-analyzer.service';
@@ -142,6 +142,10 @@ import { MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { TjobExecsComparatorComponent } from './elastest-etm/tjob-exec/tjob-execs-comparator/tjob-execs-comparator.component';
 import { TableService } from './elastest-log-comparator/service/table.service';
+import { ManageElastestComponent } from './elastest-etm/manage-elastest/manage-elastest.component';
+import { ManageMainServicesComponent } from './elastest-etm/manage-elastest/manage-main-services/manage-main-services.component';
+import { ManageElasticsearchComponent } from './elastest-etm/manage-elastest/manage-elasticsearch/manage-elasticsearch.component';
+import { ElasticsearchApiService } from './elastest-etm/manage-elastest/manage-elasticsearch/elasticsearch-api.service';
 
 library.add(faJenkins);
 library.add(fas);
@@ -223,6 +227,9 @@ library.add(fas);
     ParentTjobExecReportViewComponent,
     CredentialsDialogComponent,
     TjobExecsComparatorComponent,
+    ManageElastestComponent,
+    ManageMainServicesComponent,
+    ManageElasticsearchComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -264,6 +271,7 @@ library.add(fas);
     TestSuiteService,
     TJobExecService,
     ProjectService,
+    ElasticsearchApiService,
     MonitoringService,
     ElastestRabbitmqService,
     PopupService,

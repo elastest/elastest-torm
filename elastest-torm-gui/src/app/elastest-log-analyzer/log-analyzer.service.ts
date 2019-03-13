@@ -1,5 +1,4 @@
 import { Observable, Subject } from 'rxjs/Rx';
-import { Response } from '@angular/http';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { ETModelsTransformServices } from '../shared/services/et-models-transform.service';
 import { ConfigurationService } from '../config/configuration-service.service';

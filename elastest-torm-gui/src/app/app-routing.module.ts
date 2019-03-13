@@ -53,6 +53,7 @@ import { EtmJenkinsComponent } from './etm-jenkins/etm-jenkins.component';
 import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component';
 import { TjobExecViewComponent } from './elastest-etm/tjob-exec/tjob-exec-view/tjob-exec-view.component';
 import { TjobExecsComparatorComponent } from './elastest-etm/tjob-exec/tjob-execs-comparator/tjob-execs-comparator.component';
+import { ManageElastestComponent } from './elastest-etm/manage-elastest/manage-elastest.component';
 
 const routes: Routes = [
   {
@@ -282,6 +283,10 @@ const routes: Routes = [
       {
         path: 'help',
         component: HelpComponent,
+      },
+      {
+        path: 'manage',
+        component: ManageElastestComponent,
       },
       {
         path: 'jenkins',
@@ -638,6 +643,7 @@ export const routedComponents: any[] = [
   ServiceGuiComponent,
   ServiceDetailComponent,
   HelpComponent,
+  ManageElastestComponent,
 ];
 
 export const appRoutes: any = RouterModule.forRoot(routes, { useHash: true });
