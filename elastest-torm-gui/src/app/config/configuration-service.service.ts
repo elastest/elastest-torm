@@ -106,7 +106,7 @@ export class ConfigurationService {
 
   public getCoreServicesInfo(): Observable<CoreServiceModel[]> {
     let url: string = this.configModel.hostApi + '/context/coreservices/info';
-    return this.http.get(url).map((response: object[]) => this.transformService.jsonToCoreServicesList(response));
+    return this.http.get(url).map((response: any[]) => this.transformService.jsonToCoreServicesList(response));
   }
 
   public getAllCoreServiceLogs(coreServiceName: string, withFollow: boolean): Observable<string> {

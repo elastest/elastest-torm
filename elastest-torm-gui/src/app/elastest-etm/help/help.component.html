@@ -38,69 +38,87 @@
             </div>
           </span>
         </div>
-        <td-data-table
-          #versionsInfo
-          id="coreServicesInfo"
-          [data]="coreServices"
-          [columns]="coreServiceColumns"
-          [selectable]="false"
-          [clickable]="false"
-          [sortable]="false"
-          [resizableColumns]="true"
-        >
-          <ng-template
-            *ngFor="let column of coreServiceColumns"
-            let-value="value"
-            let-row="row"
-            tdDataTableTemplate="{{ column.name }}"
+
+        <mat-spinner
+          strokeWidth="6"
+          *ngIf="loadingCoreServices; else showCoreServices"
+          color="accent"
+          class="push-top-sm spinnerCenter"
+        ></mat-spinner>
+        <ng-template #showCoreServices>
+          <centered-element
+            *ngIf="coreServices.length === 0; else showCoreServicesTable"
+            class="push-top-important messageEmptyCard"
           >
-            <ng-container
-              *ngIf="
-                column.name !== 'status' &&
-                  column.name !== 'imageDate' &&
-                  column.name !== 'versionInfo.commitDate' &&
-                  column.name !== 'containerNames' &&
-                  column.name !== 'networks' &&
-                  column.name !== 'options';
-                else specialFields
-              "
+            <mat-icon>assignment</mat-icon>
+            <p>Error on load core services</p>
+          </centered-element>
+          <ng-template #showCoreServicesTable>
+            <td-data-table
+              #versionsInfo
+              id="coreServicesInfo"
+              [data]="coreServices"
+              [columns]="coreServiceColumns"
+              [selectable]="false"
+              [clickable]="false"
+              [sortable]="false"
+              [resizableColumns]="true"
             >
-              {{ value }}
-            </ng-container>
-            <ng-template #specialFields>
-              <ng-container *ngIf="column.name === 'status'">
-                <mat-icon style="vertical-align: middle; padding-right: 1px;" [style.color]="row.getStatusIcon().color">{{
-                  row.getStatusIcon().name
-                }}</mat-icon>
-                {{ value }}
-              </ng-container>
+              <ng-template
+                *ngFor="let column of coreServiceColumns"
+                let-value="value"
+                let-row="row"
+                tdDataTableTemplate="{{ column.name }}"
+              >
+                <ng-container
+                  *ngIf="
+                    column.name !== 'status' &&
+                      column.name !== 'imageDate' &&
+                      column.name !== 'versionInfo.commitDate' &&
+                      column.name !== 'containerNames' &&
+                      column.name !== 'networks' &&
+                      column.name !== 'options';
+                    else specialFields
+                  "
+                >
+                  {{ value }}
+                </ng-container>
+                <ng-template #specialFields>
+                  <ng-container *ngIf="column.name === 'status'">
+                    <mat-icon style="vertical-align: middle; padding-right: 1px;" [style.color]="row.getStatusIcon().color">{{
+                      row.getStatusIcon().name
+                    }}</mat-icon>
+                    {{ value }}
+                  </ng-container>
 
-              <ng-container *ngIf="column.name === 'containerNames' || column.name === 'networks'">
-                <div *ngFor="let elementOfArray of value">
-                  - {{ elementOfArray.startsWith('/') ? elementOfArray.substring(1) : elementOfArray }}
-                </div>
-              </ng-container>
+                  <ng-container *ngIf="column.name === 'containerNames' || column.name === 'networks'">
+                    <div *ngFor="let elementOfArray of value">
+                      - {{ elementOfArray.startsWith('/') ? elementOfArray.substring(1) : elementOfArray }}
+                    </div>
+                  </ng-container>
 
-              <ng-container *ngIf="column.name === 'versionInfo.commitDate' || column.name === 'imageDate'">
-                {{ value | date: 'yyyy/MM/dd HH:mm:ss' || 'unespecified' }}
-              </ng-container>
+                  <ng-container *ngIf="column.name === 'versionInfo.commitDate' || column.name === 'imageDate'">
+                    {{ value | date: 'yyyy/MM/dd HH:mm:ss' || 'unespecified' }}
+                  </ng-container>
 
-              <ng-container *ngIf="column.name === 'options'">
-                <div fxLayout="row" class="optionsColumn">
-                  <button
-                    mat-button
-                    (click)="loadCoreServiceLogs(row.name)"
-                    matTooltip="View logs"
-                    class="iconBtn-lg"
-                    [disabled]="loadingLogs"
-                  >
-                    <mat-icon>library_books</mat-icon>
-                  </button>
-                </div>
-              </ng-container>
-            </ng-template>
+                  <ng-container *ngIf="column.name === 'options'">
+                    <div fxLayout="row" class="optionsColumn">
+                      <button
+                        mat-button
+                        (click)="loadCoreServiceLogs(row.name)"
+                        matTooltip="View logs"
+                        class="iconBtn-lg"
+                        [disabled]="loadingLogs || row.isStatusError()"
+                      >
+                        <mat-icon>library_books</mat-icon>
+                      </button>
+                    </div>
+                  </ng-container>
+                </ng-template>
+              </ng-template>
+            </td-data-table>
           </ng-template>
-        </td-data-table>
+        </ng-template>
       </mat-card-content>
     </mat-card>
     <div *ngIf="coreServiceLogs">

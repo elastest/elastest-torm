@@ -47,6 +47,7 @@ public interface TracesApi extends EtmApiRoot {
             "Monitoring", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = Map.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Not found"),
             @ApiResponse(code = 405, message = "Invalid input") })
     @RequestMapping(value = "/monitoring/log", consumes = {
             "application/json" }, method = RequestMethod.POST)

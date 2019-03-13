@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Params, ActivatedRoute } from '@angular/router';
 import { TJobExecModel } from '../tjobExec-model';
 import { TJobExecService } from '../tjobExec.service';
@@ -9,7 +9,7 @@ import { Subscription, Observable, interval } from 'rxjs';
   templateUrl: './tjob-exec-view.component.html',
   styleUrls: ['./tjob-exec-view.component.scss'],
 })
-export class TjobExecViewComponent implements OnInit {
+export class TjobExecViewComponent implements OnInit, OnDestroy {
   tJobId: number;
   tJobExecId: number;
   tJobExec: TJobExecModel;

@@ -1,4 +1,4 @@
-package io.elastest.etm.service;
+package io.elastest.etm.model;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -8,8 +8,6 @@ import java.util.Map;
 import com.spotify.docker.client.messages.AttachedNetwork;
 import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.Container.PortMapping;
-
-import io.elastest.etm.model.VersionInfo;
 
 public class CoreServiceInfo {
     String name;
@@ -105,9 +103,13 @@ public class CoreServiceInfo {
     }
 
     public String getFirstContainerNameCleaned() {
-        String containerName = this.getContainerNames().get(0);
-        if (containerName != null && containerName.startsWith("/")) {
-            containerName = containerName.substring(1);
+        String containerName = null;
+        if (this.getContainerNames() != null
+                && this.getContainerNames().size() > 0) {
+            containerName = this.getContainerNames().get(0);
+            if (containerName != null && containerName.startsWith("/")) {
+                containerName = containerName.substring(1);
+            }
         }
         return containerName;
     }

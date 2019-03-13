@@ -36,4 +36,16 @@ export class CoreServiceModel {
     }
     return icon;
   }
+
+  isStatusError(): boolean {
+    let error: boolean = false;
+    if (!this.status) {
+      error = true;
+    } else {
+      let lowerCaseStatus: string = this.status.toLowerCase();
+      error = !lowerCaseStatus.startsWith('up') && !lowerCaseStatus.startsWith('created');
+    }
+
+    return error;
+  }
 }

@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.ContextInfo;
+import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.LogAnalyzerConfig;
 import io.elastest.etm.model.LogAnalyzerConfig.BasicAttLogAnalyzerConfig;
-import io.elastest.etm.service.CoreServiceInfo;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.EtmContextService;
 import io.elastest.etm.utils.UtilsService;

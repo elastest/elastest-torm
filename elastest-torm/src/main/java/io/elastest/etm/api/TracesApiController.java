@@ -3,12 +3,12 @@ package io.elastest.etm.api;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.elasticsearch.ElasticsearchStatusException;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,8 +64,13 @@ public class TracesApiController implements TracesApi {
     public ResponseEntity<List<Map<String, Object>>> searchAllLogs(
             @ApiParam(value = "Search Request configuration", required = true) @Valid @RequestBody MonitoringQuery body)
             throws Exception {
-        return new ResponseEntity<List<Map<String, Object>>>(
-                monitoringService.searchAllLogs(body), HttpStatus.OK);
+        try {
+            return new ResponseEntity<List<Map<String, Object>>>(
+                    monitoringService.searchAllLogs(body), HttpStatus.OK);
+        } catch (ElasticsearchStatusException e) {
+            return new ResponseEntity<List<Map<String, Object>>>(
+                    HttpStatus.NOT_FOUND);
+        }
     }
 
     public ResponseEntity<List<Map<String, Object>>> searchPreviousLogs(

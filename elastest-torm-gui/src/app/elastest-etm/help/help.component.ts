@@ -2,7 +2,7 @@ import { CardLogModel } from '../../shared/logs-view/models/card-log.model';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { TitlesService } from '../../shared/services/titles.service';
 import { ConfigurationService } from '../../config/configuration-service.service';
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CoreServiceModel } from '../models/core-service.model';
 import { VersionInfo } from '../models/version-info.model';
 import { PopupService } from '../../shared/services/popup.service';
@@ -13,13 +13,14 @@ import { interval } from 'rxjs';
   templateUrl: './help.component.html',
   styleUrls: ['./help.component.scss'],
 })
-export class HelpComponent implements OnInit {
+export class HelpComponent implements OnInit, OnDestroy {
   coreServices: CoreServiceModel[] = [];
   etCurrentVersion: string;
 
   autorefreshEnabled: boolean = true;
   lastRefresh: Date;
   coreServicesSubscription: Subscription;
+  loadingCoreServices: boolean = false;
 
   coreServiceLogs: CardLogModel;
   loadingLogs: boolean = false;
@@ -46,7 +47,7 @@ export class HelpComponent implements OnInit {
     private popupService: PopupService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setHeadTitle('Help');
     this.init();
     this.startCoreServicesSubscription();
@@ -57,7 +58,7 @@ export class HelpComponent implements OnInit {
   }
 
   @HostListener('window:beforeunload')
-  beforeunloadHandler() {
+  beforeunloadHandler(): void {
     // On window closed leave session
     this.unsubscribe();
   }
@@ -68,11 +69,19 @@ export class HelpComponent implements OnInit {
   }
 
   init(): void {
-    this.configurationService.getCoreServicesInfo().subscribe((coreServices: CoreServiceModel[]) => {
-      this.coreServices = coreServices;
-      this.initCurrentETVersion();
-      this.lastRefresh = new Date();
-    });
+    this.loadingCoreServices = true;
+    this.configurationService.getCoreServicesInfo().subscribe(
+      (coreServices: CoreServiceModel[]) => {
+        this.coreServices = coreServices;
+        this.initCurrentETVersion();
+        this.lastRefresh = new Date();
+        this.loadingCoreServices = false;
+      },
+      (error: Error) => {
+        console.log(error);
+        this.loadingCoreServices = false;
+      },
+    );
   }
 
   initCurrentETVersion(): void {

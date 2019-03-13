@@ -19,6 +19,7 @@ import com.spotify.docker.client.messages.ImageInfo;
 
 import io.elastest.etm.dao.LogAnalyzerRepository;
 import io.elastest.etm.model.ContextInfo;
+import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.LogAnalyzerConfig;
 import io.elastest.etm.model.TJobExecution;
@@ -126,7 +127,7 @@ public class EtmContextService {
         while (contextInfo.getEusSSInstance() == null) {
             logger.debug("Waiting for the ElasTest Context to be ready");
         }
-        
+
         return contextInfo;
     }
 
@@ -210,12 +211,11 @@ public class EtmContextService {
                 logger.error(
                         "Unable to retrieve ElasTest Core Service {} Information. Probably not started. Obtaining information from Image",
                         imageName);
-
-                CoreServiceInfo coreService = new CoreServiceInfo();
-                String version = dockerEtmService.dockerService
-                        .getTagByCompleteImageName(imageName);
-                VersionInfo versionInfo;
                 try {
+                    CoreServiceInfo coreService = new CoreServiceInfo();
+                    String version = dockerEtmService.dockerService
+                            .getTagByCompleteImageName(imageName);
+                    VersionInfo versionInfo;
                     ImageInfo imageInfo = dockerEtmService.dockerService
                             .getImageInfoByName(imageName);
 
@@ -241,6 +241,7 @@ public class EtmContextService {
                 }
             }
         });
+
         return coreServices;
     }
 

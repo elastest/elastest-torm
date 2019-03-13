@@ -39,9 +39,14 @@ export class ESRabLogModel implements LogViewModel {
   }
 
   getAllLogs(from?: Date, to?: Date, includedFrom: boolean = true, includedTo: boolean = true): void {
-    this.getAllLogsSubscription(from, to, includedFrom, includedTo).subscribe((data) => {
-      this.traces = data;
-    });
+    this.getAllLogsSubscription(from, to, includedFrom, includedTo).subscribe(
+      (data) => {
+        this.traces = data;
+      },
+      (error: Error) => {
+        console.log('There are not logs to load for ' + this.name);
+      },
+    );
   }
 
   getAllLogsSubscription(from?: Date, to?: Date, includedFrom: boolean = true, includedTo: boolean = true): Observable<any[]> {
