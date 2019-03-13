@@ -18,13 +18,12 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
   @Input()
   isNested: boolean = false;
 
-  tJobExecsFinished: TJobExecModel[] = [];
-  tJobExecsRunning: TJobExecModel[] = [];
+  tJobExecsFinished: TJobExecModel[];
+  firstInitializationOfFinished: boolean = true;
+  tJobExecsRunning: TJobExecModel[];
+  firstInitializationOfRunning: boolean = true;
 
   deletingInProgress: boolean = false;
-
-  loadingRunning: boolean = true;
-  loadingFinished: boolean = true;
 
   loadAllFinished: boolean = false;
 
@@ -86,34 +85,28 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
 
   loadTJobExecs(firstLoadOrForce: boolean = false): void {
     if (this.reloadRunning || firstLoadOrForce) {
-      this.loadingRunning = true;
       this.tJobExecService.getAllRunningTJobExecutionsWithoutChilds().subscribe(
         (runningTJobExecs: TJobExecModel[]) => {
-          this.tJobExecsRunning = [];
           runningTJobExecs = runningTJobExecs.reverse(); // To sort Descending
           this.tJobExecsRunning = runningTJobExecs;
-          this.loadingRunning = false;
+          this.firstInitializationOfRunning = false;
         },
         (error: Error) => {
-          this.loadingRunning = false;
           console.log(error);
         },
       );
     }
 
     if (this.reloadFinished || firstLoadOrForce) {
-      this.loadingFinished = true;
       this.loadFinishedTJobExecs().subscribe(
         (finishedTJobExecs: TJobExecModel[]) => {
-          this.tJobExecsFinished = [];
           if (this.loadAllFinished) {
             finishedTJobExecs = finishedTJobExecs.reverse();
           }
           this.tJobExecsFinished = finishedTJobExecs;
-          this.loadingFinished = false;
+          this.firstInitializationOfFinished = false;
         },
         (error: Error) => {
-          this.loadingFinished = false;
           console.log(error);
         },
       );

@@ -13,7 +13,7 @@ import { interval } from 'rxjs';
   styleUrls: ['./manage-main-services.component.scss'],
 })
 export class ManageMainServicesComponent implements OnInit, OnDestroy {
-  coreServices: CoreServiceModel[] = [];
+  coreServices: CoreServiceModel[];
   etCurrentVersion: string;
 
   autorefreshEnabled: boolean = true;
@@ -71,7 +71,7 @@ export class ManageMainServicesComponent implements OnInit, OnDestroy {
     this.loadingCoreServices = true;
     this.configurationService.getCoreServicesInfo().subscribe(
       (coreServices: CoreServiceModel[]) => {
-        this.coreServices = coreServices;
+        this.coreServices = coreServices ? coreServices : [];
         this.initCurrentETVersion();
         this.lastRefresh = new Date();
         this.loadingCoreServices = false;

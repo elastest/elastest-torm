@@ -41,7 +41,7 @@
   
           <mat-spinner
             strokeWidth="6"
-            *ngIf="loadingCoreServices; else showCoreServices"
+            *ngIf="loadingCoreServices && !coreServices; else showCoreServices"
             color="accent"
             class="push-top-sm spinnerCenter"
           ></mat-spinner>
