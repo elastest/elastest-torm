@@ -94,7 +94,7 @@ export class TitlesService {
     let groupArr: string[] = group.split('/');
     switch (groupArr[0]) {
       case 'projects':
-        this.projectService.getProject(groupArr[1]).subscribe(
+        this.projectService.getProject(groupArr[1], 'minimal').subscribe(
           (project: ProjectModel) => {
             this.breadcrumbService.addFriendlyNameForRouteRegex('.*/projects/' + groupArr[1] + '$', '/ ' + project.name);
           },

@@ -13,19 +13,19 @@ export class ProjectService {
     private eTModelsTransformServices: ETModelsTransformServices,
   ) {}
 
-  public getProject(id: string, onlyProject: boolean = false): Observable<ProjectModel> {
-    let url: string = this.configurationService.configModel.hostApi + '/project/' + id;
+  public getProject(id: string, viewType: projectViewType = 'complete'): Observable<ProjectModel> {
+    let url: string = this.configurationService.configModel.hostApi + '/project/' + id + '?viewType=' + viewType;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
-        return this.eTModelsTransformServices.jsonToProjectModel(data, onlyProject);
+        return this.eTModelsTransformServices.jsonToProjectModel(data);
       } else {
         throw new Error("Empty response. Project not exist or you don't have permissions to access it");
       }
     });
   }
 
-  public getProjects(minimalData: boolean = false): Observable<ProjectModel[]> {
-    let url: string = this.configurationService.configModel.hostApi + '/project?minimal=' + minimalData;
+  public getProjects(viewType: projectViewType = 'complete'): Observable<ProjectModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/project?viewType=' + viewType;
     return this.http.get(url).map((data: any) => this.eTModelsTransformServices.jsonToProjectsList(data));
   }
 
@@ -54,3 +54,5 @@ export class ProjectService {
     return this.http.get(url).map((data: any) => data);
   }
 }
+
+export type projectViewType = 'complete' | 'medium' | 'minimal';

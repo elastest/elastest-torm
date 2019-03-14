@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.MultiConfig;
-import io.elastest.etm.model.Project.ProjectView;
+import io.elastest.etm.model.Project.MediumProjectView;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.SutView;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
@@ -38,62 +38,62 @@ public class ExternalElasticsearch {
 
     @Id
     @JsonView({ ExternalElasticsearchView.class, SutView.class,
-            ExternalProjectView.class, ProjectView.class })
+            ExternalProjectView.class, MediumProjectView.class })
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
     @JsonProperty("id")
     private Long id = null;
 
     @JsonView({ ExternalElasticsearchView.class, SutView.class,
-            ExternalProjectView.class, ProjectView.class })
+            ExternalProjectView.class, MediumProjectView.class })
     @Column(name = "ip")
     @JsonProperty("ip")
     private String ip;
 
     @JsonView({ ExternalElasticsearchView.class, SutView.class,
-            ExternalProjectView.class, ProjectView.class })
+            ExternalProjectView.class, MediumProjectView.class })
     @Column(name = "port")
     @JsonProperty("port")
     private String port;
 
     @JsonView({ ExternalElasticsearchView.class, SutView.class,
-            ExternalProjectView.class, ProjectView.class })
+            ExternalProjectView.class, MediumProjectView.class })
     @Column(name = "path")
     @JsonProperty("path")
     private String path;
 
     @JsonView({ ExternalElasticsearchView.class, SutView.class,
-            ExternalProjectView.class, ProjectView.class })
+            ExternalProjectView.class, MediumProjectView.class })
     @Column(name = "protocol")
     @JsonProperty("protocol")
     private ProtocolEnum protocol = ProtocolEnum.HTTP;
 
     @JsonView({ ExternalElasticsearchView.class, SutView.class,
-            ExternalProjectView.class, ProjectView.class })
+            ExternalProjectView.class, MediumProjectView.class })
     @Column(name = "user")
     @JsonProperty("user")
     private String user;
 
     @JsonView({ ExternalElasticsearchView.class, SutView.class,
-            ExternalProjectView.class, ProjectView.class })
+            ExternalProjectView.class, MediumProjectView.class })
     @Column(name = "pass")
     @JsonProperty("pass")
     private String pass;
 
     @JsonView({ ExternalElasticsearchView.class, SutView.class,
-            ExternalProjectView.class, ProjectView.class })
+            ExternalProjectView.class, MediumProjectView.class })
     @Column(name = "indices")
     @JsonProperty("indices")
     private String indices;
 
     @JsonView({ ExternalElasticsearchView.class, SutView.class,
-            ExternalProjectView.class, ProjectView.class })
+            ExternalProjectView.class, MediumProjectView.class })
     @Column(name = "streamFields")
     @JsonProperty("streamFields")
     private String streamFields;
 
     @JsonView({ ExternalElasticsearchView.class, SutView.class,
-            ExternalProjectView.class, ProjectView.class })
+            ExternalProjectView.class, MediumProjectView.class })
     @ElementCollection
     @CollectionTable(name = "ExternalElasticsearchFieldFilters", joinColumns = @JoinColumn(name = "ExternalElasticsearch"))
     @MapKeyColumn(name = "NAME")

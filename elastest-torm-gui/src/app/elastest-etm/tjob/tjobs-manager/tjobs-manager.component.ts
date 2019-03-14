@@ -28,7 +28,9 @@ export class TJobsManagerComponent implements OnInit {
   @Input()
   projectId: string;
 
+  @Input()
   project: ProjectModel;
+
   tJobs: TJobModel[] = [];
   showSpinner: boolean = true;
 
@@ -70,7 +72,9 @@ export class TJobsManagerComponent implements OnInit {
 
   init(): void {
     // If child
-    if (this.projectId) {
+    if (this.project) {
+      this.initDataFromProject();
+    } else if (this.projectId) {
       this.loadProjectAndTJobs(this.projectId);
     } else if (this.route.params !== null || this.route.params !== undefined) {
       // If routing
@@ -88,15 +92,19 @@ export class TJobsManagerComponent implements OnInit {
   }
 
   loadProjectAndTJobs(projectId: string): void {
-    this.projectService.getProject(projectId).subscribe((project: ProjectModel) => {
+    this.projectService.getProject(projectId, 'medium').subscribe((project: ProjectModel) => {
       this.project = project;
-      if (project) {
-        this.tJobs = this.project.tjobs;
-        this.showSpinner = false;
-        this.addLastTJob();
-      }
+      this.initDataFromProject();
       this.duplicateInProgress = false;
     });
+  }
+
+  initDataFromProject(): void {
+    if (this.project) {
+      this.tJobs = this.project.tjobs;
+      this.showSpinner = false;
+      this.addLastTJobExecution();
+    }
   }
 
   loadAllTJobs(): void {
@@ -105,7 +113,7 @@ export class TJobsManagerComponent implements OnInit {
         this.tJobs = tJobs;
         this.duplicateInProgress = false;
       },
-      (error) => {
+      (error: Error) => {
         this.duplicateInProgress = false;
         console.log(error);
       },
@@ -129,7 +137,7 @@ export class TJobsManagerComponent implements OnInit {
         (tjobExecution: TJobExecModel) => {
           this.router.navigate(['/projects', this.project.id, 'tjob', tJob.id, 'tjob-exec', tjobExecution.id]);
         },
-        (error) => console.error('Error:' + error),
+        (error: Error) => console.error('Error:' + error),
       );
     }
   }
@@ -162,7 +170,7 @@ export class TJobsManagerComponent implements OnInit {
               this.deletingInProgress = false;
               this.init();
             },
-            (error) => {
+            (error: Error) => {
               this.deletingInProgress = false;
               console.log(error);
             },
@@ -175,19 +183,22 @@ export class TJobsManagerComponent implements OnInit {
     this.router.navigate(['/projects', this.project.id, 'tjob', tJob.id]);
   }
 
-  addLastTJob(): void {
+  addLastTJobExecution(): void {
     let lastExecution: TJobExecModel = new TJobExecModel();
     for (let tjob of this.tJobs) {
-      if (tjob.getLastExecution() !== undefined) {
-        lastExecution = this.eTModelsTransformServices.jsonToTJobExecModel(tjob.getLastExecution(), true);
-        tjob['lastExecutionDate'] = lastExecution.endDate ? lastExecution.endDate : lastExecution.startDate;
-        tjob['result'] = lastExecution.getResultIcon();
-      } else {
-        lastExecution = new TJobExecModel();
-        lastExecution.result = 'NOT_EXECUTED';
-        tjob['lastExecutionDate'] = undefined;
-        tjob['result'] = lastExecution.getResultIcon();
-      }
+      this.tJobExecService.getLastNTJobExecutions(tjob.id, 1).subscribe((lastExecs: TJobExecModel[]) => {
+        let lastExec: TJobExecModel = lastExecs ? lastExecs[0] : undefined;
+        if (lastExec !== undefined) {
+          lastExecution = this.eTModelsTransformServices.jsonToTJobExecModel(lastExec, true);
+          tjob['lastExecutionDate'] = lastExecution.endDate ? lastExecution.endDate : lastExecution.startDate;
+          tjob['result'] = lastExecution.getResultIcon();
+        } else {
+          lastExecution = new TJobExecModel();
+          lastExecution.result = 'NOT_EXECUTED';
+          tjob['lastExecutionDate'] = undefined;
+          tjob['result'] = lastExecution.getResultIcon();
+        }
+      });
     }
   }
 

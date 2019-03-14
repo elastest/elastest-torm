@@ -1,6 +1,12 @@
 import { TitlesService } from '../../../shared/services/titles.service';
 import { SutModel } from '../../sut/sut-model';
-import { TdDialogService, TdDataTableSortingOrder, TdDataTableService, ITdDataTableSortChangeEvent, ITdDataTableColumn } from '@covalent/core';
+import {
+  TdDialogService,
+  TdDataTableSortingOrder,
+  TdDataTableService,
+  ITdDataTableSortChangeEvent,
+  ITdDataTableColumn,
+} from '@covalent/core';
 import { SutService } from '../../sut/sut.service';
 import { IConfirmConfig } from '@covalent/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
@@ -22,7 +28,10 @@ export class SutsManagerComponent implements OnInit {
   @Input()
   exProjectId: string;
 
+  @Input()
   project: ProjectModel;
+
+  @Input()
   exProject: ExternalProjectModel;
   parentType: string;
 
@@ -58,13 +67,19 @@ export class SutsManagerComponent implements OnInit {
     private dataTableService: TdDataTableService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.init();
   }
 
   init(): void {
     // If child
-    if (this.projectId || this.exProjectId) {
+    if (this.project || this.exProject) {
+      if (this.project) {
+        this.initDataFromProject();
+      } else if (this.exProject) {
+        this.initDataFromExternalProject();
+      }
+    } else if (this.projectId || this.exProjectId) {
       if (this.projectId) {
         this.loadProjectAndSuts(this.projectId);
       } else if (this.exProjectId) {
@@ -88,27 +103,35 @@ export class SutsManagerComponent implements OnInit {
   }
 
   loadProjectAndSuts(projectId: string): void {
-    this.projectService.getProject(projectId).subscribe((project: ProjectModel) => {
+    this.projectService.getProject(projectId, 'medium').subscribe((project: ProjectModel) => {
       this.project = project;
-      this.parentType = 'ProjectModel';
-      if (project) {
-        this.suts = this.project.suts;
-        this.showSpinner = false;
-      }
+      this.initDataFromProject();
       this.duplicateInProgress = false;
     });
+  }
+
+  initDataFromProject(): void {
+    this.parentType = 'ProjectModel';
+    if (this.project) {
+      this.suts = this.project.suts;
+      this.showSpinner = false;
+    }
   }
 
   loadExternalProjectAndSuts(exProjectId: string | number): void {
     this.externalService.getExternalProjectById(exProjectId).subscribe((exProject: ExternalProjectModel) => {
       this.exProject = exProject;
-      this.parentType = 'ExternalProjectModel';
-      if (exProject) {
-        this.suts = this.exProject.suts;
-        this.showSpinner = false;
-      }
+      this.initDataFromExternalProject();
       this.duplicateInProgress = false;
     });
+  }
+
+  initDataFromExternalProject(): void {
+    this.parentType = 'ExternalProjectModel';
+    if (this.exProject) {
+      this.suts = this.exProject.suts;
+      this.showSpinner = false;
+    }
   }
 
   loadAllSuts(): void {
@@ -117,7 +140,7 @@ export class SutsManagerComponent implements OnInit {
         this.suts = suts;
         this.duplicateInProgress = false;
       },
-      (error) => {
+      (error: Error) => {
         this.duplicateInProgress = false;
         console.log(error);
       },
@@ -171,7 +194,7 @@ export class SutsManagerComponent implements OnInit {
               this.deletingInProgress = false;
               this.init();
             },
-            (error) => {
+            (error: Error) => {
               this.deletingInProgress = false;
               console.log(error);
             },

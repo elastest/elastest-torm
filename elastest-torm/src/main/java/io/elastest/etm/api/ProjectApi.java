@@ -39,7 +39,7 @@ public interface ProjectApi extends EtmApiRoot {
             @ApiResponse(code = 404, message = "Resources not found") })
     @RequestMapping(value = "/project", method = RequestMethod.GET)
     MappingJacksonValue getAllProjects(
-            @RequestParam(value = "minimal", required = false) Boolean minimal);
+            @RequestParam(value = "viewType", required = false) String viewType);
 
     @ApiOperation(value = "Returns the project found for a given ID", notes = "Returns the project found for a given id and its detail.", response = Project.class, tags = {
             "Project", })
@@ -48,8 +48,9 @@ public interface ProjectApi extends EtmApiRoot {
             @ApiResponse(code = 405, message = "Invalid input") })
     @RequestMapping(value = "/project/{id}", produces = {
             "application/json" }, method = RequestMethod.GET)
-    ResponseEntity<Project> getProject(
-            @ApiParam(value = "Project id to find.", required = true) @PathVariable("id") Long id);
+    MappingJacksonValue getProject(
+            @ApiParam(value = "Project id to find.", required = true) @PathVariable("id") Long id,
+            @RequestParam(value = "viewType", required = false) String viewType);
 
     @ApiOperation(value = "Deletes a Project", notes = "Deletes the project whose id matches for a given id.", response = Long.class, tags = {
             "Project", })

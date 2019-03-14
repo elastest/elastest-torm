@@ -8,7 +8,7 @@ import javax.persistence.Embeddable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.Project.ProjectView;
+import io.elastest.etm.model.Project.MediumProjectView;
 import io.elastest.etm.model.SutExecution.SutExecView;
 import io.elastest.etm.model.SutSpecification.SutView;
 import io.elastest.etm.model.TJob.TJobView;
@@ -22,16 +22,14 @@ public class MultiConfig {
     public interface MultiConfigView {
     }
 
-    @JsonView({ MultiConfigView.class, TJobView.class,
-            ProjectView.class, TJobExecView.class, SutView.class,
-            SutExecView.class })
+    @JsonView({ MultiConfigView.class, TJobView.class, MediumProjectView.class,
+            TJobExecView.class, SutView.class, SutExecView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView({ MultiConfigView.class, TJobView.class,
-            ProjectView.class, TJobExecView.class, SutView.class,
-            SutExecView.class })
+    @JsonView({ MultiConfigView.class, TJobView.class, MediumProjectView.class,
+            TJobExecView.class, SutView.class, SutExecView.class })
     @Column(name = "configValues", length = 16777215)
     @JsonProperty("configValues")
     private ArrayList<String> configValues = null;

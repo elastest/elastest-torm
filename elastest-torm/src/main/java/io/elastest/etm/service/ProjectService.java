@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 
 import io.elastest.etm.dao.ProjectRepository;
 import io.elastest.etm.model.Project;
+import io.elastest.etm.model.Project.MediumProjectView;
+import io.elastest.etm.model.Project.MinimalProjectView;
+import io.elastest.etm.model.Project.ProjectView;
 
 @Service
 public class ProjectService {
@@ -40,5 +43,18 @@ public class ProjectService {
         monitoringService.deleteMonitoringDataByIndices(
                 project.getAllMonitoringIndices());
         projectRepository.delete(project);
+    }
+
+    public Class<? extends MinimalProjectView> getView(String viewType) {
+        Class<? extends MinimalProjectView> view = ProjectView.class;
+
+        if (viewType != null) {
+            if ("minimal".equals(viewType)) {
+                view = MinimalProjectView.class;
+            } else if ("medium".equals(viewType)) {
+                view = MediumProjectView.class;
+            }
+        }
+        return view;
     }
 }

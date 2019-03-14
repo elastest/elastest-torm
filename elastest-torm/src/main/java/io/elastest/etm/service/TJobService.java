@@ -343,28 +343,34 @@ public class TJobService {
         return tJobRepo.findByName(name);
     }
 
+    public List<TJobExecution> getLastNTJobExecs(Long tJobId, Long number) {
+        Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
+                "id");
+        return tJobExecRepositoryImpl.findByTJobIdWithPageable(tJobId, lastN);
+    }
+
     public List<TJobExecution> getAllTJobExecs() {
         return tJobExecRepositoryImpl.findAll();
     }
 
-    public List<TJobExecution> getLastNTJobExecs(Long number) {
+    public List<TJobExecution> getLastNTJobsExecs(Long number) {
         Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
                 "id");
         return tJobExecRepositoryImpl.findWithPageable(lastN);
     }
 
-    public List<TJobExecution> getLastNTJobExecsWithoutChilds(Long number) {
+    public List<TJobExecution> getLastNTJobsExecsWithoutChilds(Long number) {
         Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
                 "id");
         return tJobExecRepositoryImpl.findWithPageableWithoutChilds(lastN);
     }
 
-    public List<TJobExecution> getAllRunningTJobExecs() {
+    public List<TJobExecution> getAllRunningTJobsExecs() {
         return this.tJobExecRepositoryImpl
                 .findByResults(ResultEnum.getNotFinishedOrExecutedResultList());
     }
 
-    public List<TJobExecution> getAllRunningTJobExecsWithoutChilds() {
+    public List<TJobExecution> getAllRunningTJobsExecsWithoutChilds() {
         return this.tJobExecRepositoryImpl.findByResultsWithoutChilds(
                 ResultEnum.getNotFinishedOrExecutedResultList());
     }
@@ -377,7 +383,7 @@ public class TJobService {
                 ResultEnum.getNotFinishedOrExecutedResultList(), lastN);
     }
 
-    public List<TJobExecution> getLastNRunningTJobExecsWithoutChilds(
+    public List<TJobExecution> getLastNRunningTJobsExecsWithoutChilds(
             Long number) {
         Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
                 "id");
@@ -391,7 +397,7 @@ public class TJobService {
                 ResultEnum.getFinishedAndNotExecutedResultList());
     }
 
-    public List<TJobExecution> getLastNFinishedOrNotExecutedTJobExecsWithoutChilds(
+    public List<TJobExecution> getLastNFinishedOrNotExecutedTJobsExecsWithoutChilds(
             Long number) {
         Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
                 "id");
@@ -400,7 +406,7 @@ public class TJobService {
                 ResultEnum.getFinishedAndNotExecutedResultList(), lastN);
     }
 
-    public List<TJobExecution> getLastNFinishedOrNotExecutedTJobExecs(
+    public List<TJobExecution> getLastNFinishedOrNotExecutedTJobsExecs(
             Long number) {
         Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
                 "id");
@@ -413,7 +419,7 @@ public class TJobService {
         return tJobExecRepositoryImpl.findById(id).get();
     }
 
-    public List<TJobExecution> getTJobsExecutionsByTJobId(Long tJobId) {
+    public List<TJobExecution> getTJobExecutionsByTJobId(Long tJobId) {
         TJob tJob = tJobRepo.findById(tJobId).get();
         return getTJobsExecutionsByTJob(tJob);
     }

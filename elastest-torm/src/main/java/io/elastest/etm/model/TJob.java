@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.elastest.etm.model.Project.MediumProjectView;
 import io.elastest.etm.model.Project.ProjectView;
 import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.elastest.etm.utils.UtilTools;
@@ -52,8 +53,7 @@ public class TJob {
     public interface TJobView {
     }
 
-    @JsonView({ TJobView.class, ProjectView.class,
-            TJobExecView.class })
+    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -61,19 +61,17 @@ public class TJob {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ TJobView.class, TJobExecView.class,
-            ProjectView.class })
+    @JsonView({ TJobView.class, TJobExecView.class, MediumProjectView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView({ TJobView.class, ProjectView.class })
+    @JsonView({ TJobView.class, MediumProjectView.class })
     @Column(name = "image_name")
     @JsonProperty("imageName")
     private String imageName = null;
 
-    @JsonView({ TJobView.class, ProjectView.class,
-            TJobExecView.class })
+    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sut")
     @JsonProperty("sut")
@@ -90,55 +88,49 @@ public class TJob {
     @JoinColumn(name = "project")
     private Project project;
 
-    @JsonView({ TJobView.class, ProjectView.class })
+    @JsonView({ TJobView.class, MediumProjectView.class })
     @ElementCollection
     @CollectionTable(name = "TJobParameter", joinColumns = @JoinColumn(name = "TJob"))
     private List<Parameter> parameters;
 
-    @JsonView({ TJobView.class, ProjectView.class })
+    @JsonView({ TJobView.class, MediumProjectView.class })
     @Column(name = "commands", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("commands")
     private String commands;
 
-    @JsonView({ TJobView.class, ProjectView.class })
+    @JsonView({ TJobView.class, MediumProjectView.class })
     @Column(name = "resultsPath")
     @JsonProperty("resultsPath")
     private String resultsPath = null;
 
-    @JsonView({ TJobView.class, ProjectView.class,
-            TJobExecView.class })
+    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
     @Column(name = "external")
     @JsonProperty("external")
     private boolean external = false;
 
-    @JsonView({ TJobView.class, ProjectView.class,
-            TJobExecView.class })
+    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
     @Column(name = "execDashboardConfig", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("execDashboardConfig")
     private String execDashboardConfig = null;
 
-    @JsonView({ TJobView.class, ProjectView.class,
-            TJobExecView.class })
+    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
     @Column(name = "selectedServices", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("esmServicesString")
     private String selectedServices;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobView.class, MediumProjectView.class })
     @ElementCollection
     @MapKeyColumn(name = "URL_NAME", length = 100)
     @Column(name = "URL_VALUE", length = 400)
     @CollectionTable(name = "TJOB_EXTERNAL_URLS", joinColumns = @JoinColumn(name = "TJOB"))
     private Map<String, String> externalUrls;
 
-    @JsonView({ TJobView.class, ProjectView.class,
-            TJobExecView.class })
+    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
     @Column(name = "multi")
     @JsonProperty("multi")
     private Boolean multi = false;
 
-    @JsonView({ TJobView.class, ProjectView.class,
-            TJobExecView.class })
+    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
     @ElementCollection
     @CollectionTable(name = "TJobMultiConfiguration", joinColumns = @JoinColumn(name = "TJob"))
     @MapKeyColumn(name = "NAME")

@@ -71,7 +71,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   loadProjects(): void {
     this.loading = true;
-    this.projectService.getProjects(true).subscribe((projects: ProjectModel[]) => {
+    this.projectService.getProjects('minimal').subscribe((projects: ProjectModel[]) => {
       this.projectData = projects;
       this.loading = false;
     });

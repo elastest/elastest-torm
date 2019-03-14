@@ -43,15 +43,12 @@ public class ProjectApiController implements ProjectApi {
     }
 
     public MappingJacksonValue getAllProjects(
-            @RequestParam(value = "minimal", required = false) Boolean minimal) {
+            @RequestParam(value = "viewType", required = false) String viewType) {
         List<Project> projects = projectService.getAllProjects();
 
         final MappingJacksonValue result = new MappingJacksonValue(projects);
-        Class<? extends MinimalProjectView> view = ProjectView.class;
-
-        if (minimal != null && minimal) {
-            view = MinimalProjectView.class;
-        }
+        Class<? extends MinimalProjectView> view = projectService
+                .getView(viewType);
 
         result.setSerializationView(view);
         return result;
@@ -60,11 +57,17 @@ public class ProjectApiController implements ProjectApi {
         // projects, HttpStatus.OK);
     }
 
-    @JsonView(ProjectView.class)
-    public ResponseEntity<Project> getProject(@PathVariable("id") Long id) {
+    public MappingJacksonValue getProject(@PathVariable("id") Long id,
+            @RequestParam(value = "viewType", required = false) String viewType) {
 
-        return new ResponseEntity<Project>(projectService.getProjectById(id),
-                HttpStatus.OK);
+        Project pj = projectService.getProjectById(id);
+        final MappingJacksonValue result = new MappingJacksonValue(pj);
+        Class<? extends MinimalProjectView> view = projectService
+                .getView(viewType);
+
+        result.setSerializationView(view);
+        return result;
+
     }
 
     @JsonView(ProjectView.class)

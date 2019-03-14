@@ -3,7 +3,7 @@
     <div fxFlex.gt-sm="100">
       <mat-card tdMediaToggle="gt-xs">
         <mat-card-title>
-          <div fxLayout="row">
+          <div fxLayout="row" *ngIf="project; else showSpinner">
             <span>Project {{ project.name }}</span> <span fxFlex></span>
             <div>
               <button mat-button (click)="editProject()" class="iconBtn-lg" title="Edit Project">
@@ -20,6 +20,9 @@
               </button>
             </div>
           </div>
+          <ng-template #showSpinner>
+            <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
+          </ng-template>
         </mat-card-title>
       </mat-card>
     </div>
@@ -27,10 +30,10 @@
 
   <auto-height-row *ngIf="project" fxLayout="row" fxLayout.lt-xl="column" tdMediaToggle="gt-xs">
     <auto-height-grid fxFlex.gt-lg="50" fxLayout="column">
-      <etm-tjobs-manager *ngIf="projectId" [projectId]="projectId" fxLayout="column" fxFlexFill></etm-tjobs-manager>
+      <etm-tjobs-manager [project]="project" fxLayout="column" fxFlexFill></etm-tjobs-manager>
     </auto-height-grid>
     <auto-height-grid fxFlex.gt-lg="50" fxLayout="column">
-      <etm-suts-manager *ngIf="projectId" [projectId]="projectId" fxLayout="column" fxFlexFill></etm-suts-manager>
+      <etm-suts-manager [project]="project" fxLayout="column" fxFlexFill></etm-suts-manager>
     </auto-height-grid>
   </auto-height-row>
 </auto-height-grid>

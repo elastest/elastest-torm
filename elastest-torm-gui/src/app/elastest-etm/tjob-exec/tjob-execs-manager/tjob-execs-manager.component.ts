@@ -85,7 +85,7 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
 
   loadTJobExecs(firstLoadOrForce: boolean = false): void {
     if (this.reloadRunning || firstLoadOrForce) {
-      this.tJobExecService.getAllRunningTJobExecutionsWithoutChilds().subscribe(
+      this.tJobExecService.getAllRunningTJobsExecutionsWithoutChilds().subscribe(
         (runningTJobExecs: TJobExecModel[]) => {
           runningTJobExecs = runningTJobExecs.reverse(); // To sort Descending
           this.tJobExecsRunning = runningTJobExecs;
@@ -115,10 +115,10 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
 
   loadFinishedTJobExecs(): Observable<TJobExecModel[]> {
     if (this.loadAllFinished) {
-      return this.tJobExecService.getAllFinishedOrNotExecutedTJobExecutions();
+      return this.tJobExecService.getAllFinishedOrNotExecutedTJobsExecutions();
     } else {
       // Default
-      return this.tJobExecService.getLastNFinishedOrNotExecutedTJobExecutionsWithoutChilds(15);
+      return this.tJobExecService.getLastNFinishedOrNotExecutedTJobsExecutionsWithoutChilds(15);
     }
   }
 

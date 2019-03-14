@@ -36,7 +36,10 @@ public class Project implements Serializable {
     public interface MinimalProjectView {
     }
 
-    public interface ProjectView extends MinimalProjectView {
+    public interface MediumProjectView extends MinimalProjectView {
+    }
+
+    public interface ProjectView extends MediumProjectView {
     }
 
     @JsonView({ MinimalProjectView.class, TJobView.class, SutView.class,
@@ -53,13 +56,13 @@ public class Project implements Serializable {
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView(ProjectView.class)
+    @JsonView(MediumProjectView.class)
     @JsonProperty("tjobs")
     // bi-directional many-to-one association to TJob
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<TJob> tJobs;
 
-    @JsonView({ ProjectView.class, TJobView.class, TJobExecView.class })
+    @JsonView({ MediumProjectView.class, TJobView.class, TJobExecView.class })
     @JsonProperty("suts")
     // bi-directional many-to-one association to ElasEtmTjobexec
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)

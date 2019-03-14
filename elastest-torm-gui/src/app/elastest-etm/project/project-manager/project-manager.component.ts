@@ -27,15 +27,14 @@ export class ProjectManagerComponent implements OnInit {
     public dialog: MatDialog,
   ) {}
 
-  ngOnInit() {
-    this.project = new ProjectModel();
+  ngOnInit(): void {
     this.loadProject();
   }
 
   loadProject(): void {
     if (this.route.params !== null || this.route.params !== undefined) {
       this.route.params
-        .switchMap((params: Params) => this.projectService.getProject(params['projectId']))
+        .switchMap((params: Params) => this.projectService.getProject(params['projectId'], 'medium'))
         .subscribe((project: ProjectModel) => {
           this.project = project;
           this.projectId = project.id.toString();
