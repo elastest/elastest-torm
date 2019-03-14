@@ -33,10 +33,13 @@ import io.swagger.annotations.ApiModelProperty;
 public class Project implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public interface ProjectView {
+    public interface MinimalProjectView {
     }
 
-    @JsonView({ ProjectView.class, TJobView.class, SutView.class,
+    public interface ProjectView extends MinimalProjectView {
+    }
+
+    @JsonView({ MinimalProjectView.class, TJobView.class, SutView.class,
             TJobExecView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
@@ -45,7 +48,7 @@ public class Project implements Serializable {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ ProjectView.class, TJobView.class, SutView.class,
+    @JsonView({ MinimalProjectView.class, TJobView.class, SutView.class,
             TJobExecView.class })
     @JsonProperty("name")
     private String name = null;
@@ -56,8 +59,7 @@ public class Project implements Serializable {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<TJob> tJobs;
 
-    @JsonView({ ProjectView.class, TJobView.class,
-            TJobExecView.class })
+    @JsonView({ ProjectView.class, TJobView.class, TJobExecView.class })
     @JsonProperty("suts")
     // bi-directional many-to-one association to ElasEtmTjobexec
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)

@@ -24,8 +24,8 @@ export class ProjectService {
     });
   }
 
-  public getProjects(): Observable<ProjectModel[]> {
-    let url: string = this.configurationService.configModel.hostApi + '/project';
+  public getProjects(minimalData: boolean = false): Observable<ProjectModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/project?minimal=' + minimalData;
     return this.http.get(url).map((data: any) => this.eTModelsTransformServices.jsonToProjectsList(data));
   }
 

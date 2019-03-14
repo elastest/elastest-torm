@@ -1,14 +1,14 @@
 package io.elastest.etm.api;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import io.elastest.etm.model.Project;
 import io.swagger.annotations.Api;
@@ -38,7 +38,8 @@ public interface ProjectApi extends EtmApiRoot {
             @ApiResponse(code = 200, message = "Successful operation", response = Project.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Resources not found") })
     @RequestMapping(value = "/project", method = RequestMethod.GET)
-    ResponseEntity<List<Project>> getAllProjects();
+    MappingJacksonValue getAllProjects(
+            @RequestParam(value = "minimal", required = false) Boolean minimal);
 
     @ApiOperation(value = "Returns the project found for a given ID", notes = "Returns the project found for a given id and its detail.", response = Project.class, tags = {
             "Project", })

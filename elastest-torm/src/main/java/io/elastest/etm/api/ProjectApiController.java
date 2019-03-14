@@ -9,14 +9,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.config.EtSampleDataLoader;
 import io.elastest.etm.model.Project;
+import io.elastest.etm.model.Project.MinimalProjectView;
 import io.elastest.etm.model.Project.ProjectView;
 import io.elastest.etm.service.ProjectService;
 import io.swagger.annotations.ApiParam;
@@ -39,11 +42,22 @@ public class ProjectApiController implements ProjectApi {
                 HttpStatus.OK);
     }
 
-    @JsonView(ProjectView.class)
-    public ResponseEntity<List<Project>> getAllProjects() {
+    public MappingJacksonValue getAllProjects(
+            @RequestParam(value = "minimal", required = false) Boolean minimal) {
+        List<Project> projects = projectService.getAllProjects();
 
-        return new ResponseEntity<List<Project>>(
-                projectService.getAllProjects(), HttpStatus.OK);
+        final MappingJacksonValue result = new MappingJacksonValue(projects);
+        Class<? extends MinimalProjectView> view = ProjectView.class;
+
+        if (minimal != null && minimal) {
+            view = MinimalProjectView.class;
+        }
+
+        result.setSerializationView(view);
+        return result;
+
+        // return new ResponseEntity<List<Project>>(@JsonView(ProjectView.class)
+        // projects, HttpStatus.OK);
     }
 
     @JsonView(ProjectView.class)
@@ -63,6 +77,6 @@ public class ProjectApiController implements ProjectApi {
     @JsonView(ProjectView.class)
     public ResponseEntity<Boolean> restoreDemoProjects() {
         Boolean createdOrUpdated = etSampleDataLoader.createData(true);
-        return new ResponseEntity<Boolean>(createdOrUpdated , HttpStatus.OK);
+        return new ResponseEntity<Boolean>(createdOrUpdated, HttpStatus.OK);
     }
 }
