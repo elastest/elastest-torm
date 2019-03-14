@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.TJob.TJobCompleteView;
 import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -47,7 +47,7 @@ public class SutExecution {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
-    @JsonView({ SutExecView.class, TJobView.class, TJobExecView.class })
+    @JsonView({ SutExecView.class, TJobCompleteView.class, TJobExecView.class })
     @JsonProperty("id")
     private Long id = null;
 
@@ -70,7 +70,7 @@ public class SutExecution {
     @JsonView({ SutExecView.class })
     @OneToMany(mappedBy = "sutExecution", cascade = CascadeType.REMOVE)
     private List<TJobExecution> tjobExecs;
-    
+
     @JsonView(SutExecView.class)
     private Long publicPort = null;
 
@@ -259,8 +259,9 @@ public class SutExecution {
         sb.append("    url: ").append(toIndentedString(url)).append("\n");
         sb.append("    deployStatus: ").append(toIndentedString(deployStatus))
                 .append("\n");
-        sb.append("    sutSpecification: ")
-                .append(toIndentedString(sutSpecification)).append("\n");
+        sb.append("    sutSpecification: ").append(toIndentedString(
+                sutSpecification != null ? sutSpecification.getId() : "null"))
+                .append("\n");
         sb.append("    parameters: ").append(toIndentedString(parameters))
                 .append("\n");
         sb.append("}");

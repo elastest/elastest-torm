@@ -23,7 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.SutSpecification.SutView;
-import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.TJob.TJobCompleteView;
+import io.elastest.etm.model.TJob.TJobMediumView;
 import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -33,16 +34,16 @@ import io.swagger.annotations.ApiModelProperty;
 public class Project implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public interface MinimalProjectView {
+    public interface ProjectMinimalView {
     }
 
-    public interface MediumProjectView extends MinimalProjectView {
+    public interface ProjectMediumView extends ProjectMinimalView {
     }
 
-    public interface ProjectView extends MediumProjectView {
+    public interface ProjectCompleteView extends ProjectMediumView {
     }
 
-    @JsonView({ MinimalProjectView.class, TJobView.class, SutView.class,
+    @JsonView({ ProjectMinimalView.class, TJobMediumView.class, SutView.class,
             TJobExecView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
@@ -51,18 +52,19 @@ public class Project implements Serializable {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ MinimalProjectView.class, TJobView.class, SutView.class,
+    @JsonView({ ProjectMinimalView.class, TJobMediumView.class, SutView.class,
             TJobExecView.class })
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView(MediumProjectView.class)
+    @JsonView(ProjectMediumView.class)
     @JsonProperty("tjobs")
     // bi-directional many-to-one association to TJob
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<TJob> tJobs;
 
-    @JsonView({ MediumProjectView.class, TJobView.class, TJobExecView.class })
+    @JsonView({ ProjectMediumView.class, TJobCompleteView.class,
+            TJobExecView.class })
     @JsonProperty("suts")
     // bi-directional many-to-one association to ElasEtmTjobexec
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)

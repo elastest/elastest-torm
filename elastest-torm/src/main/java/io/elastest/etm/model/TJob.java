@@ -35,8 +35,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import io.elastest.etm.model.Project.MediumProjectView;
-import io.elastest.etm.model.Project.ProjectView;
+import io.elastest.etm.model.Project.ProjectMediumView;
+import io.elastest.etm.model.Project.ProjectCompleteView;
 import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiModel;
@@ -50,10 +50,17 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "Entity that represents the test to run against a SUT.")
 public class TJob {
 
-    public interface TJobView {
+    public interface TJobMinimalView {
     }
 
-    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
+    public interface TJobMediumView extends TJobMinimalView {
+    }
+
+    public interface TJobCompleteView extends TJobMediumView {
+    }
+
+    @JsonView({ TJobMinimalView.class, ProjectMediumView.class,
+            TJobExecView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -61,76 +68,84 @@ public class TJob {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ TJobView.class, TJobExecView.class, MediumProjectView.class })
+    @JsonView({ TJobMinimalView.class, TJobExecView.class,
+            ProjectMediumView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView({ TJobView.class, MediumProjectView.class })
+    @JsonView({ TJobMediumView.class, ProjectMediumView.class })
     @Column(name = "image_name")
     @JsonProperty("imageName")
     private String imageName = null;
 
-    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
+    @JsonView({ TJobMediumView.class, ProjectMediumView.class,
+            TJobExecView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sut")
     @JsonProperty("sut")
     private SutSpecification sut = null;
 
     // bi-directional many-to-one association to TJobExec
-    @JsonView({ TJobView.class, ProjectView.class })
+    @JsonView({ TJobCompleteView.class, ProjectCompleteView.class })
     @OneToMany(mappedBy = "tJob", cascade = CascadeType.REMOVE)
     private List<TJobExecution> tjobExecs;
 
     // bi-directional many-to-one association to Project
-    @JsonView({ TJobView.class, TJobExecView.class })
+    @JsonView({ TJobMediumView.class, TJobExecView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project")
     private Project project;
 
-    @JsonView({ TJobView.class, MediumProjectView.class })
+    @JsonView({ TJobMediumView.class, ProjectMediumView.class })
     @ElementCollection
     @CollectionTable(name = "TJobParameter", joinColumns = @JoinColumn(name = "TJob"))
     private List<Parameter> parameters;
 
-    @JsonView({ TJobView.class, MediumProjectView.class })
+    @JsonView({ TJobMediumView.class, ProjectMediumView.class })
     @Column(name = "commands", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("commands")
     private String commands;
 
-    @JsonView({ TJobView.class, MediumProjectView.class })
+    @JsonView({ TJobMediumView.class, ProjectMediumView.class })
     @Column(name = "resultsPath")
     @JsonProperty("resultsPath")
     private String resultsPath = null;
 
-    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
+    @JsonView({ TJobMediumView.class, ProjectMediumView.class,
+            TJobExecView.class })
     @Column(name = "external")
     @JsonProperty("external")
     private boolean external = false;
 
-    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
+    @JsonView({ TJobMediumView.class, ProjectMediumView.class,
+            TJobExecView.class })
     @Column(name = "execDashboardConfig", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("execDashboardConfig")
     private String execDashboardConfig = null;
 
-    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
+    @JsonView({ TJobMediumView.class, ProjectMediumView.class,
+            TJobExecView.class })
     @Column(name = "selectedServices", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("esmServicesString")
     private String selectedServices;
 
-    @JsonView({ TJobExecView.class, TJobView.class, MediumProjectView.class })
+    @JsonView({ TJobExecView.class, TJobMediumView.class,
+            ProjectMediumView.class })
     @ElementCollection
     @MapKeyColumn(name = "URL_NAME", length = 100)
     @Column(name = "URL_VALUE", length = 400)
     @CollectionTable(name = "TJOB_EXTERNAL_URLS", joinColumns = @JoinColumn(name = "TJOB"))
     private Map<String, String> externalUrls;
 
-    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
+    @JsonView({ TJobMediumView.class, ProjectMediumView.class,
+            TJobExecView.class })
     @Column(name = "multi")
     @JsonProperty("multi")
     private Boolean multi = false;
 
-    @JsonView({ TJobView.class, MediumProjectView.class, TJobExecView.class })
+    @JsonView({ TJobMediumView.class, ProjectMediumView.class,
+            TJobExecView.class })
     @ElementCollection
     @CollectionTable(name = "TJobMultiConfiguration", joinColumns = @JoinColumn(name = "TJob"))
     @MapKeyColumn(name = "NAME")
@@ -387,11 +402,43 @@ public class TJob {
 
     }
 
+    // @Override
+    // public int hashCode() {
+    // return Objects.hash(id, name, imageName, sut, project, tjobExecs,
+    // parameters, execDashboardConfig, selectedServices, multi,
+    // multiConfigurations);
+    // }
+    //
+
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, imageName, sut, project, tjobExecs,
-                parameters, execDashboardConfig, selectedServices, multi,
-                multiConfigurations);
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((commands == null) ? 0 : commands.hashCode());
+        result = prime * result + ((execDashboardConfig == null) ? 0
+                : execDashboardConfig.hashCode());
+        result = prime * result + (external ? 1231 : 1237);
+        result = prime * result
+                + ((externalUrls == null) ? 0 : externalUrls.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result
+                + ((imageName == null) ? 0 : imageName.hashCode());
+        result = prime * result + ((multi == null) ? 0 : multi.hashCode());
+        result = prime * result + ((multiConfigurations == null) ? 0
+                : multiConfigurations.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result
+                + ((parameters == null) ? 0 : parameters.hashCode());
+        result = prime * result + ((project == null) ? 0 : project.hashCode());
+        result = prime * result
+                + ((resultsPath == null) ? 0 : resultsPath.hashCode());
+        result = prime * result + ((selectedServices == null) ? 0
+                : selectedServices.hashCode());
+        result = prime * result + ((sut == null) ? 0 : sut.hashCode());
+        result = prime * result
+                + ((tjobExecs == null) ? 0 : tjobExecs.hashCode());
+        return result;
     }
 
     @Override
@@ -403,8 +450,12 @@ public class TJob {
         sb.append("    name: ").append(toIndentedString(name)).append("\n");
         sb.append("    imageName: ").append(toIndentedString(imageName))
                 .append("\n");
-        sb.append("    sut: ").append(toIndentedString(sut)).append("\n");
-        sb.append("    project: ").append(toIndentedString(project))
+        sb.append("    sut: ")
+                .append(toIndentedString(sut != null ? sut.getId() : "null"))
+                .append("\n");
+        sb.append("    project: ")
+                .append(toIndentedString(
+                        project != null ? project.getId() : "null"))
                 .append("\n");
         sb.append("    tjobExecs: ").append(toIndentedString(tjobExecs))
                 .append("\n");
@@ -421,8 +472,9 @@ public class TJob {
         sb.append("    selectedServices: ")
                 .append(toIndentedString(selectedServices)).append("\n");
         sb.append("    multi: ").append(toIndentedString(multi)).append("\n");
-        sb.append("    multiConfigurations: ")
-                .append(toIndentedString(multiConfigurations)).append("\n");
+        sb.append("    multiConfigurations: ").append(toIndentedString(
+                multiConfigurations != null ? multiConfigurations : "null"))
+                .append("\n");
         sb.append("}");
         return sb.toString();
     }

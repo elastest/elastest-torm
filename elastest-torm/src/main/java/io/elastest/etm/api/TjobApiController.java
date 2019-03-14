@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.ExecData;
 import io.elastest.etm.model.TJob;
-import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.TJob.TJobCompleteView;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.elastest.etm.model.TJobExecutionFile;
@@ -47,7 +47,7 @@ public class TjobApiController implements TjobApi {
     /* **** TJobs **** */
     /* *************** */
 
-    @JsonView(TJobView.class)
+    @JsonView(TJobCompleteView.class)
     public ResponseEntity<TJob> createTJob(
             @ApiParam(value = "TJob object that needs to create", required = true) @Valid @RequestBody TJob body) {
         logger.info("Services:" + body.getSelectedServices());
@@ -56,7 +56,7 @@ public class TjobApiController implements TjobApi {
         return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
     }
 
-    @JsonView(TJobView.class)
+    @JsonView(TJobCompleteView.class)
     public ResponseEntity<Long> deleteTJob(
             @ApiParam(value = "ID of TJob to delete.", required = true) @PathVariable("tJobId") Long tJobId) {
 
@@ -64,7 +64,7 @@ public class TjobApiController implements TjobApi {
         return new ResponseEntity<Long>(tJobId, HttpStatus.OK);
     }
 
-    @JsonView(TJobView.class)
+    @JsonView(TJobCompleteView.class)
     public ResponseEntity<TJob> modifyTJob(
             @ApiParam(value = "Tjob object that needs to modify.", required = true) @Valid @RequestBody TJob body) {
 
@@ -72,14 +72,14 @@ public class TjobApiController implements TjobApi {
         return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
     }
 
-    @JsonView(TJobView.class)
+    @JsonView(TJobCompleteView.class)
     public ResponseEntity<List<TJob>> getAllTJobs() {
 
         List<TJob> tjobList = tJobService.getAllTJobs();
         return new ResponseEntity<List<TJob>>(tjobList, HttpStatus.OK);
     }
 
-    @JsonView(TJobView.class)
+    @JsonView(TJobCompleteView.class)
     public ResponseEntity<TJob> getTJobById(
             @ApiParam(value = "ID of tJob to retrieve.", required = true) @PathVariable("tJobId") Long tJobId) {
 

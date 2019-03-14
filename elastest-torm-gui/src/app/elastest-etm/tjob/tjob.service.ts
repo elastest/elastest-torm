@@ -6,6 +6,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import 'rxjs/Rx';
 import { Observable } from 'rxjs/Rx';
+import { backendViewType } from '../types/backend-view.type';
 
 @Injectable()
 export class TJobService {
@@ -15,13 +16,15 @@ export class TJobService {
     private eTModelsTransformServices: ETModelsTransformServices,
   ) {}
 
-  public getTJobs(): Observable<TJobModel[]> {
+  public getTJobs(viewType: backendViewType = 'complete'): Observable<TJobModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob';
+    // + '?viewType=' + viewType;
     return this.http.get(url).map((data: any[]) => this.eTModelsTransformServices.jsonToTJobsList(data));
   }
 
-  public getTJob(id: string): Observable<TJobModel> {
+  public getTJob(id: string, viewType: backendViewType = 'complete'): Observable<TJobModel> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + id;
+    // + '?viewType=' + viewType;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobModel(data);

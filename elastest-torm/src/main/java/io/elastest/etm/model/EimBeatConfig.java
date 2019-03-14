@@ -25,9 +25,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.EimMonitoringConfig.EimMonitoringConfigView;
-import io.elastest.etm.model.Project.MediumProjectView;
+import io.elastest.etm.model.Project.ProjectMediumView;
 import io.elastest.etm.model.SutSpecification.SutView;
-import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.TJob.TJobCompleteView;
 import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 import io.elastest.etm.model.external.ExternalTJob.ExternalTJobView;
@@ -39,8 +39,8 @@ public class EimBeatConfig {
 
     @Id
     @JsonView({ EimBeatConfigView.class, EimMonitoringConfigView.class,
-            SutView.class, ExternalProjectView.class, MediumProjectView.class,
-            ExternalTJobView.class, TJobView.class, TJobExecView.class })
+            SutView.class, ExternalProjectView.class, ProjectMediumView.class,
+            ExternalTJobView.class, TJobCompleteView.class, TJobExecView.class })
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
     @Column(name = "id")
@@ -48,29 +48,29 @@ public class EimBeatConfig {
     private Long id = null;
 
     @JsonView({ EimBeatConfigView.class, EimMonitoringConfigView.class,
-            SutView.class, ExternalProjectView.class, MediumProjectView.class,
-            ExternalTJobView.class, TJobView.class, TJobExecView.class })
+            SutView.class, ExternalProjectView.class, ProjectMediumView.class,
+            ExternalTJobView.class, TJobCompleteView.class, TJobExecView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name;
 
     @JsonView({ EimBeatConfigView.class, EimMonitoringConfigView.class,
-            SutView.class, ExternalProjectView.class, MediumProjectView.class,
-            ExternalTJobView.class, TJobView.class, TJobExecView.class })
+            SutView.class, ExternalProjectView.class, ProjectMediumView.class,
+            ExternalTJobView.class, TJobCompleteView.class, TJobExecView.class })
     @Column(name = "stream")
     @JsonProperty("stream")
     private String stream;
 
     @JsonView({ EimBeatConfigView.class, EimMonitoringConfigView.class,
-            SutView.class, ExternalProjectView.class, MediumProjectView.class,
-            ExternalTJobView.class, TJobView.class, TJobExecView.class })
+            SutView.class, ExternalProjectView.class, ProjectMediumView.class,
+            ExternalTJobView.class, TJobCompleteView.class, TJobExecView.class })
     @ElementCollection
     @CollectionTable(name = "EimBeatPath", joinColumns = @JoinColumn(name = "EimBeatConfig"))
     List<String> paths;
 
     @JsonView({ EimBeatConfigView.class, EimMonitoringConfigView.class,
-            SutView.class, ExternalProjectView.class, MediumProjectView.class,
-            ExternalTJobView.class, TJobView.class, TJobExecView.class })
+            SutView.class, ExternalProjectView.class, ProjectMediumView.class,
+            ExternalTJobView.class, TJobCompleteView.class, TJobExecView.class })
     @ElementCollection
     @CollectionTable(name = "EimBeatDockerized", joinColumns = @JoinColumn(name = "EimBeatConfig"))
     List<String> dockerized = null;

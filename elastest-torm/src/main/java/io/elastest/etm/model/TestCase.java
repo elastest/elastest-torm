@@ -21,8 +21,8 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.Project.MediumProjectView;
-import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.Project.ProjectMediumView;
+import io.elastest.etm.model.TJob.TJobCompleteView;
 import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.elastest.etm.model.TestSuite.TestSuiteView;
 import io.swagger.annotations.ApiModel;
@@ -34,7 +34,7 @@ public class TestCase {
     }
 
     @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecView.class,
-            TJobView.class })
+            TJobCompleteView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -43,37 +43,37 @@ public class TestCase {
     private Long id = null;
 
     @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecView.class,
-            TJobView.class })
+            TJobCompleteView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name;
 
     @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecView.class,
-            TJobView.class })
+            TJobCompleteView.class })
     @Column(name = "time")
     @JsonProperty("time")
     private double time;
 
     @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecView.class,
-            TJobView.class })
+            TJobCompleteView.class })
     @Column(name = "failureMessage", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("failureMessage")
     private String failureMessage;
 
     @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecView.class,
-            TJobView.class })
+            TJobCompleteView.class })
     @Column(name = "failureType")
     @JsonProperty("failureType")
     private String failureType;
 
     @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecView.class,
-            TJobView.class })
+            TJobCompleteView.class })
     @Column(name = "failureErrorLine")
     @JsonProperty("failureErrorLine")
     private String failureErrorLine;
 
     @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecView.class,
-            TJobView.class })
+            TJobCompleteView.class })
     @Column(name = "failureDetail", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("failureDetail")
     private String failureDetail;
@@ -84,11 +84,13 @@ public class TestCase {
     @JoinColumn(name = "testSuite")
     private TestSuite testSuite;
 
-    @JsonView({ TJobExecView.class, TJobView.class, MediumProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectMediumView.class })
     @Column(name = "startDate")
     private Date startDate = null;
 
-    @JsonView({ TJobExecView.class, TJobView.class, MediumProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectMediumView.class })
     @Column(name = "endDate")
     private Date endDate = null;
 
@@ -354,7 +356,9 @@ public class TestCase {
                 .append(toIndentedString(failureErrorLine)).append("\n");
         sb.append("    failureDetail: ").append(toIndentedString(failureDetail))
                 .append("\n");
-        sb.append("    testSuite: ").append(toIndentedString(testSuite))
+        sb.append("    testSuite: ")
+                .append(toIndentedString(
+                        testSuite != null ? testSuite.getId() : "null"))
                 .append("\n");
         sb.append("    startDate: ").append(toIndentedString(startDate))
                 .append("\n");

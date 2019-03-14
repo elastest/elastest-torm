@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.xml.sax.SAXException;
@@ -34,6 +35,9 @@ import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
+import io.elastest.etm.model.TJob.TJobCompleteView;
+import io.elastest.etm.model.TJob.TJobMediumView;
+import io.elastest.etm.model.TJob.TJobMinimalView;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
@@ -483,5 +487,27 @@ public class TJobService {
             childs = tJobExec.getExecChilds();
         }
         return childs;
+    }
+
+    public Class<? extends TJobMinimalView> getView(String viewType) {
+        Class<? extends TJobMinimalView> view = TJobCompleteView.class;
+
+        if (viewType != null) {
+            if ("minimal".equals(viewType)) {
+                view = TJobMinimalView.class;
+            } else if ("medium".equals(viewType)) {
+                view = TJobMediumView.class;
+            }
+        }
+        return view;
+    }
+    
+    
+    public MappingJacksonValue getMappingJacksonValue(Object obj, String viewType) {
+        final MappingJacksonValue result = new MappingJacksonValue(obj);
+        Class<? extends TJobMinimalView> view = getView(viewType);
+
+        result.setSerializationView(view);
+        return result;
     }
 }

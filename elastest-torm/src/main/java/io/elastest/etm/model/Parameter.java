@@ -8,10 +8,10 @@ import javax.persistence.Embeddable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.Project.MediumProjectView;
+import io.elastest.etm.model.Project.ProjectMediumView;
 import io.elastest.etm.model.SutExecution.SutExecView;
 import io.elastest.etm.model.SutSpecification.SutView;
-import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.TJob.TJobMediumView;
 import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,20 +23,23 @@ public class Parameter {
     public interface ParameterView {
     }
 
-    @JsonView({ ParameterView.class, TJobView.class, MediumProjectView.class,
-            TJobExecView.class, SutView.class, SutExecView.class })
+    @JsonView({ ParameterView.class, TJobMediumView.class,
+            ProjectMediumView.class, TJobExecView.class, SutView.class,
+            SutExecView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView({ ParameterView.class, TJobView.class, MediumProjectView.class,
-            TJobExecView.class, SutView.class, SutExecView.class })
+    @JsonView({ ParameterView.class, TJobMediumView.class,
+            ProjectMediumView.class, TJobExecView.class, SutView.class,
+            SutExecView.class })
     @Column(name = "value")
     @JsonProperty("value")
     private String value = null;
 
-    @JsonView({ ParameterView.class, TJobView.class, MediumProjectView.class,
-            TJobExecView.class, SutView.class, SutExecView.class })
+    @JsonView({ ParameterView.class, TJobMediumView.class,
+            ProjectMediumView.class, TJobExecView.class, SutView.class,
+            SutExecView.class })
     @Column(name = "multiConfig")
     @JsonProperty("multiConfig")
     private Boolean multiConfig = false;

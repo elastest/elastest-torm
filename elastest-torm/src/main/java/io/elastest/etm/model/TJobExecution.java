@@ -34,9 +34,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.Enums.MonitoringStorageType;
-import io.elastest.etm.model.Project.ProjectView;
+import io.elastest.etm.model.Project.ProjectCompleteView;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
-import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.TJob.TJobCompleteView;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -51,8 +51,8 @@ public class TJobExecution {
     public interface TJobExecView {
     }
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -60,33 +60,33 @@ public class TJobExecution {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @Column(name = "duration")
     @JsonProperty("duration")
     private Long duration = null;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @Column(name = "result")
     @JsonProperty("result")
     private ResultEnum result = null;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sut_execution")
     @JsonProperty("sutExecution")
     private SutExecution sutExecution = null;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @Column(name = "error")
     @JsonProperty("error")
     private String error = null;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @Column(name = "monitoringIndex")
     private String monitoringIndex = null;
 
@@ -95,19 +95,19 @@ public class TJobExecution {
     @JoinColumn(name = "tjob")
     private TJob tJob;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @OneToMany(mappedBy = "tJobExec", cascade = CascadeType.REMOVE)
     private List<TestSuite> testSuites;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @ElementCollection
     @CollectionTable(name = "TJobExecParameter", joinColumns = @JoinColumn(name = "TJobExec"))
     private List<Parameter> parameters = new ArrayList<>();
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
 
     @ElementCollection
     private List<String> servicesInstances;
@@ -118,57 +118,57 @@ public class TJobExecution {
     @CollectionTable(name = "ENV_VARS", joinColumns = @JoinColumn(name = "TJOB_EXEC"))
     private Map<String, String> envVars;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @Column(name = "resultMsg")
     private String resultMsg = null;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @Column(name = "startDate")
     private Date startDate = null;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @Column(name = "endDate")
     private Date endDate = null;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @ElementCollection
     @MapKeyColumn(name = "URL_NAME", length = 100)
     @Column(name = "URL_VALUE", length = 400)
     @CollectionTable(name = "TJOB_EXEC_EXTERNAL_URLS", joinColumns = @JoinColumn(name = "TJOB_EXEC"))
     private Map<String, String> externalUrls;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @Column(name = "monitoringStorageType")
     @JsonProperty("monitoringStorageType")
     private MonitoringStorageType monitoringStorageType;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @Column(name = "type")
     @JsonProperty("type")
     private TypeEnum type = TypeEnum.SIMPLE;
 
     /* *** Multi *** */
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "execParent")
     @JsonBackReference
     private TJobExecution execParent;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @OneToMany(mappedBy = "execParent", cascade = CascadeType.REMOVE)
     @JsonManagedReference
     private List<TJobExecution> execChilds;
 
-    @JsonView({ TJobExecView.class, TJobView.class,
-            ProjectView.class })
+    @JsonView({ TJobExecView.class, TJobCompleteView.class,
+            ProjectCompleteView.class })
     @ElementCollection
     @CollectionTable(name = "TJobExecMultiConfiguration", joinColumns = @JoinColumn(name = "TJobExec"))
     @MapKeyColumn(name = "NAME")
@@ -234,7 +234,7 @@ public class TJobExecution {
         EXECUTING_TEST("EXECUTING TEST"),
 
         WAITING_TSS("WAITING TSS"),
-        
+
         QUEUED("QUEUED");
 
         private String value;
@@ -654,7 +654,9 @@ public class TJobExecution {
                 .append("\n");
         sb.append("    monitoringStorageType: ")
                 .append(toIndentedString(monitoringStorageType)).append("\n");
-        sb.append("    execParent: ").append(toIndentedString(execParent))
+        sb.append("    execParent: ")
+                .append(toIndentedString(
+                        execParent != null ? execParent.getId() : "null"))
                 .append("\n");
         sb.append("    execChilds: ").append(toIndentedString(execChilds))
                 .append("\n");

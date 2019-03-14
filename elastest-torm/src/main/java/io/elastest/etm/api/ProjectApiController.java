@@ -19,8 +19,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.config.EtSampleDataLoader;
 import io.elastest.etm.model.Project;
-import io.elastest.etm.model.Project.MinimalProjectView;
-import io.elastest.etm.model.Project.ProjectView;
+import io.elastest.etm.model.Project.ProjectCompleteView;
 import io.elastest.etm.service.ProjectService;
 import io.swagger.annotations.ApiParam;
 
@@ -46,38 +45,24 @@ public class ProjectApiController implements ProjectApi {
             @RequestParam(value = "viewType", required = false) String viewType) {
         List<Project> projects = projectService.getAllProjects();
 
-        final MappingJacksonValue result = new MappingJacksonValue(projects);
-        Class<? extends MinimalProjectView> view = projectService
-                .getView(viewType);
-
-        result.setSerializationView(view);
-        return result;
-
-        // return new ResponseEntity<List<Project>>(@JsonView(ProjectView.class)
-        // projects, HttpStatus.OK);
+        return projectService.getMappingJacksonValue(projects, viewType);
     }
 
     public MappingJacksonValue getProject(@PathVariable("id") Long id,
             @RequestParam(value = "viewType", required = false) String viewType) {
-
         Project pj = projectService.getProjectById(id);
-        final MappingJacksonValue result = new MappingJacksonValue(pj);
-        Class<? extends MinimalProjectView> view = projectService
-                .getView(viewType);
-
-        result.setSerializationView(view);
-        return result;
+        return projectService.getMappingJacksonValue(pj, viewType);
 
     }
 
-    @JsonView(ProjectView.class)
+    @JsonView(ProjectCompleteView.class)
     public ResponseEntity<Long> deleteProject(
             @ApiParam(value = "ID of Project to delete.", required = true) @PathVariable("id") Long id) {
         projectService.deleteProject(id);
         return new ResponseEntity<Long>(id, HttpStatus.OK);
     }
 
-    @JsonView(ProjectView.class)
+    @JsonView(ProjectCompleteView.class)
     public ResponseEntity<Boolean> restoreDemoProjects() {
         Boolean createdOrUpdated = etSampleDataLoader.createData(true);
         return new ResponseEntity<Boolean>(createdOrUpdated, HttpStatus.OK);

@@ -2,13 +2,14 @@ package io.elastest.etm.service;
 
 import java.util.List;
 
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.dao.ProjectRepository;
 import io.elastest.etm.model.Project;
-import io.elastest.etm.model.Project.MediumProjectView;
-import io.elastest.etm.model.Project.MinimalProjectView;
-import io.elastest.etm.model.Project.ProjectView;
+import io.elastest.etm.model.Project.ProjectCompleteView;
+import io.elastest.etm.model.Project.ProjectMediumView;
+import io.elastest.etm.model.Project.ProjectMinimalView;
 
 @Service
 public class ProjectService {
@@ -45,16 +46,25 @@ public class ProjectService {
         projectRepository.delete(project);
     }
 
-    public Class<? extends MinimalProjectView> getView(String viewType) {
-        Class<? extends MinimalProjectView> view = ProjectView.class;
+    public Class<? extends ProjectMinimalView> getView(String viewType) {
+        Class<? extends ProjectMinimalView> view = ProjectCompleteView.class;
 
         if (viewType != null) {
             if ("minimal".equals(viewType)) {
-                view = MinimalProjectView.class;
+                view = ProjectMinimalView.class;
             } else if ("medium".equals(viewType)) {
-                view = MediumProjectView.class;
+                view = ProjectMediumView.class;
             }
         }
         return view;
+    }
+
+    public MappingJacksonValue getMappingJacksonValue(Object obj,
+            String viewType) {
+        final MappingJacksonValue result = new MappingJacksonValue(obj);
+        Class<? extends ProjectMinimalView> view = getView(viewType);
+
+        result.setSerializationView(view);
+        return result;
     }
 }

@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import { backendViewType } from '../types/backend-view.type';
 
 @Injectable()
 export class ProjectService {
@@ -13,7 +14,7 @@ export class ProjectService {
     private eTModelsTransformServices: ETModelsTransformServices,
   ) {}
 
-  public getProject(id: string, viewType: projectViewType = 'complete'): Observable<ProjectModel> {
+  public getProject(id: string, viewType: backendViewType = 'complete'): Observable<ProjectModel> {
     let url: string = this.configurationService.configModel.hostApi + '/project/' + id + '?viewType=' + viewType;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
@@ -24,8 +25,8 @@ export class ProjectService {
     });
   }
 
-  public getProjects(viewType: projectViewType = 'complete'): Observable<ProjectModel[]> {
-    let url: string = this.configurationService.configModel.hostApi + '/project?viewType=' + viewType;
+  public getProjects(viewType: backendViewType = 'complete'): Observable<ProjectModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/project' + '?viewType=' + viewType;
     return this.http.get(url).map((data: any) => this.eTModelsTransformServices.jsonToProjectsList(data));
   }
 
@@ -54,5 +55,3 @@ export class ProjectService {
     return this.http.get(url).map((data: any) => data);
   }
 }
-
-export type projectViewType = 'complete' | 'medium' | 'minimal';
