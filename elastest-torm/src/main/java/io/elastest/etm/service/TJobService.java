@@ -31,6 +31,7 @@ import org.xml.sax.SAXException;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.Enums.MonitoringStorageType;
+import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutSpecification;
@@ -41,7 +42,9 @@ import io.elastest.etm.model.TJob.TJobMinimalView;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
+import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.model.TJobExecutionFile;
+import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.TestResultParser;
 import io.elastest.etm.utils.UtilsService;
 
@@ -60,28 +63,27 @@ public class TJobService {
     private final TJobExecRepository tJobExecRepositoryImpl;
     public final TJobExecOrchestratorService tJobExecOrchestratorService;
     private final EsmService esmService;
-    private DatabaseSessionManager dbmanager;
     private UtilsService utilsService;
     private AbstractMonitoringService monitoringService;
     private EtmTestResultService etmTestResultService;
+    private EtmFilesService etmFilesService;
+
     Map<String, Future<Void>> asyncExecs = new HashMap<String, Future<Void>>();
 
     public TJobService(TJobRepository tJobRepo,
             TJobExecRepository tJobExecRepositoryImpl,
             TJobExecOrchestratorService epmIntegrationService,
-            EsmService esmService, DatabaseSessionManager dbmanager,
-            UtilsService utilsService,
-            AbstractMonitoringService monitoringService,
-            EtmTestResultService etmTestResultService) {
+            EsmService esmService, UtilsService utilsService,
+            EtmTestResultService etmTestResultService, EtmFilesService etmFilesService) {
         super();
         this.tJobRepo = tJobRepo;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.tJobExecOrchestratorService = epmIntegrationService;
         this.esmService = esmService;
-        this.dbmanager = dbmanager;
         this.utilsService = utilsService;
         this.monitoringService = monitoringService;
         this.etmTestResultService = etmTestResultService;
+        this.etmFilesService = etmFilesService;
     }
 
     @PreDestroy
@@ -304,24 +306,9 @@ public class TJobService {
 
             etmTestResultService.saveTestResults(testResultsReports, tJobExec);
         }
-        try {
-            tJobExecOrchestratorService.deprovisionServices(tJobExec);
-        } catch (Exception e) {
-            logger.error(
-                    "Exception during desprovisioning of the TSS associated with an External TJob.");
-        }
-        if (tJobExec.isWithSut()) {
-            try {
-                Execution execution = new Execution(tJobExec);
-                execution.setSutExec(tJobExec.getSutExecution());
-                tJobExecOrchestratorService.endDockbeatExec(execution, true);
-                tJobExecOrchestratorService.endSutExec(execution, false);
-            } catch (Exception e) {
-                logger.error(
-                        "Error desprovisioning a SUT used in a TJob run from Jenkins.");
-            }
-        }
-
+        // Deprovioning resources
+        tJobExecOrchestratorService.releaseResourcesFromExtExecution(tJobExec);
+        // Set the execution result
         tJobExec.setResult(ResultEnum.values()[result]);
         tJobExec.setResultMsg("Finished: " + tJobExec.getResult());
         tJobExec.setEndDate(new Date());
@@ -639,7 +626,7 @@ public class TJobService {
 
     public List<TJobExecutionFile> getTJobExecutionFilesUrls(Long tJobId,
             Long tJobExecId) throws InterruptedException {
-        return esmService.getTJobExecutionFilesUrls(tJobId, tJobExecId);
+        return etmFilesService.getTJobExecutionFilesUrls(tJobId, tJobExecId);
     }
 
     public String getFileUrl(String serviceFilePath) throws IOException {

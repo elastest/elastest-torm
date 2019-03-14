@@ -1,18 +1,55 @@
 package io.elastest.etm.platform.service;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.spotify.docker.client.ProgressHandler;
 
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.model.DockerServiceStatus;
+import io.elastest.etm.model.Execution;
+import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJobExecution;
 
 public interface PlatformService {
+    static final Logger logger = getLogger(lookup().lookupClass());
+
+    public enum ContainerPrefix {
+        TEST("test_"), SUT("sut_"), CHECK("check_"), SUT_EXT("sut_ext_");
+
+        private String value;
+
+        ContainerPrefix(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static ContainerPrefix fromValue(String text) {
+            for (ContainerPrefix b : ContainerPrefix.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+    }
 
     public boolean createServiceDeploymentProject(String projectName,
             String serviceDescriptor, String targetPath, boolean override,
@@ -51,6 +88,41 @@ public interface PlatformService {
             throws Exception;
 
     public String getContainerName(String serviceName, String network);
+
+    public void enableServiceMetricMonitoring(Execution execution)
+            throws Exception;
+
+    public void disableMetricMonitoring(Execution execution, boolean force)
+            throws Exception;
+
+    public void deployAndRunTJobExecution(Execution execution) throws Exception;
+
+    public default String generateContainerName(ContainerPrefix prefix,
+            Execution execution) {
+        logger.info("Building container name");
+        logger.info("Building container name with prefix: {}", prefix);
+        String containerName = prefix.value + execution.getExecutionId();
+        if (prefix == ContainerPrefix.SUT && execution.getSut() != null) {
+            SutSpecification sut = execution.getSut();
+            containerName += (sut.isDockerCommandsSut()
+                    && sut.isSutInNewContainer()
+                            ? "_" + sut.getSutInContainerAuxLabel()
+                            : "");
+        }
+        return containerName;
+    }
+
+    public void deploySut(Execution execution) throws Exception;
+
+    public void undeploySut(Execution execution, boolean force)
+            throws Exception;
+
+    public void undeployTJob(Execution execution, boolean force)
+            throws Exception;
+
+    public SocatBindedPort getBindingPort(String containerIp,
+            String containerSufix, String port, String networkName,
+            boolean remotely) throws Exception;
     /* ********************** */
 
     public TJobExecution deployTJobExecution(TJobExecution tJobExecution);

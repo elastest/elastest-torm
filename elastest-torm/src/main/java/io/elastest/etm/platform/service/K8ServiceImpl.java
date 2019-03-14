@@ -8,6 +8,8 @@ import com.spotify.docker.client.ProgressHandler;
 
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.model.DockerServiceStatus;
+import io.elastest.etm.model.Execution;
+import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJobExecution;
@@ -142,6 +144,55 @@ public class K8ServiceImpl implements PlatformService {
 
     @Override
     public String getContainerName(String serviceName, String network) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void enableServiceMetricMonitoring(Execution execution)
+            throws Exception {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void disableMetricMonitoring(Execution execution, boolean force)
+            throws Exception {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void deployAndRunTJobExecution(Execution execution)
+            throws Exception {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void deploySut(Execution execution) throws Exception {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void undeploySut(Execution execution, boolean force)
+            throws Exception {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void undeployTJob(Execution execution, boolean force)
+            throws Exception {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public SocatBindedPort getBindingPort(String containerIp,
+            String containerSufix, String port, String networkName,
+            boolean remotely) throws Exception {
         // TODO Auto-generated method stub
         return null;
     }

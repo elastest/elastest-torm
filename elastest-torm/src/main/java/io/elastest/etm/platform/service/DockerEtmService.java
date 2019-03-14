@@ -74,7 +74,7 @@ public class DockerEtmService {
     private String logstashOrMiniHost;
 
     @Value("${et.etm.lstcp.port}")
-    private String logstashTcpPort;
+    public String logstashTcpPort;
 
     @Value("${et.etm.internal.lsbeats.port}")
     private String lsInternalBeatsPort;
@@ -1157,4 +1157,31 @@ public class DockerEtmService {
                 .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
     }
 
+    public void updateExecutionResultStatus(Execution execution,
+            ResultEnum result, String msg) {
+        if (execution.isExternal()) {
+            ExternalTJobExecution externalTJobExec = execution
+                    .getExternalTJobExec();
+            updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
+        } else {
+            TJobExecution tJobExec = execution.getTJobExec();
+            updateTJobExecResultStatus(tJobExec, result, msg);
+        }
+    }
+
+    public void updateTJobExecResultStatus(TJobExecution tJobExec,
+            ResultEnum result, String msg) {
+        tJobExec.setResult(result);
+        tJobExec.setResultMsg(msg);
+        tJobExecRepositoryImpl.save(tJobExec);
+    }
+
+    public void updateExternalTJobExecResultStatus(
+            ExternalTJobExecution externalTJobExec, ResultEnum result,
+            String msg) {
+        externalTJobExec.setResult(result);
+        externalTJobExec.setResultMsg(msg);
+        externalTJobExecutionRepository.save(externalTJobExec);
+    }
+    
 }
