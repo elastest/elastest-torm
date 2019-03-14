@@ -35,8 +35,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import io.elastest.etm.model.Project.BasicAttProject;
-import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.elastest.etm.model.Project.ProjectView;
+import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -49,11 +49,11 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "Entity that represents the test to run against a SUT.")
 public class TJob {
 
-    public interface BasicAttTJob {
+    public interface TJobView {
     }
 
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class,
-            BasicAttTJobExec.class })
+    @JsonView({ TJobView.class, ProjectView.class,
+            TJobExecView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -61,84 +61,84 @@ public class TJob {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ BasicAttTJob.class, BasicAttTJobExec.class,
-            BasicAttProject.class })
+    @JsonView({ TJobView.class, TJobExecView.class,
+            ProjectView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class })
+    @JsonView({ TJobView.class, ProjectView.class })
     @Column(name = "image_name")
     @JsonProperty("imageName")
     private String imageName = null;
 
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class,
-            BasicAttTJobExec.class })
+    @JsonView({ TJobView.class, ProjectView.class,
+            TJobExecView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sut")
     @JsonProperty("sut")
     private SutSpecification sut = null;
 
     // bi-directional many-to-one association to TJobExec
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class })
+    @JsonView({ TJobView.class, ProjectView.class })
     @OneToMany(mappedBy = "tJob", cascade = CascadeType.REMOVE)
     private List<TJobExecution> tjobExecs;
 
     // bi-directional many-to-one association to Project
-    @JsonView({ BasicAttTJob.class, BasicAttTJobExec.class })
+    @JsonView({ TJobView.class, TJobExecView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project")
     private Project project;
 
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class })
+    @JsonView({ TJobView.class, ProjectView.class })
     @ElementCollection
     @CollectionTable(name = "TJobParameter", joinColumns = @JoinColumn(name = "TJob"))
     private List<Parameter> parameters;
 
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class })
+    @JsonView({ TJobView.class, ProjectView.class })
     @Column(name = "commands", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("commands")
     private String commands;
 
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class })
+    @JsonView({ TJobView.class, ProjectView.class })
     @Column(name = "resultsPath")
     @JsonProperty("resultsPath")
     private String resultsPath = null;
 
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class,
-            BasicAttTJobExec.class })
+    @JsonView({ TJobView.class, ProjectView.class,
+            TJobExecView.class })
     @Column(name = "external")
     @JsonProperty("external")
     private boolean external = false;
 
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class,
-            BasicAttTJobExec.class })
+    @JsonView({ TJobView.class, ProjectView.class,
+            TJobExecView.class })
     @Column(name = "execDashboardConfig", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("execDashboardConfig")
     private String execDashboardConfig = null;
 
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class,
-            BasicAttTJobExec.class })
+    @JsonView({ TJobView.class, ProjectView.class,
+            TJobExecView.class })
     @Column(name = "selectedServices", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("esmServicesString")
     private String selectedServices;
 
-    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
-            BasicAttProject.class })
+    @JsonView({ TJobExecView.class, TJobView.class,
+            ProjectView.class })
     @ElementCollection
     @MapKeyColumn(name = "URL_NAME", length = 100)
     @Column(name = "URL_VALUE", length = 400)
     @CollectionTable(name = "TJOB_EXTERNAL_URLS", joinColumns = @JoinColumn(name = "TJOB"))
     private Map<String, String> externalUrls;
 
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class,
-            BasicAttTJobExec.class })
+    @JsonView({ TJobView.class, ProjectView.class,
+            TJobExecView.class })
     @Column(name = "multi")
     @JsonProperty("multi")
     private Boolean multi = false;
 
-    @JsonView({ BasicAttTJob.class, BasicAttProject.class,
-            BasicAttTJobExec.class })
+    @JsonView({ TJobView.class, ProjectView.class,
+            TJobExecView.class })
     @ElementCollection
     @CollectionTable(name = "TJobMultiConfiguration", joinColumns = @JoinColumn(name = "TJob"))
     @MapKeyColumn(name = "NAME")

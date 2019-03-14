@@ -30,10 +30,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.Enums.MonitoringStorageType;
-import io.elastest.etm.model.Project.BasicAttProject;
+import io.elastest.etm.model.Project.ProjectView;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
-import io.elastest.etm.model.TJob.BasicAttTJob;
-import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 import io.elastest.etm.model.external.ExternalTJob.ExternalTJobView;
@@ -110,8 +110,8 @@ public class ExternalTJobExecution implements Serializable {
     @Column(name = "endDate")
     private Date endDate = null;
 
-    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
-            BasicAttProject.class })
+    @JsonView({ TJobExecView.class, TJobView.class,
+            ProjectView.class })
     @Column(name = "monitoringStorageType")
     @JsonProperty("monitoringStorageType")
     private MonitoringStorageType monitoringStorageType;

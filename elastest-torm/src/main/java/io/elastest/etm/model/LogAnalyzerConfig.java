@@ -18,10 +18,10 @@ import com.fasterxml.jackson.annotation.JsonView;
 @Entity
 public class LogAnalyzerConfig {
 
-    public interface BasicAttLogAnalyzerConfig {
+    public interface LogAnalyzerConfigView {
     }
 
-    @JsonView({ BasicAttLogAnalyzerConfig.class })
+    @JsonView({ LogAnalyzerConfigView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -29,7 +29,7 @@ public class LogAnalyzerConfig {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ BasicAttLogAnalyzerConfig.class })
+    @JsonView({ LogAnalyzerConfigView.class })
     @Column(name = "columnsConfig", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("columnsConfig")
     private String columnsConfig = null;

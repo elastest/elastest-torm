@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.config.EtSampleDataLoader;
 import io.elastest.etm.model.Project;
-import io.elastest.etm.model.Project.BasicAttProject;
+import io.elastest.etm.model.Project.ProjectView;
 import io.elastest.etm.service.ProjectService;
 import io.swagger.annotations.ApiParam;
 
@@ -39,28 +39,28 @@ public class ProjectApiController implements ProjectApi {
                 HttpStatus.OK);
     }
 
-    @JsonView(BasicAttProject.class)
+    @JsonView(ProjectView.class)
     public ResponseEntity<List<Project>> getAllProjects() {
 
         return new ResponseEntity<List<Project>>(
                 projectService.getAllProjects(), HttpStatus.OK);
     }
 
-    @JsonView(BasicAttProject.class)
+    @JsonView(ProjectView.class)
     public ResponseEntity<Project> getProject(@PathVariable("id") Long id) {
 
         return new ResponseEntity<Project>(projectService.getProjectById(id),
                 HttpStatus.OK);
     }
 
-    @JsonView(BasicAttProject.class)
+    @JsonView(ProjectView.class)
     public ResponseEntity<Long> deleteProject(
             @ApiParam(value = "ID of Project to delete.", required = true) @PathVariable("id") Long id) {
         projectService.deleteProject(id);
         return new ResponseEntity<Long>(id, HttpStatus.OK);
     }
 
-    @JsonView(BasicAttProject.class)
+    @JsonView(ProjectView.class)
     public ResponseEntity<Boolean> restoreDemoProjects() {
         Boolean createdOrUpdated = etSampleDataLoader.createData(true);
         return new ResponseEntity<Boolean>(createdOrUpdated , HttpStatus.OK);

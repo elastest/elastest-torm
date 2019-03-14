@@ -21,20 +21,20 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.Project.BasicAttProject;
-import io.elastest.etm.model.TJob.BasicAttTJob;
-import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
-import io.elastest.etm.model.TestSuite.BasicTestSuite;
+import io.elastest.etm.model.Project.ProjectView;
+import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.TJobExecution.TJobExecView;
+import io.elastest.etm.model.TestSuite.TestSuiteView;
 import io.swagger.annotations.ApiModel;
 
 @Entity
 @ApiModel(description = "Object that contains the information of the test results.")
 public class TestCase {
-    public interface BasicTestCase {
+    public interface TestCaseView {
     }
 
-    @JsonView({ BasicTestCase.class, BasicTestSuite.class,
-            BasicAttTJobExec.class, BasicAttTJob.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecView.class, TJobView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -42,55 +42,55 @@ public class TestCase {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ BasicTestCase.class, BasicTestSuite.class,
-            BasicAttTJobExec.class, BasicAttTJob.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecView.class, TJobView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name;
 
-    @JsonView({ BasicTestCase.class, BasicTestSuite.class,
-            BasicAttTJobExec.class, BasicAttTJob.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecView.class, TJobView.class })
     @Column(name = "time")
     @JsonProperty("time")
     private double time;
 
-    @JsonView({ BasicTestCase.class, BasicTestSuite.class,
-            BasicAttTJobExec.class, BasicAttTJob.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecView.class, TJobView.class })
     @Column(name = "failureMessage", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("failureMessage")
     private String failureMessage;
 
-    @JsonView({ BasicTestCase.class, BasicTestSuite.class,
-            BasicAttTJobExec.class, BasicAttTJob.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecView.class, TJobView.class })
     @Column(name = "failureType")
     @JsonProperty("failureType")
     private String failureType;
 
-    @JsonView({ BasicTestCase.class, BasicTestSuite.class,
-            BasicAttTJobExec.class, BasicAttTJob.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecView.class, TJobView.class })
     @Column(name = "failureErrorLine")
     @JsonProperty("failureErrorLine")
     private String failureErrorLine;
 
-    @JsonView({ BasicTestCase.class, BasicTestSuite.class,
-            BasicAttTJobExec.class, BasicAttTJob.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecView.class, TJobView.class })
     @Column(name = "failureDetail", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("failureDetail")
     private String failureDetail;
 
     // bi-directional many-to-one association to testSuite
-    @JsonView({ BasicTestCase.class })
+    @JsonView({ TestCaseView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "testSuite")
     private TestSuite testSuite;
 
-    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
-            BasicAttProject.class })
+    @JsonView({ TJobExecView.class, TJobView.class,
+            ProjectView.class })
     @Column(name = "startDate")
     private Date startDate = null;
 
-    @JsonView({ BasicAttTJobExec.class, BasicAttTJob.class,
-            BasicAttProject.class })
+    @JsonView({ TJobExecView.class, TJobView.class,
+            ProjectView.class })
     @Column(name = "endDate")
     private Date endDate = null;
 

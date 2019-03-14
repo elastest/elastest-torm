@@ -8,29 +8,29 @@ import javax.persistence.Embeddable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.Project.BasicAttProject;
+import io.elastest.etm.model.Project.ProjectView;
 import io.elastest.etm.model.SutExecution.SutExecView;
 import io.elastest.etm.model.SutSpecification.SutView;
-import io.elastest.etm.model.TJob.BasicAttTJob;
-import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.swagger.annotations.ApiModel;
 
 @Embeddable
 @ApiModel(description = "Configuration for multi tJob.")
 public class MultiConfig {
 
-    public interface BasicAttMultiConfig {
+    public interface MultiConfigView {
     }
 
-    @JsonView({ BasicAttMultiConfig.class, BasicAttTJob.class,
-            BasicAttProject.class, BasicAttTJobExec.class, SutView.class,
+    @JsonView({ MultiConfigView.class, TJobView.class,
+            ProjectView.class, TJobExecView.class, SutView.class,
             SutExecView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView({ BasicAttMultiConfig.class, BasicAttTJob.class,
-            BasicAttProject.class, BasicAttTJobExec.class, SutView.class,
+    @JsonView({ MultiConfigView.class, TJobView.class,
+            ProjectView.class, TJobExecView.class, SutView.class,
             SutExecView.class })
     @Column(name = "configValues", length = 16777215)
     @JsonProperty("configValues")

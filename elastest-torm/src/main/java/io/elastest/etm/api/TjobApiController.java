@@ -21,9 +21,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.ExecData;
 import io.elastest.etm.model.TJob;
-import io.elastest.etm.model.TJob.BasicAttTJob;
+import io.elastest.etm.model.TJob.TJobView;
 import io.elastest.etm.model.TJobExecution;
-import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.TJobService;
@@ -47,7 +47,7 @@ public class TjobApiController implements TjobApi {
     /* **** TJobs **** */
     /* *************** */
 
-    @JsonView(BasicAttTJob.class)
+    @JsonView(TJobView.class)
     public ResponseEntity<TJob> createTJob(
             @ApiParam(value = "TJob object that needs to create", required = true) @Valid @RequestBody TJob body) {
         logger.info("Services:" + body.getSelectedServices());
@@ -56,7 +56,7 @@ public class TjobApiController implements TjobApi {
         return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
     }
 
-    @JsonView(BasicAttTJob.class)
+    @JsonView(TJobView.class)
     public ResponseEntity<Long> deleteTJob(
             @ApiParam(value = "ID of TJob to delete.", required = true) @PathVariable("tJobId") Long tJobId) {
 
@@ -64,7 +64,7 @@ public class TjobApiController implements TjobApi {
         return new ResponseEntity<Long>(tJobId, HttpStatus.OK);
     }
 
-    @JsonView(BasicAttTJob.class)
+    @JsonView(TJobView.class)
     public ResponseEntity<TJob> modifyTJob(
             @ApiParam(value = "Tjob object that needs to modify.", required = true) @Valid @RequestBody TJob body) {
 
@@ -72,14 +72,14 @@ public class TjobApiController implements TjobApi {
         return new ResponseEntity<TJob>(tJob, HttpStatus.OK);
     }
 
-    @JsonView(BasicAttTJob.class)
+    @JsonView(TJobView.class)
     public ResponseEntity<List<TJob>> getAllTJobs() {
 
         List<TJob> tjobList = tJobService.getAllTJobs();
         return new ResponseEntity<List<TJob>>(tjobList, HttpStatus.OK);
     }
 
-    @JsonView(BasicAttTJob.class)
+    @JsonView(TJobView.class)
     public ResponseEntity<TJob> getTJobById(
             @ApiParam(value = "ID of tJob to retrieve.", required = true) @PathVariable("tJobId") Long tJobId) {
 
@@ -91,7 +91,7 @@ public class TjobApiController implements TjobApi {
     /* **** TJobExecs **** */
     /* ******************* */
 
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<TJobExecution> execTJob(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "Execution Parameters", required = false) @Valid @RequestBody ExecData parameters) {
@@ -110,7 +110,7 @@ public class TjobApiController implements TjobApi {
         }
     }
 
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<Long> deleteTJobExecution(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "TJob Execution Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
@@ -119,7 +119,7 @@ public class TjobApiController implements TjobApi {
         return new ResponseEntity<Long>(tJobExecId, HttpStatus.OK);
     }
 
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<TJobExecution> getTJobExecution(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "TJob Execution Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
@@ -129,7 +129,7 @@ public class TjobApiController implements TjobApi {
         return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     }
 
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getTJobExecutionsByTJob(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
 
@@ -139,7 +139,7 @@ public class TjobApiController implements TjobApi {
                 HttpStatus.OK);
     }
 
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getTJobExecutionsByTJobWithoutChilds(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
 
@@ -150,7 +150,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getAllTJobExecutions() {
         List<TJobExecution> tjobExecList = tJobService.getAllTJobExecs();
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
@@ -158,7 +158,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getLastNTJobExecutions(
             @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
         List<TJobExecution> tjobExecList = tJobService
@@ -168,7 +168,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getLastNTJobExecutionsWithoutChilds(
             @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
         List<TJobExecution> tjobExecList = tJobService
@@ -178,7 +178,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getAllRunningTJobExecutions() {
         List<TJobExecution> tjobExecList = tJobService.getAllRunningTJobExecs();
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
@@ -186,7 +186,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getAllRunningTJobExecutionsWithoutChilds() {
         List<TJobExecution> tjobExecList = tJobService
                 .getAllRunningTJobExecsWithoutChilds();
@@ -195,7 +195,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getLastNRunningTJobExecutions(
             @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
         List<TJobExecution> tjobExecList = tJobService
@@ -205,7 +205,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getLastNRunningTJobExecutionsWithoutChilds(
             @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
         List<TJobExecution> tjobExecList = tJobService
@@ -215,7 +215,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getAllFinishedOrNotExecutedTJobExecutions() {
         List<TJobExecution> tjobExecList = tJobService
                 .getAllFinishedOrNotExecutedTJobExecs();
@@ -224,7 +224,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getLastNFinishedOrNotExecutedTJobExecutions(
             @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
         List<TJobExecution> tjobExecList = tJobService
@@ -234,7 +234,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getLastNFinishedOrNotExecutedTJobExecutionsWithoutChilds(
             @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
         List<TJobExecution> tjobExecList = tJobService
@@ -276,7 +276,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<TJobExecution> stopTJobExecution(
             @ApiParam(value = "Id of a TJob.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "TJob Execution Id associatd for a given TJob Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
@@ -285,7 +285,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<TJobExecution> getChildTJobExecParent(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
         TJobExecution tJobExec = tJobService.getChildTJobExecParent(tJobExecId);
@@ -293,7 +293,7 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    @JsonView(BasicAttTJobExec.class)
+    @JsonView(TJobExecView.class)
     public ResponseEntity<List<TJobExecution>> getParentTJobExecChilds(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
         List<TJobExecution> tJobExec = tJobService.getParentTJobExecChilds(tJobExecId);

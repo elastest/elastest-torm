@@ -19,7 +19,7 @@ import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.LogAnalyzerConfig;
-import io.elastest.etm.model.LogAnalyzerConfig.BasicAttLogAnalyzerConfig;
+import io.elastest.etm.model.LogAnalyzerConfig.LogAnalyzerConfigView;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.EtmContextService;
 import io.elastest.etm.utils.UtilsService;
@@ -194,7 +194,7 @@ public class EtmContextApiController implements EtmContextApi {
     /* *** Log Analyzer *** */
     /* ******************** */
 
-    @JsonView(BasicAttLogAnalyzerConfig.class)
+    @JsonView(LogAnalyzerConfigView.class)
     public ResponseEntity<LogAnalyzerConfig> saveLogAnalyzerConfig(
             @ApiParam(value = "Data to create a LogAnalizerConfig", required = true) @Valid @RequestBody LogAnalyzerConfig body) {
 
@@ -204,7 +204,7 @@ public class EtmContextApiController implements EtmContextApi {
                 HttpStatus.OK);
     }
 
-    @JsonView(BasicAttLogAnalyzerConfig.class)
+    @JsonView(LogAnalyzerConfigView.class)
     public ResponseEntity<LogAnalyzerConfig> getLogAnalyzerConfig() {
         LogAnalyzerConfig logAnalyzerConfig = this.etmContextService
                 .getLogAnalyzerConfig();

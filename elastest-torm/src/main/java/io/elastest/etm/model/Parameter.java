@@ -8,11 +8,11 @@ import javax.persistence.Embeddable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.Project.BasicAttProject;
+import io.elastest.etm.model.Project.ProjectView;
 import io.elastest.etm.model.SutExecution.SutExecView;
 import io.elastest.etm.model.SutSpecification.SutView;
-import io.elastest.etm.model.TJob.BasicAttTJob;
-import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -20,25 +20,25 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description = "Environment Variable to pass to a docker container.")
 public class Parameter {
 
-    public interface BasicAttParameter {
+    public interface ParameterView {
     }
 
-    @JsonView({ BasicAttParameter.class, BasicAttTJob.class,
-            BasicAttProject.class, BasicAttTJobExec.class, SutView.class,
+    @JsonView({ ParameterView.class, TJobView.class,
+            ProjectView.class, TJobExecView.class, SutView.class,
             SutExecView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView({ BasicAttParameter.class, BasicAttTJob.class,
-            BasicAttProject.class, BasicAttTJobExec.class, SutView.class,
+    @JsonView({ ParameterView.class, TJobView.class,
+            ProjectView.class, TJobExecView.class, SutView.class,
             SutExecView.class })
     @Column(name = "value")
     @JsonProperty("value")
     private String value = null;
 
-    @JsonView({ BasicAttParameter.class, BasicAttTJob.class,
-            BasicAttProject.class, BasicAttTJobExec.class, SutView.class,
+    @JsonView({ ParameterView.class, TJobView.class,
+            ProjectView.class, TJobExecView.class, SutView.class,
             SutExecView.class })
     @Column(name = "multiConfig")
     @JsonProperty("multiConfig")

@@ -33,9 +33,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.Enums.ProtocolEnum;
-import io.elastest.etm.model.Project.BasicAttProject;
-import io.elastest.etm.model.TJob.BasicAttTJob;
-import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.elastest.etm.model.Project.ProjectView;
+import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.elastest.etm.model.external.ExternalElasticsearch;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
@@ -58,27 +58,27 @@ public class SutSpecification {
     }
 
     @Id
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            BasicAttTJob.class, ExternalTJobView.class,
-            BasicAttTJobExec.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            TJobView.class, ExternalTJobView.class,
+            TJobExecView.class })
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @Column(name = "specification", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("specification")
     private String specification = null;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @JsonProperty("description")
     private String description = null;
 
@@ -96,97 +96,97 @@ public class SutSpecification {
     @OneToMany(mappedBy = "sut", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<TJob> tJobs;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @Column(name = "sutType", nullable = false)
     @JsonProperty("sutType")
     private SutTypeEnum sutType;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class,
-            BasicAttTJobExec.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class,
+            TJobExecView.class })
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "eimConfig")
     @JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)
     private EimConfig eimConfig;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class,
-            BasicAttTJobExec.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class,
+            TJobExecView.class })
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "eimMonitoringConfig")
     @JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)
     private EimMonitoringConfig eimMonitoringConfig;
 
     // Indicates if you want to instrumentalize the sut
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @Column(name = "instrumentalize")
     @JsonProperty("instrumentalize")
     private boolean instrumentalize = false;
 
     // Indicates if the Sut is instrumentalized
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @Column(name = "instrumentalized")
     @JsonProperty("instrumentalized")
     private Boolean instrumentalized = false;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @Column(name = "currentSutExec")
     @JsonProperty("currentSutExec")
     private Long currentSutExec = null;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @Column(name = "instrumentedBy", nullable = false)
     @JsonProperty("instrumentedBy")
     private InstrumentedByEnum instrumentedBy;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @Column(name = "protocol")
     @JsonProperty("protocol")
     private ProtocolEnum protocol = ProtocolEnum.HTTP;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @Column(name = "port")
     @JsonProperty("port")
     private String port = null;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @Column(name = "managedDockerType", nullable = false)
     @JsonProperty("managedDockerType")
     private ManagedDockerType managedDockerType;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @JsonProperty("mainService")
     private String mainService = null;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @ElementCollection
     @CollectionTable(name = "SutParameter", joinColumns = @JoinColumn(name = "SutSpecification"))
     private List<Parameter> parameters;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @Column(name = "commands", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("commands")
     private String commands;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @Column(name = "commandsOption", nullable = false)
     @JsonProperty("commandsOption")
     private CommandsOptionEnum commandsOption;
 
-    @JsonView({ SutView.class, BasicAttProject.class, ExternalProjectView.class,
-            ExternalTJobView.class, BasicAttTJob.class })
+    @JsonView({ SutView.class, ProjectView.class, ExternalProjectView.class,
+            ExternalTJobView.class, TJobView.class })
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "externalElasticsearch")
     @JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)

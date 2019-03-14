@@ -23,8 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.SutSpecification.SutView;
-import io.elastest.etm.model.TJob.BasicAttTJob;
-import io.elastest.etm.model.TJobExecution.BasicAttTJobExec;
+import io.elastest.etm.model.TJob.TJobView;
+import io.elastest.etm.model.TJobExecution.TJobExecView;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -33,11 +33,11 @@ import io.swagger.annotations.ApiModelProperty;
 public class Project implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public interface BasicAttProject {
+    public interface ProjectView {
     }
 
-    @JsonView({ BasicAttProject.class, BasicAttTJob.class, SutView.class,
-            BasicAttTJobExec.class })
+    @JsonView({ ProjectView.class, TJobView.class, SutView.class,
+            TJobExecView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -45,19 +45,19 @@ public class Project implements Serializable {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ BasicAttProject.class, BasicAttTJob.class, SutView.class,
-            BasicAttTJobExec.class })
+    @JsonView({ ProjectView.class, TJobView.class, SutView.class,
+            TJobExecView.class })
     @JsonProperty("name")
     private String name = null;
 
-    @JsonView(BasicAttProject.class)
+    @JsonView(ProjectView.class)
     @JsonProperty("tjobs")
     // bi-directional many-to-one association to TJob
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<TJob> tJobs;
 
-    @JsonView({ BasicAttProject.class, BasicAttTJob.class,
-            BasicAttTJobExec.class })
+    @JsonView({ ProjectView.class, TJobView.class,
+            TJobExecView.class })
     @JsonProperty("suts")
     // bi-directional many-to-one association to ElasEtmTjobexec
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
