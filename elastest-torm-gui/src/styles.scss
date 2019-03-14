@@ -137,10 +137,11 @@ tbody > tr.td-data-table-row {
   // word-break: break-word;
 }
 
-.td-data-table-cell > div > div > span,
+.td-data-table-cell > div,
 .td-data-table-cell > div > span,
-.td-data-table-cell > div > div > div,
-.td-data-table-cell > div > div {
+.td-data-table-cell > div > div,
+.td-data-table-cell > div > div > span,
+.td-data-table-cell > div > div > div {
   word-break: break-word;
 }
 

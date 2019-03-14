@@ -164,6 +164,8 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
 
   showAllFinished(): void {
     this.loadAllFinished = true;
+    this.firstInitializationOfRunning = true;
+    this.firstInitializationOfFinished = true;
     this.loadTJobExecs(true);
   }
 }

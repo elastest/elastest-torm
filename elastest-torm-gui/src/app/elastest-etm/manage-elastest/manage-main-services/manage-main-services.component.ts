@@ -1,11 +1,11 @@
 import { CardLogModel } from '../../../shared/logs-view/models/card-log.model';
 import { Observable, Subscription } from 'rxjs/Rx';
-import { TitlesService } from '../../../shared/services/titles.service';
 import { ConfigurationService } from '../../../config/configuration-service.service';
 import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CoreServiceModel } from '../../models/core-service.model';
 import { PopupService } from '../../../shared/services/popup.service';
 import { interval } from 'rxjs';
+import { ITdDataTableSortChangeEvent, TdDataTableSortingOrder, TdDataTableService } from '@covalent/core';
 
 @Component({
   selector: 'etm-manage-main-services',
@@ -37,17 +37,19 @@ export class ManageMainServicesComponent implements OnInit, OnDestroy {
     { name: 'versionInfo.commitId', label: 'Commit Id', width: 340 },
     { name: 'networks', label: 'Networks' },
     { name: 'containerNames', label: 'Container Names' },
-    { name: 'options', label: 'Options', width: 90 },
+    { name: 'options', label: 'Options', width: 90, sortable: false },
   ];
 
+  sortBy: string = 'name';
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
+
   constructor(
-    private titlesService: TitlesService,
     private configurationService: ConfigurationService,
     private popupService: PopupService,
+    private dataTableService: TdDataTableService,
   ) {}
 
   ngOnInit(): void {
-    this.titlesService.setHeadTitle('Help');
     this.init();
     this.startCoreServicesSubscription();
   }
@@ -72,6 +74,7 @@ export class ManageMainServicesComponent implements OnInit, OnDestroy {
     this.configurationService.getCoreServicesInfo().subscribe(
       (coreServices: CoreServiceModel[]) => {
         this.coreServices = coreServices ? coreServices : [];
+        this.sort();
         this.initCurrentETVersion();
         this.lastRefresh = new Date();
         this.loadingCoreServices = false;
@@ -194,5 +197,11 @@ export class ManageMainServicesComponent implements OnInit, OnDestroy {
   removeLogCard(): void {
     this.coreServiceLogs = undefined;
     this.loadingLogs = false;
+  }
+
+  sort(sortEvent?: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent ? sortEvent.name : 'name';
+    this.sortOrder = sortEvent ? sortEvent.order : TdDataTableSortingOrder.Ascending;
+    this.coreServices = this.dataTableService.sortData(this.coreServices, this.sortBy, this.sortOrder);
   }
 }
