@@ -110,84 +110,106 @@
           <mat-icon>assignment</mat-icon>
           <p>No Executions generated</p>
         </centered-element>
-        <td-data-table
-          #tjobsTable
-          *ngIf="tJobExecData && tJobExecData.length > 0"
-          class="useMaxHeight"
-          [data]="tJobExecData"
-          [columns]="tJobExecColumns"
-          [selectable]="true"
-          [clickable]="true"
-          [resizableColumns]="true"
-          (rowSelect)="switchExecSelection($event)"
-          (selectAll)="switchAllExecsSelection($event)"
-          [sortable]="true"
-          [sortBy]="sortBy"
-          [sortOrder]="sortOrder"
-          (sortChange)="sort($event)"
-        >
-          <ng-template
-            *ngFor="let column of tJobExecColumns"
-            tdDataTableTemplate="{{ column.name }}"
-            let-value="value"
-            let-row="row"
-          >
-            <div
-              *ngIf="
-                column.name !== 'options' &&
-                column.name !== 'startDate' &&
-                column.name !== 'endDate' &&
-                column.name !== 'lastExecutionDate'
-              "
-              (click)="viewTJobExec(row)"
-              class="hover-pointer"
-            >
-              <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
-                <ng-container *ngIf="column.name === 'result'">
-                  <mat-spinner
-                    *ngIf="!row.finished()"
-                    strokeWidth="3"
-                    diameter="20"
-                    color="accent"
-                    style="vertical-align: middle; display: inline-block"
-                  ></mat-spinner>
-                  <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{
-                    row.getResultIcon().name
-                  }}</mat-icon>
-                </ng-container>
-                <span style="vertical-align: middle; margin-left: 4px;">{{ value }}</span>
-              </span>
-              <ng-template #tjobSutValue>
-                <span *ngIf="row.hasSutExec()">{{ row.sutExec.id }}</span> <span *ngIf="!row.hasSutExec()">None</span>
-              </ng-template>
-            </div>
-            <div *ngIf="column.name === 'startDate' || column.name === 'endDate'" (click)="viewTJobExec(row)">
-              {{ value | date: 'dd/MM/yyyy HH:mm:ss' }}
-            </div>
-            <div *ngIf="column.name === 'lastExecutionDate'" (click)="viewTJobExec(row)">
-              <ng-container *ngIf="value !== undefined; else notExecuted"> {{ value | timeAgo }} </ng-container>
-              <ng-template #notExecuted> Not Executed Yet </ng-template>
-            </div>
-          </ng-template>
 
-          <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-            <div fxLayout="row" class="optionsColumn">
-              <button
-                mat-button
-                (click)="deleteTJobExec(row)"
-                [disabled]="deletingInProgress"
-                stopRowClick
-                title="Delete TJob Execution"
-                class="iconBtn-lg"
+        <!-- Execs Table -->
+        <ng-container *ngIf="tJobExecData && tJobExecData.length > 0">
+          <td-data-table
+            #tjobsTable
+            class="useMaxHeight"
+            [data]="execsFilteredData"
+            [columns]="tJobExecColumns"
+            [selectable]="true"
+            [clickable]="true"
+            [resizableColumns]="true"
+            (rowSelect)="switchExecSelection($event)"
+            (selectAll)="switchAllExecsSelection($event)"
+            [sortable]="true"
+            [sortBy]="sortBy"
+            [sortOrder]="sortOrder"
+            (sortChange)="sort($event)"
+          >
+            <ng-template
+              *ngFor="let column of tJobExecColumns"
+              tdDataTableTemplate="{{ column.name }}"
+              let-value="value"
+              let-row="row"
+            >
+              <div
+                *ngIf="
+                  column.name !== 'options' &&
+                  column.name !== 'startDate' &&
+                  column.name !== 'endDate' &&
+                  column.name !== 'lastExecutionDate'
+                "
+                (click)="viewTJobExec(row)"
+                class="hover-pointer"
               >
-                <mat-icon>delete</mat-icon>
-              </button>
-              <button mat-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">
-                <mat-icon>library_books</mat-icon>
-              </button>
-            </div>
-          </ng-template>
-        </td-data-table>
+                <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
+                  <ng-container *ngIf="column.name === 'result'">
+                    <mat-spinner
+                      *ngIf="!row.finished()"
+                      strokeWidth="3"
+                      diameter="20"
+                      color="accent"
+                      style="vertical-align: middle; display: inline-block"
+                    ></mat-spinner>
+                    <mat-icon *ngIf="row.finished()" style="vertical-align: middle;" [style.color]="row.getResultIcon().color">{{
+                      row.getResultIcon().name
+                    }}</mat-icon>
+                  </ng-container>
+                  <span style="vertical-align: middle; margin-left: 4px;">{{ value }}</span>
+                </span>
+                <ng-template #tjobSutValue>
+                  <span *ngIf="row.hasSutExec()">{{ row.sutExec.id }}</span> <span *ngIf="!row.hasSutExec()">None</span>
+                </ng-template>
+              </div>
+              <div *ngIf="column.name === 'startDate' || column.name === 'endDate'" (click)="viewTJobExec(row)">
+                {{ value | date: 'dd/MM/yyyy HH:mm:ss' }}
+              </div>
+              <div *ngIf="column.name === 'lastExecutionDate'" (click)="viewTJobExec(row)">
+                <ng-container *ngIf="value !== undefined; else notExecuted"> {{ value | timeAgo }} </ng-container>
+                <ng-template #notExecuted> Not Executed Yet </ng-template>
+              </div>
+            </ng-template>
+
+            <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+              <div fxLayout="row" class="optionsColumn">
+                <button
+                  mat-button
+                  (click)="deleteTJobExec(row)"
+                  [disabled]="deletingInProgress"
+                  stopRowClick
+                  title="Delete TJob Execution"
+                  class="iconBtn-lg"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+                <button mat-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">
+                  <mat-icon>library_books</mat-icon>
+                </button>
+              </div>
+            </ng-template>
+          </td-data-table>
+
+          <!-- Execs pagination -->
+          <td-paging-bar #execsPaging [pageSize]="execsPageSize" [total]="execsFilteredTotal" (change)="execsPage($event)">
+            <span hide-xs>Rows per page:</span>
+            <mat-select [style.width.px]="50" [(ngModel)]="execsPageSize">
+              <mat-option
+                *ngFor="
+                  let size of [tJobExecData.length, 10, 15, 20, 50, 100, 200, 500];
+                  let i = index;
+                  let f = first;
+                  let l = last
+                "
+                [value]="size"
+              >
+                {{ l ? 'All' : size }}
+              </mat-option>
+            </mat-select>
+            {{ execsPaging.range }} <span hide-xs>of {{ execsPaging.total }}</span>
+          </td-paging-bar>
+        </ng-container>
       </sa-card-content>
     </self-adjustable-card>
   </auto-height-row>

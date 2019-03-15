@@ -6,7 +6,7 @@ import { TJobExecService } from '../../tjob-exec/tjobExec.service';
 import { TJobModel } from '../tjob-model';
 import { TJobService } from '../tjob.service';
 
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewContainerRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   IConfirmConfig,
@@ -17,6 +17,8 @@ import {
   ITdDataTableColumn,
   TdDataTableService,
   TdDataTableSortingOrder,
+  TdPagingBarComponent,
+  IPageChangeEvent,
 } from '@covalent/core';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { Observable, Subject } from 'rxjs';
@@ -27,11 +29,19 @@ import { Observable, Subject } from 'rxjs';
   styleUrls: ['./tjob-manager.component.scss'],
 })
 export class TjobManagerComponent implements OnInit {
+  @ViewChild(TdPagingBarComponent) execsPaging: TdPagingBarComponent;
+
   tJob: TJobModel;
   editMode: boolean = false;
 
   sutEmpty: SutModel = new SutModel();
   deletingInProgress: boolean = false;
+
+  tJobExecData: TJobExecModel[] = [];
+  showSpinner: boolean = true;
+
+  selectedExecsIds: number[] = [];
+  execIdsWithErrorOnDelete: number[] = [];
 
   // TJob Exec Data
   tJobExecColumns: ITdDataTableColumn[] = [
@@ -46,14 +56,16 @@ export class TjobManagerComponent implements OnInit {
     { name: 'options', label: 'Options', sortable: false },
   ];
 
+  // Sort
   sortBy: string = 'id';
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
-  tJobExecData: TJobExecModel[] = [];
-  showSpinner: boolean = true;
-
-  selectedExecsIds: number[] = [];
-  execIdsWithErrorOnDelete: number[] = [];
+  // Pagination
+  fromExecsRow: number = 1;
+  currentExecsPage: number = 1;
+  execsPageSize: number = 10;
+  execsFilteredTotal: number;
+  execsFilteredData: TJobExecModel[] = [];
 
   constructor(
     private titlesService: TitlesService,
@@ -90,7 +102,8 @@ export class TjobManagerComponent implements OnInit {
                 tJobExec['lastExecutionDate'] = tJobExec.endDate ? tJobExec.endDate : tJobExec.startDate;
               });
               this.showSpinner = false;
-              this.sortTJobsExec(); // Id desc
+              // this.sortTJobsExec(); // Id desc
+              this.filterExecs();
             },
             (error: Error) => console.log(error),
           );
@@ -304,5 +317,31 @@ export class TjobManagerComponent implements OnInit {
     this.sortBy = sortEvent.name;
     this.sortOrder = sortEvent.order;
     this.tJobExecData = this.dataTableService.sortData(this.tJobExecData, this.sortBy, this.sortOrder);
+    this.filterExecs();
+  }
+
+  execsPage(pagingEvent: IPageChangeEvent): void {
+    this.fromExecsRow = pagingEvent.fromRow;
+    this.currentExecsPage = pagingEvent.page;
+    this.execsPageSize = pagingEvent.pageSize;
+    this.filterExecs();
+  }
+
+  async filterExecs(): Promise<void> {
+    let newData: any[] = this.tJobExecData;
+    // let excludedColumns: string[] = await this.tJobExecColumns
+    //   .filter((column: ITdDataTableColumn) => {
+    //     return (
+    //       (column.filter === undefined && column.hidden === true) || (column.filter !== undefined && column.filter === false)
+    //     );
+    //   })
+    //   .map((column: ITdDataTableColumn) => {
+    //     return column.name;
+    //   });
+    // newData = await this.dataTableService.filterData(newData, this.searchTerm, true, excludedColumns);
+    this.execsFilteredTotal = newData.length;
+    newData = await this.dataTableService.sortData(newData, this.sortBy, this.sortOrder);
+    newData = await this.dataTableService.pageData(newData, this.fromExecsRow, this.currentExecsPage * this.execsPageSize);
+    this.execsFilteredData = newData;
   }
 }
