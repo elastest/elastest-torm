@@ -36,7 +36,7 @@ import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.Project.ProjectMediumView;
 import io.elastest.etm.model.TJob.TJobCompleteView;
 import io.elastest.etm.model.TJob.TJobMediumView;
-import io.elastest.etm.model.TJobExecution.TJobExecView;
+import io.elastest.etm.model.TJobExecution.TJobExecCompleteView;
 import io.elastest.etm.model.external.ExternalElasticsearch;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
@@ -61,7 +61,7 @@ public class SutSpecification {
     @Id
     @JsonView({ SutView.class, ProjectMediumView.class, ExternalProjectView.class,
             TJobMediumView.class, ExternalTJobView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
     @JsonProperty("id")
@@ -105,7 +105,7 @@ public class SutSpecification {
 
     @JsonView({ SutView.class, ProjectMediumView.class, ExternalProjectView.class,
             ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "eimConfig")
     @JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)
@@ -113,7 +113,7 @@ public class SutSpecification {
 
     @JsonView({ SutView.class, ProjectMediumView.class, ExternalProjectView.class,
             ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "eimMonitoringConfig")
     @JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)

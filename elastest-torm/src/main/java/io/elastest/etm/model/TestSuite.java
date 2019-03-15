@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.model.TJob.TJobCompleteView;
-import io.elastest.etm.model.TJobExecution.TJobExecView;
+import io.elastest.etm.model.TJobExecution.TJobExecCompleteView;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestCase.TestCaseView;
 import io.swagger.annotations.ApiModel;
@@ -33,7 +33,7 @@ public class TestSuite {
     public interface TestSuiteView {
     }
 
-    @JsonView({ TJobExecView.class, TestSuiteView.class, TJobCompleteView.class,
+    @JsonView({ TJobExecCompleteView.class, TestSuiteView.class, TJobCompleteView.class,
             TestCaseView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
@@ -42,50 +42,50 @@ public class TestSuite {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ TJobExecView.class, TestSuiteView.class, TJobCompleteView.class,
+    @JsonView({ TJobExecCompleteView.class, TestSuiteView.class, TJobCompleteView.class,
             TestCaseView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name;
 
-    @JsonView({ TJobExecView.class, TestSuiteView.class, TJobCompleteView.class,
+    @JsonView({ TJobExecCompleteView.class, TestSuiteView.class, TJobCompleteView.class,
             TestCaseView.class })
     @Column(name = "timeElapsed")
     @JsonProperty("timeElapsed")
     private double timeElapsed;
 
-    @JsonView({ TJobExecView.class, TestSuiteView.class, TJobCompleteView.class,
+    @JsonView({ TJobExecCompleteView.class, TestSuiteView.class, TJobCompleteView.class,
             TestCaseView.class })
     @Column(name = "errors")
     @JsonProperty("errors")
     private int errors;
 
-    @JsonView({ TJobExecView.class, TestSuiteView.class, TJobCompleteView.class,
+    @JsonView({ TJobExecCompleteView.class, TestSuiteView.class, TJobCompleteView.class,
             TestCaseView.class })
     @Column(name = "failures")
     @JsonProperty("failures")
     private int failures;
 
-    @JsonView({ TJobExecView.class, TestSuiteView.class, TJobCompleteView.class,
+    @JsonView({ TJobExecCompleteView.class, TestSuiteView.class, TJobCompleteView.class,
             TestCaseView.class })
     @Column(name = "skipped")
     @JsonProperty("skipped")
     private int skipped;
 
-    @JsonView({ TJobExecView.class, TestSuiteView.class, TJobCompleteView.class,
+    @JsonView({ TJobExecCompleteView.class, TestSuiteView.class, TJobCompleteView.class,
             TestCaseView.class })
     @Column(name = "flakes")
     @JsonProperty("flakes")
     private int flakes;
 
-    @JsonView({ TJobExecView.class, TestSuiteView.class, TJobCompleteView.class,
+    @JsonView({ TJobExecCompleteView.class, TestSuiteView.class, TJobCompleteView.class,
             TestCaseView.class })
     @Column(name = "numTests")
     @JsonProperty("numTests")
     private int numTests;
 
     // bi-directional many-to-one association to TestCase
-    @JsonView({ TJobExecView.class, TestSuiteView.class,
+    @JsonView({ TJobExecCompleteView.class, TestSuiteView.class,
             TJobCompleteView.class })
     @OneToMany(mappedBy = "testSuite", cascade = CascadeType.REMOVE)
     private List<TestCase> testCases;

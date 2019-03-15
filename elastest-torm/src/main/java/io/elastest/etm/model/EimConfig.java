@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.elastest.etm.model.Project.ProjectMediumView;
 import io.elastest.etm.model.SutSpecification.SutView;
 import io.elastest.etm.model.TJob.TJobCompleteView;
-import io.elastest.etm.model.TJobExecution.TJobExecView;
+import io.elastest.etm.model.TJobExecution.TJobExecCompleteView;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 import io.elastest.etm.model.external.ExternalTJob.ExternalTJobView;
 
@@ -35,7 +35,7 @@ public class EimConfig {
     @Id
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
     @Column(name = "id")
@@ -44,112 +44,112 @@ public class EimConfig {
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "user")
     @JsonProperty("user")
     private String user = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "password")
     @JsonProperty("password")
     private String password = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "privateKey", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("privateKey")
     private String privateKey = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "ip")
     @JsonProperty("ip")
     private String ip = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "agentId")
     @JsonProperty("agentId")
     private String agentId = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "logstashIp")
     @JsonProperty("logstashIp")
     private String logstashIp = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "logstashTcpHost")
     @JsonProperty("logstashTcpHost")
     private String logstashTcpHost = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "logstashTcpPort")
     @JsonProperty("logstashTcpPort")
     private String logstashTcpPort = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "logstashBeatsHost")
     @JsonProperty("logstashBeatsHost")
     private String logstashBeatsHost = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "logstashBeatsPort")
     @JsonProperty("logstashBeatsPort")
     private String logstashBeatsPort = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "logstashBindedTcpHost")
     @JsonProperty("logstashBindedTcpHost")
     private String logstashBindedTcpHost = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "logstashBindedTcpPort")
     @JsonProperty("logstashBindedTcpPort")
     private String logstashBindedTcpPort = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "logstashBindedBeatsHost")
     @JsonProperty("logstashBindedBeatsHost")
     private String logstashBindedBeatsHost = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "logstashBindedBeatsPort")
     @JsonProperty("logstashBindedBeatsPort")
     private String logstashBindedBeatsPort = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "logstashHttpPort")
     @JsonProperty("logstashHttpPort")
     private String logstashHttpPort = null;
 
     @JsonView({ EimConfigView.class, SutView.class, ExternalProjectView.class,
             ProjectMediumView.class, ExternalTJobView.class, TJobCompleteView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "logstashHttpApiUrl")
     @JsonProperty("logstashHttpApiUrl")
     private String logstashHttpApiUrl = null;

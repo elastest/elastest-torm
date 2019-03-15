@@ -3,6 +3,7 @@ package io.elastest.etm.model;
 import static io.elastest.etm.utils.ToStringUtils.toIndentedString;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,7 +38,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.elastest.etm.model.Project.ProjectMediumView;
 import io.elastest.etm.model.Project.ProjectCompleteView;
-import io.elastest.etm.model.TJobExecution.TJobExecView;
+import io.elastest.etm.model.TJobExecution.TJobExecCompleteView;
 import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -48,7 +49,8 @@ import io.swagger.annotations.ApiModelProperty;
 
 @Entity
 @ApiModel(description = "Entity that represents the test to run against a SUT.")
-public class TJob {
+public class TJob implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     public interface TJobMinimalView {
     }
@@ -60,7 +62,7 @@ public class TJob {
     }
 
     @JsonView({ TJobMinimalView.class, ProjectMediumView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -68,7 +70,7 @@ public class TJob {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ TJobMinimalView.class, TJobExecView.class,
+    @JsonView({ TJobMinimalView.class, TJobExecCompleteView.class,
             ProjectMediumView.class })
     @Column(name = "name")
     @JsonProperty("name")
@@ -80,7 +82,7 @@ public class TJob {
     private String imageName = null;
 
     @JsonView({ TJobMediumView.class, ProjectMediumView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sut")
     @JsonProperty("sut")
@@ -92,7 +94,7 @@ public class TJob {
     private List<TJobExecution> tjobExecs;
 
     // bi-directional many-to-one association to Project
-    @JsonView({ TJobMediumView.class, TJobExecView.class })
+    @JsonView({ TJobMediumView.class, TJobExecCompleteView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project")
     private Project project;
@@ -113,24 +115,24 @@ public class TJob {
     private String resultsPath = null;
 
     @JsonView({ TJobMediumView.class, ProjectMediumView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "external")
     @JsonProperty("external")
     private boolean external = false;
 
     @JsonView({ TJobMediumView.class, ProjectMediumView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "execDashboardConfig", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("execDashboardConfig")
     private String execDashboardConfig = null;
 
     @JsonView({ TJobMediumView.class, ProjectMediumView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "selectedServices", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("esmServicesString")
     private String selectedServices;
 
-    @JsonView({ TJobExecView.class, TJobMediumView.class,
+    @JsonView({ TJobExecCompleteView.class, TJobMediumView.class,
             ProjectMediumView.class })
     @ElementCollection
     @MapKeyColumn(name = "URL_NAME", length = 100)
@@ -139,13 +141,13 @@ public class TJob {
     private Map<String, String> externalUrls;
 
     @JsonView({ TJobMediumView.class, ProjectMediumView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @Column(name = "multi")
     @JsonProperty("multi")
     private Boolean multi = false;
 
     @JsonView({ TJobMediumView.class, ProjectMediumView.class,
-            TJobExecView.class })
+            TJobExecCompleteView.class })
     @ElementCollection
     @CollectionTable(name = "TJobMultiConfiguration", joinColumns = @JoinColumn(name = "TJob"))
     @MapKeyColumn(name = "NAME")

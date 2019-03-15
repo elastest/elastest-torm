@@ -6,10 +6,12 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import io.elastest.etm.model.ExecData;
 import io.elastest.etm.model.TJob;
@@ -68,7 +70,8 @@ public interface TjobApi extends EtmApiRoot {
     @RequestMapping(value = "/tjob/{tJobId}", produces = {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<TJob> getTJobById(
-            @ApiParam(value = "TJob id.", required = true) @PathVariable("tJobId") Long tJobId);
+            @ApiParam(value = "TJob id.", required = true) @PathVariable("tJobId") Long tJobId,
+            @RequestParam(value = "viewType", required = false) String viewType);
 
     @ApiOperation(value = "Modifies a existing TJob", notes = "Modifies the TJob that matches the received TJob.", response = TJob.class, tags = {
             "TJob", })

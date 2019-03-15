@@ -23,8 +23,7 @@ export class TJobService {
   }
 
   public getTJob(id: string, viewType: backendViewType = 'complete'): Observable<TJobModel> {
-    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + id;
-    // + '?viewType=' + viewType;
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + id + '?viewType=' + viewType;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobModel(data);

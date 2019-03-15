@@ -501,9 +501,9 @@ public class TJobService {
         }
         return view;
     }
-    
-    
-    public MappingJacksonValue getMappingJacksonValue(Object obj, String viewType) {
+
+    public MappingJacksonValue getMappingJacksonValue(Object obj,
+            String viewType) {
         final MappingJacksonValue result = new MappingJacksonValue(obj);
         Class<? extends TJobMinimalView> view = getView(viewType);
 
