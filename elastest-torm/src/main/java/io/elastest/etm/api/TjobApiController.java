@@ -10,9 +10,9 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -137,7 +137,7 @@ public class TjobApiController implements TjobApi {
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
 
         List<TJobExecution> tjobExecList = tJobService
-                .getTJobExecutionsByTJobId(tJobId);
+                .getTJobExecutionsByTJobId(tJobId, false);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
     }
@@ -147,13 +147,12 @@ public class TjobApiController implements TjobApi {
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
 
         List<TJobExecution> tjobExecList = tJobService
-                .getTJobsExecutionsByTJobIdWithoutChilds(tJobId);
+                .getTJobExecutionsByTJobId(tJobId, true);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
     }
 
     @JsonView(TJobExecCompleteView.class)
-
     public ResponseEntity<List<TJobExecution>> getLastNTJobExecutions(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
@@ -163,6 +162,10 @@ public class TjobApiController implements TjobApi {
                 HttpStatus.OK);
     }
 
+    /* ****************************** */
+    /* *** All execs of all TJobs *** */
+    /* ****************************** */
+
     @Override
     @JsonView(TJobExecCompleteView.class)
     public ResponseEntity<List<TJobExecution>> getAllTJobExecutions() {
@@ -171,89 +174,111 @@ public class TjobApiController implements TjobApi {
                 HttpStatus.OK);
     }
 
+    /* *** By ID *** */
+    @Override
+    @JsonView(TJobExecCompleteView.class)
+    public ResponseEntity<List<TJobExecution>> getTJobsExecsRange(
+            @RequestParam(value = "from", required = true) int from,
+            @RequestParam(value = "to", required = true) int to,
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
+        withoutChilds = withoutChilds != null ? withoutChilds : false;
+
+        List<TJobExecution> tjobExecList = tJobService.getTJobsExecsRange(from,
+                to, Direction.DESC, withoutChilds);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
+                HttpStatus.OK);
+    }
+
     @Override
     @JsonView(TJobExecCompleteView.class)
     public ResponseEntity<List<TJobExecution>> getLastNTJobsExecutions(
-            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
+            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number,
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
+        withoutChilds = withoutChilds != null ? withoutChilds : false;
+
         List<TJobExecution> tjobExecList = tJobService
-                .getLastNTJobsExecs(number);
+                .getLastNTJobsExecs(number, withoutChilds);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
+                HttpStatus.OK);
+    }
+
+    /* *** By results *** */
+
+    @Override
+    @JsonView(TJobExecCompleteView.class)
+    public ResponseEntity<List<TJobExecution>> getAllRunningTJobsExecutions(
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
+        withoutChilds = withoutChilds != null ? withoutChilds : false;
+
+        List<TJobExecution> tjobExecList = tJobService
+                .getAllRunningTJobsExecs(withoutChilds);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
     }
 
     @Override
     @JsonView(TJobExecCompleteView.class)
-    public ResponseEntity<List<TJobExecution>> getLastNTJobsExecutionsWithoutChilds(
-            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
+    public ResponseEntity<List<TJobExecution>> getRunningTJobsExecutionsByRange(
+            @RequestParam(value = "from", required = true) int from,
+            @RequestParam(value = "to", required = true) int to,
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
+        withoutChilds = withoutChilds != null ? withoutChilds : false;
+
         List<TJobExecution> tjobExecList = tJobService
-                .getLastNTJobsExecsWithoutChilds(number);
+                .getRunningTJobExecsByRange(from, to, Direction.DESC,
+                        withoutChilds);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
     }
 
     @Override
     @JsonView(TJobExecCompleteView.class)
-    public ResponseEntity<List<TJobExecution>> getAllRunningTJobExecutions() {
+    public ResponseEntity<List<TJobExecution>> getLastNRunningTJobsExecutions(
+            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number,
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
+        withoutChilds = withoutChilds != null ? withoutChilds : false;
+
         List<TJobExecution> tjobExecList = tJobService
-                .getAllRunningTJobsExecs();
+                .getLastNRunningTJobExecs(number, withoutChilds);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
     }
 
     @Override
     @JsonView(TJobExecCompleteView.class)
-    public ResponseEntity<List<TJobExecution>> getAllRunningTJobExecutionsWithoutChilds() {
+    public ResponseEntity<List<TJobExecution>> getAllFinishedOrNotExecutedTJobsExecutions(
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
+        withoutChilds = withoutChilds != null ? withoutChilds : false;
+
         List<TJobExecution> tjobExecList = tJobService
-                .getAllRunningTJobsExecsWithoutChilds();
+                .getAllFinishedOrNotExecutedTJobExecs(withoutChilds);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
     }
 
     @Override
     @JsonView(TJobExecCompleteView.class)
-    public ResponseEntity<List<TJobExecution>> getLastNRunningTJobExecutions(
-            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
+    public ResponseEntity<List<TJobExecution>> getFinishedOrNotExecutedTJobsExecutionsByRange(
+            @RequestParam(value = "from", required = true) int from,
+            @RequestParam(value = "to", required = true) int to,
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
+        withoutChilds = withoutChilds != null ? withoutChilds : false;
         List<TJobExecution> tjobExecList = tJobService
-                .getLastNRunningTJobExecs(number);
+                .getFinishedOrNotExecutedTJobsExecsByRange(from, to,
+                        Direction.DESC, withoutChilds);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
     }
 
     @Override
     @JsonView(TJobExecCompleteView.class)
-    public ResponseEntity<List<TJobExecution>> getLastNRunningTJobExecutionsWithoutChilds(
-            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
-        List<TJobExecution> tjobExecList = tJobService
-                .getLastNRunningTJobsExecsWithoutChilds(number);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
-    }
+    public ResponseEntity<List<TJobExecution>> getLastNFinishedOrNotExecutedTJobsExecutions(
+            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number,
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
+        withoutChilds = withoutChilds != null ? withoutChilds : false;
 
-    @Override
-    @JsonView(TJobExecCompleteView.class)
-    public ResponseEntity<List<TJobExecution>> getAllFinishedOrNotExecutedTJobExecutions() {
         List<TJobExecution> tjobExecList = tJobService
-                .getAllFinishedOrNotExecutedTJobExecs();
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
-    }
-
-    @Override
-    @JsonView(TJobExecCompleteView.class)
-    public ResponseEntity<List<TJobExecution>> getLastNFinishedOrNotExecutedTJobExecutions(
-            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
-        List<TJobExecution> tjobExecList = tJobService
-                .getLastNFinishedOrNotExecutedTJobsExecs(number);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
-    }
-
-    @Override
-    @JsonView(TJobExecCompleteView.class)
-    public ResponseEntity<List<TJobExecution>> getLastNFinishedOrNotExecutedTJobExecutionsWithoutChilds(
-            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number) {
-        List<TJobExecution> tjobExecList = tJobService
-                .getLastNFinishedOrNotExecutedTJobsExecsWithoutChilds(number);
+                .getLastNFinishedOrNotExecutedTJobsExecs(number, withoutChilds);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
     }
