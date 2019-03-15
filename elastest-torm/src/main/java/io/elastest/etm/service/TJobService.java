@@ -369,7 +369,7 @@ public class TJobService {
         return tJobExecRepositoryImpl.findAll();
     }
 
-    /* *** By ID *** */
+    /* ****** By ID ****** */
 
     public List<TJobExecution> getTJobsExecsRange(int from, int to,
             Direction direction, boolean withoutChilds) {
@@ -387,7 +387,7 @@ public class TJobService {
                 withoutChilds);
     }
 
-    /* *** By results *** */
+    /* ****** By results ****** */
 
     public List<TJobExecution> getTJobsExecsRangeByResults(int from, int to,
             Direction direction, List<ResultEnum> results,
@@ -402,15 +402,78 @@ public class TJobService {
         }
     }
 
-    public List<TJobExecution> getAllRunningTJobsExecs(boolean withoutChilds) {
+    public List<TJobExecution> getTJobsExecsRangeByResultsAndIdLessThan(
+            int from, int to, Direction direction, List<ResultEnum> results,
+            Long id, boolean withoutChilds) {
+        Pageable range = PageRequest.of(from, to, direction, "id");
         if (withoutChilds) {
-            return this.tJobExecRepositoryImpl.findByResultsWithoutChilds(
-                    ResultEnum.getNotFinishedOrExecutedResultList());
+            return tJobExecRepositoryImpl
+                    .findByResultsAndIdLessThanWithPageableWithoutChilds(
+                            results, id, range);
         } else {
-            return this.tJobExecRepositoryImpl.findByResults(
-                    ResultEnum.getNotFinishedOrExecutedResultList());
+            return tJobExecRepositoryImpl
+                    .findByResultsAndIdLessThanWithPageable(results, id, range);
         }
     }
+
+    public List<TJobExecution> getTJobsExecsRangeByResultsAndIdGreaterThan(
+            int from, int to, Direction direction, List<ResultEnum> results,
+            Long id, boolean withoutChilds) {
+        Pageable range = PageRequest.of(from, to, direction, "id");
+        if (withoutChilds) {
+            return tJobExecRepositoryImpl
+                    .findByResultsAndIdGreaterThanWithPageableWithoutChilds(
+                            results, id, range);
+        } else {
+            return tJobExecRepositoryImpl
+                    .findByResultsAndIdGreaterThanWithPageable(results, id,
+                            range);
+        }
+    }
+
+    /* *** Running *** */
+
+    public List<TJobExecution> getAllRunningTJobsExecs(boolean withoutChilds) {
+        List<ResultEnum> notFinishedOrExecutedResultList = ResultEnum
+                .getNotFinishedOrExecutedResultList();
+        if (withoutChilds) {
+            return this.tJobExecRepositoryImpl.findByResultsWithoutChilds(
+                    notFinishedOrExecutedResultList);
+        } else {
+            return this.tJobExecRepositoryImpl
+                    .findByResults(notFinishedOrExecutedResultList);
+        }
+    }
+
+    public List<TJobExecution> getAllRunningTJobsExecsByIdLessThan(Long id,
+            boolean withoutChilds) {
+        List<ResultEnum> notFinishedOrExecutedResultList = ResultEnum
+                .getNotFinishedOrExecutedResultList();
+        if (withoutChilds) {
+            return this.tJobExecRepositoryImpl
+                    .findByResultsAndIdLessThanWithoutChilds(
+                            notFinishedOrExecutedResultList, id);
+        } else {
+            return this.tJobExecRepositoryImpl.findByResultsAndIdLessThan(
+                    notFinishedOrExecutedResultList, id);
+        }
+    }
+
+    public List<TJobExecution> getAllRunningTJobsExecsByIdGreaterThan(Long id,
+            boolean withoutChilds) {
+        List<ResultEnum> notFinishedOrExecutedResultList = ResultEnum
+                .getNotFinishedOrExecutedResultList();
+        if (withoutChilds) {
+            return this.tJobExecRepositoryImpl
+                    .findByResultsAndIdGreaterThanWithoutChilds(
+                            notFinishedOrExecutedResultList, id);
+        } else {
+            return this.tJobExecRepositoryImpl.findByResultsAndIdGreaterThan(
+                    notFinishedOrExecutedResultList, id);
+        }
+    }
+
+    /* *** */
 
     public List<TJobExecution> getRunningTJobExecsByRange(int from, int to,
             Direction dir, boolean withoutChilds) {
@@ -418,22 +481,72 @@ public class TJobService {
                 ResultEnum.getNotFinishedOrExecutedResultList(), withoutChilds);
     }
 
+    public List<TJobExecution> getRunningTJobExecsByRangeAndIdLessThan(int from,
+            int to, Long id, Direction dir, boolean withoutChilds) {
+        return getTJobsExecsRangeByResultsAndIdLessThan(from, to, dir,
+                ResultEnum.getNotFinishedOrExecutedResultList(), id,
+                withoutChilds);
+    }
+
+    public List<TJobExecution> getRunningTJobExecsByRangeAndIdGreaterThan(
+            int from, int to, Long id, Direction dir, boolean withoutChilds) {
+        return getTJobsExecsRangeByResultsAndIdGreaterThan(from, to, dir,
+                ResultEnum.getNotFinishedOrExecutedResultList(), id,
+                withoutChilds);
+    }
+
+    /* *** */
+
     public List<TJobExecution> getLastNRunningTJobExecs(Long number,
             boolean withoutChilds) {
         return getTJobsExecsRangeByResults(0, number.intValue(), Direction.DESC,
                 ResultEnum.getNotFinishedOrExecutedResultList(), withoutChilds);
     }
 
+    /* *** Finished *** */
+
     public List<TJobExecution> getAllFinishedOrNotExecutedTJobExecs(
             boolean withoutChilds) {
+        List<ResultEnum> finishedAndNotExecutedResultList = ResultEnum
+                .getFinishedAndNotExecutedResultList();
         if (withoutChilds) {
             return this.tJobExecRepositoryImpl.findByResultsWithoutChilds(
-                    ResultEnum.getFinishedAndNotExecutedResultList());
+                    finishedAndNotExecutedResultList);
         } else {
-            return this.tJobExecRepositoryImpl.findByResults(
-                    ResultEnum.getFinishedAndNotExecutedResultList());
+            return this.tJobExecRepositoryImpl
+                    .findByResults(finishedAndNotExecutedResultList);
         }
     }
+
+    public List<TJobExecution> getAllFinishedOrNotExecutedTJobsExecsByIdLessThan(
+            Long id, boolean withoutChilds) {
+        List<ResultEnum> finishedAndNotExecutedResultList = ResultEnum
+                .getFinishedAndNotExecutedResultList();
+        if (withoutChilds) {
+            return this.tJobExecRepositoryImpl
+                    .findByResultsAndIdLessThanWithoutChilds(
+                            finishedAndNotExecutedResultList, id);
+        } else {
+            return this.tJobExecRepositoryImpl.findByResultsAndIdLessThan(
+                    finishedAndNotExecutedResultList, id);
+        }
+    }
+
+    public List<TJobExecution> getAllFinishedOrNotExecutedTJobsExecsByIdGreaterThan(
+            Long id, boolean withoutChilds) {
+        List<ResultEnum> finishedAndNotExecutedResultList = ResultEnum
+                .getFinishedAndNotExecutedResultList();
+        if (withoutChilds) {
+            return this.tJobExecRepositoryImpl
+                    .findByResultsAndIdGreaterThanWithoutChilds(
+                            finishedAndNotExecutedResultList, id);
+        } else {
+            return this.tJobExecRepositoryImpl.findByResultsAndIdGreaterThan(
+                    finishedAndNotExecutedResultList, id);
+        }
+    }
+
+    /* *** */
 
     public List<TJobExecution> getFinishedOrNotExecutedTJobsExecsByRange(
             int from, int to, Direction dir, boolean withoutChilds) {
@@ -442,6 +555,22 @@ public class TJobService {
                 withoutChilds);
     }
 
+    public List<TJobExecution> getFinishedOrNotExecutedTJobsExecsByRangeAndIdLessThan(
+            int from, int to, Long id, Direction dir, boolean withoutChilds) {
+        return getTJobsExecsRangeByResultsAndIdLessThan(from, to, dir,
+                ResultEnum.getFinishedAndNotExecutedResultList(), id,
+                withoutChilds);
+    }
+
+    public List<TJobExecution> getFinishedOrNotExecutedTJobsExecsByRangeAndIdGreaterThan(
+            int from, int to, Long id, Direction dir, boolean withoutChilds) {
+        return getTJobsExecsRangeByResultsAndIdGreaterThan(from, to, dir,
+                ResultEnum.getFinishedAndNotExecutedResultList(), id,
+                withoutChilds);
+    }
+
+    /* *** */
+
     public List<TJobExecution> getLastNFinishedOrNotExecutedTJobsExecs(
             Long number, boolean withoutChilds) {
         return getTJobsExecsRangeByResults(0, number.intValue(), Direction.DESC,
@@ -449,7 +578,7 @@ public class TJobService {
                 withoutChilds);
     }
 
-    /* *** *** */
+    /* *** ************ *** */
 
     public TJobExecution getTJobExecById(Long id) {
         return tJobExecRepositoryImpl.findById(id).get();

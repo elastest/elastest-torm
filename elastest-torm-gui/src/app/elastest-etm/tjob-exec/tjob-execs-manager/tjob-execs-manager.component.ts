@@ -8,6 +8,7 @@ import { TitlesService } from '../../../shared/services/titles.service';
 import { Component, OnInit, ViewContainerRef, Input, OnDestroy, HostListener } from '@angular/core';
 import { MatDialog } from '@angular/material';
 import { interval } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'etm-tjob-execs-manager',
@@ -18,14 +19,21 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
   @Input()
   isNested: boolean = false;
 
+  // First load
   tJobExecsFinished: TJobExecModel[];
+  // Finished recently
+  lastTJobExecsFinished: TJobExecModel[];
+  // All merged
+  allTJobExecsFinished: TJobExecModel[];
+  loadingAllPrevFinished: boolean = false;
+  allFinishedPrevLoaded: boolean = false;
+
   firstInitializationOfFinished: boolean = true;
+
   tJobExecsRunning: TJobExecModel[];
   firstInitializationOfRunning: boolean = true;
 
   deletingInProgress: boolean = false;
-
-  loadAllFinished: boolean = false;
 
   reloadSubscription: Subscription;
   reloadRunning: boolean = true;
@@ -84,6 +92,14 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
   }
 
   loadTJobExecs(firstLoadOrForce: boolean = false): void {
+    /* *** Running *** */
+    this.loadRunningTJobExecs(firstLoadOrForce);
+
+    /* *** Finished *** */
+    this.loadFinishedTJobExecs(firstLoadOrForce);
+  }
+
+  loadRunningTJobExecs(firstLoadOrForce: boolean = false): void {
     if (this.reloadRunning || firstLoadOrForce) {
       this.tJobExecService.getAllRunningTJobsExecutions(true).subscribe(
         (runningTJobExecs: TJobExecModel[]) => {
@@ -96,29 +112,47 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
         },
       );
     }
+  }
 
+  loadFinishedTJobExecs(firstLoadOrForce: boolean = false): void {
     if (this.reloadFinished || firstLoadOrForce) {
-      this.loadFinishedTJobExecs().subscribe(
-        (finishedTJobExecs: TJobExecModel[]) => {
-          if (this.loadAllFinished) {
-            finishedTJobExecs = finishedTJobExecs.reverse();
-          }
-          this.tJobExecsFinished = finishedTJobExecs;
-          this.firstInitializationOfFinished = false;
-        },
-        (error: Error) => {
-          console.log(error);
-        },
-      );
+      if (!this.tJobExecsFinished || this.tJobExecsFinished.length === 0) {
+        this.tJobExecService.getLastNFinishedOrNotExecutedTJobsExecutions(15, true).subscribe(
+          (finishedTJobExecs: TJobExecModel[]) => {
+            this.tJobExecsFinished = finishedTJobExecs;
+            this.loadLastFinishedTJobExecs();
+            this.firstInitializationOfFinished = false;
+          },
+          (error: Error) => {
+            console.log(error);
+          },
+        );
+      } else {
+        this.loadLastFinishedTJobExecs();
+        this.firstInitializationOfFinished = false;
+      }
     }
   }
 
-  loadFinishedTJobExecs(): Observable<TJobExecModel[]> {
-    if (this.loadAllFinished) {
-      return this.tJobExecService.getAllFinishedOrNotExecutedTJobsExecutions(true);
+  loadLastFinishedTJobExecs(): void {
+    if (this.tJobExecsFinished.length > 0) {
+      this.tJobExecService
+        .getAllFinishedOrNotExecutedTJobsExecutionsSinceId(this.tJobExecsFinished[0].id, 'greater', true)
+        .subscribe(
+          (lastFinishedTJobExecs: TJobExecModel[]) => {
+            this.lastTJobExecsFinished = lastFinishedTJobExecs;
+            this.generateAllFinishedTJobExecs();
+          },
+          (error: Error) => console.log(error),
+        );
+    }
+  }
+
+  generateAllFinishedTJobExecs(): void {
+    if (this.lastTJobExecsFinished.length > 0) {
+      this.allTJobExecsFinished = this.lastTJobExecsFinished.concat(this.tJobExecsFinished);
     } else {
-      // Default
-      return this.tJobExecService.getLastNFinishedOrNotExecutedTJobsExecutions(15, true);
+      this.allTJobExecsFinished = this.tJobExecsFinished;
     }
   }
 
@@ -143,7 +177,23 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
               this.tJobExecService.popupService.openSnackBar(
                 'TJob Execution Nº' + tJobExec.id + ' has been removed successfully!',
               );
-              this.loadTJobExecs();
+
+              // Reload all from last load execution
+              if (this.allTJobExecsFinished && this.allTJobExecsFinished.length > 0) {
+                let firstExecId: number = this.allTJobExecsFinished[this.allTJobExecsFinished.length - 1].id;
+                if (firstExecId > 1) {
+                  firstExecId -= 1;
+                }
+                this.tJobExecService.getAllFinishedOrNotExecutedTJobsExecutionsSinceId(firstExecId, 'greater', true).subscribe(
+                  (finishedTJobExecs: TJobExecModel[]) => {
+                    this.lastTJobExecsFinished = [];
+                    finishedTJobExecs = finishedTJobExecs.reverse();
+                    this.tJobExecsFinished = finishedTJobExecs;
+                    this.generateAllFinishedTJobExecs();
+                  },
+                  (error: Error) => console.log(error),
+                );
+              }
             },
             (error: Error) => {
               this.deletingInProgress = true;
@@ -162,10 +212,25 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
     this.router.navigate(['/loganalyzer'], { queryParams: { tjob: tJobExec.tJob.id, exec: tJobExec.id } });
   }
 
-  showAllFinished(): void {
-    this.loadAllFinished = true;
-    this.firstInitializationOfRunning = true;
-    this.firstInitializationOfFinished = true;
-    this.loadTJobExecs(true);
+  loadMorePreviousFinished(): void {
+    if (this.tJobExecsFinished && this.tJobExecsFinished.length > 0) {
+      this.loadingAllPrevFinished = true;
+      let firstExecId: number = this.tJobExecsFinished[this.tJobExecsFinished.length - 1].id;
+      this.tJobExecService.getFinishedOrNotExecutedTJobsExecutionsByRangeAndSinceId(firstExecId, 0, 12, 'less', true).subscribe(
+        (prev: TJobExecModel[]) => {
+          if (prev.length > 0) {
+            this.tJobExecsFinished = this.tJobExecsFinished.concat(prev);
+            this.generateAllFinishedTJobExecs();
+          } else {
+            this.allFinishedPrevLoaded = true;
+          }
+          this.loadingAllPrevFinished = false;
+        },
+        (error: Error) => {
+          console.log(error);
+          this.loadingAllPrevFinished = false;
+        },
+      );
+    }
   }
 }

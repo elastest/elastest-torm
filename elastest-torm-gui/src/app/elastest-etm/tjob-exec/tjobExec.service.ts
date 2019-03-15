@@ -10,8 +10,8 @@ import 'rxjs/Rx';
 import { TestCaseModel } from '../test-case/test-case-model';
 import { TestSuiteModel } from '../test-suite/test-suite-model';
 import { LogAnalyzerService, StartFinishTestCaseTraces } from '../../elastest-log-analyzer/log-analyzer.service';
-import { sleep } from '../../shared/utils';
 import { MetricTraces } from '../../shared/services/monitoring.service';
+import { sleep } from '../../shared/utils';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 
 @Injectable()
@@ -125,9 +125,9 @@ export class TJobExecService {
       '/tjob/execs/range' +
       '?from=' +
       from +
-      '?to=' +
+      '&to=' +
       to +
-      '?withoutChilds=' +
+      '&withoutChilds=' +
       withoutchilds;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
@@ -168,9 +168,9 @@ export class TJobExecService {
       '/tjob/execs/running/range' +
       '?from=' +
       from +
-      '?to=' +
+      '&to=' +
       to +
-      '?withoutChilds=' +
+      '&withoutChilds=' +
       withoutchilds;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
@@ -204,6 +204,28 @@ export class TJobExecService {
     });
   }
 
+  public getAllFinishedOrNotExecutedTJobsExecutionsSinceId(
+    execId: number | string,
+    than: 'less' | 'greater',
+    withoutchilds: boolean = false,
+  ): Observable<TJobExecModel[]> {
+    let url: string =
+      this.configurationService.configModel.hostApi +
+      '/tjob/execs/finished/' +
+      execId +
+      '?than=' +
+      than +
+      '&withoutChilds=' +
+      withoutchilds;
+    return this.http.get(url).map((data: any) => {
+      if (data !== undefined && data !== null) {
+        return this.eTModelsTransformServices.jsonToTJobExecsList(data);
+      } else {
+        throw new Error("Empty response. There are not TJobExecutions or you don't have permissions to access them");
+      }
+    });
+  }
+
   public getFinishedOrNotExecutedTJobsExecutionsByRange(
     from: number,
     to: number,
@@ -214,9 +236,37 @@ export class TJobExecService {
       '/tjob/execs/finished/range' +
       '?from=' +
       from +
-      '?to=' +
+      '&to=' +
       to +
-      '?withoutChilds=' +
+      '&withoutChilds=' +
+      withoutchilds;
+    return this.http.get(url).map((data: any) => {
+      if (data !== undefined && data !== null) {
+        return this.eTModelsTransformServices.jsonToTJobExecsList(data);
+      } else {
+        throw new Error("Empty response. There are not TJobExecutions or you don't have permissions to access them");
+      }
+    });
+  }
+
+  public getFinishedOrNotExecutedTJobsExecutionsByRangeAndSinceId(
+    execId: number | string,
+    from: number,
+    to: number,
+    than: 'less' | 'greater',
+    withoutchilds: boolean = false,
+  ): Observable<TJobExecModel[]> {
+    let url: string =
+      this.configurationService.configModel.hostApi +
+      '/tjob/execs/finished/range/' +
+      execId +
+      '?from=' +
+      from +
+      '&to=' +
+      to +
+      '&than=' +
+      than +
+      '&withoutChilds=' +
       withoutchilds;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {

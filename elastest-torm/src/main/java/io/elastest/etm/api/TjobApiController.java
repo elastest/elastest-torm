@@ -256,6 +256,29 @@ public class TjobApiController implements TjobApi {
                 HttpStatus.OK);
     }
 
+    @JsonView(TJobExecCompleteView.class)
+    public ResponseEntity<List<TJobExecution>> getAllFinishedOrNotExecutedTJobsExecutionsSinceId(
+            @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
+            @RequestParam(value = "than", required = true) String than,
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
+        List<TJobExecution> tjobExecList = new ArrayList<>();
+        if (than != null) {
+            withoutChilds = withoutChilds != null ? withoutChilds : false;
+            if ("less".equals(than)) {
+                tjobExecList = tJobService
+                        .getAllFinishedOrNotExecutedTJobsExecsByIdLessThan(
+                                tJobExecId, withoutChilds);
+            } else if ("greater".equals(than)) {
+                tjobExecList = tJobService
+                        .getAllFinishedOrNotExecutedTJobsExecsByIdGreaterThan(
+                                tJobExecId, withoutChilds);
+            }
+        }
+
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
+                HttpStatus.OK);
+    }
+
     @Override
     @JsonView(TJobExecCompleteView.class)
     public ResponseEntity<List<TJobExecution>> getFinishedOrNotExecutedTJobsExecutionsByRange(
@@ -266,6 +289,33 @@ public class TjobApiController implements TjobApi {
         List<TJobExecution> tjobExecList = tJobService
                 .getFinishedOrNotExecutedTJobsExecsByRange(from, to,
                         Direction.DESC, withoutChilds);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
+                HttpStatus.OK);
+    }
+
+    @JsonView(TJobExecCompleteView.class)
+    public ResponseEntity<List<TJobExecution>> getFinishedOrNotExecutedTJobsExecutionsByRangeAndSinceId(
+            @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
+            @RequestParam(value = "from", required = true) int from,
+            @RequestParam(value = "to", required = true) int to,
+            @RequestParam(value = "than", required = true) String than,
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
+        List<TJobExecution> tjobExecList = new ArrayList<>();
+        if (than != null) {
+            withoutChilds = withoutChilds != null ? withoutChilds : false;
+            if ("less".equals(than)) {
+                tjobExecList = tJobService
+                        .getFinishedOrNotExecutedTJobsExecsByRangeAndIdLessThan(
+                                from, to, tJobExecId, Direction.DESC,
+                                withoutChilds);
+            } else if ("greater".equals(than)) {
+                tjobExecList = tJobService
+                        .getFinishedOrNotExecutedTJobsExecsByRangeAndIdGreaterThan(
+                                from, to, tJobExecId, Direction.DESC,
+                                withoutChilds);
+            }
+        }
+
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
     }

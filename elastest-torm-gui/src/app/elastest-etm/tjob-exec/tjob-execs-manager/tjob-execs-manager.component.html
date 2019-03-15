@@ -108,11 +108,11 @@
             fxFlexOffset="1"
             mat-raised-button
             color="accent"
-            (click)="showAllFinished()"
-            [disabled]="loadAllFinished"
-            matTooltip="Show All Finished Executions"
+            (click)="loadMorePreviousFinished()"
+            [disabled]="loadingAllPrevFinished || allFinishedPrevLoaded"
+            matTooltip="Show 12 previous finished executions more"
           >
-            Show All
+            Show 12 More
           </button>
         </div>
       </sa-card-title>
@@ -133,10 +133,10 @@
           </ng-template>
 
           <td-data-table
-            *ngIf="tJobExecsFinished && tJobExecsFinished.length > 0; else emptyFinishedExecs"
+            *ngIf="allTJobExecsFinished && allTJobExecsFinished.length > 0; else emptyFinishedExecs"
             #finished
             class="useMaxHeight"
-            [data]="tJobExecsFinished"
+            [data]="allTJobExecsFinished"
             [columns]="tJobExecColumns"
             [selectable]="false"
             [clickable]="true"
