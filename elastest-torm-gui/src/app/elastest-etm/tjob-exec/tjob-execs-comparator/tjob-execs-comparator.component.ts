@@ -147,6 +147,9 @@ export class TjobExecsComparatorComponent implements OnInit {
     if (!this.tJobExecParentAux.endDate) {
       this.tJobExecParentAux.endDate = tJobExec.endDate;
     } else {
+      if (!tJobExec.endDate) {
+        tJobExec.endDate = new Date();
+      }
       this.tJobExecParentAux.endDate =
         tJobExec.endDate.getTime() > this.tJobExecParentAux.endDate.getTime() ? tJobExec.endDate : this.tJobExecParentAux.endDate;
     }
