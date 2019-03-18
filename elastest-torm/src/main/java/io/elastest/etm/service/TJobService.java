@@ -22,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.json.MappingJacksonValue;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.xml.sax.SAXException;
@@ -192,6 +193,29 @@ public class TJobService {
         return tJobExec;
     }
 
+    public void removeOldTJobExecs(TJob tJob) {
+        if (tJob != null && tJob.getMaxExecutions() > 0) {
+            List<TJobExecution> lastExecs = getLastNTJobExecs(tJob.getId(),
+                    tJob.getMaxExecutions());
+            if (lastExecs.size() == tJob.getMaxExecutions()) {
+                List<TJobExecution> execsToRemove = tJobExecRepositoryImpl
+                        .findByTJobIdAndIdLessThan(tJob.getId(),
+                                lastExecs.get(lastExecs.size() - 1).getId());
+                this.deleteTJobExecs(execsToRemove);
+            }
+        }
+    }
+
+    public void removeOldTJobExecs(Long tJobId) {
+        TJob tJob = tJobRepo.findById(tJobId).get();
+        removeOldTJobExecs(tJob);
+    }
+
+    @Async
+    public void removeOldTJobExecsAsync(Long tJobId) {
+        removeOldTJobExecs(tJobId);
+    }
+
     /* *** Execute Jenkins TJob *** */
 
     public TJobExecution executeTJob(ExternalJob externalJob, Long tJobId,
@@ -330,13 +354,27 @@ public class TJobService {
         tJobExecRepositoryImpl.save(tJobExec);
     }
 
-    public void deleteTJobExec(Long tJobExecId) {
-        TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId)
-                .get();
-
+    public void deleteTJobExec(TJobExecution tJobExec) {
         String index = tJobExec.getOnlyTJobExecMonitoringIndex();
         monitoringService.deleteMonitoringDataByIndices(Arrays.asList(index));
         tJobExecRepositoryImpl.delete(tJobExec);
+    }
+
+    public void deleteTJobExec(Long tJobExecId) {
+        TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId)
+                .get();
+        deleteTJobExec(tJobExec);
+    }
+
+    public void deleteTJobExecs(List<TJobExecution> tJobExecs) {
+        if (tJobExecs != null) {
+            for (TJobExecution tJobExec : tJobExecs) {
+                try {
+                    deleteTJobExec(tJobExec);
+                } catch (Exception e) {
+                }
+            }
+        }
     }
 
     public TJob getTJobById(Long tJobId) {
@@ -424,8 +462,8 @@ public class TJobService {
     }
 
     public List<TJobExecution> getTJobsExecsPageByResultsAndIdGreaterThan(
-            int page, int pageSize, Direction direction, List<ResultEnum> results,
-            Long id, boolean withoutChilds) {
+            int page, int pageSize, Direction direction,
+            List<ResultEnum> results, Long id, boolean withoutChilds) {
         Pageable range = PageRequest.of(page, pageSize, direction, "id");
         if (withoutChilds) {
             return tJobExecRepositoryImpl
@@ -496,7 +534,8 @@ public class TJobService {
     }
 
     public List<TJobExecution> getRunningTJobExecsByPageAndIdGreaterThan(
-            int page, int pageSize, Long id, Direction dir, boolean withoutChilds) {
+            int page, int pageSize, Long id, Direction dir,
+            boolean withoutChilds) {
         return getTJobsExecsPageByResultsAndIdGreaterThan(page, pageSize, dir,
                 ResultEnum.getNotFinishedOrExecutedResultList(), id,
                 withoutChilds);
@@ -563,14 +602,16 @@ public class TJobService {
     }
 
     public List<TJobExecution> getFinishedOrNotExecutedTJobsExecsByPageAndIdLessThan(
-            int page, int pageSize, Long id, Direction dir, boolean withoutChilds) {
+            int page, int pageSize, Long id, Direction dir,
+            boolean withoutChilds) {
         return getTJobsExecsPageByResultsAndIdLessThan(page, pageSize, dir,
                 ResultEnum.getFinishedAndNotExecutedResultList(), id,
                 withoutChilds);
     }
 
     public List<TJobExecution> getFinishedOrNotExecutedTJobsExecsByPageAndIdGreaterThan(
-            int page, int pageSize, Long id, Direction dir, boolean withoutChilds) {
+            int page, int pageSize, Long id, Direction dir,
+            boolean withoutChilds) {
         return getTJobsExecsPageByResultsAndIdGreaterThan(page, pageSize, dir,
                 ResultEnum.getFinishedAndNotExecutedResultList(), id,
                 withoutChilds);

@@ -18,6 +18,14 @@ public interface TJobExecRepository extends JpaRepository<TJobExecution, Long> {
 
     public TJobExecution findByIdAndTJob(Long tJobExecId, TJob tJob);
 
+    @Query("select exec from TJobExecution exec where tjob = :tjobId and id<:id")
+    public List<TJobExecution> findByTJobIdAndIdLessThan(
+            @Param("tjobId") Long tjobId, @Param("id") Long id);
+
+    @Query("select exec from TJobExecution exec where tjob = :tjobId and id>:id")
+    public List<TJobExecution> findByTJobIdAndIdGreaterThan(
+            @Param("tjobId") Long tjobId, @Param("id") Long id);
+
     /* *** By Results *** */
     @Query("select exec from TJobExecution exec where result in :results")
     public List<TJobExecution> findByResults(

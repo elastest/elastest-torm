@@ -57,9 +57,9 @@ public class ModelsTest {
                 CommandsOptionEnum.DEFAULT, ProtocolEnum.HTTP);
 
         TJob tjob = new TJob(34l, "name", "imageName", sut, project, false,
-                "execDashboardConfig", null);
+                "execDashboardConfig", null, 0l);
         TJob tjob2 = new TJob(34l, "name", "imageName", sut2, project2, false,
-                "execDashboardConfig", null);
+                "execDashboardConfig", null, 0l);
 
         assertEquals(tjob, tjob2);
         assertEquals(tjob.hashCode(), tjob2.hashCode());
@@ -76,7 +76,7 @@ public class ModelsTest {
                 InstrumentedByEnum.WITHOUT, null, ManagedDockerType.IMAGE,
                 CommandsOptionEnum.DEFAULT, ProtocolEnum.HTTP);
         TJob tjob = new TJob(34l, "name", "imageName", sut, project, false,
-                "execDashboardConfig", null);
+                "execDashboardConfig", null, 0l);
 
         List<Parameter> params = new ArrayList<>();
         params.add(new Parameter("param1", "value1"));

@@ -154,6 +154,12 @@ public class TJob implements Serializable {
     @Column(name = "VALUES", length = 16777215)
     private List<MultiConfig> multiConfigurations = new ArrayList<MultiConfig>();
 
+    @JsonView({ TJobMediumView.class, ProjectMediumView.class,
+            TJobExecCompleteView.class })
+    @Column(name = "maxExecutions")
+    @JsonProperty("maxExecutions")
+    private Long maxExecutions = 0l;
+
     /* ******************** */
     /* *** Constructors *** */
     /* ******************** */
@@ -163,7 +169,7 @@ public class TJob implements Serializable {
 
     public TJob(Long id, String name, String imageName, SutSpecification sut,
             Project project, boolean external, String execDashboardConfig,
-            String selectedServices) {
+            String selectedServices, Long maxExecutions) {
         this.id = id == null ? 0 : id;
         this.name = name;
         this.imageName = imageName;
@@ -174,6 +180,7 @@ public class TJob implements Serializable {
         this.selectedServices = selectedServices;
         this.externalUrls = new HashMap<>();
         this.multiConfigurations = new ArrayList<MultiConfig>();
+        this.maxExecutions = maxExecutions != null ? maxExecutions : 0l;
     }
 
     /* *********************** */
@@ -374,6 +381,14 @@ public class TJob implements Serializable {
         this.multiConfigurations = multiConfigurations;
     }
 
+    public Long getMaxExecutions() {
+        return maxExecutions != null ? maxExecutions : 0l;
+    }
+
+    public void setMaxExecutions(Long maxExecutions) {
+        this.maxExecutions = maxExecutions != null ? maxExecutions : 0l;
+    }
+
     /* ******************** */
     /* ****** Others ****** */
     /* ******************** */
@@ -399,48 +414,19 @@ public class TJob implements Serializable {
                 && Objects.equals(this.execDashboardConfig,
                         tjob.execDashboardConfig)
                 && Objects.equals(this.selectedServices, tjob.selectedServices)
-                && Objects.equals(this.multi, tjob.multi) && Objects.equals(
-                        this.multiConfigurations, tjob.multiConfigurations);
+                && Objects.equals(this.multi, tjob.multi)
+                && Objects.equals(this.multiConfigurations,
+                        tjob.multiConfigurations)
+                && Objects.equals(this.maxExecutions, tjob.maxExecutions);
 
     }
 
-    // @Override
-    // public int hashCode() {
-    // return Objects.hash(id, name, imageName, sut, project, tjobExecs,
-    // parameters, execDashboardConfig, selectedServices, multi,
-    // multiConfigurations);
-    // }
-    //
-
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result
-                + ((commands == null) ? 0 : commands.hashCode());
-        result = prime * result + ((execDashboardConfig == null) ? 0
-                : execDashboardConfig.hashCode());
-        result = prime * result + (external ? 1231 : 1237);
-        result = prime * result
-                + ((externalUrls == null) ? 0 : externalUrls.hashCode());
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result
-                + ((imageName == null) ? 0 : imageName.hashCode());
-        result = prime * result + ((multi == null) ? 0 : multi.hashCode());
-        result = prime * result + ((multiConfigurations == null) ? 0
-                : multiConfigurations.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        result = prime * result
-                + ((parameters == null) ? 0 : parameters.hashCode());
-        result = prime * result + ((project == null) ? 0 : project.hashCode());
-        result = prime * result
-                + ((resultsPath == null) ? 0 : resultsPath.hashCode());
-        result = prime * result + ((selectedServices == null) ? 0
-                : selectedServices.hashCode());
-        result = prime * result + ((sut == null) ? 0 : sut.hashCode());
-        result = prime * result
-                + ((tjobExecs == null) ? 0 : tjobExecs.hashCode());
-        return result;
+        return Objects.hash(id, name, imageName, sut, tjobExecs, project,
+                parameters, commands, resultsPath, external,
+                execDashboardConfig, selectedServices, externalUrls, multi,
+                multiConfigurations, maxExecutions);
     }
 
     @Override
@@ -476,6 +462,8 @@ public class TJob implements Serializable {
         sb.append("    multi: ").append(toIndentedString(multi)).append("\n");
         sb.append("    multiConfigurations: ").append(toIndentedString(
                 multiConfigurations != null ? multiConfigurations : "null"))
+                .append("\n");
+        sb.append("    maxExecutions: ").append(toIndentedString(maxExecutions))
                 .append("\n");
         sb.append("}");
         return sb.toString();

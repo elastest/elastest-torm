@@ -115,6 +115,7 @@ export class ETModelsTransformServices {
       newTJob.multi = tjob.multi ? tjob.multi : false;
 
       newTJob.multiConfigurations = this.jsonToMultiConfigsList(tjob.multiConfigurations);
+      newTJob.maxExecutions = tjob.maxExecutions !== undefined && tjob.maxExecutions !== null ? tjob.maxExecutions : 0;
     }
     return newTJob;
   }

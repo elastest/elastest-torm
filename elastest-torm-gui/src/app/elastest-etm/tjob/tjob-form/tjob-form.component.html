@@ -26,6 +26,7 @@
             />
           </mat-form-field>
 
+          <!-- Test Results path -->
           <mat-form-field fxFlex.gt-md="30" fxFlex.md="30" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
             <input
               matInput
@@ -40,6 +41,20 @@
             />
           </mat-form-field>
 
+          <!-- Max Executions -->
+          <mat-form-field fxFlex.gt-md="8" fxFlex.md="8" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
+            <input
+              matInput
+              trim="blur"
+              type="number"
+              min="0"
+              placeholder="Max Executions"
+              [(ngModel)]="tJob.maxExecutions"
+              name="maxExecutions"
+            />
+          </mat-form-field>
+
+          <!-- Sut -->
           <div
             *ngIf="tJob.project !== undefined"
             class="push-top push-bottom"

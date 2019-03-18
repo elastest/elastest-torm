@@ -25,8 +25,10 @@ export class TJobModel extends AbstractTJobModel {
   externalUrls: any;
   multi: boolean;
   multiConfigurations: MultiConfigModel[];
+  maxExecutions: number;
 
   constructor(tJob?: TJobModel) {
+    let defaultMaxExecutions: number = 30;
     super(tJob);
     if (tJob === undefined) {
       this.imageName = '';
@@ -43,6 +45,7 @@ export class TJobModel extends AbstractTJobModel {
       this.externalUrls = undefined;
       this.multi = false;
       this.multiConfigurations = [];
+      this.maxExecutions = defaultMaxExecutions;
     } else {
       this.imageName = tJob.imageName;
       this.sut = tJob.sut;
@@ -58,6 +61,7 @@ export class TJobModel extends AbstractTJobModel {
       this.externalUrls = tJob.externalUrls;
       this.multi = tJob.multi;
       this.multiConfigurations = tJob.multiConfigurations;
+      this.maxExecutions = tJob.maxExecutions !== undefined && tJob.maxExecutions !== null ? tJob.maxExecutions : defaultMaxExecutions;
     }
   }
 
