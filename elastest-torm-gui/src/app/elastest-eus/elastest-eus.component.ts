@@ -6,6 +6,9 @@ import { ElastestEusDialogService } from './elastest-eus.dialog.service';
 import { EusService } from './elastest-eus.service';
 import { EusTestModel } from './elastest-eus-test-model';
 import { ConfigurationService } from '../config/configuration-service.service';
+import { AbstractTJobExecModel } from '../elastest-etm/models/abstract-tjob-exec-model';
+import { TJobExecModel } from '../elastest-etm/tjob-exec/tjobExec-model';
+import { ExternalTJobExecModel } from '../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
 
 @Component({
   selector: 'app-elastest-eus',
@@ -66,6 +69,9 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
   @Input()
   isNested: boolean = false;
+
+  @Input()
+  abstractTJobExec: AbstractTJobExecModel;
 
   @Output()
   onInitComponent: EventEmitter<string> = new EventEmitter<string>();
@@ -203,12 +209,37 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
       testModel.status = jsonSession.status;
       testModel.statusMsg = jsonSession.statusMsg;
       testModel.live = jsonSession.live;
+      testModel.elastestExecutionData = jsonSession.elastestExecutionData;
     }
     return testModel;
   }
 
   addOrUpdateActiveBrowsers(sessionJson: any): void {
     let testModel: EusTestModel = this.getEusTestModelFromSessionJson(sessionJson);
+    // If is a browser of execution
+    if (this.abstractTJobExec && testModel.elastestExecutionData) {
+      let isExecutionData: boolean = false;
+      if (this.abstractTJobExec instanceof TJobExecModel && this.abstractTJobExec.tJob) {
+        isExecutionData =
+          testModel.elastestExecutionData['type'] === 'tJob' &&
+          testModel.elastestExecutionData['tJobId'] === this.abstractTJobExec.tJob.id &&
+          testModel.elastestExecutionData['tJobExecId'] === this.abstractTJobExec.id;
+      } else if (this.abstractTJobExec instanceof ExternalTJobExecModel && this.abstractTJobExec.exTJob) {
+        isExecutionData =
+          testModel.elastestExecutionData['type'] === 'externalTJob' &&
+          testModel.elastestExecutionData['tJobId'] === this.abstractTJobExec.exTJob.id &&
+          testModel.elastestExecutionData['tJobExecId'] === this.abstractTJobExec.id;
+      }
+      if (isExecutionData) {
+        this.addOrUpdateActiveBrowsersByTestModel(testModel);
+      }
+    } else {
+      // normal
+      this.addOrUpdateActiveBrowsersByTestModel(testModel);
+    }
+  }
+
+  addOrUpdateActiveBrowsersByTestModel(testModel: EusTestModel): void {
     let position: number;
     if (this.activeBrowsersMap.has(testModel.hubContainerName)) {
       position = this.activeBrowsersMap.get(testModel.hubContainerName);

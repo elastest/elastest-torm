@@ -8,6 +8,7 @@ export class EusTestModel extends DockerServiceStatus {
   url: string;
   hubContainerName: string;
   live: boolean;
+  elastestExecutionData: any;
 
   constructor() {
     super();

@@ -82,6 +82,7 @@
                 <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
                   <ng-container *ngIf="row !== undefined && row !== null">
                     <i
+                      *ngIf="!isNested"
                       class="material-icons"
                       (click)="stopSession(row.id)"
                       id="stop_session_{{ row.id }}"

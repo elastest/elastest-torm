@@ -93,40 +93,39 @@
 </ng-container>
 
 <ng-template #showNormalExecutionView>
-  <!-- Test results -->
-  <div
-    fxLayout.gt-sm="row"
-    tdMediaToggle="gt-xs"
-    *ngIf="
-      tJobExec &&
-      tJobExec.finished() &&
-      tJobExec.testSuites !== undefined &&
-      tJobExec.testSuites !== null &&
-      tJobExec.testSuites.length > 0
-    "
-  >
-    <etm-test-suites-view fxFlex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
-  </div>
-
-  <!-- logs & Metrics -->
-  <etm-monitoring-view #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
-
-  <!-- TSS Services Instances -->
-  <div *ngIf="this.elastestMode && this.elastestMode === 'normal' && serviceInstances.length > 0; else tSServices">
-    <app-elastest-eus
-      [eusUrl]="serviceInstances[0].urls.api"
-      [eusHost]="serviceInstances[0].ip"
-      [eusPort]="serviceInstances[0].port"
-      [standalone]="false"
-      [isNested]="true"
-    ></app-elastest-eus>
-  </div>
-  <ng-template #tSServices>
-    <div *ngFor="let serviceInstance of serviceInstances">
-      <esm-service-detail [serviceInstance]="serviceInstance" [standaloneService]="false"></esm-service-detail>
+  <ng-container *ngIf="tJobExec !== undefined && tJobExec !== null">
+    <!-- Test results -->
+    <div
+      fxLayout.gt-sm="row"
+      tdMediaToggle="gt-xs"
+      *ngIf="
+        tJobExec.finished() && tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0
+      "
+    >
+      <etm-test-suites-view fxFlex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
     </div>
-  </ng-template>
 
-  <!-- Execution files -->
-  <etm-files-manager *ngIf="tJobExec && tJobExec.finished()" [tJobId]="tJobId" [tJobExecId]="tJobExecId"></etm-files-manager>
+    <!-- logs & Metrics -->
+    <etm-monitoring-view #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
+
+    <!-- TSS Services Instances -->
+    <div *ngIf="this.elastestMode && this.elastestMode === 'mini' && serviceInstances.length > 0; else tSServices">
+      <app-elastest-eus
+        [eusUrl]="serviceInstances[0].urls.api"
+        [eusHost]="serviceInstances[0].ip"
+        [eusPort]="serviceInstances[0].port"
+        [standalone]="false"
+        [isNested]="true"
+        [abstractTJobExec]="tJobExec"
+      ></app-elastest-eus>
+    </div>
+    <ng-template #tSServices>
+      <div *ngFor="let serviceInstance of serviceInstances">
+        <esm-service-detail [serviceInstance]="serviceInstance" [standaloneService]="false"></esm-service-detail>
+      </div>
+    </ng-template>
+
+    <!-- Execution files -->
+    <etm-files-manager *ngIf="tJobExec.finished()" [tJobId]="tJobId" [tJobExecId]="tJobExecId"></etm-files-manager>
+  </ng-container>
 </ng-template>

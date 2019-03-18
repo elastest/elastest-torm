@@ -170,7 +170,7 @@
               </div>
               <div *ngIf="column.name === 'executionDate'" (click)="viewTJobExec(row)">
                 <ng-container *ngIf="row.endDate || row.startDate; else notExecuted">
-                  {{ (row.endDate ? row.endDate : row.startDate) | timeAgo }}
+                  {{ row.finished() ? ((row.endDate ? row.endDate : row.startDate) | timeAgo) : 'Executing' }}
                 </ng-container>
                 <ng-template #notExecuted> Not Executed Yet </ng-template>
               </div>
