@@ -13,10 +13,8 @@ import {
   TdDialogService,
   ITdDataTableSelectEvent,
   ITdDataTableSelectAllEvent,
-  ITdDataTableSortChangeEvent,
   ITdDataTableColumn,
   TdDataTableService,
-  TdDataTableSortingOrder,
   TdPagingBarComponent,
   IPageChangeEvent,
 } from '@covalent/core';
@@ -37,7 +35,9 @@ export class TjobManagerComponent implements OnInit {
   sutEmpty: SutModel = new SutModel();
   deletingInProgress: boolean = false;
 
-  tJobExecData: TJobExecModel[] = [];
+  // tJobExecData: TJobExecModel[] = [];
+  tJobExecDataByPage: TJobExecModel[][] = [];
+
   showSpinner: boolean = true;
 
   selectedExecsIds: number[] = [];
@@ -56,14 +56,12 @@ export class TjobManagerComponent implements OnInit {
     { name: 'options', label: 'Options', sortable: false },
   ];
 
-  // Sort
-  sortBy: string = 'id';
-  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
-
   // Pagination
   fromExecsRow: number = 1;
   currentExecsPage: number = 1;
   execsPageSize: number = 10;
+  // Aux Page size
+  currentExecsPageSize: number = this.execsPageSize;
   execsFilteredTotal: number;
   execsFilteredData: TJobExecModel[] = [];
 
@@ -95,24 +93,23 @@ export class TjobManagerComponent implements OnInit {
           if (this.tJob.sut.id === 0) {
             this.tJob.sut = this.sutEmpty;
           }
-          this.tJobExecService.getTJobsExecutionsWithoutChilds(tJob).subscribe(
+          this.tJobExecService.getLastNTJobExecutions(tJob.id, this.execsPageSize).subscribe(
             (tJobExecs: TJobExecModel[]) => {
-              this.tJobExecData = tJobExecs;
-              this.tJobExecData.forEach((tJobExec: TJobExecModel) => {
+              this.tJobExecDataByPage = [];
+              this.fromExecsRow = 1;
+              this.currentExecsPage = 1;
+
+              tJobExecs.forEach((tJobExec: TJobExecModel) => {
                 tJobExec['lastExecutionDate'] = tJobExec.endDate ? tJobExec.endDate : tJobExec.startDate;
               });
+              this.tJobExecDataByPage[this.currentExecsPage - 1] = tJobExecs;
               this.showSpinner = false;
-              // this.sortTJobsExec(); // Id desc
               this.filterExecs();
             },
             (error: Error) => console.log(error),
           );
         });
     }
-  }
-
-  sortTJobsExec(): void {
-    this.tJobExecData = this.tJobExecData.reverse();
   }
 
   deleteTJobExec(tJobExec: TJobExecModel): void {
@@ -313,35 +310,35 @@ export class TjobManagerComponent implements OnInit {
     return obs;
   }
 
-  sort(sortEvent: ITdDataTableSortChangeEvent): void {
-    this.sortBy = sortEvent.name;
-    this.sortOrder = sortEvent.order;
-    this.tJobExecData = this.dataTableService.sortData(this.tJobExecData, this.sortBy, this.sortOrder);
-    this.filterExecs();
-  }
-
   execsPage(pagingEvent: IPageChangeEvent): void {
+    // On change page size, reload and start from row 1
+    if (this.currentExecsPageSize !== pagingEvent.pageSize) {
+      this.currentExecsPageSize = this.execsPageSize;
+      this.reloadTJob();
+      return;
+    }
+    this.execsPageSize = pagingEvent.pageSize;
+    this.currentExecsPageSize = this.execsPageSize;
     this.fromExecsRow = pagingEvent.fromRow;
     this.currentExecsPage = pagingEvent.page;
-    this.execsPageSize = pagingEvent.pageSize;
     this.filterExecs();
   }
 
   async filterExecs(): Promise<void> {
-    let newData: any[] = this.tJobExecData;
-    // let excludedColumns: string[] = await this.tJobExecColumns
-    //   .filter((column: ITdDataTableColumn) => {
-    //     return (
-    //       (column.filter === undefined && column.hidden === true) || (column.filter !== undefined && column.filter === false)
-    //     );
-    //   })
-    //   .map((column: ITdDataTableColumn) => {
-    //     return column.name;
-    //   });
-    // newData = await this.dataTableService.filterData(newData, this.searchTerm, true, excludedColumns);
-    this.execsFilteredTotal = newData.length;
-    newData = await this.dataTableService.sortData(newData, this.sortBy, this.sortOrder);
-    newData = await this.dataTableService.pageData(newData, this.fromExecsRow, this.currentExecsPage * this.execsPageSize);
+    let newData: any[] = this.tJobExecDataByPage[this.currentExecsPage - 1];
+    if (!newData || newData.length === 0) {
+      this.tJobExecDataByPage[this.currentExecsPage - 1] = await this.loadNextTJobExecs();
+      newData = this.tJobExecDataByPage[this.currentExecsPage - 1];
+    }
+    this.execsFilteredTotal = this.tJob.tjobExecs.length;
+    newData = await this.dataTableService.pageData(newData, 1, this.execsPageSize);
     this.execsFilteredData = newData;
+  }
+
+  async loadNextTJobExecs(): Promise<TJobExecModel[]> {
+    // pages in backend starts at 0
+    let page: number = this.currentExecsPage - 1;
+
+    return this.tJobExecService.getTJobExecsPageSinceId(this.tJob.id, page, this.execsPageSize, 'desc', true).toPromise();
   }
 }

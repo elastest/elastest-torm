@@ -106,13 +106,13 @@
       </sa-card-title>
       <sa-card-content>
         <mat-spinner strokeWidth="6" *ngIf="showSpinner" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
-        <centered-element *ngIf="!showSpinner && tJobExecData.length === 0" class="push-top-sm messageEmptyCard">
+        <centered-element *ngIf="!showSpinner && tJobExecDataByPage.length === 0" class="push-top-sm messageEmptyCard">
           <mat-icon>assignment</mat-icon>
           <p>No Executions generated</p>
         </centered-element>
 
         <!-- Execs Table -->
-        <ng-container *ngIf="tJobExecData && tJobExecData.length > 0">
+        <ng-container *ngIf="tJobExecDataByPage && tJobExecDataByPage.length > 0">
           <td-data-table
             #tjobsTable
             class="useMaxHeight"
@@ -123,10 +123,7 @@
             [resizableColumns]="true"
             (rowSelect)="switchExecSelection($event)"
             (selectAll)="switchAllExecsSelection($event)"
-            [sortable]="true"
-            [sortBy]="sortBy"
-            [sortOrder]="sortOrder"
-            (sortChange)="sort($event)"
+            [sortable]="false"
           >
             <ng-template
               *ngFor="let column of tJobExecColumns"
@@ -197,7 +194,7 @@
             <mat-select [style.width.px]="50" [(ngModel)]="execsPageSize">
               <mat-option
                 *ngFor="
-                  let size of [tJobExecData.length, 10, 15, 20, 50, 100, 200, 500];
+                  let size of [execsFilteredTotal, 10, 15, 20, 50, 100, 200, 500];
                   let i = index;
                   let f = first;
                   let l = last

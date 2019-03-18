@@ -216,7 +216,7 @@ export class TJobExecsManagerComponent implements OnInit, OnDestroy {
     if (this.tJobExecsFinished && this.tJobExecsFinished.length > 0) {
       this.loadingAllPrevFinished = true;
       let firstExecId: number = this.tJobExecsFinished[this.tJobExecsFinished.length - 1].id;
-      this.tJobExecService.getFinishedOrNotExecutedTJobsExecutionsByRangeAndSinceId(firstExecId, 0, 12, 'less', true).subscribe(
+      this.tJobExecService.getFinishedOrNotExecutedTJobsExecutionsByPageAndSinceId(firstExecId, 0, 12, 'less', true).subscribe(
         (prev: TJobExecModel[]) => {
           if (prev.length > 0) {
             this.tJobExecsFinished = this.tJobExecsFinished.concat(prev);

@@ -162,6 +162,29 @@ public class TjobApiController implements TjobApi {
                 HttpStatus.OK);
     }
 
+    @JsonView(TJobExecCompleteView.class)
+    public ResponseEntity<List<TJobExecution>> getTJobExecsPageSinceId(
+            @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
+            @RequestParam(value = "page", required = true) int page,
+            @RequestParam(value = "pageSize", required = true) int pageSize,
+            @RequestParam(value = "sortOrder", required = true) String sortOrder,
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
+        List<TJobExecution> tjobExecList = new ArrayList<>();
+        if (sortOrder != null) {
+            withoutChilds = withoutChilds != null ? withoutChilds : false;
+            if ("desc".equals(sortOrder)) {
+                tjobExecList = tJobService.getTJobExecsByPage(tJobId, page,
+                        pageSize, Direction.DESC, withoutChilds);
+            } else if ("asc".equals(sortOrder)) {
+                tjobExecList = tJobService.getTJobExecsByPage(tJobId, page,
+                        pageSize, Direction.ASC, withoutChilds);
+            }
+        }
+
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
+                HttpStatus.OK);
+    }
+
     /* ****************************** */
     /* *** All execs of all TJobs *** */
     /* ****************************** */
@@ -178,13 +201,13 @@ public class TjobApiController implements TjobApi {
     @Override
     @JsonView(TJobExecCompleteView.class)
     public ResponseEntity<List<TJobExecution>> getTJobsExecsRange(
-            @RequestParam(value = "from", required = true) int from,
-            @RequestParam(value = "to", required = true) int to,
+            @RequestParam(value = "page", required = true) int page,
+            @RequestParam(value = "pageSize", required = true) int pageSize,
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
         withoutChilds = withoutChilds != null ? withoutChilds : false;
 
-        List<TJobExecution> tjobExecList = tJobService.getTJobsExecsRange(from,
-                to, Direction.DESC, withoutChilds);
+        List<TJobExecution> tjobExecList = tJobService.getTJobsExecsByPage(page,
+                pageSize, Direction.DESC, withoutChilds);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
     }
@@ -218,14 +241,14 @@ public class TjobApiController implements TjobApi {
 
     @Override
     @JsonView(TJobExecCompleteView.class)
-    public ResponseEntity<List<TJobExecution>> getRunningTJobsExecutionsByRange(
-            @RequestParam(value = "from", required = true) int from,
-            @RequestParam(value = "to", required = true) int to,
+    public ResponseEntity<List<TJobExecution>> getRunningTJobsExecutionsByPage(
+            @RequestParam(value = "page", required = true) int page,
+            @RequestParam(value = "pageSize", required = true) int pageSize,
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
         withoutChilds = withoutChilds != null ? withoutChilds : false;
 
         List<TJobExecution> tjobExecList = tJobService
-                .getRunningTJobExecsByRange(from, to, Direction.DESC,
+                .getRunningTJobExecsByPage(page, pageSize, Direction.DESC,
                         withoutChilds);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
@@ -281,23 +304,23 @@ public class TjobApiController implements TjobApi {
 
     @Override
     @JsonView(TJobExecCompleteView.class)
-    public ResponseEntity<List<TJobExecution>> getFinishedOrNotExecutedTJobsExecutionsByRange(
-            @RequestParam(value = "from", required = true) int from,
-            @RequestParam(value = "to", required = true) int to,
+    public ResponseEntity<List<TJobExecution>> getFinishedOrNotExecutedTJobsExecutionsByPage(
+            @RequestParam(value = "page", required = true) int page,
+            @RequestParam(value = "pageSize", required = true) int pageSize,
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
         withoutChilds = withoutChilds != null ? withoutChilds : false;
         List<TJobExecution> tjobExecList = tJobService
-                .getFinishedOrNotExecutedTJobsExecsByRange(from, to,
+                .getFinishedOrNotExecutedTJobsExecsByPage(page, pageSize,
                         Direction.DESC, withoutChilds);
         return new ResponseEntity<List<TJobExecution>>(tjobExecList,
                 HttpStatus.OK);
     }
 
     @JsonView(TJobExecCompleteView.class)
-    public ResponseEntity<List<TJobExecution>> getFinishedOrNotExecutedTJobsExecutionsByRangeAndSinceId(
+    public ResponseEntity<List<TJobExecution>> getFinishedOrNotExecutedTJobsExecutionsByPageAndSinceId(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
-            @RequestParam(value = "from", required = true) int from,
-            @RequestParam(value = "to", required = true) int to,
+            @RequestParam(value = "page", required = true) int page,
+            @RequestParam(value = "pageSize", required = true) int pageSize,
             @RequestParam(value = "than", required = true) String than,
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
         List<TJobExecution> tjobExecList = new ArrayList<>();
@@ -305,13 +328,13 @@ public class TjobApiController implements TjobApi {
             withoutChilds = withoutChilds != null ? withoutChilds : false;
             if ("less".equals(than)) {
                 tjobExecList = tJobService
-                        .getFinishedOrNotExecutedTJobsExecsByRangeAndIdLessThan(
-                                from, to, tJobExecId, Direction.DESC,
+                        .getFinishedOrNotExecutedTJobsExecsByPageAndIdLessThan(
+                                page, pageSize, tJobExecId, Direction.DESC,
                                 withoutChilds);
             } else if ("greater".equals(than)) {
                 tjobExecList = tJobService
-                        .getFinishedOrNotExecutedTJobsExecsByRangeAndIdGreaterThan(
-                                from, to, tJobExecId, Direction.DESC,
+                        .getFinishedOrNotExecutedTJobsExecsByPageAndIdGreaterThan(
+                                page, pageSize, tJobExecId, Direction.DESC,
                                 withoutChilds);
             }
         }

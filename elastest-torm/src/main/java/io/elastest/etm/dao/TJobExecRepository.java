@@ -38,16 +38,6 @@ public interface TJobExecRepository extends JpaRepository<TJobExecution, Long> {
     public List<TJobExecution> findByTJobIdWithPageable(
             @Param("tjobId") Long tjobId, Pageable pageable);
 
-    @Query(value = "select exec from TJobExecution exec where tjob = :tjobId and id<:id")
-    public List<TJobExecution> findByTJobIdAndIdLessThanWithPageable(
-            @Param("tjobId") Long tjobId, @Param("id") Long id,
-            Pageable pageable);
-
-    @Query(value = "select exec from TJobExecution exec where tjob = :tjobId and id>:id")
-    public List<TJobExecution> findByTJobIdAndIdGreaterThanWithPageable(
-            @Param("tjobId") Long tjobId, @Param("id") Long id,
-            Pageable pageable);
-
     /* *** */
 
     @Query(value = "select exec from TJobExecution exec")
@@ -82,15 +72,15 @@ public interface TJobExecRepository extends JpaRepository<TJobExecution, Long> {
     /* ********************** */
 
     @Query("select exec from TJobExecution exec where tjob = :tjobId and (not type = 2 or type is null)")
-    public List<TJobExecution> findTJobIdWithoutChilds(
+    public List<TJobExecution> findByTJobIdWithoutChilds(
             @Param("tjobId") Long tjobId);
 
     @Query("select exec from TJobExecution exec where tjob = :tjobId and (not type = 2 or type is null) and id<:id")
-    public List<TJobExecution> findTJobIdAndIdLessThanWithoutChilds(
+    public List<TJobExecution> findByTJobIdAndIdLessThanWithoutChilds(
             @Param("tjobId") Long tjobId, @Param("id") Long id);
 
     @Query("select exec from TJobExecution exec where tjob = :tjobId and (not type = 2 or type is null) and id>:id")
-    public List<TJobExecution> findTJobIdAndIdGreaterThanWithoutChilds(
+    public List<TJobExecution> findByTJobIdAndIdGreaterThanWithoutChilds(
             @Param("tjobId") Long tjobId, @Param("id") Long id);
 
     /* *** By Results *** */
@@ -108,6 +98,11 @@ public interface TJobExecRepository extends JpaRepository<TJobExecution, Long> {
     public List<TJobExecution> findByResultsAndIdGreaterThanWithoutChilds(
             @Param("results") List<ResultEnum> resultList,
             @Param("id") Long id);
+
+    /* *** */
+    @Query(value = "select exec from TJobExecution exec where tjob = :tjobId and (not type = 2 or type is null)")
+    public List<TJobExecution> findByTJobIdWithPageableWithoutChilds(
+            @Param("tjobId") Long tjobId, Pageable pageable);
 
     /* *** */
 

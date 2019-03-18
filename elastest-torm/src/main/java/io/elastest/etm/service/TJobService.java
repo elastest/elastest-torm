@@ -355,10 +355,17 @@ public class TJobService {
 
     // All execs of a TJob
 
-    public List<TJobExecution> getTJobExecsRange(Long tJobId, int from, int to,
-            Direction direction) {
-        Pageable range = PageRequest.of(from, to, direction, "id");
-        return tJobExecRepositoryImpl.findByTJobIdWithPageable(tJobId, range);
+    public List<TJobExecution> getTJobExecsByPage(Long tJobId, int page,
+            int pageSize, Direction direction, boolean withoutChilds) {
+        Pageable range = PageRequest.of(page, pageSize, direction, "id");
+
+        if (withoutChilds) {
+            return tJobExecRepositoryImpl.findByTJobIdWithPageable(tJobId,
+                    range);
+        } else {
+            return tJobExecRepositoryImpl
+                    .findByTJobIdWithPageableWithoutChilds(tJobId, range);
+        }
     }
 
     /* ****************************** */
@@ -371,9 +378,9 @@ public class TJobService {
 
     /* ****** By ID ****** */
 
-    public List<TJobExecution> getTJobsExecsRange(int from, int to,
+    public List<TJobExecution> getTJobsExecsByPage(int page, int pageSize,
             Direction direction, boolean withoutChilds) {
-        Pageable range = PageRequest.of(from, to, direction, "id");
+        Pageable range = PageRequest.of(page, pageSize, direction, "id");
         if (withoutChilds) {
             return tJobExecRepositoryImpl.findWithPageableWithoutChilds(range);
         } else {
@@ -383,16 +390,16 @@ public class TJobService {
 
     public List<TJobExecution> getLastNTJobsExecs(Long number,
             boolean withoutChilds) {
-        return getTJobsExecsRange(0, number.intValue(), Direction.DESC,
+        return getTJobsExecsByPage(0, number.intValue(), Direction.DESC,
                 withoutChilds);
     }
 
     /* ****** By results ****** */
 
-    public List<TJobExecution> getTJobsExecsRangeByResults(int from, int to,
-            Direction direction, List<ResultEnum> results,
+    public List<TJobExecution> getTJobsExecsPageByResults(int page,
+            int pageSize, Direction direction, List<ResultEnum> results,
             boolean withoutChilds) {
-        Pageable range = PageRequest.of(from, to, direction, "id");
+        Pageable range = PageRequest.of(page, pageSize, direction, "id");
         if (withoutChilds) {
             return tJobExecRepositoryImpl
                     .findByResultsWithPageableWithoutChilds(results, range);
@@ -402,10 +409,10 @@ public class TJobService {
         }
     }
 
-    public List<TJobExecution> getTJobsExecsRangeByResultsAndIdLessThan(
-            int from, int to, Direction direction, List<ResultEnum> results,
+    public List<TJobExecution> getTJobsExecsPageByResultsAndIdLessThan(int page,
+            int pageSize, Direction direction, List<ResultEnum> results,
             Long id, boolean withoutChilds) {
-        Pageable range = PageRequest.of(from, to, direction, "id");
+        Pageable range = PageRequest.of(page, pageSize, direction, "id");
         if (withoutChilds) {
             return tJobExecRepositoryImpl
                     .findByResultsAndIdLessThanWithPageableWithoutChilds(
@@ -416,10 +423,10 @@ public class TJobService {
         }
     }
 
-    public List<TJobExecution> getTJobsExecsRangeByResultsAndIdGreaterThan(
-            int from, int to, Direction direction, List<ResultEnum> results,
+    public List<TJobExecution> getTJobsExecsPageByResultsAndIdGreaterThan(
+            int page, int pageSize, Direction direction, List<ResultEnum> results,
             Long id, boolean withoutChilds) {
-        Pageable range = PageRequest.of(from, to, direction, "id");
+        Pageable range = PageRequest.of(page, pageSize, direction, "id");
         if (withoutChilds) {
             return tJobExecRepositoryImpl
                     .findByResultsAndIdGreaterThanWithPageableWithoutChilds(
@@ -475,22 +482,22 @@ public class TJobService {
 
     /* *** */
 
-    public List<TJobExecution> getRunningTJobExecsByRange(int from, int to,
+    public List<TJobExecution> getRunningTJobExecsByPage(int page, int pageSize,
             Direction dir, boolean withoutChilds) {
-        return getTJobsExecsRangeByResults(from, to, dir,
+        return getTJobsExecsPageByResults(page, pageSize, dir,
                 ResultEnum.getNotFinishedOrExecutedResultList(), withoutChilds);
     }
 
-    public List<TJobExecution> getRunningTJobExecsByRangeAndIdLessThan(int from,
-            int to, Long id, Direction dir, boolean withoutChilds) {
-        return getTJobsExecsRangeByResultsAndIdLessThan(from, to, dir,
+    public List<TJobExecution> getRunningTJobExecsByPageAndIdLessThan(int page,
+            int pageSize, Long id, Direction dir, boolean withoutChilds) {
+        return getTJobsExecsPageByResultsAndIdLessThan(page, pageSize, dir,
                 ResultEnum.getNotFinishedOrExecutedResultList(), id,
                 withoutChilds);
     }
 
-    public List<TJobExecution> getRunningTJobExecsByRangeAndIdGreaterThan(
-            int from, int to, Long id, Direction dir, boolean withoutChilds) {
-        return getTJobsExecsRangeByResultsAndIdGreaterThan(from, to, dir,
+    public List<TJobExecution> getRunningTJobExecsByPageAndIdGreaterThan(
+            int page, int pageSize, Long id, Direction dir, boolean withoutChilds) {
+        return getTJobsExecsPageByResultsAndIdGreaterThan(page, pageSize, dir,
                 ResultEnum.getNotFinishedOrExecutedResultList(), id,
                 withoutChilds);
     }
@@ -499,7 +506,7 @@ public class TJobService {
 
     public List<TJobExecution> getLastNRunningTJobExecs(Long number,
             boolean withoutChilds) {
-        return getTJobsExecsRangeByResults(0, number.intValue(), Direction.DESC,
+        return getTJobsExecsPageByResults(0, number.intValue(), Direction.DESC,
                 ResultEnum.getNotFinishedOrExecutedResultList(), withoutChilds);
     }
 
@@ -548,23 +555,23 @@ public class TJobService {
 
     /* *** */
 
-    public List<TJobExecution> getFinishedOrNotExecutedTJobsExecsByRange(
-            int from, int to, Direction dir, boolean withoutChilds) {
-        return getTJobsExecsRangeByResults(from, to, dir,
+    public List<TJobExecution> getFinishedOrNotExecutedTJobsExecsByPage(
+            int page, int pageSize, Direction dir, boolean withoutChilds) {
+        return getTJobsExecsPageByResults(page, pageSize, dir,
                 ResultEnum.getFinishedAndNotExecutedResultList(),
                 withoutChilds);
     }
 
-    public List<TJobExecution> getFinishedOrNotExecutedTJobsExecsByRangeAndIdLessThan(
-            int from, int to, Long id, Direction dir, boolean withoutChilds) {
-        return getTJobsExecsRangeByResultsAndIdLessThan(from, to, dir,
+    public List<TJobExecution> getFinishedOrNotExecutedTJobsExecsByPageAndIdLessThan(
+            int page, int pageSize, Long id, Direction dir, boolean withoutChilds) {
+        return getTJobsExecsPageByResultsAndIdLessThan(page, pageSize, dir,
                 ResultEnum.getFinishedAndNotExecutedResultList(), id,
                 withoutChilds);
     }
 
-    public List<TJobExecution> getFinishedOrNotExecutedTJobsExecsByRangeAndIdGreaterThan(
-            int from, int to, Long id, Direction dir, boolean withoutChilds) {
-        return getTJobsExecsRangeByResultsAndIdGreaterThan(from, to, dir,
+    public List<TJobExecution> getFinishedOrNotExecutedTJobsExecsByPageAndIdGreaterThan(
+            int page, int pageSize, Long id, Direction dir, boolean withoutChilds) {
+        return getTJobsExecsPageByResultsAndIdGreaterThan(page, pageSize, dir,
                 ResultEnum.getFinishedAndNotExecutedResultList(), id,
                 withoutChilds);
     }
@@ -573,7 +580,7 @@ public class TJobService {
 
     public List<TJobExecution> getLastNFinishedOrNotExecutedTJobsExecs(
             Long number, boolean withoutChilds) {
-        return getTJobsExecsRangeByResults(0, number.intValue(), Direction.DESC,
+        return getTJobsExecsPageByResults(0, number.intValue(), Direction.DESC,
                 ResultEnum.getFinishedAndNotExecutedResultList(),
                 withoutChilds);
     }
@@ -587,7 +594,7 @@ public class TJobService {
     public List<TJobExecution> getTJobExecutionsByTJobId(Long tJobId,
             boolean withoutChilds) {
         if (withoutChilds) {
-            return tJobExecRepositoryImpl.findTJobIdWithoutChilds(tJobId);
+            return tJobExecRepositoryImpl.findByTJobIdWithoutChilds(tJobId);
         } else {
             TJob tJob = tJobRepo.findById(tJobId).get();
             return getTJobsExecutionsByTJob(tJob);

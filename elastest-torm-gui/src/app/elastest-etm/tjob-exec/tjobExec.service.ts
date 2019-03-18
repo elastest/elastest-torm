@@ -102,6 +102,35 @@ export class TJobExecService {
     });
   }
 
+  public getTJobExecsPageSinceId(
+    tJobId: number,
+    page: number,
+    pageSize: number,
+    sortOrder: 'desc' | 'asc',
+    withoutchilds: boolean = false,
+  ): Observable<TJobExecModel[]> {
+    let url: string =
+      this.configurationService.configModel.hostApi +
+      '/tjob/' +
+      tJobId +
+      '/exec/range' +
+      '?page=' +
+      page +
+      '&pageSize=' +
+      pageSize +
+      '&sortOrder=' +
+      sortOrder +
+      '&withoutChilds=' +
+      withoutchilds;
+    return this.http.get(url).map((data: any) => {
+      if (data !== undefined && data !== null) {
+        return this.eTModelsTransformServices.jsonToTJobExecsList(data);
+      } else {
+        throw new Error("Empty response. There are not TJobExecutions or you don't have permissions to access them");
+      }
+    });
+  }
+
   /* ****************************** */
   /* *** All execs of all TJobs *** */
   /* ****************************** */
@@ -119,14 +148,14 @@ export class TJobExecService {
 
   /* *** By ID *** */
 
-  public getTJobsExecsRange(from: number, to: number, withoutchilds: boolean = false): Observable<TJobExecModel[]> {
+  public getTJobsExecsRange(page: number, pageSize: number, withoutchilds: boolean = false): Observable<TJobExecModel[]> {
     let url: string =
       this.configurationService.configModel.hostApi +
       '/tjob/execs/range' +
-      '?from=' +
-      from +
-      '&to=' +
-      to +
+      '?page=' +
+      page +
+      '&pageSize=' +
+      pageSize +
       '&withoutChilds=' +
       withoutchilds;
     return this.http.get(url).map((data: any) => {
@@ -162,14 +191,18 @@ export class TJobExecService {
     });
   }
 
-  public getRunningTJobsExecutionsByRange(from: number, to: number, withoutchilds: boolean = false): Observable<TJobExecModel[]> {
+  public getRunningTJobsExecutionsByPage(
+    page: number,
+    pageSize: number,
+    withoutchilds: boolean = false,
+  ): Observable<TJobExecModel[]> {
     let url: string =
       this.configurationService.configModel.hostApi +
       '/tjob/execs/running/range' +
-      '?from=' +
-      from +
-      '&to=' +
-      to +
+      '?page=' +
+      page +
+      '&pageSize=' +
+      pageSize +
       '&withoutChilds=' +
       withoutchilds;
     return this.http.get(url).map((data: any) => {
@@ -226,18 +259,18 @@ export class TJobExecService {
     });
   }
 
-  public getFinishedOrNotExecutedTJobsExecutionsByRange(
-    from: number,
-    to: number,
+  public getFinishedOrNotExecutedTJobsExecutionsByPage(
+    page: number,
+    pageSize: number,
     withoutchilds: boolean = false,
   ): Observable<TJobExecModel[]> {
     let url: string =
       this.configurationService.configModel.hostApi +
       '/tjob/execs/finished/range' +
-      '?from=' +
-      from +
-      '&to=' +
-      to +
+      '?page=' +
+      page +
+      '&pageSize=' +
+      pageSize +
       '&withoutChilds=' +
       withoutchilds;
     return this.http.get(url).map((data: any) => {
@@ -249,10 +282,10 @@ export class TJobExecService {
     });
   }
 
-  public getFinishedOrNotExecutedTJobsExecutionsByRangeAndSinceId(
+  public getFinishedOrNotExecutedTJobsExecutionsByPageAndSinceId(
     execId: number | string,
-    from: number,
-    to: number,
+    page: number,
+    pageSize: number,
     than: 'less' | 'greater',
     withoutchilds: boolean = false,
   ): Observable<TJobExecModel[]> {
@@ -260,10 +293,10 @@ export class TJobExecService {
       this.configurationService.configModel.hostApi +
       '/tjob/execs/finished/range/' +
       execId +
-      '?from=' +
-      from +
-      '&to=' +
-      to +
+      '?page=' +
+      page +
+      '&pageSize=' +
+      pageSize +
       '&than=' +
       than +
       '&withoutChilds=' +
