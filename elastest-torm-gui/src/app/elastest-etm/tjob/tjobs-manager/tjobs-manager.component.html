@@ -62,7 +62,7 @@
             *ngIf="!row.external"
             (click)="runTJob(row, row.project)"
             [disabled]="deletingInProgress"
-            class="iconBtn"
+            class="iconBtn-xs"
             title="Run TJob"
           >
             <mat-icon>play_circle_outline</mat-icon>
@@ -72,7 +72,7 @@
             *ngIf="!row.external || row.getExternalEditPage() !== undefined"
             (click)="editTJob(row)"
             [disabled]="deletingInProgress"
-            class="iconBtn"
+            class="iconBtn-xs"
             title="{{ !row.external ? 'Edit TJob' : 'Edit in Jenkins' }}"
           >
             <ng-container *ngIf="!row.external; else showJenkinsIcon">
@@ -87,12 +87,12 @@
             [disabled]="deletingInProgress || duplicateInProgress"
             *ngIf="!row.external"
             (click)="duplicateTJob(row)"
-            class="iconBtn"
+            class="iconBtn-xs"
             title="Duplicate TJob"
           >
             <mat-icon>content_copy</mat-icon>
           </button>
-          <button mat-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn" title="Delete TJob">
+          <button mat-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn-xs" title="Delete TJob">
             <mat-icon>delete</mat-icon>
           </button>
         </div>

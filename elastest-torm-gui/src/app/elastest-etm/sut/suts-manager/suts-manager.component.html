@@ -38,19 +38,19 @@
       <!-- OPTIONS -->
       <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
         <div fxLayout="row" class="sutOptions optionsColumn">
-          <button mat-button (click)="editSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Edit SuT">
+          <button mat-button (click)="editSut(row)" [disabled]="deletingInProgress" class="iconBtn-xs" title="Edit SuT">
             <mat-icon>mode_edit</mat-icon>
           </button>
           <button
             mat-button
             [disabled]="deletingInProgress || duplicateInProgress"
             (click)="duplicateSut(row)"
-            class="iconBtn"
+            class="iconBtn-xs"
             title="Duplicate Sut"
           >
             <mat-icon>content_copy</mat-icon>
           </button>
-          <button mat-button (click)="deleteSut(row)" [disabled]="deletingInProgress" class="iconBtn" title="Delete SuT">
+          <button mat-button (click)="deleteSut(row)" [disabled]="deletingInProgress" class="iconBtn-xs" title="Delete SuT">
             <mat-icon>delete</mat-icon>
           </button>
         </div>
