@@ -50,9 +50,14 @@
                   *ngIf="!tJob.external || tJob.getExternalEditPage() !== undefined"
                   (click)="editTJob()"
                   class="iconBtn"
-                  title="Edit TJob"
+                  title="{{ !tJob.external ? 'Edit TJob' : 'Edit in Jenkins' }}"
                 >
-                  <mat-icon>mode_edit</mat-icon>
+                  <ng-container *ngIf="!tJob.external; else showJenkinsIcon">
+                    <mat-icon>mode_edit</mat-icon>
+                  </ng-container>
+                  <ng-template #showJenkinsIcon>
+                    <fa-icon mat-icon class="mat-icon" [icon]="['fab', 'jenkins']"></fa-icon>
+                  </ng-template>
                 </button>
                 <button mat-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn" title="Delete TJob">
                   <mat-icon>delete</mat-icon>
