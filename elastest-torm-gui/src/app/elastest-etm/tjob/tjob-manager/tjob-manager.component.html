@@ -136,7 +136,7 @@
                   column.name !== 'options' &&
                   column.name !== 'startDate' &&
                   column.name !== 'endDate' &&
-                  column.name !== 'lastExecutionDate'
+                  column.name !== 'executionDate'
                 "
                 (click)="viewTJobExec(row)"
                 class="hover-pointer"
@@ -163,8 +163,10 @@
               <div *ngIf="column.name === 'startDate' || column.name === 'endDate'" (click)="viewTJobExec(row)">
                 {{ value | date: 'dd/MM/yyyy HH:mm:ss' }}
               </div>
-              <div *ngIf="column.name === 'lastExecutionDate'" (click)="viewTJobExec(row)">
-                <ng-container *ngIf="value !== undefined; else notExecuted"> {{ value | timeAgo }} </ng-container>
+              <div *ngIf="column.name === 'executionDate'" (click)="viewTJobExec(row)">
+                <ng-container *ngIf="row.endDate || row.startDate; else notExecuted">
+                  {{ (row.endDate ? row.endDate : row.startDate) | timeAgo }}
+                </ng-container>
                 <ng-template #notExecuted> Not Executed Yet </ng-template>
               </div>
             </ng-template>
@@ -177,11 +179,11 @@
                   [disabled]="deletingInProgress"
                   stopRowClick
                   title="Delete TJob Execution"
-                  class="iconBtn-lg"
+                  class="iconBtn"
                 >
                   <mat-icon>delete</mat-icon>
                 </button>
-                <button mat-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn-lg">
+                <button mat-button (click)="viewInLogAnalyzer(row)" stopRowClick title="View in Log Analyzer" class="iconBtn">
                   <mat-icon>library_books</mat-icon>
                 </button>
               </div>

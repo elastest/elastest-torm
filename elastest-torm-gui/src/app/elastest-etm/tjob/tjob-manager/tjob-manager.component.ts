@@ -47,10 +47,10 @@ export class TjobManagerComponent implements OnInit {
   tJobExecColumns: ITdDataTableColumn[] = [
     { name: 'id', label: 'Id', width: 80 },
     { name: 'result', label: 'Result' },
-    { name: 'lastExecutionDate', label: 'Last Execution' },
+    { name: 'executionDate', label: 'Execution Date', width: 125 },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
-    { name: 'duration', label: 'Duration(sec)' },
+    { name: 'duration', label: 'Duration(sec)', width: 112 },
     { name: 'sutExecution', label: 'Sut Execution', width: 120 },
     { name: 'monitoringStorageType', label: 'Mon. Storage', width: 123 },
     { name: 'options', label: 'Options', sortable: false },
@@ -99,9 +99,6 @@ export class TjobManagerComponent implements OnInit {
               this.fromExecsRow = 1;
               this.currentExecsPage = 1;
 
-              tJobExecs.forEach((tJobExec: TJobExecModel) => {
-                tJobExec['lastExecutionDate'] = tJobExec.endDate ? tJobExec.endDate : tJobExec.startDate;
-              });
               this.tJobExecDataByPage[this.currentExecsPage - 1] = tJobExecs;
               this.showSpinner = false;
               this.filterExecs();
