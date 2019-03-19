@@ -41,7 +41,8 @@
         >
           <span *ngIf="column.name !== 'sut'; else tjobSutValue">{{ value }}</span>
           <ng-template #tjobSutValue>
-            <span *ngIf="row.hasSut()">{{ row.sut.id }}</span> <span *ngIf="!row.hasSut()">None</span>
+            <span *ngIf="row.hasSut()" matTooltip="{{ row.sut.name }}">{{ row.sut.id }}</span>
+            <span *ngIf="!row.hasSut()">None</span>
           </ng-template>
         </div>
         <div *ngIf="column.name === 'result' && value !== undefined" (click)="viewTJob(row)">
