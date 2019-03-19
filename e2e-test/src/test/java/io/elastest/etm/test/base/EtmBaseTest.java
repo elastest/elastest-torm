@@ -808,7 +808,7 @@ public class EtmBaseTest {
 
         // MultiConfigurations
         if (multiConfigurations != null && multiConfigurations.size() > 0) {
-            getElementById(driver, "input-multiConfigCheckbox")
+            getElementById(driver, "multiConfigCheckbox-input")
                     .sendKeys(Keys.SPACE);
 
             int currentMultiConfig = 0;
