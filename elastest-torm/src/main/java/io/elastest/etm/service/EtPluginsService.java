@@ -57,6 +57,9 @@ public class EtPluginsService {
     private static final String ERE_NAME = "ere";
     private static final String ERE_DISPLAY_NAME = "Recommendation Engine";
 
+    private static final String ERE_TRIAL_NAME = "eretrial";
+    private static final String ERE_TRIAL_DISPLAY_NAME = "Recommendation Engine (Trial)";
+
     private static final String ECE_NAME = "ece";
     private static final String ECE_DISPLAY_NAME = "Cost Engine";
 
@@ -125,11 +128,11 @@ public class EtPluginsService {
     @Value("${et.etm.jenkins.binded.port}")
     public String etEtmJenkinsBindedPort;
 
-    @Value("${et.test.engines.ere.enabled}")
-    private boolean ereEnabled;
+    @Value("${et.test.engines.private.ere.enabled}")
+    private boolean privateEreEnabled;
 
-    @Value("${et.test.engines.ere.enabled}")
-    private String ereEnabledString;
+    @Value("${et.test.engines.private.ere.enabled}")
+    private String privateEreEnabledString;
 
     private String tmpEnginesYmlFolder;
     private String uniqueEtPluginsYmlFolder;
@@ -147,11 +150,16 @@ public class EtPluginsService {
         // It's necessary to auth:
         // https://docs.google.com/document/d/1RMMnJO3rA3KRg-q_LRgpmmvSTpaCPsmfAQjs9obVNeU
 
-        if (ereEnabled || "true".equals(ereEnabledString)) {
-            logger.debug("ERE is enabled");
+        if (privateEreEnabled || "true".equals(privateEreEnabledString)) {
+            logger.debug("Private ERE is enabled");
             this.enginesMap.put(ERE_NAME,
                     new EtPlugin(ERE_NAME, ERE_DISPLAY_NAME));
+        } else { // TRIAL
+            logger.debug("Trial ERE is enabled");
+            this.enginesMap.put(ERE_TRIAL_NAME,
+                    new EtPlugin(ERE_TRIAL_NAME, ERE_TRIAL_DISPLAY_NAME));
         }
+
         this.uniqueEtPluginsMap.put(EIM_NAME,
                 new EtPlugin(EIM_NAME, EIM_DISPLAY_NAME));
         this.uniqueEtPluginsMap.put(TESTLINK_NAME,
@@ -491,6 +499,7 @@ public class EtPluginsService {
                             break;
 
                         case ERE_NAME:
+                        case ERE_TRIAL_NAME:
                             internalPort = "9080";
                             bindedPort = "37007";
                             break;
@@ -555,7 +564,8 @@ public class EtPluginsService {
                         }
 
                         url = protocol + "://" + ip + ":" + port;
-                        if (ERE_NAME.equals(serviceName)) {
+                        if (ERE_NAME.equals(serviceName)
+                                || ERE_TRIAL_NAME.equals(serviceName)) {
                             url += "/ere-app";
                         }
                         logger.debug("Url: " + url);
