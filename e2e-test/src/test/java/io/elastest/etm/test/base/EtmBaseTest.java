@@ -881,7 +881,7 @@ public class EtmBaseTest {
 
         // Navigate to tjob
         driver.findElement(By.xpath(xpath)).click();
-        sleep(1200);
+        sleep(2200);
 
         this.getElementByXpath(driver, "//button[@title='Run TJob']").click();
     }
