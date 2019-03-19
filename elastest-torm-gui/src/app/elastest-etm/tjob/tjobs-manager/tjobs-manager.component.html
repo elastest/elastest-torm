@@ -56,45 +56,49 @@
       </ng-template>
 
       <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-        <div fxLayout="row" class="optionsColumn">
-          <button
-            mat-button
-            *ngIf="!row.external"
-            (click)="runTJob(row, row.project)"
-            [disabled]="deletingInProgress"
-            class="iconBtn-xs"
-            title="Run TJob"
-          >
-            <mat-icon>play_circle_outline</mat-icon>
-          </button>
-          <button
-            mat-button
-            *ngIf="!row.external || row.getExternalEditPage() !== undefined"
-            (click)="editTJob(row)"
-            [disabled]="deletingInProgress"
-            class="iconBtn-xs"
-            title="{{ !row.external ? 'Edit TJob' : 'Edit in Jenkins' }}"
-          >
-            <ng-container *ngIf="!row.external; else showJenkinsIcon">
-              <mat-icon>mode_edit</mat-icon>
-            </ng-container>
-            <ng-template #showJenkinsIcon>
-              <fa-icon mat-icon class="mat-icon" [icon]="['fab', 'jenkins']"></fa-icon>
-            </ng-template>
-          </button>
-          <button
-            mat-button
-            [disabled]="deletingInProgress || duplicateInProgress"
-            *ngIf="!row.external"
-            (click)="duplicateTJob(row)"
-            class="iconBtn-xs"
-            title="Duplicate TJob"
-          >
-            <mat-icon>content_copy</mat-icon>
-          </button>
-          <button mat-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn-xs" title="Delete TJob">
-            <mat-icon>delete</mat-icon>
-          </button>
+        <div fxLayout="column" fxLayout.gt-xl="row" class="optionsColumn">
+          <div fxLayout="row" fxFlex.gt-xl="50" fxFlex="100">
+            <button
+              mat-button
+              *ngIf="!row.external"
+              (click)="runTJob(row, row.project)"
+              [disabled]="deletingInProgress"
+              class="iconBtn-xs"
+              title="Run TJob"
+            >
+              <mat-icon>play_circle_outline</mat-icon>
+            </button>
+            <button
+              mat-button
+              *ngIf="!row.external || row.getExternalEditPage() !== undefined"
+              (click)="editTJob(row)"
+              [disabled]="deletingInProgress"
+              class="iconBtn-xs"
+              title="{{ !row.external ? 'Edit TJob' : 'Edit in Jenkins' }}"
+            >
+              <ng-container *ngIf="!row.external; else showJenkinsIcon">
+                <mat-icon>mode_edit</mat-icon>
+              </ng-container>
+              <ng-template #showJenkinsIcon>
+                <fa-icon mat-icon class="mat-icon" [icon]="['fab', 'jenkins']"></fa-icon>
+              </ng-template>
+            </button>
+          </div>
+          <div fxLayout="row" fxFlex.gt-xl="50" fxFlex="100">
+            <button
+              mat-button
+              [disabled]="deletingInProgress || duplicateInProgress"
+              *ngIf="!row.external"
+              (click)="duplicateTJob(row)"
+              class="iconBtn-xs"
+              title="Duplicate TJob"
+            >
+              <mat-icon>content_copy</mat-icon>
+            </button>
+            <button mat-button (click)="deleteTJob(row)" [disabled]="deletingInProgress" class="iconBtn-xs" title="Delete TJob">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
         </div>
       </ng-template>
     </td-data-table>

@@ -94,7 +94,7 @@ export class TJobFormComponent implements OnInit, DoCheck {
         } else if (this.action === 'new') {
           this.titlesService.setHeadTitle('New TJob');
           this.route.params
-            .switchMap((params: Params) => this.projectService.getProject(params['projectId'], 'minimal'))
+            .switchMap((params: Params) => this.projectService.getProject(params['projectId'], 'medium'))
             .subscribe((project: ProjectModel) => {
               this.tJob = new TJobModel();
               this.tJob.project = project;
