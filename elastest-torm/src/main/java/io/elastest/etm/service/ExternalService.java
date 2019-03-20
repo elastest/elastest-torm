@@ -144,6 +144,7 @@ public class ExternalService {
             logger.debug("Creating TJobExecution.");
             TJobExecution tJobExec = tJobService.executeTJob(externalJob,
                     tJob.getId(), new ArrayList<>(), new ArrayList<>());
+            tJobService.removeOldTJobExecsAsync(tJob.getId());
 
             String etPublicHost = utilsService.getEtPublicHostValue();
 
