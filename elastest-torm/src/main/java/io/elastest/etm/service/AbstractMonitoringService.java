@@ -57,7 +57,11 @@ public abstract class AbstractMonitoringService {
         }
 
         return allDeleted;
+    }
 
+    @Async
+    public void deleteMonitoringDataByIndicesAsync(List<String> indices) {
+        deleteMonitoringDataByIndices(indices);
     }
 
     /* *** Logs *** */

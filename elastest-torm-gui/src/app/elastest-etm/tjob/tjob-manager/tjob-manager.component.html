@@ -39,6 +39,11 @@
               <h4>{{ tJob.multi }}</h4>
             </span>
 
+            <span fxFlex.gt-xs="10" fxFlexOffset="1">
+              <mat-card-subtitle>Max executions</mat-card-subtitle>
+              <h4>{{ tJob.maxExecutions ? tJob.maxExecutions : 'Infinite' }}</h4>
+            </span>
+
             <span fxFlex.gt-xs="20" fxFlexOffset="1">
               <mat-card-subtitle>Options</mat-card-subtitle>
               <div class="optionsColumn" fxLayout="column" fxLayout.gt-xs="row">

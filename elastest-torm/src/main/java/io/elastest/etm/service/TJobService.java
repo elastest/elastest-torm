@@ -111,8 +111,8 @@ public class TJobService {
 
     public void deleteTJob(Long tJobId) {
         TJob tJob = tJobRepo.findById(tJobId).get();
-        monitoringService
-                .deleteMonitoringDataByIndices(tJob.getAllMonitoringIndices());
+        monitoringService.deleteMonitoringDataByIndicesAsync(
+                tJob.getAllMonitoringIndices());
         tJobRepo.delete(tJob);
     }
 
@@ -356,7 +356,8 @@ public class TJobService {
 
     public void deleteTJobExec(TJobExecution tJobExec) {
         String index = tJobExec.getOnlyTJobExecMonitoringIndex();
-        monitoringService.deleteMonitoringDataByIndices(Arrays.asList(index));
+        monitoringService
+                .deleteMonitoringDataByIndicesAsync(Arrays.asList(index));
         tJobExecRepositoryImpl.delete(tJobExec);
     }
 
