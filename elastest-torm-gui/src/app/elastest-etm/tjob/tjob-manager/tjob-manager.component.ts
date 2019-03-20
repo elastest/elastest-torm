@@ -133,7 +133,7 @@ export class TjobManagerComponent implements OnInit {
               this.reloadTJob();
             },
             (error: Error) => {
-              this.deletingInProgress = true;
+              this.deletingInProgress = false;
               this.tJobExecService.popupService.openSnackBar('TJob Execution could not be deleted');
             },
           );
