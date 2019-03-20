@@ -293,7 +293,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   loadBrowser(): void {
     this.browserCardMsg = 'Waiting for Browser...';
     this.executionCardMsg = 'Just a little more...';
-    let extraCapabilities: any = { manualRecording: true };
+    let extraCapabilities: any = { manualRecording: true, elastestTimeout: 0 };
     this.eusService.startSession(this.browserName, this.browserVersion, extraCapabilities, false, this.extraHosts).subscribe(
       (eusTestModel: EusTestModel) => {
         this.eusTestModel = eusTestModel;

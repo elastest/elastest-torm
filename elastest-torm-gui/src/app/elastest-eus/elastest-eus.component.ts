@@ -391,7 +391,8 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
         },
       );
 
-      this.eusService.startSession(this.selectedBrowser, this.selectedVersion[this.selectedBrowser]).subscribe(
+      let extraCapabilities: any = { elastestTimeout: 0 };
+      this.eusService.startSession(this.selectedBrowser, this.selectedVersion[this.selectedBrowser], extraCapabilities).subscribe(
         (eusTestModel: EusTestModel) => {
           this.sessionId = eusTestModel.id;
           this.eusService.getVncUrl(this.sessionId).subscribe(
