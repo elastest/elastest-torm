@@ -17,7 +17,6 @@ import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.service.AbstractMonitoringService;
-import io.elastest.etm.service.DatabaseSessionManager;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.EtmTestResultService;
 import io.elastest.etm.service.TJobExecOrchestratorService;

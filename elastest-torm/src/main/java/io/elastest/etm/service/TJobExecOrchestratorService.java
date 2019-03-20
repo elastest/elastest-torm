@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
@@ -81,7 +80,6 @@ public class TJobExecOrchestratorService {
     Map<String, SharedAsyncModel<Void>> asyncExternalElasticsearchSutExecs = new HashMap<String, SharedAsyncModel<Void>>();
 
     public TJobExecOrchestratorService(DockerEtmService dockerEtmService,
-            DockerComposeService dockerComposeService,
             TJobExecRepository tJobExecRepositoryImpl,
             DatabaseSessionManager dbmanager, EsmService esmService,
             SutService sutService, AbstractMonitoringService monitoringService,

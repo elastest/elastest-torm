@@ -47,12 +47,10 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
 
     @Autowired
     private UtilsService utilsService;
-
     @Autowired
     TraceRepository traceRepository;
     @Autowired
     TestSuiteRepository testSuiteRepository;
-
     @Autowired
     DockerComposeService dockerComposeService;
     @Autowired
@@ -122,8 +120,8 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     // TODO Change dockerComposeService for the right platform implementation
     public SupportServiceClientInterface getSupportServiceClientInterface() {
         if (utilsService.isElastestMini()) {
-            return new EtmMiniSupportServiceClient(dockerComposeService,
-                    getEtPluginsService(), utilsService);
+            return new EtmMiniSupportServiceClient(getEtPluginsService(),
+                    utilsService, platformService());
         } else {
             return new EsmServiceClient(utilsService);
         }
