@@ -51,7 +51,7 @@ export class TestLinkService {
     let url: string = this.hostApi + '/testlink/start';
     return this.http
       .post(url, undefined, { observe: 'response' })
-      .map((response: HttpResponse<any>) => this.etPluginsService.transformRawTestEngine(response.body));
+      .map((response: HttpResponse<any>) => this.etPluginsService.transformRawEtPlugin(response.body));
   }
 
   public getTestlinkUrl(): Observable<string> {

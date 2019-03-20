@@ -10,54 +10,55 @@ export class EtPluginsService {
 
   constructor(private http: HttpClient, private configurationService: ConfigurationService) {}
 
-  public transformRawTestEnginesList(testEnginesRaw: any[]): EtPluginModel[] {
-    let testEngines: EtPluginModel[] = [];
-    for (let rawEngine of testEnginesRaw) {
-      testEngines.push(this.transformRawTestEngine(rawEngine));
+  public transformRawEtPluginsList(etPluginsRaw: any[]): EtPluginModel[] {
+    let etPlugins: EtPluginModel[] = [];
+    for (let rawEngine of etPluginsRaw) {
+      etPlugins.push(this.transformRawEtPlugin(rawEngine));
     }
-    return testEngines;
+    return etPlugins;
   }
 
-  public transformRawTestEngine(rawEngine: any): EtPluginModel {
-    let testEngine: EtPluginModel = new EtPluginModel();
-    testEngine.name = rawEngine.name;
-    testEngine.url = rawEngine.url;
-    testEngine.imagesList = rawEngine.imagesList;
-    testEngine.status = rawEngine.status;
-    testEngine.statusMsg = rawEngine.statusMsg;
-    testEngine.user = rawEngine.user;
-    testEngine.pass = rawEngine.pass;
-    testEngine.displayName = rawEngine.displayName;
-    return testEngine;
+  public transformRawEtPlugin(rawEngine: any): EtPluginModel {
+    let etPlugin: EtPluginModel = new EtPluginModel();
+    etPlugin.name = rawEngine.name;
+    etPlugin.url = rawEngine.url;
+    etPlugin.imagesList = rawEngine.imagesList;
+    etPlugin.status = rawEngine.status;
+    etPlugin.statusMsg = rawEngine.statusMsg;
+    etPlugin.user = rawEngine.user;
+    etPlugin.pass = rawEngine.pass;
+    etPlugin.displayName = rawEngine.displayName;
+    etPlugin.fileName = rawEngine.fileName;
+    return etPlugin;
   }
 
   /* *** API *** */
   getEtPlugins(): Observable<EtPluginModel[]> {
-    return this.http.get(this.mainUrl).map((data: any[]) => this.transformRawTestEnginesList(data));
+    return this.http.get(this.mainUrl).map((data: any[]) => this.transformRawEtPluginsList(data));
   }
 
   getEtPlugin(name: string): Observable<EtPluginModel> {
     let url: string = this.mainUrl + name;
-    return this.http.get(url).map((data: any) => this.transformRawTestEngine(data));
+    return this.http.get(url).map((data: any) => this.transformRawEtPlugin(data));
   }
 
   startEtPlugin(etPluginModel: EtPluginModel): Observable<EtPluginModel> {
     let url: string = this.mainUrl + etPluginModel.name + '/start';
     return this.http
       .post(url, undefined, { observe: 'response' })
-      .map((response: HttpResponse<any>) => this.transformRawTestEngine(response.body));
+      .map((response: HttpResponse<any>) => this.transformRawEtPlugin(response.body));
   }
 
   startEtPluginAsync(etPluginModel: EtPluginModel): Observable<EtPluginModel> {
     let url: string = this.mainUrl + etPluginModel.name + '/start/async';
     return this.http
       .post(url, undefined, { observe: 'response' })
-      .map((response: HttpResponse<any>) => this.transformRawTestEngine(response.body));
+      .map((response: HttpResponse<any>) => this.transformRawEtPlugin(response.body));
   }
 
   stopEtPlugin(etPluginModel: EtPluginModel): Observable<EtPluginModel> {
     let url: string = this.mainUrl + etPluginModel.name;
-    return this.http.delete(url).map((data: any) => this.transformRawTestEngine(data));
+    return this.http.delete(url).map((data: any) => this.transformRawEtPlugin(data));
   }
 
   isStarted(etPluginModel: EtPluginModel): Observable<boolean> {
@@ -79,11 +80,11 @@ export class EtPluginsService {
   /* *********************** SPECIFIC METHODS *********************** */
   /* **************************************************************** */
   getUniqueEtPlugins(): Observable<EtPluginModel[]> {
-    return this.http.get(this.mainUrl + 'unique').map((data: any[]) => this.transformRawTestEnginesList(data));
+    return this.http.get(this.mainUrl + 'unique').map((data: any[]) => this.transformRawEtPluginsList(data));
   }
 
   getUniqueEtPlugin(name: string): Observable<EtPluginModel> {
     let url: string = this.mainUrl + 'unique/' + name;
-    return this.http.get(url).map((data: any[]) => this.transformRawTestEngine(data));
+    return this.http.get(url).map((data: any[]) => this.transformRawEtPlugin(data));
   }
 }

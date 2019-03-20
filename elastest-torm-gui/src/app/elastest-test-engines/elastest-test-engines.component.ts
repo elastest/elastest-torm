@@ -17,7 +17,8 @@ export class ElastestTestEnginesComponent implements OnInit, OnDestroy {
   testEngines: EtPluginModel[];
 
   testEnginesColumns: any[] = [
-    { name: 'name', label: 'Name' },
+    { name: 'name', label: 'Short Name', width: 102 },
+    { name: 'displayName', label: 'Name' },
     { name: 'status', label: 'Status' },
     { name: 'statusMsg', label: 'Info' },
     { name: 'url', label: 'Url' },
@@ -36,7 +37,7 @@ export class ElastestTestEnginesComponent implements OnInit, OnDestroy {
     public popupService: PopupService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.titlesService.setHeadTitle('Test Engines');
     this.getTestEngines();
   }
@@ -46,7 +47,7 @@ export class ElastestTestEnginesComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('window:beforeunload')
-  beforeunloadHandler() {
+  beforeunloadHandler(): void {
     // On window closed leave session
     this.unsubscribe();
   }

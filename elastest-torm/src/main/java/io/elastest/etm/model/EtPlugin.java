@@ -17,6 +17,7 @@ public class EtPlugin extends DockerServiceStatus {
     protected String user;
     protected String pass;
     protected String displayName;
+    protected String fileName;
 
     public EtPlugin() {
     }
@@ -26,6 +27,15 @@ public class EtPlugin extends DockerServiceStatus {
         this.name = name;
         this.parameters = new HashMap<>();
         this.displayName = displayName;
+        this.fileName = name;
+    }
+
+    public EtPlugin(String name, String displayName, String fileName) {
+        super();
+        this.name = name;
+        this.parameters = new HashMap<>();
+        this.displayName = displayName;
+        this.fileName = fileName;
     }
 
     public EtPlugin(EtPlugin plugin) {
@@ -41,6 +51,7 @@ public class EtPlugin extends DockerServiceStatus {
         this.user = plugin.user;
         this.pass = plugin.pass;
         this.displayName = plugin.displayName;
+        this.fileName = plugin.fileName;
     }
 
     public String getName() {
@@ -115,13 +126,22 @@ public class EtPlugin extends DockerServiceStatus {
         this.displayName = displayName;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
     @Override
     public String toString() {
         return "EtPlugin [name=" + name + ", internalUrl=" + internalUrl
                 + ", bindedUrl=" + bindedUrl + ", url=" + url + ", imagesList="
                 + imagesList + ", parameters=" + parameters + ", user=" + user
                 + ", pass=" + pass + ", displayName=" + displayName
-                + ", toString()=" + super.toString() + "]";
+                + ", fileName=" + fileName + ", toString()=" + super.toString()
+                + "]";
     }
 
     public void initToDefault() {

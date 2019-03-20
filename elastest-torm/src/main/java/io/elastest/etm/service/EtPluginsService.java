@@ -156,8 +156,8 @@ public class EtPluginsService {
                     new EtPlugin(ERE_NAME, ERE_DISPLAY_NAME));
         } else { // TRIAL
             logger.debug("Trial ERE is enabled");
-            this.enginesMap.put(ERE_TRIAL_NAME,
-                    new EtPlugin(ERE_TRIAL_NAME, ERE_TRIAL_DISPLAY_NAME));
+            this.enginesMap.put(ERE_NAME, new EtPlugin(ERE_NAME,
+                    ERE_TRIAL_DISPLAY_NAME, ERE_TRIAL_NAME));
         }
 
         this.uniqueEtPluginsMap.put(EIM_NAME,
@@ -185,11 +185,13 @@ public class EtPluginsService {
 
         registerEngines();
         for (String engine : this.enginesMap.keySet()) {
-            createTestEngineProject(engine);
+            createTestEngineProject(engine,
+                    this.enginesMap.get(engine).getFileName());
         }
 
         for (String plugin : this.uniqueEtPluginsMap.keySet()) {
-            createUniqueEtPluginProject(plugin);
+            createUniqueEtPluginProject(plugin,
+                    this.uniqueEtPluginsMap.get(plugin).getFileName());
         }
     }
 
@@ -210,12 +212,13 @@ public class EtPluginsService {
     /* *** Single Create Projects *** */
     /* ****************************** */
 
-    public void createTestEngineProject(String name) {
-        String dockerComposeYml = getDockerCompose(name);
+    public void createTestEngineProject(String name, String fileName) {
+        String dockerComposeYml = getDockerCompose(fileName);
         this.createProject(name, dockerComposeYml, tmpEnginesYmlFolder);
     }
 
-    public void createUniqueEtPluginProject(String name) throws Exception {
+    public void createUniqueEtPluginProject(String name, String fileName)
+            throws Exception {
         String dockerComposeYml = getDockerCompose(name);
         Map<String, String> envVars = new HashMap<>();
 
@@ -885,11 +888,11 @@ public class EtPluginsService {
         return initAndGetEtPluginUrl(engineName);
     }
 
-    public String getDockerCompose(String engineName) {
+    public String getDockerCompose(String engineFileName) {
         String content = "";
         try {
             InputStream inputStream = getClass().getResourceAsStream(
-                    "/" + ET_TEST_ENGINES_PATH + engineName + ".yml");
+                    "/" + ET_TEST_ENGINES_PATH + engineFileName + ".yml");
             content = IOUtils.toString(inputStream, "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();
