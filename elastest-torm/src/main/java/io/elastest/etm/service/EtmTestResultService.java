@@ -3,6 +3,7 @@ package io.elastest.etm.service;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -23,20 +24,18 @@ public class EtmTestResultService {
     
     private final TestSuiteRepository testSuiteRepo;
     private final TestCaseRepository testCaseRepo;
-    private MonitoringServiceInterface monitoringService;
+    private AbstractMonitoringService monitoringService;
     
     
     
     public EtmTestResultService(TestSuiteRepository testSuiteRepo,
             TestCaseRepository testCaseRepo,
-            MonitoringServiceInterface monitoringService) {
+            AbstractMonitoringService monitoringService) {
         super();
         this.testSuiteRepo = testSuiteRepo;
         this.testCaseRepo = testCaseRepo;
         this.monitoringService = monitoringService;
     }
-
-
 
     public void saveTestResults(List<ReportTestSuite> testSuites,
             TJobExecution tJobExec) {
@@ -72,13 +71,13 @@ public class EtmTestResultService {
                         Date startDate = this.monitoringService
                                 .findFirstStartTestMsgAndGetTimestamp(
                                         tJobExec.getMonitoringIndex(),
-                                        tCase.getName(), "test");
+                                        tCase.getName(), Arrays.asList("test"));
                         tCase.setStartDate(startDate);
 
                         Date endDate = this.monitoringService
                                 .findFirstFinishTestMsgAndGetTimestamp(
                                         tJobExec.getMonitoringIndex(),
-                                        tCase.getName(), "test");
+                                        tCase.getName(), Arrays.asList("test"));
                         tCase.setEndDate(endDate);
                     } catch (Exception e) {
                         logger.debug(

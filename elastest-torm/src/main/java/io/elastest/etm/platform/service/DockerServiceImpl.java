@@ -30,26 +30,24 @@ import io.elastest.epm.client.model.DockerPullImageProgress;
 import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.epm.client.service.DockerComposeService;
-import io.elastest.epm.client.service.EpmService;
 import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
+import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SocatBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
-import io.elastest.etm.model.SutSpecification;
-import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
+import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
-import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.service.TJobStoppedException;
 import io.elastest.etm.utils.EtmFilesService;
 
-@Service
 public class DockerServiceImpl implements PlatformService {
     final Logger logger = getLogger(lookup().lookupClass());
 

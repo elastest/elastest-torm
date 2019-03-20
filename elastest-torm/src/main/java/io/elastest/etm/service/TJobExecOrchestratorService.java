@@ -15,7 +15,6 @@ import java.util.concurrent.Future;
 import javax.annotation.PreDestroy;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -474,7 +473,7 @@ public class TJobExecOrchestratorService {
                 if (force) {
                     // Only stop if force, else stops automatically when ends
                     stopManageSutByExternalElasticsearch(
-                            dockerExec.getTJobExec());
+                            execution.getTJobExec());
                 }
             }
             platformService.disableMetricMonitoring(execution, force);
@@ -827,14 +826,14 @@ public class TJobExecOrchestratorService {
             if (sut.getSutType() == SutTypeEnum.DEPLOYED) {
                 logger.info("Using SUT deployed outside ElasTest");
                 TJobExecution tJobExec = execution.getTJobExec();
-                sutExec = startSutDeployedOutside(tJobExec);
+                sutExec = startSutDeployedOutside(execution);
 
             }
             // If it's MANAGED SuT
             else {
                 logger.info("Using SUT deployed by ElasTest");
                 try {
-                    if (dockerExec.isExternal()) {
+                    if (execution.isExternal()) {
                         // If external start Dockbeat (for internal is already
                         // started)
                         platformService.enableServiceMetricMonitoring(execution);
@@ -980,10 +979,6 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    public String getMapNameByTJobExec(TJobExecution tJobExec) {
-        return tJobExec.getTjob().getId() + "_" + tJobExec.getId();
-    }
-
     public String getMapNameByExternalTJobExec(
             ExternalTJobExecution exTJobExec) {
         return exTJobExec.getExTJob().getId() + "_" + exTJobExec.getId();
@@ -1039,5 +1034,15 @@ public class TJobExecOrchestratorService {
         externalTJobExec.setResult(result);
         externalTJobExec.setResultMsg(msg);
         externalTJobExecutionRepository.save(externalTJobExec);
+    }
+    
+    public void updateGenericExecResultStatus(Execution exection,
+            ResultEnum result, String msg) {
+        if (exection.isExternal()) {
+            updateExternalTJobExecResultStatus(exection.getExternalTJobExec(),
+                    result, msg);
+        } else {
+            updateTJobExecResultStatus(exection.getTJobExec(), result, msg);
+        }
     }
 }

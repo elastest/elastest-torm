@@ -568,18 +568,18 @@ public class DockerEtmService {
             String execId = "";
             String tJobId = "";
 
-            if (dockerExec.isExternal()) {
-                execEnvVars = dockerExec.getExternalTJobExec().getEnvVars();
-                execId = dockerExec.getExternalTJobExec().getId().toString();
-                tJobId = dockerExec.getExternalTJob().getId().toString();
+            if (execution.isExternal()) {
+                execEnvVars = execution.getExternalTJobExec().getEnvVars();
+                execId = execution.getExternalTJobExec().getId().toString();
+                tJobId = execution.getExternalTJob().getId().toString();
 
             } else {
-                execEnvVars = dockerExec.getTJobExec().getEnvVars();
-                execId = dockerExec.getTJobExec().getId().toString();
-                tJobId = dockerExec.gettJob().getId().toString();
+                execEnvVars = execution.getTJobExec().getEnvVars();
+                execId = execution.getTJobExec().getId().toString();
+                tJobId = execution.gettJob().getId().toString();
             }
 
-            if (isEMSSelected(dockerExec)) {
+            if (isEMSSelected(execution)) {
 
                 String regexSuffix = "_?(" + executionId + ")(_([^_]*(_\\d*)?))?";
                 String testRegex = "^test" + regexSuffix;
@@ -805,42 +805,32 @@ public class DockerEtmService {
         }
     }
 
-    public void updateExecutionResultStatus(Execution execution,
-            ResultEnum result, String msg) {
-        if (execution.isExternal()) {
-            ExternalTJobExecution externalTJobExec = execution
-                    .getExternalTJobExec();
-            updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
-        } else {
-            TJobExecution tJobExec = execution.getTJobExec();
-            updateTJobExecResultStatus(tJobExec, result, msg);
-        }
-    }
+//    public void updateExecutionResultStatus(Execution execution,
+//            ResultEnum result, String msg) {
+//        if (execution.isExternal()) {
+//            ExternalTJobExecution externalTJobExec = execution
+//                    .getExternalTJobExec();
+//            updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
+//        } else {
+//            TJobExecution tJobExec = execution.getTJobExec();
+//            updateTJobExecResultStatus(tJobExec, result, msg);
+//        }
+//    }
 
-    public void updateGenericExecResultStatus(DockerExecution dockerExec,
-            ResultEnum result, String msg) {
-        if (dockerExec.isExternal()) {
-            updateExternalTJobExecResultStatus(dockerExec.getExternalTJobExec(),
-                    result, msg);
-        } else {
-            updateTJobExecResultStatus(dockerExec.getTJobExec(), result, msg);
-        }
-    }
+//    public void updateTJobExecResultStatus(TJobExecution tJobExec,
+//            ResultEnum result, String msg) {
+//        tJobExec.setResult(result);
+//        tJobExec.setResultMsg(msg);
+//        tJobExecRepositoryImpl.save(tJobExec);
+//    }
 
-    public void updateTJobExecResultStatus(TJobExecution tJobExec,
-            ResultEnum result, String msg) {
-        tJobExec.setResult(result);
-        tJobExec.setResultMsg(msg);
-        tJobExecRepositoryImpl.save(tJobExec);
-    }
-
-    public void updateExternalTJobExecResultStatus(
-            ExternalTJobExecution externalTJobExec, ResultEnum result,
-            String msg) {
-        externalTJobExec.setResult(result);
-        externalTJobExec.setResultMsg(msg);
-        externalTJobExecutionRepository.save(externalTJobExec);
-    }
+//    public void updateExternalTJobExecResultStatus(
+//            ExternalTJobExecution externalTJobExec, ResultEnum result,
+//            String msg) {
+//        externalTJobExec.setResult(result);
+//        externalTJobExec.setResultMsg(msg);
+//        externalTJobExecutionRepository.save(externalTJobExec);
+//    }
 
     public boolean isEMSSelected(Execution execution) {
         return !execution.isExternal()

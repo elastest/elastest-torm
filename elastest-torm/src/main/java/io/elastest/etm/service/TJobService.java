@@ -31,7 +31,6 @@ import org.xml.sax.SAXException;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.Enums.MonitoringStorageType;
-import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutSpecification;
@@ -42,7 +41,6 @@ import io.elastest.etm.model.TJob.TJobMinimalView;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
-import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.TestResultParser;
@@ -62,7 +60,6 @@ public class TJobService {
     private final TJobRepository tJobRepo;
     private final TJobExecRepository tJobExecRepositoryImpl;
     public final TJobExecOrchestratorService tJobExecOrchestratorService;
-    private final EsmService esmService;
     private UtilsService utilsService;
     private AbstractMonitoringService monitoringService;
     private EtmTestResultService etmTestResultService;
@@ -73,13 +70,14 @@ public class TJobService {
     public TJobService(TJobRepository tJobRepo,
             TJobExecRepository tJobExecRepositoryImpl,
             TJobExecOrchestratorService epmIntegrationService,
-            EsmService esmService, UtilsService utilsService,
-            EtmTestResultService etmTestResultService, EtmFilesService etmFilesService) {
+            UtilsService utilsService,
+            AbstractMonitoringService monitoringService,
+            EtmTestResultService etmTestResultService,
+            EtmFilesService etmFilesService) {
         super();
         this.tJobRepo = tJobRepo;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.tJobExecOrchestratorService = epmIntegrationService;
-        this.esmService = esmService;
         this.utilsService = utilsService;
         this.monitoringService = monitoringService;
         this.etmTestResultService = etmTestResultService;

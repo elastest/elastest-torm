@@ -50,7 +50,6 @@ public class TJobServiceTest {
             @Mock TJobRepository tJobRepo,
             @Mock TJobExecOrchestratorService epmIntegrationService,
             @Mock TJobExecRepository tJobExecRepo, @Mock EsmService esmService,
-            @Mock DatabaseSessionManager dbmanager,
             @Mock UtilsService utilsService,
             @Mock AbstractMonitoringService abstractMonitoringService,
             @Mock EtmTestResultService etmTestResultService,
@@ -58,7 +57,7 @@ public class TJobServiceTest {
         // TJob createdTJob =
         when(tJobRepo.save(tJob)).thenReturn(tJob);
         TJobService tJobService = new TJobService(tJobRepo, tJobExecRepo,
-                epmIntegrationService, esmService, dbmanager, utilsService,
+                epmIntegrationService, utilsService,
                 abstractMonitoringService, etmTestResultService,
                 etmFilesService);
         TJob tJob1 = tJobService.createTJob(tJob);
