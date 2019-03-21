@@ -1,9 +1,11 @@
 package io.elastest.epm.client.model;
 
+import java.util.Observable;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public class DockerServiceStatus {
+public class DockerServiceStatus extends Observable {
     private String statusMsg;
     private DockerServiceStatusEnum status;
 
@@ -46,6 +48,8 @@ public class DockerServiceStatus {
 
     public void setStatusMsg(String msg) {
         this.statusMsg = msg;
+        setChanged();
+        notifyObservers(this);
     }
 
     public DockerServiceStatusEnum getStatus() {

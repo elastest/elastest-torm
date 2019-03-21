@@ -13,7 +13,6 @@ import java.util.Map;
 import javax.ws.rs.NotFoundException;
 
 import org.slf4j.Logger;
-import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
