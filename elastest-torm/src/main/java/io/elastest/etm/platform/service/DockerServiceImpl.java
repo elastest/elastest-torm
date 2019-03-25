@@ -6,6 +6,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
 import javax.ws.rs.NotFoundException;
 
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -20,8 +22,10 @@ import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.Container;
+import com.spotify.docker.client.messages.PortBinding;
 import com.spotify.docker.client.messages.ProgressMessage;
 
+import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.json.DockerComposeCreateProject;
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
@@ -29,11 +33,12 @@ import io.elastest.epm.client.model.DockerPullImageProgress;
 import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.epm.client.service.DockerComposeService;
+import io.elastest.epm.client.service.DockerService;
 import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
 import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
-import io.elastest.etm.model.SocatBindedPort;
+import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
@@ -44,31 +49,99 @@ import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
-import io.elastest.etm.service.TJobStoppedException;
+import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.EtmFilesService;
+import io.elastest.etm.utils.UtilTools;
+import io.elastest.etm.utils.UtilsService;
 
 public class DockerServiceImpl implements PlatformService {
     final Logger logger = getLogger(lookup().lookupClass());
 
+    @Value("${et.etm.container.name}")
+    private String etEtmContainerName;
+    @Value("${elastest.docker.network}")
+    private String elastestNetwork;
+    @Value("${et.docker.img.socat}")
+    public String etSocatImage;
+    @Value("${et.etm.logstash.container.name}")
+    private String etEtmLogstashContainerName;
+
     public DockerComposeService dockerComposeService;
     public DockerEtmService dockerEtmService;
+    public DockerService dockerService;
     private EpmService epmService;
     private EtmFilesService etmFilesService;
+    private UtilsService utilsService;
 
     public DockerServiceImpl(DockerComposeService dockerComposeService,
             DockerEtmService dockerEtmService, EpmService epmService,
-            EtmFilesService etmFilesService) {
+            EtmFilesService etmFilesService, UtilsService utilsService,
+            DockerService dockerService) {
         super();
         this.dockerComposeService = dockerComposeService;
         this.dockerEtmService = dockerEtmService;
         this.epmService = epmService;
         this.etmFilesService = etmFilesService;
+        this.utilsService = utilsService;
+        this.dockerService = dockerService;
     }
 
     @Override
-    public String undeployTSS() {
-        // TODO Auto-generated method stub
+    public String undeployTSSByContainerId(String containerId) {
+        try {
+            dockerService.stopDockerContainer(containerId);
+            dockerService.removeDockerContainer(containerId);
+        } catch (Exception e) {
+            logger.error("Error on stop and remove container {}", containerId,
+                    e);
+        }
         return null;
+    }
+
+    @Override
+    public ServiceBindedPort getBindingPort(String containerIp,
+            String containerSufix, String port, String networkName,
+            boolean remotely) throws Exception {
+        String bindedPort = "37000";
+        String socatContainerId = null;
+        try {
+            bindedPort = String.valueOf(UtilTools.findRandomOpenPort());
+            List<String> envVariables = new ArrayList<>();
+            envVariables.add("LISTEN_PORT=" + bindedPort);
+            envVariables.add("FORWARD_PORT=" + port);
+            envVariables.add("TARGET_SERVICE_IP=" + containerIp);
+            // String listenPortAsString = String.valueOf(bindedPort);
+
+            DockerBuilder dockerBuilder = new DockerBuilder(etSocatImage);
+            dockerBuilder.envs(envVariables);
+            dockerBuilder.containerName("socat_"
+                    + (containerSufix != null && !containerSufix.isEmpty()
+                            ? containerSufix
+                            : bindedPort));
+            dockerBuilder.network(networkName);
+            dockerBuilder.exposedPorts(Arrays.asList(bindedPort));
+
+            // portBindings
+            Map<String, List<PortBinding>> portBindings = new HashMap<>();
+            portBindings.put(bindedPort,
+                    Arrays.asList(PortBinding.of("0.0.0.0", bindedPort)));
+            dockerBuilder.portBindings(portBindings);
+
+            dockerService.pullImage(etSocatImage);
+
+            socatContainerId = dockerService
+                    .createAndStartContainer(dockerBuilder.build(), remotely);
+            logger.info("Socat container id: {} ", socatContainerId);
+
+        } catch (Exception e) {
+            throw new Exception("Error on bindingPort (start socat container)",
+                    e);
+        }
+
+        ServiceBindedPort bindedPortObj = new ServiceBindedPort(port,
+                bindedPort, socatContainerId);
+
+        return bindedPortObj;
     }
 
     @Override
@@ -492,7 +565,7 @@ public class DockerServiceImpl implements PlatformService {
                     service.getKey(), false);
         }
     }
-    
+
     @Override
     public void undeploySut(Execution execution, boolean force)
             throws Exception {
@@ -529,19 +602,19 @@ public class DockerServiceImpl implements PlatformService {
                             execution.getExecutionId().toString());
                 }
             }
-        } 
+        }
         endCheckSutExec(execution);
     }
-    
+
     public void endComposedSutExec(Execution execution) throws Exception {
         String composeProjectName = dockerEtmService.getSutName(execution);
         dockerComposeService.stopAndRemoveProject(composeProjectName);
     }
-    
+
     public void endCheckSutExec(Execution execution) throws Exception {
         dockerEtmService.endContainer(dockerEtmService.getCheckName(execution));
     }
-    
+
     public void endSutInContainer(Execution execution) throws Exception {
         SutSpecification sut = execution.getSut();
         String containerName = null;
@@ -576,7 +649,7 @@ public class DockerServiceImpl implements PlatformService {
             this.dockerEtmService.endContainer(containerName);
         }
     }
-    
+
     @Override
     public void undeployTJob(Execution execution, boolean force)
             throws Exception {
@@ -587,14 +660,31 @@ public class DockerServiceImpl implements PlatformService {
             dockerEtmService.endContainer(testContainerName);
         }
     }
-    
+
     @Override
-    public SocatBindedPort getBindingPort(String containerIp,
-            String containerSufix, String port, String networkName,
-            boolean remotely) throws Exception {
-        return dockerEtmService.bindingPort(containerIp, port, networkName, remotely);
+    public String getEtmHost() throws Exception {
+        if (utilsService.isEtmInContainer()) {
+            return dockerService.getContainerIpByNetwork(etEtmContainerName,
+                    elastestNetwork);
+        } else {
+            return dockerService.getHostIpByNetwork(elastestNetwork);
+        }
     }
     
+    @Override
+    public String getLogstashHost() throws Exception {
+        if (EpmService.etMasterSlaveMode) {
+            return utilsService.getEtPublicHostValue();
+        } else {
+            if (utilsService.isElastestMini()) {
+                return getEtmHost();
+            } else {
+                return dockerService.getContainerIpByNetwork(
+                        etEtmLogstashContainerName, elastestNetwork);
+            }
+        }
+    }
+
     public void updateSutExecDeployStatus(Execution execution,
             DeployStatusEnum status) {
         SutExecution sutExec = execution.getSutExec();

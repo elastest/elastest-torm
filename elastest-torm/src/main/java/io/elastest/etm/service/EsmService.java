@@ -38,7 +38,8 @@ import io.elastest.epm.client.service.ServiceException;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
 import io.elastest.etm.model.EusExecutionData;
-import io.elastest.etm.model.SocatBindedPort;
+import io.elastest.etm.model.Execution;
+import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJob;
@@ -46,7 +47,7 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.model.external.ExternalTJobExecution;
-import io.elastest.etm.platform.service.DockerEtmService;
+import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.service.client.SupportServiceClientInterface;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.ParserService;
@@ -146,10 +147,10 @@ public class EsmService {
     public String EUS_TSS_ID;
 
     public SupportServiceClientInterface supportServiceClient;
-    public DockerEtmService dockerEtmService;
     public EtmContextAuxService etmContextAuxService;
     public EtmFilesService filesServices;
     public EpmService epmService;
+    public PlatformService platformService;
 
     private Map<String, SupportServiceInstance> servicesInstances;
     private Map<String, SupportServiceInstance> tJobServicesInstances;
@@ -172,20 +173,20 @@ public class EsmService {
 
     @Autowired
     public EsmService(SupportServiceClientInterface supportServiceClient,
-            DockerEtmService dockerEtmService, EtmFilesService filesServices,
+            EtmFilesService filesServices,
             EtmContextAuxService etmContextAuxService, EpmService epmService,
             TJobExecRepository tJobExecRepositoryImpl,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
             DynamicDataService dynamicDataService,
             WebDriverService eusWebDriverService,
-            EtPluginsService etPluginsService, UtilsService utilsService) {
+            EtPluginsService etPluginsService, UtilsService utilsService,
+            PlatformService platformService) {
         this.supportServiceClient = supportServiceClient;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
         this.externalTJobServicesInstances = new HashMap<>();
         this.tSSIByTJobExecAssociated = new HashMap<>();
         this.tSSIByExternalTJobExecAssociated = new HashMap<>();
-        this.dockerEtmService = dockerEtmService;
         this.tSSIdLoadedOnInit = new ArrayList<>();
         this.tSSNameLoadedOnInit = new ArrayList<>(Arrays.asList("EUS"));
         this.tssLoadedOnInitMap = new HashMap<>();
@@ -198,6 +199,7 @@ public class EsmService {
         this.eusWebDriverService = eusWebDriverService;
         this.etPluginsService = etPluginsService;
         this.utilsService = utilsService;
+        this.platformService = platformService;
     }
 
     @PostConstruct
@@ -247,17 +249,11 @@ public class EsmService {
             TssManifest manifest = supportServiceClient
                     .getManifestBySupportServiceInstance(eusInstance);
             eusInstance.setManifestId(manifest.getId());
-
-            String etmHost = dockerEtmService.getEtmHost();
-
-            eusInstance.setContainerIp(etmHost);
-
-            String serviceIp = etmHost;
+            String serviceIp = platformService.getEtmHost();
+            eusInstance.setContainerIp(serviceIp);
             int internalServicePort = Integer.parseInt(etmServerPort);
             int bindedServicePort = Integer.parseInt(etProxyPort);
-
             int servicePort = internalServicePort;
-
             eusInstance.setInternalServiceIp(serviceIp);
 
             if (!utilsService.isDefaultEtPublicHost()) {
@@ -503,8 +499,9 @@ public class EsmService {
 
             // If is Jenkins, config EUS to start browsers at sut network
             boolean useSutNetwork = tJobExec.getTjob().isExternal();
-            String sutContainerPrefix = dockerEtmService
-                    .getSutPrefixBySuffix(tJobExec.getId().toString());
+            String sutContainerPrefix = platformService.generateContainerName(
+                    PlatformService.ContainerPrefix.SUT,
+                    new Execution(tJobExec));
 
             EusExecutionData eusExecutionData = new EusExecutionData(tJobExec,
                     folderPath, useSutNetwork, sutContainerPrefix);
@@ -543,8 +540,9 @@ public class EsmService {
         if (servicesInstances.containsKey(tssInstanceId)) {
 
             boolean useSutNetwork = tJobExec.getTjob().isExternal();
-            String sutContainerPrefix = dockerEtmService
-                    .getSutPrefixBySuffix(tJobExec.getId().toString());
+            String sutContainerPrefix = platformService.generateContainerName(
+                    PlatformService.ContainerPrefix.SUT,
+                    new Execution(tJobExec));
 
             EusExecutionData eusExecutionData = new EusExecutionData(tJobExec,
                     "", useSutNetwork, sutContainerPrefix);
@@ -743,8 +741,7 @@ public class EsmService {
 
         String resultMsg = "Waiting for the Test Support Services to be ready";
         logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
-        dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                ResultEnum.WAITING_TSS, resultMsg);
+        updateTJobExecResultStatus(tJobExec, ResultEnum.WAITING_TSS, resultMsg);
         while (!tSSInstAssocToTJob.isEmpty()) {
             tJobExec.getServicesInstances().forEach((tSSInstId) -> {
                 SupportServiceInstance mainSubService = getTJobServiceInstancesById(
@@ -779,8 +776,7 @@ public class EsmService {
             String instanceId, String serviceName) {
         String resultMsg = "Waiting for the Test Support Services to be ready: "
                 + serviceName.toUpperCase();
-        dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                ResultEnum.WAITING_TSS, resultMsg);
+        updateTJobExecResultStatus(tJobExec, ResultEnum.WAITING_TSS, resultMsg);
 
         logger.debug("Wait for TSS {} in TJob Execution {}", serviceName,
                 tJobExec.getId());
@@ -818,7 +814,7 @@ public class EsmService {
             if (!DockerServiceStatusEnum.STARTING.equals(tssInstanceStatus)
                     && !DockerServiceStatusEnum.READY
                             .equals(tssInstanceStatus)) {
-                dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.STARTING_TSS,
                         tssInstance.getStatusMsg());
 
@@ -828,32 +824,11 @@ public class EsmService {
                     e.printStackTrace();
                 }
                 this.waitForTssStartedInMini(tJobExec, instanceId, serviceName);
-
-                // } else if (DockerServiceStatusEnum.STARTING
-                // .equals(tssInstance.getStatus())
-                // || DockerServiceStatusEnum.READY
-                // .equals(tssInstance.getStatus())) {
-                // // TODO use etPluginsService.waitForReady(projectName, 2500);
-                // // Now it's only wait for STARTING status
-                // // Update instance in map to have the entrypoint values
-                // tssInstance = supportServiceClient
-                // .initSupportServiceInstanceData(tssInstance);
-                // tJobServicesInstances.put(instanceId, tssInstance);
-                //
-                // }
-
-                // If status STARTING OR (READY and not serviceReady)
-
-                /*
-                 * (*READY status is set in checkIfEtPluginUrl when ip and port
-                 * is available but TSS can not be started because socat is not
-                 * ready, for example)
-                 */
             } else if (DockerServiceStatusEnum.STARTING
                     .equals(tssInstanceStatus)
                     || (DockerServiceStatusEnum.READY.equals(tssInstanceStatus)
                             && !tssInstance.isFullyInitialized())) {
-                dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.WAITING_TSS,
                         tssInstance.getStatusMsg());
 
@@ -1266,8 +1241,9 @@ public class EsmService {
                             .getEndpointsBindingsPorts().get(nodePort));
                 } else {
                     try {
-                        SocatBindedPort socatBindedPortObj = dockerEtmService
-                                .bindingPort(serviceInstance.getContainerIp(),
+                        ServiceBindedPort socatBindedPortObj = platformService
+                                .getBindingPort(
+                                        serviceInstance.getContainerIp(), null,
                                         node.get("port").toString(),
                                         networkName,
                                         epmService.etMasterSlaveMode);
@@ -1436,30 +1412,14 @@ public class EsmService {
             for (String containerId : serviceInstance
                     .getPortBindingContainers()) {
                 logger.debug("Socat container to remove: {}", containerId);
-                try {
-                    dockerEtmService.dockerService
-                            .stopDockerContainer(containerId);
-                    dockerEtmService.dockerService
-                            .removeDockerContainer(containerId);
-                } catch (Exception e) {
-                    logger.error("Error on stop and remove container {}",
-                            containerId, e);
-                }
+                platformService.undeployTSSByContainerId(containerId);
             }
 
             for (SupportServiceInstance subServiceInstance : serviceInstance
                     .getSubServices()) {
                 for (String containerId : subServiceInstance
                         .getPortBindingContainers()) {
-                    try {
-                        dockerEtmService.dockerService
-                                .stopDockerContainer(containerId);
-                        dockerEtmService.dockerService
-                                .removeDockerContainer(containerId);
-                    } catch (Exception e) {
-                        logger.error("Error on stop and remove container {}",
-                                containerId, e);
-                    }
+                    platformService.undeployTSSByContainerId(containerId);
                 }
             }
             supportServiceClient.deprovisionServiceInstance(instanceId,
@@ -1964,5 +1924,32 @@ public class EsmService {
     public boolean isSharedTssInstanceByServiceId(String serviceId) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
         return isSharedTssInstance(serviceName);
+    }
+
+    public void updateExecutionResultStatus(Execution execution,
+            ResultEnum result, String msg) {
+        if (execution.isExternal()) {
+            ExternalTJobExecution externalTJobExec = execution
+                    .getExternalTJobExec();
+            updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
+        } else {
+            TJobExecution tJobExec = execution.getTJobExec();
+            updateTJobExecResultStatus(tJobExec, result, msg);
+        }
+    }
+
+    public void updateTJobExecResultStatus(TJobExecution tJobExec,
+            ResultEnum result, String msg) {
+        tJobExec.setResult(result);
+        tJobExec.setResultMsg(msg);
+        tJobExecRepositoryImpl.save(tJobExec);
+    }
+
+    public void updateExternalTJobExecResultStatus(
+            ExternalTJobExecution externalTJobExec, ResultEnum result,
+            String msg) {
+        externalTJobExec.setResult(result);
+        externalTJobExec.setResultMsg(msg);
+        externalTJobExecutionRepository.save(externalTJobExec);
     }
 }

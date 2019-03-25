@@ -9,7 +9,7 @@ import com.spotify.docker.client.ProgressHandler;
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.etm.model.Execution;
-import io.elastest.etm.model.SocatBindedPort;
+import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJobExecution;
@@ -36,12 +36,6 @@ public class K8ServiceImpl implements PlatformService {
 
     @Override
     public String deployTSSs(TJobExecution tJobExecution) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String undeployTSS() {
         // TODO Auto-generated method stub
         return null;
     }
@@ -190,9 +184,21 @@ public class K8ServiceImpl implements PlatformService {
     }
 
     @Override
-    public SocatBindedPort getBindingPort(String containerIp,
+    public ServiceBindedPort getBindingPort(String containerIp,
             String containerSufix, String port, String networkName,
             boolean remotely) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getEtmHost() throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String undeployTSSByContainerId(String containerId) {
         // TODO Auto-generated method stub
         return null;
     }

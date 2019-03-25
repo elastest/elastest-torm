@@ -48,7 +48,7 @@ import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
-import io.elastest.etm.model.SocatBindedPort;
+import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
@@ -56,7 +56,7 @@ import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.service.EtmTestResultService;
-import io.elastest.etm.service.TJobStoppedException;
+import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.UtilTools;
@@ -87,9 +87,6 @@ public class DockerEtmService {
 
     @Value("${docker.sock}")
     private String dockerSock;
-
-    @Value("${et.docker.img.socat}")
-    public String etSocatImage;
 
     @Value("${et.shared.folder}")
     private String sharedFolder;
@@ -240,7 +237,7 @@ public class DockerEtmService {
             }
         }
     }
-
+    
     public String getEtmHost() throws Exception {
         if (utilsService.isEtmInContainer()) {
             return dockerService.getContainerIpByNetwork(etEtmContainerName,
@@ -248,7 +245,6 @@ public class DockerEtmService {
         } else {
             return dockerService.getHostIpByNetwork(elastestNetwork);
         }
-
     }
 
     public String getEdmMySqlHost() throws Exception {
@@ -991,55 +987,7 @@ public class DockerEtmService {
         createdContainers.remove(containerId);
     }
 
-    public SocatBindedPort bindingPort(String containerIp, String port,
-            String networkName, boolean remotely) throws Exception {
-        return bindingPort(containerIp, null, port, networkName, remotely);
-    }
 
-    public SocatBindedPort bindingPort(String containerIp,
-            String containerSufix, String port, String networkName,
-            boolean remotely) throws Exception {
-        String bindedPort = "37000";
-        String socatContainerId = null;
-        try {
-            bindedPort = String.valueOf(UtilTools.findRandomOpenPort());
-            List<String> envVariables = new ArrayList<>();
-            envVariables.add("LISTEN_PORT=" + bindedPort);
-            envVariables.add("FORWARD_PORT=" + port);
-            envVariables.add("TARGET_SERVICE_IP=" + containerIp);
-            // String listenPortAsString = String.valueOf(bindedPort);
-
-            DockerBuilder dockerBuilder = new DockerBuilder(etSocatImage);
-            dockerBuilder.envs(envVariables);
-            dockerBuilder.containerName("socat_"
-                    + (containerSufix != null && !containerSufix.isEmpty()
-                            ? containerSufix
-                            : bindedPort));
-            dockerBuilder.network(networkName);
-            dockerBuilder.exposedPorts(Arrays.asList(bindedPort));
-
-            // portBindings
-            Map<String, List<PortBinding>> portBindings = new HashMap<>();
-            portBindings.put(bindedPort,
-                    Arrays.asList(PortBinding.of("0.0.0.0", bindedPort)));
-            dockerBuilder.portBindings(portBindings);
-
-            dockerService.pullImage(etSocatImage);
-
-            socatContainerId = dockerService
-                    .createAndStartContainer(dockerBuilder.build(), remotely);
-            logger.info("Socat container id: {} ", socatContainerId);
-
-        } catch (Exception e) {
-            throw new Exception("Error on bindingPort (start socat container)",
-                    e);
-        }
-
-        SocatBindedPort bindedPortObj = new SocatBindedPort(port, bindedPort,
-                socatContainerId);
-
-        return bindedPortObj;
-    }
 
     /* ************************* */
     /* **** Get TestResults **** */

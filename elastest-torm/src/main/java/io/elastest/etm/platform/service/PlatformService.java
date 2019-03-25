@@ -16,7 +16,7 @@ import com.spotify.docker.client.ProgressHandler;
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.etm.model.Execution;
-import io.elastest.etm.model.SocatBindedPort;
+import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutSpecification;
@@ -99,7 +99,6 @@ public interface PlatformService {
 
     public default String generateContainerName(ContainerPrefix prefix,
             Execution execution) {
-        logger.info("Building container name");
         logger.info("Building container name with prefix: {}", prefix);
         String containerName = prefix.value + execution.getExecutionId();
         if (prefix == ContainerPrefix.SUT && execution.getSut() != null) {
@@ -120,9 +119,13 @@ public interface PlatformService {
     public void undeployTJob(Execution execution, boolean force)
             throws Exception;
 
-    public SocatBindedPort getBindingPort(String containerIp,
+    public ServiceBindedPort getBindingPort(String containerIp,
             String containerSufix, String port, String networkName,
             boolean remotely) throws Exception;
+    
+    public String getEtmHost() throws Exception;
+    
+    public String getLogstashHost() throws Exception;
     /* ********************** */
 
     public TJobExecution deployTJobExecution(TJobExecution tJobExecution);
@@ -133,7 +136,7 @@ public interface PlatformService {
 
     public String deployTSSs(TJobExecution tJobExecution);
 
-    public String undeployTSS();
+    public String undeployTSSByContainerId(String containerId);
 
     public String deploySUT();
 

@@ -32,7 +32,7 @@ import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SharedAsyncModel;
-import io.elastest.etm.model.SocatBindedPort;
+import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
@@ -42,8 +42,8 @@ import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
 import io.elastest.etm.model.TJobSupportService;
 import io.elastest.etm.model.external.ExternalTJobExecution;
-import io.elastest.etm.platform.service.DockerEtmService;
 import io.elastest.etm.platform.service.PlatformService;
+import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
@@ -79,8 +79,7 @@ public class TJobExecOrchestratorService {
 
     Map<String, SharedAsyncModel<Void>> asyncExternalElasticsearchSutExecs = new HashMap<String, SharedAsyncModel<Void>>();
 
-    public TJobExecOrchestratorService(DockerEtmService dockerEtmService,
-            TJobExecRepository tJobExecRepositoryImpl,
+    public TJobExecOrchestratorService(TJobExecRepository tJobExecRepositoryImpl,
             DatabaseSessionManager dbmanager, EsmService esmService,
             SutService sutService, AbstractMonitoringService monitoringService,
             EtmContextService etmContextService, EpmService epmService,
@@ -839,7 +838,7 @@ public class TJobExecOrchestratorService {
 
                     sutExec = startManagedSut(execution);
                     if (publicSut) {
-                        SocatBindedPort socatBindedPortObj = platformService
+                        ServiceBindedPort socatBindedPortObj = platformService
                                 .getBindingPort(sutExec.getIp(),
                                         "sut_" + sutExec.getId(),
                                         execution.getSut().getPort(),

@@ -1,4 +1,4 @@
-package io.elastest.etm.service;
+package io.elastest.etm.service.exception;
 
 public class TJobStoppedException extends Exception {
 

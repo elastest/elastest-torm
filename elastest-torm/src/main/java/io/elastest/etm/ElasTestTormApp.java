@@ -18,6 +18,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
 import io.elastest.epm.client.service.DockerComposeService;
+import io.elastest.epm.client.service.DockerService;
 import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.dao.TraceRepository;
@@ -59,6 +60,8 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     EpmService epmService;
     @Autowired
     EtmFilesService etmFileService;
+    @Autowired
+    DockerService dockerService;
 
     @Value("${additional.server.port}")
     int additionalServerPort;
@@ -105,7 +108,8 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
             platformService = new K8ServiceImpl();
         } else {
             platformService = new DockerServiceImpl(dockerComposeService,
-                    dockerEtmService, epmService, etmFileService);
+                    dockerEtmService, epmService, etmFileService, utilsService,
+                    dockerService);
         }
         return platformService;
     }
