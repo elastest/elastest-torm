@@ -6,7 +6,7 @@
           <div fxLayout="row">
             <span>Files</span>
             <span fxFlex></span>
-            <button mat-icon-button color="accent" (click)="getExecutionFiles()" title="Reload Files" [disabled]="subscription || loading || executionFiles.length > 0">
+            <button mat-icon-button color="accent" (click)="loadExecutionFiles()" title="Reload Files" [disabled]="subscription || loading || executionFiles.length > 0">
               <mat-icon>sync</mat-icon>
             </button>
           </div>

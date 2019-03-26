@@ -169,7 +169,7 @@
 <!-- Files -->
 <etm-files-manager
   *ngIf="exTJob && exTJobExec && showFiles"
-  [tJobId]="exTJob.id"
-  [tJobExecId]="exTJobExec.id"
+  [tJob]="exTJob"
+  [tJobExec]="exTJobExec"
   [external]="true"
 ></etm-files-manager>

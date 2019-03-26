@@ -12,6 +12,7 @@ import { MatDialogRef } from '@angular/material';
 import { ElastestEusDialogService } from '../../elastest-eus/elastest-eus.dialog.service';
 import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
 import { interval } from 'rxjs';
+import { AbstractTJobModel } from '../models/abstract-tjob-model';
 
 @Component({
   selector: 'etm-files-manager',
@@ -21,6 +22,10 @@ import { interval } from 'rxjs';
 export class FilesManagerComponent implements OnInit, OnDestroy {
   @Input() tJobId: number;
   @Input() tJobExecId: number;
+
+  @Input() tJob: AbstractTJobModel;
+  @Input() tJobExec: AbstractTJobExecModel;
+
   @Input() tJobExecFinish: boolean = false;
   @Input() external: boolean = false;
 
@@ -55,17 +60,32 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.getExecutionFiles();
+    if (!this.tJob && !this.tJobExec) {
+      if (!this.external) {
+        this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExecution: TJobExecModel) => {
+          this.manageIfFinished(tJobExecution);
+          this.tJob = tJobExecution.tJob;
+          this.tJobExec = tJobExecution;
+          this.loadExecutionFiles();
+        });
+      } else {
+        this.externalService.getExternalTJobExecById(this.tJobExecId).subscribe((exTJobExec: ExternalTJobExecModel) => {
+          this.manageIfFinished(exTJobExec);
+          this.tJob = exTJobExec.exTJob;
+          this.tJobExec = exTJobExec;
+          this.loadExecutionFiles();
+        });
+      }
+    } else {
+      this.manageIfFinished(this.tJobExec);
+      this.loadExecutionFiles();
+    }
   }
 
   ngOnDestroy(): void {
     this.loading = false;
     this.finished = true;
     this.endSubscription();
-  }
-
-  getExecutionFiles(): void {
-    this.loadExecutionFiles();
   }
 
   waitForExecutionFiles(): void {
@@ -80,21 +100,20 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
   }
 
   loadExecutionFiles(): void {
-    if (!this.external) {
-      this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExecution: TJobExecModel) => {
-        this.manageIfFinished(tJobExecution);
-        this.tJobExecService.getTJobExecutionFiles(this.tJobId, this.tJobExecId).subscribe((tJobsExecFiles: any) => {
-          this.prepareDataTable(tJobsExecFiles);
-        });
-      });
+    // Is internal
+    let getAbstractTJobExecutionFiles: Observable<any>;
+    // Is external
+    if (this.external) {
+      getAbstractTJobExecutionFiles = this.externalService.getExternalTJobExecutionFiles(this.tJobExec.id);
     } else {
-      this.externalService.getExternalTJobExecById(this.tJobExecId).subscribe((exTJobExec: ExternalTJobExecModel) => {
-        this.manageIfFinished(exTJobExec);
-        this.externalService.getExternalTJobExecutionFiles(this.tJobExecId).subscribe((tJobsExecFiles: any) => {
-          this.prepareDataTable(tJobsExecFiles);
-        });
-      });
+      // Is internal
+      getAbstractTJobExecutionFiles = this.tJobExecService.getTJobExecutionFiles(this.tJob.id, this.tJobExec.id);
     }
+
+    // Get files
+    getAbstractTJobExecutionFiles.subscribe((tJobsExecFiles: any) => {
+      this.prepareDataTable(tJobsExecFiles);
+    });
   }
 
   manageIfFinished(exec: AbstractTJobExecModel): void {

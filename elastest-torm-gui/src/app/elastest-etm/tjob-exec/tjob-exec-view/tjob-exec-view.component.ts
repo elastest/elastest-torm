@@ -18,6 +18,8 @@ export class TjobExecViewComponent implements OnInit, OnDestroy {
 
   checkResultSubscription: Subscription;
 
+  loading: boolean = false;
+
   constructor(private tJobExecService: TJobExecService, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
@@ -72,13 +74,20 @@ export class TjobExecViewComponent implements OnInit, OnDestroy {
   }
 
   loadTJobExec(): void {
+    this.loading = true;
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe(
       (tJobExec: TJobExecModel) => {
         this.tJobExec = tJobExec;
         this.finished = this.tJobExec.finished();
-        this.checkResultStatus();
+        this.loading = false;
+        if (!this.finished) {
+          this.checkResultStatus();
+        }
       },
-      (error: Error) => console.log(error),
+      (error: Error) => {
+        console.log(error);
+        this.loading = false;
+      },
     );
   }
 }

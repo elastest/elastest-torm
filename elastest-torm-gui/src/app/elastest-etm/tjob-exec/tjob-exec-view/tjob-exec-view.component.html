@@ -1,3 +1,18 @@
-<etm-tjob-exec-manager *ngIf="tJobExec && finished"></etm-tjob-exec-manager>
+<ng-container *ngIf="!loading; else showSpinner">
+  <ng-container *ngIf="tJobExec && tJobExec.id !== undefined && tJobExec.id !== null && tJobExec.id > 0">
+    <etm-tjob-exec-manager *ngIf="finished"></etm-tjob-exec-manager>
 
-<etm-live-tjob-exec-manager *ngIf="tJobExec && !finished"></etm-live-tjob-exec-manager>
+    <etm-live-tjob-exec-manager *ngIf="!finished"></etm-live-tjob-exec-manager>
+  </ng-container>
+</ng-container>
+
+<ng-template #showSpinner>
+  <self-adjustable-card>
+    <sa-card-title> Wait please... </sa-card-title>
+    <sa-card-content>
+      <centered-element>
+        <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
+      </centered-element>
+    </sa-card-content>
+  </self-adjustable-card>
+</ng-template>
