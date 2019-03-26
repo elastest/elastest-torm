@@ -1,7 +1,7 @@
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { FileModel } from './file-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { Observable, Subscription } from 'rxjs/Rx';
 import { TdDataTableService, TdDataTableSortingOrder } from '@covalent/core';
 import { ExternalService } from '../external/external.service';
@@ -18,7 +18,7 @@ import { interval } from 'rxjs';
   templateUrl: './files-manager.component.html',
   styleUrls: ['./files-manager.component.scss'],
 })
-export class FilesManagerComponent implements OnInit {
+export class FilesManagerComponent implements OnInit, OnDestroy {
   @Input() tJobId: number;
   @Input() tJobExecId: number;
   @Input() tJobExecFinish: boolean = false;
@@ -104,8 +104,8 @@ export class FilesManagerComponent implements OnInit {
     }
   }
 
-  prepareDataTable(servicesInstances: FileModel[]): void {
-    this.executionFiles = servicesInstances;
+  prepareDataTable(files: FileModel[]): void {
+    this.executionFiles = files;
     this.filterFiles();
     this.loading = false;
     if (!this.finished) {
@@ -121,7 +121,8 @@ export class FilesManagerComponent implements OnInit {
     }
   }
 
-  viewSession(url: string, title: string = 'Recorded Video'): void {
+  viewSession(file: FileModel, title: string = 'Recorded Video'): void {
+    let url: string = this.filesUrlPrefix + file.encodedUrl;
     let dialog: MatDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
     dialog.componentInstance.title = title;
     dialog.componentInstance.iframeUrl = url;

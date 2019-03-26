@@ -89,8 +89,8 @@
                         <span style="overflow: auto;">{{ file.name }}</span>
                         <a
                           mat-button
-                          [attr.href]="filesUrlPrefix + file.url"
-                          class="iconBtn"
+                          [attr.href]="filesUrlPrefix + file.encodedUrl"
+                          class="iconBtn-xs"
                           target="_blank"
                           matTooltip="Open in new tab"
                         >
@@ -99,8 +99,8 @@
                         <a
                           mat-button
                           *ngIf="file.name.includes('.mp4')"
-                          (click)="viewSession(filesUrlPrefix + file.url, file.name)"
-                          class="iconBtn"
+                          (click)="viewSession(file, file.name)"
+                          class="iconBtn-xs"
                           target="_blank"
                           matTooltip="Open as dialog"
                         >

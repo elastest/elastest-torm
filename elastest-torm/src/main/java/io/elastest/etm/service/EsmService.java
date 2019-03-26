@@ -6,6 +6,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1784,14 +1785,21 @@ public class EsmService {
         for (String currentFileName : folderFilesNames) {
             String absoluteFilePath = absolutePath + currentFileName;
             String relativeFilePath = relativePath + currentFileName;
+
             File currentFile = ResourceUtils.getFile(absoluteFilePath);
             if (currentFile.isDirectory()) {
                 filesList.addAll(this.getFilesByFolder(currentFile,
                         relativeFilePath + fileSeparator, serviceName,
                         fileSeparator));
             } else {
+                String encodedCurrentFileName = URLEncoder
+                        .encode(currentFileName, "UTF-8");
+                String relativeEncodedFilePath = relativePath
+                        + encodedCurrentFileName;
+                
                 filesList.add(new TJobExecutionFile(currentFileName,
-                        getFileUrl(relativeFilePath), serviceName));
+                        getFileUrl(relativeFilePath),
+                        getFileUrl(relativeEncodedFilePath), serviceName));
             }
         }
         return filesList;

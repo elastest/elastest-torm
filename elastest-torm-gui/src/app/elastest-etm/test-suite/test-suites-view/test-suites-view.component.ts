@@ -44,7 +44,7 @@ export class TestSuitesViewComponent implements OnInit {
     this.filesUrlPrefix = configurationService.configModel.proxyHost;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (this.tJobExec) {
       this.getExecutionFiles();
     }
@@ -98,11 +98,11 @@ export class TestSuitesViewComponent implements OnInit {
           }
         }
       },
-      (error) => console.log(error),
+      (error: Error) => console.log(error),
     );
   }
-
-  viewSession(url: string, title: string = 'Recorded Video'): void {
+  viewSession(file: FileModel, title: string = 'Recorded Video'): void {
+    let url: string = this.filesUrlPrefix + file.encodedUrl;
     let dialog: MatDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
     dialog.componentInstance.title = title;
     dialog.componentInstance.iframeUrl = url;
