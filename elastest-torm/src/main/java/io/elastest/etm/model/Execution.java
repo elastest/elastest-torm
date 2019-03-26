@@ -1,5 +1,7 @@
 package io.elastest.etm.model;
 
+import io.elastest.epm.client.model.DockerServiceStatus;
+import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 
@@ -7,7 +9,7 @@ import io.elastest.etm.model.external.ExternalTJobExecution;
  * This class stores the whole context of a TJob Execution.
  *
  */
-public class Execution {
+public class Execution extends DockerServiceStatus{
     private TJobExecution tJobExec;
     private TJob tJob;
     private ExternalTJob externalTJob;
@@ -117,6 +119,18 @@ public class Execution {
 
     public void setSutExec(SutExecution sutExec) {
         this.sutExec = sutExec;
+    }
+    
+    public void updateTJobExecutionStatus(ResultEnum resultCode, String resultMsg) {
+        if (isExternal()) {
+            externalTJobExec.setResult(resultCode);
+            externalTJobExec.setResultMsg(resultMsg);
+        } else {
+            tJobExec.setResult(resultCode);
+            tJobExec.setResultMsg(resultMsg);
+        }
+        
+        setStatusMsg(resultMsg);
     }
 
     @Override

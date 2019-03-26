@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.Future;
 
 import javax.annotation.PreDestroy;
@@ -31,8 +33,8 @@ import io.elastest.etm.model.EusExecutionData;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
-import io.elastest.etm.model.SharedAsyncModel;
 import io.elastest.etm.model.ServiceBindedPort;
+import io.elastest.etm.model.SharedAsyncModel;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
@@ -79,7 +81,8 @@ public class TJobExecOrchestratorService {
 
     Map<String, SharedAsyncModel<Void>> asyncExternalElasticsearchSutExecs = new HashMap<String, SharedAsyncModel<Void>>();
 
-    public TJobExecOrchestratorService(TJobExecRepository tJobExecRepositoryImpl,
+    public TJobExecOrchestratorService(
+            TJobExecRepository tJobExecRepositoryImpl,
             DatabaseSessionManager dbmanager, EsmService esmService,
             SutService sutService, AbstractMonitoringService monitoringService,
             EtmContextService etmContextService, EpmService epmService,
@@ -119,6 +122,7 @@ public class TJobExecOrchestratorService {
         tJobExec.setResultMsg(resultMsg);
         tJobExecRepositoryImpl.save(tJobExec);
         Execution execution = new Execution(tJobExec);
+        execution.addObserver(new StatusUpdater());
 
         try {
             initSupportServicesProvision(tJobExec,
@@ -180,6 +184,7 @@ public class TJobExecOrchestratorService {
         }
 
         Execution execution = new Execution(tJobExec);
+        execution.addObserver(new StatusUpdater());
 
         if (tJobExec.isMultiExecutionParent()) { // Parent execution
             resultMsg = "Executing Test";
@@ -224,7 +229,6 @@ public class TJobExecOrchestratorService {
                 updateExecutionResultStatus(execution,
                         ResultEnum.EXECUTING_TEST, resultMsg);
                 platformService.deployAndRunTJobExecution(execution);
-
 
                 tJobExec.setEndDate(new Date());
 
@@ -404,6 +408,7 @@ public class TJobExecOrchestratorService {
         }
 
         Execution execution = new Execution(tJobExec);
+        execution.addObserver(new StatusUpdater());
         try {
             endAllExecs(execution, true);
         } catch (TJobStoppedException e) {
@@ -494,6 +499,7 @@ public class TJobExecOrchestratorService {
         if (tJobExec.isWithSut()) {
             try {
                 Execution execution = new Execution(tJobExec);
+                execution.addObserver(new StatusUpdater());
                 execution.setSutExec(tJobExec.getSutExecution());
                 platformService.disableMetricMonitoring(execution, true);
                 platformService.undeploySut(execution, false);
@@ -754,6 +760,7 @@ public class TJobExecOrchestratorService {
         exec = externalTJobExecutionRepository.findById(exec.getId()).get();
 
         Execution execution = new Execution(exec);
+        execution.addObserver(new StatusUpdater());
         try {
             updateExecutionResultStatus(execution, ResultEnum.IN_PROGRESS,
                     "Initializing execution...");
@@ -783,6 +790,7 @@ public class TJobExecOrchestratorService {
                 .isFinishedOrNotExecuted(externalTJobExec.getResult())) {
 
             Execution execution = new Execution(externalTJobExec);
+            execution.addObserver(new StatusUpdater());
             try {
                 platformService.disableMetricMonitoring(execution, false);
                 platformService.undeploySut(execution, false);
@@ -790,7 +798,8 @@ public class TJobExecOrchestratorService {
                 if (sut.getSutType() == SutTypeEnum.DEPLOYED) {
                     logger.info("SuT not ended by ElasTest -> Deployed SuT");
                     // Sut instrumented by EIM
-                    if (sut.isInstrumentedByElastest() && sut.isInstrumentalized()) {
+                    if (sut.isInstrumentedByElastest()
+                            && sut.isInstrumentalized()) {
                         logger.debug("TJob Exec {} => Undeploying Beats",
                                 execution.getTJobExec().getId());
                         sut = sutService.undeployEimSutBeats(sut, false);
@@ -833,7 +842,8 @@ public class TJobExecOrchestratorService {
                     if (execution.isExternal()) {
                         // If external start Dockbeat (for internal is already
                         // started)
-                        platformService.enableServiceMetricMonitoring(execution);
+                        platformService
+                                .enableServiceMetricMonitoring(execution);
                     }
 
                     sutExec = startManagedSut(execution);
@@ -874,13 +884,13 @@ public class TJobExecOrchestratorService {
 
         try {
             String resultMsg = "Preparing External SuT";
-            updateGenericExecResultStatus(execution,
-                    ResultEnum.WAITING_SUT, resultMsg);
+            execution.updateTJobExecutionStatus(ResultEnum.WAITING_SUT,
+                    resultMsg);
 
             // Sut instrumented by EIM
             if (sut.isInstrumentedByElastest() && sut.isInstrumentalized()) {
-                updateGenericExecResultStatus(execution,
-                        ResultEnum.WAITING_SUT, "Deploying beats");
+                execution.updateTJobExecutionStatus(ResultEnum.WAITING_SUT,
+                        "Deploying beats");
 
                 if (execution.isExternal()) {
                     logger.debug("External TJob Exec {} => Deploy Beats",
@@ -1018,6 +1028,20 @@ public class TJobExecOrchestratorService {
         }
     }
 
+    public void updateExecutionResultStatus(Execution execution) {
+        if (execution.isExternal()) {
+            ExternalTJobExecution externalTJobExec = execution
+                    .getExternalTJobExec();
+            updateExternalTJobExecResultStatus(externalTJobExec,
+                    externalTJobExec.getResult(),
+                    externalTJobExec.getResultMsg());
+        } else {
+            TJobExecution tJobExec = execution.getTJobExec();
+            updateTJobExecResultStatus(tJobExec, tJobExec.getResult(),
+                    tJobExec.getResultMsg());
+        }
+    }
+
     public void updateTJobExecResultStatus(TJobExecution tJobExec,
             ResultEnum result, String msg) {
         tJobExec.setResult(result);
@@ -1032,7 +1056,7 @@ public class TJobExecOrchestratorService {
         externalTJobExec.setResultMsg(msg);
         externalTJobExecutionRepository.save(externalTJobExec);
     }
-    
+
     public void updateGenericExecResultStatus(Execution exection,
             ResultEnum result, String msg) {
         if (exection.isExternal()) {
@@ -1040,6 +1064,14 @@ public class TJobExecOrchestratorService {
                     result, msg);
         } else {
             updateTJobExecResultStatus(exection.getTJobExec(), result, msg);
+        }
+    }
+
+    public class StatusUpdater implements Observer {
+        @Override
+        public void update(Observable o, Object arg) {
+            Execution execution = (Execution) arg;
+            updateExecutionResultStatus(execution);
         }
     }
 }

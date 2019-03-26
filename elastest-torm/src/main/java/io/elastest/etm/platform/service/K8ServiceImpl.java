@@ -11,48 +11,9 @@ import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.ServiceBindedPort;
-import io.elastest.etm.model.SupportService;
-import io.elastest.etm.model.SupportServiceInstance;
-import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
 
 public class K8ServiceImpl implements PlatformService {
-
-    @Override
-    public TJobExecution deployTJobExecution(TJobExecution tJobExecution) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public TJobExecution unDeployTJobExecution(TJobExecution tJobExecution) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public SupportServiceInstance deployTSS(SupportService supportService) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String deployTSSs(TJobExecution tJobExecution) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String deploySUT() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String undeploySUT() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     @Override
     public boolean createServiceDeploymentProject(String projectName,

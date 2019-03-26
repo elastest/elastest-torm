@@ -22,7 +22,6 @@ import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.Container;
-import com.spotify.docker.client.messages.ImageInfo;
 import com.spotify.docker.client.messages.PortBinding;
 import com.spotify.docker.client.messages.ProgressMessage;
 
@@ -41,15 +40,12 @@ import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.ServiceBindedPort;
-import io.elastest.etm.model.SupportService;
-import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
-import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.service.exception.TJobStoppedException;
@@ -145,42 +141,6 @@ public class DockerServiceImpl implements PlatformService {
                 bindedPort, socatContainerId);
 
         return bindedPortObj;
-    }
-
-    @Override
-    public String deploySUT() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String undeploySUT() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public TJobExecution deployTJobExecution(TJobExecution tJobExecution) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public TJobExecution unDeployTJobExecution(TJobExecution tJobExecution) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public SupportServiceInstance deployTSS(SupportService supportService) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String deployTSSs(TJobExecution tJobExecution) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     @Override
@@ -387,8 +347,8 @@ public class DockerServiceImpl implements PlatformService {
             String sutPort = sut.getPort();
             String resultMsg = "Waiting for dockerized SuT";
             logger.info(resultMsg);
-            dockerEtmService.updateExecutionResultStatus(execution,
-                    ResultEnum.WAITING_SUT, resultMsg);
+            execution.updateTJobExecutionStatus(ResultEnum.WAITING_SUT,
+                    resultMsg);
 
             // If is Sut In new Container
             if (sut.isSutInNewContainer()) {
@@ -443,8 +403,8 @@ public class DockerServiceImpl implements PlatformService {
                 composeProjectName, dockerComposeYml, envList);
 
         String resultMsg = "Starting dockerized SuT";
-        dockerEtmService.updateExecutionResultStatus(execution,
-                ResultEnum.EXECUTING_SUT, resultMsg);
+        execution.updateTJobExecutionStatus(ResultEnum.EXECUTING_SUT,
+                resultMsg);
         logger.info(resultMsg + " " + execution.getExecutionId());
 
         // Create Containers
@@ -713,8 +673,7 @@ public class DockerServiceImpl implements PlatformService {
 
     @Override
     public void setCoreServiceInfoFromContainer(String imageName,
-            String version, CoreServiceInfo coreServiceInfo)
-            throws Exception {
+            String version, CoreServiceInfo coreServiceInfo) throws Exception {
         coreServiceInfo
                 .setDataByContainer(getContainerFromImage(version, imageName));
     }
@@ -728,7 +687,8 @@ public class DockerServiceImpl implements PlatformService {
     @Override
     public String getSomeContainerLogs(String containerName, int amount,
             boolean withFollow) throws Exception {
-        return dockerService.getSomeContainerLogs(containerName, amount, withFollow);
+        return dockerService.getSomeContainerLogs(containerName, amount,
+                withFollow);
     }
 
     @Override

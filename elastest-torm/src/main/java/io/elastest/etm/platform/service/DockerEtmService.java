@@ -36,7 +36,6 @@ import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.HostConfig.Bind;
 import com.spotify.docker.client.messages.HostConfig.Bind.Builder;
 import com.spotify.docker.client.messages.LogConfig;
-import com.spotify.docker.client.messages.PortBinding;
 import com.spotify.docker.client.messages.ProgressMessage;
 
 import io.elastest.epm.client.DockerContainer;
@@ -48,7 +47,6 @@ import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
-import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
@@ -59,7 +57,6 @@ import io.elastest.etm.service.EtmTestResultService;
 import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
-import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
 @Service
@@ -155,8 +152,6 @@ public class DockerEtmService {
 
     public DockerService dockerService;
     public EtmFilesService filesService;
-    public TJobExecRepository tJobExecRepositoryImpl;
-    public ExternalTJobExecutionRepository externalTJobExecutionRepository;
     public UtilsService utilsService;
     private EtmTestResultService etmTestResultService;
     private Map<String, String> sutsByExecution;
@@ -170,9 +165,7 @@ public class DockerEtmService {
             EtmTestResultService etmTestResultService) {
         this.dockerService = dockerService;
         this.filesService = filesService;
-        this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.utilsService = utilsService;
-        this.externalTJobExecutionRepository = externalTJobExecutionRepository;
         this.etmTestResultService = etmTestResultService;
         sutsByExecution = new ConcurrentHashMap<String, String>();
     }
@@ -237,7 +230,7 @@ public class DockerEtmService {
             }
         }
     }
-    
+
     public String getEtmHost() throws Exception {
         if (utilsService.isEtmInContainer()) {
             return dockerService.getContainerIpByNetwork(etEtmContainerName,
@@ -518,8 +511,9 @@ public class DockerEtmService {
                 } else {
                     TJobExecution tJobExec = execution.getTJobExec();
                     // tJobExec.setResult(result);
-                    tJobExec.setResultMsg(msg);
-                    tJobExecRepositoryImpl.save(tJobExec);
+                    // tJobExec.setResultMsg(msg);
+                    execution.setStatusMsg(msg);
+
                 }
             }
 
@@ -577,7 +571,8 @@ public class DockerEtmService {
 
             if (isEMSSelected(execution)) {
 
-                String regexSuffix = "_?(" + executionId + ")(_([^_]*(_\\d*)?))?";
+                String regexSuffix = "_?(" + executionId
+                        + ")(_([^_]*(_\\d*)?))?";
                 String testRegex = "^test" + regexSuffix;
                 String sutRegex = "^sut" + regexSuffix;
                 envVar = "FILTER_CONTAINERS" + "=" + testRegex + "|" + sutRegex;
@@ -671,7 +666,7 @@ public class DockerEtmService {
             DockerContainer sutContainer = createContainer(execution, "sut");
 
             String resultMsg = "Starting dockerized SuT";
-            updateExecutionResultStatus(execution,
+            execution.updateTJobExecutionStatus(
                     TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
             logger.info(resultMsg + " " + execution.getExecutionId());
 
@@ -763,16 +758,18 @@ public class DockerEtmService {
             DockerContainer testContainer = createContainer(execution, "tjob");
 
             String resultMsg = "Starting Test Execution";
-            updateExecutionResultStatus(execution,
+            execution.updateTJobExecutionStatus(
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+            execution.setStatusMsg(resultMsg);
 
             // Create and start container
             String testContainerId = dockerService.createAndStartContainer(
                     testContainer, EpmService.etMasterSlaveMode);
 
             resultMsg = "Executing Test";
-            updateExecutionResultStatus(execution,
+            execution.updateTJobExecutionStatus(
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+            execution.setStatusMsg(resultMsg);
 
             String testName = getTestName(execution);
             this.insertCreatedContainer(testContainerId, testName);
@@ -784,8 +781,8 @@ public class DockerEtmService {
 
             // Test Results
             resultMsg = "Waiting for Test Results";
-            updateExecutionResultStatus(execution, ResultEnum.WAITING,
-                    resultMsg);
+            execution.updateTJobExecutionStatus(ResultEnum.WAITING, resultMsg);
+            execution.setStatusMsg(resultMsg);
             etmTestResultService.saveTestResults(
                     getTestResults(execution, testContainerId), tJobExec);
 
@@ -800,33 +797,6 @@ public class DockerEtmService {
             throw new Exception("Error on create and start TJob container", e);
         }
     }
-
-//    public void updateExecutionResultStatus(Execution execution,
-//            ResultEnum result, String msg) {
-//        if (execution.isExternal()) {
-//            ExternalTJobExecution externalTJobExec = execution
-//                    .getExternalTJobExec();
-//            updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
-//        } else {
-//            TJobExecution tJobExec = execution.getTJobExec();
-//            updateTJobExecResultStatus(tJobExec, result, msg);
-//        }
-//    }
-
-//    public void updateTJobExecResultStatus(TJobExecution tJobExec,
-//            ResultEnum result, String msg) {
-//        tJobExec.setResult(result);
-//        tJobExec.setResultMsg(msg);
-//        tJobExecRepositoryImpl.save(tJobExec);
-//    }
-
-//    public void updateExternalTJobExecResultStatus(
-//            ExternalTJobExecution externalTJobExec, ResultEnum result,
-//            String msg) {
-//        externalTJobExec.setResult(result);
-//        externalTJobExec.setResultMsg(msg);
-//        externalTJobExecutionRepository.save(externalTJobExec);
-//    }
 
     public boolean isEMSSelected(Execution execution) {
         return !execution.isExternal()
@@ -854,7 +824,7 @@ public class DockerEtmService {
         }
 
         resultMsg = "Finished: " + finishStatus;
-        updateExecutionResultStatus(execution, finishStatus, resultMsg);
+        execution.updateTJobExecutionStatus(finishStatus, resultMsg);
     }
 
     /* ******************************* */
@@ -987,8 +957,6 @@ public class DockerEtmService {
         createdContainers.remove(containerId);
     }
 
-
-
     /* ************************* */
     /* **** Get TestResults **** */
     /* ************************* */
@@ -1095,31 +1063,4 @@ public class DockerEtmService {
                 .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
     }
 
-    public void updateExecutionResultStatus(Execution execution,
-            ResultEnum result, String msg) {
-        if (execution.isExternal()) {
-            ExternalTJobExecution externalTJobExec = execution
-                    .getExternalTJobExec();
-            updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
-        } else {
-            TJobExecution tJobExec = execution.getTJobExec();
-            updateTJobExecResultStatus(tJobExec, result, msg);
-        }
-    }
-
-    public void updateTJobExecResultStatus(TJobExecution tJobExec,
-            ResultEnum result, String msg) {
-        tJobExec.setResult(result);
-        tJobExec.setResultMsg(msg);
-        tJobExecRepositoryImpl.save(tJobExec);
-    }
-
-    public void updateExternalTJobExecResultStatus(
-            ExternalTJobExecution externalTJobExec, ResultEnum result,
-            String msg) {
-        externalTJobExec.setResult(result);
-        externalTJobExec.setResultMsg(msg);
-        externalTJobExecutionRepository.save(externalTJobExec);
-    }
-    
 }

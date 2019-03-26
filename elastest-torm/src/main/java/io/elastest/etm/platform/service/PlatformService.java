@@ -18,10 +18,7 @@ import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.ServiceBindedPort;
-import io.elastest.etm.model.SupportService;
-import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutSpecification;
-import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
 
 public interface PlatformService {
@@ -148,20 +145,7 @@ public interface PlatformService {
     
     public String getContainerLogsFrom(String containerId, int from, boolean withFollow) throws Exception;
 
-    /* ********************** */
-
-    public TJobExecution deployTJobExecution(TJobExecution tJobExecution);
-
-    public TJobExecution unDeployTJobExecution(TJobExecution tJobExecution);
-
-    public SupportServiceInstance deployTSS(SupportService supportService);
-
-    public String deployTSSs(TJobExecution tJobExecution);
-
     public String undeployTSSByContainerId(String containerId);
 
-    public String deploySUT();
-
-    public String undeploySUT();
 
 }
