@@ -43,8 +43,6 @@ import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.model.DockerPullImageProgress;
 import io.elastest.epm.client.service.DockerService;
 import io.elastest.epm.client.service.EpmService;
-import io.elastest.etm.dao.TJobExecRepository;
-import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutSpecification;
@@ -159,9 +157,7 @@ public class DockerEtmService {
     @Autowired
     public DockerEtmService(DockerService dockerService,
             EtmFilesService filesService,
-            TJobExecRepository tJobExecRepositoryImpl,
             UtilsService utilsService,
-            ExternalTJobExecutionRepository externalTJobExecutionRepository,
             EtmTestResultService etmTestResultService) {
         this.dockerService = dockerService;
         this.filesService = filesService;
