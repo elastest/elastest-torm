@@ -8,11 +8,13 @@ import com.spotify.docker.client.ProgressHandler;
 
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.model.DockerServiceStatus;
+import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.VersionInfo;
 
 public class K8ServiceImpl implements PlatformService {
 
@@ -199,6 +201,66 @@ public class K8ServiceImpl implements PlatformService {
 
     @Override
     public String undeployTSSByContainerId(String containerId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getLogstashHost() throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public VersionInfo getImageInfo(String name) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public VersionInfo getVersionInfoFromContainer(String version,
+            String imageName) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getImageTagFromImageName(String imageName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getImageNameFromCompleteImageName(String imageName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setCoreServiceInfoFromContainer(String version,
+            String imageName, CoreServiceInfo coreServiceInfo)
+            throws Exception {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public String getAllContainerLogs(String containerName, boolean withFollow)
+            throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getSomeContainerLogs(String containerName, int amount,
+            boolean withFollow) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getContainerLogsFrom(String containerId, int from,
+            boolean withFollow) throws Exception {
         // TODO Auto-generated method stub
         return null;
     }

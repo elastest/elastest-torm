@@ -22,6 +22,7 @@ import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.Container;
+import com.spotify.docker.client.messages.ImageInfo;
 import com.spotify.docker.client.messages.PortBinding;
 import com.spotify.docker.client.messages.ProgressMessage;
 
@@ -36,6 +37,7 @@ import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService;
 import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
 import io.elastest.epm.client.service.EpmService;
+import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.ServiceBindedPort;
@@ -49,6 +51,7 @@ import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
+import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.UtilTools;
@@ -670,7 +673,7 @@ public class DockerServiceImpl implements PlatformService {
             return dockerService.getHostIpByNetwork(elastestNetwork);
         }
     }
-    
+
     @Override
     public String getLogstashHost() throws Exception {
         if (EpmService.etMasterSlaveMode) {
@@ -683,6 +686,69 @@ public class DockerServiceImpl implements PlatformService {
                         etEtmLogstashContainerName, elastestNetwork);
             }
         }
+    }
+
+    @Override
+    public VersionInfo getImageInfo(String name) throws Exception {
+        return new VersionInfo(dockerService.getImageInfoByName(name));
+    }
+
+    @Override
+    public VersionInfo getVersionInfoFromContainer(String imageName,
+            String version) throws Exception {
+        Container container = getContainerFromImage(imageName, version);
+        return new VersionInfo(
+                dockerService.getImageInfoByContainerId(container.id()));
+    }
+
+    @Override
+    public String getImageTagFromImageName(String imageName) {
+        return dockerService.getTagByCompleteImageName(imageName);
+    }
+
+    @Override
+    public String getImageNameFromCompleteImageName(String imageName) {
+        return dockerService.getImageNameByCompleteImageName(imageName);
+    }
+
+    @Override
+    public void setCoreServiceInfoFromContainer(String imageName,
+            String version, CoreServiceInfo coreServiceInfo)
+            throws Exception {
+        coreServiceInfo
+                .setDataByContainer(getContainerFromImage(version, imageName));
+    }
+
+    @Override
+    public String getAllContainerLogs(String containerName, boolean withFollow)
+            throws Exception {
+        return dockerService.getAllContainerLogs(containerName, withFollow);
+    }
+
+    @Override
+    public String getSomeContainerLogs(String containerName, int amount,
+            boolean withFollow) throws Exception {
+        return dockerService.getSomeContainerLogs(containerName, amount, withFollow);
+    }
+
+    @Override
+    public String getContainerLogsFrom(String containerId, int from,
+            boolean withFollow) throws Exception {
+        return dockerService.getContainerLogsSinceDate(containerId, from,
+                withFollow);
+    }
+
+    private Container getContainerFromImage(String imageName, String version)
+            throws Exception {
+        Container container;
+        if (version.equals("unspecified")) {
+            container = dockerService.getRunningContainersByImageName(imageName)
+                    .get(0);
+        } else {
+            container = dockerService.getRunningContainersByImageNameAndVersion(
+                    imageName, version).get(0);
+        }
+        return container;
     }
 
     public void updateSutExecDeployStatus(Execution execution,

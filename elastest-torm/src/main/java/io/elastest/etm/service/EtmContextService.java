@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.spotify.docker.client.messages.Container;
-import com.spotify.docker.client.messages.ImageInfo;
 
 import io.elastest.etm.dao.LogAnalyzerRepository;
 import io.elastest.etm.model.ContextInfo;
@@ -24,7 +23,7 @@ import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.LogAnalyzerConfig;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
-import io.elastest.etm.platform.service.DockerEtmService;
+import io.elastest.etm.platform.service.PlatformService;
 
 @Service
 public class EtmContextService {
@@ -33,25 +32,18 @@ public class EtmContextService {
             .getLogger(EtmContextService.class);
     private final LogAnalyzerRepository logAnalyzerRepository;
 
-    EtmContextAuxService etmContextAuxService;
-    DockerEtmService dockerEtmService;
-
     @Value("${et.etm.rabbit.path.with-proxy}")
     public String etEtmRabbitPathWithProxy;
-
     @Value("${exec.mode}")
     String execMode;
     @Value("${et.master.slave.mode}")
     public boolean etMasterSlaveMode;
-
     @Value("${et.images}")
     String etImages;
     @Value("${et.core.images}")
     String etCoreImages;
-
     @Value("${et.esm.ss.desc.files.path}")
     public String etEsmSsDescFilesPath;
-
     @Value("${server.port}")
     public String serverPort;
     @Value("${elastest.docker.network}")
@@ -108,13 +100,15 @@ public class EtmContextService {
 
     HelpInfo helpInfo;
     ContextInfo contextInfo;
+    EtmContextAuxService etmContextAuxService;
+    PlatformService platformService;
 
     public EtmContextService(LogAnalyzerRepository logAnalyzerRepository,
             EsmService esmService, EtmContextAuxService etmContextAuxService,
-            DockerEtmService dockerEtmService) {
+            PlatformService platformService) {
         this.logAnalyzerRepository = logAnalyzerRepository;
         this.etmContextAuxService = etmContextAuxService;
-        this.dockerEtmService = dockerEtmService;
+        this.platformService = platformService;
     }
 
     @PostConstruct
@@ -153,15 +147,8 @@ public class EtmContextService {
         });
     }
 
-    private VersionInfo getImageVersionInfoByImageInfo(ImageInfo imageInfo)
-            throws Exception {
-        return new VersionInfo(imageInfo);
-    }
-
     private VersionInfo getImageVersionInfo(String imageName) throws Exception {
-        ImageInfo imageInfo = dockerEtmService.dockerService
-                .getImageInfoByName(imageName);
-        return getImageVersionInfoByImageInfo(imageInfo);
+        return platformService.getImageInfo(imageName);
     }
 
     private VersionInfo getImageVersionInfoByContainer(Container container) {
@@ -178,34 +165,21 @@ public class EtmContextService {
         imagesNames.forEach((imageName) -> {
             try {
                 CoreServiceInfo coreService = new CoreServiceInfo();
-                String version = dockerEtmService.dockerService
-                        .getTagByCompleteImageName(imageName);
-                Container container;
-                if (version.equals("unspecified")) {
-                    container = dockerEtmService.dockerService
-                            .getRunningContainersByImageName(imageName).get(0);
-                } else {
-                    container = dockerEtmService.dockerService
-                            .getRunningContainersByImageNameAndVersion(
-                                    imageName, version)
-                            .get(0);
-                }
+                String version = platformService
+                        .getImageTagFromImageName(imageName);
                 String serviceName = imageName.split("/")[1].split(":")[0];
                 coreService.setName(serviceName);
-
-                ImageInfo imageInfo = dockerEtmService.dockerService
-                        .getImageInfoByContainerId(container.id());
-                VersionInfo versionInfo = getImageVersionInfoByImageInfo(
-                        imageInfo);
+                VersionInfo versionInfo = platformService
+                        .getVersionInfoFromContainer(imageName, version);
                 versionInfo.setTag(version);
-
                 coreService.setVersionInfo(versionInfo);
+                coreService.setImageName(platformService
+                        .getImageNameFromCompleteImageName(imageName));
+                platformService.setCoreServiceInfoFromContainer(version,
+                        imageName, coreService);
 
-                coreService.setImageName(dockerEtmService.dockerService
-                        .getImageNameByCompleteImageName(imageName));
-                coreService.setDataByContainer(container);
-
-                coreService.setImageDate(imageInfo.created());
+                coreService.setImageDate(platformService.getImageInfo(imageName)
+                        .getCreationDate());
 
                 coreServices.add(coreService);
             } catch (Exception e) {
@@ -214,25 +188,19 @@ public class EtmContextService {
                         imageName);
                 try {
                     CoreServiceInfo coreService = new CoreServiceInfo();
-                    String version = dockerEtmService.dockerService
-                            .getTagByCompleteImageName(imageName);
+                    String version = platformService
+                            .getImageTagFromImageName(imageName);
                     VersionInfo versionInfo;
-                    ImageInfo imageInfo = dockerEtmService.dockerService
-                            .getImageInfoByName(imageName);
-
-                    versionInfo = getImageVersionInfo(imageName);
+                    versionInfo = platformService.getImageInfo(imageName);
                     versionInfo.setTag(version);
-
                     String serviceName = imageName.split("/")[1].split(":")[0];
                     coreService.setName(serviceName);
-
                     coreService.setVersionInfo(versionInfo);
-
-                    coreService.setImageName(dockerEtmService.dockerService
-                            .getImageNameByCompleteImageName(imageName));
+                    coreService.setImageName(platformService
+                            .getImageNameFromCompleteImageName(imageName));
                     coreService.setStatus("Not Started");
-
-                    coreService.setImageDate(imageInfo.created());
+                    coreService.setImageDate(platformService
+                            .getImageInfo(imageName).getCreationDate());
 
                     coreServices.add(coreService);
                 } catch (Exception e1) {
@@ -252,8 +220,8 @@ public class EtmContextService {
         if (coreService != null) {
             String containerName = coreService.getFirstContainerNameCleaned();
             if (containerName != null) {
-                return this.dockerEtmService.dockerService
-                        .getAllContainerLogs(containerName, withFollow);
+                return platformService.getAllContainerLogs(containerName,
+                        withFollow);
             }
         }
         throw new Exception("Error on get " + coreServiceName
@@ -266,8 +234,8 @@ public class EtmContextService {
         if (coreService != null) {
             String containerName = coreService.getFirstContainerNameCleaned();
             if (containerName != null) {
-                return this.dockerEtmService.dockerService.getSomeContainerLogs(
-                        containerName, amount, withFollow);
+                return platformService.getSomeContainerLogs(containerName,
+                        amount, withFollow);
             }
         }
         return null;
@@ -279,8 +247,7 @@ public class EtmContextService {
         if (coreService != null) {
             String containerName = coreService.getFirstContainerNameCleaned();
             if (containerName != null) {
-                return this.dockerEtmService.dockerService
-                        .getContainerLogsSinceDate(containerName, since,
+                return platformService.getContainerLogsFrom(containerName, since,
                                 withFollow);
             }
         }

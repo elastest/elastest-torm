@@ -15,12 +15,14 @@ import com.spotify.docker.client.ProgressHandler;
 
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.model.DockerServiceStatus;
+import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.VersionInfo;
 
 public interface PlatformService {
     static final Logger logger = getLogger(lookup().lookupClass());
@@ -122,10 +124,30 @@ public interface PlatformService {
     public ServiceBindedPort getBindingPort(String containerIp,
             String containerSufix, String port, String networkName,
             boolean remotely) throws Exception;
-    
+
     public String getEtmHost() throws Exception;
-    
+
     public String getLogstashHost() throws Exception;
+
+    public VersionInfo getImageInfo(String name) throws Exception;
+
+    public VersionInfo getVersionInfoFromContainer(String imageName,
+            String version) throws Exception;
+
+    public String getImageTagFromImageName(String imageName);
+
+    public String getImageNameFromCompleteImageName(String imageName);
+
+    public void setCoreServiceInfoFromContainer(String imageName,
+            String version, CoreServiceInfo coreServiceInfo) throws Exception;
+
+    public String getAllContainerLogs(String containerName, boolean withFollow)
+            throws Exception;
+    
+    public String getSomeContainerLogs(String containerName, int amount, boolean withFollow) throws Exception;
+    
+    public String getContainerLogsFrom(String containerId, int from, boolean withFollow) throws Exception;
+
     /* ********************** */
 
     public TJobExecution deployTJobExecution(TJobExecution tJobExecution);
