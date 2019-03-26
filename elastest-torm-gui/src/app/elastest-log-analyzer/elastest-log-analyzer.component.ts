@@ -132,7 +132,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   }
 
   ngOnInit(): void {
-    this.titlesService.setPathName(this.router.routerState.snapshot.url);
+    if (!this.isEmbed) {
+      this.titlesService.setPathName(this.router.routerState.snapshot.url);
+    }
     this.logAnalyzer = new LogAnalyzerModel();
     this.initLogAnalyzer();
     this.logAnalyzerService.getLogAnalyzerConfig().subscribe(

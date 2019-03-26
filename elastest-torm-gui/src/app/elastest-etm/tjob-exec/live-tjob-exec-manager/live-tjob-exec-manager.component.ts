@@ -5,7 +5,7 @@ import { EsmServiceInstanceModel } from '../../../elastest-esm/esm-service-insta
 import { EsmService } from '../../../elastest-esm/esm-service.service';
 import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
 import { TJobModel } from '../../tjob/tjob-model';
-import { AfterViewInit, Component, ViewChild, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Subscription, Observable } from 'rxjs/Rx';
 
@@ -21,7 +21,7 @@ import { interval } from 'rxjs';
   templateUrl: './live-tjob-exec-manager.component.html',
   styleUrls: ['./live-tjob-exec-manager.component.scss'],
 })
-export class LiveTjobExecManagerComponent implements AfterViewInit, OnDestroy {
+export class LiveTjobExecManagerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('logsAndMetrics')
   logsAndMetrics: EtmMonitoringViewComponent;
   showLogsAndMetrics: boolean = false;
