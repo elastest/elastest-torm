@@ -30,8 +30,9 @@
 }
 
 :host /deep/ .mat-tab-label {
-  min-width: 80px !important;
-  max-width: 85px;
+  min-width: 1px !important;
+  // min-width: 80px !important;
+  // max-width: 85px;
   text-overflow: ellipsis;
 }
 #miniLogAnalyzerTab {

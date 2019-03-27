@@ -47,7 +47,7 @@
     <self-adjustable-card id="miniLogAnalyzerCard" [hideTitle]="true">
       <sa-card-content fxFlexFill fxLayout="column">
         <mat-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
-          <mat-tab label="All Logs">
+          <mat-tab label="All Logs" matTooltip="All Test Case logs">
             <elastest-log-analyzer
               #miniLogAnalyzer
               *ngIf="params && testCase"
@@ -58,7 +58,10 @@
             ></elastest-log-analyzer>
           </mat-tab>
           <div *ngIf="miniLogAnalyzer">
-            <mat-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes" label="{{ component.name }}">
+            <mat-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes">
+              <ng-template mat-tab-label>
+                <span matTooltip="{{ component.name }}">{{ component.name }}</span>
+              </ng-template>
               <ng-template matTabContent>
                 <elastest-log-analyzer
                   *ngIf="params && testCase"
@@ -95,7 +98,7 @@
 
           <mat-tab *ngFor="let file of mp4Files">
             <ng-template mat-tab-label>
-              <mat-icon matTooltip="Video" id="videoIcon">play_circle_filled</mat-icon>
+              <mat-icon matTooltip="Video {{ file.name }}" id="videoIcon">play_circle_filled</mat-icon>
             </ng-template>
             <ng-template matTabContent>
               <div id="videoContent">
