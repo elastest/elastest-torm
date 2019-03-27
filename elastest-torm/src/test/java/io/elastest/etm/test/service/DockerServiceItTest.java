@@ -22,9 +22,11 @@ import org.springframework.messaging.simp.stomp.StompSession;
 import com.spotify.docker.client.messages.LogConfig;
 
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
-import io.elastest.etm.service.DockerEtmService;
+import io.elastest.epm.client.service.DockerService;
 import io.elastest.etm.test.IntegrationBaseTest;
+import io.elastest.etm.platform.service.DockerServiceImpl;
 import io.elastest.etm.test.util.StompTestUtils.WaitForMessagesHandler;
+import io.elastest.etm.utils.UtilsService;
 
 @RunWith(JUnitPlatform.class)
 public class DockerServiceItTest extends IntegrationBaseTest {
@@ -39,7 +41,13 @@ public class DockerServiceItTest extends IntegrationBaseTest {
     int serverPort;
 
     @Autowired
-    private DockerEtmService dockerEtmService;
+    private DockerServiceImpl dockerServiceImpl;
+    
+    @Autowired
+    private DockerService dockerService;
+    
+    @Autowired
+    UtilsService utilsService;
 
     @BeforeEach
     public void before() throws Exception {
@@ -59,14 +67,14 @@ public class DockerServiceItTest extends IntegrationBaseTest {
         String imageId = "alpine";
 
         log.info("Pulling image '{}'", imageId);
-        dockerEtmService.pullETExecImage(imageId, imageId, false);
+        dockerServiceImpl.pullETExecImage(imageId, imageId, false);
 
         String queueId = "test.default_log.1.log";
         String tag = "test_1_exec";
 
         WaitForMessagesHandler handler = connectToRabbitQueue(queueId);
 
-        LogConfig logConfig = dockerEtmService.getLogstashOrMiniLogConfig(tag);
+        LogConfig logConfig = dockerServiceImpl.getLogstashOrMiniLogConfig(tag);
 
         log.info("Log config: {} -> {}", logConfig.logType(),
                 logConfig.logOptions());
@@ -79,7 +87,7 @@ public class DockerServiceItTest extends IntegrationBaseTest {
         dockerBuilder.network(elastestNetwork);
 
         long start = System.currentTimeMillis();
-        String containerId = dockerEtmService.dockerService
+        String containerId = dockerService
                 .createAndStartContainer(dockerBuilder.build());
         log.info("Created and started container: {}", containerId);
 
@@ -104,8 +112,7 @@ public class DockerServiceItTest extends IntegrationBaseTest {
 
             try {
                 log.info("Removing container " + containerId);
-
-                dockerEtmService.dockerService
+                dockerService
                         .stopAndRemoveContainer(containerId);
             } catch (Exception ex) {
                 log.warn("Error on ending test execution {}", containerId, ex);
@@ -116,7 +123,7 @@ public class DockerServiceItTest extends IntegrationBaseTest {
     private WaitForMessagesHandler connectToRabbitQueue(String queueId)
             throws InterruptedException, ExecutionException, TimeoutException {
         StompSession stompSession = connectToRabbitMQ(serverPort,
-                dockerEtmService.utilsService.isElastestMini());
+                utilsService.isElastestMini());
 
         String queueToSuscribe = "/topic/" + queueId;
 

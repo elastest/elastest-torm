@@ -21,13 +21,13 @@ import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService;
 import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.dao.TraceRepository;
-import io.elastest.etm.platform.service.DockerEtmService;
 import io.elastest.etm.platform.service.DockerServiceImpl;
 import io.elastest.etm.platform.service.K8ServiceImpl;
 import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.service.AbstractMonitoringService;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.EtPluginsService;
+import io.elastest.etm.service.EtmTestResultService;
 import io.elastest.etm.service.TracesSearchService;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.service.client.EtmMiniSupportServiceClient;
@@ -54,11 +54,11 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Autowired
     DockerComposeService dockerComposeService;
     @Autowired
-    DockerEtmService dockerEtmService;
-    @Autowired
-    EtmFilesService etmFileService;
+    EtmFilesService etmFilesService;
     @Autowired
     DockerService dockerService;
+    @Autowired
+    EtmTestResultService etmTestResultService;
 
     @Value("${additional.server.port}")
     int additionalServerPort;
@@ -104,9 +104,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
         if (enableCloudMode) {
             platformService = new K8ServiceImpl();
         } else {
-            platformService = new DockerServiceImpl(dockerComposeService,
-                    dockerEtmService, etmFileService, utilsService,
-                    dockerService);
+            platformService = new DockerServiceImpl(dockerComposeService, etmFilesService, utilsService, dockerService, etmTestResultService);
         }
         return platformService;
     }

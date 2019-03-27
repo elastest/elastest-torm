@@ -15,8 +15,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
-import io.elastest.etm.platform.service.DockerEtmService;
+import io.elastest.epm.client.service.DockerService;
 import io.elastest.etm.test.IntegrationBaseTest;
+import io.elastest.etm.platform.service.DockerServiceImpl;
 import io.elastest.etm.utils.UtilTools;
 
 @RunWith(JUnitPlatform.class)
@@ -25,9 +26,10 @@ public class PcapApiItTest extends IntegrationBaseTest {
 
     @Autowired
     TestRestTemplate httpClient;
-
     @Autowired
-    DockerEtmService dockerEtmService;
+    DockerServiceImpl dockerServiceImpl;
+    @Autowired
+    DockerService dockerService;
 
     @Test
     public void startStopPcapTest() throws Exception {
@@ -39,8 +41,8 @@ public class PcapApiItTest extends IntegrationBaseTest {
         DockerBuilder dockerBuilder = new DockerBuilder(imageName);
         dockerBuilder.containerName("sut_" + execId);
 
-        this.dockerEtmService.dockerService.pullImage(imageName);
-        String sutContainerId = this.dockerEtmService.dockerService
+        this.dockerService.pullImage(imageName);
+        String sutContainerId = dockerService
                 .createAndStartContainerWithPull(dockerBuilder.build(),true);
 
         log.info("Starting pcap");
@@ -52,11 +54,11 @@ public class PcapApiItTest extends IntegrationBaseTest {
         this.stopPcap(execId);
 
         log.info("Stopping sut");
-        this.dockerEtmService.dockerService.stopDockerContainer(sutContainerId);
-        this.dockerEtmService.removeDockerContainer(sutContainerId);
+        dockerService.stopDockerContainer(sutContainerId);
+        this.dockerServiceImpl.removeDockerContainer(sutContainerId);
 
         String containerName = this.getPcapContainerName(execId);
-        assertFalse(this.dockerEtmService.dockerService
+        assertFalse(dockerService
                 .existsContainer(containerName));
     }
 

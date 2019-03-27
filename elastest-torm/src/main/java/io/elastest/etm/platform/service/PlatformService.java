@@ -21,7 +21,7 @@ import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.VersionInfo;
 
-public interface PlatformService {
+public abstract class PlatformService {
     static final Logger logger = getLogger(lookup().lookupClass());
 
     public enum ContainerPrefix {
@@ -50,53 +50,53 @@ public interface PlatformService {
         }
     }
 
-    public boolean createServiceDeploymentProject(String projectName,
+    public abstract boolean createServiceDeploymentProject(String projectName,
             String serviceDescriptor, String targetPath, boolean override,
             Map<String, String> envs, boolean withBindedExposedPortsToRandom,
             boolean withRemoveVolumes) throws Exception;
 
-    public boolean deployService(String projectName, boolean withPull)
+    public abstract boolean deployService(String projectName, boolean withPull)
             throws IOException;
 
-    public boolean undeployService(String projectName) throws IOException;
+    public abstract boolean undeployService(String projectName) throws IOException;
 
-    public boolean undeployAndCleanDeployment(String projectName);
+    public abstract boolean undeployAndCleanDeployment(String projectName);
 
-    public List<String> getDeploymentImages(String projectName)
+    public abstract List<String> getDeploymentImages(String projectName)
             throws Exception;
 
-    public void pullImageWithProgress(String projectName,
+    public abstract void pullImageWithProgress(String projectName,
             ProgressHandler progressHandler, String image) throws Exception;
 
-    public void pullDeploymentImages(String projectName,
+    public abstract void pullDeploymentImages(String projectName,
             DockerServiceStatus serviceStatus, List<String> images,
             boolean withProgress) throws Exception;
 
-    public List<String> getServiceDeploymentImages(String projectName)
+    public abstract List<String> getServiceDeploymentImages(String projectName)
             throws Exception;
 
-    public DockerContainerInfo getContainers(String projectName);
+    public abstract DockerContainerInfo getContainers(String projectName);
 
-    public boolean isContainerIntoNetwork(String networkId, String containerId)
+    public abstract boolean isContainerIntoNetwork(String networkId, String containerId)
             throws Exception;
 
-    public String getContainerIpByNetwork(String containerId, String network)
+    public abstract String getContainerIpByNetwork(String containerId, String network)
             throws Exception;
 
-    public void insertIntoETNetwork(String engineName, String network)
+    public abstract void insertIntoETNetwork(String engineName, String network)
             throws Exception;
 
-    public String getContainerName(String serviceName, String network);
+    public abstract String getContainerName(String serviceName, String network);
 
-    public void enableServiceMetricMonitoring(Execution execution)
+    public abstract void enableServiceMetricMonitoring(Execution execution)
             throws Exception;
 
-    public void disableMetricMonitoring(Execution execution, boolean force)
+    public abstract void disableMetricMonitoring(Execution execution, boolean force)
             throws Exception;
 
-    public void deployAndRunTJobExecution(Execution execution) throws Exception;
+    public abstract void deployAndRunTJobExecution(Execution execution) throws Exception;
 
-    public default String generateContainerName(ContainerPrefix prefix,
+    public String generateContainerName(ContainerPrefix prefix,
             Execution execution) {
         logger.info("Building container name with prefix: {}", prefix);
         String containerName = prefix.value + execution.getExecutionId();
@@ -110,41 +110,41 @@ public interface PlatformService {
         return containerName;
     }
 
-    public void deploySut(Execution execution) throws Exception;
+    public abstract void deploySut(Execution execution) throws Exception;
 
-    public void undeploySut(Execution execution, boolean force)
+    public abstract void undeploySut(Execution execution, boolean force)
             throws Exception;
 
-    public void undeployTJob(Execution execution, boolean force)
+    public abstract void undeployTJob(Execution execution, boolean force)
             throws Exception;
 
-    public ServiceBindedPort getBindingPort(String containerIp,
+    public abstract ServiceBindedPort getBindingPort(String containerIp,
             String containerSufix, String port, String networkName) throws Exception;
 
-    public String getEtmHost() throws Exception;
+    public abstract String getEtmHost() throws Exception;
 
-    public String getLogstashHost() throws Exception;
+    public abstract String getLogstashHost() throws Exception;
 
-    public VersionInfo getImageInfo(String name) throws Exception;
+    public abstract VersionInfo getImageInfo(String name) throws Exception;
 
-    public VersionInfo getVersionInfoFromContainer(String imageName,
+    public abstract VersionInfo getVersionInfoFromContainer(String imageName,
             String version) throws Exception;
 
-    public String getImageTagFromImageName(String imageName);
+    public abstract String getImageTagFromImageName(String imageName);
 
-    public String getImageNameFromCompleteImageName(String imageName);
+    public abstract String getImageNameFromCompleteImageName(String imageName);
 
-    public void setCoreServiceInfoFromContainer(String imageName,
+    public abstract void setCoreServiceInfoFromContainer(String imageName,
             String version, CoreServiceInfo coreServiceInfo) throws Exception;
 
-    public String getAllContainerLogs(String containerName, boolean withFollow)
+    public abstract String getAllContainerLogs(String containerName, boolean withFollow)
             throws Exception;
     
-    public String getSomeContainerLogs(String containerName, int amount, boolean withFollow) throws Exception;
+    public abstract String getSomeContainerLogs(String containerName, int amount, boolean withFollow) throws Exception;
     
-    public String getContainerLogsFrom(String containerId, int from, boolean withFollow) throws Exception;
+    public abstract String getContainerLogsFrom(String containerId, int from, boolean withFollow) throws Exception;
 
-    public String undeployTSSByContainerId(String containerId);
+    public abstract String undeployTSSByContainerId(String containerId);
 
 
 }

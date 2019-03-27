@@ -13,7 +13,7 @@ import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.VersionInfo;
 
-public class K8ServiceImpl implements PlatformService {
+public class K8ServiceImpl extends PlatformService {
 
     @Override
     public boolean createServiceDeploymentProject(String projectName,
