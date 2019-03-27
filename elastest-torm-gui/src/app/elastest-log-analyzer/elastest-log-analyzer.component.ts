@@ -270,8 +270,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   }
 
   setRangeByGiven(
-    from: Date | string = this.getFromDate(),
-    to: Date | string = this.getToDate(),
+    from: Date | string = this.getFromDateStr(),
+    to: Date | string = this.getToDateStr(),
     includedFrom: boolean = true,
     includedTo: boolean = true,
   ): void {
@@ -763,12 +763,24 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     return dateToInputLiteral(this.logAnalyzer.getDefaultToDate());
   }
 
-  public getFromDate(): any {
+  public getFromDateStr(): string {
     return this.fromDate.nativeElement.value;
   }
 
-  public getToDate(): any {
+  public getToDateStr(): string {
     return this.toDate.nativeElement.value;
+  }
+
+  public getFromDate(): Date {
+    let timezoneOffset: number = new Date().getTimezoneOffset();
+    let date: Date = new Date(this.getFromDateStr());
+    return new Date(date.getTime() - timezoneOffset * 60000);
+  }
+
+  public getToDate(): Date {
+    let timezoneOffset: number = new Date().getTimezoneOffset();
+    let date: Date = new Date(this.getToDateStr());
+    return new Date(date.getTime() - timezoneOffset * 60000);
   }
 
   public setFromDate(date: Date): void {
@@ -834,9 +846,23 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     }
   }
 
+  initTestCaseDate(): void {
+    let startDate: Date = this.getFromDate();
+    let finishDate: Date = this.getToDate();
+
+    startDate = new Date(startDate.getTime() - 1000);
+    finishDate = new Date(finishDate.getTime() + 1000);
+
+    this.setFromDate(startDate);
+    this.setToDate(finishDate);
+  }
+
   filterTestCase(testCase: string): void {
     let startMsg: string = this.logAnalyzerService.startTestCasePrefix + testCase;
     let endMsg: string = this.logAnalyzerService.endTestCasePrefix + testCase;
+
+    //
+    this.initTestCaseDate();
 
     // Search Start Msg
     // TODO use refactorized method into logAnalyzer Service
@@ -902,8 +928,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     return this.logAnalyzerService.searchTraceByGivenMsg(
       msg,
       this.logAnalyzer.selectedIndices,
-      this.getFromDate(),
-      this.getToDate(),
+      this.getFromDateStr(),
+      this.getToDateStr(),
       this.logAnalyzer.maxResults,
     );
   }
