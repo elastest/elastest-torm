@@ -221,6 +221,9 @@ mat-sidenav-container {
   /* background: #ffac2f; */
   /* color: #ffffff; */
 }
+:host /deep/ .ag-overlay-no-rows-center{
+  font-size:1.2em;
+}
 
 // Temp
 :host /deep/ #logsGrid div[ref='eLabel'] {

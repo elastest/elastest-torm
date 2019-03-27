@@ -367,7 +367,13 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     }
   }
 
-  hideLoadMsg(): void {
+  showNoLogsMsg(): void {
+    if (this.gridOptions.api) {
+      this.gridOptions.api.showNoRowsOverlay();
+    }
+  }
+
+  hideOverlayMsg(): void {
     if (this.gridApi) {
       this.gridApi.hideOverlay();
     }
@@ -419,13 +425,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     }
 
     this.monitoringService.searchLogAnalyzerQuery(this.logAnalyzerQueryModel).subscribe(
-      (data: any) => {
-        let logs: any[] = data;
+      (logs: any) => {
         this.loadLogByGivenData(logs);
       },
       (error: Error) => {
         this.disableBtns = false;
-        this.hideLoadMsg();
+        this.hideOverlayMsg();
       },
     );
   }
@@ -439,12 +444,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
       this.mark.removeAllPatterns();
       if (!this.isEmbed) {
         this.popup('Logs has been loaded');
-        this.hideLoadMsg();
       }
     } else {
       if (!this.isEmbed) {
         this.popup("There aren't logs to load", 'OK');
-        this.hideLoadMsg();
       }
     }
     this.updateButtons(logsLoaded);
@@ -490,14 +493,17 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
           this.mark.searchByPatterns();
         } else {
           this.popup("There aren't more logs to load", 'OK');
-          this.hideLoadMsg();
+          if (this.getRowsData().length > 0) {
+            // Only hide overlay if there are data
+            this.hideOverlayMsg();
+          }
           this.disableLoadMore = true; // removed from html temporally
         }
         this.disableBtns = false;
       },
       (error: Error) => {
         this.disableBtns = false;
-        this.hideLoadMsg();
+        this.hideOverlayMsg();
       },
     );
   }
@@ -530,13 +536,16 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
               this.mark.searchByPatterns();
             } else {
               this.popup("There aren't logs to load or you don't change filters", 'OK');
-              this.hideLoadMsg();
+              if (this.getRowsData().length > 0) {
+                // Only hide overlay if there are data
+                this.hideOverlayMsg();
+              }
             }
             this.disableBtns = false;
           },
           (error: Error) => {
             this.disableBtns = false;
-            this.hideLoadMsg();
+            this.hideOverlayMsg();
           },
         );
       }
@@ -559,7 +568,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   /***************************/
 
   public rowDataChanged($event: RowDataChangedEvent): void {
-    this.hideLoadMsg();
+    if (this.getRowsData().length > 0) {
+      // Only hide overlay if there are data
+      this.hideOverlayMsg();
+    }
   }
 
   public componentStateChanged($event: ComponentStateChangedEvent): void {

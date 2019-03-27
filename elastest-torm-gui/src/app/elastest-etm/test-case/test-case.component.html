@@ -47,7 +47,7 @@
     <self-adjustable-card id="miniLogAnalyzerCard" [hideTitle]="true">
       <sa-card-content fxFlexFill fxLayout="column">
         <mat-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
-          <mat-tab label="All Logs" matTooltip="All Test Case logs">
+          <mat-tab label="All Logs">
             <elastest-log-analyzer
               #miniLogAnalyzer
               *ngIf="params && testCase"
