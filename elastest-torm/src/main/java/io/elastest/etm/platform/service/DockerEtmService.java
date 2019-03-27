@@ -42,7 +42,6 @@ import io.elastest.epm.client.DockerContainer;
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.model.DockerPullImageProgress;
 import io.elastest.epm.client.service.DockerService;
-import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutSpecification;
@@ -156,8 +155,7 @@ public class DockerEtmService {
 
     @Autowired
     public DockerEtmService(DockerService dockerService,
-            EtmFilesService filesService,
-            UtilsService utilsService,
+            EtmFilesService filesService, UtilsService utilsService,
             EtmTestResultService etmTestResultService) {
         this.dockerService = dockerService;
         this.filesService = filesService;
@@ -395,10 +393,8 @@ public class DockerEtmService {
                 logger.error("Cannot get Ems Log config", e);
             }
         } else {
-            logConfig = getDefaultLogConfig(
-                    (EpmService.etMasterSlaveMode ? bindedLsTcpPort
-                            : logstashTcpPort),
-                    prefix, suffix, execution);
+            logConfig = getDefaultLogConfig((logstashTcpPort), prefix, suffix,
+                    execution);
         }
 
         // ElasTest labels
@@ -613,8 +609,8 @@ public class DockerEtmService {
             dockerBuilder.labels(labels);
 
             DockerContainer dockerContainer = dockerBuilder.build();
-            String containerId = dockerService.createAndStartContainer(
-                    dockerContainer, EpmService.etMasterSlaveMode);
+            String containerId = dockerService
+                    .createAndStartContainer(dockerContainer);
             this.insertCreatedContainer(containerId, containerName);
 
             try {
@@ -667,8 +663,8 @@ public class DockerEtmService {
             logger.info(resultMsg + " " + execution.getExecutionId());
 
             // Create and start container
-            String sutContainerId = dockerService.createAndStartContainer(
-                    sutContainer, EpmService.etMasterSlaveMode);
+            String sutContainerId = dockerService
+                    .createAndStartContainer(sutContainer);
             sutsByExecution.put(execution.getExecutionId().toString(),
                     sutContainerId);
 
@@ -705,13 +701,12 @@ public class DockerEtmService {
             dockerBuilder.network(elastestNetwork);
 
             DockerContainer dockerContainer = dockerBuilder.build();
-            String checkContainerId = dockerService.createAndStartContainer(
-                    dockerContainer, EpmService.etMasterSlaveMode);
+            String checkContainerId = dockerService
+                    .createAndStartContainer(dockerContainer);
 
             this.insertCreatedContainer(checkContainerId, checkName);
 
-            int statusCode = dockerService
-                    .getDockerClient(EpmService.etMasterSlaveMode)
+            int statusCode = dockerService.getDockerClient()
                     .waitContainer(checkContainerId).statusCode();
             if (statusCode == 0) {
                 logger.info("Sut is ready " + execution.getExecutionId());
@@ -759,8 +754,8 @@ public class DockerEtmService {
             execution.setStatusMsg(resultMsg);
 
             // Create and start container
-            String testContainerId = dockerService.createAndStartContainer(
-                    testContainer, EpmService.etMasterSlaveMode);
+            String testContainerId = dockerService
+                    .createAndStartContainer(testContainer);
 
             resultMsg = "Executing Test";
             execution.updateTJobExecutionStatus(
@@ -770,8 +765,7 @@ public class DockerEtmService {
             String testName = getTestName(execution);
             this.insertCreatedContainer(testContainerId, testName);
 
-            int exitCode = dockerService
-                    .getDockerClient(EpmService.etMasterSlaveMode)
+            int exitCode = dockerService.getDockerClient()
                     .waitContainer(testContainerId).statusCode();
             logger.info("Test container ends with code " + exitCode);
 
@@ -916,21 +910,19 @@ public class DockerEtmService {
     public String getContainerIpWithDockerExecution(String containerId,
             Execution execution) throws Exception {
         return dockerService.getContainerIpWithDockerClient(
-                dockerService.getDockerClient(EpmService.etMasterSlaveMode),
-                containerId, elastestNetwork);
+                dockerService.getDockerClient(), containerId, elastestNetwork);
     }
 
     public String waitForContainerIpWithDockerExecution(String containerId,
             Execution execution, long timeout) throws Exception {
         return dockerService.waitForContainerIpWithDockerClient(
-                dockerService.getDockerClient(EpmService.etMasterSlaveMode),
-                containerId, elastestNetwork, timeout);
+                dockerService.getDockerClient(), containerId, elastestNetwork,
+                timeout);
     }
 
     public String getHostIp(Execution execution) throws Exception {
-        return dockerService.getDockerClient(EpmService.etMasterSlaveMode)
-                .inspectNetwork(elastestNetwork).ipam().config().get(0)
-                .gateway();
+        return dockerService.getDockerClient().inspectNetwork(elastestNetwork)
+                .ipam().config().get(0).gateway();
     }
 
     public void removeDockerContainer(String containerId) throws Exception {

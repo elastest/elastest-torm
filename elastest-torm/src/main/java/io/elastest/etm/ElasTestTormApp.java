@@ -20,15 +20,14 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService;
 import io.elastest.etm.dao.TestSuiteRepository;
-import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.platform.service.DockerEtmService;
 import io.elastest.etm.platform.service.DockerServiceImpl;
 import io.elastest.etm.platform.service.K8ServiceImpl;
 import io.elastest.etm.platform.service.PlatformService;
+import io.elastest.etm.service.AbstractMonitoringService;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.EtPluginsService;
-import io.elastest.etm.service.AbstractMonitoringService;
 import io.elastest.etm.service.TracesSearchService;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.service.client.EtmMiniSupportServiceClient;
@@ -56,8 +55,6 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     DockerComposeService dockerComposeService;
     @Autowired
     DockerEtmService dockerEtmService;
-    @Autowired
-    EpmService epmService;
     @Autowired
     EtmFilesService etmFileService;
     @Autowired
@@ -108,7 +105,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
             platformService = new K8ServiceImpl();
         } else {
             platformService = new DockerServiceImpl(dockerComposeService,
-                    dockerEtmService, epmService, etmFileService, utilsService,
+                    dockerEtmService, etmFileService, utilsService,
                     dockerService);
         }
         return platformService;

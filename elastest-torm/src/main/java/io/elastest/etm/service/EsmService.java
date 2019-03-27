@@ -33,7 +33,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
-import io.elastest.epm.client.service.EpmService;
 import io.elastest.epm.client.service.ServiceException;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
@@ -149,7 +148,6 @@ public class EsmService {
     public SupportServiceClientInterface supportServiceClient;
     public EtmContextAuxService etmContextAuxService;
     public EtmFilesService filesServices;
-    public EpmService epmService;
     public PlatformService platformService;
 
     private Map<String, SupportServiceInstance> servicesInstances;
@@ -174,7 +172,7 @@ public class EsmService {
     @Autowired
     public EsmService(SupportServiceClientInterface supportServiceClient,
             EtmFilesService filesServices,
-            EtmContextAuxService etmContextAuxService, EpmService epmService,
+            EtmContextAuxService etmContextAuxService,
             TJobExecRepository tJobExecRepositoryImpl,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
             DynamicDataService dynamicDataService,
@@ -192,7 +190,6 @@ public class EsmService {
         this.tssLoadedOnInitMap = new HashMap<>();
         this.filesServices = filesServices;
         this.etmContextAuxService = etmContextAuxService;
-        this.epmService = epmService;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
         this.dynamicDataService = dynamicDataService;
@@ -381,12 +378,10 @@ public class EsmService {
         supportServiceClient.registerManifest("{ " + "\"id\": "
                 + serviceDefJson.get("manifest").get("id").toString()
                 + ", \"manifest_content\": "
-                + serviceDefJson
-                        .get("manifest").get("manifest_content").toString()
+                + serviceDefJson.get("manifest").get("manifest_content")
+                        .toString()
                 + ", \"manifest_type\": "
-                + (EpmService.etMasterSlaveMode ? "\"epm\""
-                        : serviceDefJson.get("manifest").get("manifest_type")
-                                .toString())
+                + serviceDefJson.get("manifest").get("manifest_type").toString()
                 + ", \"plan_id\": "
                 + serviceDefJson.get("manifest").get("plan_id").toString()
                 + ", \"service_id\": "
@@ -1245,8 +1240,7 @@ public class EsmService {
                                 .getBindingPort(
                                         serviceInstance.getContainerIp(), null,
                                         node.get("port").toString(),
-                                        networkName,
-                                        epmService.etMasterSlaveMode);
+                                        networkName);
                         serviceInstance.getPortBindingContainers()
                                 .add(socatBindedPortObj.getContainerId());
                         bindedPort = Integer
@@ -1651,11 +1645,6 @@ public class EsmService {
     private void fillEnvVariablesToTSS(
             SupportServiceInstance supportServiceInstance)
             throws ServiceException {
-
-        if (epmService.etMasterSlaveMode) {
-            supportServiceInstance.getParameters().put("pop_name", epmService
-                    .getPopName(epmService.getRe().getHostIp(), "compose"));
-        }
 
         supportServiceInstance.getParameters()
                 .putAll(etmContextAuxService.getMonitoringEnvVars(true));

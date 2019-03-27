@@ -54,7 +54,7 @@ public class K8ServiceImpl implements PlatformService {
     public void pullImageWithProgress(String projectName,
             ProgressHandler progressHandler, String image) throws Exception {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -62,7 +62,7 @@ public class K8ServiceImpl implements PlatformService {
             DockerServiceStatus serviceStatus, List<String> images,
             boolean withProgress) throws Exception {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -96,7 +96,7 @@ public class K8ServiceImpl implements PlatformService {
     public void insertIntoETNetwork(String engineName, String network)
             throws Exception {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -109,47 +109,47 @@ public class K8ServiceImpl implements PlatformService {
     public void enableServiceMetricMonitoring(Execution execution)
             throws Exception {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void disableMetricMonitoring(Execution execution, boolean force)
             throws Exception {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void deployAndRunTJobExecution(Execution execution)
             throws Exception {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void deploySut(Execution execution) throws Exception {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void undeploySut(Execution execution, boolean force)
             throws Exception {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void undeployTJob(Execution execution, boolean force)
             throws Exception {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public ServiceBindedPort getBindingPort(String containerIp,
-            String containerSufix, String port, String networkName,
-            boolean remotely) throws Exception {
+            String containerSufix, String port, String networkName)
+            throws Exception {
         // TODO Auto-generated method stub
         return null;
     }
@@ -202,7 +202,7 @@ public class K8ServiceImpl implements PlatformService {
             String imageName, CoreServiceInfo coreServiceInfo)
             throws Exception {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override

@@ -35,7 +35,6 @@ import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService;
 import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
-import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
@@ -68,18 +67,15 @@ public class DockerServiceImpl implements PlatformService {
     public DockerComposeService dockerComposeService;
     public DockerEtmService dockerEtmService;
     public DockerService dockerService;
-    private EpmService epmService;
     private EtmFilesService etmFilesService;
     private UtilsService utilsService;
 
     public DockerServiceImpl(DockerComposeService dockerComposeService,
-            DockerEtmService dockerEtmService, EpmService epmService,
-            EtmFilesService etmFilesService, UtilsService utilsService,
-            DockerService dockerService) {
+            DockerEtmService dockerEtmService, EtmFilesService etmFilesService,
+            UtilsService utilsService, DockerService dockerService) {
         super();
         this.dockerComposeService = dockerComposeService;
         this.dockerEtmService = dockerEtmService;
-        this.epmService = epmService;
         this.etmFilesService = etmFilesService;
         this.utilsService = utilsService;
         this.dockerService = dockerService;
@@ -99,8 +95,8 @@ public class DockerServiceImpl implements PlatformService {
 
     @Override
     public ServiceBindedPort getBindingPort(String containerIp,
-            String containerSufix, String port, String networkName,
-            boolean remotely) throws Exception {
+            String containerSufix, String port, String networkName)
+            throws Exception {
         String bindedPort = "37000";
         String socatContainerId = null;
         try {
@@ -129,7 +125,7 @@ public class DockerServiceImpl implements PlatformService {
             dockerService.pullImage(etSocatImage);
 
             socatContainerId = dockerService
-                    .createAndStartContainer(dockerBuilder.build(), remotely);
+                    .createAndStartContainer(dockerBuilder.build());
             logger.info("Socat container id: {} ", socatContainerId);
 
         } catch (Exception e) {
@@ -327,20 +323,10 @@ public class DockerServiceImpl implements PlatformService {
                 .setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
         String sutIp;
-        if (EpmService.etMasterSlaveMode) {
-            logger.info("Sut main service name: {}", ("/"
-                    + dockerEtmService.getSutName(execution).replaceAll("_", "")
-                    + "_" + sut.getMainService() + "_1"));
-            sutIp = epmService.getRemoteServiceIpByVduName(
-                    "/" + dockerEtmService.getSutName(execution) + "_"
-                            + sut.getMainService() + "_1");
-            logger.info("Sut main service ip: {}", sutIp);
-        } else {
-            String sutContainerId = dockerEtmService.getSutContainerIdByExec(
-                    execution.getExecutionId().toString());
-            sutIp = dockerEtmService.getContainerIpWithDockerExecution(
-                    sutContainerId, execution);
-        }
+        String sutContainerId = dockerEtmService
+                .getSutContainerIdByExec(execution.getExecutionId().toString());
+        sutIp = dockerEtmService
+                .getContainerIpWithDockerExecution(sutContainerId, execution);
 
         // If port is defined, wait for SuT ready
         if (sut.getPort() != null && !"".equals(sut.getPort())) {
@@ -427,31 +413,29 @@ public class DockerServiceImpl implements PlatformService {
 
         dockerComposeService.startProject(composeProjectName, false);
 
-        if (!EpmService.etMasterSlaveMode) {
-            for (DockerContainer container : dockerComposeService
-                    .getContainers(composeProjectName).getContainers()) {
-                String containerId = dockerEtmService.dockerService
-                        .getContainerIdByName(container.getName());
+        for (DockerContainer container : dockerComposeService
+                .getContainers(composeProjectName).getContainers()) {
+            String containerId = dockerEtmService.dockerService
+                    .getContainerIdByName(container.getName());
 
-                // Insert container into containers list
-                dockerEtmService.insertCreatedContainer(containerId,
-                        container.getName());
-                // If is main service container, set app id
-                if (container.getName().equals(
-                        composeProjectName + "_" + mainService + "_1")) {
-                    dockerEtmService.addSutByExecution(
-                            execution.getExecutionId().toString(), containerId);
-                }
+            // Insert container into containers list
+            dockerEtmService.insertCreatedContainer(containerId,
+                    container.getName());
+            // If is main service container, set app id
+            if (container.getName()
+                    .equals(composeProjectName + "_" + mainService + "_1")) {
+                dockerEtmService.addSutByExecution(
+                        execution.getExecutionId().toString(), containerId);
+            }
 
-                if (dockerEtmService.getSutContainerIdByExec(
-                        execution.getExecutionId().toString()) == null
-                        || dockerEtmService
-                                .getSutContainerIdByExec(
-                                        execution.getExecutionId().toString())
-                                .isEmpty()) {
-                    throw new Exception(
-                            "Main Sut service from docker compose not started");
-                }
+            if (dockerEtmService.getSutContainerIdByExec(
+                    execution.getExecutionId().toString()) == null
+                    || dockerEtmService
+                            .getSutContainerIdByExec(
+                                    execution.getExecutionId().toString())
+                            .isEmpty()) {
+                throw new Exception(
+                        "Main Sut service from docker compose not started");
             }
         }
     }
@@ -470,10 +454,6 @@ public class DockerServiceImpl implements PlatformService {
             Map<String, HashMap> servicesMap = dockerComposeMap.get("services");
             for (HashMap.Entry<String, HashMap> service : servicesMap
                     .entrySet()) {
-                // Pull images in a local execution
-                if (EpmService.etMasterSlaveMode) {
-                    pullDockerComposeYmlService(service, execution);
-                }
 
                 // Set Logging
                 service = setLoggingToDockerComposeYmlService(service,
@@ -486,14 +466,6 @@ public class DockerServiceImpl implements PlatformService {
                 // Set Elastest Labels
                 service = setETLabelsToDockerComposeYmlService(service,
                         composeProjectName, execution);
-
-                // Binding port of the main service if ElasTest is running in
-                // Master/Slave mode
-                if (EpmService.etMasterSlaveMode
-                        && service.getKey().equals(mainService)) {
-                    service = setBindingPortYmlService(service,
-                            composeProjectName);
-                }
             }
 
             dockerComposeMap = setNetworkToDockerComposeYmlRoot(
@@ -636,15 +608,11 @@ public class DockerServiceImpl implements PlatformService {
 
     @Override
     public String getLogstashHost() throws Exception {
-        if (EpmService.etMasterSlaveMode) {
-            return utilsService.getEtPublicHostValue();
+        if (utilsService.isElastestMini()) {
+            return getEtmHost();
         } else {
-            if (utilsService.isElastestMini()) {
-                return getEtmHost();
-            } else {
-                return dockerService.getContainerIpByNetwork(
-                        etEtmLogstashContainerName, elastestNetwork);
-            }
+            return dockerService.getContainerIpByNetwork(
+                    etEtmLogstashContainerName, elastestNetwork);
         }
     }
 
@@ -795,9 +763,7 @@ public class DockerServiceImpl implements PlatformService {
         HashMap<String, Object> loggingOptionsContent = new HashMap<String, Object>();
 
         String host = "";
-        String port = EpmService.etMasterSlaveMode
-                ? dockerEtmService.bindedLsTcpPort
-                : dockerEtmService.logstashTcpPort;
+        String port = dockerEtmService.logstashTcpPort;
 
         if (dockerEtmService.isEMSSelected(execution)) {
             // ET_EMS env vars created in EsmService setTssEnvVarByEndpoint()

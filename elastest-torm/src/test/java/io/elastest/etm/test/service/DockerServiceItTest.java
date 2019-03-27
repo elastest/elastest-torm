@@ -80,7 +80,7 @@ public class DockerServiceItTest extends IntegrationBaseTest {
 
         long start = System.currentTimeMillis();
         String containerId = dockerEtmService.dockerService
-                .createAndStartContainer(dockerBuilder.build(), false);
+                .createAndStartContainer(dockerBuilder.build());
         log.info("Created and started container: {}", containerId);
 
         try {

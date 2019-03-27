@@ -117,8 +117,6 @@ public class DockerService {
     private DockerClient dockerClient;
 
     @Autowired
-    EpmService epmService;
-    @Autowired
     ShellService shellService;
 
     @PostConstruct
@@ -132,22 +130,7 @@ public class DockerService {
             // + dockerPort;
             dockerServerUrl = "unix:///var/run/docker.sock";
         }
-
-        // Set remote docker server
-        if (epmService.etMasterSlaveMode) {
-            logger.info("Remote ip: {}", epmService.getRe().getHostIp());
-            logger.info("Remote Docker port: {}", dockerPort);
-            remoteDockerServer = "http://" + epmService.getRe().getHostIp()
-                    + ":" + dockerPort;
-            NetworkConfig networkConfig = NetworkConfig.builder()
-                    .checkDuplicate(true).attachable(true)
-                    .name(elastestDockerNetwork).build();
-            dockerClient = getDockerClient(false);
-            getDockerClient(true).createNetwork(networkConfig);
-        } else {
-            dockerClient = getDockerClient(false);
-        }
-
+        dockerClient = getDockerClient();
     }
 
     public enum ContainersListActionEnum {
@@ -181,16 +164,10 @@ public class DockerService {
     /* **** Config Methods **** */
     /* ************************ */
 
-    public DockerClient getDockerClient(boolean remote) throws Exception {
+    public DockerClient getDockerClient() throws Exception {
         Builder dockerClientBuilder = DefaultDockerClient.fromEnv();
-        if (remote && remoteDockerServer != null) {
-            dockerClientBuilder.uri(remoteDockerServer);
-        } else {
-            dockerClientBuilder.uri(dockerServerUrl);
-        }
-        
-        dockerClient = dockerClientBuilder.build(); 
-
+        dockerClientBuilder.uri(dockerServerUrl);
+        dockerClient = dockerClientBuilder.build();
         return dockerClient;
     }
 
@@ -264,7 +241,7 @@ public class DockerService {
             logger.trace("Using capAdd: {}", capAdd.get());
             hostConfigBuilder.capAdd(capAdd.get());
         }
-        
+
         Optional<List<String>> extraHosts = dockerContainer.getExtraHosts();
         if (extraHosts.isPresent()) {
             logger.trace("Using extraHosts: {}", extraHosts.get());
@@ -320,22 +297,21 @@ public class DockerService {
     }
 
     public String createAndStartContainerWithPull(
-            DockerContainer dockerContainer, boolean remotely, boolean withPull)
+            DockerContainer dockerContainer, boolean withPull)
             throws Exception {
-        DockerClient dockerClient = this.getDockerClient(remotely);
+        DockerClient dockerClient = getDockerClient();
         return this.createAndStartContainer(dockerClient, dockerContainer,
                 withPull);
     }
 
-    public String createAndStartContainer(DockerContainer dockerContainer,
-            boolean remotely) throws Exception {
-        return this.createAndStartContainerWithPull(dockerContainer, remotely,
-                false);
+    public String createAndStartContainer(DockerContainer dockerContainer)
+            throws Exception {
+        return this.createAndStartContainerWithPull(dockerContainer, false);
     }
 
     public void removeDockerContainer(String containerId, boolean removeVolumes)
             throws Exception {
-        DockerClient dockerClient = this.getDockerClient(true);
+        DockerClient dockerClient = getDockerClient();
         List<ContainerMount> volumes = null;
         try {
             volumes = getContainerVolumes(containerId);
@@ -363,7 +339,7 @@ public class DockerService {
     }
 
     public void stopDockerContainer(String containerId) throws Exception {
-        DockerClient dockerClient = this.getDockerClient(true);
+        DockerClient dockerClient = getDockerClient();
         this.stopDockerContainer(dockerClient, containerId);
     }
 
@@ -374,7 +350,7 @@ public class DockerService {
 
     public void stopAndRemoveContainerWithKillTimeout(String containerId,
             int killAfterSeconds) throws Exception {
-        DockerClient dockerClient = this.getDockerClient(true);
+        DockerClient dockerClient = getDockerClient();
         dockerClient.stopContainer(containerId, killAfterSeconds);
         this.removeDockerContainer(containerId);
     }
@@ -385,7 +361,7 @@ public class DockerService {
 
     public void endContainer(String containerName, boolean removeVolumes,
             int timeout) throws Exception {
-        DockerClient dockerClient = this.getDockerClient(true);
+        DockerClient dockerClient = getDockerClient();
         if (existsContainer(containerName)) {
             String containerId = getContainerIdByName(containerName);
             // try {
@@ -430,7 +406,7 @@ public class DockerService {
 
     public void pullImageWithoutProgressHandler(String imageId)
             throws Exception {
-        this.pullImageWithoutProgressHandler(this.getDockerClient(true),
+        this.pullImageWithoutProgressHandler(getDockerClient(),
                 imageId);
     }
 
@@ -456,13 +432,13 @@ public class DockerService {
     public void pullImageWithProgressHandler(String imageId,
             ProgressHandler progressHandler)
             throws DockerException, InterruptedException, Exception {
-        this.pullImageWithProgressHandler(this.getDockerClient(true), imageId,
+        this.pullImageWithProgressHandler(getDockerClient(), imageId,
                 progressHandler);
     }
 
     public void pullImage(String imageId)
             throws DockerException, InterruptedException, Exception {
-        this.pullImageWithProgressHandler(this.getDockerClient(true), imageId,
+        this.pullImageWithProgressHandler(getDockerClient(), imageId,
                 getEmptyProgressHandler());
     }
 
@@ -486,13 +462,13 @@ public class DockerService {
 
     public void pullImageIfNotExist(String imageId)
             throws DockerException, InterruptedException, Exception {
-        this.pullImageIfNotExist(this.getDockerClient(true), imageId);
+        this.pullImageIfNotExist(getDockerClient(), imageId);
     }
 
     public void pullImageIfNotExistWithProgressHandler(String imageId,
             ProgressHandler progressHandler)
             throws DockerException, InterruptedException, Exception {
-        this.pullImageIfNotExistWithProgressHandler(this.getDockerClient(true),
+        this.pullImageIfNotExistWithProgressHandler(getDockerClient(),
                 imageId, progressHandler);
     }
 
@@ -508,7 +484,7 @@ public class DockerService {
     public boolean existsImage(String imageId) {
         boolean exists = true;
         try {
-            this.getDockerClient(true).inspectImage(imageId);
+            getDockerClient().inspectImage(imageId);
             logger.trace("Docker image {} already exists", imageId);
 
         } catch (Exception e) {
@@ -543,7 +519,7 @@ public class DockerService {
 
     public ImageInfo getImageInfoByName(String imageName) throws Exception {
         ImageInfo response = null;
-        DockerClient dockerClient = getDockerClient(false);
+        DockerClient dockerClient = getDockerClient();
         try {
             if (existsImage(imageName)) {
                 response = dockerClient.inspectImage(imageName);
@@ -568,7 +544,7 @@ public class DockerService {
 
     public String getContainerIp(String containerId, String network)
             throws Exception {
-        return this.getContainerIpWithDockerClient(this.getDockerClient(true),
+        return this.getContainerIpWithDockerClient(getDockerClient(),
                 containerId, network);
     }
 
@@ -583,19 +559,19 @@ public class DockerService {
     public String waitForContainerIpWith(String containerId, String network,
             long timeout) throws Exception {
         return this.waitForContainerIpWithDockerClient(
-                this.getDockerClient(true), containerId, network, timeout);
+                getDockerClient(), containerId, network, timeout);
     }
 
     public String waitForContainerIpWith(String containerId, String network)
             throws Exception {
         return this.waitForContainerIpWithDockerClient(
-                this.getDockerClient(true), containerId, network,
+                getDockerClient(), containerId, network,
                 dockerWaitTimeoutSec);
     }
 
     public String waitForContainerIpWith(String containerId) throws Exception {
         return this.waitForContainerIpWithDockerClient(
-                this.getDockerClient(true), containerId, "bridge",
+                getDockerClient(), containerId, "bridge",
                 dockerWaitTimeoutSec);
     }
 
@@ -658,7 +634,7 @@ public class DockerService {
 
     public String getContainerIpByNetwork(String containerId, String network)
             throws Exception {
-        DockerClient client = this.getDockerClient(false);
+        DockerClient client = getDockerClient();
         ContainerInfo info = client.inspectContainer(containerId);
         String ip = info.networkSettings().networks().get(network).ipAddress();
         return ip.split("/")[0];
@@ -671,7 +647,7 @@ public class DockerService {
     }
 
     public String getNetworkName(String containerId) throws Exception {
-        return this.getNetworkName(containerId, this.getDockerClient(true));
+        return this.getNetworkName(containerId, getDockerClient());
     }
 
     public ImmutableList<String> getContainerNetworks(String containerId,
@@ -684,11 +660,11 @@ public class DockerService {
     public ImmutableList<String> getContainerNetworks(String containerId)
             throws Exception {
         return this.getContainerNetworks(containerId,
-                this.getDockerClient(true));
+                getDockerClient());
     }
 
     public String getHostIpByNetwork(String network) throws Exception {
-        return this.getDockerClient(false).inspectNetwork(network).ipam()
+        return getDockerClient().inspectNetwork(network).ipam()
                 .config().get(0).gateway();
     }
 
@@ -697,14 +673,14 @@ public class DockerService {
         boolean isAreadyInNetwork = this.isContainerIntoNetwork(networkId,
                 containerId);
         if (!isAreadyInNetwork) {
-            DockerClient client = getDockerClient(true);
+            DockerClient client = getDockerClient();
             client.connectToNetwork(containerId, networkId);
         }
     }
 
     public boolean isContainerIntoNetwork(String networkId, String containerId)
             throws Exception {
-        DockerClient client = getDockerClient(true);
+        DockerClient client = getDockerClient();
         Map<String, AttachedNetwork> networksMap = client
                 .inspectContainer(containerId).networkSettings().networks();
         return networksMap.get(networkId) != null;
@@ -725,7 +701,7 @@ public class DockerService {
 
     public List<Container> getContainersByNamePrefix(String prefix)
             throws Exception {
-        DockerClient dockerClient = this.getDockerClient(true);
+        DockerClient dockerClient = getDockerClient();
         List<Container> allContainers = dockerClient
                 .listContainers(ListContainersParam.allContainers());
         List<Container> matchPrefixContainers = new ArrayList<>();
@@ -751,7 +727,7 @@ public class DockerService {
 
     public List<Container> getContainersCreatedSinceId(String startId)
             throws Exception {
-        DockerClient dockerClient = this.getDockerClient(true);
+        DockerClient dockerClient = getDockerClient();
         return dockerClient.listContainers(ListContainersParam.allContainers(),
                 ListContainersParam.containersCreatedSince(startId));
     }
@@ -830,7 +806,7 @@ public class DockerService {
         params.add(LogsParam.stderr(true));
         params.add(LogsParam.timestamps(true));
 
-        DockerClient dockerClient = this.getDockerClient(false);
+        DockerClient dockerClient = getDockerClient();
         LogStream logStream = dockerClient.logs(containerId,
                 params.toArray(new LogsParam[params.size()]));
 
@@ -841,14 +817,14 @@ public class DockerService {
             String fileName) throws Exception {
         InputStream inputStream = null;
         if (existsContainer(containerNameOrId)) {
-            inputStream = this.getDockerClient(true)
+            inputStream = getDockerClient()
                     .archiveContainer(containerNameOrId, fileName);
         }
         return inputStream;
     }
 
     public boolean existsContainer(String containerName) throws Exception {
-        DockerClient dockerClient = this.getDockerClient(true);
+        DockerClient dockerClient = getDockerClient();
         return this.existsContainer(containerName, dockerClient);
     }
 
@@ -864,7 +840,7 @@ public class DockerService {
     }
 
     public String getContainerIdByName(String containerName) throws Exception {
-        DockerClient dockerClient = this.getDockerClient(true);
+        DockerClient dockerClient = getDockerClient();
         String id = "";
         try {
             if (existsContainer(containerName)) {
@@ -881,7 +857,7 @@ public class DockerService {
     public ContainerInfo getContainerInfoByName(String containerName)
             throws Exception {
         ContainerInfo response = null;
-        DockerClient dockerClient = getDockerClient(true);
+        DockerClient dockerClient = getDockerClient();
         try {
             if (existsContainer(containerName, dockerClient)) {
                 response = dockerClient.inspectContainer(containerName);
@@ -893,14 +869,14 @@ public class DockerService {
     }
 
     public List<Container> getAllContainers() throws Exception {
-        DockerClient dockerClient = getDockerClient(false);
+        DockerClient dockerClient = getDockerClient();
         return dockerClient.listContainers(ListContainersParam.allContainers());
     }
 
     public List<Container> getRunningContainersByImageName(String imageName)
             throws Exception {
         imageName += ":";
-        DockerClient dockerClient = getDockerClient(false);
+        DockerClient dockerClient = getDockerClient();
         List<Container> allContainers = dockerClient
                 .listContainers(ListContainersParam.allContainers());
         List<Container> imageContainers = new ArrayList<>();
@@ -914,7 +890,7 @@ public class DockerService {
 
     public List<Container> getRunningContainersByImageNameAndVersion(
             String imageName, String version) throws Exception {
-        DockerClient dockerClient = getDockerClient(false);
+        DockerClient dockerClient = getDockerClient();
         List<Container> allContainers = dockerClient
                 .listContainers(ListContainersParam.allContainers());
         List<Container> imageContainers = new ArrayList<>();
@@ -930,7 +906,7 @@ public class DockerService {
 
     public ImmutableList<ContainerMount> getContainerMounts(String containerId)
             throws Exception {
-        DockerClient dockerClient = this.getDockerClient(true);
+        DockerClient dockerClient = getDockerClient();
         return dockerClient.inspectContainer(containerId).mounts();
 
     }
@@ -967,7 +943,7 @@ public class DockerService {
     }
 
     public void removeVolumes(List<ContainerMount> volumes) throws Exception {
-        DockerClient dockerClient = this.getDockerClient(true);
+        DockerClient dockerClient = getDockerClient();
         if (volumes != null) {
             for (ContainerMount volume : volumes) {
                 try {
@@ -1160,7 +1136,7 @@ public class DockerService {
 
     public List<Container> getContainersByPrefix(String prefix)
             throws DockerException, InterruptedException, Exception {
-        return getDockerClient(true)
+        return getDockerClient()
                 .listContainers(ListContainersParam.allContainers(true))
                 .stream()
                 .filter(container -> Arrays
@@ -1181,7 +1157,7 @@ public class DockerService {
                 commandStr, containerName, awaitCompletion);
 
         if (existsContainer(containerName)) {
-            DockerClient dockerClient = getDockerClient(true);
+            DockerClient dockerClient = getDockerClient();
             ExecCreation exec = dockerClient.execCreate(containerName, command,
                     ExecCreateParam.tty(), ExecCreateParam.attachStdin(true),
                     ExecCreateParam.attachStdout(true),
@@ -1202,36 +1178,4 @@ public class DockerService {
         return output;
     }
 
-    private void unTar(TarArchiveInputStream tis, File destFolder)
-            throws IOException {
-        TarArchiveEntry entry = null;
-        while ((entry = tis.getNextTarEntry()) != null) {
-            FileOutputStream fos = null;
-            try {
-                if (entry.isDirectory()) {
-                    continue;
-                }
-                File curfile = new File(destFolder, entry.getName());
-                File parent = curfile.getParentFile();
-                if (!parent.exists()) {
-                    parent.mkdirs();
-                }
-                fos = new FileOutputStream(curfile);
-                IOUtils.copy(tis, fos);
-            } catch (Exception e) {
-                logger.warn("Exception extracting recording {} to {}", tis,
-                        destFolder, e);
-            } finally {
-                try {
-                    if (fos != null) {
-                        fos.flush();
-                        fos.getFD().sync();
-                        fos.close();
-                    }
-                } catch (IOException e) {
-                    logger.warn("Exception closing {}", fos, e);
-                }
-            }
-        }
-    }
 }

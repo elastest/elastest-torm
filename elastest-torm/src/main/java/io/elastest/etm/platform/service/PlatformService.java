@@ -119,8 +119,7 @@ public interface PlatformService {
             throws Exception;
 
     public ServiceBindedPort getBindingPort(String containerIp,
-            String containerSufix, String port, String networkName,
-            boolean remotely) throws Exception;
+            String containerSufix, String port, String networkName) throws Exception;
 
     public String getEtmHost() throws Exception;
 

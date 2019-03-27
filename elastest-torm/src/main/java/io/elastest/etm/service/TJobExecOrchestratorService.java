@@ -26,7 +26,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import io.elastest.epm.client.service.EpmService;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
 import io.elastest.etm.model.EusExecutionData;
@@ -71,7 +70,6 @@ public class TJobExecOrchestratorService {
     private AbstractMonitoringService monitoringService;
 
     private EtmContextService etmContextService;
-    private EpmService epmService;
     private UtilsService utilsService;
     private PlatformService platformService;
 
@@ -85,8 +83,7 @@ public class TJobExecOrchestratorService {
             TJobExecRepository tJobExecRepositoryImpl,
             DatabaseSessionManager dbmanager, EsmService esmService,
             SutService sutService, AbstractMonitoringService monitoringService,
-            EtmContextService etmContextService, EpmService epmService,
-            UtilsService utilsService,
+            EtmContextService etmContextService, UtilsService utilsService,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
             PlatformService platformService) {
         super();
@@ -96,7 +93,6 @@ public class TJobExecOrchestratorService {
         this.sutService = sutService;
         this.monitoringService = monitoringService;
         this.etmContextService = etmContextService;
-        this.epmService = epmService;
         this.utilsService = utilsService;
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
         this.platformService = platformService;
@@ -852,8 +848,7 @@ public class TJobExecOrchestratorService {
                                 .getBindingPort(sutExec.getIp(),
                                         "sut_" + sutExec.getId(),
                                         execution.getSut().getPort(),
-                                        elastestDockerNetwork,
-                                        epmService.etMasterSlaveMode);
+                                        elastestDockerNetwork);
                         sutExec.setPublicPort(Long
                                 .parseLong(socatBindedPortObj.getBindedPort()));
                         sutService.modifySutExec(sutExec);

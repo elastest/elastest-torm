@@ -79,7 +79,7 @@ public class DockerUnitTest {
 
             dockerBuilder.portBindings(portBindings);
 
-            dockerService.createAndStartContainer(dockerBuilder.build(), false);
+            dockerService.createAndStartContainer(dockerBuilder.build());
         });
 
     }

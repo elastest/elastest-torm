@@ -41,8 +41,7 @@ public class PcapApiItTest extends IntegrationBaseTest {
 
         this.dockerEtmService.dockerService.pullImage(imageName);
         String sutContainerId = this.dockerEtmService.dockerService
-                .createAndStartContainerWithPull(dockerBuilder.build(), false,
-                        true);
+                .createAndStartContainerWithPull(dockerBuilder.build(),true);
 
         log.info("Starting pcap");
         boolean started = this.startPcap(execId);
