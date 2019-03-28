@@ -870,6 +870,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   }
 
   filterTestCase(testCase: string): void {
+    this.showLoadMsg();
     let startMsg: string = this.logAnalyzerService.startTestCasePrefix + testCase;
     let endMsg: string = this.logAnalyzerService.endTestCasePrefix + testCase;
 
