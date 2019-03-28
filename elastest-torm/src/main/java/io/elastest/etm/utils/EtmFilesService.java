@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -162,8 +163,14 @@ public class EtmFilesService {
                         relativeFilePath + fileSeparator, serviceName,
                         fileSeparator));
             } else {
+                String encodedCurrentFileName = URLEncoder
+                        .encode(currentFileName, "UTF-8");
+                String relativeEncodedFilePath = relativePath
+                        + encodedCurrentFileName;
+
                 filesList.add(new TJobExecutionFile(currentFileName,
-                        getFileUrl(relativeFilePath), serviceName));
+                        getFileUrl(relativeFilePath),
+                        getFileUrl(relativeEncodedFilePath), serviceName));
             }
         }
         return filesList;
