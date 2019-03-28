@@ -20,11 +20,11 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.dao.TraceRepository;
+import io.elastest.etm.service.AbstractMonitoringService;
+import io.elastest.etm.service.DatabaseSessionManager;
 import io.elastest.etm.service.DockerEtmService;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.EtPluginsService;
-import io.elastest.etm.service.AbstractMonitoringService;
-import io.elastest.etm.service.DatabaseSessionManager;
 import io.elastest.etm.service.TracesSearchService;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.service.client.EtmMiniSupportServiceClient;

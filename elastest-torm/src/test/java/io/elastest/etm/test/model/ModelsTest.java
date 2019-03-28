@@ -1,8 +1,10 @@
 package io.elastest.etm.test.model;
 
 import static org.junit.Assert.assertEquals;
-
 import static org.junit.Assert.assertTrue;
+import static pl.pojo.tester.api.FieldPredicate.exclude;
+import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;
+import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsForAll;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.model.Enums.ProtocolEnum;
@@ -30,11 +33,8 @@ import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.service.DockerExecution;
 import pl.pojo.tester.api.assertion.Method;
 
-import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsFor;
-import static pl.pojo.tester.api.assertion.Assertions.assertPojoMethodsForAll;
-import static pl.pojo.tester.api.FieldPredicate.exclude;
-
 @RunWith(JUnitPlatform.class)
+@SpringBootTest(properties = "io.reflectoring.scheduling.enabled=false")
 public class ModelsTest {
 
     @Test

@@ -4,22 +4,16 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.service.LogstashService;
+import io.elastest.etm.test.IntegrationBaseTest;
 
 @RunWith(JUnitPlatform.class)
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class LogstashServiceItTest {
+public class LogstashServiceItTest extends IntegrationBaseTest {
     final Logger log = getLogger(lookup().lookupClass());
 
     @Autowired

@@ -10,30 +10,24 @@ import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.spotify.docker.client.messages.LogConfig;
 
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
-import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.service.DockerEtmService;
+import io.elastest.etm.test.IntegrationBaseTest;
 import io.elastest.etm.test.util.StompTestUtils.WaitForMessagesHandler;
 
 @RunWith(JUnitPlatform.class)
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class DockerServiceItTest {
+public class DockerServiceItTest extends IntegrationBaseTest {
 
     private static final Logger log = LoggerFactory
             .getLogger(DockerServiceItTest.class);

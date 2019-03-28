@@ -18,11 +18,9 @@ import io.elastest.etm.model.Project;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.service.AbstractMonitoringService;
 import io.elastest.etm.service.DatabaseSessionManager;
-import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.TJobExecOrchestratorService;
 import io.elastest.etm.service.TJobService;
-import io.elastest.etm.service.TracesSearchService;
 import io.elastest.etm.test.extensions.MockitoExtension;
 import io.elastest.etm.utils.UtilsService;
 

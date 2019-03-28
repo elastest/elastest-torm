@@ -5,54 +5,50 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.api.model.ExternalJob;
 
 @RunWith(JUnitPlatform.class)
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ExternalApiItTest extends EtmApiItTest {
 
-	static final Logger log = LoggerFactory.getLogger(ExternalApiItTest.class);
+    static final Logger log = LoggerFactory.getLogger(ExternalApiItTest.class);
 
-	@Test
-	public void testCreateExternalJob() {
-		log.info("Start the test testCreateTJob");
+    @Test
+    public void testCreateExternalJob() {
+        log.info("Start the test testCreateTJob");
 
-		String requestJson = "{ \"jobName\" : \"ExternalJobName\" }";
+        String requestJson = "{ \"jobName\" : \"ExternalJobName\" }";
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-		HttpEntity<String> entity = new HttpEntity<String>(requestJson, headers);
+        HttpEntity<String> entity = new HttpEntity<String>(requestJson,
+                headers);
 
-		log.info("POST /api/external/tjob");
-		ResponseEntity<ExternalJob> response = httpClient.postForEntity("/api/external/tjob", entity, ExternalJob.class);
-		
-		if(response.getStatusCode() != HttpStatus.OK){
-			log.warn("Error creating external Job: "+response);
-		}
-		
-		log.info("TJob created:" + response.getBody());
+        log.info("POST /api/external/tjob");
+        ResponseEntity<ExternalJob> response = httpClient
+                .postForEntity("/api/external/tjob", entity, ExternalJob.class);
 
-		assertAll("Validating tJob Properties", 
-			() -> assertTrue(response.getBody().getJobName().equals("ExternalJobName")),
-			() -> assertNotNull(response.getBody().gettJobExecId()));
+        if (response.getStatusCode() != HttpStatus.OK) {
+            log.warn("Error creating external Job: " + response);
+        }
 
-	}
+        log.info("TJob created:" + response.getBody());
+
+        assertAll("Validating tJob Properties",
+                () -> assertTrue(response.getBody().getJobName()
+                        .equals("ExternalJobName")),
+                () -> assertNotNull(response.getBody().gettJobExecId()));
+
+    }
 
 }

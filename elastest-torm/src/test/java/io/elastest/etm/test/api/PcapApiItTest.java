@@ -5,28 +5,22 @@ import static org.junit.Assert.assertTrue;
 
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
-import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.service.DockerEtmService;
+import io.elastest.etm.test.IntegrationBaseTest;
 import io.elastest.etm.utils.UtilTools;
 
 @RunWith(JUnitPlatform.class)
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class PcapApiItTest {
+public class PcapApiItTest extends IntegrationBaseTest {
     private Logger log = Logger.getLogger(PcapApiItTest.class);
 
     @Autowired

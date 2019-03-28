@@ -13,25 +13,19 @@ import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutSpecification;
@@ -41,8 +35,6 @@ import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 
 @RunWith(JUnitPlatform.class)
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class SutApiItTest extends EtmApiItTest {
 
     static final Logger log = LoggerFactory.getLogger(SutApiItTest.class);

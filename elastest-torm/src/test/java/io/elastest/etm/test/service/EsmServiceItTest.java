@@ -7,22 +7,16 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import io.elastest.etm.ElasTestTormApp;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.service.EsmService;
+import io.elastest.etm.test.IntegrationBaseTest;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = ElasTestTormApp.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @TestInstance(Lifecycle.PER_CLASS)
-public class EsmServiceItTest {
+public class EsmServiceItTest extends IntegrationBaseTest {
 	
 	private static final Logger logger = LoggerFactory.getLogger(EsmService.class);
 	

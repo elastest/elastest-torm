@@ -10,8 +10,8 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -29,14 +29,15 @@ import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
-import io.elastest.etm.model.TJob;
-import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
+import io.elastest.etm.model.TJob;
+import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.test.IntegrationBaseTest;
 
-public class EtmApiItTest {
+public class EtmApiItTest extends IntegrationBaseTest {
 
     final Logger log = getLogger(lookup().lookupClass());
 
@@ -49,13 +50,13 @@ public class EtmApiItTest {
     protected String baseUrl() {
         return "http://localhost:" + serverPort;
     }
-    
+
     protected static Map<String, SutSpecification> sutExamples;
-    
+
     @BeforeAll
     public static void initData() {
         sutExamples = new HashMap<>();
-        
+
         SutSpecification sutExample1 = new SutSpecification();
         sutExample1.setId(new Long(0));
         sutExample1.setName("sut_definition_1");
@@ -71,28 +72,21 @@ public class EtmApiItTest {
         sutExample1.setPort(null);
         sutExample1.setManagedDockerType(ManagedDockerType.IMAGE);
         sutExample1.setCommandsOption(CommandsOptionEnum.DEFAULT);
-        
+
         SutSpecification sutExample2 = new SutSpecification();
         sutExample2.setId(new Long(0));
         sutExample2.setName("sut_definition_1");
-        sutExample2.setDescription("This is a SuT description example using docker-compose");
-        sutExample2.setSpecification("version: '2.1'\n" + 
-                "services:\n" + 
-                "   dummy-sut:\n" + 
-                "      image: elastest/dummy-tss\n" + 
-                "      environment:\n" + 
-                "         - USE_TORM=true\n" + 
-                "      expose:\n" + 
-                "         - 8095\n" + 
-                "      networks:\n" + 
-                "         - elastest_elastest      \n" + 
-                "      labels:\n" + 
-                "         - io.elastest.type=tss\n" + 
-                "         - io.elastest.tjob.tss.id=dummy-tss\n" + 
-                "         - io.elastest.tjob.tss.type=main\n" + 
-                "networks:\n" + 
-                "  elastest_elastest:\n" + 
-                "    external: true");
+        sutExample2.setDescription(
+                "This is a SuT description example using docker-compose");
+        sutExample2.setSpecification("version: '2.1'\n" + "services:\n"
+                + "   dummy-sut:\n" + "      image: elastest/dummy-tss\n"
+                + "      environment:\n" + "         - USE_TORM=true\n"
+                + "      expose:\n" + "         - 8095\n" + "      networks:\n"
+                + "         - elastest_elastest      \n" + "      labels:\n"
+                + "         - io.elastest.type=tss\n"
+                + "         - io.elastest.tjob.tss.id=dummy-tss\n"
+                + "         - io.elastest.tjob.tss.type=main\n" + "networks:\n"
+                + "  elastest_elastest:\n" + "    external: true");
         sutExample2.setMainService("dummy-sut");
         sutExample2.setSutType(SutTypeEnum.MANAGED);
         sutExample2.setManagedDockerType(ManagedDockerType.COMPOSE);
@@ -101,7 +95,7 @@ public class EtmApiItTest {
         sutExample2.setCurrentSutExec(null);
         sutExample2.setInstrumentedBy(InstrumentedByEnum.WITHOUT);
         sutExample2.setPort(null);
-        
+
         sutExamples.put("sutFromImage", sutExample1);
         sutExamples.put("sutFromCompose", sutExample2);
     }
@@ -175,7 +169,7 @@ public class EtmApiItTest {
         sut = getSutById(sut.getId());
         return sut;
     }
-    
+
     protected TJob getSampleTJobWithSut(long projectId, long sutId) {
         TJob tJob = this.getSampleTJob(projectId);
 
@@ -198,12 +192,11 @@ public class EtmApiItTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(Include.NON_NULL);
         JsonNode node = mapper.convertValue(tJob, JsonNode.class);
-        ((ObjectNode)node).remove("selectedServicesObj");
-        ((ObjectNode)node).remove("supportServicesObj");
-                
+        ((ObjectNode) node).remove("selectedServicesObj");
+        ((ObjectNode) node).remove("supportServicesObj");
+
         String requestJson = mapper.writeValueAsString(node);
         log.info("Json request {}", requestJson);
-        
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -236,10 +229,9 @@ public class EtmApiItTest {
         return response.getBody();
 
     }
-    
-    protected TJob createTJob(TJob tJob)
-            throws JsonProcessingException {
-        
+
+    protected TJob createTJob(TJob tJob) throws JsonProcessingException {
+
         ResponseEntity<TJob> response = createTJobByGiven(tJob);
         log.info("TJob creation response: " + response);
 
