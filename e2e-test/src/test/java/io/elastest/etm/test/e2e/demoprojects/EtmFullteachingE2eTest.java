@@ -212,7 +212,7 @@ public class EtmFullteachingE2eTest extends EtmBaseTest {
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssMap, null);
+                    tJobImage, false, commands, null, tssMap, null, null);
         } else {
             navigateToETProject(driver, projectName);
         }

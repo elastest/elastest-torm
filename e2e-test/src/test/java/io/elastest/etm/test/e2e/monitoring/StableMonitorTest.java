@@ -86,7 +86,7 @@ public class StableMonitorTest extends EtmBaseTest {
             String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-multiple-browsers-test; mvn -Dtest=WebAppTest -B -Dbrowser=chrome test;";
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssMap, null);
+                    tJobImage, false, commands, null, tssMap, null, null);
         }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
@@ -112,7 +112,7 @@ public class StableMonitorTest extends EtmBaseTest {
             String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-multiple-browsers-test; mvn -Dtest=WebAppTest -B -Dbrowser=firefox test;";
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
-                    tJobImage, false, commands, null, tssMap, null);
+                    tJobImage, false, commands, null, tssMap, null, null);
         }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);
@@ -144,7 +144,7 @@ public class StableMonitorTest extends EtmBaseTest {
 
             createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
                     tJobImage, false, commands, null, tssMap,
-                    multiConfigurations);
+                    multiConfigurations, null);
         }
         // Run TJob
         runTJobFromProjectPage(driver, tJobName);

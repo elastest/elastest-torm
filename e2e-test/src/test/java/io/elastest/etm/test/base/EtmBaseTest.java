@@ -71,7 +71,7 @@ public class EtmBaseTest {
 
     protected String tormUrl = "http://172.17.0.1:37000/"; // local by default
     protected String secureTorm = "http://user:pass@172.17.0.1:37000/";
-    protected static final String TSS_PAGE_SUFFIX = "#/support-services"; 
+    protected static final String TSS_PAGE_SUFFIX = "#/support-services";
     protected String apiPath = "api";
     protected String tormApiUrl;
     protected String eUser = null;
@@ -183,8 +183,8 @@ public class EtmBaseTest {
 
     protected void navigateToRoot(WebDriver driver) {
         log.info("Navigating to Root Path (/)");
-        driver.findElement(By.xpath(
-                "//*[@id=\\\"main_nav\\\"]/div/mat-toolbar/span"))
+        driver.findElement(
+                By.xpath("//*[@id=\\\"main_nav\\\"]/div/mat-toolbar/span"))
                 .click();
     }
 
@@ -302,7 +302,7 @@ public class EtmBaseTest {
         } catch (InterruptedException e) {
             log.error("Time Slot between actions interrupted.");
         }
-        
+
         WebElement element = getElementsByXpath(driver, xpath, secondsTimeout)
                 .get(0);
         if (withScroll) {
@@ -420,7 +420,7 @@ public class EtmBaseTest {
     }
 
     protected boolean etProjectExists(WebDriver driver, String projectName) {
-        navigateToProjects(driver);        
+        navigateToProjects(driver);
         log.info("Checking if Project {} exists", projectName);
         String projectsTableXpath = getProjectsTableXpathFromProjectPage();
 
@@ -635,7 +635,7 @@ public class EtmBaseTest {
     protected void selectItem(WebDriver driver, String item,
             String selectDesc) {
         String sutSelectXpath = "//*[@placeholder='" + selectDesc + "']";
-                
+
         this.getElementByXpath(driver, sutSelectXpath).click();
 
         if (item != null) {
@@ -751,19 +751,27 @@ public class EtmBaseTest {
             String testResultPath, String sutName, String dockerImage,
             boolean imageCommands, String commands,
             Map<String, String> parameters, Map<String, List<String>> tssMap,
-            Map<String, List<String>> multiConfigurations) {
+            Map<String, List<String>> multiConfigurations,
+            Integer maxExecutions) {
         log.info("Wait for the \"New TJob\" button");
         getElementById(driver, "newTJobBtn").click();
 
         log.info("Creating TJob...");
         WebDriverWait waitService2 = new WebDriverWait(driver, 20); //
-        By serviceFieldTJobName = By.name("tJobName");
-        waitService2.until(visibilityOfElementLocated(serviceFieldTJobName));
-        driver.findElement(serviceFieldTJobName).sendKeys(tJobName);
+        By tJobNameField = By.name("tJobName");
+        waitService2.until(visibilityOfElementLocated(tJobNameField));
+        driver.findElement(tJobNameField).sendKeys(tJobName);
 
         if (testResultPath != null) {
             driver.findElement(By.name("resultsPath")).sendKeys(testResultPath);
         }
+
+        if (maxExecutions == null) {
+            maxExecutions = 5;
+        }
+
+        driver.findElement(By.name("maxExecutions"))
+                .sendKeys(maxExecutions + "");
 
         // Select SuT
         String sutSelectXpath = "//mat-select/div/div/span[contains(string(), 'Select a SuT')]";
@@ -900,7 +908,7 @@ public class EtmBaseTest {
 
         log.info("Create and wait for instance");
         getElementById(driver, "create_instance").click();
-        
+
         log.info("Navigate for instance view");
         getElementByXpath(driver, "//button[@title='View Service Detail']", 240)
                 .click();
@@ -991,6 +999,7 @@ public class EtmBaseTest {
             return null;
         }
     }
+
     public void setupTestBrowser(TestInfo testInfo, BrowserType browser,
             WebDriver driver) throws MalformedURLException {
         setupTestBrowser(testInfo, browser, "latest", driver);
@@ -1012,7 +1021,7 @@ public class EtmBaseTest {
                 caps.setBrowserName("firefox");
             }
             caps.setCapability("testName", testName);
-            if (!browserVersion.equals(BROWSER_VERSION_LATEST)){
+            if (!browserVersion.equals(BROWSER_VERSION_LATEST)) {
                 log.info("Use this browser version: {}", browserVersion);
                 caps.setVersion(browserVersion);
             }
@@ -1029,7 +1038,7 @@ public class EtmBaseTest {
         } catch (InterruptedException e) {
         }
     }
-    
+
     protected void deleteTSSInstance(WebDriver driver) {
         WebElement tssId = getElementByXpath(driver,
                 "//*[@id=\"tss-instances\"]/div/table/tbody/tr[1]/td[1]/div/span");
