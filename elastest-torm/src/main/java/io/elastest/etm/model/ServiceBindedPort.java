@@ -1,14 +1,14 @@
 package io.elastest.etm.model;
 
-public class SocatBindedPort {
+public class ServiceBindedPort {
     String listenPort;
     String bindedPort;
     String containerId;
 
-    public SocatBindedPort() {
+    public ServiceBindedPort() {
     }
 
-    public SocatBindedPort(String listenPort, String bindedPort,
+    public ServiceBindedPort(String listenPort, String bindedPort,
             String containerId) {
         this.listenPort = listenPort;
         this.bindedPort = bindedPort;

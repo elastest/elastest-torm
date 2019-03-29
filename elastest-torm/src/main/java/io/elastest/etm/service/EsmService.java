@@ -1,7 +1,6 @@
 package io.elastest.etm.service;
 
 import static java.lang.invoke.MethodHandles.lookup;
-import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.File;
@@ -27,7 +26,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,20 +33,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
-import io.elastest.epm.client.service.EpmService;
 import io.elastest.epm.client.service.ServiceException;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
 import io.elastest.etm.model.EusExecutionData;
-import io.elastest.etm.model.SocatBindedPort;
+import io.elastest.etm.model.Execution;
+import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
-import io.elastest.etm.model.TJobExecutionFile;
 import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.model.external.ExternalTJobExecution;
+import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.service.client.SupportServiceClientInterface;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.ParserService;
@@ -148,10 +146,9 @@ public class EsmService {
     public String EUS_TSS_ID;
 
     public SupportServiceClientInterface supportServiceClient;
-    public DockerEtmService dockerEtmService;
     public EtmContextAuxService etmContextAuxService;
     public EtmFilesService filesServices;
-    public EpmService epmService;
+    public PlatformService platformService;
 
     private Map<String, SupportServiceInstance> servicesInstances;
     private Map<String, SupportServiceInstance> tJobServicesInstances;
@@ -165,15 +162,6 @@ public class EsmService {
     private List<String> tSSNameLoadedOnInit;
     // Map of TSS name-id
     private Map<String, String> tssLoadedOnInitMap;
-
-    private String tJobsFolder = "tjobs";
-    private String tJobFolderPrefix = "tjob_";
-    private String tJobExecFolderPefix = "exec_";
-
-    private String externalTJobsFolder = "external_tjobs";
-    private String externalTJobFolderPrefix = "external_tjob_";
-    private String externalTJobExecFolderPefix = "external_exec_";
-
     private final TJobExecRepository tJobExecRepositoryImpl;
     private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
     private final DynamicDataService dynamicDataService;
@@ -183,32 +171,32 @@ public class EsmService {
 
     @Autowired
     public EsmService(SupportServiceClientInterface supportServiceClient,
-            DockerEtmService dockerEtmService, EtmFilesService filesServices,
-            EtmContextAuxService etmContextAuxService, EpmService epmService,
+            EtmFilesService filesServices,
+            EtmContextAuxService etmContextAuxService,
             TJobExecRepository tJobExecRepositoryImpl,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
             DynamicDataService dynamicDataService,
             WebDriverService eusWebDriverService,
-            EtPluginsService etPluginsService, UtilsService utilsService) {
+            EtPluginsService etPluginsService, UtilsService utilsService,
+            PlatformService platformService) {
         this.supportServiceClient = supportServiceClient;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
         this.externalTJobServicesInstances = new HashMap<>();
         this.tSSIByTJobExecAssociated = new HashMap<>();
         this.tSSIByExternalTJobExecAssociated = new HashMap<>();
-        this.dockerEtmService = dockerEtmService;
         this.tSSIdLoadedOnInit = new ArrayList<>();
         this.tSSNameLoadedOnInit = new ArrayList<>(Arrays.asList("EUS"));
         this.tssLoadedOnInitMap = new HashMap<>();
         this.filesServices = filesServices;
         this.etmContextAuxService = etmContextAuxService;
-        this.epmService = epmService;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
         this.dynamicDataService = dynamicDataService;
         this.eusWebDriverService = eusWebDriverService;
         this.etPluginsService = etPluginsService;
         this.utilsService = utilsService;
+        this.platformService = platformService;
     }
 
     @PostConstruct
@@ -258,17 +246,11 @@ public class EsmService {
             TssManifest manifest = supportServiceClient
                     .getManifestBySupportServiceInstance(eusInstance);
             eusInstance.setManifestId(manifest.getId());
-
-            String etmHost = dockerEtmService.getEtmHost();
-
-            eusInstance.setContainerIp(etmHost);
-
-            String serviceIp = etmHost;
+            String serviceIp = platformService.getEtmHost();
+            eusInstance.setContainerIp(serviceIp);
             int internalServicePort = Integer.parseInt(etmServerPort);
             int bindedServicePort = Integer.parseInt(etProxyPort);
-
             int servicePort = internalServicePort;
-
             eusInstance.setInternalServiceIp(serviceIp);
 
             if (!utilsService.isDefaultEtPublicHost()) {
@@ -396,12 +378,10 @@ public class EsmService {
         supportServiceClient.registerManifest("{ " + "\"id\": "
                 + serviceDefJson.get("manifest").get("id").toString()
                 + ", \"manifest_content\": "
-                + serviceDefJson
-                        .get("manifest").get("manifest_content").toString()
+                + serviceDefJson.get("manifest").get("manifest_content")
+                        .toString()
                 + ", \"manifest_type\": "
-                + (EpmService.etMasterSlaveMode ? "\"epm\""
-                        : serviceDefJson.get("manifest").get("manifest_type")
-                                .toString())
+                + serviceDefJson.get("manifest").get("manifest_type").toString()
                 + ", \"plan_id\": "
                 + serviceDefJson.get("manifest").get("plan_id").toString()
                 + ", \"service_id\": "
@@ -509,13 +489,14 @@ public class EsmService {
     public void registerTJobExecutionInEus(String tssInstanceId,
             String serviceName, TJobExecution tJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
-            String folderPath = this.getTJobExecFolderPath(tJobExec, true)
-                    + serviceName.toLowerCase() + "/";
+            String folderPath = filesServices.getTJobExecFolderPath(tJobExec,
+                    true) + serviceName.toLowerCase() + "/";
 
             // If is Jenkins, config EUS to start browsers at sut network
             boolean useSutNetwork = tJobExec.getTjob().isExternal();
-            String sutContainerPrefix = dockerEtmService
-                    .getSutPrefixBySuffix(tJobExec.getId().toString());
+            String sutContainerPrefix = platformService.generateContainerName(
+                    PlatformService.ContainerPrefix.SUT,
+                    new Execution(tJobExec));
 
             EusExecutionData eusExecutionData = new EusExecutionData(tJobExec,
                     folderPath, useSutNetwork, sutContainerPrefix);
@@ -554,8 +535,9 @@ public class EsmService {
         if (servicesInstances.containsKey(tssInstanceId)) {
 
             boolean useSutNetwork = tJobExec.getTjob().isExternal();
-            String sutContainerPrefix = dockerEtmService
-                    .getSutPrefixBySuffix(tJobExec.getId().toString());
+            String sutContainerPrefix = platformService.generateContainerName(
+                    PlatformService.ContainerPrefix.SUT,
+                    new Execution(tJobExec));
 
             EusExecutionData eusExecutionData = new EusExecutionData(tJobExec,
                     "", useSutNetwork, sutContainerPrefix);
@@ -754,8 +736,7 @@ public class EsmService {
 
         String resultMsg = "Waiting for the Test Support Services to be ready";
         logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
-        dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                ResultEnum.WAITING_TSS, resultMsg);
+        updateTJobExecResultStatus(tJobExec, ResultEnum.WAITING_TSS, resultMsg);
         while (!tSSInstAssocToTJob.isEmpty()) {
             tJobExec.getServicesInstances().forEach((tSSInstId) -> {
                 SupportServiceInstance mainSubService = getTJobServiceInstancesById(
@@ -790,8 +771,7 @@ public class EsmService {
             String instanceId, String serviceName) {
         String resultMsg = "Waiting for the Test Support Services to be ready: "
                 + serviceName.toUpperCase();
-        dockerEtmService.updateTJobExecResultStatus(tJobExec,
-                ResultEnum.WAITING_TSS, resultMsg);
+        updateTJobExecResultStatus(tJobExec, ResultEnum.WAITING_TSS, resultMsg);
 
         logger.debug("Wait for TSS {} in TJob Execution {}", serviceName,
                 tJobExec.getId());
@@ -829,7 +809,7 @@ public class EsmService {
             if (!DockerServiceStatusEnum.STARTING.equals(tssInstanceStatus)
                     && !DockerServiceStatusEnum.READY
                             .equals(tssInstanceStatus)) {
-                dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.STARTING_TSS,
                         tssInstance.getStatusMsg());
 
@@ -839,36 +819,15 @@ public class EsmService {
                     e.printStackTrace();
                 }
                 this.waitForTssStartedInMini(tJobExec, instanceId, serviceName);
-
-                // } else if (DockerServiceStatusEnum.STARTING
-                // .equals(tssInstance.getStatus())
-                // || DockerServiceStatusEnum.READY
-                // .equals(tssInstance.getStatus())) {
-                // // TODO use etPluginsService.waitForReady(projectName, 2500);
-                // // Now it's only wait for STARTING status
-                // // Update instance in map to have the entrypoint values
-                // tssInstance = supportServiceClient
-                // .initSupportServiceInstanceData(tssInstance);
-                // tJobServicesInstances.put(instanceId, tssInstance);
-                //
-                // }
-
-                // If status STARTING OR (READY and not serviceReady)
-
-                /*
-                 * (*READY status is set in checkIfEtPluginUrl when ip and port
-                 * is available but TSS can not be started because socat is not
-                 * ready, for example)
-                 */
             } else if (DockerServiceStatusEnum.STARTING
                     .equals(tssInstanceStatus)
                     || (DockerServiceStatusEnum.READY.equals(tssInstanceStatus)
                             && !tssInstance.isFullyInitialized())) {
-                dockerEtmService.updateTJobExecResultStatus(tJobExec,
+                updateTJobExecResultStatus(tJobExec,
                         TJobExecution.ResultEnum.WAITING_TSS,
                         tssInstance.getStatusMsg());
 
-                etPluginsService.initAndGetEtPluginUrl(instanceId,
+                etPluginsService.getEtPluginUrl(instanceId,
                         tssInstance.getContainerName());
                 boolean isUp = checkInstanceUrlIsUp(tssInstance);
 
@@ -906,7 +865,7 @@ public class EsmService {
         if (tJobExec != null && tJobExec.getTjob() != null) {
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
-                    this.getTJobExecFolderPath(tJobExec)
+                    filesServices.getTJobExecFolderPath(tJobExec)
                             + supportServiceInstance.getServiceName()
                                     .toLowerCase()
                             + fileSeparator);
@@ -914,7 +873,8 @@ public class EsmService {
             if (!utilsService.isElastestMini()) {
                 supportServiceInstance.getParameters()
                         .put("ET_FILES_PATH_IN_HOST", etDataInHost
-                                + this.getTJobExecFolderPath(tJobExec, true)
+                                + filesServices.getTJobExecFolderPath(tJobExec,
+                                        true)
                                 + supportServiceInstance.getServiceName()
                                         .toLowerCase()
                                 + fileSeparator);
@@ -925,21 +885,6 @@ public class EsmService {
                     etDataInHost);
         }
 
-    }
-
-    public String getTJobExecFolderPath(TJobExecution tJobExec) {
-        return getTJobExecFolderPath(tJobExec, false);
-    }
-
-    public String getTJobExecFolderPath(TJobExecution tJobExec,
-            boolean relativePath) {
-        String fileSeparator = "/";
-        String path = (relativePath ? "" : etSharedFolder) + fileSeparator
-                + tJobsFolder + fileSeparator + tJobFolderPrefix
-                + tJobExec.getTjob().getId() + fileSeparator
-                + tJobExecFolderPefix + tJobExec.getId() + fileSeparator;
-        logger.info("TJob Workspace: {}", path);
-        return path;
     }
 
     private void fillTJobExecEnvVariablesToTSS(
@@ -1049,8 +994,8 @@ public class EsmService {
     public void registerExternalTJobExecutionInEus(String tssInstanceId,
             String serviceName, ExternalTJobExecution exTJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
-            String folderPath = this.getExternalTJobExecFolderPath(exTJobExec,
-                    true) + serviceName.toLowerCase() + "/";
+            String folderPath = filesServices.getExternalTJobExecFolderPath(
+                    exTJobExec, true) + serviceName.toLowerCase() + "/";
             EusExecutionData eusExecutionData = new EusExecutionData(exTJobExec,
                     folderPath);
             String response = "";
@@ -1114,7 +1059,7 @@ public class EsmService {
         if (exTJobExec != null && exTJobExec.getExTJob() != null) {
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
-                    this.getExternalTJobExecFolderPath(exTJobExec)
+                    filesServices.getExternalTJobExecFolderPath(exTJobExec)
                             + supportServiceInstance.getServiceName()
                                     .toLowerCase()
                             + fileSeparator);
@@ -1123,8 +1068,8 @@ public class EsmService {
             if (!utilsService.isElastestMini()) {
                 supportServiceInstance.getParameters()
                         .put("ET_FILES_PATH_IN_HOST", etDataInHost
-                                + this.getExternalTJobExecFolderPath(exTJobExec,
-                                        true)
+                                + filesServices.getExternalTJobExecFolderPath(
+                                        exTJobExec, true)
                                 + supportServiceInstance.getServiceName()
                                         .toLowerCase()
                                 + fileSeparator);
@@ -1134,21 +1079,6 @@ public class EsmService {
             supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
                     etDataInHost);
         }
-    }
-
-    public String getExternalTJobExecFolderPath(
-            ExternalTJobExecution exTJobExe) {
-        return getExternalTJobExecFolderPath(exTJobExe, false);
-    }
-
-    public String getExternalTJobExecFolderPath(
-            ExternalTJobExecution exTJobExec, boolean relativePath) {
-        String fileSeparator = "/";
-        return (relativePath ? "" : etSharedFolder) + fileSeparator
-                + externalTJobsFolder + fileSeparator + externalTJobFolderPrefix
-                + exTJobExec.getExTJob().getId() + fileSeparator
-                + externalTJobExecFolderPefix + exTJobExec.getId()
-                + fileSeparator;
     }
 
     private void fillExternalTJobExecEnvVariablesToTSS(
@@ -1306,11 +1236,11 @@ public class EsmService {
                             .getEndpointsBindingsPorts().get(nodePort));
                 } else {
                     try {
-                        SocatBindedPort socatBindedPortObj = dockerEtmService
-                                .bindingPort(serviceInstance.getContainerIp(),
+                        ServiceBindedPort socatBindedPortObj = platformService
+                                .getBindingPort(
+                                        serviceInstance.getContainerIp(), null,
                                         node.get("port").toString(),
-                                        networkName,
-                                        epmService.etMasterSlaveMode);
+                                        networkName);
                         serviceInstance.getPortBindingContainers()
                                 .add(socatBindedPortObj.getContainerId());
                         bindedPort = Integer
@@ -1476,30 +1406,14 @@ public class EsmService {
             for (String containerId : serviceInstance
                     .getPortBindingContainers()) {
                 logger.debug("Socat container to remove: {}", containerId);
-                try {
-                    dockerEtmService.dockerService
-                            .stopDockerContainer(containerId);
-                    dockerEtmService.dockerService
-                            .removeDockerContainer(containerId);
-                } catch (Exception e) {
-                    logger.error("Error on stop and remove container {}",
-                            containerId, e);
-                }
+                platformService.undeployTSSByContainerId(containerId);
             }
 
             for (SupportServiceInstance subServiceInstance : serviceInstance
                     .getSubServices()) {
                 for (String containerId : subServiceInstance
                         .getPortBindingContainers()) {
-                    try {
-                        dockerEtmService.dockerService
-                                .stopDockerContainer(containerId);
-                        dockerEtmService.dockerService
-                                .removeDockerContainer(containerId);
-                    } catch (Exception e) {
-                        logger.error("Error on stop and remove container {}",
-                                containerId, e);
-                    }
+                    platformService.undeployTSSByContainerId(containerId);
                 }
             }
             supportServiceClient.deprovisionServiceInstance(instanceId,
@@ -1689,129 +1603,6 @@ public class EsmService {
 
     }
 
-    public List<TJobExecutionFile> getTJobExecutionFilesUrls(Long tJobId,
-            Long tJobExecId) throws InterruptedException {
-        logger.info("Retrived the files generated by the TJob execution: {}",
-                tJobExecId);
-
-        String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
-        String tJobExecFilePath = tJobsFolder + fileSeparator + tJobFolderPrefix
-                + tJobId + fileSeparator + tJobExecFolderPefix + tJobExecId
-                + fileSeparator;
-
-        List<TJobExecutionFile> filesList = null;
-        try {
-            filesList = this.getFilesUrls(fileSeparator, tJobExecFilePath);
-        } catch (IOException fnfe) {
-            logger.warn("Error building the URLs of the execution files {}",
-                    tJobExecId);
-        }
-        return filesList;
-    }
-
-    public List<TJobExecutionFile> getExternalTJobExecutionFilesUrls(
-            Long exTJobId, Long exTJobExecId) throws InterruptedException {
-        logger.info("Retrived the files generated by the TJob execution: {}",
-                exTJobExecId);
-
-        String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
-        String tJobExecFilePath = externalTJobsFolder + fileSeparator
-                + externalTJobFolderPrefix + exTJobId + fileSeparator
-                + externalTJobExecFolderPefix + exTJobExecId + fileSeparator;
-
-        List<TJobExecutionFile> filesList = null;
-        try {
-            filesList = this.getFilesUrls(fileSeparator, tJobExecFilePath);
-        } catch (IOException fnfe) {
-            logger.warn("Error building the URLs of the execution files {}",
-                    exTJobExecId);
-        }
-        return filesList;
-    }
-
-    public List<TJobExecutionFile> getFilesUrls(String fileSeparator,
-            String tJobExecFilePath) throws InterruptedException, IOException {
-        List<TJobExecutionFile> filesList = new ArrayList<TJobExecutionFile>();
-
-        String tJobExecFolder = etSharedFolder.endsWith(fileSeparator)
-                ? etSharedFolder
-                : etSharedFolder + fileSeparator;
-        tJobExecFolder += tJobExecFilePath;
-        logger.debug("Shared folder: " + tJobExecFolder);
-
-        File file = ResourceUtils.getFile(tJobExecFolder);
-
-        if (file.exists()) {
-            List<String> servicesFolders = new ArrayList<>(
-                    Arrays.asList(file.list()));
-            for (String serviceFolderName : servicesFolders) {
-                try {
-                    Thread.sleep(2000L);
-                } catch (InterruptedException ie) {
-                    logger.error("Thread sleep fail");
-                    throw ie;
-                }
-                logger.debug("Files folder:" + serviceFolderName);
-                String fullPathFolder = tJobExecFolder + serviceFolderName;
-                logger.debug("Full path:" + fullPathFolder);
-                File serviceFolder = ResourceUtils.getFile(fullPathFolder);
-
-                filesList.addAll(this.getFilesByFolder(serviceFolder,
-                        tJobExecFilePath + serviceFolderName + fileSeparator,
-                        serviceFolderName, fileSeparator));
-            }
-        }
-
-        return filesList;
-    }
-
-    public List<TJobExecutionFile> getFilesByFolder(File folder,
-            String relativePath, String serviceName, String fileSeparator)
-            throws IOException {
-        String absolutePath = etSharedFolder + relativePath;
-        if (etSharedFolder.endsWith("/") && relativePath.startsWith("/")) {
-            absolutePath = etSharedFolder + relativePath.replaceFirst("/", "");
-        } else {
-            if (!etSharedFolder.endsWith("/")
-                    && !relativePath.startsWith("/")) {
-                absolutePath = etSharedFolder + "/" + relativePath;
-            }
-        }
-        List<TJobExecutionFile> filesList = new ArrayList<TJobExecutionFile>();
-
-        List<String> folderFilesNames = new ArrayList<>(
-                Arrays.asList(folder.list()));
-
-        for (String currentFileName : folderFilesNames) {
-            String absoluteFilePath = absolutePath + currentFileName;
-            String relativeFilePath = relativePath + currentFileName;
-
-            File currentFile = ResourceUtils.getFile(absoluteFilePath);
-            if (currentFile.isDirectory()) {
-                filesList.addAll(this.getFilesByFolder(currentFile,
-                        relativeFilePath + fileSeparator, serviceName,
-                        fileSeparator));
-            } else {
-                String encodedCurrentFileName = URLEncoder
-                        .encode(currentFileName, "UTF-8");
-                String relativeEncodedFilePath = relativePath
-                        + encodedCurrentFileName;
-                
-                filesList.add(new TJobExecutionFile(currentFileName,
-                        getFileUrl(relativeFilePath),
-                        getFileUrl(relativeEncodedFilePath), serviceName));
-            }
-        }
-        return filesList;
-    }
-
-    public String getFileUrl(String serviceFilePath) throws IOException {
-        String urlResponse = contextPath.replaceFirst("/", "")
-                + registryContextPath + "/"
-                + serviceFilePath.replace("\\\\", "/");
-        return urlResponse;
-    }
-
     private void createExecFilesFolder(
             SupportServiceInstance supportServiceInstance) {
         logger.info("try to create folder.");
@@ -1854,11 +1645,6 @@ public class EsmService {
     private void fillEnvVariablesToTSS(
             SupportServiceInstance supportServiceInstance)
             throws ServiceException {
-
-        if (epmService.etMasterSlaveMode) {
-            supportServiceInstance.getParameters().put("pop_name", epmService
-                    .getPopName(epmService.getRe().getHostIp(), "compose"));
-        }
 
         supportServiceInstance.getParameters()
                 .putAll(etmContextAuxService.getMonitoringEnvVars(true));
@@ -2127,5 +1913,32 @@ public class EsmService {
     public boolean isSharedTssInstanceByServiceId(String serviceId) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
         return isSharedTssInstance(serviceName);
+    }
+
+    public void updateExecutionResultStatus(Execution execution,
+            ResultEnum result, String msg) {
+        if (execution.isExternal()) {
+            ExternalTJobExecution externalTJobExec = execution
+                    .getExternalTJobExec();
+            updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
+        } else {
+            TJobExecution tJobExec = execution.getTJobExec();
+            updateTJobExecResultStatus(tJobExec, result, msg);
+        }
+    }
+
+    public void updateTJobExecResultStatus(TJobExecution tJobExec,
+            ResultEnum result, String msg) {
+        tJobExec.setResult(result);
+        tJobExec.setResultMsg(msg);
+        tJobExecRepositoryImpl.save(tJobExec);
+    }
+
+    public void updateExternalTJobExecResultStatus(
+            ExternalTJobExecution externalTJobExec, ResultEnum result,
+            String msg) {
+        externalTJobExec.setResult(result);
+        externalTJobExec.setResultMsg(msg);
+        externalTJobExecutionRepository.save(externalTJobExec);
     }
 }

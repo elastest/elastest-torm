@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.elastest.etm.model.ContextInfo;
+import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
@@ -35,25 +36,18 @@ public class EtmContextAuxService {
     public String etProxyInternalSSLPort;
     @Value("${et.proxy.host}")
     public String etProxyHost;
-
     @Value("${elastest.docker.network}")
     private String elastestNetwork;
-
     @Value("${et.etm.testlink.host}")
     public String etEtmTestLinkHost;
-
     @Value("${et.edm.elasticsearch.path.with-proxy}")
     public String etEtmElasticsearchPathWithProxy;
-
     @Value("${et.etm.rabbit.path.with-proxy}")
     public String etEtmRabbitPathWithProxy;
-
     @Value("${exec.mode}")
     String execMode;
-
     @Value("${additional.server.port}")
     int additionalServerPort;
-
     @Value("${et.mini.etm.monitoring.http.path}")
     String etMiniEtmMonitoringHttpPath;
 
@@ -87,22 +81,18 @@ public class EtmContextAuxService {
     public String lsTcpHost;
     @Value("${et.etm.lstcp.port}")
     public String lsTcpPort;
-
     @Value("${et.etm.binded.lstcp.host}")
     public String bindedLsTcpHost;
     @Value("${et.etm.binded.lstcp.port}")
     public String bindedLsTcpPort;
-
     @Value("${et.etm.internal.lstcp.port}")
     public String internalLsTcpPort;
-
     @Value("${et.etm.binded.internal.lstcp.port}")
     public String bindedInternalLsTcpPort;
 
     /* ** Others ** */
     @Value("${et.etm.logstash.path.with-proxy}")
     public String logstashPathWithProxy;
-
     @Value("${et.emp.grafana.context-path}")
     private String etEmpGrafanContextPath;
     @Value("${et.emp.grafana.dashboard}")
@@ -110,16 +100,15 @@ public class EtmContextAuxService {
     @Value("${et.edm.command.context-path}")
     private String etEdmCommandContextPath;
 
-    private DockerEtmService dockerEtmService;
     private UtilsService utilsService;
-
     private ContextInfo contextInfo;
+    private PlatformService platformService;
 
-    public EtmContextAuxService(DockerEtmService dockerEtmService,
-            UtilsService utilsService) {
-        this.dockerEtmService = dockerEtmService;
+    public EtmContextAuxService(UtilsService utilsService,
+            PlatformService platformService) {
         this.utilsService = utilsService;
         this.contextInfo = new ContextInfo();
+        this.platformService = platformService;
     }
 
     @PostConstruct
@@ -149,7 +138,7 @@ public class EtmContextAuxService {
 
         String logstashOrEtmMiniHost = null;
         try {
-            logstashOrEtmMiniHost = dockerEtmService.getLogstashHost();
+            logstashOrEtmMiniHost = platformService.getLogstashHost();
         } catch (Exception e) {
             logger.error("Error on get logstash host ip", e);
         }
@@ -160,8 +149,7 @@ public class EtmContextAuxService {
 
         String hostIpByNetwork = proxyIp;
         try {
-            hostIpByNetwork = dockerEtmService.dockerService
-                    .getHostIpByNetwork(elastestNetwork);
+            hostIpByNetwork = platformService.getEtmHost();
         } catch (Exception e) {
             logger.error("Error on get host ip", e);
         }
@@ -277,14 +265,13 @@ public class EtmContextAuxService {
             if ((etInProd && utilsService.isDefaultEtPublicHost())
                     || !etInProd) {
                 logger.debug("Logstash host by getLogstashHost");
-                logstashHost = dockerEtmService.dockerService
-                        .getHostIpByNetwork(elastestNetwork);
+                logstashHost = platformService.getEtmHost();
             } else if (etInProd && !utilsService.isDefaultEtPublicHost()) {
                 logger.debug("Logstash host is the server address");
                 logstashHost = utilsService.getEtPublicHostValue();
             } else {
                 logger.debug("Logstash host by getLogstashHost");
-                logstashHost = dockerEtmService.getLogstashHost();
+                logstashHost = platformService.getLogstashHost();
             }
 
             return logstashHost;

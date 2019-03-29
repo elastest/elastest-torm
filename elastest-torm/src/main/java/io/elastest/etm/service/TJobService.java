@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.ws.http.HTTPException;
@@ -27,10 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.xml.sax.SAXException;
 
-import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
-import io.elastest.etm.model.EimMonitoringConfig.BeatsStatusEnum;
 import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
@@ -43,6 +42,7 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
 import io.elastest.etm.model.TJobExecutionFile;
+import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.TestResultParser;
 import io.elastest.etm.utils.UtilsService;
 
@@ -60,34 +60,67 @@ public class TJobService {
     private final TJobRepository tJobRepo;
     private final TJobExecRepository tJobExecRepositoryImpl;
     public final TJobExecOrchestratorService tJobExecOrchestratorService;
-    private final EsmService esmService;
-    private DatabaseSessionManager dbmanager;
     private UtilsService utilsService;
     private AbstractMonitoringService monitoringService;
+    private EtmTestResultService etmTestResultService;
+    private EtmFilesService etmFilesService;
 
     Map<String, Future<Void>> asyncExecs = new HashMap<String, Future<Void>>();
 
     public TJobService(TJobRepository tJobRepo,
             TJobExecRepository tJobExecRepositoryImpl,
             TJobExecOrchestratorService epmIntegrationService,
-            EsmService esmService, DatabaseSessionManager dbmanager,
             UtilsService utilsService,
-            AbstractMonitoringService monitoringService) {
+            AbstractMonitoringService monitoringService,
+            EtmTestResultService etmTestResultService,
+            EtmFilesService etmFilesService) {
         super();
         this.tJobRepo = tJobRepo;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.tJobExecOrchestratorService = epmIntegrationService;
-        this.esmService = esmService;
-        this.dbmanager = dbmanager;
         this.utilsService = utilsService;
         this.monitoringService = monitoringService;
+        this.etmTestResultService = etmTestResultService;
+        this.etmFilesService = etmFilesService;
     }
 
     @PreDestroy
     private void preDestroy() {
-        dbmanager.bindSession();
         this.stopAllRunningTJobs();
-        dbmanager.unbindSession();
+    }
+
+    @PostConstruct
+    private void init() {
+        manageZombieJobs();
+    }
+
+    public void manageZombieJobs() {
+        logger.info("Looking for zombie Jobs");
+        // Clean non finished TJob Executions
+        List<TJobExecution> notFinishedOrExecutedExecs = this.tJobExecRepositoryImpl
+                .findByResults(ResultEnum.getNotFinishedOrExecutedResultList());
+        if (notFinishedOrExecutedExecs != null) {
+            logger.info("Cleaning non finished TJob Executions ({} total):",
+                    notFinishedOrExecutedExecs.size());
+            for (TJobExecution currentExec : notFinishedOrExecutedExecs) {
+                logger.debug("Cleaning TJobExecution {}...",
+                        currentExec.getId());
+                try {
+                    currentExec = tJobExecOrchestratorService
+                            .forceEndExecution(currentExec);
+                } catch (Exception e) {
+                    logger.error("Error on force end execution of {}",
+                            currentExec);
+                }
+                if (!currentExec.isFinished()) {
+                    String resultMsg = "Stopped";
+                    currentExec.setResult(ResultEnum.STOPPED);
+                    currentExec.setResultMsg(resultMsg);
+                    tJobExecRepositoryImpl.save(currentExec);
+                }
+            }
+        }
+        logger.info("End Manage zombie Jobs");
     }
 
     public void stopAllRunningTJobs() {
@@ -132,7 +165,8 @@ public class TJobService {
 
     public TJobExecution executeTJob(Long tJobId,
             List<Parameter> tJobParameters, List<Parameter> sutParameters,
-            List<MultiConfig> multiConfigs) throws HttpClientErrorException {
+            List<MultiConfig> multiConfigs, Map<String, String> externalLinks)
+            throws HttpClientErrorException {
         TJob tJob = tJobRepo.findById(tJobId).get();
 
         SutSpecification sut = tJob.getSut();
@@ -142,11 +176,7 @@ public class TJobService {
         if (sut != null && sut.isInstrumentedByElastest()
                 && sut.isInstrumentalize()
                 && (sut.getEimConfig() == null || (sut.getEimConfig() != null
-                        && sut.getEimConfig().getAgentId() == null))
-        // && sut.getEimMonitoringConfig() != null
-        // && sut.getEimMonitoringConfig()
-        // .getBeatsStatus() == BeatsStatusEnum.ACTIVATING
-        ) {
+                        && sut.getEimConfig().getAgentId() == null))) {
             throw new HttpClientErrorException(HttpStatus.ACCEPTED);
         }
 
@@ -187,7 +217,8 @@ public class TJobService {
                     tJob.getSelectedServices());
             asyncExecs.put(getMapNameByTJobExec(tJobExec), asyncExec);
         } else {
-            tJobExecOrchestratorService.executeExternalJob(tJobExec, false);
+            tJobExec.getExternalUrls().putAll(externalLinks);
+            tJobExecOrchestratorService.execFromExternalJob(tJobExec, false);
         }
 
         return tJobExec;
@@ -217,58 +248,6 @@ public class TJobService {
     }
 
     /* *** Execute Jenkins TJob *** */
-
-    public TJobExecution executeTJob(ExternalJob externalJob, Long tJobId,
-            List<Parameter> parameters, List<Parameter> sutParameters)
-            throws HttpClientErrorException {
-
-        // TODO MultiTJob
-        TJob tJob = tJobRepo.findById(tJobId).get();
-
-        SutSpecification sut = tJob.getSut();
-        // Checks if has sut instrumented by elastest and beats status is
-        // activating yet
-        if (sut != null && sut.isInstrumentedByElastest()
-                && sut.getEimMonitoringConfig() != null
-                && sut.getEimMonitoringConfig()
-                        .getBeatsStatus() == BeatsStatusEnum.ACTIVATING) {
-            throw new HttpClientErrorException(HttpStatus.ACCEPTED);
-        }
-
-        TJobExecution tJobExec = new TJobExecution();
-
-        if (utilsService.isElastestMini()) {
-            tJobExec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
-        } else {
-            tJobExec.setMonitoringStorageType(
-                    MonitoringStorageType.ELASTICSEARCH);
-        }
-
-        tJobExec.setStartDate(new Date());
-        if (tJob.getSut() != null && sutParameters != null
-                && !sutParameters.isEmpty()) {
-            tJob.getSut().setParameters(sutParameters);
-        }
-        tJobExec.setTjob(tJob);
-        if (parameters != null && !parameters.isEmpty()) {
-            tJobExec.setParameters(parameters);
-        }
-        if (externalJob.getBuildUrl() != null
-                && !externalJob.getBuildUrl().isEmpty()) {
-            tJobExec.getExternalUrls().put("jenkins-build-url",
-                    externalJob.getBuildUrl());
-        }
-        tJobExec = tJobExecRepositoryImpl.save(tJobExec);
-
-        // After first save, get real Id
-        tJobExec.generateMonitoringIndex();
-        tJobExec = tJobExecRepositoryImpl.save(tJobExec);
-
-        tJobExecOrchestratorService.executeExternalJob(tJobExec,
-                externalJob.isFromIntegratedJenkins());
-        return tJobExec;
-    }
-
     public TJobExecution stopTJobExec(Long tJobExecId) {
         TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId)
                 .get();
@@ -319,32 +298,15 @@ public class TJobService {
                             .testSuiteStringToReportTestSuite(testSuite));
                 } catch (ParserConfigurationException | SAXException
                         | IOException e) {
-                    // TODO Create a manual TestSuite with an error message
                     logger.error("Error on parse testSuite {}", e);
                 }
             }
 
-            tJobExecOrchestratorService.saveTestResults(testResultsReports,
-                    tJobExec);
+            etmTestResultService.saveTestResults(testResultsReports, tJobExec);
         }
-        try {
-            tJobExecOrchestratorService.deprovisionServices(tJobExec);
-        } catch (Exception e) {
-            logger.error(
-                    "Exception during desprovisioning of the TSS associated with an External TJob.");
-        }
-        if (tJobExec.isWithSut()) {
-            try {
-                DockerExecution dockerExec = new DockerExecution(tJobExec);
-                dockerExec.setSutExec(tJobExec.getSutExecution());
-                tJobExecOrchestratorService.endDockbeatExec(dockerExec, true);
-                tJobExecOrchestratorService.endSutExec(dockerExec, false);
-            } catch (Exception e) {
-                logger.error(
-                        "Error desprovisioning a SUT used in a TJob run from Jenkins.");
-            }
-        }
-
+        // Deprovioning resources
+        tJobExecOrchestratorService.releaseResourcesFromExtExecution(tJobExec);
+        // Set the execution result
         tJobExec.setResult(ResultEnum.values()[result]);
         tJobExec.setResultMsg("Finished: " + tJobExec.getResult());
         tJobExec.setEndDate(new Date());
@@ -662,7 +624,7 @@ public class TJobService {
 
     public List<TJobExecutionFile> getTJobExecutionFilesUrls(Long tJobId,
             Long tJobExecId) throws InterruptedException {
-        return esmService.getTJobExecutionFilesUrls(tJobId, tJobExecId);
+        return etmFilesService.getTJobExecutionFilesUrls(tJobId, tJobExecId);
     }
 
     public String getFileUrl(String serviceFilePath) throws IOException {

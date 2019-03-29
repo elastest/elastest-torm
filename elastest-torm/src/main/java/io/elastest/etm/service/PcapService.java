@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import io.elastest.epm.client.DockerContainer;
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.service.DockerService;
-import io.elastest.epm.client.service.EpmService;
 
 @Service
 public class PcapService {
@@ -50,7 +49,7 @@ public class PcapService {
 
             try {
                 dockerService.createAndStartContainerWithPull(dockerContainer,
-                        EpmService.etMasterSlaveMode, true);
+                        true);
                 return true;
             } catch (InterruptedException e) {
                 log.error("Pcap not started {}", execId, e);

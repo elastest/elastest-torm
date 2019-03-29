@@ -104,7 +104,7 @@ public class DockerIntegrationTest {
 
         dockerBuilder.portBindings(portBindings);
         dockerService.pullImage(imageId);
-        dockerService.createAndStartContainer(dockerBuilder.build(), false);
+        dockerService.createAndStartContainer(dockerBuilder.build());
 
         // Assertions
         assertTrue(dockerService.existsContainer(containerName));
@@ -131,7 +131,7 @@ public class DockerIntegrationTest {
         dockerBuilder.containerName(containerName);
 
         String containerId = this.dockerService
-                .createAndStartContainer(dockerBuilder.build(), false);
+                .createAndStartContainer(dockerBuilder.build());
         log.info("Container {} started with id {}", containerName,
                 containerId);
 

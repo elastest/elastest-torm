@@ -74,7 +74,7 @@ public class EimService {
             etPluginsService.startEngineOrUniquePlugin(eimProjectName);
 
             // Init URL
-            this.eimUrl = etPluginsService.initAndGetEtPluginUrl(eimProjectName);
+            this.eimUrl = etPluginsService.getEtPluginUrl(eimProjectName);
             this.eimUrl = this.eimUrl.endsWith("/") ? this.eimUrl
                     : this.eimUrl + "/";
             this.eimApiPath = this.eimApiPath.startsWith("/")

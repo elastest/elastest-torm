@@ -30,19 +30,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.spotify.docker.client.ProgressHandler;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
-import com.spotify.docker.client.exceptions.DockerException;
-import com.spotify.docker.client.messages.Container;
-import com.spotify.docker.client.messages.ProgressMessage;
-
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
-import io.elastest.epm.client.model.DockerPullImageProgress;
+import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
-import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.SupportServiceInstance;
+import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.utils.PasswordFactory;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
@@ -69,8 +63,6 @@ public class EtPluginsService {
     private static final String JENKINS_NAME = "jenkins";
     private static final String JENKINS_DISPLAY_NAME = "Jenkins";
 
-    public DockerComposeService dockerComposeService;
-    public DockerEtmService dockerEtmService;
     private UtilsService utilsService;
 
     Map<String, EtPlugin> enginesMap = new HashMap<>();
@@ -137,12 +129,12 @@ public class EtPluginsService {
     private String tmpEnginesYmlFolder;
     private String uniqueEtPluginsYmlFolder;
     private String tmpTssInstancesYmlFolder;
+    private PlatformService platformService;
 
-    public EtPluginsService(DockerComposeService dockerComposeService,
-            DockerEtmService dockerEtmService, UtilsService utilsService) {
-        this.dockerComposeService = dockerComposeService;
-        this.dockerEtmService = dockerEtmService;
+    public EtPluginsService(PlatformService platformService,
+            UtilsService utilsService) {
         this.utilsService = utilsService;
+        this.platformService = platformService;
     }
 
     public void registerEngines() {
@@ -250,11 +242,12 @@ public class EtPluginsService {
     public SupportServiceInstance createTssInstanceProject(String instanceId,
             String dockerComposeYml, SupportServiceInstance serviceInstance)
             throws Exception {
-        dockerComposeService.createProjectWithEnv(instanceId, dockerComposeYml,
-                tmpTssInstancesYmlFolder, true, serviceInstance.getParameters(),
-                false, false);
+        platformService.createServiceDeploymentProject(instanceId,
+                dockerComposeYml, tmpTssInstancesYmlFolder, true,
+                serviceInstance.getParameters(), false, false);
 
-        List<String> images = dockerComposeService.getProjectImages(instanceId);
+        List<String> images = platformService
+                .getServiceDeploymentImages(instanceId);
         serviceInstance.setImagesList(images);
 
         tssInstancesMap.put(instanceId, serviceInstance);
@@ -270,8 +263,9 @@ public class EtPluginsService {
             boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes,
             String ymlPath) {
         try {
-            dockerComposeService.createProject(name, dockerComposeYml, ymlPath,
-                    true, withBindedExposedPortsToRandom, withRemoveVolumes);
+            platformService.createServiceDeploymentProject(name,
+                    dockerComposeYml, ymlPath, true, null,
+                    withBindedExposedPortsToRandom, withRemoveVolumes);
         } catch (Exception e) {
             logger.error("Exception creating project {}", name, e);
         }
@@ -286,9 +280,9 @@ public class EtPluginsService {
             boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes,
             String ymlPath, Map<String, String> envs) {
         try {
-            dockerComposeService.createProjectWithEnv(name, dockerComposeYml,
-                    ymlPath, true, envs, withBindedExposedPortsToRandom,
-                    withRemoveVolumes);
+            platformService.createServiceDeploymentProject(name,
+                    dockerComposeYml, ymlPath, true, envs,
+                    withBindedExposedPortsToRandom, withRemoveVolumes);
         } catch (Exception e) {
             logger.error("Exception creating project {}", name, e);
         }
@@ -306,7 +300,7 @@ public class EtPluginsService {
 
     public EtPlugin stopEtPlugin(String projectName) {
         try {
-            dockerComposeService.stopProject(projectName);
+            platformService.undeployService(projectName);
             this.getEtPlugin(projectName).initToDefault();
         } catch (IOException e) {
             logger.error("Error while stopping EtPlugin {}", projectName);
@@ -315,8 +309,8 @@ public class EtPluginsService {
     }
 
     public boolean stopAndRemoveProject(String projectName) {
-        boolean removed = dockerComposeService
-                .stopAndRemoveProject(projectName);
+        boolean removed = platformService
+                .undeployAndCleanDeployment(projectName);
 
         if (!removed) {
             return removed;
@@ -355,8 +349,8 @@ public class EtPluginsService {
             this.updateStatus(projectName, DockerServiceStatusEnum.STARTING,
                     "Starting...");
             logger.debug("Starting {} plugin...", projectName);
-            dockerComposeService.startProject(projectName, false);
-            insertIntoETNetwork(projectName);
+            platformService.deployService(projectName, false);
+            platformService.insertIntoETNetwork(projectName, network);
         } catch (Exception e) {
             logger.error("Cannot start {} plugin", projectName, e);
             logger.error("Stopping service {}", projectName);
@@ -376,7 +370,7 @@ public class EtPluginsService {
         if (!isRunning(projectName)) {
             this.startEtPlugin(projectName);
         }
-        url = initAndGetEtPluginUrl(projectName);
+        url = getEtPluginUrl(projectName);
         this.waitForReady(projectName, 2500);
         this.getEtPlugin(projectName).setUrl(url);
         return this.getEtPlugin(projectName);
@@ -403,55 +397,32 @@ public class EtPluginsService {
                 .getImagesList();
 
         if (images == null || images.isEmpty()) {
-            images = dockerComposeService.getProjectImages(projectName);
+            images = platformService.getDeploymentImages(projectName);
             currentEtPluginMap.get(projectName).setImagesList(images);
         }
 
-        for (String image : images) {
-            ProgressHandler progressHandler = this
-                    .getEtPluginProgressHandler(projectName, image);
-
-            dockerComposeService.pullImageWithProgressHandler(projectName,
-                    progressHandler, image);
+        Map<String, EtPlugin> map = getMapThatContainsEtPlugin(projectName);
+        DockerServiceStatus serviceStatus = null;
+        if (map != null) {
+            serviceStatus = map.get(projectName);
         }
-    }
 
-    public ProgressHandler getEtPluginProgressHandler(String projectName,
-            String image) {
-        DockerPullImageProgress dockerPullImageProgress = new DockerPullImageProgress();
-        dockerPullImageProgress.setImage(image);
-        dockerPullImageProgress.setCurrentPercentage(0);
-
-        this.updateStatus(projectName, DockerServiceStatusEnum.PULLING,
-                "Pulling " + image + " image");
-        return new ProgressHandler() {
-            @Override
-            public void progress(ProgressMessage message)
-                    throws DockerException {
-                dockerPullImageProgress.processNewMessage(message);
-                String msg = "Pulling image " + image + " from " + projectName
-                        + " ET Plugin: "
-                        + dockerPullImageProgress.getCurrentPercentage() + "%";
-
-                updateStatus(projectName, DockerServiceStatusEnum.PULLING, msg);
-            }
-
-        };
-
+        platformService.pullDeploymentImages(projectName, serviceStatus, images,
+                true);
     }
 
     /* ************************** */
     /* *** Wait/Check methods *** */
     /* ************************** */
 
-    public String initAndGetEtPluginUrl(String serviceName) {
+    public String getEtPluginUrl(String serviceName) {
         if (serviceName == null) {
             return "";
         }
-        return initAndGetEtPluginUrl(serviceName, serviceName + "_1");
+        return getEtPluginUrl(serviceName, serviceName + "_1");
     }
 
-    public String initAndGetEtPluginUrl(String serviceName,
+    public String getEtPluginUrl(String serviceName,
             String containerNameSuffix) {
         String url = "";
         if (serviceName != null && containerNameSuffix != null) {
@@ -461,7 +432,7 @@ public class EtPluginsService {
                     return this.getUniqueEtPlugin(serviceName).getUrl();
                 }
 
-                for (DockerContainer container : dockerComposeService
+                for (DockerContainer container : platformService
                         .getContainers(serviceName).getContainers()) {
                     String containerName = container.getName(); // example:
                                                                 // ece_ece_1
@@ -474,10 +445,9 @@ public class EtPluginsService {
                         String ip = bindedIp;
                         boolean useBindedPort = true;
 
-                        if (dockerEtmService.dockerService
-                                .isContainerIntoNetwork(network,
-                                        containerName)) {
-                            internalIp = dockerEtmService.dockerService
+                        if (platformService.isContainerIntoNetwork(network,
+                                containerName)) {
+                            internalIp = platformService
                                     .getContainerIpByNetwork(containerName,
                                             network);
                         }
@@ -709,7 +679,7 @@ public class EtPluginsService {
                 return true;
             }
 
-            for (DockerContainer container : dockerComposeService
+            for (DockerContainer container : platformService
                     .getContainers(serviceName).getContainers()) {
                 String containerName = serviceName + "_" + serviceName + "_1";
                 if (container.getName().equals(containerName)
@@ -771,24 +741,12 @@ public class EtPluginsService {
 
         String internalHost = null;
         try {
-            for (Container container : dockerComposeService.dockerService
-                    .getAllContainers()) {
-                String currentContainerName = container.names().get(0); // example:
-
-                if (currentContainerName != null
-                        && currentContainerName.endsWith(serviceName + "_1")
-                        && dockerEtmService.dockerService
-                                .isContainerIntoNetwork(network,
-                                        currentContainerName)) {
-                    containerName = currentContainerName;
-                    internalHost = this.dockerEtmService.dockerService
-                            .getContainerIpByNetwork(containerName, network);
-                }
-            }
-
+            containerName = platformService.getContainerName(serviceName, network);
+            internalHost = platformService.getContainerIpByNetwork(containerName, network);
         } catch (Exception e) {
             logger.error("Error on get {} internal url", serviceName);
         }
+        
         String bindedHost = utilsService.getEtPublicHostValue();
 
         String internalUrl = "";
@@ -830,7 +788,7 @@ public class EtPluginsService {
             etPlugin.setStatusMsg("Ready");
             updateStatus(serviceName, DockerServiceStatusEnum.READY, "Ready");
         } else {
-            etPlugin.setUrl(initAndGetEtPluginUrl(serviceName));
+            etPlugin.setUrl(getEtPluginUrl(serviceName));
             // Check if ready and update
             if (!etPlugin.getStatus().equals(DockerServiceStatusEnum.READY)) {
                 this.checkIfEtPluginUrlIsUp(etPlugin);
@@ -885,7 +843,7 @@ public class EtPluginsService {
     }
 
     public String getUrlIfIsRunning(String engineName) {
-        return initAndGetEtPluginUrl(engineName);
+        return getEtPluginUrl(engineName);
     }
 
     public String getDockerCompose(String engineFileName) {
@@ -914,34 +872,6 @@ public class EtPluginsService {
             map.get(serviceName).setStatus(status);
             map.get(serviceName).setStatusMsg(statusMsg);
         }
-    }
-
-    public void insertIntoETNetwork(String engineName) throws Exception {
-        try {
-            for (DockerContainer container : dockerComposeService
-                    .getContainers(engineName).getContainers()) {
-                try {
-                    dockerEtmService.dockerService.insertIntoNetwork(network,
-                            container.getName());
-                    try {
-                        // Insert into bridge too
-                        dockerEtmService.dockerService.insertIntoNetwork(
-                                "bridge", container.getName());
-                    } catch (Exception e) {
-                        logger.error("Error on insert container "
-                                + container.getName() + " into bridge network");
-                    }
-                } catch (DockerException | InterruptedException
-                        | DockerCertificateException e) {
-                    throw new Exception(
-                            "Error on insert container " + container.getName()
-                                    + " into " + network + " network");
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
     }
 
     private String replaceProjectNameMatchesByElastestProjectName(

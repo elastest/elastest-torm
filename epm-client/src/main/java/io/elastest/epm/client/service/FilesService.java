@@ -19,6 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.io.FileUtils;
@@ -253,6 +254,39 @@ public class FilesService {
         return basePath != null && !basePath.isEmpty()
                 ? basePath + prefix + formatter.format(date)
                 : prefix + formatter.format(date);
+    }
+    
+    private void unTar(TarArchiveInputStream tis, File destFolder)
+            throws IOException {
+        TarArchiveEntry entry = null;
+        while ((entry = tis.getNextTarEntry()) != null) {
+            FileOutputStream fos = null;
+            try {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                File curfile = new File(destFolder, entry.getName());
+                File parent = curfile.getParentFile();
+                if (!parent.exists()) {
+                    parent.mkdirs();
+                }
+                fos = new FileOutputStream(curfile);
+                IOUtils.copy(tis, fos);
+            } catch (Exception e) {
+                logger.warn("Exception extracting recording {} to {}", tis,
+                        destFolder, e);
+            } finally {
+                try {
+                    if (fos != null) {
+                        fos.flush();
+                        fos.getFD().sync();
+                        fos.close();
+                    }
+                } catch (IOException e) {
+                    logger.warn("Exception closing {}", fos, e);
+                }
+            }
+        }
     }
 
 }

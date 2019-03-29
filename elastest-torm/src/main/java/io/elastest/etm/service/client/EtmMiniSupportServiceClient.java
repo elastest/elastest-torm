@@ -20,6 +20,7 @@ import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.TssManifest;
+import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.service.EtPluginsService;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
@@ -37,17 +38,16 @@ public class EtmMiniSupportServiceClient
     Map<String, SupportService> supportServicesMap;
     Map<String, TssManifest> tssManifestMap;
 
-    DockerComposeService dockerComposeService;
+    PlatformService platformService;
     EtPluginsService etPluginsService;
 
     UtilsService utilsService;
 
-    public EtmMiniSupportServiceClient(
-            DockerComposeService dockerComposeService,
-            EtPluginsService etPluginsService, UtilsService utilsService) {
-        this.dockerComposeService = dockerComposeService;
+    public EtmMiniSupportServiceClient(EtPluginsService etPluginsService,
+            UtilsService utilsService, PlatformService platformService) {
         this.etPluginsService = etPluginsService;
         this.utilsService = utilsService;
+        this.platformService = platformService;
         supportServicesMap = new HashMap<>();
         tssManifestMap = new HashMap<>();
     }
@@ -167,23 +167,25 @@ public class EtmMiniSupportServiceClient
         TssManifest manifest = supportServicesMap
                 .get(serviceInstance.getService_id()).getManifest();
         serviceInstance.setManifestId(manifest.getId());
-        
+
         if (serviceInstance.getContainerName() == null) {
             JsonNode manifestEndpoints = manifest.getEndpoints();
             Iterator<String> subServicesNames = manifestEndpoints.fieldNames();
 
             while (subServicesNames.hasNext()) {
                 String serviceName = subServicesNames.next();
-                logger.debug("Building service instance data for a {} TSS.", serviceName  );
+                logger.debug("Building service instance data for a {} TSS.",
+                        serviceName);
                 JsonNode manifestEndpointService = manifestEndpoints
                         .get(serviceName);
                 String containerName = serviceInstance.getInstanceId() + "_"
                         + serviceName + "_1";
                 try {
-                    String containerIp = dockerComposeService.dockerService
-                            .getContainerIp(containerName,
+                    String containerIp = platformService
+                            .getContainerIpByNetwork(containerName,
                                     etDockerNetwork);
-                    logger.debug("Container ip {} for the service {}", containerIp, containerName );
+                    logger.debug("Container ip {} for the service {}",
+                            containerIp, containerName);
                     logger.info("ET_PUBLIC_HOST value: "
                             + utilsService.getEtPublicHostValue());
 
@@ -194,10 +196,13 @@ public class EtmMiniSupportServiceClient
                     String serviceIp = !utilsService.isDefaultEtPublicHost()
                             ? bindedServiceIp
                             : internalServiceIp;
-                    
+
                     if (manifestEndpointService.get("main") != null
-                            && manifestEndpointService.get("main").booleanValue()) {
-                        logger.debug("Building data for the main sub-service {}", serviceName );
+                            && manifestEndpointService.get("main")
+                                    .booleanValue()) {
+                        logger.debug(
+                                "Building data for the main sub-service {}",
+                                serviceName);
                         serviceInstance.setContainerName(containerName);
                         serviceInstance.setInternalServiceIp(internalServiceIp);
                         serviceInstance.setBindedServiceIp(bindedServiceIp);
@@ -205,10 +210,12 @@ public class EtmMiniSupportServiceClient
                         serviceInstance.setEndpointName(serviceName);
                         serviceInstance.setContainerIp(containerIp);
                     } else {
-                        logger.debug("Building data for a sub-service {}", serviceName ); 
+                        logger.debug("Building data for a sub-service {}",
+                                serviceName);
                         SupportServiceInstance auxServiceInstance = null;
                         auxServiceInstance = new SupportServiceInstance();
-                        auxServiceInstance.setInternalServiceIp(internalServiceIp);
+                        auxServiceInstance
+                                .setInternalServiceIp(internalServiceIp);
                         auxServiceInstance.setBindedServiceIp(bindedServiceIp);
                         auxServiceInstance.setContainerName(containerName);
                         auxServiceInstance.setEndpointName(serviceName);
@@ -226,7 +233,8 @@ public class EtmMiniSupportServiceClient
                 }
             }
         }
-        logger.debug("Service instance to return {}", serviceInstance.getEndpointName());
+        logger.debug("Service instance to return {}",
+                serviceInstance.getEndpointName());
         return serviceInstance;
     }
 
@@ -242,11 +250,11 @@ public class EtmMiniSupportServiceClient
                 String serviceName = subServicesNames.next();
                 JsonNode manifestEndpointService = manifestEndpoints
                         .get(serviceName);
-                
+
                 SupportServiceInstance auxServiceInstance = null;
                 String containerName = serviceInstance.getInstanceId() + "_"
                         + manifest.getEndpoints().fieldNames().next() + "_1";
-                
+
                 if (manifestEndpointService.get("main") != null
                         && manifestEndpointService.get("main").booleanValue()) {
                     serviceInstance.setContainerName(containerName);
@@ -256,8 +264,7 @@ public class EtmMiniSupportServiceClient
                     auxServiceInstance.setContainerName(containerName);
                     auxServiceInstance
                             .setParameters(serviceInstance.getParameters());
-                    serviceInstance.getSubServices()
-                            .add(auxServiceInstance);
+                    serviceInstance.getSubServices().add(auxServiceInstance);
                 }
                 auxServiceInstance.setEndpointName(serviceName);
             }

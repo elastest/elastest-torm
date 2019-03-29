@@ -43,6 +43,7 @@ import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
+import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
@@ -103,6 +104,7 @@ public class ExternalService {
     private AbstractMonitoringService monitoringService;
     private UtilsService utilsService;
     private SutService sutService;
+    private EtmFilesService etmFilesService;
 
     public ExternalService(ProjectService projectService,
             TJobService tJobService,
@@ -115,7 +117,7 @@ public class ExternalService {
             EtmContextService etmContextService,
             LogstashService logstashService, UtilsService utilsService,
             TJobExecOrchestratorService tJobExecOrchestratorService,
-            SutService sutService) {
+            SutService sutService, EtmFilesService etmFilesService) {
         super();
         this.projectService = projectService;
         this.tJobService = tJobService;
@@ -132,6 +134,7 @@ public class ExternalService {
         this.utilsService = utilsService;
         this.tJobExecOrchestratorService = tJobExecOrchestratorService;
         this.sutService = sutService;
+        this.etmFilesService = etmFilesService;
     }
 
     public ExternalJob executeExternalTJob(ExternalJob externalJob) {
@@ -142,8 +145,14 @@ public class ExternalService {
             TJob tJob = createElasTestEntitiesForExtJob(externalJob);
 
             logger.debug("Creating TJobExecution.");
-            TJobExecution tJobExec = tJobService.executeTJob(externalJob,
-                    tJob.getId(), new ArrayList<>(), new ArrayList<>());
+            Map<String, String> externalLinks = new HashMap<>();
+            if (externalJob.getExecutionUrl() != null) {
+                externalLinks.put("jenkins-build-url",
+                        externalJob.getExecutionUrl());
+            }
+            TJobExecution tJobExec = tJobService.executeTJob(tJob.getId(),
+                    new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                    externalLinks);
             tJobService.removeOldTJobExecsAsync(tJob.getId());
 
             String etPublicHost = utilsService.getEtPublicHostValue();
@@ -602,7 +611,7 @@ public class ExternalService {
             Long exTJobExecId) throws InterruptedException {
         ExternalTJobExecution exTJobExec = externalTJobExecutionRepository
                 .findById(exTJobExecId).get();
-        return esmService.getExternalTJobExecutionFilesUrls(
+        return etmFilesService.getExternalTJobExecutionFilesUrls(
                 exTJobExec.getExTJob().getId(), exTJobExecId);
     }
 

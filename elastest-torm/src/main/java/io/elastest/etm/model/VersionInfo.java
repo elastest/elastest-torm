@@ -1,5 +1,7 @@
 package io.elastest.etm.model;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ImageInfo;
@@ -17,12 +19,15 @@ public class VersionInfo {
 
     @JsonProperty("tag")
     private String tag;
+    
+    private Date creationDate;
 
-    public VersionInfo(String commitId, String date, String tag) {
+    public VersionInfo(String commitId, String date, String tag, Date creationDate) {
         super();
         this.commitId = commitId;
         this.commitDate = date;
         this.tag = tag;
+        this.creationDate = creationDate;
     }
 
     public VersionInfo(ImageInfo imageInfo) {
@@ -39,6 +44,7 @@ public class VersionInfo {
         this.commitId = commit;
         this.commitDate = commitDate;
         this.tag = tag;
+        this.creationDate = imageInfo.created();
     }
 
     public VersionInfo(Container container) {
@@ -55,6 +61,7 @@ public class VersionInfo {
         this.commitId = commit;
         this.commitDate = commitDate;
         this.tag = tag;
+        this.creationDate = new Date(container.created());
     }
 
     public String getCommitId() {
@@ -79,6 +86,14 @@ public class VersionInfo {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 
     @Override

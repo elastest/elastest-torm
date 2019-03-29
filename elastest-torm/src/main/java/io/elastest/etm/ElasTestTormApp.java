@@ -18,17 +18,21 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
 import io.elastest.epm.client.service.DockerComposeService;
+import io.elastest.epm.client.service.DockerService;
 import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.dao.TraceRepository;
+import io.elastest.etm.platform.service.DockerServiceImpl;
+import io.elastest.etm.platform.service.K8ServiceImpl;
+import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.service.AbstractMonitoringService;
-import io.elastest.etm.service.DatabaseSessionManager;
-import io.elastest.etm.service.DockerEtmService;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.EtPluginsService;
+import io.elastest.etm.service.EtmTestResultService;
 import io.elastest.etm.service.TracesSearchService;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.service.client.EtmMiniSupportServiceClient;
 import io.elastest.etm.service.client.SupportServiceClientInterface;
+import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -38,23 +42,23 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableAsync
 @ComponentScan(basePackages = { "io.elastest" })
 public class ElasTestTormApp extends AsyncConfigurerSupport {
+    @Value("${et.enable.cloud.mode}")
+    public boolean enableCloudMode;
+
     @Autowired
     private UtilsService utilsService;
-
     @Autowired
     TraceRepository traceRepository;
-
     @Autowired
     TestSuiteRepository testSuiteRepository;
-
     @Autowired
     DockerComposeService dockerComposeService;
-
     @Autowired
-    DockerEtmService dockerEtmService;
-
+    EtmFilesService etmFilesService;
     @Autowired
-    DatabaseSessionManager dbmanager;
+    DockerService dockerService;
+    @Autowired
+    EtmTestResultService etmTestResultService;
 
     @Value("${additional.server.port}")
     int additionalServerPort;
@@ -87,25 +91,36 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     public AbstractMonitoringService getMonitoringService() {
         if (utilsService.isElastestMini()) {
             return new TracesSearchService(traceRepository, testSuiteRepository,
-                    utilsService, dbmanager);
+                    utilsService);
         } else {
-            return new ElasticsearchService(utilsService, testSuiteRepository,
-                    dbmanager);
+            return new ElasticsearchService(utilsService, testSuiteRepository);
         }
     }
 
     @Bean
     @Primary
-    public EtPluginsService getEtPluginsService() {
-        return new EtPluginsService(dockerComposeService, dockerEtmService,
-                utilsService);
+    public PlatformService platformService() {
+        PlatformService platformService = null;
+        if (enableCloudMode) {
+            platformService = new K8ServiceImpl();
+        } else {
+            platformService = new DockerServiceImpl(dockerComposeService, etmFilesService, utilsService, dockerService, etmTestResultService);
+        }
+        return platformService;
     }
 
     @Bean
+    @Primary
+    public EtPluginsService getEtPluginsService() {
+        return new EtPluginsService(platformService(), utilsService);
+    }
+
+    @Bean
+    // TODO Change dockerComposeService for the right platform implementation
     public SupportServiceClientInterface getSupportServiceClientInterface() {
         if (utilsService.isElastestMini()) {
-            return new EtmMiniSupportServiceClient(dockerComposeService,
-                    getEtPluginsService(), utilsService);
+            return new EtmMiniSupportServiceClient(getEtPluginsService(),
+                    utilsService, platformService());
         } else {
             return new EsmServiceClient(utilsService);
         }

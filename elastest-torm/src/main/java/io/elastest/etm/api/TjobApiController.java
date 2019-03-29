@@ -101,7 +101,7 @@ public class TjobApiController implements TjobApi {
         try {
             TJobExecution tJobExec = tJobService.executeTJob(tJobId,
                     parameters.gettJobParams(), parameters.getSutParams(),
-                    parameters.getMultiConfigurations());
+                    parameters.getMultiConfigurations(), null);
             tJobService.removeOldTJobExecsAsync(tJobId);
             return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
         } catch (HttpClientErrorException e) {
