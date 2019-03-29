@@ -47,6 +47,8 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     public boolean enableCloudMode;
 
     @Autowired
+    DatabaseSessionManager dbmanager;
+    @Autowired
     private UtilsService utilsService;
     @Autowired
     TraceRepository traceRepository;
@@ -60,8 +62,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     DockerService dockerService;
     @Autowired
     EtmTestResultService etmTestResultService;
-    @Autowired
-    DatabaseSessionManager dbmanager;
+
 
     @Value("${additional.server.port}")
     int additionalServerPort;
