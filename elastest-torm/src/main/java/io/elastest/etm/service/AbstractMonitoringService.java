@@ -37,6 +37,16 @@ public abstract class AbstractMonitoringService {
     protected UtilsService utilsService;
     protected DatabaseSessionManager dbmanager;
 
+    public AbstractMonitoringService() {
+    }
+
+    public AbstractMonitoringService(TestSuiteRepository testSuiteRepository,
+            UtilsService utilsService, DatabaseSessionManager dbmanager) {
+        this.utilsService = utilsService;
+        this.testSuiteRepository = testSuiteRepository;
+        this.dbmanager = dbmanager;
+    }
+
     public abstract void createMonitoringIndex(String[] indicesList);
 
     public abstract boolean deleteMonitoringDataByExec(String exec);

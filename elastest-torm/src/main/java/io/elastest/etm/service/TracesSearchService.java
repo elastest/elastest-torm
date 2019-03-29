@@ -55,9 +55,8 @@ public class TracesSearchService extends AbstractMonitoringService {
     public TracesSearchService(TraceRepository traceRepository,
             TestSuiteRepository testSuiteRepository, UtilsService utilsService,
             DatabaseSessionManager dbmanager) {
+        super(testSuiteRepository, utilsService, dbmanager);
         this.traceRepository = traceRepository;
-        this.testSuiteRepository = testSuiteRepository;
-        this.utilsService = utilsService;
         this.dbmanager = dbmanager;
     }
 
