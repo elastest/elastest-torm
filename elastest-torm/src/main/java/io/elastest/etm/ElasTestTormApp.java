@@ -25,6 +25,7 @@ import io.elastest.etm.platform.service.DockerServiceImpl;
 import io.elastest.etm.platform.service.K8ServiceImpl;
 import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.service.AbstractMonitoringService;
+import io.elastest.etm.service.DatabaseSessionManager;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.EtPluginsService;
 import io.elastest.etm.service.EtmTestResultService;
@@ -59,6 +60,8 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     DockerService dockerService;
     @Autowired
     EtmTestResultService etmTestResultService;
+    @Autowired
+    DatabaseSessionManager dbmanager;
 
     @Value("${additional.server.port}")
     int additionalServerPort;
@@ -91,9 +94,10 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     public AbstractMonitoringService getMonitoringService() {
         if (utilsService.isElastestMini()) {
             return new TracesSearchService(traceRepository, testSuiteRepository,
-                    utilsService);
+                    utilsService, dbmanager);
         } else {
-            return new ElasticsearchService(utilsService, testSuiteRepository);
+            return new ElasticsearchService(utilsService, testSuiteRepository,
+                    dbmanager);
         }
     }
 
@@ -104,7 +108,9 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
         if (enableCloudMode) {
             platformService = new K8ServiceImpl();
         } else {
-            platformService = new DockerServiceImpl(dockerComposeService, etmFilesService, utilsService, dockerService, etmTestResultService);
+            platformService = new DockerServiceImpl(dockerComposeService,
+                    etmFilesService, utilsService, dockerService,
+                    etmTestResultService);
         }
         return platformService;
     }

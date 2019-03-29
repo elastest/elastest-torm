@@ -41,6 +41,7 @@ import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.model.QTrace;
 import io.elastest.etm.model.TimeRange;
 import io.elastest.etm.model.Trace;
+import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
 public class TracesSearchService extends AbstractMonitoringService {
@@ -52,11 +53,14 @@ public class TracesSearchService extends AbstractMonitoringService {
     JPAQueryFactory queryFactory;
 
     public TracesSearchService(TraceRepository traceRepository,
-            TestSuiteRepository testSuiteRepository, UtilsService utilsService) {
+            TestSuiteRepository testSuiteRepository, UtilsService utilsService,
+            DatabaseSessionManager dbmanager) {
         this.traceRepository = traceRepository;
         this.testSuiteRepository = testSuiteRepository;
         this.utilsService = utilsService;
+        this.dbmanager = dbmanager;
     }
+
 
     @PostConstruct
     private void init() {
@@ -508,15 +512,20 @@ public class TracesSearchService extends AbstractMonitoringService {
 
         return this.getAggTreeList(tmpMetricsTreeMap);
     }
+
     /* *** Messages *** */
 
     public List<Trace> findMessage(String index, String msg,
             List<String> components) throws IOException {
+        String regex = ".*"
+                + UtilTools.replaceAllSpecialCharactersForQueryDsl(msg.trim())
+                + " .*";
+
         BooleanExpression query = QTrace.trace.exec.eq(index)
                 .and(QTrace.trace.component.in(components))
                 .and(QTrace.trace.stream.eq("default_log"))
-                .and(QTrace.trace.message.matches(".*" + msg.trim() + " .*")
-                        .or(QTrace.trace.message.matches(".*" + msg.trim())));
+                .and(QTrace.trace.message.matches(regex)
+                        .or(QTrace.trace.message.matches(regex)));
 
         return queryFactory.select(QTrace.trace).from(QTrace.trace).where(query)
                 .fetch();

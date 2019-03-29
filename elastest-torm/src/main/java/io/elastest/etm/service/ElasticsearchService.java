@@ -90,9 +90,11 @@ public class ElasticsearchService extends AbstractMonitoringService {
     RestHighLevelClient esClient;
 
     public ElasticsearchService(UtilsService utilsService,
-            TestSuiteRepository testSuiteRepository) {
+            TestSuiteRepository testSuiteRepository,
+            DatabaseSessionManager dbmanager) {
         this.utilsService = utilsService;
         this.testSuiteRepository = testSuiteRepository;
+        this.dbmanager = dbmanager;
     }
 
     public ElasticsearchService(String esApiUrl, String user, String pass,
