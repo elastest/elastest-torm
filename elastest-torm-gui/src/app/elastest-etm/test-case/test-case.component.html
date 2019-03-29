@@ -2,10 +2,22 @@
   <auto-height-row fxFlex="35" fxFlex.gt-lg="30" class="mat-content">
     <self-adjustable-card id="testCaseCard" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
       <sa-card-title>
-        <mat-icon *ngIf="testCase.result && testCase.result.name" [style.color]="testCase.result.color">{{
-          testCase.result.name
-        }}</mat-icon>
-        Test {{ testCase.name }}
+        <div fxLayout="row">
+          <mat-icon *ngIf="testCase.result && testCase.result.name" [style.color]="testCase.result.color">{{
+            testCase.result.name
+          }}</mat-icon>
+          Test {{ testCase.name }}
+          <span fxFlex></span>
+          <button
+            mat-button
+            (click)="viewInLogAnalyzer()"
+            [disabled]="!params"
+            class="onlyIconBtn"
+            matTooltip="View Case in Log Analyzer"
+          >
+            <mat-icon>library_books</mat-icon>
+          </button>
+        </div>
       </sa-card-title>
       <sa-card-content fxFlex id="cardContent">
         <mat-list id="testCaseInfo">

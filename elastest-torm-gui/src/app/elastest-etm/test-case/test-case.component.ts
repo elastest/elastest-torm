@@ -8,7 +8,6 @@ import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { FileModel } from '../files-manager/file-model';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import { MonitoringService } from '../../shared/services/monitoring.service';
-import { MatTabChangeEvent } from '@angular/material';
 
 @Component({
   selector: 'etm-test-case',
@@ -84,5 +83,28 @@ export class TestCaseComponent implements OnInit {
 
   goToTab(num: number): void {
     this.selectedTab = num;
+  }
+
+  viewInLogAnalyzer(): void {
+    if (this.testCase && this.params) {
+      this.router.navigate(
+        [
+          '/projects',
+          this.params.projectId,
+          'tjob',
+          this.params.tJobId,
+          'tjob-exec',
+          this.params.tJobExecId,
+          'testSuite',
+          this.params.testSuiteId,
+          'testCase',
+          this.testCase.id,
+          'loganalyzer',
+        ],
+        {
+          queryParams: { tjob: this.params.tJobId, exec: this.params.tJobExecId, testCase: this.testCase.name },
+        },
+      );
+    }
   }
 }

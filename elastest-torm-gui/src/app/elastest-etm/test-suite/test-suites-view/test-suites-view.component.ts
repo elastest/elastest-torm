@@ -72,6 +72,7 @@ export class TestSuitesViewComponent implements OnInit {
       );
     }
   }
+
   viewTestCaseDetails(suite: TestSuiteModel, testCase: TestCaseModel): void {
     if (this.tJobExec) {
       this.router.navigate([
