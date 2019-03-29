@@ -82,6 +82,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
     @DisplayName("Run a TJob with parameters, TSS, SUT deployed from image and check the logs ")
     @Test
+    @Disabled
     public void testTJobExecutionWithConfig()
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
@@ -97,6 +98,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
     @DisplayName("Run a TJob with parameters and commands, TSS, SUT deployed from image and check the logs ")
     @Test
+    @Disabled
     public void testTJobExecutionWithConfig1()
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
@@ -112,6 +114,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
     @DisplayName("Run a TJob with parameters and commands, TSS, SUT deployed from docker-compose and check the logs ")
     @Test
+    @Disabled
     public void testTJobExecutionWithConfig2()
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
