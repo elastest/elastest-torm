@@ -57,9 +57,7 @@ public class TracesSearchService extends AbstractMonitoringService {
             DatabaseSessionManager dbmanager) {
         super(testSuiteRepository, utilsService, dbmanager);
         this.traceRepository = traceRepository;
-        this.dbmanager = dbmanager;
     }
-
 
     @PostConstruct
     private void init() {
