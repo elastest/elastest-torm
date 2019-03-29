@@ -21,13 +21,11 @@ import io.elastest.etm.model.TestSuite;
 @Service
 public class EtmTestResultService {
     final Logger logger = getLogger(lookup().lookupClass());
-    
+
     private final TestSuiteRepository testSuiteRepo;
     private final TestCaseRepository testCaseRepo;
     private AbstractMonitoringService monitoringService;
-    
-    
-    
+
     public EtmTestResultService(TestSuiteRepository testSuiteRepo,
             TestCaseRepository testCaseRepo,
             AbstractMonitoringService monitoringService) {

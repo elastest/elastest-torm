@@ -1153,7 +1153,7 @@ public class DockerServiceImpl extends PlatformService {
             sutPrefix = containerName;
         }
 
-        // Add containers to dockerEtmService list
+        // Add containers to the containers list
         if (isDockerCompose) {
             List<Container> containersList = this.dockerService
                     .getContainersCreatedSinceId(getSutsByExecution()
@@ -1226,7 +1226,7 @@ public class DockerServiceImpl extends PlatformService {
         String sutIp = waitForContainerIpWithDockerExecution(containerName,
                 execution, timeout);
 
-        // Add containers to dockerEtmService list
+        // Add containers to the containers list
         if (isDockerCompose) {
             List<Container> containersList = this.dockerService
                     .getContainersCreatedSinceId(getSutContainerIdByExec(
