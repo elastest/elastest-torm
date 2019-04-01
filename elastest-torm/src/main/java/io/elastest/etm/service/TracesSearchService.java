@@ -53,7 +53,8 @@ public class TracesSearchService extends AbstractMonitoringService {
     JPAQueryFactory queryFactory;
 
     public TracesSearchService(TraceRepository traceRepository,
-            TestSuiteRepository testSuiteRepository, UtilsService utilsService) {
+            TestSuiteRepository testSuiteRepository,
+            UtilsService utilsService) {
         super(testSuiteRepository, utilsService);
         this.traceRepository = traceRepository;
     }
@@ -514,13 +515,12 @@ public class TracesSearchService extends AbstractMonitoringService {
     public List<Trace> findMessage(String index, String msg,
             List<String> components) throws IOException {
         String regex = ".*"
-                + UtilTools.replaceAllSpecialCharactersForQueryDsl(msg.trim())
-                + " .*";
+                + UtilTools.replaceAllSpecialCharactersForQueryDsl(msg.trim());
 
         BooleanExpression query = QTrace.trace.exec.eq(index)
                 .and(QTrace.trace.component.in(components))
                 .and(QTrace.trace.stream.eq("default_log"))
-                .and(QTrace.trace.message.matches(regex)
+                .and(QTrace.trace.message.matches(regex + " .*")
                         .or(QTrace.trace.message.matches(regex)));
 
         return queryFactory.select(QTrace.trace).from(QTrace.trace).where(query)
