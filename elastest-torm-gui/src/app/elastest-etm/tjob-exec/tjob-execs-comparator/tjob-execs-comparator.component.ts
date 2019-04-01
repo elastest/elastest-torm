@@ -61,7 +61,7 @@ export class TjobExecsComparatorComponent implements OnInit {
 
   ngOnInit(): void {
     this.titlesService.setHeadTitle('TJob Execs Comparator');
-    this.titlesService.setPathName(this.router.routerState.snapshot.url, 'TJob Execs Comparator');
+    this.titlesService.setPathName(this.router.routerState.snapshot.url);
     this.initComparator();
   }
 

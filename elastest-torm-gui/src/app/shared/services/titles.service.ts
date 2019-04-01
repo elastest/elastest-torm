@@ -41,6 +41,7 @@ export class TitlesService {
     this.breadcrumbService.addFriendlyNameForRouteRegex('.*/service-detail.*', '/ Service Detail');
     this.breadcrumbService.addFriendlyNameForRouteRegex('^(/loganalyzer)', 'Log Analyzer');
     this.breadcrumbService.addFriendlyNameForRouteRegex('.*/loganalyzer?.*', '/ Log Analyzer');
+    this.breadcrumbService.addFriendlyNameForRouteRegex('.*/comparator?.*', '/ TJob Execs Comparator');
     this.breadcrumbService.addFriendlyNameForRoute('/testlink', 'Testlink Projects');
     this.breadcrumbService.addFriendlyNameForRoute('/external', 'Testlink Projects');
     this.breadcrumbService.addFriendlyNameForRoute('/help', 'About Elastest');
