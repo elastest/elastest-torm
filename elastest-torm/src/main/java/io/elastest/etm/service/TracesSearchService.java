@@ -322,16 +322,36 @@ public class TracesSearchService extends AbstractMonitoringService {
                                 // + message;
                             }
                         } else {
-                            // Remove timestamp from message start (if has)
+                            /*
+                             * remove timestamp from the beginning of the
+                             * message (if there is)
+                             */
 
                             // 2019-03-01 10:54:01.462
-                            String msgWithTimestampRegex = "^\\d\\d\\d\\d*-\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\d\\s\\s";
+                            String msgWithTimestampRegex = "^\\d\\d\\d\\d*-\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\d\\s";
                             // Feb 25, 2019 11:15:34 AM
                             String msgWithTimestampRegex2 = "^[A-Z][a-z][a-z]\\s\\d\\d,\\s\\d\\d\\d\\d\\s\\d\\d:\\d\\d:\\d\\d\\s[A-Z][A-Z]\\s";
-                            message = message
-                                    .replaceFirst(msgWithTimestampRegex, "");
-                            message = message
-                                    .replaceFirst(msgWithTimestampRegex2, "");
+                            // 11:00:01.309
+                            String msgWithTimestampRegex3 = "^\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\d\\s";
+
+                            if (message.matches(msgWithTimestampRegex + ".*")) {
+                                message = message.replaceFirst(
+                                        msgWithTimestampRegex, "");
+                            } else if (message
+                                    .matches(msgWithTimestampRegex2 + ".*")) {
+
+                                message = message.replaceFirst(
+                                        msgWithTimestampRegex2, "");
+                            } else if (message
+                                    .matches(msgWithTimestampRegex3 + ".*")) {
+                                message = message.replaceFirst(
+                                        msgWithTimestampRegex3, "");
+                            }
+
+                            // If starts with space, remove
+                            if (message.startsWith(" ")) {
+                                message = message.replaceFirst("\\s", "");
+                            }
                         }
 
                         logs.add(message);
