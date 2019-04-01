@@ -353,10 +353,14 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     window.open(url);
   }
 
-  getRecordingUrl(testModel: EusTestModel): void {
+  getRecordingUrl(data: string): string {
+    return 'http://' + this.eusHost + ':' + this.eusPort + data;
+  }
+
+  opneRecordingInNewTab(testModel: EusTestModel): void {
     this.eusService.getRecording(testModel.id).subscribe(
       (data: string) => {
-        window.open('http://' + this.eusHost + ':' + this.eusPort + data);
+        window.open(this.getRecordingUrl(data));
       },
       (error: Error) => console.error(error),
     );
@@ -365,8 +369,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   viewRecording(testModel: EusTestModel): void {
     this.eusService.getRecording(testModel.id).subscribe(
       (data: string) => {
-        console.log(data);
-        let videoUrl: string = 'http://' + this.eusHost + ':' + this.eusPort + data;
+        let videoUrl: string = this.getRecordingUrl(data);
         console.log('Video URL: ' + videoUrl);
         this.viewSession(videoUrl, testModel, ' - recorded test', 'video');
       },

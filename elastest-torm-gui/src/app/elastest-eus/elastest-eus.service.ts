@@ -82,14 +82,15 @@ export class EusService {
         let spplitedUrl: CompleteUrlObj = getUrlObj(url);
         _obs.next(spplitedUrl);
       },
-      (error) => _obs.error(error),
+      (error: Error) => _obs.error(error),
     );
 
     return obs;
   }
 
   public startRecording(sessionId: string, hubContainerName: string, videoName: string = sessionId): Observable<any> {
-    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording/' + hubContainerName + '/start';
+    let url: string =
+      this.eusUrl + this.sessionPath + '/' + encodeURIComponent(sessionId) + '/recording/' + hubContainerName + '/start';
 
     return this.http.post(url, videoName, { observe: 'response' }).map((response: HttpResponse<any>) => {
       if (response) {
@@ -101,22 +102,23 @@ export class EusService {
   }
 
   public stopRecording(sessionId: string, hubContainerName: string): Observable<any> {
-    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording/' + hubContainerName + '/stop';
+    let url: string =
+      this.eusUrl + this.sessionPath + '/' + encodeURIComponent(sessionId) + '/recording/' + hubContainerName + '/stop';
     return this.http.delete(url);
   }
 
   public getRecording(sessionId: string): Observable<string> {
-    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording';
+    let url: string = this.eusUrl + this.sessionPath + '/' + encodeURIComponent(sessionId) + '/recording';
     return this.http.get(url, { responseType: 'text' });
   }
 
   public deleteRecording(sessionId: string): Observable<any> {
-    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/recording';
+    let url: string = this.eusUrl + this.sessionPath + '/' + encodeURIComponent(sessionId) + '/recording';
     return this.http.delete(url);
   }
 
   public stopSession(sessionId: string): Observable<any> {
-    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId;
+    let url: string = this.eusUrl + this.sessionPath + '/' + encodeURIComponent(sessionId);
     return this.http.delete(url);
   }
 
