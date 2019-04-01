@@ -259,9 +259,12 @@ public class DockerServiceImpl extends PlatformService {
             prefix = "sut_";
             if (sut.isSutInNewContainer()) {
                 suffix = sut.getSutInContainerAuxLabel();
+                containerName = generateContainerName(ContainerPrefix.SUT,
+                        execution, true);
+            } else {
+                containerName = generateContainerName(ContainerPrefix.SUT,
+                        execution);
             }
-            containerName = generateContainerName(ContainerPrefix.SUT,
-                    execution);
 
             sutPath = getSutPath(execution);
 

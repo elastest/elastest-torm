@@ -98,6 +98,11 @@ public abstract class PlatformService {
 
     public String generateContainerName(ContainerPrefix prefix,
             Execution execution) {
+        return this.generateContainerName(prefix, execution, false);
+    }
+    
+    public String generateContainerName(ContainerPrefix prefix,
+            Execution execution, boolean aux) {
         logger.info("Building container name with prefix: {}", prefix);
         String containerName = "";
         if (prefix == ContainerPrefix.SUT && execution.getSut() != null) {
@@ -109,13 +114,13 @@ public abstract class PlatformService {
             }
             SutSpecification sut = execution.getSut();
             containerName += (sut.isDockerCommandsSut()
-                    && sut.isSutInNewContainer()
+                    && sut.isSutInNewContainer() && aux
                     ? "_" + sut.getSutInContainerAuxLabel()
                     : "");
         } else {
             containerName = prefix.value + execution.getExecutionId();
         }
-        
+        logger.info("Sut container name generated: {}", containerName);
         return containerName;
     }
 
