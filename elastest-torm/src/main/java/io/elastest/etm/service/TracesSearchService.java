@@ -53,9 +53,8 @@ public class TracesSearchService extends AbstractMonitoringService {
     JPAQueryFactory queryFactory;
 
     public TracesSearchService(TraceRepository traceRepository,
-            TestSuiteRepository testSuiteRepository, UtilsService utilsService,
-            DatabaseSessionManager dbmanager) {
-        super(testSuiteRepository, utilsService, dbmanager);
+            TestSuiteRepository testSuiteRepository, UtilsService utilsService) {
+        super(testSuiteRepository, utilsService);
         this.traceRepository = traceRepository;
     }
 

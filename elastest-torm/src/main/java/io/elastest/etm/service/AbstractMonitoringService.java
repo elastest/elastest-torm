@@ -35,16 +35,13 @@ public abstract class AbstractMonitoringService {
 
     protected TestSuiteRepository testSuiteRepository;
     protected UtilsService utilsService;
-    protected DatabaseSessionManager dbmanager;
-
     public AbstractMonitoringService() {
     }
 
     public AbstractMonitoringService(TestSuiteRepository testSuiteRepository,
-            UtilsService utilsService, DatabaseSessionManager dbmanager) {
+            UtilsService utilsService) {
         this.utilsService = utilsService;
         this.testSuiteRepository = testSuiteRepository;
-        this.dbmanager = dbmanager;
     }
 
     public abstract void createMonitoringIndex(String[] indicesList);
@@ -271,13 +268,11 @@ public abstract class AbstractMonitoringService {
     @Async
     public void compareLogsPairAsync(MonitoringQuery body, String comparison,
             String view, String timeout, String processId) throws Exception {
-        dbmanager.bindSession();
         comparisonProcessMap.put(processId, processingComparationMsg);
         String comparisonString = this.compareLogsPair(body, comparison, view,
                 timeout);
         logger.debug("Async comparison with process ID {} ends", processId);
         comparisonProcessMap.put(processId, comparisonString);
-        dbmanager.unbindSession();
     }
 
     // This method consumes the comparison if is available

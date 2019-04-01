@@ -25,7 +25,6 @@ import io.elastest.etm.platform.service.DockerServiceImpl;
 import io.elastest.etm.platform.service.K8ServiceImpl;
 import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.service.AbstractMonitoringService;
-import io.elastest.etm.service.DatabaseSessionManager;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.EtPluginsService;
 import io.elastest.etm.service.EtmTestResultService;
@@ -46,8 +45,6 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Value("${et.enable.cloud.mode}")
     public boolean enableCloudMode;
 
-    @Autowired
-    DatabaseSessionManager dbmanager;
     @Autowired
     private UtilsService utilsService;
     @Autowired
@@ -95,10 +92,9 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     public AbstractMonitoringService getMonitoringService() {
         if (utilsService.isElastestMini()) {
             return new TracesSearchService(traceRepository, testSuiteRepository,
-                    utilsService, dbmanager);
+                    utilsService);
         } else {
-            return new ElasticsearchService(utilsService, testSuiteRepository,
-                    dbmanager);
+            return new ElasticsearchService(utilsService, testSuiteRepository);
         }
     }
 
