@@ -270,8 +270,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   }
 
   setRangeByGiven(
-    from: Date | string = this.getFromDateStr(),
-    to: Date | string = this.getToDateStr(),
+    from: Date | string = this.getFromDate(),
+    to: Date | string = this.getToDate(),
     includedFrom: boolean = true,
     includedTo: boolean = true,
   ): void {
@@ -775,25 +775,25 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     return dateToInputLiteral(this.logAnalyzer.getDefaultToDate());
   }
 
-  public getFromDateStr(): string {
+  public getFromDate(): any {
     return this.fromDate.nativeElement.value;
   }
 
-  public getToDateStr(): string {
+  public getToDate(): any {
     return this.toDate.nativeElement.value;
   }
 
-  public getFromDate(): Date {
-    let timezoneOffset: number = new Date().getTimezoneOffset();
-    let date: Date = new Date(this.getFromDateStr());
-    return new Date(date.getTime() - timezoneOffset * 60000);
-  }
+  // public getFromDate(): Date {
+  //   let timezoneOffset: number = new Date().getTimezoneOffset();
+  //   let date: Date = new Date(this.getFromDateStr());
+  //   return new Date(date.getTime() - timezoneOffset * 60000);
+  // }
 
-  public getToDate(): Date {
-    let timezoneOffset: number = new Date().getTimezoneOffset();
-    let date: Date = new Date(this.getToDateStr());
-    return new Date(date.getTime() - timezoneOffset * 60000);
-  }
+  // public getToDate(): Date {
+  //   let timezoneOffset: number = new Date().getTimezoneOffset();
+  //   let date: Date = new Date(this.getToDateStr());
+  //   return new Date(date.getTime() - timezoneOffset * 60000);
+  // }
 
   public setFromDate(date: Date): void {
     this.fromDate.nativeElement.value = dateToInputLiteral(date);
@@ -858,24 +858,10 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     }
   }
 
-  initTestCaseDate(): void {
-    let startDate: Date = this.getFromDate();
-    let finishDate: Date = this.getToDate();
-
-    startDate = new Date(startDate.getTime() - 1000);
-    finishDate = new Date(finishDate.getTime() + 1000);
-
-    this.setFromDate(startDate);
-    this.setToDate(finishDate);
-  }
-
   filterTestCase(testCase: string): void {
     this.showLoadMsg();
     let startMsg: string = this.logAnalyzerService.startTestCasePrefix + testCase;
     let endMsg: string = this.logAnalyzerService.endTestCasePrefix + testCase;
-
-    //
-    this.initTestCaseDate();
 
     // Search Start Msg
     // TODO use refactorized method into logAnalyzer Service
@@ -889,7 +875,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
             (finishData: any) => {
               if (finishData.length > 0) {
                 let finishRow: any = finishData[0];
-                this.setToDate(new Date(finishRow['@timestamp']));
+                // Add 1 second to solve end trace milliseconds and future searches
+                let toDate: Date = new Date(new Date(finishRow['@timestamp']).getTime() + 1000);
+                this.setToDate(toDate);
                 let finishRowFullMsg: string = finishRow.message;
                 this.logAnalyzerQueryModel.searchAfterTrace = startRow;
                 this.setRangeByGiven(startRow['@timestamp'], finishRow['@timestamp']);
@@ -941,8 +929,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     return this.logAnalyzerService.searchTraceByGivenMsg(
       msg,
       this.logAnalyzer.selectedIndices,
-      this.getFromDateStr(),
-      this.getToDateStr(),
+      this.getFromDate(),
+      this.getToDate(),
       this.logAnalyzer.maxResults,
     );
   }
