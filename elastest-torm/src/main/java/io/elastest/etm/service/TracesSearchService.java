@@ -536,7 +536,7 @@ public class TracesSearchService extends AbstractMonitoringService {
             List<String> components) throws IOException {
         String regex = ".*"
                 + UtilTools.replaceAllSpecialCharactersForQueryDsl(msg.trim());
-        logger.debug("aaa {}", regex);
+
         BooleanExpression query = QTrace.trace.exec.eq(index)
                 .and(QTrace.trace.component.in(components))
                 .and(QTrace.trace.stream.eq("default_log"))

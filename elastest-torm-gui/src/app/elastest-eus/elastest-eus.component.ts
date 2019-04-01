@@ -9,6 +9,8 @@ import { ConfigurationService } from '../config/configuration-service.service';
 import { AbstractTJobExecModel } from '../elastest-etm/models/abstract-tjob-exec-model';
 import { TJobExecModel } from '../elastest-etm/tjob-exec/tjobExec-model';
 import { ExternalTJobExecModel } from '../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
+import { TdDataTableSortingOrder, TdDataTableService, ITdDataTableSortChangeEvent } from '@covalent/core';
+import { isString } from '../shared/utils';
 
 @Component({
   selector: 'app-elastest-eus',
@@ -37,10 +39,14 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   recordingColumns: any[] = [
     { name: 'id', label: 'Session id' },
     { name: 'browser', label: 'Browser' },
-    { name: 'version', label: 'Version' },
+    { name: 'version', label: 'Version', sortable: false },
     { name: 'creationTime', label: 'Creation Time' },
-    { name: 'actions', label: 'Actions' },
+    { name: 'actions', label: 'Actions', sortable: false },
   ];
+
+  dateFields: string[] = ['creationTime'];
+  sortBy: string = 'creationTime';
+  sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Descending;
 
   activeBrowsersColumns: any[] = this.recordingColumns.concat([
     { name: 'status', label: 'Status' },
@@ -81,6 +87,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     private eusService: EusService,
     private eusDialog: ElastestEusDialogService,
     private configurationService: ConfigurationService,
+    private dataTableService: TdDataTableService,
   ) {}
 
   ngOnInit(): void {
@@ -262,19 +269,34 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     }
   }
 
-  sortRecordings(): void {
+  sortRecordingsByDate(): void {
     try {
       this.recordings = Array.from(
         this.recordings.sort((recording1: EusTestModel, recording2: EusTestModel) => {
-          let time1: Date = this.getDateFromEusCreationTime(recording1.creationTime);
-          let time2: Date = this.getDateFromEusCreationTime(recording2.creationTime);
+          let direction: number = 0;
+          if (this.sortOrder === TdDataTableSortingOrder.Descending) {
+            direction = 1;
+          } else if (this.sortOrder === TdDataTableSortingOrder.Ascending) {
+            direction = -1;
+          }
 
-          if (time1 > time2) {
-            return -1;
-          } else if (time1 < time2) {
-            return 1;
+          let time1: Date;
+          let time2: Date;
+
+          if (isString(recording1[this.sortBy])) {
+            time1 = this.getDateFromEusCreationTime(recording1[this.sortBy]);
+            time2 = this.getDateFromEusCreationTime(recording2[this.sortBy]);
           } else {
-            return 0;
+            time1 = recording1[this.sortBy];
+            time2 = recording2[this.sortBy];
+          }
+
+          if (time1.getTime() < time2.getTime()) {
+            return direction;
+          } else if (time1.getTime() > time2.getTime()) {
+            return -direction;
+          } else {
+            return direction;
           }
         }),
       );
@@ -294,9 +316,10 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
 
       let fullYear: string = time.split(' ')[0];
 
+      // Month is zero-based
       let fullYearObj: any = {
         day: fullYear.split('-')[0],
-        month: fullYear.split('-')[1],
+        month: Number(fullYear.split('-')[1]) - 1,
         year: fullYear.split('-')[2],
       };
 
@@ -342,7 +365,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
   viewRecording(testModel: EusTestModel): void {
     this.eusService.getRecording(testModel.id).subscribe(
       (data: string) => {
-        console.log(data)
+        console.log(data);
         let videoUrl: string = 'http://' + this.eusHost + ':' + this.eusPort + data;
         console.log('Video URL: ' + videoUrl);
         this.viewSession(videoUrl, testModel, ' - recorded test', 'video');
@@ -455,5 +478,15 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
         this.loading = false;
       },
     );
+  }
+
+  sortRecordings(sortEvent?: ITdDataTableSortChangeEvent): void {
+    this.sortBy = sortEvent ? sortEvent.name : this.sortBy;
+    this.sortOrder = sortEvent ? sortEvent.order : this.sortOrder;
+    if (this.dateFields.indexOf(this.sortBy) > -1) {
+      this.sortRecordingsByDate();
+    } else {
+      this.recordings = this.dataTableService.sortData(this.recordings, this.sortBy, this.sortOrder);
+    }
   }
 }

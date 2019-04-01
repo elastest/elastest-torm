@@ -131,6 +131,10 @@
                 [data]="recordings"
                 [columns]="recordingColumns"
                 [resizableColumns]="true"
+                [sortable]="true"
+                [sortBy]="sortBy"
+                [sortOrder]="sortOrder"
+                (sortChange)="sortRecordings($event)"
               >
                 <ng-template tdDataTableTemplate="actions" let-value="value" let-row="row" let-column="column">
                   <i
