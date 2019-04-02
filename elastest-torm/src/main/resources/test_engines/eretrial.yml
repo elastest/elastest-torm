@@ -1,15 +1,15 @@
 version: '3'
-
 services:
   ere:
     image: elastest/ere-trial
     ports:
       - 37007:9080
-      - 443:9443
+    expose:
+      - 9443
     networks:
       - elastest
     volumes:
-      - ~/ere-data:/ere-data:rw
+      - ~/.elastest/ere-data:/ere-data:rw
     labels:
       - io.elastest.type=te
 networks:
