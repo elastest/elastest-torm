@@ -35,7 +35,7 @@ import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
-import io.elastest.etm.model.TJobExecutionFile;
+import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
@@ -607,7 +607,7 @@ public class ExternalService {
         return exec;
     }
 
-    public List<TJobExecutionFile> getExternalTJobExecutionFilesUrls(
+    public List<ElastestFile> getExternalTJobExecutionFilesUrls(
             Long exTJobExecId) throws InterruptedException {
         ExternalTJobExecution exTJobExec = externalTJobExecutionRepository
                 .findById(exTJobExecId).get();

@@ -11,11 +11,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.elastest.etm.model.ExecData;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
-import io.elastest.etm.model.TJobExecutionFile;
+import io.elastest.etm.model.ElastestFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -311,14 +312,14 @@ public interface TjobApi extends EtmApiRoot {
             @RequestParam(value = "than", required = true) String than,
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds);
 
-    @ApiOperation(value = "Returns all files associated to a TJob Execution.", notes = "Returns all files associated to a TJob Execution, for a given TJob execution id.", response = TJobExecutionFile.class, responseContainer = "List", tags = {
+    @ApiOperation(value = "Returns all files associated to a TJob Execution.", notes = "Returns all files associated to a TJob Execution, for a given TJob execution id.", response = ElastestFile.class, responseContainer = "List", tags = {
             "TJob Execution", })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "TJob Executions files not found") })
     @RequestMapping(value = "/tjob/{tJobId}/exec/{tJobExecId}/files", produces = {
             "application/json" }, method = RequestMethod.GET)
-    ResponseEntity<List<TJobExecutionFile>> getTJobExecutionFiles(
+    ResponseEntity<List<ElastestFile>> getTJobExecutionFiles(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId);
 
@@ -352,4 +353,19 @@ public interface TjobApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<List<TJobExecution>> getParentTJobExecChilds(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId);
+
+    @ApiOperation(value = "Save a file attachment of a TJob Execution", notes = "Save a file attachment of a TJob Execution.", response = Long.class, tags = {
+            "TJob Execution", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class),
+            @ApiResponse(code = 202, message = "The request has been accepted, but the processing has not been completed"),
+            @ApiResponse(code = 400, message = "Invalid File supplied"),
+            @ApiResponse(code = 404, message = "TJob not found"),
+            @ApiResponse(code = 500, message = "Server Error") })
+    @RequestMapping(value = "/tjob/exec/{tJobExecId}/attachment", consumes = {
+            "multipart/form-data" }, produces = {
+                    "application/json" }, method = RequestMethod.POST)
+    ResponseEntity<Boolean> saveExecAttachment(
+            @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
+            @RequestParam(value = "file") MultipartFile file);
 }

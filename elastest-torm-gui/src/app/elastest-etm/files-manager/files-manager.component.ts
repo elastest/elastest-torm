@@ -31,14 +31,14 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
 
   filesColumns: any[] = [
     { name: 'name', label: 'Name' },
-    { name: 'serviceName', label: 'Service' },
+    { name: 'folderName', label: 'Category' },
     { name: 'options', label: 'Options' },
   ];
 
   executionFiles: FileModel[] = [];
   filteredExecutionFiles: FileModel[] = [];
 
-  sortBy: string = 'serviceName';
+  sortBy: string = 'folderName';
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
   timer: Observable<number>;

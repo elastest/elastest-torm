@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import io.elastest.etm.api.model.ExternalJob;
-import io.elastest.etm.model.TJobExecutionFile;
+import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
@@ -178,17 +178,17 @@ public class ExternalApiController implements ExternalApi {
                 externalService.modifyExternalTJobExec(body), HttpStatus.OK);
     }
 
-    public ResponseEntity<List<TJobExecutionFile>> getExternalTJobExecutionFiles(
+    public ResponseEntity<List<ElastestFile>> getExternalTJobExecutionFiles(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
 
-        ResponseEntity<List<TJobExecutionFile>> response;
+        ResponseEntity<List<ElastestFile>> response;
         try {
-            response = new ResponseEntity<List<TJobExecutionFile>>(
+            response = new ResponseEntity<List<ElastestFile>>(
                     externalService.getExternalTJobExecutionFilesUrls(
                             tJobExecId),
                     HttpStatus.OK);
         } catch (Exception e) {
-            response = new ResponseEntity<List<TJobExecutionFile>>(
+            response = new ResponseEntity<List<ElastestFile>>(
                     new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 

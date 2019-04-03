@@ -263,7 +263,8 @@ public class DockerServiceImpl extends PlatformService {
             }
 
             sutPath = getSutPath(execution);
-            etmFilesService.createExecFilesFolder(sutPath);
+
+            etmFilesService.createFolderIfNotExists(sutPath);
         } else if ("tjob".equals(type.toLowerCase())) {
             TJob tJob = execution.gettJob();
             TJobExecution tJobExec = execution.getTJobExec();

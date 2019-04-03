@@ -26,6 +26,7 @@ import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 
 import io.elastest.etm.dao.TJobExecRepository;
@@ -41,7 +42,7 @@ import io.elastest.etm.model.TJob.TJobMinimalView;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
-import io.elastest.etm.model.TJobExecutionFile;
+import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.TestResultParser;
 import io.elastest.etm.utils.UtilsService;
@@ -622,9 +623,9 @@ public class TJobService {
         }
     }
 
-    public List<TJobExecutionFile> getTJobExecutionFilesUrls(Long tJobId,
+    public List<ElastestFile> getTJobExecutionFilesUrls(Long tJobId,
             Long tJobExecId) throws InterruptedException {
-        return etmFilesService.getTJobExecutionFilesUrls(tJobId, tJobExecId);
+        return etmFilesService.getTJobExecFilesUrls(tJobId, tJobExecId);
     }
 
     public String getFileUrl(String serviceFilePath) throws IOException {
@@ -681,5 +682,11 @@ public class TJobService {
 
         result.setSerializationView(view);
         return result;
+    }
+
+    public Boolean saveExecAttachmentFile(Long tJobExecId, MultipartFile file) throws IllegalStateException, IOException {
+        TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId)
+                .get();
+        return etmFilesService.saveExecAttachmentFile(tJobExec, file);
     }
 }

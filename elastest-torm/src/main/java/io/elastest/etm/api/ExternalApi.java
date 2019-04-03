@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import io.elastest.etm.api.model.ExternalJob;
 import io.elastest.etm.model.TJobExecution;
-import io.elastest.etm.model.TJobExecutionFile;
+import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
 import io.elastest.etm.model.external.ExternalTJob;
@@ -202,14 +202,14 @@ public interface ExternalApi extends EtmApiExternalRoot {
 	ResponseEntity<ExternalTJobExecution> modifyExternalTJobExecution(
 			@ApiParam(value = "TJob Execution object that needs to modify.", required = true) @Valid @RequestBody ExternalTJobExecution body);
 
-	@ApiOperation(value = "Returns all files associated to an External TJob Execution.", notes = "Returns all files associated to an External TJob Execution, for a given TJob execution id.", response = TJobExecutionFile.class, responseContainer = "List", tags = {
+	@ApiOperation(value = "Returns all files associated to an External TJob Execution.", notes = "Returns all files associated to an External TJob Execution, for a given TJob execution id.", response = ElastestFile.class, responseContainer = "List", tags = {
 			"External", })
 	@ApiResponses(value = {
 			@ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class, responseContainer = "List"),
 			@ApiResponse(code = 404, message = "TJob Executions files not found") })
 	@RequestMapping(value = "tjobexec/{tJobExecId}/files", produces = {
 			"application/json" }, method = RequestMethod.GET)
-	ResponseEntity<List<TJobExecutionFile>> getExternalTJobExecutionFiles(
+	ResponseEntity<List<ElastestFile>> getExternalTJobExecutionFiles(
 			@ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId);
 
 	@ApiOperation(value = "Returns all External Test Executions of a Given ExternalTJobExec", notes = "Returns all External Test Executions of a Given ExternalTJobExec.", response = ExternalTestExecution.class, responseContainer = "List", tags = {

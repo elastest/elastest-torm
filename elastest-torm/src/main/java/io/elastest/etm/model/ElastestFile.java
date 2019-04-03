@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.annotations.ApiModel;
 
-@ApiModel(description = "Entity that represents a file generated during a TJob execution.")
-public class TJobExecutionFile {
+@ApiModel(description = "Entity that represents an ElasTest file.")
+public class ElastestFile {
 
     @JsonProperty("name")
     private String name;
@@ -16,16 +16,16 @@ public class TJobExecutionFile {
     @JsonProperty("encodedUrl")
     private String encodedUrl;
 
-    @JsonProperty("serviceName")
-    private String serviceName;
+    @JsonProperty("folderName")
+    private String folderName;
 
-    public TJobExecutionFile(String name, String url, String encodedUrl,
-            String serviceName) {
+    public ElastestFile(String name, String url, String encodedUrl,
+            String folderName) {
         super();
         this.name = name;
         this.url = url;
         this.encodedUrl = encodedUrl;
-        this.serviceName = serviceName;
+        this.folderName = folderName;
     }
 
     public String getName() {
@@ -52,18 +52,18 @@ public class TJobExecutionFile {
         this.encodedUrl = encodedUrl;
     }
 
-    public String getServiceName() {
-        return serviceName;
+    public String getFolderName() {
+        return folderName;
     }
 
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
+    public void setFolderName(String serviceName) {
+        this.folderName = serviceName;
     }
 
     @Override
     public String toString() {
         return "TJobExecutionFile [name=" + name + ", url=" + url
-                + ", encodedUrl=" + encodedUrl + ", serviceName=" + serviceName
+                + ", encodedUrl=" + encodedUrl + ", folderName=" + folderName
                 + "]";
     }
     

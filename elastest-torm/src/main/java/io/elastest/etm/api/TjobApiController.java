@@ -1,5 +1,6 @@
 package io.elastest.etm.api;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -26,7 +28,7 @@ import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJob.TJobCompleteView;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.TJobExecCompleteView;
-import io.elastest.etm.model.TJobExecutionFile;
+import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.service.EsmService;
 import io.elastest.etm.service.TJobService;
 import io.swagger.annotations.ApiParam;
@@ -358,18 +360,18 @@ public class TjobApiController implements TjobApi {
     }
 
     @Override
-    public ResponseEntity<List<TJobExecutionFile>> getTJobExecutionFiles(
+    public ResponseEntity<List<ElastestFile>> getTJobExecutionFiles(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
-        ResponseEntity<List<TJobExecutionFile>> response;
+        ResponseEntity<List<ElastestFile>> response;
 
         try {
-            response = new ResponseEntity<List<TJobExecutionFile>>(
+            response = new ResponseEntity<List<ElastestFile>>(
                     tJobService.getTJobExecutionFilesUrls(tJobId, tJobExecId),
                     HttpStatus.OK);
         } catch (Exception e) {
-            response = new ResponseEntity<List<TJobExecutionFile>>(
-                    new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+            response = new ResponseEntity<List<ElastestFile>>(new ArrayList<>(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         return response;
@@ -413,6 +415,21 @@ public class TjobApiController implements TjobApi {
         List<TJobExecution> tJobExec = tJobService
                 .getParentTJobExecChilds(tJobExecId);
         return new ResponseEntity<List<TJobExecution>>(tJobExec, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Boolean> saveExecAttachment(
+            @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            Boolean saved = tJobService.saveExecAttachmentFile(tJobExecId,
+                    file);
+            return new ResponseEntity<Boolean>(saved, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error on save Attachment for exec {}", tJobExecId);
+            return new ResponseEntity<Boolean>(false,
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

@@ -61,16 +61,17 @@ export class TJobModel extends AbstractTJobModel {
       this.externalUrls = tJob.externalUrls;
       this.multi = tJob.multi;
       this.multiConfigurations = tJob.multiConfigurations;
-      this.maxExecutions = tJob.maxExecutions !== undefined && tJob.maxExecutions !== null ? tJob.maxExecutions : defaultMaxExecutions;
+      this.maxExecutions =
+        tJob.maxExecutions !== undefined && tJob.maxExecutions !== null ? tJob.maxExecutions : defaultMaxExecutions;
     }
   }
 
   public cloneTJob(): TJobModel {
     let tJob: TJobModel = Object.assign(new TJobModel(), this, {
-      parameters: [...this.parameters],
-      tjobExecs: [...this.tjobExecs],
-      esmServices: [...this.esmServices],
-      multiConfigurations: [...this.multiConfigurations],
+      parameters: this.parameters ? [...this.parameters] : [],
+      tjobExecs: this.tjobExecs ? [...this.tjobExecs] : [],
+      esmServices: this.esmServices ? [...this.esmServices] : [],
+      multiConfigurations: this.multiConfigurations ? [...this.multiConfigurations] : [],
     });
     return tJob;
   }
