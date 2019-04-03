@@ -655,6 +655,14 @@ public class TJobExecOrchestratorService {
         envVars.putAll(
                 etmContextService.getTJobExecMonitoringEnvVars(tJobExec));
 
+        /*
+         * Test File Attachments Api URL TODO build url in Context, not here
+         */
+        String attachmentsApiURL = etmContextService.getContextInfo()
+                .getEtmApiUrl() + "tjob/exec/" + tJobExec.getId()
+                + "/attachment";
+        envVars.put("ET_ETM_TJOB_ATTACHMENT_API", attachmentsApiURL);
+
         // Generate the SUT name
         String sutContainerName = platformService.generateContainerName(
                 PlatformService.ContainerPrefix.SUT, new Execution(tJobExec));

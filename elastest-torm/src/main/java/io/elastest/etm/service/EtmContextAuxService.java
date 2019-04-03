@@ -199,6 +199,9 @@ public class EtmContextAuxService {
                 + etEdmCommandContextPath);
         contextInfo.setEmpGrafanaUrl("http://" + proxyIp + ":" + proxyPort + "/"
                 + etEmpGrafanContextPath + etEmpGrafanaDashboard);
+
+        contextInfo
+                .setEtmApiUrl("http://" + proxyIp + ":" + proxyPort + "/api/");
         return contextInfo;
     }
 

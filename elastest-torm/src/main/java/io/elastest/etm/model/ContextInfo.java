@@ -85,6 +85,9 @@ public class ContextInfo {
     @JsonProperty("edmCommandUrl")
     private String edmCommandUrl;
 
+    @JsonProperty("etmApiUrl")
+    private String etmApiUrl;
+
     public ContextInfo() {
     }
 
@@ -300,6 +303,14 @@ public class ContextInfo {
         this.edmCommandUrl = edmCommandUrl;
     }
 
+    public String getEtmApiUrl() {
+        return etmApiUrl;
+    }
+
+    public void setEtmApiUrl(String etmApiUrl) {
+        this.etmApiUrl = etmApiUrl;
+    }
+
     @Override
     public String toString() {
         return "ContextInfo [elasticSearchUrl=" + elasticSearchUrl
@@ -324,7 +335,8 @@ public class ContextInfo {
                 + rabbitPath + ", elasTestExecMode=" + elasTestExecMode
                 + ", eusSSInstance=" + eusSSInstance + ", testLinkStarted="
                 + testLinkStarted + ", empGrafanaUrl=" + empGrafanaUrl
-                + ", edmCommandUrl=" + edmCommandUrl + "]";
+                + ", edmCommandUrl=" + edmCommandUrl + ", etmApiUrl="
+                + etmApiUrl + "]";
     }
 
 }
