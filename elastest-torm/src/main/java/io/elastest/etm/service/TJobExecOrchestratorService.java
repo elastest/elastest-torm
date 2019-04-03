@@ -225,7 +225,6 @@ public class TJobExecOrchestratorService {
                 resultMsg = "Preparing Test";
                 updateExecutionResultStatus(execution,
                         ResultEnum.EXECUTING_TEST, resultMsg);
-                platformService.deployAndRunTJobExecution(execution);
                 etmTestResultService.saveTestResults(
                         platformService.deployAndRunTJobExecution(execution),
                         tJobExec);
