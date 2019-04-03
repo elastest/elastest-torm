@@ -68,7 +68,6 @@ import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.model.external.ExternalTJobExecution;
-import io.elastest.etm.service.EtmTestResultService;
 import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
@@ -143,19 +142,16 @@ public class DockerServiceImpl extends PlatformService {
     private DockerService dockerService;
     private EtmFilesService etmFilesService;
     private UtilsService utilsService;
-    private EtmTestResultService etmTestResultService;
     private Map<String, String> sutsByExecution;
 
     public DockerServiceImpl(DockerComposeService dockerComposeService,
             EtmFilesService etmFilesService, UtilsService utilsService,
-            DockerService dockerService,
-            EtmTestResultService etmTestResultService) {
+            DockerService dockerService) {
         super();
         this.dockerComposeService = dockerComposeService;
         this.etmFilesService = etmFilesService;
         this.utilsService = utilsService;
         this.dockerService = dockerService;
-        this.etmTestResultService = etmTestResultService;
         sutsByExecution = new ConcurrentHashMap<String, String>();
     }
 
@@ -267,7 +263,6 @@ public class DockerServiceImpl extends PlatformService {
             }
 
             sutPath = getSutPath(execution);
-
             etmFilesService.createExecFilesFolder(sutPath);
         } else if ("tjob".equals(type.toLowerCase())) {
             TJob tJob = execution.gettJob();
@@ -673,7 +668,8 @@ public class DockerServiceImpl extends PlatformService {
         return "test_" + execution.getExecutionId();
     }
 
-    private void createAndRunTestContainer(Execution execution)
+    @Override
+    public List<ReportTestSuite> deployAndRunTJobExecution(Execution execution)
             throws Exception {
         TJobExecution tJobExec = execution.getTJobExec();
         try {
@@ -705,12 +701,13 @@ public class DockerServiceImpl extends PlatformService {
             resultMsg = "Waiting for Test Results";
             execution.updateTJobExecutionStatus(ResultEnum.WAITING, resultMsg);
             execution.setStatusMsg(resultMsg);
-            etmTestResultService.saveTestResults(
-                    getTestResults(execution, testContainerId), tJobExec);
+            List<ReportTestSuite> testResults = getTestResults(execution,
+                    testContainerId);
 
             tJobExec.setEndDate(new Date());
             logger.info("Ending Execution {}...", tJobExec.getId());
             saveFinishStatus(tJobExec, execution, exitCode);
+            return testResults;
 
         } catch (TJobStoppedException | InterruptedException e) {
             throw new TJobStoppedException(
@@ -1152,7 +1149,8 @@ public class DockerServiceImpl extends PlatformService {
         // If is unique Docker image Sut
         else if (sut
                 .getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
-            containerName = generateContainerName(ContainerPrefix.SUT, execution);
+            containerName = generateContainerName(ContainerPrefix.SUT,
+                    execution);
             sutPrefix = containerName;
         }
 
@@ -1211,7 +1209,8 @@ public class DockerServiceImpl extends PlatformService {
         // If is unique Docker image Sut
         else if (sut
                 .getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
-            containerName = generateContainerName(ContainerPrefix.SUT, execution);
+            containerName = generateContainerName(ContainerPrefix.SUT,
+                    execution);
             sutPrefix = containerName;
             logger.debug(
                     "Is SuT in new container With Docker Image. Container Name: {}",
@@ -1383,7 +1382,8 @@ public class DockerServiceImpl extends PlatformService {
 
     private String getCurrentExecSutMainServiceName(SutSpecification sut,
             Execution execution) {
-        return generateContainerName(ContainerPrefix.SUT, execution) + "_" + sut.getMainService() + "_1";
+        return generateContainerName(ContainerPrefix.SUT, execution) + "_"
+                + sut.getMainService() + "_1";
     }
 
     private ProgressHandler getEtPluginProgressHandler(String projectName,
@@ -1630,12 +1630,6 @@ public class DockerServiceImpl extends PlatformService {
         } else {
             endContainer(containerName);
         }
-    }
-
-    @Override
-    public void deployAndRunTJobExecution(Execution execution)
-            throws Exception {
-        createAndRunTestContainer(execution);
     }
 
     @Override

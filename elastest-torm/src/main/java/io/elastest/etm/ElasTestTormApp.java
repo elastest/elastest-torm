@@ -106,8 +106,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
             platformService = new K8ServiceImpl();
         } else {
             platformService = new DockerServiceImpl(dockerComposeService,
-                    etmFilesService, utilsService, dockerService,
-                    etmTestResultService);
+                    etmFilesService, utilsService, dockerService);
         }
         return platformService;
     }

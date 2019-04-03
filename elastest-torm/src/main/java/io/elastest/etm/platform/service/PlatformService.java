@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -94,7 +95,7 @@ public abstract class PlatformService {
     public abstract void disableMetricMonitoring(Execution execution, boolean force)
             throws Exception;
 
-    public abstract void deployAndRunTJobExecution(Execution execution) throws Exception;
+    public abstract List<ReportTestSuite> deployAndRunTJobExecution(Execution execution) throws Exception;
 
     public String generateContainerName(ContainerPrefix prefix,
             Execution execution) {

@@ -72,6 +72,7 @@ public class TJobExecOrchestratorService {
     private EtmContextService etmContextService;
     private UtilsService utilsService;
     private PlatformService platformService;
+    private EtmTestResultService etmTestResultService;
 
     private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
 
@@ -225,6 +226,9 @@ public class TJobExecOrchestratorService {
                 updateExecutionResultStatus(execution,
                         ResultEnum.EXECUTING_TEST, resultMsg);
                 platformService.deployAndRunTJobExecution(execution);
+                etmTestResultService.saveTestResults(
+                        platformService.deployAndRunTJobExecution(execution),
+                        tJobExec);
 
                 tJobExec.setEndDate(new Date());
 
