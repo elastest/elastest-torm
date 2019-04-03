@@ -9,7 +9,7 @@ services:
     networks:
       - elastest
     volumes:
-      - ~/.elastest/ere-data:/ere-data:rw
+      - ${ET_DATA_IN_HOST}/ere-data:/ere-data:rw
     labels:
       - io.elastest.type=te
 networks:
