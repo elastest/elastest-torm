@@ -651,7 +651,7 @@ public class DockerServiceImpl extends PlatformService {
         String sutPath = getSutPath(execution);
 
         try {
-            etmFilesService.removeExecFilesFolder(sutPath);
+            etmFilesService.removeFolder(sutPath);
         } catch (Exception e) {
             logger.debug("The SuT folder could not be deleted: {}",
                     e.getMessage());

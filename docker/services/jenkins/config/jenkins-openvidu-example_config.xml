@@ -10,19 +10,20 @@
         stage (&apos;Executing Test&apos;) {
             echo &apos;Print env variables&apos;
             sh &apos;env&apos;
-            def sutImage = docker.image(&apos;openvidu/testapp:elastest&apos;)
+            def sutImage = docker.image(&apos;elastest/test-etm-sut-openvidu&apos;)
             echo &apos;Start SUT&apos;
-            sutImage.withRun(&quot;--name ${env.ET_SUT_CONTAINER_NAME}  --network=elastest_elastest&quot;) { c -&gt;
+            sutImage.withRun(&quot;--name ${env.ET_SUT_CONTAINER_NAME}  --network=elastest_elastest -e OPENVIDU_PUBLICURL=docker&quot;) { c -&gt;
                 echo &quot;${c.id}&quot;
                 def sutIp = containerIp(&quot;${env.ET_SUT_CONTAINER_NAME}&quot;)
-                sh &apos;docker run -e IP=&apos; + sutIp + &apos; -e PORT=4443 --network=elastest_elastest elastest/etm-check-service-up&apos;
-                withEnv([&apos;ET_SUT_HOST=&apos; + sutIp]) {
+		def sutPort = &quot;5000&quot;
+                sh &apos;docker run -e IP=&apos; + sutIp + &apos; -e PORT=&apos; + sutPort + &apos; --network=elastest_elastest elastest/etm-check-service-up&apos;
+                withEnv([&apos;ET_SUT_HOST=&apos; + sutIp, &apos;ET_SUT_PROTOCOL=https&apos;, &apos;ET_SUT_PORT=&apos; + sutPort]) {
                     echo &apos;Set up test environment&apos;
                     mvnHome = tool &apos;M3.3.9&apos;
                     echo &apos;Cloning repository&apos;
                     git &apos;https://github.com/elastest/demo-projects&apos;
                     echo &apos;Run test&apos;
-                    sh &quot;cd ./openvidu-test/;&apos;${mvnHome}/bin/mvn&apos; -DforkCount=0 test&quot;
+                    sh &quot;cd ./openvidu-test/; &apos;${mvnHome}/bin/mvn&apos; -DskipTests=true -B package; &apos;${mvnHome}/bin/mvn&apos; -B test&quot;
                     step([$class: &apos;JUnitResultArchiver&apos;, testResults: &apos;**/target/surefire-reports/TEST-*.xml&apos;])
                 }
             }
