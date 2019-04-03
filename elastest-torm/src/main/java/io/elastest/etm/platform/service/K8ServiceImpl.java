@@ -1,8 +1,11 @@
 package io.elastest.etm.platform.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 
 import com.spotify.docker.client.ProgressHandler;
 
@@ -120,9 +123,11 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public void deployAndRunTJobExecution(Execution execution)
+    public List<ReportTestSuite> deployAndRunTJobExecution(Execution execution)
             throws Exception {
         // TODO Auto-generated method stub
+        List<ReportTestSuite> testResults = new ArrayList<ReportTestSuite>();
+        return testResults;
 
     }
 

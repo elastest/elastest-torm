@@ -458,9 +458,6 @@ public class DockerServiceImpl extends PlatformService {
                 if (execution.isExternal()) {
                     // TODO External status
                 } else {
-                    TJobExecution tJobExec = execution.getTJobExec();
-                    // tJobExec.setResult(result);
-                    // tJobExec.setResultMsg(msg);
                     execution.setStatusMsg(msg);
 
                 }
