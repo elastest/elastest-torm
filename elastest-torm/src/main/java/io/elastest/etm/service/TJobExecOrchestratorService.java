@@ -86,7 +86,7 @@ public class TJobExecOrchestratorService {
             SutService sutService, AbstractMonitoringService monitoringService,
             EtmContextService etmContextService, UtilsService utilsService,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
-            PlatformService platformService) {
+            PlatformService platformService, EtmTestResultService etmTestResultService) {
         super();
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.dbmanager = dbmanager;
@@ -97,6 +97,7 @@ public class TJobExecOrchestratorService {
         this.utilsService = utilsService;
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
         this.platformService = platformService;
+        this.etmTestResultService = etmTestResultService;
     }
 
     @PreDestroy
