@@ -105,11 +105,20 @@
               <span>Browser</span>
               <span class="mat-subheading-2 push-left-sm push-bottom-none">({{ browserName }} {{ browserVersion }})</span>
               <span fxFlex></span>
+              <td-file-input
+                [(ngModel)]="browserFilesToUpload"
+                color="primary"
+                (select)="onUploadBrowserFile($event)"
+                [disabled]="false"
+                multiple
+              >
+                <mat-icon>attach_file</mat-icon><span>Upload files to browser context</span>
+              </td-file-input>
               <a
                 *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined"
                 mat-button
                 [attr.href]="vncBrowserUrl"
-                class="iconBtn"
+                class="iconBtn push-left-sm"
                 target="_blank"
                 matTooltip="Open in new tab"
               >
@@ -137,33 +146,15 @@
         <mat-card-content *ngIf="exTJobExec" fxFlex style="overflow: auto;" class="push-bottom-none">
           <div fxLayoutAlign="center center" fxLayout="column" fxFlexFill>
             <ng-container *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined; else loadingBrowser">
-              <auto-height-grid fxLayout="column">
-                <normal-height-row>
-                  <div fxLayout="row" class="push-bottom-sm">
-                    <span fxFlex></span>
-                    <td-file-input
-                      [(ngModel)]="browserFilesToUpload"
-                      color="primary"
-                      (select)="onUploadBrowserFile($event)"
-                      [disabled]="false"
-                      multiple
-                    >
-                      <mat-icon>attach_file</mat-icon><span>Upload files to browser context</span>
-                    </td-file-input>
-                  </div>
-                </normal-height-row>
-                <auto-height-row>
-                  <vnc-client
-                    [vncUrl]="vncBrowserUrl"
-                    [autoconnect]="autoconnect"
-                    [viewOnly]="viewOnly"
-                    [showStatus]="false"
-                    [showConnectionBtns]="false"
-                    [bgColor]="'#ffffff'"
-                    fxFlexFill
-                  ></vnc-client
-                ></auto-height-row>
-              </auto-height-grid>
+              <vnc-client
+                [vncUrl]="vncBrowserUrl"
+                [autoconnect]="autoconnect"
+                [viewOnly]="viewOnly"
+                [showStatus]="false"
+                [showConnectionBtns]="false"
+                [bgColor]="'#ffffff'"
+                fxFlexFill
+              ></vnc-client>
             </ng-container>
             <ng-template #loadingBrowser>
               <div class="mat-headline text-center">{{ browserCardMsg }}</div>
