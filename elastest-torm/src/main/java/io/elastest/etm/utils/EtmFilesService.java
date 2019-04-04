@@ -41,7 +41,6 @@ public class EtmFilesService {
     @Value("${registry.contextPath}")
     private String registryContextPath;
 
-    // TODO refactor from ElastestConstant
     public static final String FILE_SEPARATOR = "/";
 
     public static final String TJOBS_FOLDER = "tjobs";

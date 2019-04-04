@@ -107,6 +107,8 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   totalCases: number = 0;
 
+  browserFilesToUpload: File | FileList;
+
   constructor(
     private externalService: ExternalService,
     public router: Router,
@@ -638,6 +640,37 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
         console.log('Trying to reconnect to EUS WS');
         this.startWebSocket(wsUrl);
       }, 5000);
+    }
+  }
+
+  onUploadBrowserFile(files: FileList | File): void {
+    if (files instanceof FileList) {
+      this.eusService.uploadFilesToSession(this.sessionId, files).subscribe(
+        (responseObj: object) => {
+          if (!responseObj || responseObj['errors'].length > 0) {
+            this.externalService.popupService.openSnackBar('An error has occurred in uploading some files');
+            for (let error of responseObj['errors']) {
+              console.log(error);
+            }
+          } else {
+            this.externalService.popupService.openSnackBar('All files has been uploaded succesfully');
+          }
+        },
+        (error: Error) => {
+          console.log(error);
+          this.externalService.popupService.openSnackBar('An error has occurred in uploading files');
+        },
+      );
+    } else if (files instanceof File) {
+      this.eusService.uploadFileToSession(this.sessionId, files).subscribe(
+        (response: any) => {
+          this.externalService.popupService.openSnackBar('The file has been uploaded succesfully');
+        },
+        (error: Error) => {
+          console.log(error);
+          this.externalService.popupService.openSnackBar('An error has occurred in uploading file');
+        },
+      );
     }
   }
 }

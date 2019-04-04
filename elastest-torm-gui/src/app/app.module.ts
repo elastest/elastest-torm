@@ -12,7 +12,7 @@ import { ETTestlinkModelsTransformService } from './shared/services/et-testlink-
 import { TitlesService } from './shared/services/titles.service';
 import { EtPluginsService } from './elastest-test-engines/et-plugins.service';
 import { EsmService } from './elastest-esm/esm-service.service';
-import { TdLayoutManageListComponent, CovalentLoadingModule } from '@covalent/core';
+import { TdLayoutManageListComponent, CovalentLoadingModule, CovalentFileModule } from '@covalent/core';
 import { CovalentExpansionPanelModule, CovalentMessageModule } from '@covalent/core';
 import { CovalentCodeEditorModule } from '@covalent/code-editor';
 
@@ -244,6 +244,7 @@ library.add(fas);
     CovalentMessageModule,
     CovalentHighlightModule,
     CovalentMarkdownModule,
+    CovalentFileModule,
     DragDropModule,
     FontAwesomeModule,
     FormsModule,

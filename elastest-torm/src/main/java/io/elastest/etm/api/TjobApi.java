@@ -354,10 +354,10 @@ public interface TjobApi extends EtmApiRoot {
     ResponseEntity<List<TJobExecution>> getParentTJobExecChilds(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId);
 
-    @ApiOperation(value = "Save a file attachment of a TJob Execution", notes = "Save a file attachment of a TJob Execution.", response = Long.class, tags = {
+    @ApiOperation(value = "Save a file attachment of a TJob Execution", notes = "Save a file attachment of a TJob Execution.", response = Boolean.class, tags = {
             "TJob Execution", })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class),
+            @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
             @ApiResponse(code = 202, message = "The request has been accepted, but the processing has not been completed"),
             @ApiResponse(code = 400, message = "Invalid File supplied"),
             @ApiResponse(code = 404, message = "TJob not found"),

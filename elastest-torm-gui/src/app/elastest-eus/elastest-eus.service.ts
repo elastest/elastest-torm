@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
 
 import { ConfigurationService } from '../config/configuration-service.service';
 import { getUrlObj, CompleteUrlObj } from '../shared/utils';
@@ -13,6 +13,7 @@ export class EusService {
   private hostName: string = this.configurationService.configModel.hostName;
   // private sessionPath: string = 'wd/hub/session';
 
+  // Session path default 'session', but can be set with 'execution/{key}/session' like in test-plan-execution of testlink
   private sessionPath: string = 'session';
 
   constructor(private http: HttpClient, private configurationService: ConfigurationService) {}
@@ -147,6 +148,51 @@ export class EusService {
         return undefined;
       }
     });
+  }
+
+  public uploadFileToSession(sessionId: string, file: File): Observable<string> {
+    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/browserfile';
+
+    let formData: FormData = new FormData();
+    formData.append('file', file);
+
+    // Returns text/plain
+    return this.http.post(url, formData, { responseType: 'text' });
+  }
+
+  public uploadFilesToSession(sessionId: string, files: FileList): Observable<object> {
+    let _obs: Subject<object> = new Subject<object>();
+    let obs: Observable<object> = _obs.asObservable();
+
+    let filesArray: File[] = Array.from(files);
+    let responsesArray: any[] = [];
+    let errorsArray: any[] = [];
+
+    filesArray.forEach((file: File) => {
+      this.uploadFileToSession(sessionId, file).subscribe(
+        (response: any) => {
+          responsesArray.push(response);
+          if (responsesArray.concat(errorsArray).length === filesArray.length) {
+            let responseObj: object = {
+              responses: responsesArray,
+              errors: errorsArray,
+            };
+            _obs.next(responseObj);
+          }
+        },
+        (error: Error) => {
+          errorsArray.push(error);
+          if (responsesArray.concat(errorsArray).length === filesArray.length) {
+            let responseObj: object = {
+              responses: responsesArray,
+              errors: errorsArray,
+            };
+            _obs.next(responseObj);
+          }
+        },
+      );
+    });
+    return obs;
   }
 
   public setEusUrl(eusUrl: string): void {
