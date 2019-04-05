@@ -14,6 +14,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
@@ -140,6 +141,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
 
     @Test
     @Transactional
+    @Disabled
     public void testDeployService() throws Exception {
         log.info("Starting test to check a TSS deployment");
         SupportServiceInstance supportServiceInstance = esmService
@@ -153,6 +155,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
 
     @Test
     @Transactional
+    @Disabled
     public void testUndeployService() throws Exception {
         log.info("Starting test to check a TSS undeployment");
         prepareTssEnvironment();
@@ -162,7 +165,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
     @Test
     @Transactional
     public void testDeployAndRunTJobExecution() throws Exception {
-        log.info("Starting test to check a TSS deployment");
+        log.info("Starting test to check a TJob deployment");
         execution = prepareTJobEnvironment(null, null, null,
                 "elastest/dummy-tjob-simple", null);
         execution.gettJob().setResultsPath(null);
@@ -173,9 +176,6 @@ public class DockerServiceImpItTest extends EtmApiItTest {
                 .getTJobExecById(execution.getTJobExec().getId()).getResult());
     }
     
-    @Test
-    @Transactional
-
     private void prepareTssEnvironment() throws Exception {
         SupportServiceInstance supportServiceInstance = esmService
                 .createNewServiceInstance(serviceId, null, serviceId);
