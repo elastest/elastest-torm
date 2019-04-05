@@ -45,7 +45,7 @@ import io.elastest.etm.test.api.EtmApiItTest;
 import io.elastest.etm.utils.UtilTools;
 
 @TestInstance(Lifecycle.PER_CLASS)
-public class DockerServiceImpItlTest extends EtmApiItTest {
+public class DockerServiceImpItTest extends EtmApiItTest {
     static final Logger log = getLogger(lookup().lookupClass());
 
     @Value("${et.shared.folder}")
@@ -172,15 +172,16 @@ public class DockerServiceImpItlTest extends EtmApiItTest {
         assertEquals(ResultEnum.SUCCESS, tJobService
                 .getTJobExecById(execution.getTJobExec().getId()).getResult());
     }
+    
+    @Test
+    @Transactional
 
     private void prepareTssEnvironment() throws Exception {
         SupportServiceInstance supportServiceInstance = esmService
                 .createNewServiceInstance(serviceId, null, serviceId);
-
         platformService.createServiceDeploymentProject(instanceId, tssDummyYml,
                 tmpTssInstancesYmlFolder, true,
                 supportServiceInstance.getParameters(), false, false);
-
     }
 
     private Execution prepareTJobEnvironment(String sutImage, String sutPort,
