@@ -885,7 +885,7 @@ public class DockerServiceImpl extends PlatformService {
             if (resultsPath != null && !resultsPath.isEmpty()) {
                 try {
                     InputStream inputStream = dockerService
-                            .getFileFromContainer(testContainerId, resultsPath);
+                            .getFilesFromContainer(testContainerId, resultsPath);
 
                     String result = IOUtils.toString(inputStream,
                             StandardCharsets.UTF_8);

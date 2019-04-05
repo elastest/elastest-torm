@@ -10,8 +10,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,6 +19,8 @@ import java.net.HttpURLConnection;
 import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -69,7 +70,6 @@ import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.HostConfig.Bind;
 import com.spotify.docker.client.messages.ImageInfo;
 import com.spotify.docker.client.messages.LogConfig;
-import com.spotify.docker.client.messages.NetworkConfig;
 import com.spotify.docker.client.messages.PortBinding;
 import com.spotify.docker.client.messages.ProgressMessage;
 
@@ -406,8 +406,7 @@ public class DockerService {
 
     public void pullImageWithoutProgressHandler(String imageId)
             throws Exception {
-        this.pullImageWithoutProgressHandler(getDockerClient(),
-                imageId);
+        this.pullImageWithoutProgressHandler(getDockerClient(), imageId);
     }
 
     public void pullImageWithProgressHandler(DockerClient dockerClient,
@@ -468,8 +467,8 @@ public class DockerService {
     public void pullImageIfNotExistWithProgressHandler(String imageId,
             ProgressHandler progressHandler)
             throws DockerException, InterruptedException, Exception {
-        this.pullImageIfNotExistWithProgressHandler(getDockerClient(),
-                imageId, progressHandler);
+        this.pullImageIfNotExistWithProgressHandler(getDockerClient(), imageId,
+                progressHandler);
     }
 
     public ProgressHandler getEmptyProgressHandler() {
@@ -558,21 +557,19 @@ public class DockerService {
 
     public String waitForContainerIpWith(String containerId, String network,
             long timeout) throws Exception {
-        return this.waitForContainerIpWithDockerClient(
-                getDockerClient(), containerId, network, timeout);
+        return this.waitForContainerIpWithDockerClient(getDockerClient(),
+                containerId, network, timeout);
     }
 
     public String waitForContainerIpWith(String containerId, String network)
             throws Exception {
-        return this.waitForContainerIpWithDockerClient(
-                getDockerClient(), containerId, network,
-                dockerWaitTimeoutSec);
+        return this.waitForContainerIpWithDockerClient(getDockerClient(),
+                containerId, network, dockerWaitTimeoutSec);
     }
 
     public String waitForContainerIpWith(String containerId) throws Exception {
-        return this.waitForContainerIpWithDockerClient(
-                getDockerClient(), containerId, "bridge",
-                dockerWaitTimeoutSec);
+        return this.waitForContainerIpWithDockerClient(getDockerClient(),
+                containerId, "bridge", dockerWaitTimeoutSec);
     }
 
     public String waitForContainerIpWithDockerClient(DockerClient dockerClient,
@@ -659,13 +656,12 @@ public class DockerService {
 
     public ImmutableList<String> getContainerNetworks(String containerId)
             throws Exception {
-        return this.getContainerNetworks(containerId,
-                getDockerClient());
+        return this.getContainerNetworks(containerId, getDockerClient());
     }
 
     public String getHostIpByNetwork(String network) throws Exception {
-        return getDockerClient().inspectNetwork(network).ipam()
-                .config().get(0).gateway();
+        return getDockerClient().inspectNetwork(network).ipam().config().get(0)
+                .gateway();
     }
 
     public void insertIntoNetwork(String networkId, String containerId)
@@ -813,14 +809,45 @@ public class DockerService {
         return logStream.readFully();
     }
 
-    public InputStream getFileFromContainer(String containerNameOrId,
-            String fileName) throws Exception {
+    // Returns InputStream .tar file with file(s) into
+    public InputStream getFilesFromContainer(String containerNameOrId,
+            String fullPath) throws Exception {
         InputStream inputStream = null;
         if (existsContainer(containerNameOrId)) {
-            inputStream = getDockerClient()
-                    .archiveContainer(containerNameOrId, fileName);
+            inputStream = getDockerClient().archiveContainer(containerNameOrId,
+                    fullPath);
         }
         return inputStream;
+    }
+
+    public TarArchiveInputStream getFilesFromContainerAsTar(
+            String containerNameOrId, String fullPath) throws Exception {
+        InputStream is = getFilesFromContainer(containerNameOrId, fullPath);
+        return new TarArchiveInputStream(is);
+    }
+
+    public InputStream getSingleFileFromContainer(String containerNameOrId,
+            String fullFilePath) throws Exception {
+        TarArchiveInputStream tarInput = getFilesFromContainerAsTar(
+                containerNameOrId, fullFilePath);
+        TarArchiveEntry currentEntry = tarInput.getNextTarEntry();
+
+        Path p = Paths.get(fullFilePath);
+        String fileName = p.getFileName().toString();
+
+        while (fileName != null && currentEntry != null) {
+            if (currentEntry.isFile()
+                    && fileName.equals(currentEntry.getName())) {
+
+                // black magic because currentEntry.getFile() is null
+                byte[] buf = new byte[(int) currentEntry.getSize()];
+                IOUtils.readFully(tarInput, buf);
+
+                return new ByteArrayInputStream(buf);
+            }
+            currentEntry = tarInput.getNextTarEntry();
+        }
+        return null;
     }
 
     public boolean existsContainer(String containerName) throws Exception {
