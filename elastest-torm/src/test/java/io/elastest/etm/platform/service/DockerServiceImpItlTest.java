@@ -45,7 +45,7 @@ import io.elastest.etm.test.api.EtmApiItTest;
 import io.elastest.etm.utils.UtilTools;
 
 @TestInstance(Lifecycle.PER_CLASS)
-public class DockerServiceImplTest extends EtmApiItTest {
+public class DockerServiceImpItlTest extends EtmApiItTest {
     static final Logger log = getLogger(lookup().lookupClass());
 
     @Value("${et.shared.folder}")
@@ -100,23 +100,18 @@ public class DockerServiceImplTest extends EtmApiItTest {
     public void setUpTest(TestInfo testInfo) {
         log.info("Initial configuration for the test {}",
                 testInfo.getTestMethod().get().getName());
-
         execution = new Execution();
     }
 
     @AfterEach
     public void reset() {
         log.info("Clean environment by test");
-//        tJobService.deleteTJob(execution.gettJob().getId());
         execution = null;
-
     }
 
     @AfterAll
     public void deleteAll() {
         log.info("Clean test environment");
-//        project = projectService.getProjectById(project.getId());
-//        projectService.deleteProject(project.getId());
     }
 
     @Test
