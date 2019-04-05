@@ -50,6 +50,32 @@ public abstract class PlatformService {
             return null;
         }
     }
+    
+    public enum ContainerType {
+        SUT("sut"), TJOB("tjob");
+
+        private String value;
+
+        ContainerType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static ContainerType fromValue(String text) {
+            for (ContainerType b : ContainerType.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+    }
 
     public abstract boolean createServiceDeploymentProject(String projectName,
             String serviceDescriptor, String targetPath, boolean override,
