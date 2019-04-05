@@ -232,8 +232,8 @@ public class DockerServiceImpl extends PlatformService {
         return this.getEtLabels(execution, type, null);
     }
 
-    private DockerContainer createContainer(Execution execution, ContainerType type)
-            throws Exception {
+    private DockerContainer createContainer(Execution execution,
+            ContainerType type) throws Exception {
         SutSpecification sut = execution.getSut();
 
         String image = "";
@@ -252,7 +252,7 @@ public class DockerServiceImpl extends PlatformService {
             parametersList = sut.getParameters();
             commands = sut.getCommands();
             image = sut.getSpecification();
-            prefix = "sut_";
+            prefix = ContainerPrefix.SUT.toString();
             if (sut.isSutInNewContainer()) {
                 suffix = sut.getSutInContainerAuxLabel();
                 containerName = generateContainerName(ContainerPrefix.SUT,
@@ -272,8 +272,9 @@ public class DockerServiceImpl extends PlatformService {
             parametersList = tJobExec.getParameters();
             commands = tJob.getCommands();
             image = tJob.getImageName();
-            prefix = "test_";
-            containerName = getTestName(execution);
+            prefix = ContainerPrefix.TEST.toString();
+            containerName = generateContainerName(ContainerPrefix.TEST,
+                    execution);
             if (execution.isWithSut()) {
                 sutHost = execution.getSutExec().getIp();
                 sutPort = sut.getPort();
@@ -346,7 +347,8 @@ public class DockerServiceImpl extends PlatformService {
         LogConfig logConfig = null;
         if (isEMSSelected(execution)) {
             try {
-                logConfig = getEMSLogConfig(type.toString(), prefix, suffix, execution);
+                logConfig = getEMSLogConfig(type.toString(), prefix, suffix,
+                        execution);
             } catch (Exception e) {
                 logger.error("Cannot get Ems Log config", e);
             }
@@ -356,7 +358,8 @@ public class DockerServiceImpl extends PlatformService {
         }
 
         // ElasTest labels
-        Map<String, String> labels = this.getEtLabels(execution, type.toString());
+        Map<String, String> labels = this.getEtLabels(execution,
+                type.toString());
 
         // Pull Image
         this.pullETExecutionImage(execution, image, type.toString(), false);
@@ -579,7 +582,8 @@ public class DockerServiceImpl extends PlatformService {
             throws Exception {
         try {
             // Create Container Object
-            DockerContainer sutContainer = createContainer(execution, ContainerType.SUT);
+            DockerContainer sutContainer = createContainer(execution,
+                    ContainerType.SUT);
 
             String resultMsg = "Starting dockerized SuT";
             execution.updateTJobExecutionStatus(
@@ -662,17 +666,14 @@ public class DockerServiceImpl extends PlatformService {
     /* **** Test **** */
     /* ************** */
 
-    private String getTestName(Execution execution) {
-        return "test_" + execution.getExecutionId();
-    }
-
     @Override
     public List<ReportTestSuite> deployAndRunTJobExecution(Execution execution)
             throws Exception {
         TJobExecution tJobExec = execution.getTJobExec();
         try {
             // Create Container Object
-            DockerContainer testContainer = createContainer(execution, ContainerType.TJOB);
+            DockerContainer testContainer = createContainer(execution,
+                    ContainerType.TJOB);
 
             String resultMsg = "Starting Test Execution";
             execution.updateTJobExecutionStatus(
@@ -688,7 +689,8 @@ public class DockerServiceImpl extends PlatformService {
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
             execution.setStatusMsg(resultMsg);
 
-            String testName = getTestName(execution);
+            String testName = generateContainerName(ContainerPrefix.TEST,
+                    execution);
             this.insertCreatedContainer(testContainerId, testName);
 
             int exitCode = dockerService.getDockerClient()
@@ -885,7 +887,8 @@ public class DockerServiceImpl extends PlatformService {
             if (resultsPath != null && !resultsPath.isEmpty()) {
                 try {
                     InputStream inputStream = dockerService
-                            .getFilesFromContainer(testContainerId, resultsPath);
+                            .getFilesFromContainer(testContainerId,
+                                    resultsPath);
 
                     String result = IOUtils.toString(inputStream,
                             StandardCharsets.UTF_8);
@@ -1720,7 +1723,8 @@ public class DockerServiceImpl extends PlatformService {
     @Override
     public void undeployTJob(Execution execution, boolean force)
             throws Exception {
-        String testContainerName = getTestName(execution);
+        String testContainerName = generateContainerName(ContainerPrefix.TEST,
+                execution);
         if (force) {
             endContainer(testContainerName, 1);
         } else {
