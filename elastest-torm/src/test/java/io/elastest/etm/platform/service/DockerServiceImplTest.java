@@ -1,12 +1,11 @@
 package io.elastest.etm.platform.service;
 
 import static java.lang.invoke.MethodHandles.lookup;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
@@ -31,11 +29,11 @@ import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
+import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
-import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
 import io.elastest.etm.service.EsmService;
@@ -171,10 +169,11 @@ public class DockerServiceImplTest extends EtmApiItTest {
     public void testDeployAndRunTJobExecution() throws Exception {
         log.info("Starting test to check a TSS deployment");
         execution = prepareTJobEnvironment(null, null, null,
-                "dummy-tjob-simple", null);
+                "elastest/dummy-tjob-simple", null);
         execution.gettJob().setResultsPath(null);
         execution.gettJob().setCommands(null);
         platformService.deployAndRunTJobExecution(execution);
+        projectService.deleteProject(project.getId());
         assertEquals(ResultEnum.SUCCESS, tJobService
                 .getTJobExecById(execution.getTJobExec().getId()).getResult());
     }
@@ -209,18 +208,6 @@ public class DockerServiceImplTest extends EtmApiItTest {
                 : null);
         execution.settJob(tJobExec.getTjob());
         execution.setTJobExec(tJobExec);
-//        
-//        SutSpecification sutSpec = setUpSut("elastest/etm-dummy-tss",
-//                "sutFromImage", "8095");
-//        log.info("Creating SutExecution");
-//        SutExecution sutExec = sutService.createSutExecutionBySut(sutSpec);
-//        TJob tJob = setUpTJob(tJobImage, sutSpec);
-//        TJobExecution tJobExec = setUpTJobExecution(tJob, sutExec);
-//        tJobExec = tJobService.getTJobExecById(tJobExec.getId());
-//        execution.settJob(tJobExec.getTjob());
-//        execution.setTJobExec(tJobExec);
-//        execution.setSutExec(tJobExec.getSutExecution());
-//        execution.setSut(tJobExec.getSutExecution().getSutSpecification());
         return execution;
     }
 
