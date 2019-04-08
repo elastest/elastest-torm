@@ -96,7 +96,6 @@ public class DockerServiceImpItTest extends EtmApiItTest {
         project.setName("Test project");
         project.setId(new Long(0));
         log.info("* Project Id: {} *", project.getId());
-        instanceId = UtilTools.generateUniqueId();
         path = sharedFolder.endsWith("/") ? sharedFolder : sharedFolder + "/";
         tmpTssInstancesYmlFolder = path + "tmp-support-services-yml";
     }
@@ -285,6 +284,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
     }
 
     private void prepareTssEnvironment() throws Exception {
+        instanceId = UtilTools.generateUniqueId();
         SupportServiceInstance supportServiceInstance = esmService
                 .createNewServiceInstance(serviceId, null, serviceId);
         platformService.createServiceDeploymentProject(instanceId, tssDummyYml,
