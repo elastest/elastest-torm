@@ -3,7 +3,9 @@ package io.elastest.etm.platform.service;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
@@ -84,45 +87,54 @@ public class DockerServiceImpItTest extends EtmApiItTest {
     String instanceId;
     String path;
     String tmpTssInstancesYmlFolder;
+    String elastestNetwork = "elastest_elastest";
 
     @BeforeAll
     public void setUp() {
-        log.info("Starting initial test configuration");
+        log.info("*** Starting initial test configuration ***");
         project = new Project();
         project.setName("Test project");
         project.setId(new Long(0));
-        project = projectService.saveProject(project);
+        log.info("* Project Id: {} *", project.getId());
         instanceId = UtilTools.generateUniqueId();
         path = sharedFolder.endsWith("/") ? sharedFolder : sharedFolder + "/";
         tmpTssInstancesYmlFolder = path + "tmp-support-services-yml";
     }
 
     @BeforeEach
+    @Transactional
     public void setUpTest(TestInfo testInfo) {
-        log.info("Initial configuration for the test {}",
+        log.info("* Initial configuration for the test {} *",
                 testInfo.getTestMethod().get().getName());
+        project = projectService.saveProject(project);
         execution = new Execution();
     }
 
     @AfterEach
+    @Transactional
     public void reset() {
-        log.info("Clean environment by test");
+        log.info("* Clean environment by test *");
+        try {
+            projectService.deleteProject(project.getId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         execution = null;
     }
 
     @AfterAll
     public void deleteAll() {
-        log.info("Clean test environment");
+        log.info("*** Clean test environment at the end *** ");
+        log.info("* Project Id: {} *", project.getId());
     }
 
     @Test
     @Transactional
     public void testDeploySut() throws Exception {
-        log.info("Starting test to check a sut deploy");
+        log.info("Start the test to check a sut deploy");
         execution = prepareTJobEnvironment("elastest/etm-dummy-tss", "8095",
                 "sutFromImage", null, null);
         platformService.deploySut(execution);
-        projectService.deleteProject(project.getId());
         assertNotNull(execution.getSutExec().getIp());
     }
 
@@ -134,48 +146,144 @@ public class DockerServiceImpItTest extends EtmApiItTest {
                 "sutFromImage", null, null);
         platformService.deploySut(execution);
         platformService.undeploySut(execution, true);
-        projectService.deleteProject(project.getId());
         assertEquals(DeployStatusEnum.UNDEPLOYED,
                 execution.getSutExec().getDeployStatus());
     }
 
     @Test
     @Transactional
-    @Disabled
     public void testDeployService() throws Exception {
-        log.info("Starting test to check a TSS deployment");
-        SupportServiceInstance supportServiceInstance = esmService
-                .createNewServiceInstance(serviceId, null, serviceId);
-
-        platformService.createServiceDeploymentProject(instanceId, tssDummyYml,
-                tmpTssInstancesYmlFolder, true,
-                supportServiceInstance.getParameters(), false, false);
+        log.info("Start the test to check a TSS deployment");
+        prepareTssEnvironment();
         assertTrue(platformService.deployService(instanceId, true));
+        platformService.undeployService(instanceId);
     }
 
     @Test
     @Transactional
-    @Disabled
     public void testUndeployService() throws Exception {
-        log.info("Starting test to check a TSS undeployment");
+        log.info("Start the test to check a TSS undeployment");
         prepareTssEnvironment();
-        assertTrue(platformService.deployService(instanceId, true));
+        platformService.deployService(instanceId, true);
+        assertTrue(platformService.undeployService(instanceId));
     }
 
     @Test
     @Transactional
     public void testDeployAndRunTJobExecution() throws Exception {
-        log.info("Starting test to check a TJob deployment");
+        log.info("Start the test to check a TJob deployment");
         execution = prepareTJobEnvironment(null, null, null,
                 "elastest/dummy-tjob-simple", null);
         execution.gettJob().setResultsPath(null);
         execution.gettJob().setCommands(null);
         platformService.deployAndRunTJobExecution(execution);
-        projectService.deleteProject(project.getId());
         assertEquals(ResultEnum.SUCCESS, tJobService
                 .getTJobExecById(execution.getTJobExec().getId()).getResult());
     }
-    
+
+    @Test
+    @Transactional
+    public void testGetServiceDeploymentImages() throws Exception {
+        log.info(
+                "Start the test to check if the images associated to a service are retrived");
+        deployDummyTSS();
+        assertEquals("elastest/etm-dummy-tss",
+                platformService.getServiceDeploymentImages(instanceId).get(0));
+        platformService.undeployService(instanceId);
+    }
+
+    @Test
+    @Transactional
+    public void testGetContainers() throws Exception {
+        log.info("Start the test to retrive containers by project name");
+        deployDummyTSS();
+        DockerContainerInfo containerInfo = platformService
+                .getContainers(instanceId);
+        assertEquals(instanceId + "_dummy-tss_1",
+                containerInfo.getContainers().get(0).getName());
+        platformService.undeployService(instanceId);
+    }
+
+    @Test
+    @Transactional
+    public void testIsContainerIntoNetwork() throws Exception {
+        log.info(
+                "Start the test to check if a container is within a specific network");
+        deployDummyTSS();
+        DockerContainerInfo containerInfo = platformService
+                .getContainers(instanceId);
+        assertTrue(platformService.isContainerIntoNetwork(elastestNetwork,
+                containerInfo.getContainers().get(0).getName()));
+        platformService.undeployService(instanceId);
+    }
+
+    @Test
+    @Transactional
+    public void testGetContainerIpByNetwork() throws Exception {
+        log.info("Start the test to retrive the ip of a containers by network");
+        deployDummyTSS();
+        DockerContainerInfo containerInfo = platformService
+                .getContainers(instanceId);
+        String ip = platformService.getContainerIpByNetwork(
+                containerInfo.getContainers().get(0).getName(),
+                elastestNetwork);
+        log.info("Container ip: {}", ip);
+        assertNotNull(ip);
+        platformService.undeployService(instanceId);
+    }
+
+    @Test
+    @Transactional
+    public void testInsertIntoETNetwork() throws Exception {
+
+    }
+
+    @Test
+    @Transactional
+    public void testGetContainerName() throws Exception {
+        log.info(
+                "Start the test to retrive the name of a container by service name and network");
+        deployDummyTSS();
+        String containerName = platformService.getContainerName("dummy-tss",
+                elastestNetwork);
+        assertEquals(instanceId + "_dummy-tss_1", containerName.split("/")[1]);
+        platformService.undeployService(instanceId);
+    }
+
+    @Test
+    @Transactional
+    public void testEnableServiceMetricMonitoring() throws Exception {
+        log.info("Start the test to check the enablement of monitoring");
+        execution = prepareTJobEnvironment(null, null, null,
+                "elastest/dummy-tjob-simple", null);
+        execution.gettJob().setResultsPath(null);
+        execution.gettJob().setCommands(null);
+        platformService.enableServiceMetricMonitoring(execution);
+        assertEquals("elastest_dockbeat_" + execution.getExecutionId(),
+                platformService.getContainers("elastest_dockbeat")
+                        .getContainers().get(0).getName());
+    }
+
+    @Test
+    @Transactional
+    public void testDisableMetricMonitoring() throws Exception {
+        log.info("Start the test to check that the monitor is disabled");
+        execution = prepareTJobEnvironment(null, null, null,
+                "elastest/dummy-tjob-simple", null);
+        execution.gettJob().setResultsPath(null);
+        execution.gettJob().setCommands(null);
+        platformService.enableServiceMetricMonitoring(execution);
+        Thread.sleep(3000);
+        platformService.disableMetricMonitoring(execution, true);
+        assertEquals(0, platformService.getContainers("elastest_dockbeat")
+                        .getContainers().size());
+    }
+
+    private void deployDummyTSS() throws Exception {
+        prepareTssEnvironment();
+        platformService.deployService(instanceId, true);
+    }
+
     private void prepareTssEnvironment() throws Exception {
         SupportServiceInstance supportServiceInstance = esmService
                 .createNewServiceInstance(serviceId, null, serviceId);

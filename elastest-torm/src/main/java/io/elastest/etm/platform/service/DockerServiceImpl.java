@@ -1605,6 +1605,7 @@ public class DockerServiceImpl extends PlatformService {
                         && currentContainerName.endsWith(serviceName + "_1")
                         && isContainerIntoNetwork(network,
                                 currentContainerName)) {
+                    logger.info("Container name: {}", currentContainerName);
                     return currentContainerName;
 
                 }
