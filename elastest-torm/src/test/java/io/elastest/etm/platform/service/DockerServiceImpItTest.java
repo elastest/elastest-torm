@@ -151,6 +151,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
 
     @Test
     @Transactional
+    @Disabled
     public void testDeployService() throws Exception {
         log.info("Start the test to check a TSS deployment");
         prepareTssEnvironment();
@@ -160,6 +161,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
 
     @Test
     @Transactional
+    @Disabled
     public void testUndeployService() throws Exception {
         log.info("Start the test to check a TSS undeployment");
         prepareTssEnvironment();
@@ -182,6 +184,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
 
     @Test
     @Transactional
+    @Disabled
     public void testGetServiceDeploymentImages() throws Exception {
         log.info(
                 "Start the test to check if the images associated to a service are retrived");
@@ -193,6 +196,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
 
     @Test
     @Transactional
+    @Disabled
     public void testGetContainers() throws Exception {
         log.info("Start the test to retrive containers by project name");
         deployDummyTSS();
@@ -205,6 +209,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
 
     @Test
     @Transactional
+    @Disabled
     public void testIsContainerIntoNetwork() throws Exception {
         log.info(
                 "Start the test to check if a container is within a specific network");
@@ -218,6 +223,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
 
     @Test
     @Transactional
+    @Disabled
     public void testGetContainerIpByNetwork() throws Exception {
         log.info("Start the test to retrive the ip of a containers by network");
         deployDummyTSS();
@@ -239,6 +245,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
 
     @Test
     @Transactional
+    @Disabled
     public void testGetContainerName() throws Exception {
         log.info(
                 "Start the test to retrive the name of a container by service name and network");
