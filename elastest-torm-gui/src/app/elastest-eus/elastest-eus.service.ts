@@ -9,11 +9,13 @@ import { EusTestModel } from './elastest-eus-test-model';
 
 @Injectable()
 export class EusService {
+  /* default something like http://172.18.0.1:8091/eus/v1/,
+   but can be set with 'http://172.18.0.1:8091/eus/v1/execution/{key}/' like in test-plan-execution of testlink */
   private eusUrl: string = this.configurationService.configModel.eusServiceUrl;
   private hostName: string = this.configurationService.configModel.hostName;
   // private sessionPath: string = 'wd/hub/session';
 
-  // Session path default 'session', but can be set with 'execution/{key}/session' like in test-plan-execution of testlink
+  // Session path default 'session'
   private sessionPath: string = 'session';
 
   constructor(private http: HttpClient, private configurationService: ConfigurationService) {}
@@ -151,7 +153,7 @@ export class EusService {
   }
 
   public uploadFileToSession(sessionId: string, file: File): Observable<string> {
-    let url: string = this.eusUrl + this.sessionPath + '/' + sessionId + '/browserfile';
+    let url: string = this.eusUrl + 'browserfile/' + this.sessionPath + '/' + sessionId;
 
     let formData: FormData = new FormData();
     formData.append('file', file);
