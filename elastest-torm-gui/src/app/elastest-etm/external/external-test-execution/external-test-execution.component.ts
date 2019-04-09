@@ -5,7 +5,6 @@ import { ActivatedRoute, Router, Params } from '@angular/router';
 import { ExternalTestExecutionModel } from './external-test-execution-model';
 import { ExternalTestCaseModel } from '../external-test-case/external-test-case-model';
 import { ServiceType } from '../external-project/external-project-model';
-import { ExternalTJobModel } from '../external-tjob/external-tjob-model';
 import { ExternalTJobExecModel } from '../external-tjob-execution/external-tjob-execution-model';
 import { ElastestLogAnalyzerComponent } from '../../../elastest-log-analyzer/elastest-log-analyzer.component';
 import { FileModel } from '../../files-manager/file-model';
@@ -27,7 +26,6 @@ export class ExternalTestExecutionComponent implements OnInit {
   selectedTab: number = 0;
 
   exTJobId: number;
-  exTJob: ExternalTJobModel;
   exTJobExec: ExternalTJobExecModel;
 
   serviceType: ServiceType;
@@ -62,16 +60,10 @@ export class ExternalTestExecutionComponent implements OnInit {
         this.exTestCase = this.exTestExec.exTestCase;
         this.serviceType = this.exTestExec.getServiceType();
 
-        this.externalService.getExternalTJobById(this.exTJobId).subscribe(
-          (exTJob: ExternalTJobModel) => {
-            this.exTJob = exTJob;
-            this.exTJobExec = this.externalService.eTExternalModelsTransformService.jsonToExternalTJobExecModel(
-              this.exTestExec.exTJobExec,
-            );
-            this.getExecutionFiles();
-          },
-          (error: Error) => console.log(error),
+        this.exTJobExec = this.externalService.eTExternalModelsTransformService.jsonToExternalTJobExecModel(
+          this.exTestExec.exTJobExec,
         );
+        this.getExecutionFiles();
       },
       (error: Error) => console.log(error),
     );
@@ -109,7 +101,7 @@ export class ExternalTestExecutionComponent implements OnInit {
   viewInLogAnalyzer(): void {
     this.router.navigate(['/loganalyzer'], {
       queryParams: {
-        exTJob: this.exTJob.id,
+        exTJob: this.exTJobId,
         exTJobExec: this.exTestExec.exTJobExec.id,
         exTestCase: this.exTestCase.name,
         exTestExec: this.exTestExec.id,

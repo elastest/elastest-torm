@@ -1,111 +1,142 @@
-<div fxLayout="column">
-  <mat-card>
-    <mat-card-title>
-      <div fxLayout="row" fxLayoutAlign="space-between end" class="pad-right-xs">
-        <span>
-          <mat-icon *ngIf="exTestExec.finished() || exTestExec.notExecuted()" style="vertical-align: sub;" [style.color]="exTestExec.getResultIcon().color"
-            matTooltip="{{exTestExec.result}}">
-            {{exTestExec.getResultIcon().name}}</mat-icon>
-        </span>
-        <a *ngIf="exTestCase && exTestExec" class="normalTextLink">
-          <span>External Test Case</span>
-          <span> "{{exTestCase.name}}"</span>
-        </a>
-        <span>: Execution {{exTestExecId}}</span>
-        <span fxFlex></span>
-        <span *ngIf="exTestExec, exTestCase">
-          <button mat-button (click)="viewInLogAnalyzer()" class="iconBtn" matTooltip="View in Log Analyzer">
-            <mat-icon>library_books</mat-icon>
-          </button>
-        </span>
-      </div>
-    </mat-card-title>
-    <mat-divider></mat-divider>
-    <mat-card-content>
-      <div fxLayout="row" class="push-bottom-sm">
-        <div fxFlex="47">
-          <mat-list class="listInfoToLeft">
-            <mat-list-item>
-              <h4>Start Date</h4>
-              <p>{{exTestExec.startDate | date:'dd/MM/yyyy HH:mm:ss'}}</p>
-            </mat-list-item>
-            <mat-divider></mat-divider>
-          </mat-list>
-        </div>
-        <div fxFlex="5"></div>
-        <div fxFlex="47">
-          <mat-list class="listInfoToLeft">
-            <mat-list-item>
-              <h4>End Date</h4>
-              <p>{{exTestExec.endDate | date:'dd/MM/yyyy HH:mm:ss'}}</p>
-            </mat-list-item>
-            <mat-divider></mat-divider>
-          </mat-list>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-</div>
-
-
-<div fxLayout="row" fxFlexFill>
-  <div #serviceExecution fxFlex="50">
-    <ng-container *ngIf="serviceType" [ngSwitch]="serviceType">
-      <ng-container *ngSwitchCase="'TESTLINK'">
-        <div id="testLinkExec">
-          <testlink-test-execution #executionForm *ngIf="exTestCase.externalId && exTestExec.externalId" [caseId]="exTestCase.externalId"
-            [execId]="exTestExec.externalId"></testlink-test-execution>
-        </div>
-      </ng-container>
-    </ng-container>
-  </div>
-  <div fxFlex="50">
-    <mat-card id="miniLogAnalyzerCard">
-      <mat-card-content fxFlexFill fxLayout="column">
-        <mat-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
-          <mat-tab label="Logs">
-            <elastest-log-analyzer #miniLogAnalyzer *ngIf="exTestCase && exTestExec" [isEmbed]="true" [exTJob]="exTestCase.exTJob.id"
-              [exTJobExec]="exTestExec.exTJobExec.id" [exTestCase]="exTestCase.name" [exTestExec]="exTestExec.id"></elastest-log-analyzer>
-          </mat-tab>
-          <div *ngIf="miniLogAnalyzer">
-            <mat-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes" label="{{component.name}}">
-              <elastest-log-analyzer *ngIf="exTestCase && exTestExec" [isEmbed]="true" [componentStreams]="[component]"
-                [exTJob]="exTestCase.exTJob.id" [exTJobExec]="exTestExec.exTJobExec.id" [exTestCase]="exTestCase.name"
-                [exTestExec]="exTestExec.id"></elastest-log-analyzer>
-            </mat-tab>
+<auto-height-grid fxLayout="column" *ngIf="exTestCase && exTestExec">
+  <normal-height-row
+    ><div fxLayout="column">
+      <mat-card>
+        <mat-card-title>
+          <div fxLayout="row" fxLayoutAlign="space-between end" class="pad-right-xs">
+            <span>
+              <mat-icon
+                *ngIf="exTestExec.finished() || exTestExec.notExecuted()"
+                style="vertical-align: sub;"
+                [style.color]="exTestExec.getResultIcon().color"
+                matTooltip="{{ exTestExec.result }}"
+              >
+                {{ exTestExec.getResultIcon().name }}</mat-icon
+              >
+            </span>
+            <a class="normalTextLink">
+              <span>External Test Case</span>
+              <span> "{{ exTestCase.name }}"</span>
+            </a>
+            <span>: Execution {{ exTestExecId }}</span>
+            <span fxFlex></span>
+            <span>
+              <button mat-button (click)="viewInLogAnalyzer()" class="iconBtn" matTooltip="View in Log Analyzer">
+                <mat-icon>library_books</mat-icon>
+              </button>
+            </span>
           </div>
+        </mat-card-title>
+        <mat-divider></mat-divider>
+        <mat-card-content>
+          <div fxLayout="row" class="push-bottom-sm">
+            <div fxFlex="47">
+              <mat-list class="listInfoToLeft">
+                <mat-list-item>
+                  <h4>Start Date</h4>
+                  <p>{{ exTestExec.startDate | date: 'dd/MM/yyyy HH:mm:ss' }}</p>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+              </mat-list>
+            </div>
+            <div fxFlex="5"></div>
+            <div fxFlex="47">
+              <mat-list class="listInfoToLeft">
+                <mat-list-item>
+                  <h4>End Date</h4>
+                  <p>{{ exTestExec.endDate | date: 'dd/MM/yyyy HH:mm:ss' }}</p>
+                </mat-list-item>
+                <mat-divider></mat-divider>
+              </mat-list>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </normal-height-row>
 
-          <mat-tab label="Files">
-            <div fxLayout="row" *ngFor="let file of files">
-              <div fxFlex id="filesContent">
-                <div>
-                  <p>Title</p>
-                  <span>{{file.name}}</span>
-                </div>
-                <a mat-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
-                  Open Video
-                  <mat-icon>open_in_new</mat-icon>
-                </a>
+  <auto-height-row fxFlex>
+    <auto-height-grid fxLayout="row" fxLayout.lt-md="column" id="exTestCaseContent" fxFlexFill>
+      <auto-height-row #serviceExecution fxFlex="40" fxFlex.gt-lg="35" class="mat-content">
+        <ng-container *ngIf="serviceType" [ngSwitch]="serviceType">
+          <ng-container *ngSwitchCase="'TESTLINK'">
+            <div id="testLinkExec">
+              <testlink-test-execution
+                #executionForm
+                *ngIf="exTestCase.externalId && exTestExec.externalId"
+                [caseId]="exTestCase.externalId"
+                [execId]="exTestExec.externalId"
+              ></testlink-test-execution>
+            </div>
+          </ng-container>
+        </ng-container>
+      </auto-height-row>
+
+      <auto-height-row fxFlex="60" fxFlex.gt-lg="65">
+        <self-adjustable-card id="miniLogAnalyzerCard" [hideTitle]="true">
+          <sa-card-content fxFlexFill fxLayout="column">
+            <mat-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
+              <mat-tab label="All Logs">
+                <elastest-log-analyzer
+                  #miniLogAnalyzer
+                  *ngIf="exTJobId && exTestExec.exTJobExec"
+                  [isEmbed]="true"
+                  [exTJob]="exTJobId"
+                  [exTJobExec]="exTestExec.exTJobExec.id"
+                  [exTestCase]="exTestCase.name"
+                  [exTestExec]="exTestExec.id"
+                ></elastest-log-analyzer>
+              </mat-tab>
+              <div *ngIf="miniLogAnalyzer">
+                <mat-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes" label="{{ component.name }}">
+                  <ng-template mat-tab-label>
+                    <span matTooltip="{{ component.name }}">{{ component.name }}</span>
+                  </ng-template>
+                  <ng-template matTabContent>
+                    <elastest-log-analyzer
+                      [isEmbed]="true"
+                      [componentStreams]="[component]"
+                      [exTJob]="exTJobId"
+                      [exTJobExec]="exTestExec.exTJobExec.id"
+                      [exTestCase]="exTestCase.name"
+                      [exTestExec]="exTestExec.id"
+                    ></elastest-log-analyzer
+                  ></ng-template>
+                </mat-tab>
               </div>
-            </div>
-            <centered-element *ngIf="files && files.length === 0" class="push-top-important messageEmptyCard">
-              <mat-icon>assignment</mat-icon>
-              <p>No Files found</p>
-            </centered-element>
-          </mat-tab>
-          <mat-tab *ngFor="let file of getMP4Files()">
-            <ng-template mat-tab-label>
-              <mat-icon matTooltip="Video" id="videoIcon">play_circle_filled</mat-icon>
-            </ng-template>
-            <div id="videoContent">
-              <video controls id="video">
-                <source src="{{filesUrlPrefix}}{{file.url}}" type="video/mp4">
-              </video>
-            </div>
-          </mat-tab>
 
-        </mat-tab-group>
-      </mat-card-content>
-    </mat-card>
-  </div>
-</div>
+              <mat-tab label="Files">
+                <div fxLayout="row" *ngFor="let file of files">
+                  <div fxFlex id="filesContent">
+                    <div>
+                      <p>Title</p>
+                      <span>{{ file.name }}</span>
+                    </div>
+                    <a mat-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
+                      Open Video
+                      <mat-icon>open_in_new</mat-icon>
+                    </a>
+                  </div>
+                </div>
+                <centered-element *ngIf="files && files.length === 0" class="push-top-important messageEmptyCard">
+                  <mat-icon>assignment</mat-icon>
+                  <p>No Files found</p>
+                </centered-element>
+              </mat-tab>
+              <mat-tab *ngFor="let file of getMP4Files()">
+                <ng-template mat-tab-label>
+                  <mat-icon matTooltip="Video" id="videoIcon">play_circle_filled</mat-icon>
+                </ng-template>
+                <div id="videoContent">
+                  <video controls id="video">
+                    <source src="{{ filesUrlPrefix }}{{ file.url }}" type="video/mp4" />
+                  </video>
+                </div>
+              </mat-tab>
+            </mat-tab-group>
+          </sa-card-content>
+        </self-adjustable-card>
+      </auto-height-row>
+    </auto-height-grid>
+  </auto-height-row>
+</auto-height-grid>
