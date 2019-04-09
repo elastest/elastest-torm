@@ -93,4 +93,72 @@ public class TestSuiteService {
         }
         return failedTestCases;
     }
+
+    public List<TestCase> getFailedTJobExecsTestCases(List<Long> tJobExecIds) {
+        List<TestCase> failedTCases = new ArrayList<>();
+        if (tJobExecIds != null) {
+            for (Long id : tJobExecIds) {
+                List<TestCase> currentFailedTCases = getFailedTJobExecTestCases(
+                        id);
+                if (currentFailedTCases != null
+                        && currentFailedTCases.size() > 0) {
+                    failedTCases.addAll(currentFailedTCases);
+                }
+            }
+        }
+        return failedTCases;
+    }
+
+    public Map<String, List<String>> getFailedTJobExecTestCasesAndSuitesNamesPair(
+            Long tJobExecId,
+            Map<String, List<String>> failedTCasesAndSuitesNames) {
+        if (tJobExecId != null) {
+            List<TestSuite> suites = testSuiteRepository
+                    .findByTJobExecId(tJobExecId);
+
+            for (TestSuite suite : suites) {
+                if (suite.getTestCases() != null) {
+                    for (TestCase currentCase : suite.getTestCases()) {
+                        // If all tests or only failed tests
+                        if (currentCase.isFailed()) {
+
+                            String suiteName = suite.getName();
+                            if (!failedTCasesAndSuitesNames
+                                    .containsKey(suiteName)) {
+                                failedTCasesAndSuitesNames.put(suiteName,
+                                        new ArrayList<>());
+                            }
+                            if (!failedTCasesAndSuitesNames.get(suiteName)
+                                    .contains(currentCase.getName())) {
+                                failedTCasesAndSuitesNames.get(suiteName)
+                                        .add(currentCase.getName());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return failedTCasesAndSuitesNames;
+    }
+
+    public Map<String, List<String>> getFailedTJobExecsTestCasesAndSuitesNamesPair(
+            List<Long> tJobExecIds) {
+        Map<String, List<String>> failedTCasesAndSuitesNames = new HashMap<>();
+        if (tJobExecIds != null) {
+            for (Long id : tJobExecIds) {
+                failedTCasesAndSuitesNames = getFailedTJobExecTestCasesAndSuitesNamesPair(
+                        id, failedTCasesAndSuitesNames);
+            }
+        }
+        return failedTCasesAndSuitesNames;
+    }
+
+    public Map<String, List<String>> getFailedTJobExecsTestCasesAndSuitesNamesPairByStrIds(
+            List<String> tJobExecIds) {
+        List<Long> ids = new ArrayList<>();
+        for (String idStr : tJobExecIds) {
+            ids.add(new Long(idStr));
+        }
+        return getFailedTJobExecsTestCasesAndSuitesNamesPair(ids);
+    }
 }

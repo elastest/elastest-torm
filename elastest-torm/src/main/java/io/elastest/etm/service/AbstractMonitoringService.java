@@ -102,13 +102,6 @@ public abstract class AbstractMonitoringService {
                 tCases = testSuiteService.getTJobExecTestCases(tJobExecId);
             }
 
-            // If components list not empty, use list. Else, use unique
-            // component
-            List<String> components = monitoringQuery.getComponents();
-            components = components != null && components.size() > 0
-                    ? components
-                    : Arrays.asList(monitoringQuery.getComponent());
-
             if (tCases != null) {
                 for (TestCase currentCase : tCases) {
                     // If all tests or only failed tests
@@ -116,8 +109,7 @@ public abstract class AbstractMonitoringService {
                         List<String> tcLogs = searchTestCaseLogsMessage(
                                 currentCase.getName(),
                                 currentCase.getTestSuite().getName(),
-                                components, monitoringQuery, withTimestamp,
-                                timeDiff);
+                                monitoringQuery, withTimestamp, timeDiff);
                         if (tcLogs != null && tcLogs.size() > 0) {
                             testsLogs.add(tcLogs);
                         }
@@ -129,15 +121,47 @@ public abstract class AbstractMonitoringService {
         return testsLogs;
     }
 
-    public List<String> searchTestCaseLogsMessage(String testCaseName,
-            String testSuiteName, List<String> components,
+    public List<List<String>> searchTestLogsMessageByCasesNames(
             MonitoringQuery monitoringQuery, boolean withTimestamp,
-            boolean timeDiff) throws Exception {
+            boolean timeDiff,
+            Map<String, List<String>> failedTCasesAndSuitesNamesMap)
+            throws Exception {
+        List<List<String>> testsLogs = new ArrayList<>();
+        if (failedTCasesAndSuitesNamesMap != null
+                && !failedTCasesAndSuitesNamesMap.isEmpty()) {
+            for (HashMap.Entry<String, List<String>> currentCaseSuiteNamesEntry : failedTCasesAndSuitesNamesMap
+                    .entrySet()) {
+                if (currentCaseSuiteNamesEntry != null
+                        && currentCaseSuiteNamesEntry.getValue() != null) {
+                    for (String testCaseName : currentCaseSuiteNamesEntry
+                            .getValue()) {
+                        List<String> tcLogs = searchTestCaseLogsMessage(
+                                testCaseName,
+                                currentCaseSuiteNamesEntry.getKey(),
+                                monitoringQuery, withTimestamp, timeDiff);
+                        if (tcLogs != null && tcLogs.size() > 0) {
+                            testsLogs.add(tcLogs);
+                        }
+                    }
+                }
+            }
+        }
+        return testsLogs;
+    }
+
+    public List<String> searchTestCaseLogsMessage(String testCaseName,
+            String testSuiteName, MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff) throws Exception {
         List<String> tcLogs = new ArrayList<>();
 
-        List<String> testComponents = components;
+        // If components list not empty, use list. Else, use unique
+        // component
+        List<String> testComponents = monitoringQuery.getComponents();
+        testComponents = testComponents != null && testComponents.size() > 0
+                ? testComponents
+                : Arrays.asList(monitoringQuery.getComponent());
 
-        if (!components.contains("test")) {
+        if (!testComponents.contains("test")) {
             // Only test has start/finish trace
             testComponents = Arrays.asList("test");
         }
@@ -204,6 +228,14 @@ public abstract class AbstractMonitoringService {
 
             List<String>[] pairLogs = new List[2];
             int pos = 0;
+            Map<String, List<String>> failedTCasesAndSuitesNamesMap = null;
+            if (view != null && view.equals("failedtests")) {
+                // Map with key=Suitename and value List(TCasename1, ...)
+                failedTCasesAndSuitesNamesMap = testSuiteService
+                        .getFailedTJobExecsTestCasesAndSuitesNamesPairByStrIds(
+                                body.getIndices());
+            }
+
             for (String index : body.getIndices()) {
 
                 MonitoringQuery newQuery = new MonitoringQuery(body);
@@ -217,8 +249,9 @@ public abstract class AbstractMonitoringService {
                 if (view != null) {
                     switch (view) {
                     case "failedtests":
-                        logsList = searchTestLogsMessage(newQuery,
-                                withTimestamp, timeDiff, tJobExecId, true);
+                        logsList = searchTestLogsMessageByCasesNames(newQuery,
+                                withTimestamp, timeDiff,
+                                failedTCasesAndSuitesNamesMap);
                         break;
                     case "testslogs":
                         logsList = searchTestLogsMessage(newQuery,
