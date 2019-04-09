@@ -109,11 +109,11 @@
     <etm-monitoring-view #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
 
     <!-- TSS Services Instances -->
-    <div *ngIf="this.elastestMode && this.elastestMode === 'mini' && serviceInstances.length > 0; else tSServices">
+    <div *ngIf="this.elastestMode && this.elastestMode === 'mini' && serviceInstances.length > 0 && eusInstance; else tSServices">
       <app-elastest-eus
-        [eusUrl]="serviceInstances[0].urls.api"
-        [eusHost]="serviceInstances[0].ip"
-        [eusPort]="serviceInstances[0].port"
+        [eusUrl]="eusInstance.urls.api"
+        [eusHost]="eusInstance.ip"
+        [eusPort]="eusInstance.port"
         [standalone]="false"
         [isNested]="true"
         [abstractTJobExec]="tJobExec"

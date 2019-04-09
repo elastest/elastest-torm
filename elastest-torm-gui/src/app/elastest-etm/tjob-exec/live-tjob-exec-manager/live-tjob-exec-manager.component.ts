@@ -37,6 +37,7 @@ export class LiveTjobExecManagerComponent implements OnInit, AfterViewInit, OnDe
 
   serviceInstances: EsmServiceInstanceModel[] = [];
   instancesNumber: number;
+  eusInstance: EsmServiceInstanceModel;
 
   tJobExecMultiConfigs: ParameterModel[] = [];
   tJobExecParameters: ParameterModel[] = [];
@@ -165,11 +166,23 @@ export class LiveTjobExecManagerComponent implements OnInit, AfterViewInit, OnDe
             if (serviceInstances.length === this.instancesNumber || this.tJobExec.finished()) {
               this.unsubscribeCheckTssInstances();
               this.serviceInstances = [...serviceInstances];
+              this.searchForEUS();
             }
           },
           (error: Error) => console.log(error),
         );
       });
+    }
+  }
+
+  searchForEUS(): void {
+    if (this.serviceInstances && this.serviceInstances.length > 0) {
+      for (let instance of this.serviceInstances) {
+        if (instance && instance.serviceName && instance.serviceName.toLowerCase() === 'eus') {
+          this.eusInstance = instance;
+          break;
+        }
+      }
     }
   }
 
