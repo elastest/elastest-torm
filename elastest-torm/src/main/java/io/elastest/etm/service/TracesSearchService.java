@@ -31,7 +31,6 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringTemplate;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.Enums.LevelEnum;
@@ -53,9 +52,9 @@ public class TracesSearchService extends AbstractMonitoringService {
     JPAQueryFactory queryFactory;
 
     public TracesSearchService(TraceRepository traceRepository,
-            TestSuiteRepository testSuiteRepository,
+            TestSuiteService testSuiteService,
             UtilsService utilsService) {
-        super(testSuiteRepository, utilsService);
+        super(testSuiteService, utilsService);
         this.traceRepository = traceRepository;
     }
 

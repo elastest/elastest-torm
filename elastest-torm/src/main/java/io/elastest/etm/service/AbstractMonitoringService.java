@@ -17,12 +17,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.scheduling.annotation.Async;
 
-import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.model.TestCase;
-import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.TimeRange;
 import io.elastest.etm.utils.DiffMatchPatch;
 import io.elastest.etm.utils.DiffMatchPatch.Diff;
@@ -33,15 +31,16 @@ public abstract class AbstractMonitoringService {
     String processingComparationMsg = "ET-PROCESSING";
     private Map<String, String> comparisonProcessMap = new HashMap<>();
 
-    protected TestSuiteRepository testSuiteRepository;
+    protected TestSuiteService testSuiteService;
     protected UtilsService utilsService;
+
     public AbstractMonitoringService() {
     }
 
-    public AbstractMonitoringService(TestSuiteRepository testSuiteRepository,
+    public AbstractMonitoringService(TestSuiteService testSuiteService,
             UtilsService utilsService) {
         this.utilsService = utilsService;
-        this.testSuiteRepository = testSuiteRepository;
+        this.testSuiteService = testSuiteService;
     }
 
     public abstract void createMonitoringIndex(String[] indicesList);
@@ -93,8 +92,15 @@ public abstract class AbstractMonitoringService {
             throws Exception {
         List<List<String>> testsLogs = new ArrayList<>();
         if (tJobExecId != null) {
-            List<TestSuite> suites = testSuiteRepository
-                    .findByTJobExecId(tJobExecId);
+            List<TestCase> tCases = new ArrayList<>();
+
+            // If only failed tests
+            if (onlyFailed) {
+                tCases = testSuiteService
+                        .getFailedTJobExecTestCases(tJobExecId);
+            } else {
+                tCases = testSuiteService.getTJobExecTestCases(tJobExecId);
+            }
 
             // If components list not empty, use list. Else, use unique
             // component
@@ -103,64 +109,68 @@ public abstract class AbstractMonitoringService {
                     ? components
                     : Arrays.asList(monitoringQuery.getComponent());
 
-            for (TestSuite suite : suites) {
-                if (suite.getTestCases() != null) {
-                    for (TestCase currentCase : suite.getTestCases()) {
-
-                        // If all tests or only failed tests
-                        if (!onlyFailed
-                                || (onlyFailed && currentCase.isFailed())) {
-
-                            List<String> testComponents = components;
-
-                            if (!components.contains("test")) {
-                                // Only test has start/finish trace
-                                testComponents = Arrays.asList("test");
-                            }
-
-                            Date startTestTrace = this
-                                    .findFirstStartTestMsgAndGetTimestamp(
-                                            monitoringQuery
-                                                    .getIndicesAsString(),
-                                            currentCase.getName(),
-                                            testComponents);
-                            Date finishTestTrace = this
-                                    .findFirstFinishTestMsgAndGetTimestamp(
-                                            monitoringQuery
-                                                    .getIndicesAsString(),
-                                            currentCase.getName(),
-                                            testComponents);
-
-                            if (startTestTrace != null
-                                    && finishTestTrace != null) {
-
-                                TimeRange timeRange = new TimeRange();
-                                timeRange.setGte(startTestTrace);
-                                timeRange.setLte(finishTestTrace);
-                                monitoringQuery.setTimeRange(timeRange);
-
-                                List<String> tcLogs = searchAllLogsMessage(
-                                        monitoringQuery, withTimestamp,
-                                        timeDiff, true);
-
-                                if (tcLogs.size() > 0) {
-                                    String completeTestName = "<TEST>: "
-                                            + suite.getName() + " -> "
-                                            + currentCase.getName();
-                                    List<String> aux = new ArrayList<>();
-                                    aux.add(completeTestName);
-                                    aux.addAll(tcLogs);
-                                    tcLogs = aux;
-                                }
-
-                                testsLogs.add(tcLogs);
-                            }
+            if (tCases != null) {
+                for (TestCase currentCase : tCases) {
+                    // If all tests or only failed tests
+                    if (!onlyFailed || (onlyFailed && currentCase.isFailed())) {
+                        List<String> tcLogs = searchTestCaseLogsMessage(
+                                currentCase.getName(),
+                                currentCase.getTestSuite().getName(),
+                                components, monitoringQuery, withTimestamp,
+                                timeDiff);
+                        if (tcLogs != null && tcLogs.size() > 0) {
+                            testsLogs.add(tcLogs);
                         }
                     }
                 }
             }
+
         }
         return testsLogs;
+    }
+
+    public List<String> searchTestCaseLogsMessage(String testCaseName,
+            String testSuiteName, List<String> components,
+            MonitoringQuery monitoringQuery, boolean withTimestamp,
+            boolean timeDiff) throws Exception {
+        List<String> tcLogs = new ArrayList<>();
+
+        List<String> testComponents = components;
+
+        if (!components.contains("test")) {
+            // Only test has start/finish trace
+            testComponents = Arrays.asList("test");
+        }
+
+        Date startTestTrace = this.findFirstStartTestMsgAndGetTimestamp(
+                monitoringQuery.getIndicesAsString(), testCaseName,
+                testComponents);
+        Date finishTestTrace = this.findFirstFinishTestMsgAndGetTimestamp(
+                monitoringQuery.getIndicesAsString(), testCaseName,
+                testComponents);
+
+        if (startTestTrace != null && finishTestTrace != null) {
+
+            TimeRange timeRange = new TimeRange();
+            timeRange.setGte(startTestTrace);
+            timeRange.setLte(finishTestTrace);
+            monitoringQuery.setTimeRange(timeRange);
+
+            tcLogs = searchAllLogsMessage(monitoringQuery, withTimestamp,
+                    timeDiff, true);
+
+            if (tcLogs.size() > 0) {
+                String completeTestName = "<TEST>: " + testSuiteName + " -> "
+                        + testCaseName;
+                List<String> aux = new ArrayList<>();
+                aux.add(completeTestName);
+                aux.addAll(tcLogs);
+                tcLogs = aux;
+            }
+
+        }
+
+        return tcLogs;
     }
 
     public String compareLogsPair(MonitoringQuery body, String comparison,

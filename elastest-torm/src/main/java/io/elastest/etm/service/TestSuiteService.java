@@ -1,5 +1,6 @@
 package io.elastest.etm.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,5 +57,40 @@ public class TestSuiteService {
 
     public TestCase getTestCaseById(Long testCaseId) {
         return this.testCaseRepository.findById(testCaseId).get();
+    }
+
+    public List<TestCase> getTJobExecTestCases(Long tJobExecId) {
+        if (tJobExecId != null) {
+            List<TestSuite> suites = testSuiteRepository
+                    .findByTJobExecId(tJobExecId);
+
+            for (TestSuite suite : suites) {
+                if (suite.getTestCases() != null) {
+                    return suite.getTestCases();
+                }
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    public List<TestCase> getFailedTJobExecTestCases(Long tJobExecId) {
+        List<TestCase> failedTestCases = new ArrayList<>();
+        if (tJobExecId != null) {
+            List<TestSuite> suites = testSuiteRepository
+                    .findByTJobExecId(tJobExecId);
+
+            for (TestSuite suite : suites) {
+                if (suite.getTestCases() != null) {
+                    for (TestCase currentCase : suite.getTestCases()) {
+                        // If all tests or only failed tests
+                        if (currentCase.isFailed()) {
+                            currentCase.setTestSuite(suite);
+                            failedTestCases.add(currentCase);
+                        }
+                    }
+                }
+            }
+        }
+        return failedTestCases;
     }
 }

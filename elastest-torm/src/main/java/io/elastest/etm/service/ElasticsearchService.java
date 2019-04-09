@@ -65,7 +65,6 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Value;
 
-import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
@@ -90,8 +89,8 @@ public class ElasticsearchService extends AbstractMonitoringService {
     RestHighLevelClient esClient;
 
     public ElasticsearchService(UtilsService utilsService,
-            TestSuiteRepository testSuiteRepository) {
-        super(testSuiteRepository, utilsService);
+            TestSuiteService testSuiteService) {
+        super(testSuiteService, utilsService);
     }
 
     public ElasticsearchService(String esApiUrl, String user, String pass,

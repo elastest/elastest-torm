@@ -19,7 +19,6 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService;
-import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.platform.service.DockerServiceImpl;
 import io.elastest.etm.platform.service.K8ServiceImpl;
@@ -28,6 +27,7 @@ import io.elastest.etm.service.AbstractMonitoringService;
 import io.elastest.etm.service.ElasticsearchService;
 import io.elastest.etm.service.EtPluginsService;
 import io.elastest.etm.service.EtmTestResultService;
+import io.elastest.etm.service.TestSuiteService;
 import io.elastest.etm.service.TracesSearchService;
 import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.service.client.EtmMiniSupportServiceClient;
@@ -50,7 +50,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Autowired
     TraceRepository traceRepository;
     @Autowired
-    TestSuiteRepository testSuiteRepository;
+    TestSuiteService testSuiteService;
     @Autowired
     DockerComposeService dockerComposeService;
     @Autowired
@@ -59,7 +59,6 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     DockerService dockerService;
     @Autowired
     EtmTestResultService etmTestResultService;
-
 
     @Value("${additional.server.port}")
     int additionalServerPort;
@@ -91,10 +90,10 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Bean
     public AbstractMonitoringService getMonitoringService() {
         if (utilsService.isElastestMini()) {
-            return new TracesSearchService(traceRepository, testSuiteRepository,
+            return new TracesSearchService(traceRepository, testSuiteService,
                     utilsService);
         } else {
-            return new ElasticsearchService(utilsService, testSuiteRepository);
+            return new ElasticsearchService(utilsService, testSuiteService);
         }
     }
 
