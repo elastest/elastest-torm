@@ -9,6 +9,7 @@ import { ConfigurationService } from '../../../config/configuration-service.serv
 import { MatDialogRef } from '@angular/material';
 import { ElastestEusDialog } from '../../../elastest-eus/elastest-eus.dialog';
 import { ElastestEusDialogService } from '../../../elastest-eus/elastest-eus.dialog.service';
+import { ITdDataTableColumn } from '@covalent/core';
 
 @Component({
   selector: 'etm-test-suites-view',
@@ -23,13 +24,13 @@ export class TestSuitesViewComponent implements OnInit {
 
   filesUrlPrefix: string;
 
-  testCaseColumns: any[] = [
+  testCaseColumns: ITdDataTableColumn[] = [
     { name: 'result', label: 'Result', width: 68 },
     { name: 'logAnalyzer', label: 'Log', width: 60 },
-    { name: 'name', label: 'Name' },
-    { name: 'files', label: 'Files' },
+    { name: 'name', label: 'Name', width: { min: 150, max: 750 } },
+    { name: 'files', label: 'Files', width: { min: 260, max: 750 } },
     { name: 'time', label: 'Time (s)' },
-    { name: 'failureMessage', label: 'Failure Msg' },
+    { name: 'failureMessage', label: 'Failure Msg', width: { min: 170, max: 750 } },
     { name: 'failureType', label: 'Failure Type' },
     { name: 'failureErrorLine', label: 'Error Line', width: 96 },
     { name: 'failureDetail', label: 'Failure Detail' },

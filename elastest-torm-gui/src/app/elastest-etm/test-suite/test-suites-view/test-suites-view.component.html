@@ -10,31 +10,31 @@
               <span class="centeredStatusIconSpan pad-right-sm">
                 <mat-icon [style.color]="suite.getResultIcon().color">{{ suite.getResultIcon().name }}</mat-icon>
               </span>
-              <span fxFlex.gt-xs="15">
+              <span fxFlex.gt-xs="20">
                 <mat-card-subtitle class="pad-left-none"> <strong>Test Suite</strong> </mat-card-subtitle>
-                <h4>{{ suite.name }}</h4>
+                <h4 class="wordBreakAll">{{ suite.name }}</h4>
               </span>
-              <span fxFlex.gt-xs="10">
+              <span fxFlex.gt-xs="10" fxFlexOffset="2">
                 <mat-card-subtitle class="pad-left-none">Nº Test</mat-card-subtitle>
                 <h4>{{ suite.numTests }}</h4>
               </span>
-              <span fxFlex.gt-xs="10">
+              <span fxFlex.gt-xs="10" fxFlexOffset="2">
                 <mat-card-subtitle class="pad-left-none">Errors</mat-card-subtitle>
                 <h4>{{ suite.errors }}</h4>
               </span>
-              <span fxFlex.gt-xs="10">
+              <span fxFlex.gt-xs="10" fxFlexOffset="2">
                 <mat-card-subtitle class="pad-left-none">Failures</mat-card-subtitle>
                 <h4>{{ suite.failures }}</h4>
               </span>
-              <span fxFlex.gt-xs="10">
+              <span fxFlex.gt-xs="10" fxFlexOffset="2">
                 <mat-card-subtitle class="pad-left-none">Skipped</mat-card-subtitle>
                 <h4>{{ suite.skipped }}</h4>
               </span>
-              <span fxFlex.gt-xs="10">
+              <span fxFlex.gt-xs="10" fxFlexOffset="2">
                 <mat-card-subtitle class="pad-left-none">Flakes</mat-card-subtitle>
                 <h4>{{ suite.flakes }}</h4>
               </span>
-              <span fxFlex.gt-xs="15">
+              <span fxFlex.gt-xs="15" fxFlexOffset="2">
                 <mat-card-subtitle class="pad-left-none">Time Elapsed (s)</mat-card-subtitle>
                 <h4>{{ suite.timeElapsed }}</h4>
               </span>
@@ -62,7 +62,7 @@
                 let-row="row"
               >
                 <div
-                  *ngIf="column.name !== 'logAnalyzer' && column.name !== 'files' && column.name !== 'result'"
+                  *ngIf="column.name !== 'logAnalyzer' && column.name !== 'files' && column.name !== 'result' && column.name !== 'time'"
                   class="hover-pointer lineHeightNormal textCell"
                   matTooltip="{{ value }}"
                   (click)="viewTestCaseDetails(suite, row)"
@@ -70,6 +70,14 @@
                   {{ value }}
                 </div>
               </ng-template>
+
+
+              <!-- Time -->
+              <ng-template tdDataTableTemplate="time" let-value="value" let-row="row" let-column="column">
+                  <div fxLayout="row" class="timeColumn" matTooltip="{{value}}">
+                   {{ value | number : '1.2-3'}}
+                  </div>
+                </ng-template>
 
               <!-- Result -->
               <ng-template tdDataTableTemplate="result" let-value="value" let-row="row" let-column="column">
@@ -84,28 +92,33 @@
               <ng-template tdDataTableTemplate="files" let-value="value" let-row="row" let-column="column">
                 <div fxLayout="column" class="filesColumn textCell">
                   <ol type="1" class="pad-left-md">
-                    <li *ngFor="let file of row.files">
-                      <div fxLayout="row" class="optionsColumn">
+                    <li
+                      *ngFor="let file of row.files; let i = index; let f = first; let l = last"
+                      [ngClass]="!l ? 'push-bottom' : ''"
+                    >
+                      <div fxLayout="row" class="optionsColumn" fxLayoutAlign="start center">
                         <span style="overflow: auto;">{{ file.name }}</span>
-                        <a
-                          mat-button
-                          [attr.href]="filesUrlPrefix + file.encodedUrl"
-                          class="iconBtn-xs"
-                          target="_blank"
-                          matTooltip="Open in new tab"
-                        >
-                          <mat-icon>open_in_new</mat-icon>
-                        </a>
-                        <a
-                          mat-button
-                          *ngIf="file.name.includes('.mp4')"
-                          (click)="viewSession(file, file.name)"
-                          class="iconBtn-xs"
-                          target="_blank"
-                          matTooltip="Open as dialog"
-                        >
-                          <mat-icon>open_in_browser</mat-icon>
-                        </a>
+                        <div fxLayout="column" fxLayout.gt-lg="row">
+                          <a
+                            mat-button
+                            [attr.href]="filesUrlPrefix + file.encodedUrl"
+                            class="iconBtn-xs"
+                            target="_blank"
+                            matTooltip="Open in new tab"
+                          >
+                            <mat-icon>open_in_new</mat-icon>
+                          </a>
+                          <a
+                            mat-button
+                            *ngIf="file.name.includes('.mp4')"
+                            (click)="viewSession(file, file.name)"
+                            class="iconBtn-xs"
+                            target="_blank"
+                            matTooltip="Open as dialog"
+                          >
+                            <mat-icon>open_in_browser</mat-icon>
+                          </a>
+                        </div>
                       </div>
                     </li>
                   </ol>
