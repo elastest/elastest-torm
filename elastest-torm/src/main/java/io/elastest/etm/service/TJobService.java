@@ -228,7 +228,7 @@ public class TJobService {
     public void removeOldTJobExecs(TJob tJob) {
         if (tJob != null && tJob.getMaxExecutions() > 0) {
             List<TJobExecution> lastExecs = getLastNTJobExecs(tJob.getId(),
-                    tJob.getMaxExecutions());
+                    tJob.getMaxExecutions(), false);
             if (lastExecs.size() == tJob.getMaxExecutions()) {
                 List<TJobExecution> execsToRemove = tJobExecRepositoryImpl
                         .findByTJobIdAndIdLessThan(tJob.getId(),
