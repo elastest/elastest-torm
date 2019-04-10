@@ -93,7 +93,7 @@ export class TjobManagerComponent implements OnInit {
           if (this.tJob.sut.id === 0) {
             this.tJob.sut = this.sutEmpty;
           }
-          this.tJobExecService.getLastNTJobExecutions(tJob.id, this.execsPageSize).subscribe(
+          this.tJobExecService.getLastNTJobExecutions(tJob.id, this.execsPageSize, true).subscribe(
             (tJobExecs: TJobExecModel[]) => {
               this.tJobExecDataByPage = [];
               this.fromExecsRow = 1;

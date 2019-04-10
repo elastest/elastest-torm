@@ -164,7 +164,8 @@ public interface TjobApi extends EtmApiRoot {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<List<TJobExecution>> getLastNTJobExecutions(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
-            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number);
+            @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number,
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds);
 
     @ApiOperation(value = "Returns N TJob Executions from exec id since (less or greater)", notes = "Returns N TJob Executions from exec id since (less or greater)", response = TJobExecution.class, responseContainer = "List", tags = {
             "TJob Execution", })

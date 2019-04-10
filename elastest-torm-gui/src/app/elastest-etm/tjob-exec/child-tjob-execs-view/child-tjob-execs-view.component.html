@@ -32,7 +32,6 @@
                 column.name !== 'options' &&
                 column.name !== 'startDate' &&
                 column.name !== 'endDate' &&
-                column.name !== 'lastExecutionDate' &&
                 column.name !== 'parameters'
               "
               (click)="viewTJobExec(row)"
@@ -60,11 +59,6 @@
 
             <div *ngIf="column.name === 'startDate' || column.name === 'endDate'" (click)="viewTJobExec(row)">
               {{ value | date: 'dd/MM/yyyy HH:mm:ss' }}
-            </div>
-
-            <div *ngIf="column.name === 'lastExecutionDate'" (click)="viewTJobExec(row)">
-              <ng-container *ngIf="value !== undefined; else notExecuted"> {{ value | timeAgo }} </ng-container>
-              <ng-template #notExecuted> Not Executed Yet </ng-template>
             </div>
 
             <div *ngIf="column.name === 'parameters'" (click)="viewTJobExec(row)">

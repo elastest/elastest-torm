@@ -103,7 +103,7 @@ export class TJobsManagerComponent implements OnInit {
     if (this.project) {
       this.tJobs = this.project.tjobs;
       this.showSpinner = false;
-      this.addLastTJobExecution();
+      this.setLastTJobExecForEachTJob();
     }
   }
 
@@ -183,10 +183,10 @@ export class TJobsManagerComponent implements OnInit {
     this.router.navigate(['/projects', this.project.id, 'tjob', tJob.id]);
   }
 
-  addLastTJobExecution(): void {
+  setLastTJobExecForEachTJob(): void {
     let lastExecution: TJobExecModel = new TJobExecModel();
     for (let tjob of this.tJobs) {
-      this.tJobExecService.getLastNTJobExecutions(tjob.id, 1).subscribe((lastExecs: TJobExecModel[]) => {
+      this.tJobExecService.getLastNTJobExecutions(tjob.id, 1, true).subscribe((lastExecs: TJobExecModel[]) => {
         let lastExec: TJobExecModel = lastExecs ? lastExecs[0] : undefined;
         if (lastExec !== undefined) {
           lastExecution = this.eTModelsTransformServices.jsonToTJobExecModel(lastExec, true);

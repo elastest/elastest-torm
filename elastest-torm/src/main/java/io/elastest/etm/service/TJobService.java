@@ -349,10 +349,17 @@ public class TJobService {
         return tJobRepo.findByName(name);
     }
 
-    public List<TJobExecution> getLastNTJobExecs(Long tJobId, Long number) {
+    public List<TJobExecution> getLastNTJobExecs(Long tJobId, Long number,
+            boolean withoutChilds) {
         Pageable lastN = PageRequest.of(0, number.intValue(), Direction.DESC,
                 "id");
-        return tJobExecRepositoryImpl.findByTJobIdWithPageable(tJobId, lastN);
+        if (withoutChilds) {
+            return tJobExecRepositoryImpl
+                    .findByTJobIdWithPageableWithoutChilds(tJobId, lastN);
+        } else {
+            return tJobExecRepositoryImpl.findByTJobIdWithPageable(tJobId,
+                    lastN);
+        }
     }
 
     // All execs of a TJob
@@ -362,11 +369,11 @@ public class TJobService {
         Pageable range = PageRequest.of(page, pageSize, direction, "id");
 
         if (withoutChilds) {
-            return tJobExecRepositoryImpl.findByTJobIdWithPageable(tJobId,
-                    range);
-        } else {
             return tJobExecRepositoryImpl
                     .findByTJobIdWithPageableWithoutChilds(tJobId, range);
+        } else {
+            return tJobExecRepositoryImpl.findByTJobIdWithPageable(tJobId,
+                    range);
         }
     }
 
@@ -684,7 +691,8 @@ public class TJobService {
         return result;
     }
 
-    public Boolean saveExecAttachmentFile(Long tJobExecId, MultipartFile file) throws IllegalStateException, IOException {
+    public Boolean saveExecAttachmentFile(Long tJobExecId, MultipartFile file)
+            throws IllegalStateException, IOException {
         TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId)
                 .get();
         return etmFilesService.saveExecAttachmentFile(tJobExec, file);

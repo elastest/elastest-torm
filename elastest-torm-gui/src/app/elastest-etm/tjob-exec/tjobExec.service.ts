@@ -91,8 +91,9 @@ export class TJobExecService {
     return this.getTJobExecutionByTJobId(tJob.id, idTJobExecution);
   }
 
-  public getLastNTJobExecutions(tJobId: number | string, n: number): Observable<TJobExecModel[]> {
-    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/execs/last/' + n;
+  public getLastNTJobExecutions(tJobId: number | string, n: number, withoutChilds: boolean): Observable<TJobExecModel[]> {
+    let url: string =
+      this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/execs/last/' + n + '?withoutChilds=' + withoutChilds;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);

@@ -33,7 +33,6 @@ export class TjobExecsComparatorComponent implements OnInit {
   tJobExecColumns: any[] = [
     { name: 'id', label: 'Id', width: 80 },
     { name: 'result', label: 'Result' },
-    { name: 'lastExecutionDate', label: 'Last Execution' },
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
     { name: 'duration', label: 'Duration(sec)' },
