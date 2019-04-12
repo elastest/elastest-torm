@@ -74,6 +74,7 @@ import com.spotify.docker.client.messages.PortBinding;
 import com.spotify.docker.client.messages.ProgressMessage;
 
 import io.elastest.epm.client.DockerContainer;
+import io.elastest.epm.client.utils.UtilTools;
 
 @Service
 public class DockerService {
@@ -893,6 +894,12 @@ public class DockerService {
 
         }
         return response;
+    }
+
+    public String getContainerInfoStringByName(String containerName)
+            throws Exception {
+        ContainerInfo info = getContainerInfoByName(containerName);
+        return UtilTools.convertJsonString(info, ContainerInfo.class);
     }
 
     public List<Container> getAllContainers() throws Exception {
