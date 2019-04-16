@@ -3,9 +3,7 @@ package io.elastest.etm.platform.service;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
@@ -124,7 +122,6 @@ public class DockerServiceImpItTest extends EtmApiItTest {
     @AfterAll
     public void deleteAll() {
         log.info("*** Clean test environment at the end *** ");
-        log.info("* Project Id: {} *", project.getId());
     }
 
     @Test
@@ -343,7 +340,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
         log.info("Creating TJob");
         TJob tJob = getSampleTJob(project.getId());
         if (imageName != null && !imageName.isEmpty()) {
-            log.info("*** Job image to use: {}", imageName);
+            log.info("Job image to use: {}", imageName);
             tJob.setImageName(imageName);
         }
         if (sut != null) {
