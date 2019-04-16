@@ -117,14 +117,14 @@
             <artifactId>converter-gson</artifactId>
             <version>${retrofit.version}</version>
         </dependency>
-        
+
         <!-- https://mvnrepository.com/artifact/io.fabric8/kubernetes-client-project -->
         <dependency>
             <groupId>io.fabric8</groupId>
-            <artifactId>kubernetes-client-project</artifactId>
+            <artifactId>kubernetes-client</artifactId>
             <version>${kubernetes.client}</version>
-            <type>pom</type>
         </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/org.zeroturnaround/zt-exec -->
         <dependency>
