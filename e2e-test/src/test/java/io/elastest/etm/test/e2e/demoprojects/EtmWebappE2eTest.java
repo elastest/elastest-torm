@@ -16,7 +16,7 @@
  */
 package io.elastest.etm.test.e2e.demoprojects;
 
-import static io.github.bonigarcia.BrowserType.CHROME;
+import static io.github.bonigarcia.seljup.BrowserType.CHROME;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -34,9 +34,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import io.elastest.etm.test.base.EtmBaseTest;
-import io.github.bonigarcia.BrowserType;
-import io.github.bonigarcia.DockerBrowser;
-import io.github.bonigarcia.SeleniumExtension;
+import io.github.bonigarcia.seljup.BrowserType;
+import io.github.bonigarcia.seljup.DockerBrowser;
+import io.github.bonigarcia.seljup.SeleniumExtension;
 
 /**
  * Test that creates a Project, a Sut and a TJob with EUS and executes it.

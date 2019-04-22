@@ -47,7 +47,7 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.test.base.testlink.EtmTestLinkBaseTest;
 import io.elastest.etm.test.utils.SampleTLData;
-import io.github.bonigarcia.SeleniumExtension;
+import io.github.bonigarcia.seljup.SeleniumExtension;
 import io.github.bonigarcia.wdm.ChromeDriverManager;
 
 /**
@@ -107,7 +107,7 @@ public class EtInEtDemoTest extends EtmTestLinkBaseTest {
         String eusURL = System.getenv("ET_EUS_API");
         if (eusURL == null) {
             // ElasTest EUS is not present
-            ChromeDriverManager.getInstance().setup();
+            ChromeDriverManager.chromedriver().setup();
             driver = new ChromeDriver();
         } else {
             // ElasTest EUS is present

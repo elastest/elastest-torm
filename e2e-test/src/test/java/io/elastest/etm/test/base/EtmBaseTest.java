@@ -20,6 +20,7 @@ import static java.lang.System.getProperty;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.ALL;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openqa.selenium.logging.LogType.BROWSER;
 import static org.openqa.selenium.remote.CapabilityType.LOGGING_PREFS;
 import static org.openqa.selenium.remote.DesiredCapabilities.chrome;
@@ -60,8 +61,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import io.elastest.etm.test.utils.RestClient;
-import io.github.bonigarcia.BrowserType;
-import io.github.bonigarcia.DriverCapabilities;
+import io.github.bonigarcia.seljup.BrowserType;
+import io.github.bonigarcia.seljup.DriverCapabilities;
 import io.github.bonigarcia.wdm.ChromeDriverManager;
 import io.github.bonigarcia.wdm.FirefoxDriverManager;
 
@@ -134,11 +135,10 @@ public class EtmBaseTest {
                 secureElastest);
 
         eusURL = System.getenv("ET_EUS_API");
-
         if (eusURL == null) {
             // Outside ElasTest
-            ChromeDriverManager.getInstance().setup();
-            FirefoxDriverManager.getInstance().setup();
+            ChromeDriverManager.chromedriver().setup();
+            FirefoxDriverManager.firefoxdriver().setup();
         }
     }
 
@@ -183,8 +183,7 @@ public class EtmBaseTest {
 
     protected void navigateToRoot(WebDriver driver) {
         log.info("Navigating to Root Path (/)");
-        driver.findElement(
-                By.xpath("//*[@id=\\\"main_nav\\\"]/div/mat-toolbar/span"))
+        driver.findElement(By.xpath("//*[@id='main_nav']/div/mat-toolbar/span"))
                 .click();
     }
 
@@ -747,6 +746,20 @@ public class EtmBaseTest {
         }
     }
 
+    protected void navigateToTJobFromETProjectPage(WebDriver driver,
+            String tJobName) {
+        log.info("Navigating to {} tJob", tJobName);
+
+        String xpath = getTJobXpathFromProjectPage(tJobName);
+        this.navigateToElementByXpath(driver, xpath);
+    }
+
+    protected void navigateToTJobFromETProjectsPage(WebDriver driver,
+            String projectName, String tJobName) {
+        navigateToETProject(driver, projectName);
+        navigateToTJobFromETProjectPage(driver, tJobName);
+    }
+
     protected void createNewTJob(WebDriver driver, String tJobName,
             String testResultPath, String sutName, String dockerImage,
             boolean imageCommands, String commands,
@@ -795,23 +808,8 @@ public class EtmBaseTest {
             driver.findElement(By.name("commands")).sendKeys(commands);
         }
 
-        // Parameters TODO id=addParameter
-
         if (parameters != null) {
-            int currentParam = 0;
-
-            for (HashMap.Entry<String, String> param : parameters.entrySet()) {
-                // Add new param
-                driver.findElement(By.id("addNewParameter")).click();
-
-                // Set name
-                driver.findElement(By.id("parameterName" + currentParam))
-                        .sendKeys(param.getKey());
-
-                // Set value
-                driver.findElement(By.id("parameterValue" + currentParam))
-                        .sendKeys(param.getValue());
-            }
+            addParameters(driver, parameters);
         }
 
         // MultiConfigurations
@@ -878,7 +876,65 @@ public class EtmBaseTest {
                 .click();
     }
 
-    protected void runTJobFromProjectPage(WebDriver driver, String tJobName) {
+    protected void addParameters(WebDriver driver,
+            Map<String, String> parameters) {
+        if (parameters != null) {
+            int currentParam = 0;
+
+            for (HashMap.Entry<String, String> param : parameters.entrySet()) {
+                // Add new param
+                getElementById(driver, "addNewParameter").click();
+
+                // Set name
+                getElementById(driver, "parameterName" + currentParam)
+                        .sendKeys(param.getKey());
+
+                // Set value
+                getElementById(driver, "parameterValue" + currentParam)
+                        .sendKeys(param.getValue());
+                currentParam++;
+            }
+        }
+    }
+
+    protected void deleteAllParameters() {
+        String deleteBtnsXpath = "//parameters-view//button[@mattooltip='Delete parameter']";
+        List<WebElement> buttons = driver
+                .findElements(By.xpath(deleteBtnsXpath));
+        if (buttons != null) {
+            for (WebElement btn : buttons) {
+                btn.click();
+            }
+        }
+
+    }
+
+    protected void deleteTJob(WebDriver driver, String tJobName2) {
+        log.info("Wait for the \"Delete TJob\" button");
+        getElementById(driver, "deleteTJobBtn").click();
+        log.info("Wait for the confirm delete TJob button");
+        String confirmXpath = "//*[@id=\"mat-dialog-0\"]/td-confirm-dialog//td-dialog-actions/button[2]";
+        getElementByXpath(driver, confirmXpath).click();
+        sleep(1500);
+    }
+
+    protected void selectAllTJobExecutions() {
+        String selectAllCheckboxXpath = "//*[@id=\"tJobExecsTable\"]//input[contains(@class,\"mat-checkbox-input\")][1]";
+        getElementByXpath(driver, selectAllCheckboxXpath).sendKeys(Keys.SPACE);
+    }
+
+    protected void compareExecutions() throws Exception {
+        WebElement compareExecsBtn = getElementById(driver, "compareExecsBtn");
+        if (compareExecsBtn.isEnabled()) {
+            compareExecsBtn.click();
+        } else {
+            throw new Exception(
+                    "Error on click to 'Compare Executions' button: there are no executions selected or there is only one");
+        }
+    }
+
+    protected void runTJobFromProjectPage(WebDriver driver, String tJobName,
+            boolean fromParamsModal, Map<String, String> params) {
         log.info("Run TJob");
 
         WebDriverWait waitService = new WebDriverWait(driver, 30); // seconds
@@ -892,27 +948,26 @@ public class EtmBaseTest {
         sleep(2200);
 
         this.getElementByXpath(driver, "//button[@title='Run TJob']").click();
-    }
 
-    protected void startTestSupportService(WebDriver driver,
-            String supportServiceLabel) {
-        WebElement tssNavButton = getElementById(driver,
-                "nav_support_services");
-        if (!tssNavButton.isDisplayed()) {
-            driver.findElement(By.id("main_menu")).click();
+        if (fromParamsModal) {
+            if (params != null && params.size() > 0) {
+                getElementByXpath(driver, "//parameters-view");
+                deleteAllParameters();
+                addParameters(driver, params);
+            }
+            // Run TJob btn into Modal
+            this.getElementByXpath(driver, "//button[@id='runTJobModalBtn']")
+                    .click();
         }
-        tssNavButton.click();
-
-        log.info("Select {}", supportServiceLabel);
-        selectItem(driver, supportServiceLabel, "Select a Service");
-
-        log.info("Create and wait for instance");
-        getElementById(driver, "create_instance").click();
-
-        log.info("Navigate for instance view");
-        getElementByXpath(driver, "//button[@title='View Service Detail']", 240)
-                .click();
     }
+
+    protected void runTJobFromProjectPage(WebDriver driver, String tJobName) {
+        runTJobFromProjectPage(driver, tJobName, false, null);
+    }
+
+    /* ***************************************************************** */
+    /* *************************** TJob Exec *************************** */
+    /* ***************************************************************** */
 
     protected void checkFinishTJobExec(WebDriver driver, int timeout,
             String expectedResult, boolean waitForMetrics) {
@@ -977,28 +1032,83 @@ public class EtmBaseTest {
         getElementByXpath(driver, xpath).click();
     }
 
-    public By byDom(String domExpression) {
-        final Object o = ((JavascriptExecutor) driver)
-                .executeScript("return " + domExpression + ";");
-
-        if (o instanceof WebElement) {
-            return new By() {
-                @Override
-                public List<WebElement> findElements(
-                        SearchContext searchContext) {
-                    return new ArrayList<WebElement>() {
-                        private static final long serialVersionUID = 1L;
-
-                        {
-                            add((WebElement) o);
-                        }
-                    };
-                }
-            };
-        } else {
-            return null;
-        }
+    protected void waitForLogComparatorCard() {
+        getElementById(driver, "logComparator");
     }
+
+    protected void startLogComparison() {
+        getElementById(driver, "lcStartComparisonBtn").click();
+    }
+
+    protected boolean isLogComparatorTableNotEmpty() {
+        return getElementsByXpath(driver,
+                "//*[@id=\"logComparator\"]//table/tbody/tr").size() > 0;
+    }
+
+    protected void assertLogComparatorTableNotEmpty() {
+        boolean comparisonNotEmpty = isLogComparatorTableNotEmpty();
+        assertTrue(comparisonNotEmpty);
+    }
+
+    protected void assertLogComparatorAllCombinationsTablesNotEmpty() {
+        // Default (complete view with no timestamp comparison)
+        startLogComparison();
+        assertLogComparatorTableNotEmpty();
+
+        clickToCompleteComparison();
+        assertLogComparatorTableNotEmpty();
+
+        clickToTimeDiffComparison();
+        assertLogComparatorTableNotEmpty();
+
+        // Tests Logs view with time diff comparison
+        clickToTestsLogsView();
+        assertLogComparatorTableNotEmpty();
+
+        clickToCompleteComparison();
+        assertLogComparatorTableNotEmpty();
+
+        clickToNoTimestampComparison();
+        assertLogComparatorTableNotEmpty();
+
+        // Failed tests view with no timestamp comparison
+        clickToFailedTestsView();
+        assertLogComparatorTableNotEmpty();
+
+        clickToCompleteComparison();
+        assertLogComparatorTableNotEmpty();
+
+        clickToTimeDiffComparison();
+        assertLogComparatorTableNotEmpty();
+    }
+
+    protected void clickToCompleteComparison() {
+        getElementById(driver, "lcCompleteComparisonBtn").click();
+    }
+
+    protected void clickToNoTimestampComparison() {
+        getElementById(driver, "lcNoTimeComparisonBtn").click();
+    }
+
+    protected void clickToTimeDiffComparison() {
+        getElementById(driver, "lcTimeDiffComparisonBtn").click();
+    }
+
+    protected void clickToCompleteView() {
+        getElementById(driver, "lcCompleteViewBtn").click();
+    }
+
+    protected void clickToTestsLogsView() {
+        getElementById(driver, "lcTestsViewBtn").click();
+    }
+
+    protected void clickToFailedTestsView() {
+        getElementById(driver, "lcFailedViewBtn").click();
+    }
+
+    /* ****************************************************************** */
+    /* ***************************** OTHERS ***************************** */
+    /* ****************************************************************** */
 
     public void setupTestBrowser(TestInfo testInfo, BrowserType browser,
             WebDriver driver) throws MalformedURLException {
@@ -1032,11 +1142,24 @@ public class EtmBaseTest {
         }
     }
 
-    public void sleep(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
+    protected void startTestSupportService(WebDriver driver,
+            String supportServiceLabel) {
+        WebElement tssNavButton = getElementById(driver,
+                "nav_support_services");
+        if (!tssNavButton.isDisplayed()) {
+            driver.findElement(By.id("main_menu")).click();
         }
+        tssNavButton.click();
+
+        log.info("Select {}", supportServiceLabel);
+        selectItem(driver, supportServiceLabel, "Select a Service");
+
+        log.info("Create and wait for instance");
+        getElementById(driver, "create_instance").click();
+
+        log.info("Navigate for instance view");
+        getElementByXpath(driver, "//button[@title='View Service Detail']", 240)
+                .click();
     }
 
     protected void deleteTSSInstance(WebDriver driver) {
@@ -1050,4 +1173,33 @@ public class EtmBaseTest {
         waitEnd.until(invisibilityOfElementLocated(deleteServices));
     }
 
+    public void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+        }
+    }
+
+    public By byDom(String domExpression) {
+        final Object o = ((JavascriptExecutor) driver)
+                .executeScript("return " + domExpression + ";");
+
+        if (o instanceof WebElement) {
+            return new By() {
+                @Override
+                public List<WebElement> findElements(
+                        SearchContext searchContext) {
+                    return new ArrayList<WebElement>() {
+                        private static final long serialVersionUID = 1L;
+
+                        {
+                            add((WebElement) o);
+                        }
+                    };
+                }
+            };
+        } else {
+            return null;
+        }
+    }
 }

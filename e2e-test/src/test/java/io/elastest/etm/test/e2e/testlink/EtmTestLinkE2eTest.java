@@ -16,7 +16,8 @@
  */
 package io.elastest.etm.test.e2e.testlink;
 
-import static io.github.bonigarcia.BrowserType.CHROME;
+import static io.github.bonigarcia.seljup.BrowserType.CHROME;
+
 import java.io.IOException;
 
 import org.junit.jupiter.api.DisplayName;
@@ -33,8 +34,8 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.test.base.testlink.EtmTestLinkBaseTest;
 import io.elastest.etm.test.utils.SampleTLData;
-import io.github.bonigarcia.DockerBrowser;
-import io.github.bonigarcia.SeleniumExtension;
+import io.github.bonigarcia.seljup.DockerBrowser;
+import io.github.bonigarcia.seljup.SeleniumExtension;
 
 /**
  * Test that creates sample data in TestLink, syncs them with ElasTest and
