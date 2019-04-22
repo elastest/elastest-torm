@@ -783,8 +783,10 @@ public class EtmBaseTest {
             maxExecutions = 5;
         }
 
-        driver.findElement(By.name("maxExecutions"))
-                .sendKeys(maxExecutions + "");
+        WebElement maxExecutionsInput = driver.findElement(By.name("maxExecutions"));
+        // Select all to replace
+        maxExecutionsInput.sendKeys(Keys.chord(Keys.CONTROL, "a"));
+        maxExecutionsInput.sendKeys(maxExecutions + "");
 
         // Select SuT
         String sutSelectXpath = "//mat-select/div/div/span[contains(string(), 'Select a SuT')]";
