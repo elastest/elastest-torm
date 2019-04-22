@@ -7,11 +7,11 @@
       <mat-card-subtitle>TJob Multi Configurations</mat-card-subtitle>
       <multi-config-view [model]="tJob.multiConfigurations"></multi-config-view>
     </div> -->
-    <div *ngIf="tJob.parameters.length > 0">
+    <div *ngIf="initialTJobParameters.length > 0">
       <mat-card-subtitle>TJob Parameters</mat-card-subtitle>
       <parameters-view [model]="tJob.parameters"></parameters-view>
     </div>
-    <div *ngIf="hasSut() && tJob.sut.parameters.length > 0">
+    <div *ngIf="hasSut() && initialSutParameters.length > 0">
       <mat-card-subtitle>SuT Parameters</mat-card-subtitle>
       <parameters-view [model]="tJob.sut.parameters"></parameters-view>
     </div>
@@ -23,7 +23,14 @@
 </mat-dialog-content>
 
 <mat-dialog-actions fxLayout="row" fxLayoutAlign="end left">
-  <button mat-raised-button color="accent" [mat-dialog-close]="true" (click)="runTJob()" [disabled]="initializing" id="runTJobModalBtn">
+  <button
+    mat-raised-button
+    color="accent"
+    [mat-dialog-close]="true"
+    (click)="runTJob()"
+    [disabled]="initializing"
+    id="runTJobModalBtn"
+  >
     Run TJob
   </button>
   <button mat-button mat-dialog-close>Cancel</button>

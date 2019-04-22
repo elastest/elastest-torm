@@ -14,14 +14,16 @@ export class ParametersViewComponent implements OnInit {
 
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit(): void {}
 
   addParameter(parameter: ParameterModel = new ParameterModel()): void {
     this.model.push(parameter);
   }
 
   deleteParameter(position: number): void {
-    this.model.splice(position, 1);
+    if (this.model && this.model.length > 0) {
+      this.model.splice(position, 1);
+    }
   }
 
   updateModel(newModel: ParameterModel[]): void {

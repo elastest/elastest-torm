@@ -5,6 +5,7 @@ import { TJobService } from '../tjob.service';
 import { TJobModel } from '../tjob-model';
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material';
+import { ParameterModel } from '../../parameter/parameter-model';
 
 @Component({
   selector: 'run-tjob-modal',
@@ -13,6 +14,10 @@ import { MAT_DIALOG_DATA } from '@angular/material';
 })
 export class RunTJobModalComponent implements OnInit {
   initializing: boolean = true;
+
+  initialTJobParameters: ParameterModel[];
+  initialSutParameters: ParameterModel[];
+
   constructor(
     private tJobService: TJobService,
     private tJobExecService: TJobExecService,
@@ -20,10 +25,12 @@ export class RunTJobModalComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public tJob: TJobModel,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.tJobService.getTJob(this.tJob.id + '').subscribe(
       (tJob: TJobModel) => {
         this.tJob = tJob;
+        this.initialTJobParameters = this.tJob ? [...this.tJob.parameters] : [];
+        this.initialSutParameters = this.hasSut() ? [...this.tJob.sut.parameters] : [];
         this.initializing = false;
       },
       (error: Error) => console.log(error),
@@ -42,7 +49,7 @@ export class RunTJobModalComponent implements OnInit {
         (tjobExecution: TJobExecModel) => {
           this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id]);
         },
-        (error) => console.error('Error:' + error),
+        (error: Error) => console.error('Error:' + error),
       );
   }
 
