@@ -1,4 +1,4 @@
-<mat-card>
+<mat-card id="logComparator">
   <mat-card-title>
     <div fxLayout="column" fxLayout.gt-md="row">
       <div
@@ -25,7 +25,11 @@
   <mat-divider></mat-divider>
   <mat-card-content>
     <mat-tab-group *ngIf="!live && model && keys; else showMsg" [(selectedIndex)]="selectedLogTab">
-      <mat-tab fxLayout="column" *ngFor="let key of keys; let i = index; let firstKey = first; let lastKey = last" label="{{ key }}">
+      <mat-tab
+        fxLayout="column"
+        *ngFor="let key of keys; let i = index; let firstKey = first; let lastKey = last"
+        label="{{ key }}"
+      >
         <mat-tab-group [(selectedIndex)]="selectedLogComparisionTab">
           <mat-tab
             fxLayout="column"

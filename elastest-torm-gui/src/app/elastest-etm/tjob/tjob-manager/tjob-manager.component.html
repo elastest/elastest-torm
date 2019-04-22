@@ -3,7 +3,7 @@
     <div fxFlex.gt-sm="100">
       <mat-card tdMediaToggle="gt-xs">
         <mat-card-title>
-          <span *ngIf="tJob && tJob.multi">Multi-Configuration</span> <span>TJob</span>
+          <span *ngIf="tJob && tJob.multi">Multi-Configuration</span> <span>TJob </span>
           <span *ngIf="tJob && tJob.name">"{{ tJob.name }}"</span>
         </mat-card-title>
         <mat-divider></mat-divider>
@@ -64,7 +64,7 @@
                     <fa-icon mat-icon class="mat-icon" [icon]="['fab', 'jenkins']"></fa-icon>
                   </ng-template>
                 </button>
-                <button mat-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn" title="Delete TJob">
+                <button id="deleteTJobBtn" mat-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn" title="Delete TJob">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -102,6 +102,7 @@
             <mat-icon>delete</mat-icon>
           </button>
           <button
+            id="compareExecsBtn"
             mat-raised-button
             color="accent"
             (click)="compareExecutions()"
@@ -124,7 +125,7 @@
         <!-- Execs Table -->
         <ng-container *ngIf="tJobExecDataByPage && tJobExecDataByPage.length > 0">
           <td-data-table
-            #tjobsTable
+            id="tJobExecsTable"
             class="useMaxHeight"
             [data]="execsFilteredData"
             [columns]="tJobExecColumns"
