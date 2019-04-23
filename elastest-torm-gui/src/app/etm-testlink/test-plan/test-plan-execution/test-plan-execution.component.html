@@ -101,29 +101,42 @@
       <div fxLayout="column" fxFlexFill>
         <mat-card-title>
           <div fxLayout="column" fxLayoutAlign="none">
-            <div fxLayout="row">
+            <div fxLayout="row" fxLayoutAlign="start center">
               <span>Browser</span>
               <span class="mat-subheading-2 push-left-sm push-bottom-none">({{ browserName }} {{ browserVersion }})</span>
               <span fxFlex></span>
-              <td-file-input
-                [(ngModel)]="browserFilesToUpload"
-                color="primary"
-                (select)="onUploadBrowserFile($event)"
-                [disabled]="false"
-                multiple
-              >
-                <mat-icon>attach_file</mat-icon><span>Upload files to browser context</span>
-              </td-file-input>
-              <a
-                *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined"
-                mat-button
-                [attr.href]="vncBrowserUrl"
-                class="iconBtn push-left-sm"
-                target="_blank"
-                matTooltip="Open in new tab"
-              >
-                <mat-icon>open_in_new</mat-icon>
-              </a>
+              <ng-container *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined">
+                <button
+                  mat-raised-button
+                  class="iconBtn-md"
+                  color="accent"
+                  (click)="downloadFile()"
+                  matTooltip="Download file from browser context"
+                >
+                  <mat-icon>get_app</mat-icon>
+                </button>
+
+                <td-file-input
+                  fxFlexOffset="1"
+                  [(ngModel)]="browserFilesToUpload"
+                  color="primary"
+                  (select)="onUploadBrowserFile($event)"
+                  [disabled]="false"
+                  multiple
+                  matTooltip="Upload files to browser context"
+                >
+                  <mat-icon>attach_file</mat-icon>
+                </td-file-input>
+                <a
+                  mat-button
+                  [attr.href]="vncBrowserUrl"
+                  class="iconBtn push-left-sm"
+                  target="_blank"
+                  matTooltip="Open in new tab"
+                >
+                  <mat-icon>open_in_new</mat-icon>
+                </a>
+              </ng-container>
             </div>
 
             <div

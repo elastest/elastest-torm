@@ -152,6 +152,12 @@ export class EusService {
     });
   }
 
+  public getFileFromSession(sessionId: string, path: string, isDirectory: boolean = false): Observable<object> {
+    let url: string =
+      this.eusUrl + 'browserfile/' + this.sessionPath + '/' + sessionId + '/' + path + '?isDirectory=' + isDirectory;
+    return this.http.get(url, { responseType: 'blob' as 'json' });
+  }
+
   public uploadFileToSession(sessionId: string, file: File): Observable<string> {
     let url: string = this.eusUrl + 'browserfile/' + this.sessionPath + '/' + sessionId;
 
@@ -160,6 +166,33 @@ export class EusService {
 
     // Returns text/plain
     return this.http.post(url, formData, { responseType: 'text' });
+  }
+
+  public downloadFileFromSession(sessionId: string, path: string, isDirectory: boolean = false): Observable<boolean> {
+    let _obs: Subject<boolean> = new Subject<boolean>();
+    let obs: Observable<boolean> = _obs.asObservable();
+    this.getFileFromSession(sessionId, path, isDirectory).subscribe(
+      (response: any) => {
+        let dataType: any = response.type;
+        let binaryData: any[] = [];
+        binaryData.push(response);
+        let downloadLink: any = document.createElement('a');
+        downloadLink.href = window.URL.createObjectURL(new Blob(binaryData, { type: dataType }));
+        let splittedPath: string[] = path.split('/');
+        let filename: string = splittedPath[splittedPath.length - 1];
+        if (filename) {
+          downloadLink.setAttribute('download', filename);
+        }
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        _obs.next(true);
+      },
+      (error: Error) => {
+        console.log(error);
+        _obs.next(false);
+      },
+    );
+    return obs;
   }
 
   public uploadFilesToSession(sessionId: string, files: FileList): Observable<object> {

@@ -1,5 +1,5 @@
 import { ExecutionFormComponent } from '../../execution/execution-form/execution-form.component';
-import { Component, OnInit, ViewChild, HostListener, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener, OnDestroy, ViewContainerRef } from '@angular/core';
 import { ExternalTJobModel } from '../../../elastest-etm/external/external-tjob/external-tjob-model';
 import {
   ExternalTJobExecModel,
@@ -26,6 +26,7 @@ import { TitlesService } from '../../../shared/services/titles.service';
 import { sleep } from '../../../shared/utils';
 import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { TdDialogService } from '@covalent/core';
 
 @Component({
   selector: 'testlink-test-plan-execution',
@@ -108,6 +109,10 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   totalCases: number = 0;
 
   browserFilesToUpload: File | FileList;
+  downloadFilePath: string = '';
+
+  // For development only! RETURN TO FALSE ON COMMIT
+  activateGUIDevelopmentMode: boolean = false;
 
   constructor(
     private externalService: ExternalService,
@@ -118,30 +123,34 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     private testLinkService: TestLinkService,
     private titlesService: TitlesService,
     private elastestRabbitmqService: ElastestRabbitmqService,
+    private _dialogService: TdDialogService,
+    private _viewContainerRef: ViewContainerRef,
   ) {
-    let queryParams: any = router.parseUrl(router.url).queryParams;
-    if (queryParams) {
-      if (queryParams.browserName) {
-        this.browserName = queryParams.browserName;
-        if (queryParams.browserVersion) {
-          this.browserVersion = queryParams.browserVersion;
+    if (!this.activateGUIDevelopmentMode) {
+      let queryParams: any = router.parseUrl(router.url).queryParams;
+      if (queryParams) {
+        if (queryParams.browserName) {
+          this.browserName = queryParams.browserName;
+          if (queryParams.browserVersion) {
+            this.browserVersion = queryParams.browserVersion;
+          }
+        }
+
+        if (queryParams.extraHosts) {
+          this.extraHosts = queryParams.extraHosts;
+        }
+
+        if (queryParams.platform) {
+          this.platformId = queryParams.platform;
         }
       }
 
-      if (queryParams.extraHosts) {
-        this.extraHosts = queryParams.extraHosts;
+      if (this.route.params !== null || this.route.params !== undefined) {
+        this.route.params.subscribe((params: Params) => {
+          this.params = params;
+          this.loadPlanAndBuild();
+        });
       }
-
-      if (queryParams.platform) {
-        this.platformId = queryParams.platform;
-      }
-    }
-
-    if (this.route.params !== null || this.route.params !== undefined) {
-      this.route.params.subscribe((params: Params) => {
-        this.params = params;
-        this.loadPlanAndBuild();
-      });
     }
   }
 
@@ -672,5 +681,35 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
         },
       );
     }
+  }
+
+  downloadFile(): void {
+    this._dialogService
+      .openPrompt({
+        message: 'Pelase, insert the complete path to the file in the Browser context',
+        disableClose: true,
+        viewContainerRef: this._viewContainerRef,
+        title: 'Download a file',
+        value: '',
+        cancelButton: 'Cancel',
+        acceptButton: 'Download',
+        width: '400px',
+      })
+      .afterClosed()
+      .subscribe((path: string) => {
+        if (path) {
+          this.eusService.downloadFileFromSession(this.sessionId, path).subscribe(
+            (ok: boolean) => {
+              if (!ok) {
+                this.externalService.popupService.openSnackBar('Error on get file');
+              }
+            },
+            (error: Error) => {
+              console.log(error);
+              this.externalService.popupService.openSnackBar('Error on get file');
+            },
+          );
+        }
+      });
   }
 }
