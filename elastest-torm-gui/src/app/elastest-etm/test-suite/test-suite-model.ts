@@ -44,6 +44,9 @@ export class TestSuiteModel {
 
       if (this.errors === 0 && this.failures === 0) {
         result = 'SUCCESS';
+        if (this.skipped === this.numTests) {
+          result = 'SKIPPED';
+        }
       }
 
       icon = getResultIconByString(result);
