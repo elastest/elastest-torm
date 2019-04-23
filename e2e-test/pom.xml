@@ -15,8 +15,6 @@
 	<description>ElasTest E2E (end-to-end) test with Torm (ETM).</description>
 	<url>https://github.com/elastest/elastest-torm/e2e-test</url>
 
-
-
 	<!-- Organization & developers -->
 	<organization>
 		<name>Elastest</name>

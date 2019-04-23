@@ -17,6 +17,7 @@
 package io.elastest.etm.test.e2e.demoprojects;
 
 import static io.github.bonigarcia.seljup.BrowserType.CHROME;
+import static io.github.bonigarcia.seljup.BrowserType.FIREFOX;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -34,7 +35,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import io.elastest.etm.test.base.EtmBaseTest;
-import io.github.bonigarcia.seljup.BrowserType;
 import io.github.bonigarcia.seljup.DockerBrowser;
 import io.github.bonigarcia.seljup.SeleniumExtension;
 
@@ -83,7 +83,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
             @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
-        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
+        setupTestBrowser(testInfo, CHROME, localDriver);
 
         this.createProjectAndSut(driver);
 
@@ -111,10 +111,10 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     @Test
     @DisplayName("Create and execute a Firefox Test")
     void testCreateFirefoxTest(
-            @DockerBrowser(type = BrowserType.FIREFOX) RemoteWebDriver localDriver,
+            @DockerBrowser(type = FIREFOX) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
-        setupTestBrowser(testInfo, BrowserType.FIREFOX, localDriver);
+        setupTestBrowser(testInfo, FIREFOX, localDriver);
 
         this.createProjectAndSut(driver);
 
@@ -139,7 +139,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
             @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
-        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
+        setupTestBrowser(testInfo, CHROME, localDriver);
 
         this.createProjectAndSut(driver);
 

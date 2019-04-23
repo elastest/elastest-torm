@@ -19,11 +19,8 @@ package io.elastest.etm.test.base;
 import static java.lang.System.getProperty;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.logging.Level.ALL;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openqa.selenium.logging.LogType.BROWSER;
-import static org.openqa.selenium.remote.CapabilityType.LOGGING_PREFS;
-import static org.openqa.selenium.remote.DesiredCapabilities.chrome;
 import static org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
@@ -51,7 +48,6 @@ import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
-import org.openqa.selenium.logging.LoggingPreferences;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -62,7 +58,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import io.elastest.etm.test.utils.RestClient;
 import io.github.bonigarcia.seljup.BrowserType;
-import io.github.bonigarcia.seljup.DriverCapabilities;
 import io.github.bonigarcia.wdm.ChromeDriverManager;
 import io.github.bonigarcia.wdm.FirefoxDriverManager;
 
@@ -81,14 +76,6 @@ public class EtmBaseTest {
     public WebDriver driver;
     protected RestClient restClient;
     protected String eusURL;
-
-    @DriverCapabilities
-    DesiredCapabilities capabilities = chrome();
-    {
-        LoggingPreferences logPrefs = new LoggingPreferences();
-        logPrefs.enable(BROWSER, ALL);
-        capabilities.setCapability(LOGGING_PREFS, logPrefs);
-    }
 
     @BeforeEach
     void setup(TestInfo testInfo) {
@@ -783,7 +770,8 @@ public class EtmBaseTest {
             maxExecutions = 5;
         }
 
-        WebElement maxExecutionsInput = driver.findElement(By.name("maxExecutions"));
+        WebElement maxExecutionsInput = driver
+                .findElement(By.name("maxExecutions"));
         // Select all to replace
         maxExecutionsInput.sendKeys(Keys.chord(Keys.CONTROL, "a"));
         maxExecutionsInput.sendKeys(maxExecutions + "");
