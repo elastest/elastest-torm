@@ -114,7 +114,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
             @DockerBrowser(type = FIREFOX) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
-        setupTestBrowser(testInfo, FIREFOX, localDriver);
+        setupTestBrowser(testInfo, CHROME, localDriver);
 
         this.createProjectAndSut(driver);
 
