@@ -155,7 +155,7 @@ public class EtmBaseTest {
         if (eusURL == null) {
             driver.manage().window().setSize(new Dimension(1024, 1024));
         }
-        driver.manage().timeouts().implicitlyWait(5, SECONDS);
+        driver.manage().timeouts().implicitlyWait(10, SECONDS);
         driver.get(url);
     }
 
