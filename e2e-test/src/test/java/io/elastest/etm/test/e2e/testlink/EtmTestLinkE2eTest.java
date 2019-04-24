@@ -19,6 +19,7 @@ package io.elastest.etm.test.e2e.testlink;
 import static io.github.bonigarcia.seljup.BrowserType.CHROME;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -53,9 +54,9 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
     void getTLUrlTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver)
             throws InterruptedException {
         this.driver = driver;
-        
+
         this.startTestLinkIfNecessaryWithNavigate(driver);
-        
+
         log.info("Opening ElasTest");
         this.navigateToTorm(driver);
 
@@ -118,8 +119,11 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
         String projectName = sampleTLData.getProject().getName();
         String planName = sampleTLData.getPlan().getName();
 
-        log.info("Executing Plan '{}' ", planName);
-        this.startTLEtmPlanExecutionWithNavigate(driver, projectName, planName);
+        // The ip 74.125.193.94 is google.com
+        String extraHost = "mycustomdnsforettest.com:74.125.193.94";
+        log.info("Executing Plan '{}' with extra host {}", planName, extraHost);
+        this.startTLEtmPlanExecutionWithNavigate(driver, projectName, planName,
+                Arrays.asList(extraHost));
 
         for (int i = 0; i < sampleTLData.getTestCases().size(); i++) {
             log.info("Executing TestCase nº {} ", i + 1);

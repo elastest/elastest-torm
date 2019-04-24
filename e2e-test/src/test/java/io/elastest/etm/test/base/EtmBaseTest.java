@@ -211,9 +211,15 @@ public class EtmBaseTest {
     /* ************ Exists ************ */
     /* ******************************** */
 
+
+    protected boolean elementExistsByIdXpath(WebDriver driver, String id,
+            String xpath, int timeout, boolean withScroll) {
+        return this.getElementByIdXpath(driver, id, xpath) != null;
+    }
+
     protected boolean elementExistsByIdXpath(WebDriver driver, String id,
             String xpath) {
-        return this.getElementByIdXpath(driver, id, xpath) != null;
+        return elementExistsByIdXpath(driver, id, xpath, 30, false);
     }
 
     protected boolean elementExistsByXpath(WebDriver driver, String xpath) {
@@ -269,16 +275,22 @@ public class EtmBaseTest {
 
     protected WebElement getElementByIdXpath(WebDriver driver, String id,
             String xpath) {
-        return this.getElementByIdXpath(driver, id, xpath, 30);
+        return this.getElementByIdXpath(driver, id, xpath, 30, false);
     }
 
     protected WebElement getElementByIdXpath(WebDriver driver, String id,
-            String xpath, int secondsTimeout) {
+            String xpath, int secondsTimeout, boolean withScroll) {
         WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
         By elementAvailable = By.id(id);
         waitService.until(presenceOfElementLocated(elementAvailable));
 
-        return driver.findElement(By.xpath(xpath));
+        WebElement element = driver.findElement(By.xpath(xpath));
+
+        if (withScroll && element != null) {
+            scrollToElement(element);
+        }
+
+        return element;
     }
 
     protected WebElement getElementByXpath(WebDriver driver, String xpath,
@@ -292,10 +304,14 @@ public class EtmBaseTest {
         WebElement element = getElementsByXpath(driver, xpath, secondsTimeout)
                 .get(0);
         if (withScroll) {
-            JavascriptExecutor jse2 = (JavascriptExecutor) driver;
-            jse2.executeScript("arguments[0].scrollIntoView()", element);
+            scrollToElement(element);
         }
         return element;
+    }
+
+    protected void scrollToElement(WebElement element) {
+        JavascriptExecutor jse2 = (JavascriptExecutor) driver;
+        jse2.executeScript("arguments[0].scrollIntoView()", element);
     }
 
     protected WebElement getElementByXpath(WebDriver driver, String xpath,

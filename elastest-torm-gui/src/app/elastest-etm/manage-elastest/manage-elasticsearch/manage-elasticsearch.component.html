@@ -17,7 +17,7 @@
         </button>
         <button
           mat-raised-button
-          [disabled]="deleteRedIndices"
+          [disabled]="loadingRedIndices || redIndices.length === 0"
           color="accent"
           id="deleteRedIndices"
           matTooltip="Delete Red Indices"

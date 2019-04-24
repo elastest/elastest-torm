@@ -18,10 +18,11 @@ package io.elastest.etm.test.base.testlink;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
-import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated;
-
+import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 import static org.slf4j.LoggerFactory.getLogger;
+
+import java.util.List;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -33,16 +34,17 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     public final Logger log = getLogger(lookup().lookupClass());
 
-    String projectsTableId = "tlProjects";
-    String plansTableId = "tlTestPlans";
-    String suitesTableId = "tlTestSuites";
-    String casesTableId = "tlCases";
-    String buildsTableId = "tlBuilds";
+    protected static final String TL_PROJECTS_TABLE_ID = "tlProjects";
+    protected static final String TL_PLANS_TABLE_ID = "tlTestPlans";
+    protected static final String TL_SUITES_TABLE_ID = "tlTestSuites";
+    protected static final String TL_CASES_TABLE_ID = "tlCases";
+    protected static final String TL_BUILDS_TABLE_ID = "tlBuilds";
 
     protected void navigateToTestlinkSection(WebDriver driver) {
         log.info("Navigate to TestLink Section");
         this.getElementByXpath(driver, "//a[@id='nav_testlink']").click();
         this.getElementById(driver, "testlinkPage", 5);
+        sleep(1500);
     }
 
     protected void openTestlinkPage(WebDriver driver) {
@@ -56,7 +58,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         this.navigateToTestlinkSection(driver);
         log.info("Getting TestLink Page");
 
-        return this.getElementById(driver, "openTestLink", 10)
+        return this.getElementById(driver, "openTestLink", 15)
                 .getAttribute("href");
     }
 
@@ -101,7 +103,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     /* *************** */
 
     protected String getTLEtmProjectXpath(String projectName) {
-        return "//td-data-table[@id='" + this.projectsTableId
+        return "//td-data-table[@id='" + TL_PROJECTS_TABLE_ID
                 + "']//*/td/div[contains(string(), '" + projectName + "')]";
     }
 
@@ -110,14 +112,16 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         this.navigateToTestlinkSection(driver);
 
         String xpath = this.getTLEtmProjectXpath(projectName);
-        this.navigateToElementByIdXpath(driver, this.projectsTableId, xpath);
+        this.navigateToElementByIdXpath(driver, TL_PROJECTS_TABLE_ID, xpath);
+        sleep(1500);
     }
 
     protected boolean tlEtmProjectExists(WebDriver driver, String projectName) {
         this.navigateToTestlinkSection(driver);
 
         String xpath = this.getTLEtmProjectXpath(projectName);
-        return this.elementExistsByIdXpath(driver, this.projectsTableId, xpath);
+        return this.elementExistsByIdXpath(driver, TL_PROJECTS_TABLE_ID, xpath,
+                30, true);
     }
 
     /* ***************** */
@@ -125,13 +129,13 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     /* ***************** */
 
     protected String getTLEtmPlanXpath(String planName) {
-        return "//td-data-table[@id='" + this.plansTableId
+        return "//td-data-table[@id='" + TL_PLANS_TABLE_ID
                 + "']//*/td/div[contains(string(), '" + planName + "')]";
     }
 
     protected void navigateToTLEtmPlan(WebDriver driver, String planName) {
         String xpath = this.getTLEtmPlanXpath(planName);
-        this.navigateToElementByIdXpath(driver, this.plansTableId, xpath);
+        this.navigateToElementByIdXpath(driver, TL_PLANS_TABLE_ID, xpath);
     }
 
     protected void navigateToTLEtmPlanByAbsolute(WebDriver driver,
@@ -142,7 +146,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected boolean tlEtmPlanExists(WebDriver driver, String planName) {
         String xpath = this.getTLEtmPlanXpath(planName);
-        return this.elementExistsByIdXpath(driver, this.plansTableId, xpath);
+        return this.elementExistsByIdXpath(driver, TL_PLANS_TABLE_ID, xpath);
     }
 
     protected boolean tlEtmPlanExistsByAbsolute(WebDriver driver,
@@ -151,20 +155,46 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         return this.tlEtmPlanExists(driver, planName);
     }
 
-    protected void startTLEtmPlanExecution(WebDriver driver) {
+    protected void startTLEtmPlanExecution(WebDriver driver,
+            List<String> extraHosts) {
         String runPlanBtnId = "runTestPlan";
         String runPlanBtnXpath = "//button[@id='" + runPlanBtnId + "']";
 
         // Run and Modal Open
         this.getElementByIdXpath(driver, runPlanBtnId, runPlanBtnXpath).click();
         sleep(1000);
+
+        // Add Extra hosts
+        if (extraHosts != null) {
+            if (extraHosts.size() > 1) {
+                String addExtraHostBtnXPath = "//*[@id=\"mat-dialog-0\"]/select-build-modal//string-list-view/button[contains(string(), 'Add Extra Host')]";
+                int currentHost = 0;
+                for (String host : extraHosts) {
+                    if (currentHost > 0) {
+                        getElementByXpath(driver, addExtraHostBtnXPath).click();
+                        sleep(500);
+                    }
+
+                    // Set host
+                    getElementById(driver, "ExtraHost" + currentHost, true)
+                            .sendKeys(host);
+                }
+            }
+        }
+
         this.runTLEtmPlanExecutionFromModal(driver);
     }
 
     protected void startTLEtmPlanExecutionWithNavigate(WebDriver driver,
-            String projectName, String planName) {
+            String projectName, String planName, List<String> extraHosts) {
         this.navigateToTLEtmPlanByAbsolute(driver, projectName, planName);
-        this.startTLEtmPlanExecution(driver);
+        this.startTLEtmPlanExecution(driver, extraHosts);
+    }
+
+    protected void startTLEtmPlanExecutionWithNavigate(WebDriver driver,
+            String projectName, String planName) {
+        this.startTLEtmPlanExecutionWithNavigate(driver, projectName, planName,
+                null);
     }
 
     protected void runTLEtmPlanExecutionFromModal(WebDriver driver) {
@@ -196,7 +226,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
         String saveAndNextBtnXpath = "//button[@id='" + saveAndNextBtnId + "']";
 
         this.getElementByIdXpath(driver, saveAndNextBtnId, saveAndNextBtnXpath,
-                320).click();
+                320, false).click();
         try {
             // Wait for save TestCase
             log.debug("Sleep to wait for save TestCase");
@@ -211,7 +241,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
                 + "']";
 
         this.getElementByIdXpath(driver, tJobExecResultIconId,
-                tJobExecResultIconXpath, 60).click();
+                tJobExecResultIconXpath, 60, false).click();
     }
 
     protected void selectInternalSut(WebDriver driver, String sutName) {
@@ -237,15 +267,15 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     /* ****************** */
 
     protected String getTLEtmSuiteXpath(String suiteName) {
-        return "//td-data-table[@id='" + suitesTableId
+        return "//td-data-table[@id='" + TL_SUITES_TABLE_ID
                 + "']//*/td/div/div[contains(string(), '" + suiteName + "')]";
     }
 
     protected void navigateToTLEtmSuite(WebDriver driver, String suiteName) {
         String xpath = this.getTLEtmSuiteXpath(suiteName);
-        log.info("Navigate to Suite case with id {} and path {}", suitesTableId,
-                xpath);
-        this.navigateToElementByIdXpath(driver, suitesTableId, xpath);
+        log.info("Navigate to Suite case with id {} and path {}",
+                TL_SUITES_TABLE_ID, xpath);
+        this.navigateToElementByIdXpath(driver, TL_SUITES_TABLE_ID, xpath);
     }
 
     protected void navigateToTLEtmSuiteByAbsolute(WebDriver driver,
@@ -256,7 +286,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected boolean tlEtmSuiteExists(WebDriver driver, String suiteName) {
         String xpath = this.getTLEtmSuiteXpath(suiteName);
-        return this.elementExistsByIdXpath(driver, suitesTableId, xpath);
+        return this.elementExistsByIdXpath(driver, TL_SUITES_TABLE_ID, xpath);
     }
 
     protected boolean tlEtmSuiteExistsByAbsolute(WebDriver driver,
@@ -270,13 +300,13 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     /* ****************** */
 
     protected String getTLEtmBuildXpath(String buildName) {
-        return "//td-data-table[@id='" + buildsTableId
+        return "//td-data-table[@id='" + TL_BUILDS_TABLE_ID
                 + "']//*/td/div[contains(string(), '" + buildName + "')]";
     }
 
     protected void navigateToTLEtmBuild(WebDriver driver, String buildName) {
         String xpath = this.getTLEtmBuildXpath(buildName);
-        this.navigateToElementByIdXpath(driver, buildsTableId, xpath);
+        this.navigateToElementByIdXpath(driver, TL_BUILDS_TABLE_ID, xpath);
     }
 
     protected void navigateToTLEtmBuildByAbsolute(WebDriver driver,
@@ -287,7 +317,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected boolean tlEtmBuildExists(WebDriver driver, String buildName) {
         String xpath = this.getTLEtmBuildXpath(buildName);
-        return this.elementExistsByIdXpath(driver, buildsTableId, xpath);
+        return this.elementExistsByIdXpath(driver, TL_BUILDS_TABLE_ID, xpath);
     }
 
     protected boolean tlEtmBuildExistsByAbsolute(WebDriver driver,
@@ -301,13 +331,13 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
     /* ***************** */
 
     protected String getTLEtmCaseXpath(String caseName) {
-        return "//td-data-table[@id='" + casesTableId
+        return "//td-data-table[@id='" + TL_CASES_TABLE_ID
                 + "']//*/td/div[contains(string(), '" + caseName + "')]";
     }
 
     protected void navigateToTLEtmCase(WebDriver driver, String caseName) {
         String xpath = this.getTLEtmCaseXpath(caseName);
-        this.navigateToElementByIdXpath(driver, casesTableId, xpath);
+        this.navigateToElementByIdXpath(driver, TL_CASES_TABLE_ID, xpath);
     }
 
     protected void navigateToTLEtmSuiteCase(WebDriver driver,
@@ -332,7 +362,7 @@ public class EtmTestLinkBaseTest extends TestLinkBaseTest {
 
     protected boolean tlEtmCaseExists(WebDriver driver, String caseName) {
         String xpath = this.getTLEtmCaseXpath(caseName);
-        return this.elementExistsByIdXpath(driver, casesTableId, xpath);
+        return this.elementExistsByIdXpath(driver, TL_CASES_TABLE_ID, xpath);
     }
 
     protected boolean tlEtmSuiteCaseExists(WebDriver driver, String projectName,
