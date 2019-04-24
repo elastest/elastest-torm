@@ -211,7 +211,6 @@ public class EtmBaseTest {
     /* ************ Exists ************ */
     /* ******************************** */
 
-
     protected boolean elementExistsByIdXpath(WebDriver driver, String id,
             String xpath, int timeout, boolean withScroll) {
         return this.getElementByIdXpath(driver, id, xpath) != null;
@@ -621,7 +620,7 @@ public class EtmBaseTest {
         String sutsTableXpath = getSutsTableXpathFromProjectPage();
 
         // If sut table exist
-        if (this.driver.findElements(By.xpath(sutsTableXpath)).size() > 0) {
+        if (getElementByXpath(driver, sutsTableXpath) != null) {
             String sutXpath = getSutXpathFromProjectPage(sutName);
             boolean sutExist = this.elementExistsByXpath(driver, sutXpath);
             String existStr = sutExist ? "already exist" : "does not exist";

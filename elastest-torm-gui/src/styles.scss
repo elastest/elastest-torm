@@ -92,6 +92,7 @@ a.normalTextLink {
 .ellipsisNoWrapColumn {
   white-space: nowrap !important;
   text-overflow: ellipsis !important;
+  overflow-x: hidden;
 }
 
 td-data-table {

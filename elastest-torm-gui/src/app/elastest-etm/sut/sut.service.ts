@@ -43,7 +43,11 @@ export class SutService {
   }
 
   public deleteSut(sut: SutModel): Observable<any> {
-    let url: string = this.configurationService.configModel.hostApi + '/sut/' + sut.id;
+    return this.deleteSutById(sut.id);
+  }
+
+  public deleteSutById(sutId: string | number): Observable<any> {
+    let url: string = this.configurationService.configModel.hostApi + '/sut/' + sutId;
     return this.http.delete(url);
   }
 

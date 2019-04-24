@@ -2,6 +2,15 @@
   <sa-card-title>
     <div fxLayout="row">
       <span>SuTs</span> <span fxFlex></span>
+      <button
+        mat-button
+        (click)="removeSelectedSuts()"
+        [disabled]="selectedSutsIds.length === 0 || deletingInProgress"
+        class="iconBtn-md"
+        title="Delete Selected Suts"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
       <button mat-raised-button color="accent" (click)="newSut()" id="newSutBtn" matTooltip="Create New Sut">New SuT</button>
     </div>
   </sa-card-title>
@@ -23,6 +32,9 @@
       [sortBy]="sortBy"
       [sortOrder]="sortOrder"
       (sortChange)="sort($event)"
+      [selectable]="true"
+      (rowSelect)="switchSutSelection($event)"
+      (selectAll)="switchAllSutsSelection($event)"
     >
       <ng-template *ngFor="let column of sutColumns" tdDataTableTemplate="{{ column.name }}" let-value="value" let-row="row">
         <ng-container *ngIf="column.name !== 'options'">

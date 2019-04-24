@@ -6,6 +6,8 @@ import {
   TdDataTableService,
   ITdDataTableSortChangeEvent,
   ITdDataTableColumn,
+  ITdDataTableSelectEvent,
+  ITdDataTableSelectAllEvent,
 } from '@covalent/core';
 import { SutService } from '../../sut/sut.service';
 import { IConfirmConfig } from '@covalent/core';
@@ -16,6 +18,7 @@ import { ProjectService } from '../../project/project.service';
 import { ProjectModel } from '../../project/project-model';
 import { ExternalProjectModel } from '../../external/external-project/external-project-model';
 import { ExternalService } from '../../external/external.service';
+import { Observable, Subject } from 'rxjs';
 
 @Component({
   selector: 'etm-suts-manager',
@@ -41,14 +44,17 @@ export class SutsManagerComponent implements OnInit {
   deletingInProgress: boolean = false;
   duplicateInProgress: boolean = false;
 
+  selectedSutsIds: number[] = [];
+  sutIdsWithErrorOnDelete: number[] = [];
+
   // SuT Data
   sutColumns: ITdDataTableColumn[] = [
     { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
     { name: 'specification', label: 'Specification', sortable: false },
-    { name: 'sutType', label: 'SuT Type' },
+    { name: 'sutType', label: 'SuT Type', width: { min: 74, max: 113 } },
     { name: 'description', label: 'Description', sortable: false },
-    { name: 'options', label: 'Options', sortable: false },
+    { name: 'options', label: 'Options', sortable: false, width: { min: 46, max: 130 } },
   ];
 
   sortBy: string = 'id';
@@ -71,13 +77,13 @@ export class SutsManagerComponent implements OnInit {
     this.init();
   }
 
-  init(): void {
+  init(forceLoadProject: boolean = false): void {
     // If child
     if (this.project || this.exProject) {
       if (this.project) {
-        this.initDataFromProject();
+        this.initDataFromProject(forceLoadProject);
       } else if (this.exProject) {
-        this.initDataFromExternalProject();
+        this.initDataFromExternalProject(forceLoadProject);
       }
     } else if (this.projectId || this.exProjectId) {
       if (this.projectId) {
@@ -102,7 +108,7 @@ export class SutsManagerComponent implements OnInit {
     }
   }
 
-  loadProjectAndSuts(projectId: string): void {
+  loadProjectAndSuts(projectId: string | number): void {
     this.projectService.getProject(projectId, 'medium').subscribe((project: ProjectModel) => {
       this.project = project;
       this.initDataFromProject();
@@ -110,10 +116,13 @@ export class SutsManagerComponent implements OnInit {
     });
   }
 
-  initDataFromProject(): void {
+  initDataFromProject(forceLoadProject: boolean = false): void {
+    if (forceLoadProject) {
+      this.loadProjectAndSuts(this.project.id);
+    }
     this.parentType = 'ProjectModel';
     if (this.project) {
-      this.suts = this.project.suts;
+      this.suts = [...this.project.suts];
       this.showSpinner = false;
     }
   }
@@ -126,10 +135,13 @@ export class SutsManagerComponent implements OnInit {
     });
   }
 
-  initDataFromExternalProject(): void {
+  initDataFromExternalProject(forceLoadProject: boolean = false): void {
+    if (forceLoadProject) {
+      this.loadExternalProjectAndSuts(this.exProject.id);
+    }
     this.parentType = 'ExternalProjectModel';
     if (this.exProject) {
-      this.suts = this.exProject.suts;
+      this.suts = [...this.exProject.suts];
       this.showSpinner = false;
     }
   }
@@ -137,7 +149,7 @@ export class SutsManagerComponent implements OnInit {
   loadAllSuts(): void {
     this.sutService.getSuts().subscribe(
       (suts: SutModel[]) => {
-        this.suts = suts;
+        this.suts = [...suts];
         this.duplicateInProgress = false;
       },
       (error: Error) => {
@@ -192,7 +204,7 @@ export class SutsManagerComponent implements OnInit {
           this.sutService.deleteSut(sut).subscribe(
             (sut) => {
               this.deletingInProgress = false;
-              this.init();
+              this.init(true);
             },
             (error: Error) => {
               this.deletingInProgress = false;
@@ -207,7 +219,8 @@ export class SutsManagerComponent implements OnInit {
     this.duplicateInProgress = true;
     this.sutService.duplicateSut(sut).subscribe(
       (sut: SutModel) => {
-        this.init();
+        this.init(true);
+        this.duplicateInProgress = false;
       },
       (error: Error) => {
         console.log(error);
@@ -219,6 +232,99 @@ export class SutsManagerComponent implements OnInit {
   sort(sortEvent: ITdDataTableSortChangeEvent): void {
     this.sortBy = sortEvent.name;
     this.sortOrder = sortEvent.order;
-    this.suts = this.dataTableService.sortData(this.suts, this.sortBy, this.sortOrder);
+    this.suts = [...this.dataTableService.sortData(this.suts, this.sortBy, this.sortOrder)];
+  }
+
+  removeSelectedSuts(): void {
+    if (this.selectedSutsIds.length > 0) {
+      let iConfirmConfig: IConfirmConfig = {
+        message: 'Selected Projects will be deleted, do you want to continue?',
+        disableClose: false, // defaults to false
+        viewContainerRef: this._viewContainerRef,
+        title: 'Confirm',
+        cancelButton: 'Cancel',
+        acceptButton: 'Yes, delete',
+      };
+      this._dialogService
+        .openConfirm(iConfirmConfig)
+        .afterClosed()
+        .subscribe((accept: boolean) => {
+          if (accept) {
+            this.deletingInProgress = true;
+
+            this.sutIdsWithErrorOnDelete = [];
+            this.removeMultipleSutsRecursively([...this.selectedSutsIds]).subscribe(
+              (end: boolean) => {
+                if (this.sutIdsWithErrorOnDelete.length > 0) {
+                  let errorMsg: string = 'Error on delete suts with ids: ' + this.sutIdsWithErrorOnDelete;
+                  this.externalService.popupService.openSnackBar(errorMsg);
+                } else {
+                  this.externalService.popupService.openSnackBar('Suts ' + this.selectedSutsIds + ' has been removed!');
+                }
+
+                this.deletingInProgress = false;
+                this.init(true);
+                this.sutIdsWithErrorOnDelete = [];
+                this.selectedSutsIds = [];
+              },
+              (error: Error) => {
+                console.log(error);
+                this.deletingInProgress = false;
+                this.init();
+                this.sutIdsWithErrorOnDelete = [];
+                this.selectedSutsIds = [];
+              },
+            );
+          }
+        });
+    }
+  }
+
+  switchSutsSelectionByData(sut: SutModel, selected: boolean): void {
+    if (selected) {
+      this.selectedSutsIds.push(sut.id);
+    } else {
+      const index: number = this.selectedSutsIds.indexOf(sut.id, 0);
+      if (index > -1) {
+        this.selectedSutsIds.splice(index, 1);
+      }
+    }
+  }
+
+  switchSutSelection(event: ITdDataTableSelectEvent): void {
+    if (event && event.row) {
+      let sut: SutModel = event.row;
+      this.switchSutsSelectionByData(sut, event.selected);
+    }
+  }
+
+  switchAllSutsSelection(event: ITdDataTableSelectAllEvent): void {
+    if (event && event.rows) {
+      for (let sut of event.rows) {
+        this.switchSutsSelectionByData(sut, event.selected);
+      }
+    }
+  }
+
+  removeMultipleSutsRecursively(selectedSutsIds: number[], _obs: Subject<any> = new Subject<any>()): Observable<boolean> {
+    let obs: Observable<any> = _obs.asObservable();
+
+    if (selectedSutsIds.length > 0) {
+      let sutId: number = selectedSutsIds.shift();
+      this.sutService.deleteSutById(sutId).subscribe(
+        (sut: SutModel) => {
+          this.removeMultipleSutsRecursively(selectedSutsIds, _obs);
+        },
+        (error: Error) => {
+          console.log(error);
+          this.sutIdsWithErrorOnDelete.push(sutId);
+          this.removeMultipleSutsRecursively(selectedSutsIds, _obs);
+        },
+      );
+    } else {
+      _obs.next(true);
+    }
+
+    return obs;
   }
 }
