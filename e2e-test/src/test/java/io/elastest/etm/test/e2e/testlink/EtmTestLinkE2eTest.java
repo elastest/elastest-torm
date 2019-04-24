@@ -19,12 +19,15 @@ package io.elastest.etm.test.e2e.testlink;
 import static io.github.bonigarcia.seljup.BrowserType.CHROME;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import br.eti.kinoshita.testlinkjavaapi.constants.ActionOnDuplicate;
@@ -35,6 +38,7 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.test.base.testlink.EtmTestLinkBaseTest;
 import io.elastest.etm.test.utils.SampleTLData;
+import io.github.bonigarcia.seljup.BrowserType;
 import io.github.bonigarcia.seljup.DockerBrowser;
 import io.github.bonigarcia.seljup.SeleniumExtension;
 
@@ -51,9 +55,10 @@ import io.github.bonigarcia.seljup.SeleniumExtension;
 public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
     @Test
     @DisplayName("Get TestLink Url")
-    void getTLUrlTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException {
-        this.driver = driver;
+    void getTLUrlTest(@DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo)
+            throws InterruptedException, MalformedURLException {
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
 
         this.startTestLinkIfNecessaryWithNavigate(driver);
 
@@ -66,9 +71,9 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
 
     @Test
     @DisplayName("Create TestLink Data and Test In ElasTest")
-    void tlDataTest(@DockerBrowser(type = CHROME) RemoteWebDriver driver)
-            throws InterruptedException, IOException {
-        this.driver = driver;
+    void tlDataTest(@DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo) throws InterruptedException, IOException {
+        setupTestBrowser(testInfo, BrowserType.CHROME, localDriver);
 
         this.startTestLinkIfNecessaryWithNavigate(driver);
 
@@ -114,8 +119,7 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
         this.executeSampleTestPlan(driver, sampleTLData);
     }
 
-    void executeSampleTestPlan(RemoteWebDriver driver,
-            SampleTLData sampleTLData) {
+    void executeSampleTestPlan(WebDriver driver, SampleTLData sampleTLData) {
         String projectName = sampleTLData.getProject().getName();
         String planName = sampleTLData.getPlan().getName();
 
@@ -133,7 +137,7 @@ public class EtmTestLinkE2eTest extends EtmTestLinkBaseTest {
         this.waitToTLEtmPlanExecutionEnds(driver);
     }
 
-    protected SampleTLData createSampleTLDataTest(RemoteWebDriver driver)
+    protected SampleTLData createSampleTLDataTest(WebDriver driver)
             throws IOException {
         SampleTLData sampleTLData = new SampleTLData();
 
