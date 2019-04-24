@@ -81,6 +81,27 @@ public class UtilsService {
         return "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'";
     }
 
+    public String getJavaDateString() {
+        return "EEE MMM dd HH:mm:ss Z yyyy";
+    }
+
+    public DateFormat getJavaDateStringFormat() {
+        return new SimpleDateFormat(getJavaDateString());
+    }
+
+    public Date getJavaDateFromStr(String timestamp, TimeZone timezone)
+            throws ParseException {
+        DateFormat df = getJavaDateStringFormat();
+        df.setTimeZone(timezone);
+
+        return df.parse(timestamp);
+    }
+
+    public Date getJavaUTCDateFromStr(String timestamp) throws ParseException {
+        return this.getJavaDateFromStr(timestamp,
+                TimeZone.getTimeZone("GMT-0"));
+    }
+
     public DateFormat getIso8601DateFormat() {
         return new SimpleDateFormat(getIso8601String());
     }

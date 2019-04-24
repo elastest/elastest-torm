@@ -236,8 +236,15 @@ public class TracesService {
             timestampAsStr = utilsService.getIso8601UTCStrFromDate(new Date());
         }
 
-        trace.setTimestamp(
-                utilsService.getIso8601UTCDateFromStr(timestampAsStr));
+        Date timestamp = null;
+        try {
+            timestamp = utilsService.getIso8601UTCDateFromStr(timestampAsStr);
+        } catch (ParseException e) {
+            timestamp = utilsService.getJavaUTCDateFromStr(timestampAsStr);
+        }
+        
+        trace.setTimestamp(timestamp);
+
         trace.setUnit((String) dataMap.get("unit"));
 
         // Units
