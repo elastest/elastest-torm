@@ -343,6 +343,11 @@ public class ExternalService {
                 tJob.getExternalUrls().put("jenkins-Job",
                         externalJob.getJobUrl());
             }
+
+            if (externalJob.getMaxExecutions() != null) {
+                tJob.setMaxExecutions(externalJob.getMaxExecutions());
+            }
+
             tJob = tJobService.createTJob(tJob);
 
             if (externalJob.getTSServices() != null

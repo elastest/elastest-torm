@@ -114,6 +114,8 @@ public class EtmWebappE2eTest extends EtmBaseTest {
             @DockerBrowser(type = FIREFOX) RemoteWebDriver localDriver,
             TestInfo testInfo)
             throws InterruptedException, MalformedURLException {
+        // 25-04-2019: chrome is set on purpose because it doesn't work with
+        // firefox. The browser that starts anyway is firefox
         setupTestBrowser(testInfo, CHROME, localDriver);
 
         this.createProjectAndSut(driver);
