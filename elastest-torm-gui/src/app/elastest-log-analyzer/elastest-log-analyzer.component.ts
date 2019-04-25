@@ -863,9 +863,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     let startMsg: string = this.logAnalyzerService.startTestCasePrefix + testCase;
     let endMsg: string = this.logAnalyzerService.endTestCasePrefix + testCase;
 
+    // too old Date for search start test trace, to evit problems
+    let startDateForStartMsg: Date = new Date(1900, 1);
+
     // Search Start Msg
     // TODO use refactorized method into logAnalyzer Service
-    this.searchTraceByGivenMsg(startMsg).subscribe(
+    this.searchTraceByGivenMsg(startMsg, startDateForStartMsg).subscribe(
       (startData: any) => {
         if (startData.length > 0) {
           let startRow: any = startData[0];
@@ -923,14 +926,18 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     this.loadLogByGivenData([]);
   }
 
-  searchTraceByGivenMsg(msg: string): Observable<any> {
+  searchTraceByGivenMsg(
+    msg: string,
+    from: string | Date = this.getFromDate(),
+    to: string | Date = this.getToDate(),
+  ): Observable<any> {
     this.prepareLoadLog();
 
     return this.logAnalyzerService.searchTraceByGivenMsg(
       msg,
       this.logAnalyzer.selectedIndices,
-      this.getFromDate(),
-      this.getToDate(),
+      from,
+      to,
       this.logAnalyzer.maxResults,
     );
   }
