@@ -244,7 +244,6 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
       metric.activated,
     );
 
-
     let pos: number = this.metricsList.length - 1;
 
     if (this.live) {
@@ -455,6 +454,10 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
       this.unsubscribe(this.allInOneMetrics.component, this.allInOneMetrics.stream);
     }
     this.allInOneMetrics = undefined;
+  }
+
+  isAllInOneMetricsCardShowing(): boolean {
+    return this.allInOneMetrics !== undefined && this.allInOneMetrics !== null;
   }
 
   unsubscribe(component: string, stream: string): void {

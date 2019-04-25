@@ -44,20 +44,30 @@
         <div id="metricsTree" fxFlex.gt-sm="50" fxFlexOffset.gt-sm="5">
           <mat-card-subtitle>Metrics</mat-card-subtitle>
           <mat-spinner strokeWidth="6" *ngIf="loadingMetrics" color="accent" class="push-top-sm"></mat-spinner>
-          <span *ngIf="noMetrics">There aren't metrics to configure</span>
-          <div class="treeContainer">
-            <tree-root #metricsTree [nodes]="metricTree.tree">
-              <ng-template #treeNodeTemplate let-node="node" let-index="index">
-                <mat-checkbox
-                  (change)="metricTree.check(node, !node.data.checked)"
-                  type="checkbox"
-                  [indeterminate]="node.data.indeterminate"
-                  [checked]="node.data.checked"
-                >
-                  {{ node.data.name }}</mat-checkbox
-                >
-              </ng-template>
-            </tree-root>
+          <div class="treeContainer" fxLayout="column">
+            <div fxFlex>
+              <mat-checkbox [(ngModel)]="allInOneMetricsActivated" name="showAllInOneCheckbox">All-in-one chart</mat-checkbox>
+            </div>
+
+            <div fxFlex class="push-bottom-sm push-top-sm">
+              <mat-divider></mat-divider>
+            </div>
+
+            <div fxFlex>
+              <span *ngIf="noMetrics">There aren't metrics to configure</span>
+              <tree-root #metricsTree [nodes]="metricTree.tree">
+                <ng-template #treeNodeTemplate let-node="node" let-index="index">
+                  <mat-checkbox
+                    (change)="metricTree.check(node, !node.data.checked)"
+                    type="checkbox"
+                    [indeterminate]="node.data.indeterminate"
+                    [checked]="node.data.checked"
+                  >
+                    {{ node.data.name }}</mat-checkbox
+                  >
+                </ng-template>
+              </tree-root>
+            </div>
           </div>
         </div>
       </div>

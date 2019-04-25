@@ -206,6 +206,8 @@ export class EtmMonitoringViewComponent implements OnInit {
             if (showPopup) {
               this.monitoringService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
             }
+            this.tJob = tJob;
+            this.tJobExec.tJob = tJob;
           },
           (error: Error) => console.log(error),
         );
@@ -217,6 +219,8 @@ export class EtmMonitoringViewComponent implements OnInit {
             if (showPopup) {
               this.monitoringService.popupService.openSnackBar('Monitoring configuration saved into TJob', 'OK');
             }
+            this.tJob = exTJob;
+            this.tJobExec.tJob = exTJob;
           },
           (error: Error) => console.log(error),
         );
@@ -255,6 +259,10 @@ export class EtmMonitoringViewComponent implements OnInit {
         }
         if (data.metricsList) {
           this.updateMetricsFromList(data.metricsList);
+        }
+
+        if (data.allInOneMetricsActivated !== undefined && data.allInOneMetricsActivated !== null) {
+          this.updateAIOMetrics(data.allInOneMetricsActivated);
         }
 
         if (withSave) {
@@ -395,6 +403,18 @@ export class EtmMonitoringViewComponent implements OnInit {
         break;
       }
       position++;
+    }
+  }
+
+  updateAIOMetrics(activate: boolean): void {
+    let alreadyActivated: boolean = this.tJob.execDashboardConfigModel.showAllInOne;
+    this.tJob.execDashboardConfigModel.showAllInOne = activate;
+    this.tJobExec.tJob.execDashboardConfigModel.showAllInOne = activate;
+
+    if (activate && !alreadyActivated) {
+      this.metricsGroup.initAIO();
+    } else {
+      this.metricsGroup.removeAndUnsubscribeAIO();
     }
   }
 

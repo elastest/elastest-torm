@@ -26,6 +26,7 @@ export class MonitoringConfigurationComponent implements OnInit {
 
   logTree: AgTreeCheckModel;
   metricTree: AgTreeCheckModel;
+  allInOneMetricsActivated: boolean = false;
 
   tJobExec: TJobExecModel;
   logCards: EtmLogsGroupComponent;
@@ -52,6 +53,8 @@ export class MonitoringConfigurationComponent implements OnInit {
     this.logCards = inputObj.logCards;
     this.metricCards = inputObj.metricCards;
     this.metricbeatFieldGroupList = getMetricBeatFieldGroupList();
+
+    this.allInOneMetricsActivated = this.metricCards.isAllInOneMetricsCardShowing();
   }
 
   ngOnInit(): void {
@@ -292,7 +295,9 @@ export class MonitoringConfigurationComponent implements OnInit {
       metricsList: metricsList,
       logsToCompare: this.logsToCompare,
       withSave: withSave,
+      allInOneMetricsActivated: this.allInOneMetricsActivated,
     };
+
     this.dialogRef.close(response);
   }
 }

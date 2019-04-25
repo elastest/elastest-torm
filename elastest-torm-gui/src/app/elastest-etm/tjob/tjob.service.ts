@@ -40,11 +40,19 @@ export class TJobService {
     tJob.generateExecDashboardConfig();
     tJob.esmServicesString = JSON.stringify(tJob.esmServices);
     let url: string = this.configurationService.configModel.hostApi + '/tjob';
+    let method: Observable<any>;
     if (action === 'new') {
-      return this.http.post(url, tJob, { observe: 'response' }).map((response: HttpResponse<any>) => response.body);
+      method = this.http.post(url, tJob, { observe: 'response' });
     } else {
-      return this.http.put(url, tJob, { observe: 'response' }).map((response: HttpResponse<any>) => response.body);
+      method = this.http.put(url, tJob, { observe: 'response' });
     }
+    return method.map((response: HttpResponse<any>) => {
+      if (response.body !== undefined && response.body !== null) {
+        return this.eTModelsTransformServices.jsonToTJobModel(response.body);
+      } else {
+        throw new Error("Empty response. You don't have permissions to save TJob, access it or TJob not exist");
+      }
+    });
   }
 
   public modifyTJob(tJob: TJobModel): Observable<any> {
