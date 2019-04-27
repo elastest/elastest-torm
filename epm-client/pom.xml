@@ -60,7 +60,7 @@
         <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
         <jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
         <elastest.epm.client.version>0.9.0</elastest.epm.client.version>
-        <kubernetes.client>4.2.0</kubernetes.client>
+        <kubernetes.client>4.2.2</kubernetes.client>
     </properties>
 
     <!-- Apache Software License -->
@@ -124,7 +124,6 @@
             <artifactId>kubernetes-client</artifactId>
             <version>${kubernetes.client}</version>
         </dependency>
-
 
         <!-- https://mvnrepository.com/artifact/org.zeroturnaround/zt-exec -->
         <dependency>

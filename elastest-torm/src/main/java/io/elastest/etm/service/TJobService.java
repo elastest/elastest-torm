@@ -42,6 +42,7 @@ import io.elastest.etm.model.TJob.TJobMinimalView;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
+import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.TestResultParser;
@@ -65,6 +66,7 @@ public class TJobService {
     private AbstractMonitoringService monitoringService;
     private EtmTestResultService etmTestResultService;
     private EtmFilesService etmFilesService;
+    private PlatformService platformService;
 
     Map<String, Future<Void>> asyncExecs = new HashMap<String, Future<Void>>();
 
@@ -74,7 +76,7 @@ public class TJobService {
             UtilsService utilsService,
             AbstractMonitoringService monitoringService,
             EtmTestResultService etmTestResultService,
-            EtmFilesService etmFilesService) {
+            EtmFilesService etmFilesService, PlatformService platformService) {
         super();
         this.tJobRepo = tJobRepo;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
@@ -83,6 +85,7 @@ public class TJobService {
         this.monitoringService = monitoringService;
         this.etmTestResultService = etmTestResultService;
         this.etmFilesService = etmFilesService;
+        this.platformService = platformService;
     }
 
     @PreDestroy
@@ -684,9 +687,24 @@ public class TJobService {
         return result;
     }
 
-    public Boolean saveExecAttachmentFile(Long tJobExecId, MultipartFile file) throws IllegalStateException, IOException {
+    public Boolean saveExecAttachmentFile(Long tJobExecId, MultipartFile file)
+            throws IllegalStateException, IOException {
         TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId)
                 .get();
         return etmFilesService.saveExecAttachmentFile(tJobExec, file);
+    }
+
+    public Integer copyFilesFromPod(String podName) {
+        logger.info("TJobService: Copying files from a container");
+        Integer result = 0;
+        String[] splitPodName = podName.split("-");
+        logger.info("TJobID: {}",splitPodName[1]);
+        String tJobExecId = splitPodName[1];
+        TJobExecution tJobExec = tJobExecRepositoryImpl
+                .findById(Long.valueOf(tJobExecId)).get();
+        result = platformService.copyFilesFomContainer(podName,
+                tJobExec.getTjob().getResultsPath(),
+                etmFilesService.getTJobExecFolderPath(tJobExec));
+        return result;
     }
 }
