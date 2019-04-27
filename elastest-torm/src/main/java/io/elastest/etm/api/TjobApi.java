@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import io.elastest.etm.model.ExecData;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.external.ExternalTestExecution;
 import io.elastest.etm.model.ElastestFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -369,4 +370,15 @@ public interface TjobApi extends EtmApiRoot {
     ResponseEntity<Boolean> saveExecAttachment(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
             @RequestParam(value = "file") MultipartFile file);
+    
+    @ApiOperation(value = "Notifies ElasTest that the TJob is finishing its execution to do some tasks before.", response = Long.class, tags = {
+            "TJob Execution", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Integer.class),
+            @ApiResponse(code = 404, message = "Resources not found") })
+    @RequestMapping(value = "/tjob/exec/pod/{podName}", produces = {
+            "text/plain" }, method = RequestMethod.POST)
+    ResponseEntity<Integer> copyFilesBeforeFinishingTJobFromK8s(
+            @ApiParam(value = "Name of the pod to use in the finalization tasks.", required = true) @PathVariable("podName") String podName);
+
 }

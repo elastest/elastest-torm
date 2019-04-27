@@ -450,8 +450,11 @@ public class DockerServiceImpl extends PlatformService {
             resultMsg = "Waiting for Test Results";
             execution.updateTJobExecutionStatus(ResultEnum.WAITING, resultMsg);
             execution.setStatusMsg(resultMsg);
-            List<ReportTestSuite> testResults = getTestResults(execution,
-                    testContainerId);
+            String resultsPath = execution.gettJob().getResultsPath();
+            String testResultsAsString = getFileFromContainer(testContainerId,
+                    resultsPath);
+            List<ReportTestSuite> testResults = null;
+            testResults = getTestSuitesByString(testResultsAsString);
 
             tJobExec.setEndDate(new Date());
             logger.info("Ending Execution {}...", tJobExec.getId());
@@ -463,6 +466,30 @@ public class DockerServiceImpl extends PlatformService {
                     "Error on create and start TJob container: Stopped", e);
         } catch (Exception e) {
             throw new Exception("Error on create and start TJob container", e);
+        }
+    }
+
+    @Override
+    protected String getFileFromContainer(String testContainer,
+            String filePath) throws Exception {
+        String result = null;
+        try {
+            if (filePath != null && !filePath.isEmpty()) {
+                try {
+                    InputStream inputStream = dockerService
+                            .getFilesFromContainer(testContainer, filePath);
+
+                    result = IOUtils.toString(inputStream,
+                            StandardCharsets.UTF_8);
+                } catch (IOException e) {
+                    logger.error("Error retrieving files from container.");
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            throw new Exception(
+                    "Error on get test results. Maybe the specified path is incorrect.",
+                    e);
         }
     }
 
@@ -508,73 +535,6 @@ public class DockerServiceImpl extends PlatformService {
         createdContainers.remove(containerId);
     }
 
-    /* ************************* */
-    /* **** Get TestResults **** */
-    /* ************************* */
-
-    private List<ReportTestSuite> getTestResults(Execution execution,
-            String testContainerId) throws Exception {
-        try {
-            List<ReportTestSuite> testSuites = null;
-            String resultsPath = execution.gettJob().getResultsPath();
-
-            if (resultsPath != null && !resultsPath.isEmpty()) {
-                try {
-                    InputStream inputStream = dockerService
-                            .getFilesFromContainer(testContainerId,
-                                    resultsPath);
-
-                    String result = IOUtils.toString(inputStream,
-                            StandardCharsets.UTF_8);
-                    testSuites = getTestSuitesByString(result);
-                } catch (IOException e) {
-                }
-            }
-            return testSuites;
-        } catch (Exception e) {
-            throw new Exception(
-                    "Error on get test results. Maybe the specified path is incorrect.",
-                    e);
-        }
-    }
-
-    private List<ReportTestSuite> getTestSuitesByString(String result) {
-        List<ReportTestSuite> results = new ArrayList<>();
-        String head = "<testsuite ";
-        String foot = "</testsuite>";
-
-        List<String> splitedHeadResult = new ArrayList<String>(
-                Arrays.asList(result.split(head)));
-        if (splitedHeadResult != null) {
-            if (!result.startsWith(head)) { // delete non-deseable string
-                                            // (surefire-reports/)
-                splitedHeadResult.remove(0);
-            }
-            for (String piece : splitedHeadResult) {
-                List<String> splitedFootResult = new ArrayList<String>(
-                        Arrays.asList(piece.split(foot)));
-                String newResult = head + splitedFootResult.get(0) + foot;
-
-                List<ReportTestSuite> testSuites = null;
-
-                try {
-                    // normally, a single test suite
-                    testSuites = this
-                            .testSuiteStringToReportTestSuite(newResult);
-                } catch (ParserConfigurationException | SAXException
-                        | IOException e) {
-                    logger.error("Error on parse testSuite {}", e);
-                }
-
-                if (testSuites != null) {
-                    results.addAll(testSuites);
-                }
-            }
-        }
-
-        return results;
-    }
-
     private String getElastestNetwork() {
         return elastestNetwork;
     }
@@ -597,18 +557,6 @@ public class DockerServiceImpl extends PlatformService {
 
     private void addSutByExecution(String executionId, String sutContainerId) {
         sutsByExecution.put(executionId, sutContainerId);
-    }
-
-    private List<ReportTestSuite> testSuiteStringToReportTestSuite(
-            String testSuiteStr) throws UnsupportedEncodingException,
-            ParserConfigurationException, SAXException, IOException {
-        TestSuiteXmlParser testSuiteXmlParser = new TestSuiteXmlParser(null);
-        InputStream byteArrayIs = new ByteArrayInputStream(
-                testSuiteStr.getBytes());
-
-        // normally, a single test suite, but in some cases returns more than 1
-        return testSuiteXmlParser
-                .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
     }
 
     private void deploySutFromDockerImage(Execution execution)
@@ -1431,6 +1379,12 @@ public class DockerServiceImpl extends PlatformService {
             boolean withFollow) throws Exception {
         return dockerService.getContainerLogsSinceDate(containerId, from,
                 withFollow);
+    }
+
+    @Override
+    public Integer copyFilesFomContainer(String container, String originPath, String targetPath) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

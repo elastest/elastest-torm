@@ -432,4 +432,20 @@ public class TjobApiController implements TjobApi {
         }
     }
 
+    @Override
+    public ResponseEntity<Integer> copyFilesBeforeFinishingTJobFromK8s(
+            @ApiParam(value = "Name of the pod to use in the finalization tasks.", required = true) @PathVariable("podName") String podName) {
+        try {
+            logger.info("Copying files from a container");
+            Integer result = tJobService.copyFilesFromPod(podName);
+            return new ResponseEntity<Integer>(result, HttpStatus.OK);
+        } catch(Exception e) {
+            logger.error("Error copying files from pod {}", podName);
+            logger.error("Error: {}", e.getMessage());
+            e.printStackTrace();
+            return new ResponseEntity<Integer>(2,
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

@@ -3,15 +3,26 @@ package io.elastest.etm.platform.service;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
+import org.apache.maven.plugins.surefire.report.TestSuiteXmlParser;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -41,9 +52,9 @@ import io.elastest.etm.utils.EtmFilesService;
 public abstract class PlatformService {
     static final Logger logger = getLogger(lookup().lookupClass());
     public static String GET_CONTAINER_IP_COMMAND = "ip a | grep -m 1 global | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}\\/' | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}'";
-    
+
     private EtmFilesService etmFilesService;
-    
+
     @Value("${elastest.docker.network}")
     public String elastestNetwork;
     @Value("${et.type.sut.label.value}")
@@ -66,6 +77,8 @@ public abstract class PlatformService {
     public String sharedFolder;
     @Value("${logstash.host:#{null}}")
     public String logstashOrMiniHost;
+    @Value("${et.enable.cloud.mode}")
+    public boolean etEnableCloudMode;
 
     public enum ContainerPrefix {
         TEST("test_"), SUT("sut_"), CHECK("check_"), SUT_EXT("sut_ext_");
@@ -92,7 +105,7 @@ public abstract class PlatformService {
             return null;
         }
     }
-    
+
     public enum ContainerType {
         SUT("sut"), TJOB("tjob");
 
@@ -127,7 +140,8 @@ public abstract class PlatformService {
     public abstract boolean deployService(String projectName, boolean withPull)
             throws IOException;
 
-    public abstract boolean undeployService(String projectName) throws IOException;
+    public abstract boolean undeployService(String projectName)
+            throws IOException;
 
     public abstract boolean undeployAndCleanDeployment(String projectName);
 
@@ -146,11 +160,11 @@ public abstract class PlatformService {
 
     public abstract DockerContainerInfo getContainers(String projectName);
 
-    public abstract boolean isContainerIntoNetwork(String networkId, String containerId)
-            throws Exception;
+    public abstract boolean isContainerIntoNetwork(String networkId,
+            String containerId) throws Exception;
 
-    public abstract String getContainerIpByNetwork(String containerId, String network)
-            throws Exception;
+    public abstract String getContainerIpByNetwork(String containerId,
+            String network) throws Exception;
 
     public abstract void insertIntoETNetwork(String engineName, String network)
             throws Exception;
@@ -160,16 +174,17 @@ public abstract class PlatformService {
     public abstract void enableServiceMetricMonitoring(Execution execution)
             throws Exception;
 
-    public abstract void disableMetricMonitoring(Execution execution, boolean force)
-            throws Exception;
+    public abstract void disableMetricMonitoring(Execution execution,
+            boolean force) throws Exception;
 
-    public abstract List<ReportTestSuite> deployAndRunTJobExecution(Execution execution) throws Exception;
+    public abstract List<ReportTestSuite> deployAndRunTJobExecution(
+            Execution execution) throws Exception;
 
     public String generateContainerName(ContainerPrefix prefix,
             Execution execution) {
         return this.generateContainerName(prefix, execution, false);
     }
-    
+
     public String generateContainerName(ContainerPrefix prefix,
             Execution execution, boolean aux) {
         logger.info("Building container name with prefix: {}", prefix);
@@ -177,15 +192,16 @@ public abstract class PlatformService {
         if (prefix == ContainerPrefix.SUT && execution.getSut() != null) {
             if (!execution.isExternal()) {
                 containerName = prefix.value + execution.getExecutionId();
-                
+
             } else {
-                containerName = ContainerPrefix.SUT_EXT + "_e" + execution.getExternalTJob().getId();
+                containerName = ContainerPrefix.SUT_EXT + "_e"
+                        + execution.getExternalTJob().getId();
             }
             SutSpecification sut = execution.getSut();
             containerName += (sut.isDockerCommandsSut()
                     && sut.isSutInNewContainer() && aux
-                    ? "_" + sut.getSutInContainerAuxLabel()
-                    : "");
+                            ? "_" + sut.getSutInContainerAuxLabel()
+                            : "");
         } else {
             containerName = prefix.value + execution.getExecutionId();
         }
@@ -202,7 +218,8 @@ public abstract class PlatformService {
             throws Exception;
 
     public abstract ServiceBindedPort getBindingPort(String containerIp,
-            String containerSufix, String port, String networkName) throws Exception;
+            String containerSufix, String port, String networkName)
+            throws Exception;
 
     public abstract String getEtmHost() throws Exception;
 
@@ -220,15 +237,19 @@ public abstract class PlatformService {
     public abstract void setCoreServiceInfoFromContainer(String imageName,
             String version, CoreServiceInfo coreServiceInfo) throws Exception;
 
-    public abstract String getAllContainerLogs(String containerName, boolean withFollow)
-            throws Exception;
-    
-    public abstract String getSomeContainerLogs(String containerName, int amount, boolean withFollow) throws Exception;
-    
-    public abstract String getContainerLogsFrom(String containerId, int from, boolean withFollow) throws Exception;
+    public abstract String getAllContainerLogs(String containerName,
+            boolean withFollow) throws Exception;
+
+    public abstract String getSomeContainerLogs(String containerName,
+            int amount, boolean withFollow) throws Exception;
+
+    public abstract String getContainerLogsFrom(String containerId, int from,
+            boolean withFollow) throws Exception;
 
     public abstract String undeployTSSByContainerId(String containerId);
     
+    public abstract Integer copyFilesFomContainer(String container, String originPath, String targetPath);
+
     protected String getSutPath(Execution execution) {
         String sutPath;
         if (execution.isExternal()) {
@@ -245,11 +266,12 @@ public abstract class PlatformService {
         }
         return sutPath;
     }
-    
-    protected Map<String, String> getEtLabels(Execution execution, String type) {
+
+    protected Map<String, String> getEtLabels(Execution execution,
+            String type) {
         return this.getEtLabels(execution, type, null);
     }
-    
+
     protected Map<String, String> getEtLabels(Execution execution, String type,
             String sutServiceName) {
         String etTypeLabelValue = "";
@@ -280,12 +302,12 @@ public abstract class PlatformService {
 
         return labels;
     }
-    
+
     protected boolean isEMSSelected(Execution execution) {
         return !execution.isExternal()
                 && execution.gettJob().isSelectedService("ems");
     }
-    
+
     protected LogConfig getEMSLogConfig(String type, String tagPrefix,
             String tagSuffix, Execution execution) throws Exception {
         TJobExecution tJobExec = execution.getTJobExec();
@@ -310,7 +332,7 @@ public abstract class PlatformService {
             throw new Exception("Error on get EMS Log config");
         }
     }
-    
+
     /* ******************************* */
     /* ******* Logging methods ******* */
     /* ******************************* */
@@ -342,13 +364,13 @@ public abstract class PlatformService {
 
         return logConfig;
     }
-    
+
     protected void initLogstashHostIfNecessary() throws Exception {
         if (logstashOrMiniHost == null || logstashOrMiniHost.isEmpty()) {
             logstashOrMiniHost = this.getLogstashHost();
         }
     }
-    
+
     protected LogConfig getDefaultLogConfig(String port, String tagPrefix,
             String tagSuffix, Execution execution) throws Exception {
 
@@ -360,8 +382,9 @@ public abstract class PlatformService {
         return this.getLogConfig(logstashOrMiniHost, port, tagPrefix, tagSuffix,
                 execution);
     }
-    
-    protected LogConfig getLogstashOrMiniLogConfig(String tag) throws Exception {
+
+    protected LogConfig getLogstashOrMiniLogConfig(String tag)
+            throws Exception {
         this.initLogstashHostIfNecessary();
 
         Map<String, String> configMap = new HashMap<String, String>();
@@ -377,7 +400,7 @@ public abstract class PlatformService {
 
         return logConfig;
     }
-    
+
     protected DockerContainer createContainer(Execution execution,
             ContainerType type) throws Exception {
         logger.debug("Creating new container");
@@ -473,10 +496,14 @@ public abstract class PlatformService {
         // Commands (optional)
         ArrayList<String> cmdList = new ArrayList<>();
         ArrayList<String> entrypointList = null;
+
+        logger.debug("Commands to execute: {}", commands);
+
         if (commands != null && !commands.isEmpty()) {
             cmdList = new ArrayList<>();
             entrypointList = new ArrayList<>();
             cmdList.add("-c");
+            logger.debug("Filling cmdList");
             if (sut != null) {
                 if (sut.isSutInNewContainer()) {
                     commands = sutPath != null
@@ -488,8 +515,17 @@ public abstract class PlatformService {
                         + ") || echo;" + commands;
             }
             cmdList.add(commands);
-
             entrypointList.add("/bin/sh");
+            cmdList.forEach((command) -> {
+                logger.debug("Commands to execute from cmdList: {}", command);
+            });
+            if (etEnableCloudMode) {
+                cmdList.add(0, entrypointList.get(0));
+
+            }
+            cmdList.forEach((command) -> {
+                logger.debug("Commands to execute from cmdList: {}", command);
+            });
         }
 
         // Load Log Config
@@ -545,7 +581,6 @@ public abstract class PlatformService {
         // Create DockerContainer object
         return dockerBuilder.build();
     }
-    
 
     protected void saveFinishStatus(TJobExecution tJobExec, Execution execution,
             int exitCode) {
@@ -569,6 +604,64 @@ public abstract class PlatformService {
 
         resultMsg = "Finished: " + finishStatus;
         execution.updateTJobExecutionStatus(finishStatus, resultMsg);
+    }
+
+    /* ************************* */
+    /* **** Get TestResults **** */
+    /* ************************* */
+
+    protected abstract String getFileFromContainer(String testContainer,
+            String filePath) throws Exception;
+
+    protected List<ReportTestSuite> getTestSuitesByString(String result) {
+        List<ReportTestSuite> results = new ArrayList<>();
+        String head = "<testsuite ";
+        String foot = "</testsuite>";
+
+        if (result != null && !result.isEmpty()) {
+            List<String> splitedHeadResult = new ArrayList<String>(
+                    Arrays.asList(result.split(head)));
+            if (splitedHeadResult != null) {
+                if (!result.startsWith(head)) { // delete non-deseable string
+                                                // (surefire-reports/)
+                    splitedHeadResult.remove(0);
+                }
+                for (String piece : splitedHeadResult) {
+                    List<String> splitedFootResult = new ArrayList<String>(
+                            Arrays.asList(piece.split(foot)));
+                    String newResult = head + splitedFootResult.get(0) + foot;
+
+                    List<ReportTestSuite> testSuites = null;
+
+                    try {
+                        // normally, a single test suite
+                        testSuites = this
+                                .testSuiteStringToReportTestSuite(newResult);
+                    } catch (ParserConfigurationException | SAXException
+                            | IOException e) {
+                        logger.error("Error on parse testSuite {}", e);
+                    }
+
+                    if (testSuites != null) {
+                        results.addAll(testSuites);
+                    }
+                }
+            }
+        }
+
+        return results;
+    }
+
+    protected List<ReportTestSuite> testSuiteStringToReportTestSuite(
+            String testSuiteStr) throws UnsupportedEncodingException,
+            ParserConfigurationException, SAXException, IOException {
+        TestSuiteXmlParser testSuiteXmlParser = new TestSuiteXmlParser(null);
+        InputStream byteArrayIs = new ByteArrayInputStream(
+                testSuiteStr.getBytes());
+
+        // normally, a single test suite, but in some cases returns more than 1
+        return testSuiteXmlParser
+                .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
     }
 
 }

@@ -16,6 +16,7 @@ import io.elastest.epm.client.DockerContainer;
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.epm.client.service.K8Service;
+import io.elastest.epm.client.service.K8Service.JobResult;
 import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.ServiceBindedPort;
@@ -25,9 +26,9 @@ import io.elastest.etm.service.exception.TJobStoppedException;
 
 @Service
 public class K8ServiceImpl extends PlatformService {
-    
+
     private K8Service k8Service;
-    
+
     public K8ServiceImpl(K8Service k8Service) {
         super();
         this.k8Service = k8Service;
@@ -157,27 +158,38 @@ public class K8ServiceImpl extends PlatformService {
             execution.updateTJobExecutionStatus(
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
             execution.setStatusMsg(resultMsg);
-            
-            // Create and start container
-            String result = k8Service.deployJob(testContainer);
-            
 
-//            // Test Results
-//            resultMsg = "Waiting for Test Results";
-//            execution.updateTJobExecutionStatus(ResultEnum.WAITING, resultMsg);
-//            execution.setStatusMsg(resultMsg);
-//            List<ReportTestSuite> testResults = getTestResults(execution,
-//                    testContainerId);
+            // Create and start container
+            JobResult result = k8Service.deployJob(testContainer);
+            Thread.sleep(5000);
+
+            // Test Results
+            if (execution.gettJob().getResultsPath() != null
+                    && !execution.gettJob().getResultsPath().isEmpty()) {
+                resultMsg = "Waiting for Test Results";
+                execution.updateTJobExecutionStatus(
+                        TJobExecution.ResultEnum.WAITING, resultMsg);
+                execution.setStatusMsg(resultMsg);
+                String testResultsAsString = null;
+//                String testResultsAsString = getFileFromContainer(
+//                        result.getPodName(),
+//                        execution.gettJob().getResultsPath());
+                testResults = getTestSuitesByString(testResultsAsString);
+            }
+            
+           k8Service.deleteJob(result.getJobName());
 
             tJobExec.setEndDate(new Date());
             logger.info("Ending Execution {}...", tJobExec.getId());
-            saveFinishStatus(tJobExec, execution, (result.equals("Succeeded") ? 0 : 1));
+            saveFinishStatus(tJobExec, execution,
+                    (result.getResult().equals("Succeeded") ? 0 : 1));
             return testResults;
 
         } catch (TJobStoppedException | InterruptedException e) {
             throw new TJobStoppedException(
                     "Error on create and start TJob container: Stopped", e);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new Exception("Error on create and start TJob container", e);
         }
 
@@ -282,5 +294,19 @@ public class K8ServiceImpl extends PlatformService {
         // TODO Auto-generated method stub
         return null;
     }
-    
+
+    @Override
+    protected String getFileFromContainer(String testContainer, String filePath)
+            throws Exception {
+        return k8Service.readFileFromContainer(testContainer, filePath);
+    }
+
+    @Override
+    public Integer copyFilesFomContainer(String container, String originPath, String targetPath) {
+        logger.info("Copy files in {}, from {} to {}.", container, originPath, targetPath);
+        Integer result = 1;
+        result = k8Service.copyFileFromContainer(container, originPath, targetPath);
+        return result;
+    }
+
 }
