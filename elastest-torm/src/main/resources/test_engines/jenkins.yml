@@ -1,7 +1,7 @@
 version: '3.4'
 services:        
     etm-jenkins:
-      image: 'elastest/etm-jenkins:1.0.2'
+      image: 'elastest/etm-jenkins:1.0.3'
       expose:
             - 8080
       ports:

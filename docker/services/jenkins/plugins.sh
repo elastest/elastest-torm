@@ -97,7 +97,11 @@ while read -r spec || [ -n "$spec" ]; do
     if ! grep -q "${plugin[0]}:${plugin[1]}" "$TEMP_ALREADY_INSTALLED"
     then
         echo "Downloading ${plugin[0]}:${plugin[1]}"
+	{ # try
         curl --retry 3 --retry-delay 5 -sSL -f "${JENKINS_UC_DOWNLOAD}/plugins/${plugin[0]}/${plugin[1]}/${plugin[0]}.hpi" -o "$REF/${plugin[0]}.jpi"
+	} || { # catch
+        curl --retry 3 --retry-delay 5 -sSL -f "${JENKINS_REPO}/plugins/${plugin[0]}/${plugin[1]}/${plugin[0]}.hpi" -o "$REF/${plugin[0]}.jpi"
+	}
         unzip -qqt "$REF/${plugin[0]}.jpi"
         (( COUNT_PLUGINS_INSTALLED += 1 ))
     else
