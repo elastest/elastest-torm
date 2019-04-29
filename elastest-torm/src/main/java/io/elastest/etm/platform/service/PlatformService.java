@@ -610,10 +610,10 @@ public abstract class PlatformService {
     /* **** Get TestResults **** */
     /* ************************* */
 
-    protected abstract String getFileFromContainer(String testContainer,
+    public abstract String getFileContentFromContainer(String testContainer,
             String filePath) throws Exception;
 
-    protected List<ReportTestSuite> getTestSuitesByString(String result) {
+    public List<ReportTestSuite> getTestSuitesByString(String result) {
         List<ReportTestSuite> results = new ArrayList<>();
         String head = "<testsuite ";
         String foot = "</testsuite>";

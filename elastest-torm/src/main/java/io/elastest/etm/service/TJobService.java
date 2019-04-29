@@ -32,6 +32,7 @@ import org.xml.sax.SAXException;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.Enums.MonitoringStorageType;
+import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.SutSpecification;
@@ -701,11 +702,47 @@ public class TJobService {
         return etmFilesService.saveExecAttachmentFile(tJobExec, file);
     }
 
+    public Integer getTestResultsFromContainer(String podName) {
+        logger.info("TJobService: Copying files from a container");
+        Integer result = 0;
+        String testResultsAsString = null;
+        List<ReportTestSuite> testResults = new ArrayList<ReportTestSuite>();
+        String[] splitPodName = podName.split("-");
+        logger.info("TJobID: {}", splitPodName[1]);
+        String tJobExecId = splitPodName[1];
+        TJobExecution tJobExec = tJobExecRepositoryImpl
+                .findById(Long.valueOf(tJobExecId)).get();
+        Execution execution = new Execution(tJobExec);
+        try {
+            // Test Results
+            if (tJobExec.getTjob().getResultsPath() != null
+                    && !tJobExec.getTjob().getResultsPath().isEmpty()) {
+                String resultMsg = "Waiting for Test Results";
+                execution.updateTJobExecutionStatus(
+                        TJobExecution.ResultEnum.WAITING, resultMsg);
+                execution.setStatusMsg(resultMsg);
+                testResultsAsString = platformService
+                        .getFileContentFromContainer(podName,
+                                tJobExec.getTjob().getResultsPath());
+
+                testResults = platformService
+                        .getTestSuitesByString(testResultsAsString);
+                etmTestResultService.saveTestResults(testResults, tJobExec);
+            }
+
+        } catch (Exception e) {
+            result = 1;
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     public Integer copyFilesFromPod(String podName) {
         logger.info("TJobService: Copying files from a container");
         Integer result = 0;
         String[] splitPodName = podName.split("-");
-        logger.info("TJobID: {}",splitPodName[1]);
+        logger.info("TJobID: {}", splitPodName[1]);
         String tJobExecId = splitPodName[1];
         TJobExecution tJobExec = tJobExecRepositoryImpl
                 .findById(Long.valueOf(tJobExecId)).get();

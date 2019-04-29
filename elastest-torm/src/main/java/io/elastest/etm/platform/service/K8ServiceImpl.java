@@ -163,21 +163,7 @@ public class K8ServiceImpl extends PlatformService {
             JobResult result = k8Service.deployJob(testContainer);
             Thread.sleep(5000);
 
-            // Test Results
-            if (execution.gettJob().getResultsPath() != null
-                    && !execution.gettJob().getResultsPath().isEmpty()) {
-                resultMsg = "Waiting for Test Results";
-                execution.updateTJobExecutionStatus(
-                        TJobExecution.ResultEnum.WAITING, resultMsg);
-                execution.setStatusMsg(resultMsg);
-                String testResultsAsString = null;
-//                String testResultsAsString = getFileFromContainer(
-//                        result.getPodName(),
-//                        execution.gettJob().getResultsPath());
-                testResults = getTestSuitesByString(testResultsAsString);
-            }
-            
-           k8Service.deleteJob(result.getJobName());
+            k8Service.deleteJob(result.getJobName());
 
             tJobExec.setEndDate(new Date());
             logger.info("Ending Execution {}...", tJobExec.getId());
@@ -296,16 +282,19 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    protected String getFileFromContainer(String testContainer, String filePath)
-            throws Exception {
+    public String getFileContentFromContainer(String testContainer,
+            String filePath) throws Exception {
         return k8Service.readFileFromContainer(testContainer, filePath);
     }
 
     @Override
-    public Integer copyFilesFomContainer(String container, String originPath, String targetPath) {
-        logger.info("Copy files in {}, from {} to {}.", container, originPath, targetPath);
+    public Integer copyFilesFomContainer(String container, String originPath,
+            String targetPath) {
+        logger.info("Copy files in {}, from {} to {}.", container, originPath,
+                targetPath);
         Integer result = 1;
-        result = k8Service.copyFileFromContainer(container, originPath, targetPath);
+        result = k8Service.copyFileFromContainer(container, originPath,
+                targetPath);
         return result;
     }
 
