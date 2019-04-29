@@ -1,6 +1,6 @@
 node('et_in_et'){
     try {
-        elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: 19) {
+        elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: 8) {
             def elastest_url = ''
             def jenkins_url = ''
             def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-tests/et_in_et/etm-plugin-with-installation-e2e-test-elastest/elastest-plugin/target/elastest.hpi'
