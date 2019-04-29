@@ -95,9 +95,11 @@
                   </ng-container>
 
                   <ng-container *ngIf="column.name === 'containerNames' || column.name === 'networks'">
-                    <div *ngFor="let elementOfArray of value">
-                      - {{ elementOfArray.startsWith('/') ? elementOfArray.substring(1) : elementOfArray }}
-                    </div>
+                    <ul class="pad">
+                      <li *ngFor="let elementOfArray of value">
+                        {{ elementOfArray.startsWith('/') ? elementOfArray.substring(1) : elementOfArray }}
+                      </li>
+                    </ul>
                   </ng-container>
 
                   <ng-container *ngIf="column.name === 'versionInfo.commitDate' || column.name === 'imageDate'">
