@@ -3,9 +3,7 @@ package io.elastest.etm.platform.service;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
