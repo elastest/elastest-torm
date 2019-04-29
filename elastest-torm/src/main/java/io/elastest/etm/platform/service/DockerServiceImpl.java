@@ -451,7 +451,7 @@ public class DockerServiceImpl extends PlatformService {
             execution.updateTJobExecutionStatus(ResultEnum.WAITING, resultMsg);
             execution.setStatusMsg(resultMsg);
             String resultsPath = execution.gettJob().getResultsPath();
-            String testResultsAsString = getFileFromContainer(testContainerId,
+            String testResultsAsString = getFileContentFromContainer(testContainerId,
                     resultsPath);
             List<ReportTestSuite> testResults = null;
             testResults = getTestSuitesByString(testResultsAsString);
@@ -470,7 +470,7 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    protected String getFileFromContainer(String testContainer,
+    public String getFileContentFromContainer(String testContainer,
             String filePath) throws Exception {
         String result = null;
         try {

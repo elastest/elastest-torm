@@ -1,26 +1,7 @@
 package io.elastest.epm.client.service;
 
-import org.springframework.stereotype.Service;
-
-import io.elastest.epm.client.DockerContainer;
-import io.fabric8.kubernetes.api.model.Container;
-import io.fabric8.kubernetes.api.model.ContainerBuilder;
-import io.fabric8.kubernetes.api.model.Pod;
-import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinitionFluent.SpecNested;
-import io.fabric8.kubernetes.api.model.batch.Job;
-import io.fabric8.kubernetes.api.model.batch.JobBuilder;
-import io.fabric8.kubernetes.api.model.batch.JobSpec;
-import io.fabric8.kubernetes.api.model.PodTemplateSpecFluentImpl.SpecNestedImpl;
-import io.fabric8.kubernetes.client.*;
-import io.fabric8.kubernetes.client.dsl.CopyOrReadable;
-import io.fabric8.kubernetes.client.dsl.ExecWatch;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
@@ -28,6 +9,20 @@ import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import io.elastest.epm.client.DockerContainer;
+import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.batch.Job;
+import io.fabric8.kubernetes.api.model.batch.JobBuilder;
+import io.fabric8.kubernetes.client.DefaultKubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClient;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.Watch;
+import io.fabric8.kubernetes.client.Watcher;
 
 @Service
 public class K8Service {
@@ -143,57 +138,15 @@ public class K8Service {
                             logger.info("Event received: {}",
                                     pod.getStatus().getPhase());
                             logger.info("Action: {}", action.toString());
-//                            client.pods().inNamespace(namespace).list()
-//                                    .getItems().forEach((podItem) -> {
-//                                        logger.info("Pod name: {}", podItem
-//                                                .getMetadata().getName());
-//                                    });
+
                             if (pod.getStatus().getPhase()
                                     .equals("Succeeded")) {
                                 result.setResult(pod.getStatus().getPhase());
                                 result.setJobName(job.getMetadata().getName());
-//                                client.pods().inNamespace(namespace).list()
-//                                        .getItems().forEach((podItem) -> {
-//                                            logger.info("Pod name: {}", podItem
-//                                                    .getMetadata().getName());
-//                                        });
                                 result.setPodName(pod.getMetadata().getName());
                                 logger.info("Job {} is completed!",
                                         pod.getMetadata().getName());
-//                                logger.info(client.pods().inNamespace(namespace)
-//                                        .withName(pod.getMetadata().getName())
-//                                        .getLog());
-//                                
-//                                readFileFromContainer(result.getPodName(),
-//                                        "/demo-projects/unit/junit5-unit-test/target/surefire-reports/");
-//                                readFileFromContainer(
-//                                        pod.getMetadata().getName(), "/msg");
-
                                 watchLatch.countDown();
-                            }
-
-                            if (pod.getStatus().getPhase().equals("Running")) {
-                                logger.info("Reading file from Running phase");
-                                ExecWatch watch = client.pods()
-                                        .inNamespace(namespace)
-                                        .withName(client.pods()
-                                                .inNamespace(namespace)
-                                                .withLabel("job-name").list()
-                                                .getItems().get(0).getMetadata()
-                                                .getName())
-                                        .writingOutput(System.out).exec("sh",
-                                                "-c", "echo 'hello' > /msg");
-//                                client.pods()
-//                                .inNamespace(namespace)
-//                                .withName(client.pods()
-//                                        .inNamespace(namespace)
-//                                        .withLabel("job-name").list()
-//                                        .getItems().get(0).getMetadata()
-//                                        .getName())
-//                                .writingOutput(System.out).exec("sh",
-//                                        "-c", "ls");
-//                                readFileFromContainer(
-//                                        pod.getMetadata().getName(), "/msg");
                             }
                         }
 
@@ -212,20 +165,7 @@ public class K8Service {
             }
         } catch (final KubernetesClientException e) {
             logger.error("Unable to create job", e);
-        } finally {
-//            String jobName = container.getContainerName().get().replace("_",
-//                    "");
-//            client.pods().inNamespace(namespace).withLabel("job-name", jobName)
-//                    .delete();
-
-//            client.batch().jobs().inNamespace(namespace)
-//                    .delete(client.batch().jobs().inNamespace(namespace)
-//                            .withLabel("job-name", jobName).list().getItems()
-//                            .get(0));
-
         }
-
-        logger.info("Job deployed");
 
         return result;
     }
@@ -281,57 +221,17 @@ public class K8Service {
                             logger.info("Event received: {}",
                                     pod.getStatus().getPhase());
                             logger.info("Action: {}", action.toString());
-//                            client.pods().inNamespace(namespace).list()
-//                                    .getItems().forEach((podItem) -> {
-//                                        logger.info("Pod name: {}", podItem
-//                                                .getMetadata().getName());
-//                                    });
                             if (pod.getStatus().getPhase()
                                     .equals("Succeeded")) {
                                 result.setResult(pod.getStatus().getPhase());
                                 result.setJobName(job.getMetadata().getName());
-//                                client.pods().inNamespace(namespace).list()
-//                                        .getItems().forEach((podItem) -> {
-//                                            logger.info("Pod name: {}", podItem
-//                                                    .getMetadata().getName());
-//                                        });
                                 result.setPodName(pod.getMetadata().getName());
                                 logger.info("Job {} is completed!",
                                         pod.getMetadata().getName());
-//                                logger.info(client.pods().inNamespace(namespace)
-//                                        .withName(pod.getMetadata().getName())
-//                                        .getLog());
-//                                
-//                                readFileFromContainer(result.getPodName(),
-//                                        "/demo-projects/unit/junit5-unit-test/target/surefire-reports/");
                                 readFileFromContainer(
                                         pod.getMetadata().getName(), "/msg");
 
                                 watchLatch.countDown();
-                            }
-
-                            if (pod.getStatus().getPhase().equals("Running")) {
-                                logger.info("Reading file from Running phase");
-                                ExecWatch watch = client.pods()
-                                        .inNamespace(namespace)
-                                        .withName(client.pods()
-                                                .inNamespace(namespace)
-                                                .withLabel("job-name").list()
-                                                .getItems().get(0).getMetadata()
-                                                .getName())
-                                        .writingOutput(System.out).exec("sh",
-                                                "-c", "echo 'hello' > /msg");
-//                                client.pods()
-//                                .inNamespace(namespace)
-//                                .withName(client.pods()
-//                                        .inNamespace(namespace)
-//                                        .withLabel("job-name").list()
-//                                        .getItems().get(0).getMetadata()
-//                                        .getName())
-//                                .writingOutput(System.out).exec("sh",
-//                                        "-c", "ls");
-                                readFileFromContainer(
-                                        pod.getMetadata().getName(), "/msg");
                             }
                         }
 
@@ -350,20 +250,7 @@ public class K8Service {
             }
         } catch (final KubernetesClientException e) {
             logger.error("Unable to create job", e);
-        } finally {
-//            String jobName = container.getContainerName().get().replace("_",
-//                    "");
-//            client.pods().inNamespace(namespace).withLabel("job-name", jobName)
-//                    .delete();
-
-//            client.batch().jobs().inNamespace(namespace)
-//                    .delete(client.batch().jobs().inNamespace(namespace)
-//                            .withLabel("job-name", jobName).list().getItems()
-//                            .get(0));
-
-        }
-
-        logger.info("Job deployed");
+        } 
 
         return result;
     }
@@ -394,10 +281,8 @@ public class K8Service {
         logger.info("Copying file from k8s pod {} in this path {}", podName,
                 targetPath);
         Integer result = 0;
-//        result = client.pods().inNamespace(SYSTEM_NAMESPACE).withName(podName)
-//                .dir(originPath).copy(Paths.get(targetPath + "/file.tar")) ? result : 1;
-
-        readFileFromContainer(podName, originPath);
+        result = client.pods().inNamespace(SYSTEM_NAMESPACE).withName(podName)
+                .dir(originPath).copy(Paths.get(targetPath + "/file.tar")) ? result : 1;
         return result;
     }
 
