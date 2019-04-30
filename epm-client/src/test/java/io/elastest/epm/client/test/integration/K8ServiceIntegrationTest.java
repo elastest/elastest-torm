@@ -54,125 +54,120 @@ public class K8ServiceIntegrationTest {
     @Autowired
     K8Service k8Service;
 
-    private static final String SYSTEM_NAMESPACE = "kube-system";
-    private Pod pod1;
-    private Job job;
-    Map<String, String> jobsLabels = new HashMap<String, String>();
-    private String sufix = RandomStringUtils.randomAlphanumeric(6)
-            .toLowerCase();
-    String jobName;
-    String podName;
-
-    @BeforeAll
-    public void init() {
-        String currentNamespace = SYSTEM_NAMESPACE;
-        k8Service.client.pods().inNamespace(currentNamespace).withName("pod1-")
-                .delete();
-        k8Service.client.batch().jobs().inNamespace(currentNamespace).delete();
-        k8Service.client.pods().inNamespace(currentNamespace)
-                .withLabel("job-name").delete();
-        
-        jobName = "job1-" + sufix;
-        podName = "pod1-" + sufix;
-        
-        pod1 = new PodBuilder()
-                .withNewMetadata()
-                .withName(podName)
-                .endMetadata()
-                .withNewSpec()
-                .addNewContainer()
-                .withName(podName)
-                .withImage("busybox")
-                .withCommand("sleep", "1")
-                .endContainer()
-                .endSpec()
-                .build();
-
-        k8Service.client.pods().inNamespace(currentNamespace)
-                .createOrReplace(pod1);
-
-        
-        job = new JobBuilder(Boolean.FALSE)
-                .withApiVersion("batch/v1")
-                .withNewMetadata()
-                .withName(jobName)
-                .endMetadata()
-                .withNewSpec()
-                .withNewTemplate()
-                .withNewSpec()
-                .addNewContainer()
-                .withName(jobName)
-                .withImage("busybox")
-                .withArgs("/bin/sh", "-c", "ls")
-//                .withCommand("sleep", "5000")
-//                .withCommand(Arrays.asList("/bin/bash", "-c", "sleep", "10000"))
-                .endContainer()
-                .withRestartPolicy("Never").endSpec().endTemplate().endSpec()
-                .build();
-
-        k8Service.client.batch().jobs().inNamespace(currentNamespace)
-                .create(job);
-    }
-
-    @AfterAll
-    public void finish() {
-        String currentNamespace = SYSTEM_NAMESPACE;
-        k8Service.client.pods().inNamespace(currentNamespace)
-                .withName("pod1-" + sufix).delete();
-        k8Service.client.batch().jobs().inNamespace(currentNamespace)
-                .delete(job);
-        k8Service.client.pods().inNamespace(currentNamespace)
-        .withLabel("job-name").delete();
-    }
-
-    @Test
-    public void testDeployJob() {
-        k8Service.deployJob();
-    }
-
-    @Test
-    public void readFileFromPod() throws IOException, InterruptedException {
-        String currentNamespace = SYSTEM_NAMESPACE;
-        Thread.sleep(10000);
-        ExecWatch watch = k8Service.client.pods().inNamespace(currentNamespace)
-                .withName(pod1.getMetadata().getName())
-                .writingOutput(System.out)
-                .exec("sh", "-c", "echo 'hello' > /msg");
-        try (InputStream is = k8Service.client.pods()
-                .inNamespace(currentNamespace)
-                .withName(pod1.getMetadata().getName()).file("/msg").read()) {
-            String result = new BufferedReader(new InputStreamReader(is))
-                    .lines().collect(Collectors.joining("\n"));
-            assertEquals("hello", result);
-        }
-    }
-
-    @Test
-    public void readFileFromJob() throws IOException, InterruptedException {
-        String currentNamespace = SYSTEM_NAMESPACE;
-        Thread.sleep(10000);
-
-        ExecWatch watch = k8Service.client.pods().inNamespace(currentNamespace)
-                .withName(k8Service.client.pods().inNamespace(currentNamespace)
-                        .withLabel("job-name").list().getItems().get(0)
-                        .getMetadata().getName())
-                .writingOutput(System.out)
-                .exec("sh", "-c", "echo 'hello' > /msg");
-        
-        logger.info("Pod's name: {}", k8Service.client.pods().inNamespace(currentNamespace)
-                        .withLabel("job-name").list().getItems().get(0)
-                        .getMetadata().getName());
-        Thread.sleep(120000);
-        
-        try (InputStream is = k8Service.client.pods()
-                .inNamespace(currentNamespace)
-                .withName(k8Service.client.pods().inNamespace(currentNamespace)
-                        .withLabel("job-name", jobName).list().getItems().get(0)
-                        .getMetadata().getName())
-                .file("/msg").read()) {
-            String result = new BufferedReader(new InputStreamReader(is))
-                    .lines().collect(Collectors.joining("\n"));
-            assertEquals("hello", result);
-        }
-    }
+//    private static final String SYSTEM_NAMESPACE = "kube-system";
+//    private Pod pod1;
+//    private Job job;
+//    Map<String, String> jobsLabels = new HashMap<String, String>();
+//    private String sufix = RandomStringUtils.randomAlphanumeric(6)
+//            .toLowerCase();
+//    String jobName;
+//    String podName;
+//
+//    @BeforeAll
+//    public void init() {
+//        String currentNamespace = SYSTEM_NAMESPACE;
+//        k8Service.client.pods().inNamespace(currentNamespace).withName("pod1-")
+//                .delete();
+//        k8Service.client.batch().jobs().inNamespace(currentNamespace).delete();
+//        k8Service.client.pods().inNamespace(currentNamespace)
+//                .withLabel("job-name").delete();
+//        
+//        jobName = "job1-" + sufix;
+//        podName = "pod1-" + sufix;
+//        
+//        pod1 = new PodBuilder()
+//                .withNewMetadata()
+//                .withName(podName)
+//                .endMetadata()
+//                .withNewSpec()
+//                .addNewContainer()
+//                .withName(podName)
+//                .withImage("busybox")
+//                .withCommand("sleep", "1")
+//                .endContainer()
+//                .endSpec()
+//                .build();
+//
+//        k8Service.client.pods().inNamespace(currentNamespace)
+//                .createOrReplace(pod1);
+//
+//        
+//        job = new JobBuilder(Boolean.FALSE)
+//                .withApiVersion("batch/v1")
+//                .withNewMetadata()
+//                .withName(jobName)
+//                .endMetadata()
+//                .withNewSpec()
+//                .withNewTemplate()
+//                .withNewSpec()
+//                .addNewContainer()
+//                .withName(jobName)
+//                .withImage("busybox")
+//                .withArgs("/bin/sh", "-c", "ls")
+////                .withCommand("sleep", "5000")
+////                .withCommand(Arrays.asList("/bin/bash", "-c", "sleep", "10000"))
+//                .endContainer()
+//                .withRestartPolicy("Never").endSpec().endTemplate().endSpec()
+//                .build();
+//
+//        k8Service.client.batch().jobs().inNamespace(currentNamespace)
+//                .create(job);
+//    }
+//
+//    @AfterAll
+//    public void finish() {
+//        String currentNamespace = SYSTEM_NAMESPACE;
+//        k8Service.client.pods().inNamespace(currentNamespace)
+//                .withName("pod1-" + sufix).delete();
+//        k8Service.client.batch().jobs().inNamespace(currentNamespace)
+//                .delete(job);
+//        k8Service.client.pods().inNamespace(currentNamespace)
+//        .withLabel("job-name").delete();
+//    }
+//
+//    @Test
+//    public void readFileFromPod() throws IOException, InterruptedException {
+//        String currentNamespace = SYSTEM_NAMESPACE;
+//        Thread.sleep(10000);
+//        ExecWatch watch = k8Service.client.pods().inNamespace(currentNamespace)
+//                .withName(pod1.getMetadata().getName())
+//                .writingOutput(System.out)
+//                .exec("sh", "-c", "echo 'hello' > /msg");
+//        try (InputStream is = k8Service.client.pods()
+//                .inNamespace(currentNamespace)
+//                .withName(pod1.getMetadata().getName()).file("/msg").read()) {
+//            String result = new BufferedReader(new InputStreamReader(is))
+//                    .lines().collect(Collectors.joining("\n"));
+//            assertEquals("hello", result);
+//        }
+//    }
+//
+//    @Test
+//    public void readFileFromJob() throws IOException, InterruptedException {
+//        String currentNamespace = SYSTEM_NAMESPACE;
+//        Thread.sleep(10000);
+//
+//        ExecWatch watch = k8Service.client.pods().inNamespace(currentNamespace)
+//                .withName(k8Service.client.pods().inNamespace(currentNamespace)
+//                        .withLabel("job-name").list().getItems().get(0)
+//                        .getMetadata().getName())
+//                .writingOutput(System.out)
+//                .exec("sh", "-c", "echo 'hello' > /msg");
+//        
+//        logger.info("Pod's name: {}", k8Service.client.pods().inNamespace(currentNamespace)
+//                        .withLabel("job-name").list().getItems().get(0)
+//                        .getMetadata().getName());
+//        Thread.sleep(120000);
+//        
+//        try (InputStream is = k8Service.client.pods()
+//                .inNamespace(currentNamespace)
+//                .withName(k8Service.client.pods().inNamespace(currentNamespace)
+//                        .withLabel("job-name", jobName).list().getItems().get(0)
+//                        .getMetadata().getName())
+//                .file("/msg").read()) {
+//            String result = new BufferedReader(new InputStreamReader(is))
+//                    .lines().collect(Collectors.joining("\n"));
+//            assertEquals("hello", result);
+//        }
+//    }
 }
