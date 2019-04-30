@@ -1,4 +1,4 @@
-package io.elastest.etm.test.service;
+package io.elastest.etm.platform.service;
 
 import static io.elastest.etm.test.util.StompTestUtils.connectToRabbitMQ;
 
