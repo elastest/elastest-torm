@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Project coordinates & description -->
-    <groupId>io.elastest.epm</groupId>
+    <groupId>io.elastest.etm</groupId>
     <artifactId>epm-client</artifactId>
     <packaging>jar</packaging>
     <version>0.11-SNAPSHOT</version>
@@ -59,7 +59,7 @@
         <nexus.staging.maven.plugin.version>1.6.7</nexus.staging.maven.plugin.version>
         <maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
         <jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
-        <elastest.epm.client.version>0.9.0</elastest.epm.client.version>
+        <elastest.epm.client.version>0.9.1</elastest.epm.client.version>
         <kubernetes.client>4.2.2</kubernetes.client>
     </properties>
 
@@ -167,8 +167,8 @@
 
 
         <dependency>
-            <groupId>io.elastest</groupId>
-            <artifactId>epm.client</artifactId>
+            <groupId>io.elastest.epm</groupId>
+            <artifactId>epm-client</artifactId>
             <version>${elastest.epm.client.version}</version>
             <scope>compile</scope>
         </dependency>
@@ -207,6 +207,13 @@
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.12</version>
         </dependency>
 
     </dependencies>

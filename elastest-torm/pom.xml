@@ -115,7 +115,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>io.elastest.epm</groupId>
+			<groupId>io.elastest.etm</groupId>
 			<artifactId>epm-client</artifactId>
 			<version>0.11-SNAPSHOT</version>
 			<exclusions>
