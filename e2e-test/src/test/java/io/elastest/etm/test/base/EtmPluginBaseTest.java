@@ -2,7 +2,6 @@ package io.elastest.etm.test.base;
 
 import static java.lang.System.getProperty;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
-import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 
 import java.io.IOException;
 
@@ -218,7 +217,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         log.info("Select the Job's type");
         driver.findElement(By.xpath("//li[contains(string(), 'Pipeline')]"))
                 .click();
-        WebDriverWait waitForOkButton = new WebDriverWait(driver, 10);
+//        WebDriverWait waitForOkButton = new WebDriverWait(driver, 10);
 //        By okButtonId = By.id("ok-button");
 //        waitForOkButton.until(elementToBeClickable(okButtonId));
 //        driver.findElement(okButtonId).click();
