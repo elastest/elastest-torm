@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -38,77 +39,25 @@ public class K8Service {
         client = new DefaultKubernetesClient();
     }
 
-    public void deployJob() {
-        try {
-            final String namespace = "default";
-            final Job job = new JobBuilder().withApiVersion("batch/v1")
-                    .withNewMetadata().withName("pi")
-                    .withLabels(Collections.singletonMap("label1",
-                            "maximum-length-of-63-characters"))
-                    .withAnnotations(Collections.singletonMap("annotation1",
-                            "some-very-long-annotation"))
-                    .endMetadata().withNewSpec().withNewTemplate().withNewSpec()
-                    .addNewContainer().withName("pi").withImage("perl")
-                    .withArgs("perl", "-Mbignum=bpi", "-wle", "print bpi(2000)")
-                    .endContainer().withRestartPolicy("Never").endSpec()
-                    .endTemplate().endSpec().build();
-
-            logger.info("Creating job pi.");
-            client.batch().jobs().inNamespace(namespace).create(job);
-            logger.info("Job pi is created, waiting for result...");
-
-            final CountDownLatch watchLatch = new CountDownLatch(1);
-            try (final Watch ignored = client.pods().inNamespace(namespace)
-                    .withLabel("job-name").watch(new Watcher<Pod>() {
-                        @Override
-                        public void eventReceived(final Action action,
-                                Pod pod) {
-                            logger.info("Job phase: {}.",
-                                    pod.getStatus().getPhase());
-                            if (pod.getStatus().getPhase()
-                                    .equals("Succeeded")) {
-                                logger.info("Job pi is completed!");
-                                logger.info(client.pods().inNamespace(namespace)
-                                        .withName(pod.getMetadata().getName())
-                                        .getLog());
-                                watchLatch.countDown();
-                            }
-                        }
-
-                        @Override
-                        public void onClose(final KubernetesClientException e) {
-                            logger.info("Cleaning up job pi.");
-                            client.batch().jobs().inNamespace(namespace)
-                                    .delete(job);
-                        }
-                    })) {
-                watchLatch.await(2, TimeUnit.MINUTES);
-            } catch (final KubernetesClientException | InterruptedException e) {
-                logger.error("Could not watch pod", e);
-            }
-        } catch (final KubernetesClientException e) {
-            logger.error("Unable to create job", e);
-        }
-
-        logger.error("Finish Job deployment");
-    }
-
     public JobResult deployJob(DockerContainer container) {
         final JobResult result = new JobResult();
         container.getCmd().get().forEach((command) -> {
             logger.debug("Commands to execute: {}", command);
         });
-        final String namespace = SYSTEM_NAMESPACE;// "default";
+        final String namespace = DEFAULT_NAMESPACE;// "default";
         try {
             logger.info("Container name: {}",
                     container.getContainerName().get());
             logger.info(String.join(",", container.getCmd().get()));
 
+            Map<String,String> k8sJobLabels = container.getLabels().get();
+            k8sJobLabels.put("tjob-name", container.getContainerName().get());
             final Job job = new JobBuilder(Boolean.FALSE)
                     .withApiVersion("batch/v1").withNewMetadata()
                     .withName(container.getContainerName().get().replace("_",
                             "-"))
-                    .withLabels(container.getLabels().get()).endMetadata()
+                    .withLabels(k8sJobLabels)
+                    .endMetadata()
                     .withNewSpec().withNewTemplate().withNewSpec()
                     .addNewContainer()
                     .withName(container.getContainerName().get().replace("_",
@@ -129,15 +78,19 @@ public class K8Service {
 
             final CountDownLatch watchLatch = new CountDownLatch(1);
             try (final Watch ignored = client.pods().inNamespace(namespace)
-                    .withLabel("job-name",
-                            job.getMetadata().getLabels().get("job-name"))
+                    .withLabel("job-name",job.getMetadata().getName())
                     .watch(new Watcher<Pod>() {
                         @Override
                         public void eventReceived(final Action action,
                                 Pod pod) {
-                            logger.info("Event received: {}",
+                            job.getMetadata().getLabels().forEach((label,value) -> {
+                                logger.debug("Label: {}-{}", label, value);
+                            });
+                            logger.debug("Job {} receive an event", job
+                                    .getMetadata().getLabels().get("job-name"));
+                            logger.debug("Event received: {}",
                                     pod.getStatus().getPhase());
-                            logger.info("Action: {}", action.toString());
+                            logger.debug("Action: {}", action.toString());
 
                             if (pod.getStatus().getPhase()
                                     .equals("Succeeded")) {
@@ -152,9 +105,8 @@ public class K8Service {
 
                         @Override
                         public void onClose(final KubernetesClientException e) {
-                            logger.info("Cleaning up job {}.",
-                                    job.getSpec().getTemplate().getSpec()
-                                            .getContainers().get(0).getName());
+                            logger.debug("Cleaning up job {}.", job
+                                    .getMetadata().getLabels().get("job-name"));
 
                         }
                     })) {
@@ -172,87 +124,8 @@ public class K8Service {
 
     public void deleteJob(String jobName) {
         logger.info("Cleaning up job {}.", jobName);
-        client.pods().inNamespace(SYSTEM_NAMESPACE)
+        client.pods().inNamespace(DEFAULT_NAMESPACE)
                 .withLabel("job-name", jobName).delete();
-    }
-
-    public JobResult deployPod(DockerContainer container) {
-        final JobResult result = new JobResult();
-        container.getCmd().get().forEach((command) -> {
-            logger.debug("Commands to execute: {}", command);
-        });
-        final String namespace = SYSTEM_NAMESPACE;// "default";
-        try {
-            logger.info("Container name: {}",
-                    container.getContainerName().get());
-            logger.info(String.join(",", container.getCmd().get()));
-
-            final Job job = new JobBuilder(Boolean.FALSE)
-                    .withApiVersion("batch/v1").withNewMetadata()
-                    .withName(container.getContainerName().get().replace("_",
-                            "-"))
-                    .withLabels(container.getLabels().get()).endMetadata()
-                    .withNewSpec().withNewTemplate().withNewSpec()
-                    .addNewContainer()
-                    .withName(container.getContainerName().get().replace("_",
-                            "-"))
-                    .withImage(container.getImageId())
-                    .withArgs(container.getCmd().get()).endContainer()
-                    .withRestartPolicy("Never").endSpec().endTemplate()
-                    .endSpec().build();
-
-            logger.info("Creating job: {}.",
-                    container.getContainerName().get().replace("_", ""));
-            client.batch().jobs().inNamespace(namespace).create(job);
-            logger.info("Job {} is created, waiting for result...",
-                    client.batch().jobs().inNamespace(namespace)
-                            .withName(container.getContainerName().get()
-                                    .replace("_", "-"))
-                            .get().getMetadata().getName());
-
-            final CountDownLatch watchLatch = new CountDownLatch(1);
-            try (final Watch ignored = client.pods().inNamespace(namespace)
-                    .withLabel("job-name",
-                            job.getMetadata().getLabels().get("job-name"))
-                    .watch(new Watcher<Pod>() {
-                        @Override
-                        public void eventReceived(final Action action,
-                                Pod pod) {
-                            logger.info("Event received: {}",
-                                    pod.getStatus().getPhase());
-                            logger.info("Action: {}", action.toString());
-                            if (pod.getStatus().getPhase()
-                                    .equals("Succeeded")) {
-                                result.setResult(pod.getStatus().getPhase());
-                                result.setJobName(job.getMetadata().getName());
-                                result.setPodName(pod.getMetadata().getName());
-                                logger.info("Job {} is completed!",
-                                        pod.getMetadata().getName());
-                                readFileFromContainer(
-                                        pod.getMetadata().getName(), "/msg");
-
-                                watchLatch.countDown();
-                            }
-                        }
-
-                        @Override
-                        public void onClose(final KubernetesClientException e) {
-                            logger.info("Cleaning up job {}.",
-                                    job.getSpec().getTemplate().getSpec()
-                                            .getContainers().get(0).getName());
-
-                        }
-                    })) {
-                watchLatch.await(2, TimeUnit.MINUTES);
-            } catch (final KubernetesClientException | InterruptedException e) {
-                logger.error("Could not watch pod", e);
-
-            }
-        } catch (final KubernetesClientException e) {
-            logger.error("Unable to create job", e);
-        } 
-
-        return result;
     }
 
     public String readFileFromContainer(String podName, String filePath) {
@@ -262,13 +135,12 @@ public class K8Service {
 
         if (filePath != null && !filePath.isEmpty()) {
             File file = new File(filePath);
-            try (InputStream is = client.pods().inNamespace(SYSTEM_NAMESPACE)
+            try (InputStream is = client.pods().inNamespace(DEFAULT_NAMESPACE)
                     .withName(podName).dir(filePath).read()) {
                 result = new BufferedReader(new InputStreamReader(is)).lines()
                         .collect(Collectors.joining("\n"));
                 logger.info("File content: {}", result);
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 logger.error("Error reading test results' file");
                 e.printStackTrace();
             }
@@ -281,8 +153,8 @@ public class K8Service {
         logger.info("Copying file from k8s pod {} in this path {}", podName,
                 targetPath);
         Integer result = 0;
-        result = client.pods().inNamespace(SYSTEM_NAMESPACE).withName(podName)
-                .dir(originPath).copy(Paths.get(targetPath + "/file.tar")) ? result : 1;
+        result = client.pods().inNamespace(DEFAULT_NAMESPACE).withName(podName)
+                .dir(originPath).copy(Paths.get(targetPath)) ? result : 1;
         return result;
     }
 
@@ -314,7 +186,7 @@ public class K8Service {
         }
 
         public void setJobName(String jobName) {
-            jobName = jobName;
+            this.jobName = jobName;
         }
 
         public String getResult() {
