@@ -22,10 +22,12 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openqa.selenium.logging.LogType.BROWSER;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
+import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeSelected;
 import static org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
+
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -227,52 +229,112 @@ public class EtmBaseTest {
         return driver.findElements(elementAvailable).size() != 0;
     }
 
-    /* *********************************** */
-    /* *********** Get Element *********** */
-    /* *********************************** */
+    /* ********************************************* */
+    /* **************** Get Element **************** */
+    /* ********************************************* */
 
-    /* *************** Presence *************** */
+    /* ****************** Presence ****************** */
 
-    protected WebElement getElementById(WebDriver driver, String id,
+    @SuppressWarnings("unchecked")
+    protected <T> T getWaitFunctionByExpectedCondition(
+            ExpectedConditionsEnum expectedCondition, By by) {
+        switch (expectedCondition) {
+        case ELEMENT_TO_BE_CLICKABLE:
+            return (T) elementToBeClickable(by);
+
+        case INVISIBILITY_OF_ELEMENT_LOCATED:
+            return (T) invisibilityOfElementLocated(by);
+
+        case ELEMENT_TO_BE_SELECTED:
+            return (T) elementToBeSelected(by);
+
+        case VISIBILITY_OF_ELEMENT_LOCATED:
+            return (T) visibilityOfElementLocated(by);
+
+        case PRESENCE_OF_ELEMENT_LOCATED:
+        default:
+            return (T) presenceOfElementLocated(by);
+        }
+    }
+
+    protected WebElement getElementById(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String id,
             int secondsTimeout, boolean withScroll) {
         String xpath = "//*[@id='" + id + "']";
-        return this.getElementByXpath(driver, xpath, secondsTimeout,
-                withScroll);
+        return this.getElementByXpath(driver, expectedCondition, xpath,
+                secondsTimeout, withScroll);
+    }
+
+    protected WebElement getElementById(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String id,
+            int secondsTimeout) {
+        return this.getElementById(driver, expectedCondition, id,
+                secondsTimeout, false);
     }
 
     protected WebElement getElementById(WebDriver driver, String id,
             int secondsTimeout) {
-        return this.getElementById(driver, id, secondsTimeout, false);
+        return this.getElementById(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, id,
+                secondsTimeout);
+    }
+
+    protected WebElement getElementById(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String id) {
+        return this.getElementById(driver, expectedCondition, id, 30);
     }
 
     protected WebElement getElementById(WebDriver driver, String id) {
-        return this.getElementById(driver, id, 30);
+        return this.getElementById(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, id);
+    }
+
+    protected WebElement getElementById(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String id,
+            boolean withScroll) {
+        return this.getElementById(driver, expectedCondition, id, 30,
+                withScroll);
     }
 
     protected WebElement getElementById(WebDriver driver, String id,
             boolean withScroll) {
-        return this.getElementById(driver, id, 30, withScroll);
-    }
-
-    protected WebElement getElementByName(WebDriver driver, String name,
-            int secondsTimeout, boolean withScroll) {
-        String xpath = "//*[@name='" + name + "']";
-        return this.getElementByXpath(driver, xpath, secondsTimeout,
+        return this.getElementById(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, id,
                 withScroll);
     }
 
+    protected WebElement getElementByName(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String name,
+            int secondsTimeout, boolean withScroll) {
+        String xpath = "//*[@name='" + name + "']";
+        return this.getElementByXpath(driver, expectedCondition, xpath,
+                secondsTimeout, withScroll);
+    }
+
     protected WebElement getElementByName(WebDriver driver, String name) {
-        return this.getElementByName(driver, name, 30, false);
+        return this.getElementByName(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, name, 30,
+                false);
     }
 
-    protected WebElement getElementByName(WebDriver driver, String name,
+    protected WebElement getElementByName(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String name) {
+        return this.getElementByName(driver, expectedCondition, name, 30,
+                false);
+    }
+
+    protected WebElement getElementByName(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String name,
             boolean withScroll) {
-        return this.getElementByName(driver, name, 30, withScroll);
+        return this.getElementByName(driver, expectedCondition, name, 30,
+                withScroll);
     }
 
-    protected WebElement getElementByName(WebDriver driver, String name,
+    protected WebElement getElementByName(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String name,
             int secondsTimeout) {
-        return this.getElementByName(driver, name, secondsTimeout, false);
+        return this.getElementByName(driver, expectedCondition, name,
+                secondsTimeout, false);
     }
 
     protected WebElement getElementByIdXpath(WebDriver driver, String id,
@@ -282,9 +344,8 @@ public class EtmBaseTest {
 
     protected WebElement getElementByIdXpath(WebDriver driver, String id,
             String xpath, int secondsTimeout, boolean withScroll) {
-        WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
-        By elementAvailable = By.id(id);
-        waitService.until(presenceOfElementLocated(elementAvailable));
+        // Wait for id present
+        getElementById(driver, id, secondsTimeout);
 
         WebElement element = driver.findElement(By.xpath(xpath));
 
@@ -295,7 +356,8 @@ public class EtmBaseTest {
         return element;
     }
 
-    protected WebElement getElementByXpath(WebDriver driver, String xpath,
+    protected WebElement getElementByXpath(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String xpath,
             int secondsTimeout, boolean withScroll) {
         try {
             Thread.sleep(500l);
@@ -303,12 +365,52 @@ public class EtmBaseTest {
             log.error("Time Slot between actions interrupted.");
         }
 
-        WebElement element = getElementsByXpath(driver, xpath, secondsTimeout)
-                .get(0);
+        WebElement element = getElementsByXpath(driver, expectedCondition,
+                xpath, secondsTimeout).get(0);
         if (withScroll) {
             scrollToElement(element);
         }
         return element;
+    }
+
+    protected WebElement getElementByXpath(WebDriver driver, String xpath,
+            int secondsTimeout, boolean withScroll) {
+        return getElementByXpath(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, xpath,
+                secondsTimeout, withScroll);
+    }
+
+    protected WebElement getElementByXpath(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String xpath,
+            int secondsTimeout) {
+        return this.getElementByXpath(driver, expectedCondition, xpath,
+                secondsTimeout, false);
+    }
+
+    protected WebElement getElementByXpath(WebDriver driver, String xpath,
+            int secondsTimeout) {
+        return getElementByXpath(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, xpath,
+                secondsTimeout);
+    }
+
+    protected WebElement getElementByXpath(WebDriver driver, String xpath) {
+        return this.getElementByXpath(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, xpath, 30,
+                false);
+    }
+
+    protected WebElement getElementByXpath(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String xpath) {
+        return this.getElementByXpath(driver, expectedCondition, xpath, 30,
+                false);
+    }
+
+    protected WebElement getElementByXpath(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String xpath,
+            boolean withScroll) {
+        return this.getElementByXpath(driver, expectedCondition, xpath, 30,
+                withScroll);
     }
 
     protected void scrollToElement(WebElement element) {
@@ -316,160 +418,126 @@ public class EtmBaseTest {
         jse2.executeScript("arguments[0].scrollIntoView()", element);
     }
 
-    protected WebElement getElementByXpath(WebDriver driver, String xpath,
-            int secondsTimeout) {
-        return this.getElementByXpath(driver, xpath, secondsTimeout, false);
-    }
-
-    protected WebElement getElementByXpath(WebDriver driver, String xpath) {
-        return this.getElementByXpath(driver, xpath, 30, false);
-    }
-
-    protected WebElement getElementByXpath(WebDriver driver, String xpath,
-            boolean withScroll) {
-        return this.getElementByXpath(driver, xpath, 30, withScroll);
-    }
-
-    protected List<WebElement> getElementsByName(WebDriver driver, String name,
+    protected List<WebElement> getElementsByName(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String name,
             int secondsTimeout) {
         WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
-        waitService.until(presenceOfElementLocated(By.name(name)));
+        waitService.until(getWaitFunctionByExpectedCondition(expectedCondition,
+                By.name(name)));
 
         return driver.findElements(By.name(name));
     }
 
     protected List<WebElement> getElementsByName(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String name) {
+        return this.getElementsByName(driver, expectedCondition, name, 30);
+    }
+
+    protected List<WebElement> getElementsByName(WebDriver driver,
             String name) {
-        return this.getElementsByName(driver, name, 30);
+        return getElementsByName(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, name);
     }
 
     protected List<WebElement> getElementsByTagName(WebDriver driver,
-            String tagName, int secondsTimeout) {
+            ExpectedConditionsEnum expectedCondition, String tagName,
+            int secondsTimeout) {
         WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
-        waitService.until(presenceOfElementLocated(By.tagName(tagName)));
+        waitService.until(getWaitFunctionByExpectedCondition(expectedCondition,
+                By.tagName(tagName)));
 
         return driver.findElements(By.tagName(tagName));
     }
 
     protected List<WebElement> getElementsByTagName(WebDriver driver,
+            String tagName, int secondsTimeout) {
+        return getElementsByTagName(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, tagName,
+                secondsTimeout);
+    }
+
+    protected List<WebElement> getElementsByTagName(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String tagName) {
+        return this.getElementsByTagName(driver, expectedCondition, tagName,
+                30);
+    }
+
+    protected List<WebElement> getElementsByTagName(WebDriver driver,
             String tagName) {
-        return this.getElementsByTagName(driver, tagName, 30);
+        return getElementsByTagName(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, tagName);
+    }
+
+    protected List<WebElement> getElementsByXpath(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String xpath) {
+        return this.getElementsByXpath(driver, expectedCondition, xpath, 30);
     }
 
     protected List<WebElement> getElementsByXpath(WebDriver driver,
             String xpath) {
-        return this.getElementsByXpath(driver, xpath, 30);
+        return this.getElementsByXpath(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, xpath, 30);
     }
 
     protected List<WebElement> getElementsByXpath(WebDriver driver,
-            String xpath, int secondsTimeout) {
+            ExpectedConditionsEnum expectedCondition, String xpath,
+            int secondsTimeout) {
         WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
         By elementAvailable = By.xpath(xpath);
-        waitService.until(presenceOfElementLocated(elementAvailable));
+
+        waitService.until(getWaitFunctionByExpectedCondition(expectedCondition,
+                elementAvailable));
 
         return driver.findElements(elementAvailable);
+    }
+
+    protected List<WebElement> getElementsById(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String id,
+            int secondsTimeout) {
+        String xpath = "//*[@id='" + id + "']";
+        return this.getElementsByXpath(driver, expectedCondition, xpath,
+                secondsTimeout);
     }
 
     protected List<WebElement> getElementsById(WebDriver driver, String id,
             int secondsTimeout) {
-        String xpath = "//*[@id='" + id + "']";
-        return this.getElementsByXpath(driver, xpath, secondsTimeout);
+        return getElementsById(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, id,
+                secondsTimeout);
     }
 
-    protected List<WebElement> getElementsById(WebDriver driver, String id) {
-        return this.getElementsById(driver, id, 30);
+    protected List<WebElement> getElementsById(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String id) {
+        return this.getElementsById(driver, expectedCondition, id, 30);
     }
 
-    /* *************** Clickable *************** */
-
-    protected List<WebElement> getClickableElementsByXpath(WebDriver driver,
-            String xpath, int secondsTimeout) {
-        WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
-        By elementAvailable = By.xpath(xpath);
-        waitService.until(elementToBeClickable(elementAvailable));
-
-        return driver.findElements(elementAvailable);
-    }
-
-    protected List<WebElement> getClickableElementsByXpath(WebDriver driver,
-            String xpath) {
-        return this.getClickableElementsByXpath(driver, xpath, 30);
-    }
-
-    protected WebElement getClickableElementByXpath(WebDriver driver,
-            String xpath, int secondsTimeout) {
-        return this.getClickableElementByXpath(driver, xpath, secondsTimeout,
-                false);
-    }
-
-    protected WebElement getClickableElementByXpath(WebDriver driver,
-            String xpath) {
-        return this.getClickableElementByXpath(driver, xpath, 30, false);
-    }
-
-    protected WebElement getClickableElementByXpath(WebDriver driver,
-            String xpath, boolean withScroll) {
-        return this.getClickableElementByXpath(driver, xpath, 30, withScroll);
-    }
-
-    protected WebElement getClickableElementByXpath(WebDriver driver,
-            String xpath, int secondsTimeout, boolean withScroll) {
-        try {
-            Thread.sleep(500l);
-        } catch (InterruptedException e) {
-            log.error("Time Slot between actions interrupted.");
-        }
-
-        WebElement element = getClickableElementsByXpath(driver, xpath,
-                secondsTimeout).get(0);
-        if (withScroll) {
-            scrollToElement(element);
-        }
-        return element;
-    }
-
-    protected WebElement getClickableElementById(WebDriver driver, String id,
-            int secondsTimeout, boolean withScroll) {
-        String xpath = "//*[@id='" + id + "']";
-        return this.getClickableElementByXpath(driver, xpath, secondsTimeout,
-                withScroll);
-    }
-
-    protected WebElement getClickableElementById(WebDriver driver, String id,
+    protected List<WebElement> getElementsByClassName(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String className,
             int secondsTimeout) {
-        return this.getClickableElementById(driver, id, secondsTimeout, false);
+        WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
+        waitService.until(getWaitFunctionByExpectedCondition(expectedCondition,
+                By.className(className)));
+
+        return driver.findElements(By.className(className));
     }
 
-    protected WebElement getClickableElementById(WebDriver driver, String id) {
-        return this.getClickableElementById(driver, id, 30);
+    protected List<WebElement> getElementsByClassName(WebDriver driver,
+            String className, int secondsTimeout) {
+        return getElementsByClassName(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, className,
+                secondsTimeout);
     }
 
-    protected WebElement getClickableElementById(WebDriver driver, String id,
-            boolean withScroll) {
-        return this.getClickableElementById(driver, id, 30, withScroll);
+    protected List<WebElement> getElementsByClassName(WebDriver driver,
+            ExpectedConditionsEnum expectedCondition, String className) {
+        return this.getElementsByClassName(driver, expectedCondition, className,
+                30);
     }
 
-    protected WebElement getClickableElementByName(WebDriver driver,
-            String name, int secondsTimeout, boolean withScroll) {
-        String xpath = "//*[@name='" + name + "']";
-        return this.getClickableElementByXpath(driver, xpath, secondsTimeout,
-                withScroll);
-    }
-
-    protected WebElement getClickableElementByName(WebDriver driver,
-            String name) {
-        return this.getClickableElementByName(driver, name, 30, false);
-    }
-
-    protected WebElement getClickableElementByName(WebDriver driver,
-            String name, boolean withScroll) {
-        return this.getClickableElementByName(driver, name, 30, withScroll);
-    }
-
-    protected WebElement getClickableElementByName(WebDriver driver,
-            String name, int secondsTimeout) {
-        return this.getClickableElementByName(driver, name, secondsTimeout,
-                false);
+    protected List<WebElement> getElementsByClassName(WebDriver driver,
+            String className) {
+        return getElementsByClassName(driver,
+                ExpectedConditionsEnum.PRESENCE_OF_ELEMENT_LOCATED, className);
     }
 
     /* ***************************************************************** */
@@ -863,10 +931,9 @@ public class EtmBaseTest {
         getElementById(driver, "newTJobBtn").click();
 
         log.info("Creating TJob...");
-        WebDriverWait waitService2 = new WebDriverWait(driver, 20); //
-        By tJobNameField = By.name("tJobName");
-        waitService2.until(visibilityOfElementLocated(tJobNameField));
-        driver.findElement(tJobNameField).sendKeys(tJobName);
+        getElementByName(driver,
+                ExpectedConditionsEnum.VISIBILITY_OF_ELEMENT_LOCATED,
+                "tJobName", 20).sendKeys(tJobName);
 
         if (testResultPath != null) {
             driver.findElement(By.name("resultsPath")).sendKeys(testResultPath);
@@ -1033,9 +1100,8 @@ public class EtmBaseTest {
             boolean fromParamsModal, Map<String, String> params) {
         log.info("Run TJob");
 
-        WebDriverWait waitService = new WebDriverWait(driver, 30); // seconds
-        By projectAvailable = By.id("tJobs");
-        waitService.until(presenceOfElementLocated(projectAvailable));
+        // Wait for tJobs table
+        getElementById(driver, "tJobs");
 
         String xpath = getTJobXpathFromProjectPage(tJobName);
 
@@ -1069,22 +1135,19 @@ public class EtmBaseTest {
             String expectedResult, boolean waitForMetrics) {
 
         log.info("Wait for the execution page to show");
-
-        WebDriverWait waitEnd = new WebDriverWait(driver, timeout);
-
         if (waitForMetrics) {
-            WebDriverWait waitMetrics = new WebDriverWait(driver, timeout);
             log.info("Wait for metrics");
-            waitMetrics.until(presenceOfElementLocated(By.className("tick")));
+            getElementsByClassName(driver, "tick", timeout);
         }
 
         log.info("Wait for Execution ends");
-        waitEnd.until(invisibilityOfElementLocated(By.id("runningSpinner")));
-
-        WebDriverWait waitResult = new WebDriverWait(driver, timeout);
+        getElementById(driver,
+                ExpectedConditionsEnum.INVISIBILITY_OF_ELEMENT_LOCATED,
+                "runningSpinner", timeout);
 
         log.info("Check finish Execution status. Expected result {}",
                 expectedResult);
+        WebDriverWait waitResult = new WebDriverWait(driver, timeout);
         waitResult.until(textToBePresentInElementLocated(By.id("resultMsgText"),
                 expectedResult));
     }
@@ -1262,11 +1325,13 @@ public class EtmBaseTest {
         WebElement tssId = getElementByXpath(driver,
                 "//*[@id=\"tss-instances\"]/div/table/tbody/tr[1]/td[1]/div/span");
         log.info("TSS session id: {}", tssId.getText());
-        By deleteServices = By.id("deleteService-" + tssId.getText().trim());
-        driver.findElement(deleteServices).click();
+        String id = "deleteService-" + tssId.getText().trim();
+        driver.findElement(By.id(id)).click();
+
         log.debug("Wait for Test Support Service to be stopped");
-        WebDriverWait waitEnd = new WebDriverWait(driver, 120);
-        waitEnd.until(invisibilityOfElementLocated(deleteServices));
+        getElementById(driver,
+                ExpectedConditionsEnum.INVISIBILITY_OF_ELEMENT_LOCATED, id,
+                120);
     }
 
     public void sleep(long millis) {
@@ -1295,6 +1360,40 @@ public class EtmBaseTest {
                 }
             };
         } else {
+            return null;
+        }
+    }
+
+    public enum ExpectedConditionsEnum {
+        ELEMENT_TO_BE_CLICKABLE("elementToBeClickable"),
+
+        INVISIBILITY_OF_ELEMENT_LOCATED("invisibilityOfElementLocated"),
+
+        PRESENCE_OF_ELEMENT_LOCATED("presenceOfElementLocated"),
+
+        ELEMENT_TO_BE_SELECTED("elementToBeSelected"),
+
+        VISIBILITY_OF_ELEMENT_LOCATED("visibilityOfElementLocated");
+
+        private String value;
+
+        ExpectedConditionsEnum(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static ExpectedConditionsEnum fromValue(String text) {
+            for (ExpectedConditionsEnum b : ExpectedConditionsEnum.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
             return null;
         }
     }

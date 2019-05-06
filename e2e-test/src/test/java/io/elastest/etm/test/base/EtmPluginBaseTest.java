@@ -1,7 +1,6 @@
 package io.elastest.etm.test.base;
 
 import static java.lang.System.getProperty;
-import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
 
 import java.io.IOException;
 
@@ -80,7 +79,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
 
     protected void installElasTestPlugin(WebDriver webDriver)
             throws IOException {
-        WebDriverWait waitService = new WebDriverWait(driver, 60);
+        int secondsTimeout = 60;
 
         // Install plugin
         log.info("Installing plugin from: {}", pluginPath);
@@ -95,15 +94,18 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         // Check the plugin installation is ok
         log.info("Checking installation status");
         boolean pluginAlreadyInstalled = false;
-        By installationStatus = By
-                .xpath("//table/tbody/tr/td[contains(string(), 'Success')]");
         try {
-            waitService.until(visibilityOfElementLocated(installationStatus));
+            String installationStatusXpath = "//table/tbody/tr/td[contains(string(), 'Success')]";
+            getElementByXpath(webDriver,
+                    ExpectedConditionsEnum.VISIBILITY_OF_ELEMENT_LOCATED,
+                    installationStatusXpath, secondsTimeout);
+
         } catch (TimeoutException te) {
-            By alreadyInstalledMessage = By.xpath(
-                    "//table/tbody/tr/td[contains(string(), 'elastest plugin is already installed')]");
-            waitService
-                    .until(visibilityOfElementLocated(alreadyInstalledMessage));
+            String alreadyInstalledMessageXpath = "//table/tbody/tr/td[contains(string(), 'elastest plugin is already installed')]";
+            getElementByXpath(webDriver,
+                    ExpectedConditionsEnum.VISIBILITY_OF_ELEMENT_LOCATED,
+                    alreadyInstalledMessageXpath, secondsTimeout);
+
             pluginAlreadyInstalled = true;
         }
 
@@ -111,10 +113,11 @@ public class EtmPluginBaseTest extends EtmBaseTest {
             navigateTo(webDriver, jenkinsRestartRelPath);
             By yesButton = By.xpath("//button[contains(string(), 'Yes')]");
             webDriver.findElement(yesButton).click();
-            WebDriverWait waitForLogin = new WebDriverWait(driver, 180);
             // wait for login form
-            By userField = By.id("j_username");
-            waitForLogin.until(visibilityOfElementLocated(userField));
+            getElementById(webDriver,
+                    ExpectedConditionsEnum.VISIBILITY_OF_ELEMENT_LOCATED,
+                    "j_username", 180);
+
             loginOnJenkins(webDriver);
         }
         log.info("Plugin installation finished");
@@ -125,7 +128,6 @@ public class EtmPluginBaseTest extends EtmBaseTest {
     }
 
     protected void pluginConfiguration(WebDriver driver) {
-        WebDriverWait waitService = new WebDriverWait(driver, 10);
 
         // Fill configuration
         log.info("Filling the configuration");
@@ -142,9 +144,11 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         driver.findElement(
                 By.xpath("//button[contains(string(), 'Test Connection')]"))
                 .click();
-        By testConnectionResult = By
-                .xpath("//div[contains(string(), 'Success')]");
-        waitService.until(visibilityOfElementLocated(testConnectionResult));
+        String testConnectionResultXpath = "//div[contains(string(), 'Success')]";
+        getElementByXpath(driver,
+                ExpectedConditionsEnum.VISIBILITY_OF_ELEMENT_LOCATED,
+                testConnectionResultXpath, 12);
+
         log.info("Successfull conection");
 
         driver.findElement(By.xpath("//button[contains(string(), 'Save')]"))
@@ -152,8 +156,6 @@ public class EtmPluginBaseTest extends EtmBaseTest {
     }
 
     protected void createFreestyleJob(WebDriver driver, String jobName) {
-        WebDriverWait waitService = new WebDriverWait(driver, 60);
-
         log.info("Creating a Freestyle Job");
         driver.findElement(By.id("name")).sendKeys(jobName);
 
@@ -175,16 +177,16 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         JavascriptExecutor jse2 = (JavascriptExecutor) driver;
         jse2.executeScript("arguments[0].scrollIntoView()", myelement);
 
-        By byAddStepButton = By.xpath(
-                "//div/span/span/button[contains(string(), 'Add build step')]");
-        waitService.until(
-                ExpectedConditions.elementToBeClickable(byAddStepButton));
-        driver.findElement(byAddStepButton).click();
+        String byAddStepButtonXpath = "//div/span/span/button[contains(string(), 'Add build step')]";
+        getElementByXpath(driver,
+                ExpectedConditionsEnum.ELEMENT_TO_BE_CLICKABLE,
+                byAddStepButtonXpath, 60).click();
 
-        By byItemShell = By
-                .xpath("//ul/li/a[contains(string(), 'Execute shell')]");
-        waitService.until(visibilityOfElementLocated(byItemShell));
-        driver.findElement(byItemShell).click();
+        String byItemShellXpath = "//ul/li/a[contains(string(), 'Execute shell')]";
+
+        getElementByXpath(driver,
+                ExpectedConditionsEnum.VISIBILITY_OF_ELEMENT_LOCATED,
+                byItemShellXpath, 60).click();
 
         driver.findElement(By.xpath("//button[contains(string(), 'Save')]"))
                 .click();
@@ -220,7 +222,8 @@ public class EtmPluginBaseTest extends EtmBaseTest {
                 .click();
 
         log.info("Press 'OK' button");
-        getClickableElementById(driver, "ok-button").click();
+        getElementById(driver, ExpectedConditionsEnum.ELEMENT_TO_BE_CLICKABLE,
+                "ok-button").click();
         getElementByXpath(driver, "//*[@id=\"workflow-editor-1\"]/textarea")
                 .sendKeys(script);
         getElementByXpath(driver, "//button[contains(string(), 'Save')]")
@@ -270,10 +273,12 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         }
 
         log.info("Waiting for the start of Job execution");
-        By newBuildHistory = By
-                .xpath("//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]");
-        WebDriverWait waitService = new WebDriverWait(driver, 10);
-        waitService.until(visibilityOfElementLocated(newBuildHistory));
+        String newBuildHistoryXpath = "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]";
+
+        getElementByXpath(driver,
+                ExpectedConditionsEnum.VISIBILITY_OF_ELEMENT_LOCATED,
+                newBuildHistoryXpath, 12);
+
         Thread.sleep(2000);
         driver.findElement(By.xpath(
                 "//*[@id=\"buildHistory\"]/div[2]/table/tbody/tr[2]/td/div[2]/a"))
