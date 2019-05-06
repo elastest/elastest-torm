@@ -21,6 +21,7 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openqa.selenium.logging.LogType.BROWSER;
+import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
 import static org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
@@ -230,6 +231,8 @@ public class EtmBaseTest {
     /* *********** Get Element *********** */
     /* *********************************** */
 
+    /* *************** Presence *************** */
+
     protected WebElement getElementById(WebDriver driver, String id,
             int secondsTimeout, boolean withScroll) {
         String xpath = "//*[@id='" + id + "']";
@@ -327,10 +330,6 @@ public class EtmBaseTest {
         return this.getElementByXpath(driver, xpath, 30, withScroll);
     }
 
-    /* ************************************ */
-    /* *********** Get Elements *********** */
-    /* ************************************ */
-
     protected List<WebElement> getElementsByName(WebDriver driver, String name,
             int secondsTimeout) {
         WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
@@ -379,6 +378,98 @@ public class EtmBaseTest {
 
     protected List<WebElement> getElementsById(WebDriver driver, String id) {
         return this.getElementsById(driver, id, 30);
+    }
+
+    /* *************** Clickable *************** */
+
+    protected List<WebElement> getClickableElementsByXpath(WebDriver driver,
+            String xpath, int secondsTimeout) {
+        WebDriverWait waitService = new WebDriverWait(driver, secondsTimeout);
+        By elementAvailable = By.xpath(xpath);
+        waitService.until(elementToBeClickable(elementAvailable));
+
+        return driver.findElements(elementAvailable);
+    }
+
+    protected List<WebElement> getClickableElementsByXpath(WebDriver driver,
+            String xpath) {
+        return this.getClickableElementsByXpath(driver, xpath, 30);
+    }
+
+    protected WebElement getClickableElementByXpath(WebDriver driver,
+            String xpath, int secondsTimeout) {
+        return this.getClickableElementByXpath(driver, xpath, secondsTimeout,
+                false);
+    }
+
+    protected WebElement getClickableElementByXpath(WebDriver driver,
+            String xpath) {
+        return this.getClickableElementByXpath(driver, xpath, 30, false);
+    }
+
+    protected WebElement getClickableElementByXpath(WebDriver driver,
+            String xpath, boolean withScroll) {
+        return this.getClickableElementByXpath(driver, xpath, 30, withScroll);
+    }
+
+    protected WebElement getClickableElementByXpath(WebDriver driver,
+            String xpath, int secondsTimeout, boolean withScroll) {
+        try {
+            Thread.sleep(500l);
+        } catch (InterruptedException e) {
+            log.error("Time Slot between actions interrupted.");
+        }
+
+        WebElement element = getClickableElementsByXpath(driver, xpath,
+                secondsTimeout).get(0);
+        if (withScroll) {
+            scrollToElement(element);
+        }
+        return element;
+    }
+
+    protected WebElement getClickableElementById(WebDriver driver, String id,
+            int secondsTimeout, boolean withScroll) {
+        String xpath = "//*[@id='" + id + "']";
+        return this.getClickableElementByXpath(driver, xpath, secondsTimeout,
+                withScroll);
+    }
+
+    protected WebElement getClickableElementById(WebDriver driver, String id,
+            int secondsTimeout) {
+        return this.getClickableElementById(driver, id, secondsTimeout, false);
+    }
+
+    protected WebElement getClickableElementById(WebDriver driver, String id) {
+        return this.getClickableElementById(driver, id, 30);
+    }
+
+    protected WebElement getClickableElementById(WebDriver driver, String id,
+            boolean withScroll) {
+        return this.getClickableElementById(driver, id, 30, withScroll);
+    }
+
+    protected WebElement getClickableElementByName(WebDriver driver,
+            String name, int secondsTimeout, boolean withScroll) {
+        String xpath = "//*[@name='" + name + "']";
+        return this.getClickableElementByXpath(driver, xpath, secondsTimeout,
+                withScroll);
+    }
+
+    protected WebElement getClickableElementByName(WebDriver driver,
+            String name) {
+        return this.getClickableElementByName(driver, name, 30, false);
+    }
+
+    protected WebElement getClickableElementByName(WebDriver driver,
+            String name, boolean withScroll) {
+        return this.getClickableElementByName(driver, name, 30, withScroll);
+    }
+
+    protected WebElement getClickableElementByName(WebDriver driver,
+            String name, int secondsTimeout) {
+        return this.getClickableElementByName(driver, name, secondsTimeout,
+                false);
     }
 
     /* ***************************************************************** */

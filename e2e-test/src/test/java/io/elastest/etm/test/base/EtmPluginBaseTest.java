@@ -219,10 +219,8 @@ public class EtmPluginBaseTest extends EtmBaseTest {
         getElementByXpath(driver, "//li[contains(string(), 'Pipeline')]")
                 .click();
 
-        sleep(1500);
-
         log.info("Press 'OK' button");
-        getElementById(driver, "ok-button").click();
+        getClickableElementById(driver, "ok-button").click();
         getElementByXpath(driver, "//*[@id=\"workflow-editor-1\"]/textarea")
                 .sendKeys(script);
         getElementByXpath(driver, "//button[contains(string(), 'Save')]")
