@@ -1141,14 +1141,15 @@ public class EtmBaseTest {
         }
 
         log.info("Wait for Execution ends");
-        getElementById(driver,
-                ExpectedConditionsEnum.INVISIBILITY_OF_ELEMENT_LOCATED,
-                "runningSpinner", timeout);
+        // getElementById(driver,
+        // ExpectedConditionsEnum.INVISIBILITY_OF_ELEMENT_LOCATED,
+        // "runningSpinner", timeout);
+        WebDriverWait wait = new WebDriverWait(driver, timeout);
+        wait.until(invisibilityOfElementLocated(By.id("runningSpinner")));
 
         log.info("Check finish Execution status. Expected result {}",
                 expectedResult);
-        WebDriverWait waitResult = new WebDriverWait(driver, timeout);
-        waitResult.until(textToBePresentInElementLocated(By.id("resultMsgText"),
+        wait.until(textToBePresentInElementLocated(By.id("resultMsgText"),
                 expectedResult));
     }
 
