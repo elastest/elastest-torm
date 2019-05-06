@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -31,8 +30,6 @@ public class K8Service {
             .getLogger(K8Service.class);
 
     private static final String DEFAULT_NAMESPACE = "default";
-    private static final String SYSTEM_NAMESPACE = "kube-system";
-
     public final KubernetesClient client;
 
     public K8Service() {
@@ -40,26 +37,29 @@ public class K8Service {
     }
 
     public JobResult deployJob(DockerContainer container) {
+        return deployJob(container, DEFAULT_NAMESPACE);
+    }
+
+    public JobResult deployJob(DockerContainer container, String nameSpace) {
         final JobResult result = new JobResult();
         container.getCmd().get().forEach((command) -> {
             logger.debug("Commands to execute: {}", command);
         });
-        final String namespace = DEFAULT_NAMESPACE;// "default";
+        final String namespace = nameSpace;
         try {
             logger.info("Container name: {}",
                     container.getContainerName().get());
             logger.info(String.join(",", container.getCmd().get()));
 
-            Map<String,String> k8sJobLabels = container.getLabels().get();
-            k8sJobLabels.put("tjob-name", container.getContainerName().get());
+            Map<String, String> k8sJobLabels = container.getLabels().get();
+            k8sJobLabels.put("tjob-name",
+                    container.getContainerName().get().replace("_", "-"));
             final Job job = new JobBuilder(Boolean.FALSE)
                     .withApiVersion("batch/v1").withNewMetadata()
                     .withName(container.getContainerName().get().replace("_",
                             "-"))
-                    .withLabels(k8sJobLabels)
-                    .endMetadata()
-                    .withNewSpec().withNewTemplate().withNewSpec()
-                    .addNewContainer()
+                    .withLabels(k8sJobLabels).endMetadata().withNewSpec()
+                    .withNewTemplate().withNewSpec().addNewContainer()
                     .withName(container.getContainerName().get().replace("_",
                             "-"))
                     .withImage(container.getImageId())
@@ -70,22 +70,18 @@ public class K8Service {
             logger.info("Creating job: {}.",
                     container.getContainerName().get().replace("_", "-"));
             client.batch().jobs().inNamespace(namespace).create(job);
-            logger.info("Job {} is created, waiting for result...",
-                    client.batch().jobs().inNamespace(namespace)
-                            .withName(container.getContainerName().get()
-                                    .replace("_", "-"))
-                            .get().getMetadata().getName());
-
             final CountDownLatch watchLatch = new CountDownLatch(1);
             try (final Watch ignored = client.pods().inNamespace(namespace)
-                    .withLabel("job-name",job.getMetadata().getName())
+                    .withLabel("job-name", job.getMetadata().getName())
                     .watch(new Watcher<Pod>() {
                         @Override
                         public void eventReceived(final Action action,
                                 Pod pod) {
-                            job.getMetadata().getLabels().forEach((label,value) -> {
-                                logger.debug("Label: {}-{}", label, value);
-                            });
+                            job.getMetadata().getLabels()
+                                    .forEach((label, value) -> {
+                                        logger.debug("Label: {}-{}", label,
+                                                value);
+                                    });
                             logger.debug("Job {} receive an event", job
                                     .getMetadata().getLabels().get("job-name"));
                             logger.debug("Event received: {}",
