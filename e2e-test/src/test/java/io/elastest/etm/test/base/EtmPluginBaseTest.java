@@ -29,7 +29,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
             + "            echo 'Run test'\n"
             + "            sh \"cd ./unit/junit5-unit-test;'${mvnHome}/bin/mvn' -DforkCount=0 test\"\n"
             + "   }";
-    
+
     protected final String unitTestPipelineScriptOriginal = "node {\n"
             + "    elastest(tss: ['EUS']) {\n"
             + "        stage ('Executing Test') {\n"
@@ -213,18 +213,19 @@ public class EtmPluginBaseTest extends EtmBaseTest {
     protected void createPipelineJob(WebDriver driver, String jobName,
             String script) {
         log.info("Creating a Pipeline Job");
-        driver.findElement(By.id("name")).sendKeys(jobName);
+        getElementById(driver, "name").sendKeys(jobName);
+
         log.info("Select the Job's type");
-        driver.findElement(By.xpath("//li[contains(string(), 'Pipeline')]"))
+        getElementByXpath(driver, "//li[contains(string(), 'Pipeline')]")
                 .click();
-//        WebDriverWait waitForOkButton = new WebDriverWait(driver, 10);
-//        By okButtonId = By.id("ok-button");
-//        waitForOkButton.until(elementToBeClickable(okButtonId));
-//        driver.findElement(okButtonId).click();
+
+        sleep(1500);
+
+        log.info("Press 'OK' button");
         getElementById(driver, "ok-button").click();
-        driver.findElement(By.xpath("//*[@id=\"workflow-editor-1\"]/textarea"))
+        getElementByXpath(driver, "//*[@id=\"workflow-editor-1\"]/textarea")
                 .sendKeys(script);
-        driver.findElement(By.xpath("//button[contains(string(), 'Save')]"))
+        getElementByXpath(driver, "//button[contains(string(), 'Save')]")
                 .click();
     }
 
