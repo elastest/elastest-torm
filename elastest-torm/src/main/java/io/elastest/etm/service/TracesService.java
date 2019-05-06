@@ -58,7 +58,7 @@ public class TracesService {
             + "|dynamic_" + monitoringExecExpression
             + ")\\D*(?>_exec)(\\[.*\\])?[\\s][-][\\s]";
 
-    String startsWithTestOrSutExpression = "^(test|sut)(_)?(\\d*)(.*)?";
+    String startsWithTestOrSutExpression = "(^(test|sut)(_)?(\\d*)(.*)?)|(^(k8s_test|k8s_sut)(.*)?)";
 
     String dockbeatStream = "et_dockbeat";
 
@@ -82,6 +82,7 @@ public class TracesService {
 
     public Map<String, String> processGrokExpression(String message,
             String expression) {
+        logger.debug("******* Processing message: {} --- with grok expresion: {}", message, expression);
         Grok compiledPattern = grokCompiler.compile(expression);
         Map<String, Object> map = compiledPattern.match(message).capture();
         Map<String, String> resultMap = new HashMap<>();
@@ -120,6 +121,7 @@ public class TracesService {
 
     public Trace matchesLevelAndContainerNameFromMessage(Trace trace,
             String message) {
+        logger.debug("*********Getting level and container name from message {}", message);
         if (message != null) {
             // Level
             Map<String, String> levelMap = processGrokExpression(message,
@@ -143,9 +145,14 @@ public class TracesService {
 
     public String getContainerNameFromMessage(String message) {
         if (message != null) {
+            logger.info("******* Get container name from message: {}", message );
             // Container Name
             Map<String, String> containerNameMap = processGrokExpression(
                     message, containerNameExpression);
+            
+            for(Map.Entry<String, String> entry : containerNameMap.entrySet()) {
+                logger.info("******* key: {} -- Value: {}", entry.getKey(), entry.getValue());
+            }
             return containerNameMap.get("containerName");
         } else {
             return null;
@@ -262,17 +269,19 @@ public class TracesService {
     @SuppressWarnings("unchecked")
     public boolean processBeatTrace(Map<String, Object> dataMap,
             boolean fromDockbeat) {
-        logger.trace("Processing BEATS trace {}", dataMap.toString());
         boolean procesed = false;
 
         if (dataMap != null && !dataMap.isEmpty()) {
-
+            logger.trace("********Processing BEATS trace {}", dataMap.toString());
+//            logger.trace("********Raw trace: {}",dataMap.get("raw_data").toString());
+            logger.trace("********Message in trace: {}",(String)dataMap.get("message"));
             try {
                 Trace trace = setInitialBeatTraceData(dataMap);
 
                 try {
                     trace.setRawData(dataMap.get("raw_data").toString());
                 } catch (Exception e) {
+                    logger.error("There is no raw_data");
                 }
 
                 // Ignore Packetbeat from EIM temporally
@@ -294,6 +303,7 @@ public class TracesService {
                                 .fromValue(dataMap.get("level").toString());
                         trace.setLevel(level);
                     } catch (Exception e) {
+                        logger.error("Error setting trace level");
                     }
 
                 }
@@ -351,6 +361,7 @@ public class TracesService {
 
                 // Exec, Component and Component Service
                 if (trace.getContainerName() != null) {
+                    logger.debug("******* Container name: {}", trace.getContainerName());
                     Map<String, String> componentExecAndComponentServiceMap = processGrokExpression(
                             trace.getContainerName(),
                             componentExecAndComponentServiceExpression);
