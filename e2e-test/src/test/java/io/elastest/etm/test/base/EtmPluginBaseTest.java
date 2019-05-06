@@ -223,7 +223,7 @@ public class EtmPluginBaseTest extends EtmBaseTest {
 
         log.info("Press 'OK' button");
         getElementById(driver, ExpectedConditionsEnum.ELEMENT_TO_BE_CLICKABLE,
-                "ok-button").click();
+                "ok-button", true).click();
         getElementByXpath(driver, "//*[@id=\"workflow-editor-1\"]/textarea")
                 .sendKeys(script);
         getElementByXpath(driver, "//button[contains(string(), 'Save')]")

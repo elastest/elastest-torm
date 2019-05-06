@@ -22,12 +22,10 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.openqa.selenium.logging.LogType.BROWSER;
 import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeClickable;
-import static org.openqa.selenium.support.ui.ExpectedConditions.elementToBeSelected;
 import static org.openqa.selenium.support.ui.ExpectedConditions.invisibilityOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.textToBePresentInElementLocated;
 import static org.openqa.selenium.support.ui.ExpectedConditions.visibilityOfElementLocated;
-
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -53,6 +51,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 
@@ -235,25 +234,18 @@ public class EtmBaseTest {
 
     /* ****************** Presence ****************** */
 
-    @SuppressWarnings("unchecked")
-    protected <T> T getWaitFunctionByExpectedCondition(
+    protected ExpectedCondition<WebElement> getWaitFunctionByExpectedCondition(
             ExpectedConditionsEnum expectedCondition, By by) {
         switch (expectedCondition) {
         case ELEMENT_TO_BE_CLICKABLE:
-            return (T) elementToBeClickable(by);
-
-        case INVISIBILITY_OF_ELEMENT_LOCATED:
-            return (T) invisibilityOfElementLocated(by);
-
-        case ELEMENT_TO_BE_SELECTED:
-            return (T) elementToBeSelected(by);
+            return elementToBeClickable(by);
 
         case VISIBILITY_OF_ELEMENT_LOCATED:
-            return (T) visibilityOfElementLocated(by);
+            return visibilityOfElementLocated(by);
 
         case PRESENCE_OF_ELEMENT_LOCATED:
         default:
-            return (T) presenceOfElementLocated(by);
+            return presenceOfElementLocated(by);
         }
     }
 
@@ -1141,9 +1133,6 @@ public class EtmBaseTest {
         }
 
         log.info("Wait for Execution ends");
-        // getElementById(driver,
-        // ExpectedConditionsEnum.INVISIBILITY_OF_ELEMENT_LOCATED,
-        // "runningSpinner", timeout);
         WebDriverWait wait = new WebDriverWait(driver, timeout);
         wait.until(invisibilityOfElementLocated(By.id("runningSpinner")));
 
@@ -1326,13 +1315,11 @@ public class EtmBaseTest {
         WebElement tssId = getElementByXpath(driver,
                 "//*[@id=\"tss-instances\"]/div/table/tbody/tr[1]/td[1]/div/span");
         log.info("TSS session id: {}", tssId.getText());
-        String id = "deleteService-" + tssId.getText().trim();
-        driver.findElement(By.id(id)).click();
-
+        By deleteServices = By.id("deleteService-" + tssId.getText().trim());
+        driver.findElement(deleteServices).click();
         log.debug("Wait for Test Support Service to be stopped");
-        getElementById(driver,
-                ExpectedConditionsEnum.INVISIBILITY_OF_ELEMENT_LOCATED, id,
-                120);
+        WebDriverWait waitEnd = new WebDriverWait(driver, 120);
+        waitEnd.until(invisibilityOfElementLocated(deleteServices));
     }
 
     public void sleep(long millis) {
@@ -1368,11 +1355,7 @@ public class EtmBaseTest {
     public enum ExpectedConditionsEnum {
         ELEMENT_TO_BE_CLICKABLE("elementToBeClickable"),
 
-        INVISIBILITY_OF_ELEMENT_LOCATED("invisibilityOfElementLocated"),
-
         PRESENCE_OF_ELEMENT_LOCATED("presenceOfElementLocated"),
-
-        ELEMENT_TO_BE_SELECTED("elementToBeSelected"),
 
         VISIBILITY_OF_ELEMENT_LOCATED("visibilityOfElementLocated");
 
