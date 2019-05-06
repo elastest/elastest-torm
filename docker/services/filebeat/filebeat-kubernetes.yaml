@@ -27,7 +27,7 @@ data:
           templates:
             - condition:
                 regexp:
-                  kubernetes.container.name: ${ET_MON_CONTAINERS_NAME:"(^(test|sut)(_)?(\\d*)(.*)?])|(^(k8s_test|k8s_sut)(.*)?)"}
+                  kubernetes.container.name: ${ET_MON_CONTAINERS_NAME:"(^(test|sut)(_)?(\\d*)(.*)?)|(^(k8s_test|k8s_sut)(.*)?)"}
                 config:
                   - type: log
                     paths:
