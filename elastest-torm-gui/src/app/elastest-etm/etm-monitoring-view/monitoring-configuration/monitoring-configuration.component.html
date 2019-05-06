@@ -43,15 +43,15 @@
         <!-- Metrics Tree -->
         <div id="metricsTree" fxFlex.gt-sm="50" fxFlexOffset.gt-sm="5">
           <mat-card-subtitle>Metrics</mat-card-subtitle>
-          <mat-spinner strokeWidth="6" *ngIf="loadingMetrics" color="accent" class="push-top-sm"></mat-spinner>
           <div class="treeContainer" fxLayout="column">
             <div fxFlex>
               <mat-checkbox [(ngModel)]="allInOneMetricsActivated" name="showAllInOneCheckbox">All-in-one chart</mat-checkbox>
             </div>
-
+            
             <div fxFlex class="push-bottom-sm push-top-sm">
               <mat-divider></mat-divider>
             </div>
+            <mat-spinner strokeWidth="6" *ngIf="loadingMetrics" color="accent" class="push-top-sm"></mat-spinner>
 
             <div fxFlex>
               <span *ngIf="noMetrics">There aren't metrics to configure</span>
