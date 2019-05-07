@@ -30,6 +30,8 @@ public class K8Service {
             .getLogger(K8Service.class);
 
     private static final String DEFAULT_NAMESPACE = "default";
+    private static final String LABEL_JOB_NAME = "job-name";
+    private static final String FHASE_SUCCEEDED = "Succeeded";
     public final KubernetesClient client;
 
     public K8Service() {
@@ -52,7 +54,7 @@ public class K8Service {
             logger.info(String.join(",", container.getCmd().get()));
 
             Map<String, String> k8sJobLabels = container.getLabels().get();
-            k8sJobLabels.put("tjob-name",
+            k8sJobLabels.put(LABEL_JOB_NAME,
                     container.getContainerName().get().replace("_", "-"));
             final Job job = new JobBuilder(Boolean.FALSE)
                     .withApiVersion("batch/v1").withNewMetadata()
@@ -68,11 +70,11 @@ public class K8Service {
                     .endSpec().build();
 
             logger.info("Creating job: {}.",
-                    container.getContainerName().get().replace("_", "-"));
+                    job.getMetadata().getLabels().get(LABEL_JOB_NAME));
             client.batch().jobs().inNamespace(namespace).create(job);
             final CountDownLatch watchLatch = new CountDownLatch(1);
             try (final Watch ignored = client.pods().inNamespace(namespace)
-                    .withLabel("job-name", job.getMetadata().getName())
+                    .withLabel(LABEL_JOB_NAME, job.getMetadata().getName())
                     .watch(new Watcher<Pod>() {
                         @Override
                         public void eventReceived(final Action action,
@@ -83,7 +85,7 @@ public class K8Service {
                                                 value);
                                     });
                             logger.debug("Job {} receive an event", job
-                                    .getMetadata().getLabels().get("job-name"));
+                                    .getMetadata().getLabels().get(LABEL_JOB_NAME));
                             logger.debug("Event received: {}",
                                     pod.getStatus().getPhase());
                             logger.debug("Action: {}", action.toString());
@@ -101,9 +103,9 @@ public class K8Service {
 
                         @Override
                         public void onClose(final KubernetesClientException e) {
-                            logger.debug("Cleaning up job {}.", job
-                                    .getMetadata().getLabels().get("job-name"));
-
+                            logger.debug("Cleaning up job {}.", job.getMetadata().getName());
+                            client.batch().jobs().inNamespace(namespace).delete(job);
+                            deleteJob(job.getMetadata().getName());
                         }
                     })) {
                 watchLatch.await(2, TimeUnit.MINUTES);
@@ -121,7 +123,7 @@ public class K8Service {
     public void deleteJob(String jobName) {
         logger.info("Cleaning up job {}.", jobName);
         client.pods().inNamespace(DEFAULT_NAMESPACE)
-                .withLabel("job-name", jobName).delete();
+                .withLabel(LABEL_JOB_NAME, jobName).delete();
     }
 
     public String readFileFromContainer(String podName, String filePath) {
