@@ -144,6 +144,7 @@ public class K8ServiceImpl extends PlatformService {
         // TODO Auto-generated method stub
         List<ReportTestSuite> testResults = new ArrayList<ReportTestSuite>();
         TJobExecution tJobExec = execution.getTJobExec();
+        JobResult result = null;
         try {
             // Create Container Object
             DockerContainer testContainer = createContainer(execution,
@@ -160,10 +161,8 @@ public class K8ServiceImpl extends PlatformService {
             execution.setStatusMsg(resultMsg);
 
             // Create and start container
-            JobResult result = k8Service.deployJob(testContainer);
+            result = k8Service.deployJob(testContainer);
             Thread.sleep(5000);
-
-            k8Service.deleteJob(result.getJobName());
 
             tJobExec.setEndDate(new Date());
             logger.info("Ending Execution {}...", tJobExec.getId());
@@ -177,6 +176,10 @@ public class K8ServiceImpl extends PlatformService {
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception("Error on create and start TJob container", e);
+        } finally {
+            if (result != null) {
+                k8Service.deleteJob(result.getJobName());                
+            }
         }
 
     }
