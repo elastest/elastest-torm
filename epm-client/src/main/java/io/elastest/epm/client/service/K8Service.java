@@ -54,16 +54,16 @@ public class K8Service {
             logger.info(String.join(",", container.getCmd().get()));
 
             Map<String, String> k8sJobLabels = container.getLabels().get();
-            k8sJobLabels.put(LABEL_JOB_NAME,
-                    container.getContainerName().get().replace("_", "-"));
+            String containerNameWithoutUnderscore = container.getContainerName()
+                    .get().replace("_", "-");
+            
+            k8sJobLabels.put(LABEL_JOB_NAME, containerNameWithoutUnderscore);
             final Job job = new JobBuilder(Boolean.FALSE)
                     .withApiVersion("batch/v1").withNewMetadata()
-                    .withName(container.getContainerName().get().replace("_",
-                            "-"))
+                    .withName(containerNameWithoutUnderscore)
                     .withLabels(k8sJobLabels).endMetadata().withNewSpec()
                     .withNewTemplate().withNewSpec().addNewContainer()
-                    .withName(container.getContainerName().get().replace("_",
-                            "-"))
+                    .withName(containerNameWithoutUnderscore)
                     .withImage(container.getImageId())
                     .withArgs(container.getCmd().get()).endContainer()
                     .withRestartPolicy("Never").endSpec().endTemplate()
@@ -84,8 +84,9 @@ public class K8Service {
                                         logger.debug("Label: {}-{}", label,
                                                 value);
                                     });
-                            logger.debug("Job {} receive an event", job
-                                    .getMetadata().getLabels().get(LABEL_JOB_NAME));
+                            logger.debug("Job {} receive an event",
+                                    job.getMetadata().getLabels()
+                                            .get(LABEL_JOB_NAME));
                             logger.debug("Event received: {}",
                                     pod.getStatus().getPhase());
                             logger.debug("Action: {}", action.toString());
@@ -103,8 +104,10 @@ public class K8Service {
 
                         @Override
                         public void onClose(final KubernetesClientException e) {
-                            logger.debug("Cleaning up job {}.", job.getMetadata().getName());
-                            client.batch().jobs().inNamespace(namespace).delete(job);
+                            logger.debug("Cleaning up job {}.",
+                                    job.getMetadata().getName());
+                            client.batch().jobs().inNamespace(namespace)
+                                    .delete(job);
                             deleteJob(job.getMetadata().getName());
                         }
                     })) {
