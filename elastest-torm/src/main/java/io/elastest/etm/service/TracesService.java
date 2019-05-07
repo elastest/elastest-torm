@@ -353,25 +353,27 @@ public class TracesService {
                         } else {
                             trace.setComponent(component + "_" + containerName);
                         }
-                        if (dataMap.get("json") != null) {
 
-                            String[] jsonLogTree = new String[] { "json",
-                                    "log" };
+                        if (trace.getMessage() == null) {
+                            if (dataMap.get("json") != null) {
 
-                            String message = (String) UtilTools
-                                    .getMapFieldByTreeList(dataMap,
-                                            Arrays.asList(jsonLogTree));
+                                String[] jsonLogTree = new String[] { "json",
+                                        "log" };
 
-                            if (message != null) {
-                                trace.setMessage(message);
+                                String message = (String) UtilTools
+                                        .getMapFieldByTreeList(dataMap,
+                                                Arrays.asList(jsonLogTree));
+
+                                if (message != null) {
+                                    trace.setMessage(message);
+                                }
+
+                            } else {
+                                String log = (String) dataMap.get("log");
+                                if (log != null) {
+                                    trace.setMessage(log);
+                                }
                             }
-
-                        } else {
-                            String log = (String) dataMap.get("log");
-                            if (log != null) {
-                                trace.setMessage(log);
-                            }
-
                         }
                     }
                 }
