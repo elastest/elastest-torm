@@ -60,6 +60,7 @@ services:
             - HOST_TIMEZONE=UTC
             - ET_TEST_ENGINES_ERE_ENABLED=false
             - ET_ETM_LOG_LEVEL=DEBUG
+            - ET_ENABLE_CLOUD_MODE=false
         entrypoint: /run.sh
         expose:
             - 8091
