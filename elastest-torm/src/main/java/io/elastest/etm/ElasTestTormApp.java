@@ -64,6 +64,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Autowired
     K8Service k8Service;
 
+
     @Value("${additional.server.port}")
     int additionalServerPort;
 
