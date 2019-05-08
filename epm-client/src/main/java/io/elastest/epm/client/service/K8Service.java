@@ -4,10 +4,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -22,7 +25,11 @@ import io.elastest.epm.client.DockerContainer;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.KubernetesList;
+import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.batch.Job;
 import io.fabric8.kubernetes.api.model.batch.JobBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -38,6 +45,8 @@ public class K8Service {
 
     private static final String DEFAULT_NAMESPACE = "default";
     private static final String LABEL_JOB_NAME = "job-name";
+    private static final String LABEL_POD_NAME = "pod-name";
+    private static final String LABEL_APP_NAME = "app";
     private static final String FHASE_SUCCEEDED = "Succeeded";
     public final KubernetesClient client;
 
@@ -74,12 +83,11 @@ public class K8Service {
         return deployJob(container, DEFAULT_NAMESPACE);
     }
 
-    public JobResult deployJob(DockerContainer container, String nameSpace) {
+    public JobResult deployJob(DockerContainer container, String namespace) {
         final JobResult result = new JobResult();
         container.getCmd().get().forEach((command) -> {
             logger.debug("Commands to execute: {}", command);
         });
-        final String namespace = nameSpace;
         try {
             logger.info("Container name: {}",
                     container.getContainerName().get());
@@ -154,11 +162,90 @@ public class K8Service {
 
         return result;
     }
+    
+    public String deployPod(DockerContainer container) {
+        return deployPod(container, DEFAULT_NAMESPACE);
+    }
+    
+    public String deployPod(DockerContainer container, String namespace) {
+        String podName = null;
+        Pod pod = null;
+      
+        try {
+            logger.info("Container name: {}",
+                    container.getContainerName().get());
+            logger.info(String.join(",", container.getCmd().get()));
+
+            Map<String, String> k8sPobLabels = container.getLabels().get();
+            String containerNameWithoutUnderscore = container.getContainerName()
+                    .get().replace("_", "-");
+            
+            k8sPobLabels.put(LABEL_POD_NAME, containerNameWithoutUnderscore);
+
+            pod = new PodBuilder()
+                    .withApiVersion("batch/v1")
+                    .withNewMetadata()
+                    .withName(containerNameWithoutUnderscore)
+                    .endMetadata()
+                    .withNewSpec()
+                    .addNewContainer()
+                    .withName(containerNameWithoutUnderscore)
+                    .withImage(container.getImageId())
+                    .withEnv(getEnvVarListFromStringList(container.getEnvs().get()))
+                    .endContainer()
+                    .endSpec()
+                    .build();
+            
+            client.pods().inNamespace(namespace).createOrReplace(pod);
+            io.fabric8.kubernetes.api.model.Service service = new ServiceBuilder()
+                    .withNewMetadata()
+                    .withName(containerNameWithoutUnderscore + "-service")
+                    .endMetadata()
+                    .withNewSpec()
+                    .withSelector(Collections.singletonMap(LABEL_APP_NAME, containerNameWithoutUnderscore ))
+                    .addNewPort()
+                    .withName("sut-port")
+                    .withProtocol("HTTP")
+                    .withPort(Integer.parseInt(container.getExposedPorts().get().get(0)))
+                    .withTargetPort(new IntOrString(9376))
+                    .endPort()
+                    .withType("NodePort")
+                    .endSpec()
+                    .withNewStatus()
+                    .withNewLoadBalancer()
+                    .addNewIngress()
+                    .withIp("146.148.47.155")
+                    .endIngress()
+                    .endLoadBalancer()
+                    .endStatus()
+                    .build();
+
+           
+        } catch (final KubernetesClientException e) {
+            logger.error("Unable to create job", e);
+        }
+
+        return pod.getMetadata().getName();
+    }
 
     public void deleteJob(String jobName) {
         logger.info("Cleaning up job {}.", jobName);
         client.pods().inNamespace(DEFAULT_NAMESPACE)
                 .withLabel(LABEL_JOB_NAME, jobName).delete();
+    }
+    
+    public void deletePod(String name) {
+        
+    }
+    
+    private List<EnvVar> getEnvVarListFromStringList(List<String> envVarsAsStringList) {
+        List<EnvVar> envVars = new ArrayList<EnvVar>();
+        envVarsAsStringList.forEach(envVarAsString -> {
+            String[] keyValuePar = envVarAsString.split("="); 
+            EnvVar envVar = new EnvVar(keyValuePar[0], keyValuePar[1], null);
+            envVars.add(envVar);
+        });
+        return envVars;
     }
 
     public String readFileFromContainer(String podName, String filePath) {
