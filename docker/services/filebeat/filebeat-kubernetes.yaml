@@ -37,7 +37,7 @@ data:
 
     output.logstash:
       enabled: true
-      hosts: ["${ET_MON_LSBEATS_HOST:172.18.0.1}:${ET_MON_LSBEATS_PORT:37502}"]
+      hosts: ["${ET_MON_LSBEATS_HOST:172.18.0.1}:${ET_MON_LSBEATS_PORT:5044}"]
 ---
 apiVersion: v1
 kind: ConfigMap
