@@ -326,10 +326,16 @@ public class TracesService {
                         dataMap, Arrays.asList(containerNameTree));
 
                 if (containerName == null) {
+                    // Kubernetes
                     containerNameTree = new String[] { "kubernetes",
                             "container", "name" };
                     containerName = (String) UtilTools.getMapFieldByTreeList(
                             dataMap, Arrays.asList(containerNameTree));
+
+                    if (containerName != null) {
+                        // test-NNN to test_NNN
+                        containerName = containerName.replaceAll("-", "_");
+                    }
                 }
 
                 if (containerName != null) {

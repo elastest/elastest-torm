@@ -27,13 +27,14 @@ data:
           templates:
             - condition:
                 regexp:
-                  kubernetes.container.name: ${ET_MON_CONTAINERS_NAME:"(^(test|sut)(_)?(\\d*)(.*)?)|(^(k8s_test|k8s_sut)(.*)?)"}
-                config:
-                  - type: log
-                    paths:
-                      - /var/lib/docker/containers/${data.kubernetes.container.id}/*.log
-                    # Docker saves logs in json format and the message is into log key
-                    json.message_key: log
+                  kubernetes.container.name: ${ET_MON_CONTAINERS_NAME:"(^(k8s_test|k8s_sut)(.*)?)"}
+              config:
+                - type: docker
+                  containers.ids:
+                    - "${data.kubernetes.container.id}"
+    processors:
+      - drop_fields:
+          fields: ["stream"]
 
     output.logstash:
       enabled: true
