@@ -3,11 +3,8 @@ package io.elastest.epm.client.service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,10 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import io.elastest.epm.client.DockerContainer;
-import io.fabric8.kubernetes.api.model.ConfigMap;
-import io.fabric8.kubernetes.api.model.HasMetadata;
-import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.EnvVar;
+import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
@@ -47,6 +42,7 @@ public class K8Service {
     private static final String LABEL_JOB_NAME = "job-name";
     private static final String LABEL_POD_NAME = "pod-name";
     private static final String LABEL_APP_NAME = "app";
+    private static final String SUT_PORT_NAME = "sut-port";
     private static final String FHASE_SUCCEEDED = "Succeeded";
     public final KubernetesClient client;
 
@@ -197,35 +193,35 @@ public class K8Service {
                     .build();
             
             client.pods().inNamespace(namespace).createOrReplace(pod);
-            io.fabric8.kubernetes.api.model.Service service = new ServiceBuilder()
-                    .withNewMetadata()
-                    .withName(containerNameWithoutUnderscore + "-service")
-                    .endMetadata()
-                    .withNewSpec()
-                    .withSelector(Collections.singletonMap(LABEL_APP_NAME, containerNameWithoutUnderscore ))
-                    .addNewPort()
-                    .withName("sut-port")
-                    .withProtocol("HTTP")
-                    .withPort(Integer.parseInt(container.getExposedPorts().get().get(0)))
-                    .withTargetPort(new IntOrString(9376))
-                    .endPort()
-                    .withType("NodePort")
-                    .endSpec()
-                    .withNewStatus()
-                    .withNewLoadBalancer()
-                    .addNewIngress()
-                    .withIp("146.148.47.155")
-                    .endIngress()
-                    .endLoadBalancer()
-                    .endStatus()
-                    .build();
-
            
         } catch (final KubernetesClientException e) {
             logger.error("Unable to create job", e);
         }
 
         return pod.getMetadata().getName();
+    }
+    
+    
+    public String createService(String serviceName, Integer port, String protocol) {
+        io.fabric8.kubernetes.api.model.Service service = new ServiceBuilder()
+                .withNewMetadata()
+                .withName(serviceName + "-service")
+                .endMetadata()
+                .withNewSpec()
+                .withSelector(Collections.singletonMap(LABEL_APP_NAME, serviceName ))
+                .addNewPort()
+                .withName(SUT_PORT_NAME)
+                .withProtocol(protocol)
+                .withPort(port)
+                .withTargetPort(new IntOrString(9376))
+                .endPort()
+                .withType("NodePort")
+                .endSpec()
+                .build();
+        
+        service = client.services().inNamespace(client.getNamespace()).create(service);
+        String serviceURL = client.services().inNamespace(client.getNamespace()).withName(service.getMetadata().getName()).getURL(SUT_PORT_NAME);
+        return serviceURL;
     }
 
     public void deleteJob(String jobName) {
