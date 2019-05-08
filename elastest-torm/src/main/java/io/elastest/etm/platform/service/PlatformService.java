@@ -53,7 +53,7 @@ public abstract class PlatformService {
     static final Logger logger = getLogger(lookup().lookupClass());
     public static String GET_CONTAINER_IP_COMMAND = "ip a | grep -m 1 global | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}\\/' | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}'";
 
-    private EtmFilesService etmFilesService;
+    protected EtmFilesService etmFilesService;
 
     @Value("${elastest.docker.network}")
     public String elastestNetwork;
@@ -261,6 +261,9 @@ public abstract class PlatformService {
         } else {
             TJobExecution tJobExec = execution.getTJobExec();
 
+            logger.debug("etmFilesService {}", etmFilesService!= null);
+            logger.debug("tJobExec {}", tJobExec!= null);
+            logger.debug("ElastestConstants.SUT_FOLDER {}", ElastestConstants.SUT_FOLDER!= null);
             sutPath = etmFilesService.buildTJobFilesPath(tJobExec,
                     ElastestConstants.SUT_FOLDER);
         }

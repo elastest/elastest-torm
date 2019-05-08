@@ -46,7 +46,9 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Value("${et.enable.cloud.mode}")
     public boolean enableCloudMode;
-
+    
+    @Autowired
+    EtmFilesService etmFilesService;
     @Autowired
     private UtilsService utilsService;
     @Autowired
@@ -55,8 +57,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     TestSuiteService testSuiteService;
     @Autowired
     DockerComposeService dockerComposeService;
-    @Autowired
-    EtmFilesService etmFilesService;
+
     @Autowired
     DockerService dockerService;
     @Autowired

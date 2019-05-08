@@ -109,7 +109,7 @@ public class DockerServiceImpl extends PlatformService {
 
     private DockerComposeService dockerComposeService;
     private DockerService dockerService;
-    private EtmFilesService etmFilesService;
+
     private UtilsService utilsService;
     private Map<String, String> sutsByExecution;
 
