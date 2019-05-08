@@ -2,9 +2,13 @@ package io.elastest.epm.client.service;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +19,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import io.elastest.epm.client.DockerContainer;
+import io.fabric8.kubernetes.api.model.ConfigMap;
+import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.KubernetesList;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.batch.Job;
 import io.fabric8.kubernetes.api.model.batch.JobBuilder;
@@ -38,6 +45,31 @@ public class K8Service {
         client = new DefaultKubernetesClient();
     }
 
+    // TODO
+    public void startFromYml(String ymlPath) {
+        try {
+            File file = new File(ymlPath);
+
+            InputStream initialStream = new FileInputStream(file);
+            List<HasMetadata> resourcesList = client.load(initialStream).get();
+
+            // KubernetesList itemList = new KubernetesList();
+            for (HasMetadata resource : resourcesList) {
+                // itemList.getItems().add(resource);
+
+                // TODO resource instance of (Pod, ConfigMap, Service...)
+                // and create each like:
+                // client.pods().create(resource);
+            }
+
+            // client.lists().create(itemList); Not working...
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
     public JobResult deployJob(DockerContainer container) {
         return deployJob(container, DEFAULT_NAMESPACE);
     }
@@ -56,7 +88,7 @@ public class K8Service {
             Map<String, String> k8sJobLabels = container.getLabels().get();
             String containerNameWithoutUnderscore = container.getContainerName()
                     .get().replace("_", "-");
-            
+
             k8sJobLabels.put(LABEL_JOB_NAME, containerNameWithoutUnderscore);
             final Job job = new JobBuilder(Boolean.FALSE)
                     .withApiVersion("batch/v1").withNewMetadata()
