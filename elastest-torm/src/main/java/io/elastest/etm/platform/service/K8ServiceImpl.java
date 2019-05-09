@@ -3,8 +3,10 @@ package io.elastest.etm.platform.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.springframework.stereotype.Service;
@@ -21,16 +23,21 @@ import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
+import io.elastest.etm.platform.service.PlatformService.ContainerPrefix;
+import io.elastest.etm.platform.service.PlatformService.ContainerType;
 import io.elastest.etm.service.exception.TJobStoppedException;
 
 @Service
 public class K8ServiceImpl extends PlatformService {
 
+    private static final Map<String, String> createdContainers = new HashMap<>();
     private K8Service k8Service;
+    private Map<String, String> sutsByExecution;
 
     public K8ServiceImpl(K8Service k8Service) {
         super();
         this.k8Service = k8Service;
+        sutsByExecution = new ConcurrentHashMap<String, String>();
     }
 
     @Override
@@ -144,15 +151,16 @@ public class K8ServiceImpl extends PlatformService {
         List<ReportTestSuite> testResults = new ArrayList<ReportTestSuite>();
         TJobExecution tJobExec = execution.getTJobExec();
         JobResult result = null;
+        String resultMsg = "";
         try {
             // Create Container Object
             DockerContainer testContainer = createContainer(execution,
                     ContainerType.TJOB);
 
-            String resultMsg = "Starting Test Execution";
-            execution.updateTJobExecutionStatus(
-                    TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
-            execution.setStatusMsg(resultMsg);
+//            String resultMsg = "Starting Test Execution";
+//            execution.updateTJobExecutionStatus(
+//                    TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+//            execution.setStatusMsg(resultMsg);
 
             resultMsg = "Executing Test";
             execution.updateTJobExecutionStatus(
@@ -161,7 +169,7 @@ public class K8ServiceImpl extends PlatformService {
 
             // Create and start container
             result = k8Service.deployJob(testContainer);
-            Thread.sleep(5000);
+//            Thread.sleep(5000);
 
             tJobExec.setEndDate(new Date());
             logger.info("Ending Execution {}...", tJobExec.getId());
@@ -185,7 +193,31 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public void deploySut(Execution execution) throws Exception {
-        // TODO Auto-generated method stub
+        try {
+            // Create Container Object
+            DockerContainer sutContainer = createContainer(execution,
+                    ContainerType.SUT);
+           
+            String resultMsg = "Starting dockerized SuT";
+            execution.updateTJobExecutionStatus(
+                    TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
+            logger.info(resultMsg + " " + execution.getExecutionId());
+
+            // Create and start container
+            String podName = k8Service
+                    .deployPod(sutContainer);
+            sutsByExecution.put(execution.getExecutionId().toString(),
+                    podName);
+
+            String sutName = generateContainerName(ContainerPrefix.SUT,
+                    execution);
+            this.insertCreatedContainer(podName, sutName);
+        } catch (TJobStoppedException e) {
+            throw new TJobStoppedException(
+                    "Error on create and start Sut container", e);
+        } catch (Exception e) {
+            throw new Exception("Error on create and start Sut container", e);
+        }
 
     }
 
@@ -298,6 +330,11 @@ public class K8ServiceImpl extends PlatformService {
         result = k8Service.copyFileFromContainer(container, originPath,
                 targetPath);
         return result;
+    }
+    
+    public void insertCreatedContainer(String containerId,
+            String containerName) {
+        createdContainers.put(containerId, containerName);
     }
 
 }
