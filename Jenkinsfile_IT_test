@@ -29,7 +29,10 @@
                         
                         dir(k8sClientJavaDirectory) {
                             echo 'Existing files before cloning the git repository'
-                            git 'https://github.com/franciscoRdiaz/kubernetes-client.git'
+			    git(
+	                      url: 'https://github.com/franciscoRdiaz/kubernetes-client.git',
+	                      branch: "$K8_CLIENT_BRANCH"
+	                      )
                         }
                     
                         echo ("Install Kubernetes-client as library")
