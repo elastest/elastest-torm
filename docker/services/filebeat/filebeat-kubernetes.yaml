@@ -23,11 +23,11 @@ data:
     filebeat.autodiscover:
       providers:
         - type: kubernetes
-          hints.enabled: true
+          hints.enabled: false
           templates:
             - condition:
                 regexp:
-                  kubernetes.container.name: ${ET_MON_CONTAINERS_NAME:"(^(k8s_test|k8s_sut)(.*)?)"}
+                  kubernetes.container.name: ${ET_MON_CONTAINERS_NAME:"(^(test|sut)(_|-)?(.*)?)"}
               config:
                 - type: docker
                   containers.ids:
@@ -35,26 +35,12 @@ data:
     processors:
       - drop_fields:
           fields: ["stream"]
+      - add_kubernetes_metadata:
+          in_cluster: true
 
     output.logstash:
       enabled: true
       hosts: ["${ET_MON_LSBEATS_HOST:172.18.0.1}:${ET_MON_LSBEATS_PORT:5044}"]
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: filebeat-inputs
-  namespace: kube-system
-  labels:
-    k8s-app: filebeat
-data:
-  kubernetes.yml: |-
-    - type: docker
-      containers.ids:
-      - "*"
-      processors:
-        - add_kubernetes_metadata:
-            in_cluster: true
 ---
 apiVersion: extensions/v1beta1
 kind: DaemonSet
@@ -78,23 +64,8 @@ spec:
           "-c", "/etc/filebeat.yml",
           "-e",
         ]
-        env:
-        - name: ELASTICSEARCH_HOST
-          value: elasticsearch
-        - name: ELASTICSEARCH_PORT
-          value: "9200"
-        - name: ELASTICSEARCH_USERNAME
-          value: elastic
-        - name: ELASTICSEARCH_PASSWORD
-          value: changeme
-        - name: ELASTIC_CLOUD_ID
-          value:
-        - name: ELASTIC_CLOUD_AUTH
-          value:
         securityContext:
           runAsUser: 0
-          # If using Red Hat OpenShift uncomment this:
-          #privileged: true
         resources:
           limits:
             memory: 200Mi
@@ -125,7 +96,7 @@ spec:
       - name: inputs
         configMap:
           defaultMode: 0600
-          name: filebeat-inputs
+          name: filebeat-config
       # data folder stores a registry of read status for all files, so we don't send everything again on a Filebeat pod restart
       - name: data
         hostPath:
