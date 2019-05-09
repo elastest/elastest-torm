@@ -43,7 +43,7 @@ public class K8Service {
     private static final String LABEL_POD_NAME = "pod-name";
     private static final String LABEL_APP_NAME = "app";
     private static final String SUT_PORT_NAME = "sut-port";
-    private static final String FHASE_SUCCEEDED = "Succeeded";
+    private static final String PHASE_SUCCEEDED = "Succeeded";
     public final KubernetesClient client;
 
     public K8Service() {
@@ -245,19 +245,18 @@ public class K8Service {
     }
 
     public String readFileFromContainer(String podName, String filePath) {
-        logger.info("Reading file from k8s pod {} in this path {}", podName,
+        logger.info("Reading files from k8s pod {} in this path {}", podName,
                 filePath);
         String result = null;
 
         if (filePath != null && !filePath.isEmpty()) {
-            File file = new File(filePath);
             try (InputStream is = client.pods().inNamespace(DEFAULT_NAMESPACE)
                     .withName(podName).dir(filePath).read()) {
                 result = new BufferedReader(new InputStreamReader(is)).lines()
                         .collect(Collectors.joining("\n"));
-                logger.info("File content: {}", result);
+                logger.debug("File content: {}", result);
             } catch (Exception e) {
-                logger.error("Error reading test results' file");
+                logger.error("Error reading files");
                 e.printStackTrace();
             }
         }
