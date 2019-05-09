@@ -33,7 +33,7 @@
                         }
                     
                         echo ("Install Kubernetes-client as library")
-                        sh "cd $k8sClientJavaDirectory; mvn clean package install -DskipTests"
+                        sh "cd $k8sClientJavaDirectory; mvn clean install -DskipTests"
                     			 
 
                     stage "Install et-epm-client-java"
