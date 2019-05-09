@@ -10,11 +10,31 @@
                 mycontainer.inside("-u jenkins -p 37500:37500 -p 37501:37501 -p 37502:37502 -p 37503:37503 -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2 -v /home/ubuntu/.gnupg:/home/jenkins/.gnupg") {
                     def epmClientJavaDirectory = 'epm-client-java'
                     def eusJavaDirectory = 'eus-java'
+		    def k8sClientJavaDirectory = 'k8s-client-java'
 
                     git(
 	                 url: 'https://github.com/elastest/elastest-torm.git',
 	                 branch: "$ETM_BRANCH"
 	                 )
+			 
+			 
+                    stage "Install Kubernetes-client as library"
+                        def k8sClientDirectoryExists = fileExists k8sClientJavaDirectory
+                        if (k8sClientDirectoryExists) {
+                            echo 'Kubernetes client directory exists'
+                        } else {
+                            echo 'There isn not Kubernetes-client directory'
+                            sh 'mkdir ' + k8sClientJavaDirectory
+                        }
+                        
+                        dir(k8sClientJavaDirectory) {
+                            echo 'Existing files before cloning the git repository'
+                            git 'https://github.com/franciscoRdiaz/kubernetes-client.git'
+                        }
+                    
+                        echo ("Install Kubernetes-client as library")
+                        sh "cd $k8sClientJavaDirectory; mvn clean package install -DskipTests"
+                    			 
 
                     stage "Install et-epm-client-java"
                         def epmClientDirectoryExists = fileExists epmClientJavaDirectory
