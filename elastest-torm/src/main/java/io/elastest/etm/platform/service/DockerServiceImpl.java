@@ -397,16 +397,6 @@ public class DockerServiceImpl extends PlatformService {
         }
     }
 
-    private void removeSutVolumeFolder(Execution execution) {
-        String sutPath = getSutPath(execution);
-
-        try {
-            etmFilesService.removeFolder(sutPath);
-        } catch (Exception e) {
-            logger.debug("The SuT folder could not be deleted: {}",
-                    e.getMessage());
-        }
-    }
 
     /* ************** */
     /* **** Test **** */
@@ -520,14 +510,16 @@ public class DockerServiceImpl extends PlatformService {
         createdContainers.remove(containerId);
     }
 
-    private void endContainer(String containerName) throws Exception {
+    @Override
+    protected void endContainer(String containerName) throws Exception {
         dockerService.endContainer(containerName, true);
         String containerId = dockerService.getContainerIdByName(containerName);
 
         createdContainers.remove(containerId);
     }
 
-    private void endContainer(String containerName, int timeout)
+    @Override
+    protected void endContainer(String containerName, int timeout)
             throws Exception {
         dockerService.endContainer(containerName, true, timeout);
         String containerId = dockerService.getContainerIdByName(containerName);
@@ -759,15 +751,6 @@ public class DockerServiceImpl extends PlatformService {
         return container;
     }
 
-    private void updateSutExecDeployStatus(Execution execution,
-            DeployStatusEnum status) {
-        SutExecution sutExec = execution.getSutExec();
-
-        if (sutExec != null) {
-            sutExec.setDeployStatus(status);
-        }
-        execution.setSutExec(sutExec);
-    }
 
     private String waitForSutInContainer(Execution execution, long timeout)
             throws Exception {

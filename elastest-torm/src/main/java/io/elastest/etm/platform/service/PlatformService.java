@@ -39,12 +39,14 @@ import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.ServiceBindedPort;
+import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.VersionInfo;
+import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
@@ -666,5 +668,32 @@ public abstract class PlatformService {
         return testSuiteXmlParser
                 .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
     }
+    
 
+    protected void removeSutVolumeFolder(Execution execution) {
+        String sutPath = getSutPath(execution);
+
+        try {
+            etmFilesService.removeFolder(sutPath);
+        } catch (Exception e) {
+            logger.debug("The SuT folder could not be deleted: {}",
+                    e.getMessage());
+        }
+    }
+    
+    protected void updateSutExecDeployStatus(Execution execution,
+            DeployStatusEnum status) {
+        SutExecution sutExec = execution.getSutExec();
+
+        if (sutExec != null) {
+            sutExec.setDeployStatus(status);
+        }
+        execution.setSutExec(sutExec);
+    }
+    
+    protected abstract void endContainer(String containerName, int timeout)
+            throws Exception;
+    
+    protected abstract void endContainer(String containerName)
+            throws Exception;
 }

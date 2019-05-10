@@ -108,7 +108,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     public PlatformService platformService() {
         PlatformService platformService = null;
         if (enableCloudMode) {
-            platformService = new K8ServiceImpl(k8Service);
+            platformService = new K8ServiceImpl(k8Service, etmFilesService);
         } else {
             platformService = new DockerServiceImpl(dockerComposeService,
                     etmFilesService, utilsService, dockerService);

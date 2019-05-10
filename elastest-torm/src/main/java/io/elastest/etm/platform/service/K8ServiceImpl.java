@@ -18,14 +18,20 @@ import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.epm.client.service.K8Service;
 import io.elastest.epm.client.service.K8Service.JobResult;
+import io.elastest.epm.client.service.K8Service.PodInfo;
 import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.ServiceBindedPort;
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
+import io.elastest.etm.model.SutExecution.DeployStatusEnum;
+import io.elastest.etm.model.SutSpecification.ManagedDockerType;
+import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.platform.service.PlatformService.ContainerPrefix;
-import io.elastest.etm.platform.service.PlatformService.ContainerType;
 import io.elastest.etm.service.exception.TJobStoppedException;
+import io.elastest.etm.utils.EtmFilesService;
+import io.fabric8.kubernetes.api.model.NamedExtensionFluentImpl.PodExtensionNestedImpl;
 
 @Service
 public class K8ServiceImpl extends PlatformService {
@@ -34,10 +40,11 @@ public class K8ServiceImpl extends PlatformService {
     private K8Service k8Service;
     private Map<String, String> sutsByExecution;
 
-    public K8ServiceImpl(K8Service k8Service) {
+    public K8ServiceImpl(K8Service k8Service, EtmFilesService etmFilesService) {
         super();
         this.k8Service = k8Service;
         sutsByExecution = new ConcurrentHashMap<String, String>();
+        this.etmFilesService = etmFilesService;
     }
 
     @Override
@@ -193,6 +200,7 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public void deploySut(Execution execution) throws Exception {
+        PodInfo podInfo = null;
         try {
             // Create Container Object
             DockerContainer sutContainer = createContainer(execution,
@@ -204,18 +212,23 @@ public class K8ServiceImpl extends PlatformService {
             logger.info(resultMsg + " " + execution.getExecutionId());
 
             // Create and start container
-            String podName = k8Service
+            podInfo = k8Service
                     .deployPod(sutContainer);
             sutsByExecution.put(execution.getExecutionId().toString(),
-                    podName);
+                    podInfo.getPodName());
 
             String sutName = generateContainerName(ContainerPrefix.SUT,
                     execution);
-            this.insertCreatedContainer(podName, sutName);
-        } catch (TJobStoppedException e) {
-            throw new TJobStoppedException(
-                    "Error on create and start Sut container", e);
+            this.insertCreatedContainer(podInfo.getPodName(), sutName);
+            execution.getSutExec().setIp(podInfo.getPodIp());
+            logger.debug("Sut Ip stored in the sutExec {}", execution.getSutExec().getIp());
+            execution.getSutExec().setUrl(execution.getSut().getSutUrlByGivenIp(podInfo.getPodIp()));
+            logger.debug(" Url stored in the sutExec {}", execution.getSutExec().getUrl());
+            
         } catch (Exception e) {
+            if (podInfo.getPodName() != null) {
+                k8Service.deletePod(podInfo.getPodName());
+            }
             throw new Exception("Error on create and start Sut container", e);
         }
 
@@ -224,9 +237,30 @@ public class K8ServiceImpl extends PlatformService {
     @Override
     public void undeploySut(Execution execution, boolean force)
             throws Exception {
-        // TODO Auto-generated method stub
+        SutSpecification sut = execution.getSut();
+        removeSutVolumeFolder(execution);
+        // If it's Managed Sut, and container is created
+        if (sut.getSutType() != SutTypeEnum.DEPLOYED) {
+            updateSutExecDeployStatus(execution, DeployStatusEnum.UNDEPLOYING);
+            try {
+                if (sut.getManagedDockerType() != ManagedDockerType.COMPOSE) {
+                    if (sut.isSutInNewContainer()) {
+//                        endSutInContainer(execution);
+                    }
+                    String sutContainerName = generateContainerName(
+                            ContainerPrefix.SUT, execution);
+                    endContainer(sutContainerName);
+                } else {
+//                    endComposedSutExec(execution);
+                }
+                updateSutExecDeployStatus(execution,
+                        DeployStatusEnum.UNDEPLOYED);
+            } finally {
 
+            }
+        }
     }
+    
 
     @Override
     public void undeployTJob(Execution execution, boolean force)
@@ -331,10 +365,24 @@ public class K8ServiceImpl extends PlatformService {
                 targetPath);
         return result;
     }
+    @Override
+    protected void endContainer(String containerName)
+            throws Exception {
+        k8Service.deletePod(containerName);                
+        createdContainers.remove(containerName);
+    }
     
     public void insertCreatedContainer(String containerId,
             String containerName) {
         createdContainers.put(containerId, containerName);
     }
+
+    @Override
+    protected void endContainer(String containerName, int timeout)
+            throws Exception {
+        // TODO Auto-generated method stub
+        
+    }
+    
 
 }

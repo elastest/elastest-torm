@@ -101,7 +101,9 @@ public class K8Service {
                     .withNewTemplate().withNewSpec().addNewContainer()
                     .withName(containerNameWithoutUnderscore)
                     .withImage(container.getImageId())
-                    .withArgs(container.getCmd().get()).endContainer()
+                    .withArgs(container.getCmd().get())
+                    .withEnv(getEnvVarListFromStringList(container.getEnvs().get()))
+                    .endContainer()
                     .withRestartPolicy("Never").endSpec().endTemplate()
                     .endSpec().build();
 
@@ -159,12 +161,12 @@ public class K8Service {
         return result;
     }
     
-    public String deployPod(DockerContainer container) {
+    public PodInfo deployPod(DockerContainer container) throws Exception {
         return deployPod(container, DEFAULT_NAMESPACE);
     }
     
-    public String deployPod(DockerContainer container, String namespace) {
-        String podName = null;
+    public PodInfo deployPod(DockerContainer container, String namespace) throws Exception{
+        PodInfo podInfo = new PodInfo();
         Pod pod = null;
       
         try {
@@ -179,7 +181,6 @@ public class K8Service {
             k8sPobLabels.put(LABEL_POD_NAME, containerNameWithoutUnderscore);
 
             pod = new PodBuilder()
-                    .withApiVersion("batch/v1")
                     .withNewMetadata()
                     .withName(containerNameWithoutUnderscore)
                     .endMetadata()
@@ -192,15 +193,24 @@ public class K8Service {
                     .endSpec()
                     .build();
             
-            client.pods().inNamespace(namespace).createOrReplace(pod);
+            pod = client.pods().inNamespace(namespace).createOrReplace(pod);
+             
+            while(!isReady(containerNameWithoutUnderscore)) {}
+            pod = client.pods().inNamespace(DEFAULT_NAMESPACE).withName(containerNameWithoutUnderscore).get();
+//            Pod podUpdated = client.pods().withName(containerNameWithoutUnderscore).get();
+//            logger.debug("Sut Pod ip: {}", pod.getMetadata().getName());
+            logger.debug("Sut Pod ip: {}", pod.getStatus().getPodIP());
+            
            
         } catch (final KubernetesClientException e) {
             logger.error("Unable to create job", e);
+            throw e;
         }
+        podInfo.setPodIp(pod.getStatus().getPodIP());
+        podInfo.setPodName(pod.getMetadata().getName());
 
-        return pod.getMetadata().getName();
-    }
-    
+        return podInfo;
+    } 
     
     public String createService(String serviceName, Integer port, String protocol) {
         io.fabric8.kubernetes.api.model.Service service = new ServiceBuilder()
@@ -230,9 +240,25 @@ public class K8Service {
                 .withLabel(LABEL_JOB_NAME, jobName).delete();
     }
     
-    public void deletePod(String name) {
-        
+    public void deletePod(String podName) {
+        logger.info("Deleting pod {}.", podName);
+        client.pods().inNamespace(DEFAULT_NAMESPACE)
+                .withName(podName.replace("_", "-")).delete();
     }
+    
+    public boolean isReady(String podName) {
+        Pod pod = client.pods().inNamespace(DEFAULT_NAMESPACE).withName(podName).get();
+        if (pod == null) {
+          return false;
+        }
+        else {
+          return pod.getStatus().getConditions().stream()
+              .filter(condition -> condition.getType().equals("Ready"))
+              .map(condition -> condition.getStatus().equals("True"))
+              .findFirst()
+              .orElse(false);
+        }
+      }
     
     private List<EnvVar> getEnvVarListFromStringList(List<String> envVarsAsStringList) {
         List<EnvVar> envVars = new ArrayList<EnvVar>();
@@ -271,6 +297,23 @@ public class K8Service {
         result = client.pods().inNamespace(DEFAULT_NAMESPACE).withName(podName)
                 .dir(originPath).copy(Paths.get(targetPath)) ? result : 1;
         return result;
+    }
+    
+    public class PodInfo {
+        private String podName;
+        public String getPodName() {
+            return podName;
+        }
+        public void setPodName(String podName) {
+            this.podName = podName;
+        }
+        public String getPodIp() {
+            return podIp;
+        }
+        public void setPodIp(String podIp) {
+            this.podIp = podIp;
+        }
+        private String podIp;
     }
 
     public class JobResult {
