@@ -168,6 +168,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
 
     @Test
     @Transactional
+    @Disabled
     public void testDeployAndRunTJobExecution() throws Exception {
         log.info("Start the test to check a TJob deployment");
         execution = prepareTJobEnvironment(null, null, null,
