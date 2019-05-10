@@ -122,7 +122,6 @@ public class DockerServiceImpItTest extends EtmApiItTest {
     @AfterAll
     public void deleteAll() {
         log.info("*** Clean test environment at the end *** ");
-        log.info("* Project Id: {} *", project.getId());
     }
 
     @Test
@@ -169,6 +168,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
 
     @Test
     @Transactional
+    @Disabled
     public void testDeployAndRunTJobExecution() throws Exception {
         log.info("Start the test to check a TJob deployment");
         execution = prepareTJobEnvironment(null, null, null,
@@ -341,7 +341,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
         log.info("Creating TJob");
         TJob tJob = getSampleTJob(project.getId());
         if (imageName != null && !imageName.isEmpty()) {
-            log.info("*** Job image to use: {}", imageName);
+            log.info("Job image to use: {}", imageName);
             tJob.setImageName(imageName);
         }
         if (sut != null) {

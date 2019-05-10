@@ -58,7 +58,7 @@ public class TracesService {
             + "|dynamic_" + monitoringExecExpression
             + ")\\D*(?>_exec)(\\[.*\\])?[\\s][-][\\s]";
 
-    String startsWithTestOrSutExpression = "^(test|sut)(_)?(\\d*)(.*)?";
+    String startsWithTestOrSutExpression = "(^(test|sut)(_)?(\\d*)(.*)?)|(^(k8s_test|k8s_sut)(.*)?)";
 
     String dockbeatStream = "et_dockbeat";
 
@@ -146,6 +146,7 @@ public class TracesService {
             // Container Name
             Map<String, String> containerNameMap = processGrokExpression(
                     message, containerNameExpression);
+
             return containerNameMap.get("containerName");
         } else {
             return null;
@@ -242,7 +243,7 @@ public class TracesService {
         } catch (ParseException e) {
             timestamp = utilsService.getJavaUTCDateFromStr(timestampAsStr);
         }
-        
+
         trace.setTimestamp(timestamp);
 
         trace.setUnit((String) dataMap.get("unit"));
@@ -262,17 +263,17 @@ public class TracesService {
     @SuppressWarnings("unchecked")
     public boolean processBeatTrace(Map<String, Object> dataMap,
             boolean fromDockbeat) {
-        logger.trace("Processing BEATS trace {}", dataMap.toString());
         boolean procesed = false;
+        logger.trace("Processing BEATS trace {}", dataMap.toString());
 
         if (dataMap != null && !dataMap.isEmpty()) {
-
             try {
                 Trace trace = setInitialBeatTraceData(dataMap);
 
                 try {
                     trace.setRawData(dataMap.get("raw_data").toString());
                 } catch (Exception e) {
+                    logger.trace("There is no raw_data");
                 }
 
                 // Ignore Packetbeat from EIM temporally
@@ -294,6 +295,7 @@ public class TracesService {
                                 .fromValue(dataMap.get("level").toString());
                         trace.setLevel(level);
                     } catch (Exception e) {
+                        logger.error("Error setting trace level");
                     }
 
                 }
@@ -305,6 +307,20 @@ public class TracesService {
                         "container", "name" };
                 String containerName = (String) UtilTools.getMapFieldByTreeList(
                         dataMap, Arrays.asList(containerNameTree));
+
+                if (containerName == null) {
+                    // Kubernetes
+                    containerNameTree = new String[] { "kubernetes",
+                            "container", "name" };
+                    containerName = (String) UtilTools.getMapFieldByTreeList(
+                            dataMap, Arrays.asList(containerNameTree));
+
+                    if (containerName != null) {
+                        // test-NNN to test_NNN
+                        containerName = containerName.replaceAll("-", "_");
+                    }
+                }
+
                 if (containerName != null) {
                     trace.setContainerName(containerName);
                     // Metricbeat
@@ -326,25 +342,27 @@ public class TracesService {
                         } else {
                             trace.setComponent(component + "_" + containerName);
                         }
-                        if (dataMap.get("json") != null) {
 
-                            String[] jsonLogTree = new String[] { "json",
-                                    "log" };
+                        if (trace.getMessage() == null) {
+                            if (dataMap.get("json") != null) {
 
-                            String message = (String) UtilTools
-                                    .getMapFieldByTreeList(dataMap,
-                                            Arrays.asList(jsonLogTree));
+                                String[] jsonLogTree = new String[] { "json",
+                                        "log" };
 
-                            if (message != null) {
-                                trace.setMessage(message);
+                                String message = (String) UtilTools
+                                        .getMapFieldByTreeList(dataMap,
+                                                Arrays.asList(jsonLogTree));
+
+                                if (message != null) {
+                                    trace.setMessage(message);
+                                }
+
+                            } else {
+                                String log = (String) dataMap.get("log");
+                                if (log != null) {
+                                    trace.setMessage(log);
+                                }
                             }
-
-                        } else {
-                            String log = (String) dataMap.get("log");
-                            if (log != null) {
-                                trace.setMessage(log);
-                            }
-
                         }
                     }
                 }

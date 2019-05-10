@@ -36,8 +36,6 @@ public class EtmContextService {
     public String etEtmRabbitPathWithProxy;
     @Value("${exec.mode}")
     String execMode;
-    @Value("${et.master.slave.mode}")
-    public boolean etMasterSlaveMode;
     @Value("${et.images}")
     String etImages;
     @Value("${et.core.images}")

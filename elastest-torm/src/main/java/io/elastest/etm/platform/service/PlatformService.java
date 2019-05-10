@@ -3,27 +3,84 @@ package io.elastest.etm.platform.service;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
+import org.apache.maven.plugins.surefire.report.TestSuiteXmlParser;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.spotify.docker.client.ProgressHandler;
+import com.spotify.docker.client.messages.HostConfig.Bind;
+import com.spotify.docker.client.messages.HostConfig.Bind.Builder;
+import com.spotify.docker.client.messages.LogConfig;
 
+import io.elastest.epm.client.DockerContainer;
+import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
+import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.ServiceBindedPort;
+import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.TJob;
+import io.elastest.etm.model.TJobExecution;
+import io.elastest.etm.model.TJobExecution.ResultEnum;
+import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.VersionInfo;
+import io.elastest.etm.model.SutExecution.DeployStatusEnum;
+import io.elastest.etm.model.external.ExternalTJobExecution;
+import io.elastest.etm.utils.ElastestConstants;
+import io.elastest.etm.utils.EtmFilesService;
 
 public abstract class PlatformService {
     static final Logger logger = getLogger(lookup().lookupClass());
+    public static String GET_CONTAINER_IP_COMMAND = "ip a | grep -m 1 global | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}\\/' | grep -oE '([0-9]{1,3}\\.){3}[0-9]{1,3}'";
+
+    protected EtmFilesService etmFilesService;
+
+    @Value("${elastest.docker.network}")
+    public String elastestNetwork;
+    @Value("${et.type.sut.label.value}")
+    public String etTypeSutLabelValue;
+    @Value("${et.type.test.label.value}")
+    public String etTypeTestLabelValue;
+    @Value("${et.tjob.exec.id.label}")
+    public String etTJobExecIdLabel;
+    @Value("${et.tjob.id.label}")
+    public String etTJobIdLabel;
+    @Value("${et.type.label}")
+    public String etTypeLabel;
+    @Value("${et.tjob.sut.service.name.label}")
+    public String etTJobSutServiceNameLabel;
+    @Value("${et.etm.lstcp.port}")
+    public String logstashTcpPort;
+    @Value("${docker.sock}")
+    public String dockerSock;
+    @Value("${et.shared.folder}")
+    public String sharedFolder;
+    @Value("${logstash.host:#{null}}")
+    public String logstashOrMiniHost;
+    @Value("${et.enable.cloud.mode}")
+    public boolean etEnableCloudMode;
 
     public enum ContainerPrefix {
         TEST("test_"), SUT("sut_"), CHECK("check_"), SUT_EXT("sut_ext_");
@@ -50,7 +107,7 @@ public abstract class PlatformService {
             return null;
         }
     }
-    
+
     public enum ContainerType {
         SUT("sut"), TJOB("tjob");
 
@@ -85,7 +142,8 @@ public abstract class PlatformService {
     public abstract boolean deployService(String projectName, boolean withPull)
             throws IOException;
 
-    public abstract boolean undeployService(String projectName) throws IOException;
+    public abstract boolean undeployService(String projectName)
+            throws IOException;
 
     public abstract boolean undeployAndCleanDeployment(String projectName);
 
@@ -104,11 +162,11 @@ public abstract class PlatformService {
 
     public abstract DockerContainerInfo getContainers(String projectName);
 
-    public abstract boolean isContainerIntoNetwork(String networkId, String containerId)
-            throws Exception;
+    public abstract boolean isContainerIntoNetwork(String networkId,
+            String containerId) throws Exception;
 
-    public abstract String getContainerIpByNetwork(String containerId, String network)
-            throws Exception;
+    public abstract String getContainerIpByNetwork(String containerId,
+            String network) throws Exception;
 
     public abstract void insertIntoETNetwork(String engineName, String network)
             throws Exception;
@@ -118,16 +176,17 @@ public abstract class PlatformService {
     public abstract void enableServiceMetricMonitoring(Execution execution)
             throws Exception;
 
-    public abstract void disableMetricMonitoring(Execution execution, boolean force)
-            throws Exception;
+    public abstract void disableMetricMonitoring(Execution execution,
+            boolean force) throws Exception;
 
-    public abstract List<ReportTestSuite> deployAndRunTJobExecution(Execution execution) throws Exception;
+    public abstract List<ReportTestSuite> deployAndRunTJobExecution(
+            Execution execution) throws Exception;
 
     public String generateContainerName(ContainerPrefix prefix,
             Execution execution) {
         return this.generateContainerName(prefix, execution, false);
     }
-    
+
     public String generateContainerName(ContainerPrefix prefix,
             Execution execution, boolean aux) {
         logger.info("Building container name with prefix: {}", prefix);
@@ -135,19 +194,20 @@ public abstract class PlatformService {
         if (prefix == ContainerPrefix.SUT && execution.getSut() != null) {
             if (!execution.isExternal()) {
                 containerName = prefix.value + execution.getExecutionId();
-                
+
             } else {
-                containerName = ContainerPrefix.SUT_EXT + "_e" + execution.getExternalTJob().getId();
+                containerName = ContainerPrefix.SUT_EXT + "_e"
+                        + execution.getExternalTJob().getId();
             }
             SutSpecification sut = execution.getSut();
             containerName += (sut.isDockerCommandsSut()
                     && sut.isSutInNewContainer() && aux
-                    ? "_" + sut.getSutInContainerAuxLabel()
-                    : "");
+                            ? "_" + sut.getSutInContainerAuxLabel()
+                            : "");
         } else {
             containerName = prefix.value + execution.getExecutionId();
         }
-        logger.info("Sut container name generated: {}", containerName);
+        logger.debug("Generated container name: {}", containerName);
         return containerName;
     }
 
@@ -160,7 +220,8 @@ public abstract class PlatformService {
             throws Exception;
 
     public abstract ServiceBindedPort getBindingPort(String containerIp,
-            String containerSufix, String port, String networkName) throws Exception;
+            String containerSufix, String port, String networkName)
+            throws Exception;
 
     public abstract String getEtmHost() throws Exception;
 
@@ -178,14 +239,461 @@ public abstract class PlatformService {
     public abstract void setCoreServiceInfoFromContainer(String imageName,
             String version, CoreServiceInfo coreServiceInfo) throws Exception;
 
-    public abstract String getAllContainerLogs(String containerName, boolean withFollow)
-            throws Exception;
-    
-    public abstract String getSomeContainerLogs(String containerName, int amount, boolean withFollow) throws Exception;
-    
-    public abstract String getContainerLogsFrom(String containerId, int from, boolean withFollow) throws Exception;
+    public abstract String getAllContainerLogs(String containerName,
+            boolean withFollow) throws Exception;
+
+    public abstract String getSomeContainerLogs(String containerName,
+            int amount, boolean withFollow) throws Exception;
+
+    public abstract String getContainerLogsFrom(String containerId, int from,
+            boolean withFollow) throws Exception;
 
     public abstract String undeployTSSByContainerId(String containerId);
+    
+    public abstract Integer copyFilesFomContainer(String container, String originPath, String targetPath);
 
+    protected String getSutPath(Execution execution) {
+        String sutPath;
+        if (execution.isExternal()) {
+            ExternalTJobExecution exTJobExec = execution.getExternalTJobExec();
 
+            sutPath = etmFilesService.buildExternalTJobFilesPath(exTJobExec,
+                    ElastestConstants.SUT_FOLDER);
+
+        } else {
+            TJobExecution tJobExec = execution.getTJobExec();
+
+            logger.debug("etmFilesService {}", etmFilesService!= null);
+            logger.debug("tJobExec {}", tJobExec!= null);
+            logger.debug("ElastestConstants.SUT_FOLDER {}", ElastestConstants.SUT_FOLDER!= null);
+            sutPath = etmFilesService.buildTJobFilesPath(tJobExec,
+                    ElastestConstants.SUT_FOLDER);
+        }
+        return sutPath;
+    }
+
+    protected Map<String, String> getEtLabels(Execution execution,
+            String type) {
+        return this.getEtLabels(execution, type, null);
+    }
+
+    protected Map<String, String> getEtLabels(Execution execution, String type,
+            String sutServiceName) {
+        String etTypeLabelValue = "";
+        if ("sut".equals(type.toLowerCase())) {
+            etTypeLabelValue = etTypeSutLabelValue;
+        } else if ("tjob".equals(type.toLowerCase())) {
+            etTypeLabelValue = etTypeTestLabelValue;
+        }
+
+        Map<String, String> labels = new HashMap<>();
+        labels.put(etTypeLabel, etTypeLabelValue);
+        String execId = null;
+        String tJobId = null;
+        if (execution.isExternal()) {
+            execId = execution.getExternalTJobExec().getId().toString();
+            tJobId = execution.getExternalTJob().getId().toString();
+        } else {
+            execId = execution.getTJobExec().getId().toString();
+            tJobId = execution.gettJob().getId().toString();
+        }
+
+        labels.put(etTJobExecIdLabel, execId);
+        labels.put(etTJobIdLabel, tJobId);
+
+        if (sutServiceName != null) {
+            labels.put(etTJobSutServiceNameLabel, sutServiceName);
+        }
+
+        return labels;
+    }
+
+    protected boolean isEMSSelected(Execution execution) {
+        return !execution.isExternal()
+                && execution.gettJob().isSelectedService("ems");
+    }
+
+    protected LogConfig getEMSLogConfig(String type, String tagPrefix,
+            String tagSuffix, Execution execution) throws Exception {
+        TJobExecution tJobExec = execution.getTJobExec();
+        String host = null;
+        String port = null;
+        // ET_EMS env vars created in EsmService setTssEnvVarByEndpoint()
+        if ("tjob".equals(type.toLowerCase())) {
+            host = tJobExec.getEnvVars().get("ET_EMS_TCP_TESTLOGS_HOST");
+            port = tJobExec.getEnvVars().get("ET_EMS_TCP_TESTLOGS_PORT");
+        } else if ("sut".equals(type.toLowerCase())) {
+            host = tJobExec.getEnvVars().get("ET_EMS_TCP_SUTLOGS_HOST");
+            port = tJobExec.getEnvVars().get("ET_EMS_TCP_SUTLOGS_PORT");
+        }
+
+        if (host != null && port != null) {
+            logger.info(
+                    "EMS Host to send logs from {} container: {}. To port {}",
+                    type, host, port);
+            return this.getLogConfig(host, port, tagPrefix, tagSuffix,
+                    execution);
+        } else {
+            throw new Exception("Error on get EMS Log config");
+        }
+    }
+
+    /* ******************************* */
+    /* ******* Logging methods ******* */
+    /* ******************************* */
+    protected LogConfig getLogConfig(String host, String port, String tagPrefix,
+            String tagSuffix, Execution execution) {
+        Map<String, String> configMap = new HashMap<String, String>();
+
+        String monitoringIndex = "";
+
+        if (execution.isExternal()) {
+            monitoringIndex = execution.getExternalTJobExec()
+                    .getExternalTJobExecMonitoringIndex();
+        } else {
+            monitoringIndex = execution.getExecutionId().toString();
+        }
+
+        if (tagSuffix != null && !tagSuffix.equals("")) {
+            tagSuffix = "_" + tagSuffix;
+        }
+        configMap.put("tag", tagPrefix + monitoringIndex + tagSuffix + "_exec");
+
+        LogConfig logConfig = null;
+
+        logger.debug("Syslog address: {}", "tcp://" + host + ":" + port);
+        configMap.put("syslog-address", "tcp://" + host + ":" + port);
+        configMap.put("syslog-format", "rfc5424micro");
+
+        logConfig = LogConfig.create("syslog", configMap);
+
+        return logConfig;
+    }
+
+    protected void initLogstashHostIfNecessary() throws Exception {
+        if (logstashOrMiniHost == null || logstashOrMiniHost.isEmpty()) {
+            logstashOrMiniHost = this.getLogstashHost();
+        }
+    }
+
+    protected LogConfig getDefaultLogConfig(String port, String tagPrefix,
+            String tagSuffix, Execution execution) throws Exception {
+
+        initLogstashHostIfNecessary();
+        logger.info(
+                "Logstash/Tcp Server Host to send logs from containers: {}. To port {}",
+                logstashOrMiniHost, port);
+
+        return this.getLogConfig(logstashOrMiniHost, port, tagPrefix, tagSuffix,
+                execution);
+    }
+
+    protected LogConfig getLogstashOrMiniLogConfig(String tag)
+            throws Exception {
+        this.initLogstashHostIfNecessary();
+
+        Map<String, String> configMap = new HashMap<String, String>();
+        configMap.put("tag", tag);
+
+        LogConfig logConfig = null;
+
+        configMap.put("syslog-address",
+                "tcp://" + logstashOrMiniHost + ":" + logstashTcpPort);
+        configMap.put("syslog-format", "rfc5424micro");
+
+        logConfig = LogConfig.create("syslog", configMap);
+
+        return logConfig;
+    }
+
+    protected DockerContainer createContainer(Execution execution,
+            ContainerType type) throws Exception {
+        logger.debug("Creating new container");
+        SutSpecification sut = execution.getSut();
+
+        String image = "";
+        String commands = null;
+        List<Parameter> parametersList = new ArrayList<Parameter>();
+        String prefix = "";
+        String suffix = "";
+        String containerName = "";
+        String sutHost = null;
+        String sutPort = null;
+        String sutProtocol = null;
+
+        String sutPath = null;
+
+        if (ContainerType.SUT.equals(type)) {
+            logger.debug("Creating SUT container");
+            parametersList = sut.getParameters();
+            commands = sut.getCommands();
+            image = sut.getSpecification();
+            prefix = ContainerPrefix.SUT.toString();
+            if (sut.isSutInNewContainer()) {
+                suffix = sut.getSutInContainerAuxLabel();
+                containerName = generateContainerName(ContainerPrefix.SUT,
+                        execution, true);
+            } else {
+                containerName = generateContainerName(ContainerPrefix.SUT,
+                        execution);
+            }
+
+            sutPath = getSutPath(execution);
+
+            etmFilesService.createFolderIfNotExists(sutPath);
+        } else if (ContainerType.TJOB.equals(type)) {
+            logger.debug("Creating TJob container");
+            TJob tJob = execution.gettJob();
+            TJobExecution tJobExec = execution.getTJobExec();
+
+            parametersList = tJobExec.getParameters();
+            commands = tJob.getCommands();
+            image = tJob.getImageName();
+            prefix = ContainerPrefix.TEST.toString();
+            containerName = generateContainerName(ContainerPrefix.TEST,
+                    execution);
+            if (execution.isWithSut()) {
+                sutHost = execution.getSutExec().getIp();
+                sutPort = sut.getPort();
+                sutProtocol = sut.getProtocol().toString();
+            }
+
+        }
+
+        // Environment variables (optional)
+        ArrayList<String> envList = new ArrayList<>();
+        String envVar;
+
+        // Get (External)TJob Exec Env Vars
+        Map<String, String> tJobEnvVars;
+        if (execution.isExternal()) {
+            // tJobEnvVars = execution.getExternalTJob().getEnvVars(); TODO
+            tJobEnvVars = new HashMap<>();
+        } else {
+            tJobEnvVars = execution.getTJobExec().getEnvVars();
+        }
+
+        for (Map.Entry<String, String> entry : tJobEnvVars.entrySet()) {
+            envVar = entry.getKey() + "=" + entry.getValue();
+            envList.add(envVar);
+        }
+
+        // Get Parameters and insert into Env Vars
+        for (Parameter parameter : parametersList) {
+            envVar = parameter.getName() + "=" + parameter.getValue();
+            envList.add(envVar);
+        }
+
+        if (sutHost != null) {
+            envList.add("ET_SUT_HOST=" + sutHost);
+        }
+
+        if (sutPort != null) {
+            envList.add("ET_SUT_PORT=" + sutPort);
+        }
+
+        if (sutProtocol != null) {
+            envList.add("ET_SUT_PROTOCOL=" + sutProtocol);
+        }
+
+        envList.add("ET_NETWORK=" + elastestNetwork);
+
+        // Commands (optional)
+        ArrayList<String> cmdList = new ArrayList<>();
+        ArrayList<String> entrypointList = null;
+
+        logger.debug("Commands to execute: {}", commands);
+
+        if (commands != null && !commands.isEmpty()) {
+            cmdList = new ArrayList<>();
+            entrypointList = new ArrayList<>();
+            cmdList.add("-c");
+            logger.debug("Filling cmdList");
+            if (sut != null) {
+                if (sut.isSutInNewContainer()) {
+                    commands = sutPath != null
+                            ? ("cd " + sutPath + ";" + commands)
+                            : commands;
+                }
+            } else {
+                commands = "export ET_SUT_HOST=$(" + GET_CONTAINER_IP_COMMAND
+                        + ") || echo;" + commands;
+            }
+            cmdList.add(commands);
+            entrypointList.add("/bin/sh");
+            cmdList.forEach((command) -> {
+                logger.debug("Commands to execute from cmdList: {}", command);
+            });
+            if (etEnableCloudMode) {
+                cmdList.add(0, entrypointList.get(0));
+
+            }
+            cmdList.forEach((command) -> {
+                logger.debug("Commands to execute from cmdList: {}", command);
+            });
+        }
+
+        // Load Log Config
+        LogConfig logConfig = null;
+        if (isEMSSelected(execution)) {
+            logger.debug("EMS selected.");
+            try {
+                logConfig = getEMSLogConfig(type.toString(), prefix, suffix,
+                        execution);
+            } catch (Exception e) {
+                logger.error("Cannot get Ems Log config", e);
+            }
+        } else {
+            logger.debug("Setting syslog");
+            logConfig = getDefaultLogConfig((logstashTcpPort), prefix, suffix,
+                    execution);
+        }
+
+        // ElasTest labels
+        Map<String, String> labels = this.getEtLabels(execution,
+                type.toString());
+
+        /* ******************************************************** */
+        DockerBuilder dockerBuilder = new DockerBuilder(image);
+        dockerBuilder.envs(envList).logConfig(logConfig)
+                .containerName(containerName).cmd(cmdList)
+                .entryPoint(entrypointList).network(elastestNetwork)
+                .labels(labels);
+
+        boolean sharedDataVolume = false;
+        if (sut != null && sut.isSutInNewContainer()) {
+            sharedDataVolume = true;
+        }
+
+        List<Bind> volumes = new ArrayList<>();
+
+        logger.info("Docker sock volume: {}", dockerSock);
+        Builder dockerSockVolumeBuilder = Bind.builder();
+        dockerSockVolumeBuilder.from(dockerSock);
+        dockerSockVolumeBuilder.to(dockerSock);
+
+        volumes.add(dockerSockVolumeBuilder.build());
+        if (sharedDataVolume) {
+            Builder sharedDataVolumeBuilder = Bind.builder();
+            sharedDataVolumeBuilder.from(sharedFolder);
+            sharedDataVolumeBuilder.to(sharedFolder);
+
+            volumes.add(sharedDataVolumeBuilder.build());
+        }
+
+        dockerBuilder.volumeBindList(volumes);
+
+        // Create DockerContainer object
+        return dockerBuilder.build();
+    }
+
+    protected void saveFinishStatus(TJobExecution tJobExec, Execution execution,
+            int exitCode) {
+        String resultMsg = "";
+        ResultEnum finishStatus = ResultEnum.SUCCESS;
+
+        if (tJobExec.getTestSuites() != null
+                && tJobExec.getTestSuites().size() > 0) {
+            for (TestSuite testSuite : tJobExec.getTestSuites()) {
+                if (testSuite.getFinalStatus() == ResultEnum.FAIL) {
+                    finishStatus = testSuite.getFinalStatus();
+                    break;
+                }
+            }
+
+        } else {
+            if (exitCode != 0) {
+                finishStatus = ResultEnum.FAIL;
+            }
+        }
+
+        resultMsg = "Finished: " + finishStatus;
+        execution.updateTJobExecutionStatus(finishStatus, resultMsg);
+    }
+
+    /* ************************* */
+    /* **** Get TestResults **** */
+    /* ************************* */
+
+    public abstract String getFileContentFromContainer(String testContainer,
+            String filePath) throws Exception;
+
+    public List<ReportTestSuite> getTestSuitesByString(String result) {
+        List<ReportTestSuite> results = new ArrayList<>();
+        String head = "<testsuite ";
+        String foot = "</testsuite>";
+
+        if (result != null && !result.isEmpty()) {
+            List<String> splitedHeadResult = new ArrayList<String>(
+                    Arrays.asList(result.split(head)));
+            if (splitedHeadResult != null) {
+                if (!result.startsWith(head)) { // delete non-deseable string
+                                                // (surefire-reports/)
+                    splitedHeadResult.remove(0);
+                }
+                for (String piece : splitedHeadResult) {
+                    List<String> splitedFootResult = new ArrayList<String>(
+                            Arrays.asList(piece.split(foot)));
+                    String newResult = head + splitedFootResult.get(0) + foot;
+
+                    List<ReportTestSuite> testSuites = null;
+
+                    try {
+                        // normally, a single test suite
+                        testSuites = this
+                                .testSuiteStringToReportTestSuite(newResult);
+                    } catch (ParserConfigurationException | SAXException
+                            | IOException e) {
+                        logger.error("Error on parse testSuite {}", e);
+                    }
+
+                    if (testSuites != null) {
+                        results.addAll(testSuites);
+                    }
+                }
+            }
+        }
+
+        return results;
+    }
+
+    protected List<ReportTestSuite> testSuiteStringToReportTestSuite(
+            String testSuiteStr) throws UnsupportedEncodingException,
+            ParserConfigurationException, SAXException, IOException {
+        TestSuiteXmlParser testSuiteXmlParser = new TestSuiteXmlParser(null);
+        InputStream byteArrayIs = new ByteArrayInputStream(
+                testSuiteStr.getBytes());
+
+        // normally, a single test suite, but in some cases returns more than 1
+        return testSuiteXmlParser
+                .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
+    }
+    
+
+    protected void removeSutVolumeFolder(Execution execution) {
+        String sutPath = getSutPath(execution);
+
+        try {
+            etmFilesService.removeFolder(sutPath);
+        } catch (Exception e) {
+            logger.debug("The SuT folder could not be deleted: {}",
+                    e.getMessage());
+        }
+    }
+    
+    protected void updateSutExecDeployStatus(Execution execution,
+            DeployStatusEnum status) {
+        SutExecution sutExec = execution.getSutExec();
+
+        if (sutExec != null) {
+            sutExec.setDeployStatus(status);
+        }
+        execution.setSutExec(sutExec);
+    }
+    
+    protected abstract void endContainer(String containerName, int timeout)
+            throws Exception;
+    
+    protected abstract void endContainer(String containerName)
+            throws Exception;
 }
