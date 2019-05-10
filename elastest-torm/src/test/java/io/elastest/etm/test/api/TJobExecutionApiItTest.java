@@ -140,7 +140,8 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
         testExecuteTJob(tJob, false, false, true);
     }
 
-    @Test    
+    @Test
+    @Disabled
     public void testExecuteTJobWithoutSutAndGetLogs()
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
