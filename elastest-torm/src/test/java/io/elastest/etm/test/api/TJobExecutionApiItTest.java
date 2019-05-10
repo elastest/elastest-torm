@@ -82,7 +82,8 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
     @DisplayName("Run a TJob with parameters, TSS, SUT deployed from image and check the logs ")
     @Test
-    public void testTJobExecutionWithConfig()
+    @Disabled
+    public void testTJobExecutionWithParamsSTssSutFromImage()
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
         log.info("Start test testCheckTJobExecWithDummyTJob");
@@ -96,7 +97,8 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
 
     @DisplayName("Run a TJob with parameters and commands, TSS, SUT deployed from image and check the logs ")
     @Test
-    public void testTJobExecutionWithConfig1()
+    @Disabled
+    public void testTJobExecutionWithParamsCommandsSTssSutFromImage()
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
         log.info("Start test testCheckTJobExecWithDummyTJob");
@@ -111,7 +113,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
     @DisplayName("Run a TJob with parameters and commands, TSS, SUT deployed from docker-compose and check the logs ")
     @Test
     @Disabled
-    public void testTJobExecutionWithConfig2()
+    public void testTJobExecutionWithParamsCommandsSTssSutFromDc()
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
         log.info("Start test testCheckTJobExecWithDummyTJob");
@@ -125,7 +127,8 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
     
     @DisplayName("Run a simple TJob and check if the test results report is present in the container")
     @Test
-    public void testTJobExecutionWithConfig3()
+    @Disabled
+    public void testTJobExecutionCheckTestResults()
             throws MultipleFailuresError, Exception {
         log.info("Start test testCheckTJobExecWithDummyTJob");
         //tss.add("{\"id\":\"873f23e8-256d-11e9-ab14-d663bd873d93\",\"name\":\"DUMMY\",\"selected\":true},{\"id\":\"bab3ae67-8c1d-46ec-a940-94183a443825\",\"name\":\"EMS\",\"selected\":false},{\"id\":\"a1920b13-7d11-4ebc-a732-f86a108ea49c\",\"name\":\"EBS\",\"selected\":false},{\"id\":\"fe5e0531-b470-441f-9c69-721c2b4875f2\",\"name\":\"EDS\",\"selected\":false},{\"id\":\"af7947d9-258b-4dd1-b1ca-17450db25ef7\",\"name\":\"ESS\",\"selected\":false},{\"id\":\"29216b91-497c-43b7-a5c4-6613f13fa0e9\",\"name\":\"EUS\",\"selected\":false,\"manifest\":{\"id\":\"2bd62bc2-f768-42d0-8194-562924b494ff\",\"endpoints\":{\"elastest-eus\":{\"description\":\"W3C WebDriver standard sessions operations\",\"main\":true,\"api\":[{\"protocol\":\"http\",\"port\":8040,\"path\":\"/eus/v1/\",\"definition\":{\"type\":\"openapi\",\"path\":\"/eus/v1/api.yaml\"}},{\"name\":\"eusWS\",\"protocol\":\"ws\",\"port\":8040,\"path\":\"/eus/v1/eus-ws\"}],\"gui\":{\"protocol\":\"angular\",\"path\":\"app-elastest-eus\"}}},\"config\":{\"webRtcStats\":{\"name\":\"webRtcStats\",\"type\":\"boolean\",\"label\":\"Gather WebRTC Statistics\",\"default\":false,\"value\":false}}}}");
@@ -137,8 +140,7 @@ public class TJobExecutionApiItTest extends EtmApiItTest {
         testExecuteTJob(tJob, false, false, true);
     }
 
-    @Test
-    @Disabled
+    @Test    
     public void testExecuteTJobWithoutSutAndGetLogs()
             throws InterruptedException, ExecutionException, TimeoutException,
             MultipleFailuresError, JsonProcessingException {
