@@ -61,6 +61,7 @@ services:
             - ET_TEST_ENGINES_PRIVATE_ERE_ENABLED=false
             - ET_ETM_LOG_LEVEL=DEBUG
             - ET_ENABLE_CLOUD_MODE=false
+            - ET_EPM_K8S_MASTER=localhost
         entrypoint: /run.sh
         expose:
             - 8091
