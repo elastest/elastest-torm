@@ -54,17 +54,16 @@ public class K8Service {
     
     @Value("${et.epm.k8s.master}")
     public String etEpmK8sMaster;
-
-    public K8Service() {
- 
-    }
+    @Value("${et.epm.k8s.token}")
+    public String etEpmK8sToken;
     
     @PostConstruct
     public void init() {
         if (etEpmK8sMaster.equals(LOCAL_K8S_MASTER)) {
             client = new DefaultKubernetesClient();
         } else {
-            Config config = new ConfigBuilder().withMasterUrl(etEpmK8sMaster).build();
+            Config config = new ConfigBuilder().withMasterUrl(etEpmK8sMaster)
+                    .withOauthToken(etEpmK8sToken).build();
             client = new DefaultKubernetesClient(config);
         }
     }
