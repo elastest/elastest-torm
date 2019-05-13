@@ -14,8 +14,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.elastest.epm.client.DockerContainer;
@@ -27,6 +30,8 @@ import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.batch.Job;
 import io.fabric8.kubernetes.api.model.batch.JobBuilder;
+import io.fabric8.kubernetes.client.Config;
+import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
@@ -44,10 +49,24 @@ public class K8Service {
     private static final String LABEL_APP_NAME = "app";
     private static final String SUT_PORT_NAME = "sut-port";
     private static final String PHASE_SUCCEEDED = "Succeeded";
-    public final KubernetesClient client;
+    private static final String LOCAL_K8S_MASTER ="localhost"; 
+    public KubernetesClient client;
+    
+    @Value("${et.epm.k8s.master}")
+    public String etEpmK8sMaster;
 
     public K8Service() {
-        client = new DefaultKubernetesClient();
+ 
+    }
+    
+    @PostConstruct
+    public void init() {
+        if (etEpmK8sMaster.equals(LOCAL_K8S_MASTER)) {
+            client = new DefaultKubernetesClient();
+        } else {
+            Config config = new ConfigBuilder().withMasterUrl(etEpmK8sMaster).build();
+            client = new DefaultKubernetesClient(config);
+        }
     }
 
     // TODO
