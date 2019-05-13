@@ -1,5 +1,8 @@
 package io.elastest.etm.platform.service;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -9,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.spotify.docker.client.ProgressHandler;
@@ -35,13 +39,14 @@ import io.fabric8.kubernetes.api.model.NamedExtensionFluentImpl.PodExtensionNest
 
 @Service
 public class K8ServiceImpl extends PlatformService {
-
+    private static final Logger logger = getLogger(lookup().lookupClass());
     private static final Map<String, String> createdContainers = new HashMap<>();
     private K8Service k8Service;
     private Map<String, String> sutsByExecution;
 
     public K8ServiceImpl(K8Service k8Service, EtmFilesService etmFilesService) {
         super();
+        logger.info("******* ElasTest on K8s *******");
         this.k8Service = k8Service;
         sutsByExecution = new ConcurrentHashMap<String, String>();
         this.etmFilesService = etmFilesService;
