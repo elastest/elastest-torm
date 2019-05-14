@@ -49,41 +49,81 @@ public class K8Service {
     private static final String LABEL_APP_NAME = "app";
     private static final String SUT_PORT_NAME = "sut-port";
     private static final String PHASE_SUCCEEDED = "Succeeded";
-    private static final String LOCAL_K8S_MASTER ="localhost"; 
+    private static final String LOCAL_K8S_MASTER = "localhost";
     public KubernetesClient client;
-    
+
     @Value("${et.epm.k8s.master}")
     public String etEpmK8sMaster;
     @Value("${et.epm.k8s.token}")
     public String etEpmK8sToken;
-    
+
     @PostConstruct
     public void init() {
+        logger.debug("Creating K8s client");
         if (etEpmK8sMaster.equals(LOCAL_K8S_MASTER)) {
+            logger.debug("Default K8s");
             client = new DefaultKubernetesClient();
         } else {
-            Config config = new ConfigBuilder().withTrustCerts(true).withMasterUrl(etEpmK8sMaster).withCaCertData("-----BEGIN CERTIFICATE-----\n" + 
-                    "MIIC5zCCAc+gAwIBAgIBATANBgkqhkiG9w0BAQsFADAVMRMwEQYDVQQDEwptaW5p\n" + 
-                    "a3ViZUNBMB4XDTE5MDUwODA4MzA0MVoXDTI5MDUwNjA4MzA0MVowFTETMBEGA1UE\n" + 
-                    "AxMKbWluaWt1YmVDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALOz\n" + 
-                    "GkToDHpr2NjzSOXsnIF/134O4+d++GP87Br19SF1rF33KEr3yqH7bp7JydjIKkVu\n" + 
-                    "JLcgG5HFHHHg0OSHn9L1fF7nFr9UIgFmn3B3a6t16YisNjIOFV9iMF4OxkQYnOxn\n" + 
-                    "Ay3I6vYS3ZjRXbGs3WLf7tOID0hRXA3wzTHZEoiR5OJr9XC6t949VKYsBpTvYLGH\n" + 
-                    "belLbgpNw69xsHJrxqW6jYbe2LakkjDyBxRHziwCc811hbXhZb3oIMM7eb7qC644\n" + 
-                    "pUgQ6x9rOcTXGEq1zYrtao//R1SnOHhJCDrk1XZS6VZau9iH6fDRY0nXTiEyDcI8\n" + 
-                    "Ouf+WyUao2q9/DEjE4cCAwEAAaNCMEAwDgYDVR0PAQH/BAQDAgKkMB0GA1UdJQQW\n" + 
-                    "MBQGCCsGAQUFBwMCBggrBgEFBQcDATAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3\n" + 
-                    "DQEBCwUAA4IBAQB/wMqy8TyziAPrHLrkkmiPA+RPkWseCAxW8d2mrIG2GnYKcZcS\n" + 
-                    "vrbAI/RoePvsawL9QHjtCIDoRcbdT9thvvFA1ttZnVn1floO7721lS9gLhMIjL0p\n" + 
-                    "v9tnxwJ0ZvwS8noAeEQoQBTQWwIiN+57sAp2f6suuSuaGM3GOW2Twc3+axmD1Ecw\n" + 
-                    "W26q8JpFR9pwh76KCzo7IyrySmQW36IZKKIX3LV3EDkytVk5jRuuXoG4Se/em+N2\n" + 
-                    "D/tl4yUPn1xbZSuAnj/jKdZ8T77bFwhCxH0fhdLpvzx8Fg/tQVZWme5noFd1+b/A\n" + 
-                    "i28af71pSzNN6Lk5L9jojK38S/VCHl9pGwEN\n" + 
-                    "-----END CERTIFICATE-----")
-                    .withUsername("mmy85h")
+            logger.debug("K8s with config:");
+            logger.debug("withMasterUrl: {}", etEpmK8sMaster);
+            logger.debug("withOauthToken: {}", etEpmK8sToken);
+            Config config = new ConfigBuilder().withTrustCerts(true)
+                    .withMasterUrl(etEpmK8sMaster)
+                    .withCaCertData("-----BEGIN CERTIFICATE-----\n"
+                            + "MIICzDCCAbSgAwIBAgIRAKqLntJW/SAWXq9SdaN1ghAwDQYJKoZIhvcNAQELBQAw\n"
+                            + "DzENMAsGA1UEChMEcm9vdDAeFw0xOTA1MDYwOTMxMDBaFw0yMjA0MjAwOTMxMDBa\n"
+                            + "MA8xDTALBgNVBAoTBHJvb3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB\n"
+                            + "AQDAhHGJUKyRXVnr7u3va9BR8/s0zZzMZOvvPdLb2aKc8/GT8Fen4EDu0hZXiM6e\n"
+                            + "CBdFIt8CFT23AgfNpwxqm+I6KWSIjBseNu3DAeqbUCju4Va1KbnW1kEeMKK/9aEo\n"
+                            + "PfTWnDMl7UiSt3RNvSv+i3uq8zoA3ea1jss8dqI4PIrg178PhX/g77kvZpl4mkvK\n"
+                            + "/1Iz4KeBp4yenp0hy6n6uxYsYfxSpS5bXNpRjuUQYPYBng8PnlEvG0QJmN4B/Kbw\n"
+                            + "Ka1q4wIWcGpVVLAVz8dAk0YW7gkqhZ2k+006qkWrqr9WXhg0260G5zBaePw3WlJT\n"
+                            + "g5rzJ0e8esJS18kMJQA/uNdZAgMBAAGjIzAhMA4GA1UdDwEB/wQEAwICrDAPBgNV\n"
+                            + "HRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAMLVcaribimnCZfHtfommM\n"
+                            + "4J4mCwIvn+8t8wLkkI++I3TorZLQxc7VZVJ4PQdW7LKFlg2IUVDDR+hZCcBmKpFG\n"
+                            + "Lkujaep0bitpkEAfHLhOjssvUFMUkEl/hPuw5gcfVrR9w2m+Ki9CQZKmA/spLy30\n"
+                            + "yBeAD7rVefdEJjpJqUuq7UqMpWKEjUOs+1MOPH4ebN+0f5pr84hBuIQFuz+e2YIg\n"
+                            + "iVTa588qimnzjsCQm0UDSmbo93l+IuzqRpe1kNP/PSreMlH6pqXrVgS76YZZURKH\n"
+                            + "YQy66q3saRyWsUk0P7IlPYHZbyjk7sDcoDkh+hNudDZQb1FLFgyi4/BjDp8ZbpMi\n"
+                            + "-----END CERTIFICATE-----")
+
+                    // .withCaCertData("-----BEGIN CERTIFICATE-----\n" +
+                    // "MIIC5zCCAc+gAwIBAgIBATANBgkqhkiG9w0BAQsFADAVMRMwEQYDVQQDEwptaW5p\n"
+                    // +
+                    // "a3ViZUNBMB4XDTE5MDUwODA4MzA0MVoXDTI5MDUwNjA4MzA0MVowFTETMBEGA1UE\n"
+                    // +
+                    // "AxMKbWluaWt1YmVDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALOz\n"
+                    // +
+                    // "GkToDHpr2NjzSOXsnIF/134O4+d++GP87Br19SF1rF33KEr3yqH7bp7JydjIKkVu\n"
+                    // +
+                    // "JLcgG5HFHHHg0OSHn9L1fF7nFr9UIgFmn3B3a6t16YisNjIOFV9iMF4OxkQYnOxn\n"
+                    // +
+                    // "Ay3I6vYS3ZjRXbGs3WLf7tOID0hRXA3wzTHZEoiR5OJr9XC6t949VKYsBpTvYLGH\n"
+                    // +
+                    // "belLbgpNw69xsHJrxqW6jYbe2LakkjDyBxRHziwCc811hbXhZb3oIMM7eb7qC644\n"
+                    // +
+                    // "pUgQ6x9rOcTXGEq1zYrtao//R1SnOHhJCDrk1XZS6VZau9iH6fDRY0nXTiEyDcI8\n"
+                    // +
+                    // "Ouf+WyUao2q9/DEjE4cCAwEAAaNCMEAwDgYDVR0PAQH/BAQDAgKkMB0GA1UdJQQW\n"
+                    // +
+                    // "MBQGCCsGAQUFBwMCBggrBgEFBQcDATAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3\n"
+                    // +
+                    // "DQEBCwUAA4IBAQB/wMqy8TyziAPrHLrkkmiPA+RPkWseCAxW8d2mrIG2GnYKcZcS\n"
+                    // +
+                    // "vrbAI/RoePvsawL9QHjtCIDoRcbdT9thvvFA1ttZnVn1floO7721lS9gLhMIjL0p\n"
+                    // +
+                    // "v9tnxwJ0ZvwS8noAeEQoQBTQWwIiN+57sAp2f6suuSuaGM3GOW2Twc3+axmD1Ecw\n"
+                    // +
+                    // "W26q8JpFR9pwh76KCzo7IyrySmQW36IZKKIX3LV3EDkytVk5jRuuXoG4Se/em+N2\n"
+                    // +
+                    // "D/tl4yUPn1xbZSuAnj/jKdZ8T77bFwhCxH0fhdLpvzx8Fg/tQVZWme5noFd1+b/A\n"
+                    // +
+                    // "i28af71pSzNN6Lk5L9jojK38S/VCHl9pGwEN\n" +
+                    // "-----END CERTIFICATE-----")
+
                     .withOauthToken(etEpmK8sToken).build();
-//                    .withUsername("minikube").withNamespace(DEFAULT_NAMESPACE).build();
-                    
+            // .withUsername("minikube").withNamespace(DEFAULT_NAMESPACE).build();
+
             client = new DefaultKubernetesClient(config);
         }
     }
@@ -113,11 +153,12 @@ public class K8Service {
         }
     }
 
-    public JobResult deployJob(DockerContainer container) {
+    public JobResult deployJob(DockerContainer container) throws Exception {
         return deployJob(container, DEFAULT_NAMESPACE);
     }
 
-    public JobResult deployJob(DockerContainer container, String namespace) {
+    public JobResult deployJob(DockerContainer container, String namespace)
+            throws Exception {
         final JobResult result = new JobResult();
         container.getCmd().get().forEach((command) -> {
             logger.debug("Commands to execute: {}", command);
@@ -140,10 +181,10 @@ public class K8Service {
                     .withName(containerNameWithoutUnderscore)
                     .withImage(container.getImageId())
                     .withArgs(container.getCmd().get())
-                    .withEnv(getEnvVarListFromStringList(container.getEnvs().get()))
-                    .endContainer()
-                    .withRestartPolicy("Never").endSpec().endTemplate()
-                    .endSpec().build();
+                    .withEnv(getEnvVarListFromStringList(
+                            container.getEnvs().get()))
+                    .endContainer().withRestartPolicy("Never").endSpec()
+                    .endTemplate().endSpec().build();
 
             logger.info("Creating job: {}.",
                     job.getMetadata().getLabels().get(LABEL_JOB_NAME));
@@ -193,20 +234,23 @@ public class K8Service {
 
             }
         } catch (final KubernetesClientException e) {
-            logger.error("Unable to create job", e);
+            String msg = "Unable to create job";
+            logger.error(msg, e);
+            throw new Exception(msg, e);
         }
 
         return result;
     }
-    
+
     public PodInfo deployPod(DockerContainer container) throws Exception {
         return deployPod(container, DEFAULT_NAMESPACE);
     }
-    
-    public PodInfo deployPod(DockerContainer container, String namespace) throws Exception{
+
+    public PodInfo deployPod(DockerContainer container, String namespace)
+            throws Exception {
         PodInfo podInfo = new PodInfo();
         Pod pod = null;
-      
+
         try {
             logger.info("Container name: {}",
                     container.getContainerName().get());
@@ -215,31 +259,29 @@ public class K8Service {
             Map<String, String> k8sPobLabels = container.getLabels().get();
             String containerNameWithoutUnderscore = container.getContainerName()
                     .get().replace("_", "-");
-            
+
             k8sPobLabels.put(LABEL_POD_NAME, containerNameWithoutUnderscore);
 
-            pod = new PodBuilder()
-                    .withNewMetadata()
-                    .withName(containerNameWithoutUnderscore)
-                    .endMetadata()
-                    .withNewSpec()
-                    .addNewContainer()
+            pod = new PodBuilder().withNewMetadata()
+                    .withName(containerNameWithoutUnderscore).endMetadata()
+                    .withNewSpec().addNewContainer()
                     .withName(containerNameWithoutUnderscore)
                     .withImage(container.getImageId())
-                    .withEnv(getEnvVarListFromStringList(container.getEnvs().get()))
-                    .endContainer()
-                    .endSpec()
-                    .build();
-            
+                    .withEnv(getEnvVarListFromStringList(
+                            container.getEnvs().get()))
+                    .endContainer().endSpec().build();
+
             pod = client.pods().inNamespace(namespace).createOrReplace(pod);
-             
-            while(!isReady(containerNameWithoutUnderscore)) {}
-            pod = client.pods().inNamespace(DEFAULT_NAMESPACE).withName(containerNameWithoutUnderscore).get();
-//            Pod podUpdated = client.pods().withName(containerNameWithoutUnderscore).get();
-//            logger.debug("Sut Pod ip: {}", pod.getMetadata().getName());
+
+            while (!isReady(containerNameWithoutUnderscore)) {
+            }
+            pod = client.pods().inNamespace(DEFAULT_NAMESPACE)
+                    .withName(containerNameWithoutUnderscore).get();
+            // Pod podUpdated =
+            // client.pods().withName(containerNameWithoutUnderscore).get();
+            // logger.debug("Sut Pod ip: {}", pod.getMetadata().getName());
             logger.debug("Sut Pod ip: {}", pod.getStatus().getPodIP());
-            
-           
+
         } catch (final KubernetesClientException e) {
             logger.error("Unable to create job", e);
             throw e;
@@ -248,27 +290,24 @@ public class K8Service {
         podInfo.setPodName(pod.getMetadata().getName());
 
         return podInfo;
-    } 
-    
-    public String createService(String serviceName, Integer port, String protocol) {
+    }
+
+    public String createService(String serviceName, Integer port,
+            String protocol) {
         io.fabric8.kubernetes.api.model.Service service = new ServiceBuilder()
-                .withNewMetadata()
-                .withName(serviceName + "-service")
-                .endMetadata()
-                .withNewSpec()
-                .withSelector(Collections.singletonMap(LABEL_APP_NAME, serviceName ))
-                .addNewPort()
-                .withName(SUT_PORT_NAME)
-                .withProtocol(protocol)
-                .withPort(port)
-                .withTargetPort(new IntOrString(9376))
-                .endPort()
-                .withType("NodePort")
-                .endSpec()
-                .build();
-        
-        service = client.services().inNamespace(client.getNamespace()).create(service);
-        String serviceURL = client.services().inNamespace(client.getNamespace()).withName(service.getMetadata().getName()).getURL(SUT_PORT_NAME);
+                .withNewMetadata().withName(serviceName + "-service")
+                .endMetadata().withNewSpec()
+                .withSelector(
+                        Collections.singletonMap(LABEL_APP_NAME, serviceName))
+                .addNewPort().withName(SUT_PORT_NAME).withProtocol(protocol)
+                .withPort(port).withTargetPort(new IntOrString(9376)).endPort()
+                .withType("NodePort").endSpec().build();
+
+        service = client.services().inNamespace(client.getNamespace())
+                .create(service);
+        String serviceURL = client.services().inNamespace(client.getNamespace())
+                .withName(service.getMetadata().getName())
+                .getURL(SUT_PORT_NAME);
         return serviceURL;
     }
 
@@ -277,31 +316,31 @@ public class K8Service {
         client.pods().inNamespace(DEFAULT_NAMESPACE)
                 .withLabel(LABEL_JOB_NAME, jobName).delete();
     }
-    
+
     public void deletePod(String podName) {
         logger.info("Deleting pod {}.", podName);
         client.pods().inNamespace(DEFAULT_NAMESPACE)
                 .withName(podName.replace("_", "-")).delete();
     }
-    
+
     public boolean isReady(String podName) {
-        Pod pod = client.pods().inNamespace(DEFAULT_NAMESPACE).withName(podName).get();
+        Pod pod = client.pods().inNamespace(DEFAULT_NAMESPACE).withName(podName)
+                .get();
         if (pod == null) {
-          return false;
+            return false;
+        } else {
+            return pod.getStatus().getConditions().stream()
+                    .filter(condition -> condition.getType().equals("Ready"))
+                    .map(condition -> condition.getStatus().equals("True"))
+                    .findFirst().orElse(false);
         }
-        else {
-          return pod.getStatus().getConditions().stream()
-              .filter(condition -> condition.getType().equals("Ready"))
-              .map(condition -> condition.getStatus().equals("True"))
-              .findFirst()
-              .orElse(false);
-        }
-      }
-    
-    private List<EnvVar> getEnvVarListFromStringList(List<String> envVarsAsStringList) {
+    }
+
+    private List<EnvVar> getEnvVarListFromStringList(
+            List<String> envVarsAsStringList) {
         List<EnvVar> envVars = new ArrayList<EnvVar>();
         envVarsAsStringList.forEach(envVarAsString -> {
-            String[] keyValuePar = envVarAsString.split("="); 
+            String[] keyValuePar = envVarAsString.split("=");
             EnvVar envVar = new EnvVar(keyValuePar[0], keyValuePar[1], null);
             envVars.add(envVar);
         });
@@ -336,21 +375,26 @@ public class K8Service {
                 .dir(originPath).copy(Paths.get(targetPath)) ? result : 1;
         return result;
     }
-    
+
     public class PodInfo {
         private String podName;
+
         public String getPodName() {
             return podName;
         }
+
         public void setPodName(String podName) {
             this.podName = podName;
         }
+
         public String getPodIp() {
             return podIp;
         }
+
         public void setPodIp(String podIp) {
             this.podIp = podIp;
         }
+
         private String podIp;
     }
 

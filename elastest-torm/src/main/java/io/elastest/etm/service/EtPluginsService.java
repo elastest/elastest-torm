@@ -182,8 +182,11 @@ public class EtPluginsService {
         }
 
         for (String plugin : this.uniqueEtPluginsMap.keySet()) {
-            createUniqueEtPluginProject(plugin,
-                    this.uniqueEtPluginsMap.get(plugin).getFileName());
+            try {
+                createUniqueEtPluginProject(plugin,
+                        this.uniqueEtPluginsMap.get(plugin).getFileName());
+            } catch (Exception e) {
+            }
         }
     }
 
@@ -741,12 +744,14 @@ public class EtPluginsService {
 
         String internalHost = null;
         try {
-            containerName = platformService.getContainerName(serviceName, network);
-            internalHost = platformService.getContainerIpByNetwork(containerName, network);
+            containerName = platformService.getContainerName(serviceName,
+                    network);
+            internalHost = platformService
+                    .getContainerIpByNetwork(containerName, network);
         } catch (Exception e) {
             logger.error("Error on get {} internal url", serviceName);
         }
-        
+
         String bindedHost = utilsService.getEtPublicHostValue();
 
         String internalUrl = "";
