@@ -12,7 +12,9 @@ spec:
         elastest-service: edm-mysql
     spec:
       containers:
-      - env:
+      - name: edm-mysql
+        image: elastest/edm-mysql:latest
+        env:
         - name: MYSQL_ALLOW_EMPTY_PASSWORD
           value: "yes"
         - name: MYSQL_DATABASE
@@ -21,8 +23,6 @@ spec:
           value: elastest
         - name: MYSQL_USER
           value: elastest
-        image: elastest/edm-mysql:latest
-        name: edm-mysql
         resources: {}
         volumeMounts:
         - mountPath: /var/lib/mysql

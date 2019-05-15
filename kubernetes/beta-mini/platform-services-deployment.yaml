@@ -12,8 +12,8 @@ spec:
         elastest-service: platform-services
     spec:
       containers:
-      - image: elastest/platform-services:dev
-        name: platform-services
+      - name: platform-services
+        image: elastest/platform-services:dev
         resources: {}
         command: ["/bin/sh"]
         args: ["-c", "cp /platform-services/* /platform-services2; exec top 2>&1 >/dev/null"]

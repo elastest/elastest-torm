@@ -1,5 +1,13 @@
 #!/bin/sh
 
+
+if [ ! -z "$ET_ENABLE_CLOUD_MODE" ] && [ "$ET_ENABLE_CLOUD_MODE" = "true" ]
+then
+      echo "Running in Kubernetes"
+      echo "Getting timezone..."
+      HOST_TIMEZONE=$(curl http://ip-api.com/line?fields=timezone)
+fi
+
 echo "Timezone:" $HOST_TIMEZONE
 cp /usr/share/zoneinfo/$HOST_TIMEZONE /etc/localtime
 

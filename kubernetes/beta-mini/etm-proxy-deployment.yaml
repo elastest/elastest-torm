@@ -11,7 +11,9 @@ spec:
         elastest-service: etm-proxy
     spec:
       containers:
-      - env:
+      - name: etm-proxy
+        image: elastest/etm-proxy:latest
+        env:
         - name: ET_PASS
           value: none
         - name: ET_SECURITY
@@ -24,8 +26,6 @@ spec:
           value: etm
         - name: LOGSTASH_HTTP_PATH
           value: /api/monitoring/
-        image: elastest/etm-proxy:latest
-        name: etm-proxy
         ports:
         - containerPort: 80
         - containerPort: 443
