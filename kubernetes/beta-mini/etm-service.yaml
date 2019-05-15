@@ -6,9 +6,18 @@ metadata:
   name: etm
 spec:
   ports:
-  - name: "8091"
+  - name: "etm-port"
     port: 8091
     targetPort: 8091
+  - name: "etm-http"
+    port: 5003
+    targetPort: 5003
+  - name: "etm-beats"
+    port: 5044
+    targetPort: 5044
+  - name: "etm-elastest-beats"
+    port: 5037
+    targetPort: 5037
   selector:
     elastest-service: etm
 status:
