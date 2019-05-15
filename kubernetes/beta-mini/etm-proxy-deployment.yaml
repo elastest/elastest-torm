@@ -1,0 +1,34 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: etm-proxy-deploy
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        elastest-service: etm-proxy
+    spec:
+      containers:
+      - env:
+        - name: ET_PASS
+          value: none
+        - name: ET_SECURITY
+          value: "false"
+        - name: ET_USER
+          value: none
+        - name: LOCATION_RULES
+          value: nginx-base-location.conf
+        - name: LOGSTASH_HOST
+          value: etm
+        - name: LOGSTASH_HTTP_PATH
+          value: /api/monitoring/
+        image: elastest/etm-proxy:latest
+        name: etm-proxy
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        resources: {}
+      restartPolicy: Always
+status: {}

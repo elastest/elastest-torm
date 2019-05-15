@@ -86,41 +86,6 @@ public class K8Service {
                             + "iVTa588qimnzjsCQm0UDSmbo93l+IuzqRpe1kNP/PSreMlH6pqXrVgS76YZZURKH\n"
                             + "YQy66q3saRyWsUk0P7IlPYHZbyjk7sDcoDkh+hNudDZQb1FLFgyi4/BjDp8ZbpMi\n"
                             + "-----END CERTIFICATE-----")
-
-                    // .withCaCertData("-----BEGIN CERTIFICATE-----\n" +
-                    // "MIIC5zCCAc+gAwIBAgIBATANBgkqhkiG9w0BAQsFADAVMRMwEQYDVQQDEwptaW5p\n"
-                    // +
-                    // "a3ViZUNBMB4XDTE5MDUwODA4MzA0MVoXDTI5MDUwNjA4MzA0MVowFTETMBEGA1UE\n"
-                    // +
-                    // "AxMKbWluaWt1YmVDQTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALOz\n"
-                    // +
-                    // "GkToDHpr2NjzSOXsnIF/134O4+d++GP87Br19SF1rF33KEr3yqH7bp7JydjIKkVu\n"
-                    // +
-                    // "JLcgG5HFHHHg0OSHn9L1fF7nFr9UIgFmn3B3a6t16YisNjIOFV9iMF4OxkQYnOxn\n"
-                    // +
-                    // "Ay3I6vYS3ZjRXbGs3WLf7tOID0hRXA3wzTHZEoiR5OJr9XC6t949VKYsBpTvYLGH\n"
-                    // +
-                    // "belLbgpNw69xsHJrxqW6jYbe2LakkjDyBxRHziwCc811hbXhZb3oIMM7eb7qC644\n"
-                    // +
-                    // "pUgQ6x9rOcTXGEq1zYrtao//R1SnOHhJCDrk1XZS6VZau9iH6fDRY0nXTiEyDcI8\n"
-                    // +
-                    // "Ouf+WyUao2q9/DEjE4cCAwEAAaNCMEAwDgYDVR0PAQH/BAQDAgKkMB0GA1UdJQQW\n"
-                    // +
-                    // "MBQGCCsGAQUFBwMCBggrBgEFBQcDATAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3\n"
-                    // +
-                    // "DQEBCwUAA4IBAQB/wMqy8TyziAPrHLrkkmiPA+RPkWseCAxW8d2mrIG2GnYKcZcS\n"
-                    // +
-                    // "vrbAI/RoePvsawL9QHjtCIDoRcbdT9thvvFA1ttZnVn1floO7721lS9gLhMIjL0p\n"
-                    // +
-                    // "v9tnxwJ0ZvwS8noAeEQoQBTQWwIiN+57sAp2f6suuSuaGM3GOW2Twc3+axmD1Ecw\n"
-                    // +
-                    // "W26q8JpFR9pwh76KCzo7IyrySmQW36IZKKIX3LV3EDkytVk5jRuuXoG4Se/em+N2\n"
-                    // +
-                    // "D/tl4yUPn1xbZSuAnj/jKdZ8T77bFwhCxH0fhdLpvzx8Fg/tQVZWme5noFd1+b/A\n"
-                    // +
-                    // "i28af71pSzNN6Lk5L9jojK38S/VCHl9pGwEN\n" +
-                    // "-----END CERTIFICATE-----")
-
                     .withOauthToken(etEpmK8sToken).build();
             // .withUsername("minikube").withNamespace(DEFAULT_NAMESPACE).build();
 

@@ -1,0 +1,144 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: etm-deploy
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        elastest-service: etm
+    spec:
+      containers:
+      - command:
+        - /run.sh
+        env:
+        - name: ET_CORE_IMAGES
+          value: elastest/platform
+        - name: ET_DATA_IN_HOST
+          value: ~/.elastestK8s
+        - name: ET_DOCKER_IMG_DOCKBEAT
+          value: elastest/etm-dockbeat:latest
+        - name: ET_DOCKER_IMG_SOCAT
+          value: elastest/etm-socat:latest
+        - name: ET_EDM_ALLUXIO_API
+          value: http://edm-alluxio-master:19998/
+        - name: ET_EDM_API
+          value: http://edm:8080/
+        - name: ET_EDM_ELASTICSEARCH_API
+          value: http://edm-elasticsearch:9200/
+        - name: ET_EDM_MYSQL_HOST
+          value: edm-mysql
+        - name: ET_EDM_MYSQL_PORT
+          value: "3306"
+        - name: ET_EIM_API
+          value: http://eim:8080/
+        - name: ET_EMP_API
+          value: http://emp:9000/
+        - name: ET_EMP_INFLUXDB_API
+          value: http://emp-influxdb:8086/
+        - name: ET_EMP_INFLUXDB_GRAPHITE_PORT
+          value: "2003"
+        - name: ET_EMP_INFLUXDB_HOST
+          value: emp-influxdb
+        - name: ET_ENABLE_CLOUD_MODE
+          value: "true"
+        - name: ET_EPM_API
+          value: http://elastest-platform-manager:8180/v1
+        - name: ET_EPM_BINDED_PORT
+          value: "8180"
+        - name: ET_EPM_K8S_MASTER
+          value: localhost
+        - name: ET_EPM_K8S_TOKEN
+          value: none
+        - name: ET_ESM_API
+          value: http://esm:37005/
+        - name: ET_ESM_SS_DESC_FILES_PATH
+          value: /platform-services
+        - name: ET_ETM_API
+          value: http://etm:8091/
+        - name: ET_ETM_BINDED_LSBEATS_PORT
+          value: "37502"
+        - name: ET_ETM_BINDED_LSTCP_PORT
+          value: "37500"
+        - name: ET_ETM_INCONTAINER
+          value: "true"
+        - name: ET_ETM_INTERNAL_HOST
+          value: etm
+        - name: ET_ETM_JENKINS_BINDED_PORT
+          value: "37092"
+        - name: ET_ETM_JENKINS_HOST
+          value: etm-jenkins
+        - name: ET_ETM_JENKINS_PORT
+          value: "8080"
+        - name: ET_ETM_LOG_LEVEL
+          value: DEBUG
+        - name: ET_ETM_LSBEATS_HOST
+          value: etm
+        - name: ET_ETM_LSBEATS_PORT
+          value: "5044"
+        - name: ET_ETM_LSHTTP_API
+          value: http://etm:5003/
+        - name: ET_ETM_LSTCP_HOST
+          value: etm
+        - name: ET_ETM_LSTCP_PORT
+          value: "5000"
+        - name: ET_ETM_RABBIT_HOST
+          value: etm
+        - name: ET_ETM_RABBIT_PORT
+          value: "5672"
+        - name: ET_ETM_TESTLINK_API_KEY
+          value: none
+        - name: ET_ETM_TESTLINK_BINDED_PORT
+          value: "37071"
+        - name: ET_ETM_TESTLINK_HOST
+          value: etm-testlink
+        - name: ET_ETM_TESTLINK_PORT
+          value: "80"
+        - name: ET_IMAGES
+          value: elastest/platform
+        - name: ET_INTERNET_DISABLED
+          value: "false"
+        - name: ET_IN_PROD
+          value: "true"
+        - name: ET_MASTER_SLAVE_MODE
+          value: "false"
+        - name: ET_PASS
+          value: none
+        - name: ET_PROXY_HOST
+          value: etm-proxy
+        - name: ET_PROXY_PORT
+          value: "37000"
+        - name: ET_PUBLIC_HOST
+          value: localhost
+        - name: ET_PUBLIC_HOST_TYPE
+          value: default
+        - name: ET_SHARED_FOLDER
+          value: /data
+        - name: ET_TEST_ENGINES_PRIVATE_ERE_ENABLED
+          value: "false"
+        - name: ET_USER
+          value: none
+        - name: EXEC_MODE
+          value: mini
+        - name: HOST_TIMEZONE
+          value: UTC
+        image: elastest/etm:latest
+        name: etm
+        resources: {}
+        volumeMounts:
+        - mountPath: /platform-services
+          name: platform-services
+        - mountPath: /data
+          name: elastest-data
+      restartPolicy: Always
+      volumes:
+      - name: platform-services
+        persistentVolumeClaim:
+          claimName: platform-services
+      - name: elastest-data
+        persistentVolumeClaim:
+          claimName: elastest-data-claim
+status: {}

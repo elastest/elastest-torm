@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: platform-services-deploy
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        elastest-service: platform-services
+    spec:
+      containers:
+      - image: elastest/platform-services:dev
+        name: platform-services
+        resources: {}
+        command: ["/bin/sh"]
+        args: ["-c", "cp /platform-services/* /platform-services2; exec top 2>&1 >/dev/null"]
+        volumeMounts:
+        - mountPath: /platform-services2
+          name: platform-services
+      restartPolicy: Always
+      volumes:
+      - name: platform-services
+        persistentVolumeClaim:
+          claimName: platform-services
+status: {}
