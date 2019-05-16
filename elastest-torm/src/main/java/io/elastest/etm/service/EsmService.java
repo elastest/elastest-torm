@@ -1239,6 +1239,7 @@ public class EsmService {
                             && isIntegratedEUS(serviceInstance)) {
                         // Do nothing. For other TSS, implement getBindingPort
                         // in K8ServiceImpl
+                        bindedPort = auxPort;
                     } else {
                         try {
                             ServiceBindedPort socatBindedPortObj = platformService
