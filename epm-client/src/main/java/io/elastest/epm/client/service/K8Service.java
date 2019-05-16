@@ -32,10 +32,6 @@ import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.batch.Job;
 import io.fabric8.kubernetes.api.model.batch.JobBuilder;
-import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding;
-import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBindingBuilder;
-import io.fabric8.kubernetes.api.model.rbac.RoleRefBuilder;
-import io.fabric8.kubernetes.api.model.rbac.SubjectBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
@@ -44,7 +40,6 @@ import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.ServiceResource;
 
-@org.springframework.stereotype.Service
 public class K8Service {
     private static final Logger logger = LoggerFactory
             .getLogger(K8Service.class);
@@ -67,20 +62,7 @@ public class K8Service {
     public void init() {
         if (enableCloudMode) {
             logger.debug("Default K8s");
-
             client = new DefaultKubernetesClient();
-            ClusterRoleBinding clusterRoleBinding = new ClusterRoleBindingBuilder()
-                    .withNewMetadata().withName("default-admin").endMetadata()
-                    .withRoleRef(new RoleRefBuilder().withName("cluster-admin")
-                            .withKind("ClusterRole")
-                            .withApiGroup("rbac.authorization.k8s.io").build())
-                    .withSubjects(
-                            new SubjectBuilder().withKind("ServiceAccount")
-                                    .withNamespace(DEFAULT_NAMESPACE)
-                                    .withName(SERVICE_ACCOUNT_DEFAULT).build())
-                    .build();
-            logger.debug("Creating Cluster Role Binding");
-            client.rbac().clusterRoleBindings().create(clusterRoleBinding);
         }
     }
 
