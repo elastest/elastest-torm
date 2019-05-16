@@ -44,6 +44,13 @@ public class UtilsService {
     @Value("${et.public.host.type}")
     public String etPublicHostType;
 
+    @Value("${et.enable.cloud.mode}")
+    public boolean enableCloudMode;
+
+    public boolean isKubernetes() {
+        return enableCloudMode;
+    }
+
     public String getExecMode() {
         return execMode;
     }

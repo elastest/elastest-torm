@@ -18,7 +18,6 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import io.elastest.epm.client.DockerContainer;
 import io.fabric8.kubernetes.api.model.DoneableService;
@@ -58,12 +57,7 @@ public class K8Service {
     private static final String SERVICE_ACCOUNT_DEFAULT = "default";
 
     public KubernetesClient client;
-
-    @Value("${et.epm.k8s.master}")
-    public String etEpmK8sMaster;
-    @Value("${et.epm.k8s.token}")
-    public String etEpmK8sToken;
-
+    
     @PostConstruct
     public void init() {
         logger.debug("Default K8s");

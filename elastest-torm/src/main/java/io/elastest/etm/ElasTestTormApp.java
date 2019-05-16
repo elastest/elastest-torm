@@ -20,7 +20,6 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService;
 import io.elastest.epm.client.service.K8Service;
-import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.platform.service.DockerServiceImpl;
 import io.elastest.etm.platform.service.K8ServiceImpl;
@@ -43,10 +42,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @EnableAsync
 @ComponentScan(basePackages = { "io.elastest" })
-public class ElasTestTormApp extends AsyncConfigurerSupport {
-    @Value("${et.enable.cloud.mode}")
-    public boolean enableCloudMode;
-    
+public class ElasTestTormApp extends AsyncConfigurerSupport {   
     @Autowired
     EtmFilesService etmFilesService;
     @Autowired
@@ -107,7 +103,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Primary
     public PlatformService platformService() {
         PlatformService platformService = null;
-        if (enableCloudMode) {
+        if (utilsService.isKubernetes()) {
             platformService = new K8ServiceImpl(k8Service, etmFilesService);
         } else {
             platformService = new DockerServiceImpl(dockerComposeService,

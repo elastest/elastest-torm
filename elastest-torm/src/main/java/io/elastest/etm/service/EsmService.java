@@ -1234,28 +1234,35 @@ public class EsmService {
                     bindedPort = Integer.parseInt(serviceInstance
                             .getEndpointsBindingsPorts().get(nodePort));
                 } else {
-                    try {
-                        ServiceBindedPort socatBindedPortObj = platformService
-                                .getBindingPort(
-                                        serviceInstance.getContainerIp(), null,
-                                        node.get("port").toString(),
-                                        networkName);
-                        serviceInstance.getPortBindingContainers()
-                                .add(socatBindedPortObj.getContainerId());
-                        bindedPort = Integer
-                                .parseInt(socatBindedPortObj.getBindedPort());
-                        serviceInstance.getEndpointsBindingsPorts()
-                                .put(nodePort, String.valueOf(bindedPort));
-                    } catch (Exception e) {
-                        String message = "Ports binding fails in Service "
-                                + serviceInstance.getServiceName()
-                                + " with instance id "
-                                + serviceInstance.getInstanceId();
 
-                        logger.error("{}: {} ", message, e.getMessage());
-                        throw new Exception(message + ": " + e.getMessage());
+                    if (utilsService.isKubernetes()
+                            && isIntegratedEUS(serviceInstance)) {
+                        // Do nothing. For other TSS, implement getBindingPort
+                        // in K8ServiceImpl
+                    } else {
+                        try {
+                            ServiceBindedPort socatBindedPortObj = platformService
+                                    .getBindingPort(
+                                            serviceInstance.getContainerIp(),
+                                            null, node.get("port").toString(),
+                                            networkName);
+                            serviceInstance.getPortBindingContainers()
+                                    .add(socatBindedPortObj.getContainerId());
+                            bindedPort = Integer.parseInt(
+                                    socatBindedPortObj.getBindedPort());
+                            serviceInstance.getEndpointsBindingsPorts()
+                                    .put(nodePort, String.valueOf(bindedPort));
+                        } catch (Exception e) {
+                            String message = "Ports binding fails in Service "
+                                    + serviceInstance.getServiceName()
+                                    + " with instance id "
+                                    + serviceInstance.getInstanceId();
+
+                            logger.error("{}: {} ", message, e.getMessage());
+                            throw new Exception(
+                                    message + ": " + e.getMessage());
+                        }
                     }
-
                 }
 
                 serviceInstance.setBindedServicePort(bindedPort);
