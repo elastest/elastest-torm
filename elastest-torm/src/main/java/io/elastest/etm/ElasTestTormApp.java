@@ -98,20 +98,11 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     }
     
     @Bean
-    public K8Service getK8Service() {
-        if (utilsService.isKubernetes()) {
-            return new K8Service();
-        } else {
-            return null;           
-        }
-    }
-        
-    @Bean
     @Primary
     public PlatformService platformService() {
         PlatformService platformService = null;
         if (utilsService.isKubernetes()) {
-            platformService = new K8ServiceImpl(getK8Service(), etmFilesService);
+            platformService = new K8ServiceImpl(k8Service, etmFilesService);
         } else {
             platformService = new DockerServiceImpl(dockerComposeService,
                     etmFilesService, utilsService, dockerService);

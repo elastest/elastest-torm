@@ -40,6 +40,7 @@ import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.ServiceResource;
 
+@org.springframework.stereotype.Service
 public class K8Service {
     private static final Logger logger = LoggerFactory
             .getLogger(K8Service.class);
