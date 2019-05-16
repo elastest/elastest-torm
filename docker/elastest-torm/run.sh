@@ -8,8 +8,8 @@ fi
 # TIMEZONE
 echo "Getting timezone..."
 if [ -z "$HOST_TIMEZONE" ]
-	export HOST_TIMEZONE=UTC
 then
+	export HOST_TIMEZONE=UTC
 fi
 
 ## If is not disabled internet, do curl to get timezone
