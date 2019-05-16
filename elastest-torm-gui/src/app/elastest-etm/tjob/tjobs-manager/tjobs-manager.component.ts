@@ -70,10 +70,10 @@ export class TJobsManagerComponent implements OnInit {
     this.init();
   }
 
-  init(): void {
+  init(forceLoadProject: boolean = false): void {
     // If child
     if (this.project) {
-      this.initDataFromProject();
+      this.initDataFromProject(forceLoadProject);
     } else if (this.projectId) {
       this.loadProjectAndTJobs(this.projectId);
     } else if (this.route.params !== null || this.route.params !== undefined) {
@@ -91,7 +91,7 @@ export class TJobsManagerComponent implements OnInit {
     }
   }
 
-  loadProjectAndTJobs(projectId: string): void {
+  loadProjectAndTJobs(projectId: string | number): void {
     this.projectService.getProject(projectId, 'medium').subscribe((project: ProjectModel) => {
       this.project = project;
       this.initDataFromProject();
@@ -99,7 +99,10 @@ export class TJobsManagerComponent implements OnInit {
     });
   }
 
-  initDataFromProject(): void {
+  initDataFromProject(forceLoadProject: boolean = false): void {
+    if (forceLoadProject) {
+      this.loadProjectAndTJobs(this.project.id);
+    }
     if (this.project) {
       this.tJobs = this.project.tjobs;
       this.showSpinner = false;
@@ -168,7 +171,7 @@ export class TJobsManagerComponent implements OnInit {
           this.tJobService.deleteTJob(tJob).subscribe(
             (tJob) => {
               this.deletingInProgress = false;
-              this.init();
+              this.init(true);
             },
             (error: Error) => {
               this.deletingInProgress = false;
@@ -211,7 +214,8 @@ export class TJobsManagerComponent implements OnInit {
     }
     this.tJobService.duplicateTJob(tJob).subscribe(
       (tJob: any) => {
-        this.init();
+        this.init(true);
+        this.duplicateInProgress = false;
       },
       (error: Error) => {
         console.log(error);
