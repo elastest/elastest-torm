@@ -18,6 +18,7 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import io.elastest.epm.client.DockerContainer;
 import io.fabric8.kubernetes.api.model.DoneableService;
@@ -43,9 +44,13 @@ import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.ServiceResource;
 
+@org.springframework.stereotype.Service
 public class K8Service {
     private static final Logger logger = LoggerFactory
             .getLogger(K8Service.class);
+
+    @Value("${et.enable.cloud.mode}")
+    public boolean enableCloudMode;
 
     private static final String DEFAULT_NAMESPACE = "default";
     private static final String LABEL_JOB_NAME = "job-name";
@@ -57,22 +62,26 @@ public class K8Service {
     private static final String SERVICE_ACCOUNT_DEFAULT = "default";
 
     public KubernetesClient client;
-    
+
     @PostConstruct
     public void init() {
-        logger.debug("Default K8s");
-        client = new DefaultKubernetesClient();
-        ClusterRoleBinding clusterRoleBinding = new ClusterRoleBindingBuilder()
-                .withNewMetadata().withName("default-admin").endMetadata()
-                .withRoleRef(new RoleRefBuilder().withName("cluster-admin")
-                        .withKind("ClusterRole")
-                        .withApiGroup("rbac.authorization.k8s.io").build())
-                .withSubjects(new SubjectBuilder().withKind("ServiceAccount")
-                        .withNamespace(DEFAULT_NAMESPACE)
-                        .withName(SERVICE_ACCOUNT_DEFAULT).build())
-                .build();
-        logger.debug("Creating Cluster Role Binding");
-        client.rbac().clusterRoleBindings().create(clusterRoleBinding);
+        if (enableCloudMode) {
+            logger.debug("Default K8s");
+
+            client = new DefaultKubernetesClient();
+            ClusterRoleBinding clusterRoleBinding = new ClusterRoleBindingBuilder()
+                    .withNewMetadata().withName("default-admin").endMetadata()
+                    .withRoleRef(new RoleRefBuilder().withName("cluster-admin")
+                            .withKind("ClusterRole")
+                            .withApiGroup("rbac.authorization.k8s.io").build())
+                    .withSubjects(
+                            new SubjectBuilder().withKind("ServiceAccount")
+                                    .withNamespace(DEFAULT_NAMESPACE)
+                                    .withName(SERVICE_ACCOUNT_DEFAULT).build())
+                    .build();
+            logger.debug("Creating Cluster Role Binding");
+            client.rbac().clusterRoleBindings().create(clusterRoleBinding);
+        }
     }
 
     // TODO
