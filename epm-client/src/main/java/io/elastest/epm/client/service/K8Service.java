@@ -19,15 +19,16 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import io.elastest.epm.client.DockerContainer;
+import io.fabric8.kubernetes.api.model.DoneableService;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.batch.Job;
 import io.fabric8.kubernetes.api.model.batch.JobBuilder;
 import io.fabric8.kubernetes.client.Config;
@@ -37,8 +38,11 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.dsl.MixedOperation;
+import io.fabric8.kubernetes.client.dsl.ServiceResource;
+import io.fabric8.kubernetes.api.model.Service;
 
-@Service
+@org.springframework.stereotype.Service
 public class K8Service {
     private static final Logger logger = LoggerFactory
             .getLogger(K8Service.class);
@@ -403,4 +407,17 @@ public class K8Service {
         }
     }
 
+    public MixedOperation<Service, ServiceList, DoneableService, ServiceResource<Service, DoneableService>> getAllServicesToOperate() {
+        return client.services();
+    }
+
+    public Service getServiceByName(String serviceName)
+            throws NullPointerException {
+        return getAllServicesToOperate().withName(serviceName).get();
+    }
+
+    public String getServiceIpByName(String serviceName)
+            throws NullPointerException {
+        return getServiceByName(serviceName).getSpec().getClusterIP();
+    }
 }

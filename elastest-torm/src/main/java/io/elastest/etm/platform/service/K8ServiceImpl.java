@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
 import com.spotify.docker.client.ProgressHandler;
 
@@ -35,10 +34,9 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.EtmFilesService;
-import io.elastest.etm.utils.UtilTools;
-import io.elastest.etm.utils.UtilsService;
+import io.fabric8.kubernetes.api.model.Service;
 
-@Service
+@org.springframework.stereotype.Service
 public class K8ServiceImpl extends PlatformService {
     private static final Logger logger = getLogger(lookup().lookupClass());
     private static final Map<String, String> createdContainers = new HashMap<>();
@@ -289,8 +287,7 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public String getEtmHost() throws Exception {
-        // return UtilTools.doPing(etEtmInternalHost);
-        return null; // TODO
+        return k8Service.getServiceIpByName(etEtmInternalHost);
     }
 
     @Override
