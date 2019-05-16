@@ -53,14 +53,10 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     TestSuiteService testSuiteService;
     @Autowired
     DockerComposeService dockerComposeService;
-
     @Autowired
     DockerService dockerService;
     @Autowired
     EtmTestResultService etmTestResultService;
-    @Autowired
-    K8Service k8Service;
-
 
     @Value("${additional.server.port}")
     int additionalServerPort;
@@ -104,7 +100,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     public PlatformService platformService() {
         PlatformService platformService = null;
         if (utilsService.isKubernetes()) {
-            platformService = new K8ServiceImpl(k8Service, etmFilesService);
+            platformService = new K8ServiceImpl(new K8Service(), etmFilesService);
         } else {
             platformService = new DockerServiceImpl(dockerComposeService,
                     etmFilesService, utilsService, dockerService);
