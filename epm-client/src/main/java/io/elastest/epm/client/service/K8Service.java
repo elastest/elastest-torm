@@ -31,6 +31,12 @@ import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.batch.Job;
 import io.fabric8.kubernetes.api.model.batch.JobBuilder;
+import io.fabric8.kubernetes.api.model.rbac.ClusterRole;
+import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding;
+import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBindingBuilder;
+import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBuilder;
+import io.fabric8.kubernetes.api.model.rbac.RoleRefBuilder;
+import io.fabric8.kubernetes.api.model.rbac.SubjectBuilder;
 import io.fabric8.kubernetes.client.Config;
 import io.fabric8.kubernetes.client.ConfigBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -54,6 +60,8 @@ public class K8Service {
     private static final String SUT_PORT_NAME = "sut-port";
     private static final String PHASE_SUCCEEDED = "Succeeded";
     private static final String LOCAL_K8S_MASTER = "localhost";
+    private static final String SERVICE_ACCOUNT_DEFAULT = "default";
+
     public KubernetesClient client;
 
     @Value("${et.epm.k8s.master}")
@@ -63,38 +71,18 @@ public class K8Service {
 
     @PostConstruct
     public void init() {
-        logger.debug("Creating K8s client");
-        if (etEpmK8sMaster.equals(LOCAL_K8S_MASTER)) {
-            logger.debug("Default K8s");
-            client = new DefaultKubernetesClient();
-        } else {
-            logger.debug("K8s with config:");
-            logger.debug("withMasterUrl: {}", etEpmK8sMaster);
-            logger.debug("withOauthToken: {}", etEpmK8sToken);
-            Config config = new ConfigBuilder().withTrustCerts(true)
-                    .withMasterUrl(etEpmK8sMaster)
-                    .withCaCertData("-----BEGIN CERTIFICATE-----\n"
-                            + "MIICzDCCAbSgAwIBAgIRAKqLntJW/SAWXq9SdaN1ghAwDQYJKoZIhvcNAQELBQAw\n"
-                            + "DzENMAsGA1UEChMEcm9vdDAeFw0xOTA1MDYwOTMxMDBaFw0yMjA0MjAwOTMxMDBa\n"
-                            + "MA8xDTALBgNVBAoTBHJvb3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB\n"
-                            + "AQDAhHGJUKyRXVnr7u3va9BR8/s0zZzMZOvvPdLb2aKc8/GT8Fen4EDu0hZXiM6e\n"
-                            + "CBdFIt8CFT23AgfNpwxqm+I6KWSIjBseNu3DAeqbUCju4Va1KbnW1kEeMKK/9aEo\n"
-                            + "PfTWnDMl7UiSt3RNvSv+i3uq8zoA3ea1jss8dqI4PIrg178PhX/g77kvZpl4mkvK\n"
-                            + "/1Iz4KeBp4yenp0hy6n6uxYsYfxSpS5bXNpRjuUQYPYBng8PnlEvG0QJmN4B/Kbw\n"
-                            + "Ka1q4wIWcGpVVLAVz8dAk0YW7gkqhZ2k+006qkWrqr9WXhg0260G5zBaePw3WlJT\n"
-                            + "g5rzJ0e8esJS18kMJQA/uNdZAgMBAAGjIzAhMA4GA1UdDwEB/wQEAwICrDAPBgNV\n"
-                            + "HRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAMLVcaribimnCZfHtfommM\n"
-                            + "4J4mCwIvn+8t8wLkkI++I3TorZLQxc7VZVJ4PQdW7LKFlg2IUVDDR+hZCcBmKpFG\n"
-                            + "Lkujaep0bitpkEAfHLhOjssvUFMUkEl/hPuw5gcfVrR9w2m+Ki9CQZKmA/spLy30\n"
-                            + "yBeAD7rVefdEJjpJqUuq7UqMpWKEjUOs+1MOPH4ebN+0f5pr84hBuIQFuz+e2YIg\n"
-                            + "iVTa588qimnzjsCQm0UDSmbo93l+IuzqRpe1kNP/PSreMlH6pqXrVgS76YZZURKH\n"
-                            + "YQy66q3saRyWsUk0P7IlPYHZbyjk7sDcoDkh+hNudDZQb1FLFgyi4/BjDp8ZbpMi\n"
-                            + "-----END CERTIFICATE-----")
-                    .withOauthToken(etEpmK8sToken).build();
-            // .withUsername("minikube").withNamespace(DEFAULT_NAMESPACE).build();
-
-            client = new DefaultKubernetesClient(config);
-        }
+        logger.debug("Default K8s");
+        client = new DefaultKubernetesClient();
+        ClusterRoleBinding clusterRoleBinding = new ClusterRoleBindingBuilder()
+                .withNewMetadata().withName("default-admin").endMetadata()
+                .withRoleRef(new RoleRefBuilder().withName("cluster-admin")
+                        .withKind("ClusterRole")
+                        .withApiGroup("rbac.authorization.k8s.io").build())
+                .withSubjects(new SubjectBuilder().withKind("ServiceAccount")
+                        .withNamespace(DEFAULT_NAMESPACE)
+                        .withName(SERVICE_ACCOUNT_DEFAULT).build())
+                .build();
+        client.rbac().clusterRoleBindings().create(clusterRoleBinding);
     }
 
     // TODO
