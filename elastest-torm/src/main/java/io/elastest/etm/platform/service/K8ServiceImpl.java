@@ -289,7 +289,8 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public String getEtmHost() throws Exception {
-        return UtilTools.doPing(etEtmInternalHost);
+        // return UtilTools.doPing(etEtmInternalHost);
+        return null; // TODO
     }
 
     @Override
