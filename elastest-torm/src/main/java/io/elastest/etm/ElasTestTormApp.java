@@ -42,7 +42,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @EnableAsync
 @ComponentScan(basePackages = { "io.elastest" })
-public class ElasTestTormApp extends AsyncConfigurerSupport {   
+public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Autowired
     EtmFilesService etmFilesService;
     @Autowired
@@ -96,13 +96,14 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
             return new ElasticsearchService(utilsService, testSuiteService);
         }
     }
-    
+
     @Bean
     @Primary
     public PlatformService platformService() {
         PlatformService platformService = null;
         if (utilsService.isKubernetes()) {
-            platformService = new K8ServiceImpl(k8Service, etmFilesService);
+            platformService = new K8ServiceImpl(k8Service, etmFilesService,
+                    utilsService);
         } else {
             platformService = new DockerServiceImpl(dockerComposeService,
                     etmFilesService, utilsService, dockerService);

@@ -34,24 +34,28 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.EtmFilesService;
-import io.fabric8.kubernetes.api.model.Service;
+import io.elastest.etm.utils.UtilsService;
 
 @org.springframework.stereotype.Service
 public class K8ServiceImpl extends PlatformService {
     private static final Logger logger = getLogger(lookup().lookupClass());
     private static final Map<String, String> createdContainers = new HashMap<>();
-    private K8Service k8Service;
     private Map<String, String> sutsByExecution;
 
     @Value("${et.etm.internal.host}")
     private String etEtmInternalHost;
 
-    public K8ServiceImpl(K8Service k8Service, EtmFilesService etmFilesService) {
+    private K8Service k8Service;
+    private UtilsService utilsService;
+
+    public K8ServiceImpl(K8Service k8Service, EtmFilesService etmFilesService,
+            UtilsService utilsService) {
         super();
         logger.info("******* ElasTest on K8s *******");
         this.k8Service = k8Service;
         sutsByExecution = new ConcurrentHashMap<String, String>();
         this.etmFilesService = etmFilesService;
+        this.utilsService = utilsService;
     }
 
     @Override
@@ -287,7 +291,11 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public String getEtmHost() throws Exception {
-        return k8Service.getServiceIpByName(etEtmInternalHost);
+        if (utilsService.isEtmInDevelopment()) {
+            return utilsService.getEtPublicHostValue();
+        } else {
+            return k8Service.getServiceIpByName(etEtmInternalHost);
+        }
     }
 
     @Override
