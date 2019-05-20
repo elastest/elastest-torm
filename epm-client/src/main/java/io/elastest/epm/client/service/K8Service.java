@@ -3,6 +3,7 @@ package io.elastest.epm.client.service;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
@@ -16,14 +17,20 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.util.ResourceUtils;
 
 import io.elastest.epm.client.DockerContainer;
 import io.fabric8.kubernetes.api.model.DoneableService;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
+import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
+import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
@@ -57,13 +64,27 @@ public class K8Service {
     private static final String LOCAL_K8S_MASTER = "localhost";
     private static final String SERVICE_ACCOUNT_DEFAULT = "default";
 
+    @Value("${et.data.in.host}")
+    public String etDataInHost;
+
+    @Value("${et.tools.resource.folder.path}")
+    public String etToolsResourceFolderPath;
+
+    @Value("${et.shared.folder}")
+    public String etSharedFolder;
+
+    public HostPathVolumeSource etToolsVolume;
+    public static final String etToolsInternalPath = "et_tools";
+
     public KubernetesClient client;
 
     @PostConstruct
-    public void init() {
+    public void init() throws IOException {
         if (enableCloudMode) {
             logger.debug("Default K8s");
             client = new DefaultKubernetesClient();
+
+            etToolsVolume = createEtToolsVolume();
         }
     }
 
@@ -112,6 +133,8 @@ public class K8Service {
                     .get().replace("_", "-");
 
             k8sJobLabels.put(LABEL_JOB_NAME, containerNameWithoutUnderscore);
+
+            String etToolsVolumeName = "et-tools";
             final Job job = new JobBuilder(Boolean.FALSE)
                     .withApiVersion("batch/v1").withNewMetadata()
                     .withName(containerNameWithoutUnderscore)
@@ -122,12 +145,18 @@ public class K8Service {
                     .withArgs(container.getCmd().get())
                     .withEnv(getEnvVarListFromStringList(
                             container.getEnvs().get()))
-                    .endContainer().withRestartPolicy("Never").endSpec()
-                    .endTemplate().endSpec().build();
+                    // .addNewVolumeMount().withMountPath(etToolsInternalPath)
+                    // .withName(etToolsVolumeName).endVolumeMount()
+                    .endContainer().withRestartPolicy("Never")
+                    // .addNewVolume()
+                    // .withHostPath(etToolsVolume).withName(etToolsVolumeName)
+                    // .endVolume()
+                    .endSpec().endTemplate().endSpec().build();
 
             logger.info("Creating job: {}.",
                     job.getMetadata().getLabels().get(LABEL_JOB_NAME));
             client.batch().jobs().inNamespace(namespace).create(job);
+
             final CountDownLatch watchLatch = new CountDownLatch(1);
             try (final Watch ignored = client.pods().inNamespace(namespace)
                     .withLabel(LABEL_JOB_NAME, job.getMetadata().getName())
@@ -389,5 +418,31 @@ public class K8Service {
     public String getServiceIpByName(String serviceName)
             throws NullPointerException {
         return getServiceByName(serviceName).getSpec().getClusterIP();
+    }
+
+    public HostPathVolumeSource createEtToolsVolume() throws IOException {
+        String etToolsVolumePath = etDataInHost + "/" + etToolsInternalPath;
+        String etToolsVolumePathIntoEtm = etSharedFolder + "/"
+                + etToolsInternalPath;
+
+        HostPathVolumeSource etToolsVolume = new HostPathVolumeSourceBuilder()
+                .withPath(etToolsVolumePath).build();
+
+        // Copy to volume
+
+        File sourceDirectoryFile = ResourceUtils
+                .getFile(etToolsResourceFolderPath);
+
+        if (!sourceDirectoryFile.exists()) { // Dev mode
+            Resource resource = new ClassPathResource(
+                    etToolsResourceFolderPath);
+            sourceDirectoryFile = resource.getFile();
+        }
+
+        File targetDirectoryFile = new File(etToolsVolumePathIntoEtm);
+
+        FileUtils.copyDirectory(sourceDirectoryFile, targetDirectoryFile);
+
+        return etToolsVolume;
     }
 }
