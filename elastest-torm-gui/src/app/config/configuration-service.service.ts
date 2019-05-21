@@ -65,6 +65,7 @@ export class ConfigurationService {
           httpsSecure: this.protocol === 'https' ? true : false,
           empGrafanaUrl: servicesInfo.empGrafanaUrl,
           edmCommandUrl: servicesInfo.edmCommandUrl,
+          isKubernetes: servicesInfo.isKubernetes,
         };
 
         resolve();

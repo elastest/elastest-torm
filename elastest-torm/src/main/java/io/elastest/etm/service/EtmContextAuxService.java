@@ -202,6 +202,7 @@ public class EtmContextAuxService {
 
         contextInfo
                 .setEtmApiUrl("http://" + proxyIp + ":" + proxyPort + "/api/");
+        contextInfo.setIsKubernetes(utilsService.isKubernetes());
         return contextInfo;
     }
 

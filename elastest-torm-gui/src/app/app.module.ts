@@ -146,6 +146,8 @@ import { ManageElastestComponent } from './elastest-etm/manage-elastest/manage-e
 import { ManageMainServicesComponent } from './elastest-etm/manage-elastest/manage-main-services/manage-main-services.component';
 import { ManageElasticsearchComponent } from './elastest-etm/manage-elastest/manage-elasticsearch/manage-elasticsearch.component';
 import { ElasticsearchApiService } from './elastest-etm/manage-elastest/manage-elasticsearch/elasticsearch-api.service';
+import { ManageClustersComponent } from './elastest-etm/manage-elastest/manage-clusters/manage-clusters.component';
+import { ManageClustersService } from './elastest-etm/manage-elastest/manage-clusters/manage-clusters.service';
 
 library.add(faJenkins);
 library.add(fas);
@@ -230,6 +232,7 @@ library.add(fas);
     ManageElastestComponent,
     ManageMainServicesComponent,
     ManageElasticsearchComponent,
+    ManageClustersComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -273,6 +276,7 @@ library.add(fas);
     TJobExecService,
     ProjectService,
     ElasticsearchApiService,
+    ManageClustersService,
     MonitoringService,
     ElastestRabbitmqService,
     PopupService,

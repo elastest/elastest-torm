@@ -15,4 +15,5 @@ export interface ConfigModel {
   httpsSecure: boolean;
   empGrafanaUrl: string;
   edmCommandUrl: string;
+  isKubernetes: boolean;
 }

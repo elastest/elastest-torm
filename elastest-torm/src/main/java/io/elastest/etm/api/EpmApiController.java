@@ -63,7 +63,8 @@ public class EpmApiController implements EpmApi {
             @RequestParam("file") MultipartFile file) {
         try {
             Boolean saved = etmFilesService.saveMultipartFile(
-                    CLUSTER_TAR_FILE_NAME, file, epmPackagescompletePath);
+                    CLUSTER_TAR_FILE_NAME, file, epmPackagescompletePath, true,
+                    true);
             return new ResponseEntity<Boolean>(saved, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error on upload cluster tar file");
@@ -77,7 +78,8 @@ public class EpmApiController implements EpmApi {
             @RequestParam("file") MultipartFile file) {
         try {
             Boolean saved = etmFilesService.saveMultipartFile(
-                    NODE_TAR_FILE_NAME, file, epmPackagescompletePath);
+                    NODE_TAR_FILE_NAME, file, epmPackagescompletePath, true,
+                    true);
             return new ResponseEntity<Boolean>(saved, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error on upload node tar file");

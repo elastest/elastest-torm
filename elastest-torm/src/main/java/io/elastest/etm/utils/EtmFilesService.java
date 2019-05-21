@@ -289,9 +289,8 @@ public class EtmFilesService {
             String fileName, MultipartFile multipartFile)
             throws IllegalStateException, IOException {
         String path = getTJobExecAttachmentFilePath(tJobExec);
-        // Create folder if not exist
-        createFolderIfNotExists(path);
-        return saveMultipartFile(fileName, multipartFile, path);
+
+        return saveMultipartFile(fileName, multipartFile, path, true, false);
     }
 
     public Boolean saveExecAttachmentFile(TJobExecution tJobExec,
@@ -464,16 +463,40 @@ public class EtmFilesService {
         }
     }
 
+    public boolean removeFile(String fileName, String path) throws IOException {
+        String completePath = path;
+        String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
+        if (!completePath.endsWith(fileSeparator)) {
+            completePath += fileSeparator;
+        }
+        completePath += fileName;
+        File file = new File(completePath);
+        return file.delete();
+    }
+
     public Boolean saveMultipartFile(String fileName,
-            MultipartFile multipartFile, String path) throws IOException {
+            MultipartFile multipartFile, String path,
+            boolean createFolderIfNotExists, boolean forceReplace)
+            throws IOException {
+        if (createFolderIfNotExists) {
+            createFolderIfNotExists(path);
+        }
+
         String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
         if (!path.endsWith(fileSeparator)) {
             path += fileSeparator;
         }
         File file = new File(path + fileName);
+
         if (file.exists()) {
-            return false;
+            if (forceReplace) {
+                file.delete();
+                file.createNewFile();
+            } else {
+                return false;
+            }
         }
+
         multipartFile.transferTo(file);
         return true;
     }

@@ -88,6 +88,9 @@ public class ContextInfo {
     @JsonProperty("etmApiUrl")
     private String etmApiUrl;
 
+    @JsonProperty("isKubernetes")
+    private boolean isKubernetes;
+
     public ContextInfo() {
     }
 
@@ -311,6 +314,14 @@ public class ContextInfo {
         this.etmApiUrl = etmApiUrl;
     }
 
+    public boolean getIsKubernetes() {
+        return isKubernetes;
+    }
+
+    public void setIsKubernetes(boolean isKubernetes) {
+        this.isKubernetes = isKubernetes;
+    }
+
     @Override
     public String toString() {
         return "ContextInfo [elasticSearchUrl=" + elasticSearchUrl
@@ -336,7 +347,7 @@ public class ContextInfo {
                 + ", eusSSInstance=" + eusSSInstance + ", testLinkStarted="
                 + testLinkStarted + ", empGrafanaUrl=" + empGrafanaUrl
                 + ", edmCommandUrl=" + edmCommandUrl + ", etmApiUrl="
-                + etmApiUrl + "]";
+                + etmApiUrl + ", isKubernetes=" + isKubernetes + "]";
     }
 
 }

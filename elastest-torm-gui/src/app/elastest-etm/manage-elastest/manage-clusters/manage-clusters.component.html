@@ -1,0 +1,133 @@
+<div fxLayout="column">
+  <mat-card>
+    <mat-card-title>
+      <div fxLayout="row">
+        <span>Manage Configurations</span>
+        <span fxFlex></span>
+
+        <td-file-input
+          color="primary"
+          (select)="onUploadClusterFile($event)"
+          [disabled]="false"
+          matTooltip="Upload Tar file to manage clusters"
+        >
+          Cluster Tar <mat-icon>attach_file</mat-icon>
+        </td-file-input>
+
+        <td-file-input
+          fxFlexOffset="1"
+          color="primary"
+          (select)="onUploadNodeFile($event)"
+          [disabled]="false"
+          matTooltip="Upload Tar file to manage nodes"
+        >
+          Nodes Tar <mat-icon>attach_file</mat-icon>
+        </td-file-input>
+      </div>
+    </mat-card-title>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-title>
+      <div fxLayout="row">
+        <span>Manage Clusters</span>
+        <span fxFlex></span>
+        <button
+          mat-raised-button
+          color="accent"
+          (click)="loadAllClusters()"
+          id="loadAllClustersBtn"
+          matTooltip="Load All Clusters"
+          class="push-left-sm"
+        >
+          Load All Clusters
+        </button>
+      </div>
+    </mat-card-title>
+    <mat-divider></mat-divider>
+    <mat-card-content>
+      <mat-spinner
+        strokeWidth="6"
+        *ngIf="loadingClusters; else showContent"
+        color="accent"
+        class="push-top-sm spinnerCenter"
+      ></mat-spinner>
+      <ng-template #showContent>
+        <centered-element *ngIf="clusters.length === 0" class="push-top-important messageEmptyCard">
+          <mat-icon>assignment</mat-icon>
+          <p>No Clusters</p>
+        </centered-element>
+        <td-data-table
+          #clustersTable
+          id="clusters"
+          *ngIf="clusters && clusters.length > 0"
+          [class]="scroll_table"
+          [data]="clusters"
+          [columns]="clusterColumns"
+          [clickable]="true"
+          (rowClick)="selectCluster($event)"
+          [resizableColumns]="true"
+          [selectable]="false"
+          [sortable]="false"
+          [sortBy]="sortBy"
+          [sortOrder]="sortOrder"
+          (sortChange)="sort($event)"
+        >
+          <ng-template
+            *ngFor="let column of clusterColumns"
+            tdDataTableTemplate="{{ column.name }}"
+            let-value="value"
+            let-row="row"
+          >
+            <div *ngIf="column.name !== 'options'" class="hover-pointer">{{ value }}</div>
+          </ng-template>
+
+          <!-- Options -->
+          <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+            <div fxLayout="row" class="optionsColumn"></div>
+          </ng-template>
+        </td-data-table>
+      </ng-template>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card *ngIf="selectedCluster">
+    <mat-card-title>
+      <div fxLayout="row">
+        <span>Cluster {{ selectedCluster.id }} Nodes</span>
+        <span fxFlex></span>
+      </div>
+    </mat-card-title>
+    <mat-divider></mat-divider>
+    <mat-card-content>
+      <centered-element *ngIf="nodes.length === 0" class="push-top-important messageEmptyCard">
+        <mat-icon>assignment</mat-icon>
+        <p>No Nodes</p>
+      </centered-element>
+      <td-data-table
+        #nodesTable
+        id="nodes"
+        *ngIf="nodes && nodes.length > 0"
+        [class]="scroll_table"
+        [data]="nodes"
+        [columns]="nodesColumns"
+        [clickable]="false"
+        [resizableColumns]="true"
+        [selectable]="false"
+        [sortable]="false"
+        [sortBy]="sortBy"
+        [sortOrder]="sortOrder"
+        (sortChange)="sort($event)"
+      >
+        <ng-template *ngFor="let column of nodesColumns" tdDataTableTemplate="{{ column.name }}" let-value="value" let-row="row">
+          <div *ngIf="column.name !== 'options'" class="hover-pointer">{{ value }}</div>
+        </ng-template>
+
+        <!-- Options -->
+        <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+          <div fxLayout="row" class="optionsColumn"></div>
+        </ng-template>
+      </td-data-table>
+    </mat-card-content>
+  </mat-card>
+</div>
