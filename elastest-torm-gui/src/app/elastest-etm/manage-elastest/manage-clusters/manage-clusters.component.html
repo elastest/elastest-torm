@@ -15,7 +15,7 @@
         </td-file-input>
 
         <td-file-input
-          fxFlexOffset="1"
+          fxFlexOffset="0.5"
           color="primary"
           (select)="onUploadNodeFile($event)"
           [disabled]="false"
@@ -41,6 +41,17 @@
           class="push-left-sm"
         >
           Load All Clusters
+        </button>
+        <button
+          mat-raised-button
+          fxFlexOffset="0.5"
+          color="accent"
+          (click)="createCluster()"
+          id="createClusterBtn"
+          matTooltip="Create Cluster"
+          class="push-left-sm"
+        >
+          Create Cluster
         </button>
       </div>
     </mat-card-title>

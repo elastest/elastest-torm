@@ -16,7 +16,7 @@ export class ManageClustersComponent implements OnInit {
     { name: 'id', label: 'Id', width: 80 },
     { name: 'type', label: 'Type' },
     { name: 'master', label: 'Master' },
-    { name: 'nodes', label: 'Nodes' },
+    { name: 'nodes.lenght', label: 'Nodes' },
     { name: 'resourceGroupId', label: 'Resource Group ID' },
     { name: 'options', label: 'Options', sortable: false },
   ];
@@ -72,6 +72,8 @@ export class ManageClustersComponent implements OnInit {
 
   loadAllClusters(): void {
     this.loadingClusters = true;
+    this.nodes = [];
+    this.selectedCluster = undefined;
     this.manageClustersService.getAllClusters().subscribe(
       (clusters: any[]) => {
         this.clusters = clusters;
@@ -82,6 +84,18 @@ export class ManageClustersComponent implements OnInit {
         console.log(error);
         this.popupService.openSnackBar('An error has occurred on get clusters');
         this.loadingClusters = false;
+      },
+    );
+  }
+
+  createCluster(): void {
+    this.manageClustersService.createCluster().subscribe(
+      (cluster: any) => {
+        this.loadAllClusters();
+      },
+      (error: Error) => {
+        console.log(error);
+        this.popupService.openSnackBar('Error on create Cluster');
       },
     );
   }

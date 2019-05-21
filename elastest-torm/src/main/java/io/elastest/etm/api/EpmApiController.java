@@ -65,6 +65,7 @@ public class EpmApiController implements EpmApi {
             Boolean saved = etmFilesService.saveMultipartFile(
                     CLUSTER_TAR_FILE_NAME, file, epmPackagescompletePath, true,
                     true);
+            epmClusterService.updateClusterTar();
             return new ResponseEntity<Boolean>(saved, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error on upload cluster tar file");
@@ -80,6 +81,7 @@ public class EpmApiController implements EpmApi {
             Boolean saved = etmFilesService.saveMultipartFile(
                     NODE_TAR_FILE_NAME, file, epmPackagescompletePath, true,
                     true);
+            epmClusterService.updateNodesTar();
             return new ResponseEntity<Boolean>(saved, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error on upload node tar file");
