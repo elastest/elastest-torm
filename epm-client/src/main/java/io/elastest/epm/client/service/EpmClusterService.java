@@ -1,5 +1,7 @@
 package io.elastest.epm.client.service;
 
+import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
+
 import java.io.File;
 import java.util.List;
 
@@ -35,18 +37,28 @@ public class EpmClusterService {
     private final PoPApi poPApi = new PoPApi();
     private final ClusterApi clusterApi = new ClusterApi();
 
-    private Cluster cluster;
     private ResourceGroup ansibleRG;
 
     @Value("${et.epm.api}")
     String etEpmApi;
 
-    // TODO change name and variable
-    @Value("${ansible.tar.path:null}")
-    String ansibleTarPath;
+    @Value("${et.shared.folder}")
+    String etSharedFolder;
+
+    @Value("${et.epm.packages.path}")
+    String etEpmPackagesPath;
+
+    String epmPackagescompletePath;
 
     @PostConstruct
-    public void init() throws ApiException {
+    private void init() throws ApiException {
+        String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
+        epmPackagescompletePath = etSharedFolder;
+        if (!epmPackagescompletePath.endsWith(fileSeparator)) {
+            epmPackagescompletePath += fileSeparator;
+        }
+
+        epmPackagescompletePath += etEpmPackagesPath;
         ApiClient apiClient = new ApiClient();
         apiClient.setBasePath(etEpmApi);
 
@@ -56,23 +68,18 @@ public class EpmClusterService {
         adapterApi.setApiClient(apiClient);
         poPApi.setApiClient(apiClient);
         runtimeApi.setApiClient(apiClient);
-
-        // Create cluster
-        try {
-            File ansible = new File(ansibleTarPath);
-            ansibleRG = packageApi.receivePackage(ansible);
-
-            cluster = createClusterFromResourceGroup(ansibleRG.getId(),
-                    ansibleRG.getVdus().get(0).getId(), "kubernetes");
-        } catch (Exception e) {
-            logger.error("Error on create cluster with tar path: {}",
-                    ansibleTarPath, e);
-        }
     }
 
     /* ******************************************* */
     /* ***************** Cluster ***************** */
     /* ******************************************* */
+
+    public Cluster createCluster() throws Exception {
+        File ansible = new File(epmPackagescompletePath);
+        ansibleRG = packageApi.receivePackage(ansible);
+        return createClusterFromResourceGroup(ansibleRG.getId(),
+                ansibleRG.getVdus().get(0).getId(), "kubernetes");
+    }
 
     public Cluster createClusterFromResourceGroup(String resorceGroupId,
             String masterId, String typeItem) throws ApiException {
@@ -86,10 +93,6 @@ public class EpmClusterService {
 
     public String deleteCluster(String clusterId) throws ApiException {
         return clusterApi.deleteCluster(clusterId);
-    }
-
-    private String deleteCluster() throws ApiException {
-        return deleteCluster(cluster.getId());
     }
 
     public List<Cluster> getAllClusters() throws ApiException {
@@ -111,13 +114,14 @@ public class EpmClusterService {
     /* ***************** Nodes ***************** */
     /* ***************************************** */
 
-    public String createNodeWorker() throws ApiException {
-        return clusterApi.addWorker(cluster.getId(),
+    public String createNodeWorker(String clusterId) throws ApiException {
+        return clusterApi.addWorker(clusterId,
                 ansibleRG.getVdus().get(0).getId());
     }
 
-    public Cluster removeNode(String workerId) throws ApiException {
-        return clusterApi.removeNode(cluster.getId(), workerId);
+    public Cluster removeNode(String clusterId, String workerId)
+            throws ApiException {
+        return clusterApi.removeNode(clusterId, workerId);
     }
 
     public List<Worker> getAllClusterNodes(String clusterId)

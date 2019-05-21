@@ -291,12 +291,7 @@ public class EtmFilesService {
         String path = getTJobExecAttachmentFilePath(tJobExec);
         // Create folder if not exist
         createFolderIfNotExists(path);
-        File file = new File(path + fileName);
-        if (file.exists()) {
-            return false;
-        }
-        multipartFile.transferTo(file);
-        return true;
+        return saveMultipartFile(fileName, multipartFile, path);
     }
 
     public Boolean saveExecAttachmentFile(TJobExecution tJobExec,
@@ -467,5 +462,19 @@ public class EtmFilesService {
             }
             logger.info("Folder has been removed.");
         }
+    }
+
+    public Boolean saveMultipartFile(String fileName,
+            MultipartFile multipartFile, String path) throws IOException {
+        String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
+        if (!path.endsWith(fileSeparator)) {
+            path += fileSeparator;
+        }
+        File file = new File(path + fileName);
+        if (file.exists()) {
+            return false;
+        }
+        multipartFile.transferTo(file);
+        return true;
     }
 }
