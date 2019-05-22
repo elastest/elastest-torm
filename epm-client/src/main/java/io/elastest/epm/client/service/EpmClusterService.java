@@ -95,26 +95,24 @@ public class EpmClusterService {
         poPApi.setApiClient(apiClient);
         runtimeApi.setApiClient(apiClient);
 
-        PoP pop = new PoP();
-        pop.setName(interfaceName);
-        pop.setInterfaceEndpoint(interfaceUrl);
-        pop.addInterfaceInfoItem(
-                new KeyValuePair().key("auth_url").value(interfaceUrl));
-        pop.addInterfaceInfoItem(
-                new KeyValuePair().key("password").value(interfacePass));
-        pop.addInterfaceInfoItem(new KeyValuePair().key("project_name")
-                .value(interfaceProjectName));
-        pop.addInterfaceInfoItem(
-                new KeyValuePair().key("username").value(interfaceUser));
-        String interfaceType = "openstack";
-        pop.addInterfaceInfoItem(
-                new KeyValuePair().key("type").value(interfaceType));
-        PoP poPR = null;
         try {
-            poPR = poPApi.registerPoP(pop);
+            PoP pop = new PoP();
+            pop.setName(interfaceName);
+            pop.setInterfaceEndpoint(interfaceUrl);
+            pop.addInterfaceInfoItem(
+                    new KeyValuePair().key("auth_url").value(interfaceUrl));
+            pop.addInterfaceInfoItem(
+                    new KeyValuePair().key("password").value(interfacePass));
+            pop.addInterfaceInfoItem(new KeyValuePair().key("project_name")
+                    .value(interfaceProjectName));
+            pop.addInterfaceInfoItem(
+                    new KeyValuePair().key("username").value(interfaceUser));
+            String interfaceType = "openstack";
+            pop.addInterfaceInfoItem(
+                    new KeyValuePair().key("type").value(interfaceType));
+            PoP poPR = poPApi.registerPoP(pop);
         } catch (ApiException e) {
-            logger.error("Exception when calling PoPApi#registerPoP");
-            e.printStackTrace();
+            logger.error("Exception when calling PoPApi#registerPoP", e);
         }
 
         try {
