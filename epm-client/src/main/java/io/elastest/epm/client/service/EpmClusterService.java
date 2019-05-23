@@ -111,6 +111,7 @@ public class EpmClusterService {
             pop.addInterfaceInfoItem(
                     new KeyValuePair().key("type").value(interfaceType));
             PoP poPR = poPApi.registerPoP(pop);
+            // TODO adapterApi.getAllAdapters
         } catch (ApiException e) {
             logger.error("Exception when calling PoPApi#registerPoP", e);
         }

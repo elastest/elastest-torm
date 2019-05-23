@@ -238,7 +238,7 @@ export class SutsManagerComponent implements OnInit {
   removeSelectedSuts(): void {
     if (this.selectedSutsIds.length > 0) {
       let iConfirmConfig: IConfirmConfig = {
-        message: 'Selected Projects will be deleted, do you want to continue?',
+        message: 'Selected Suts will be deleted, do you want to continue?',
         disableClose: false, // defaults to false
         viewContainerRef: this._viewContainerRef,
         title: 'Confirm',

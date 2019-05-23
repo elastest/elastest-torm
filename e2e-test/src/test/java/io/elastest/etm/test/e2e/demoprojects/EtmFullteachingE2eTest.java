@@ -51,7 +51,7 @@ import io.github.bonigarcia.seljup.SeleniumExtension;
 public class EtmFullteachingE2eTest extends EtmBaseTest {
     final String projectName = "E2E_test_FullTeaching";
     String tJobImage = "elastest/test-etm-alpinegitjava";
-    final int timeout = 600;
+    final int timeout = 660;
 
     private static final Map<String, List<String>> tssMap;
     static {

@@ -40,11 +40,17 @@ export class ManageElasticsearchComponent implements OnInit {
   }
 
   deleteRedIndices(): void {
+    this.loadingRedIndices = true;
+    //TODO: async call to evit timeout
     this.elasticsearchApiService.deleteRedIndices().subscribe(
       (deleted: boolean) => {
         this.redIndices = [];
+        this.loadingRedIndices = false;
       },
-      (error: Error) => console.log(error),
+      (error: Error) => {
+        console.log(error);
+        this.loadingRedIndices = false;
+      },
     );
   }
 
