@@ -742,7 +742,7 @@ public class EtmBaseTest {
         this.navigateToETProject(driver, projectName);
 
         // Sleep for wait to load tables
-        sleep(1500);
+        sleep(2500);
 
         String sutsTableXpath = getSutsTableXpathFromProjectPage();
 
