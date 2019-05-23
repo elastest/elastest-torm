@@ -53,7 +53,8 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     final String projectName = "E2E_test_Webapp";
     final String sutName = "Webapp";
     String tJobImage = "elastest/test-etm-alpinegitjava";
-    String tJobTestResultPath = "/demo-projects/webapp/junit5-web-multiple-browsers-test/target/surefire-reports/";
+    String tJobMultiBrowserTestResultPath = "/demo-projects/webapp/junit5-web-multiple-browsers-test/target/surefire-reports/";
+    String tJobSingleBrowserTestResultPath = "/demo-projects/webapp/junit5-web-single-browser-test/target/surefire-reports";
     private static final Map<String, List<String>> tssMap;
     static {
         tssMap = new HashMap<String, List<String>>();
@@ -78,7 +79,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
     }
 
     @Test
-    @DisplayName("Create WebApp project Chrome Test")
+    @DisplayName("Create WebApp project JUnit5 Multi Browser Chrome Test")
     void testCreateChromeTest(
             @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
             TestInfo testInfo)
@@ -93,7 +94,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
             String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-multiple-browsers-test; mvn -Dtest=WebAppTest -B -Dbrowser=chrome test;";
 
-            createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
+            createNewTJob(driver, tJobName, tJobMultiBrowserTestResultPath, sutName,
                     tJobImage, false, commands, null, tssMap, null, null);
         }
         // Run TJob
@@ -126,7 +127,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
         if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
             String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-multiple-browsers-test; mvn -Dtest=WebAppTest -B -Dbrowser=firefox test;";
 
-            createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
+            createNewTJob(driver, tJobName, tJobMultiBrowserTestResultPath, sutName,
                     tJobImage, false, commands, null, tssMap, null, null);
         }
         // Run TJob
@@ -156,7 +157,7 @@ public class EtmWebappE2eTest extends EtmBaseTest {
             Map<String, List<String>> multiConfigurations = new HashMap<>();
             multiConfigurations.put("BROWSER", multiConfig1List);
 
-            createNewTJob(driver, tJobName, tJobTestResultPath, sutName,
+            createNewTJob(driver, tJobName, tJobMultiBrowserTestResultPath, sutName,
                     tJobImage, false, commands, null, tssMap,
                     multiConfigurations, null);
         }
@@ -171,6 +172,39 @@ public class EtmWebappE2eTest extends EtmBaseTest {
 
         log.info("Waiting for Parent Report View to be present");
         getElementById(driver, "parentReportView", 20);
+    }
+
+    
+    
+    @Test
+    @DisplayName("Create WebApp project JUnit5 Single Browser Chrome Test")
+    void testCreateSingleChromeTest(
+            @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
+            TestInfo testInfo)
+            throws InterruptedException, MalformedURLException {
+        setupTestBrowser(testInfo, CHROME, localDriver);
+
+        this.createProjectAndSut(driver);
+
+        navigateToETProject(driver, projectName);
+
+        String tJobName = "JUnit5 Single Chrome Test";
+        if (!etTJobExistsIntoProject(driver, projectName, tJobName)) {
+            String commands = "git clone https://github.com/elastest/demo-projects; cd /demo-projects/webapp/junit5-web-single-browser-test; mvn -B -Dbrowser=chrome test;";
+
+            createNewTJob(driver, tJobName, tJobSingleBrowserTestResultPath, sutName,
+                    tJobImage, false, commands, null, tssMap, null, null);
+        }
+        // Run TJob
+        runTJobFromProjectPage(driver, tJobName);
+
+        this.checkFinishTJobExec(driver, timeout, "FAIL", true);
+
+        // Navigate To First Test Case execution page
+        navigateToExecTestCase(driver, 1, 1, true);
+
+        // Check the presence of testCaseInfo
+        getElementById(driver, "testCaseInfo", 20);
     }
 
 }
