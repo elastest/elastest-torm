@@ -83,8 +83,9 @@ public class K8Service {
         if (enableCloudMode) {
             logger.debug("Default K8s");
             client = new DefaultKubernetesClient();
-
-//            etToolsVolume = createEtToolsVolume();
+            
+            // TODO use volume into tjob to get testresults
+            etToolsVolume = createEtToolsVolume();
         }
     }
 
@@ -429,19 +430,22 @@ public class K8Service {
                 .withPath(etToolsVolumePath).build();
 
         // Copy to volume
+        try {
+            File sourceDirectoryFile = ResourceUtils
+                    .getFile(etToolsResourceFolderPath);
 
-        File sourceDirectoryFile = ResourceUtils
-                .getFile(etToolsResourceFolderPath);
+            if (!sourceDirectoryFile.exists()) { // Dev mode
+                Resource resource = new ClassPathResource(
+                        etToolsResourceFolderPath);
+                sourceDirectoryFile = resource.getFile();
+            }
 
-        if (!sourceDirectoryFile.exists()) { // Dev mode
-            Resource resource = new ClassPathResource(
-                    etToolsResourceFolderPath);
-            sourceDirectoryFile = resource.getFile();
+            File targetDirectoryFile = new File(etToolsVolumePathIntoEtm);
+
+            FileUtils.copyDirectory(sourceDirectoryFile, targetDirectoryFile);
+        } catch (Exception e) {
+            logger.error("Error on create EtTools Volume", e);
         }
-
-        File targetDirectoryFile = new File(etToolsVolumePathIntoEtm);
-
-        FileUtils.copyDirectory(sourceDirectoryFile, targetDirectoryFile);
 
         return etToolsVolume;
     }

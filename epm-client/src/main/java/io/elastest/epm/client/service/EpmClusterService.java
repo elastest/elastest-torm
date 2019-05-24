@@ -20,6 +20,7 @@ import io.elastest.epm.client.api.PackageApi;
 import io.elastest.epm.client.api.PoPApi;
 import io.elastest.epm.client.api.RuntimeApi;
 import io.elastest.epm.client.api.WorkerApi;
+import io.elastest.epm.client.model.Adapter;
 import io.elastest.epm.client.model.Cluster;
 import io.elastest.epm.client.model.ClusterFromResourceGroup;
 import io.elastest.epm.client.model.KeyValuePair;
@@ -111,7 +112,14 @@ public class EpmClusterService {
             pop.addInterfaceInfoItem(
                     new KeyValuePair().key("type").value(interfaceType));
             PoP poPR = poPApi.registerPoP(pop);
-            // TODO adapterApi.getAllAdapters
+
+            List<Adapter> adapters = adapterApi.getAllAdapters();
+            for (Adapter adapter : adapters) {
+                if ("ansible".equals(adapter.getType())) {
+                    logger.debug("Ansible adapter available!");
+                }
+            }
+
         } catch (ApiException e) {
             logger.error("Exception when calling PoPApi#registerPoP", e);
         }
