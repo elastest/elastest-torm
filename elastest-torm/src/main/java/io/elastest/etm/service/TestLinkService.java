@@ -1080,6 +1080,8 @@ public class TestLinkService {
             externalTestExec.setExTJobExec(savedTestExec.getExTJobExec());
             externalTestExec
                     .setMonitoringIndex(savedTestExec.getMonitoringIndex());
+            externalTestExec.setStartDate(savedTestExec.getStartDate());
+            externalTestExec.setEndDate(savedTestExec.getEndDate());
             externalTestExec = externalTestExecutionRepository
                     .save(externalTestExec);
         }
