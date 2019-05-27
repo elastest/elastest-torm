@@ -17,13 +17,9 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.util.ResourceUtils;
 
 import io.elastest.epm.client.DockerContainer;
 import io.fabric8.kubernetes.api.model.DoneableService;
@@ -78,14 +74,20 @@ public class K8Service {
 
     public KubernetesClient client;
 
+    private FilesService filesService;
+
+    public K8Service(FilesService filesService) {
+        this.filesService = filesService;
+    }
+
     @PostConstruct
     public void init() throws IOException {
         if (enableCloudMode) {
             logger.debug("Default K8s");
             client = new DefaultKubernetesClient();
-            
+
             // TODO use volume into tjob to get testresults
-            etToolsVolume = createEtToolsVolume();
+            // etToolsVolume = createEtToolsVolume();
         }
     }
 
@@ -422,6 +424,7 @@ public class K8Service {
     }
 
     public HostPathVolumeSource createEtToolsVolume() throws IOException {
+        // TODO
         String etToolsVolumePath = etDataInHost + "/" + etToolsInternalPath;
         String etToolsVolumePathIntoEtm = etSharedFolder + "/"
                 + etToolsInternalPath;
@@ -431,18 +434,53 @@ public class K8Service {
 
         // Copy to volume
         try {
-            File sourceDirectoryFile = ResourceUtils
-                    .getFile(etToolsResourceFolderPath);
 
-            if (!sourceDirectoryFile.exists()) { // Dev mode
-                Resource resource = new ClassPathResource(
-                        etToolsResourceFolderPath);
-                sourceDirectoryFile = resource.getFile();
+            // Method 1
+            // InputStream a = filesService
+            // .getResourceAsInputStream("/" + etToolsResourceFolderPath);
+            // logger.debug("aaaaaaaaaaaaaa {}", a);
+            //
+            // final InputStreamReader isr = new InputStreamReader(a,
+            // StandardCharsets.UTF_8);
+            // logger.debug("bbbbb");
+            // try (BufferedReader br = new BufferedReader(isr, 1024)) {
+            // String line;
+            // while ((line = br.readLine()) != null) {
+            // logger.info("File name (dev mode):" + line);
+            // // if (line.equals(fileName)) {
+            // // file = new ClassPathResource(path + line).getFile();
+            // // return file;
+            // // }
+            // }
+            // logger.debug("dddd");
+            // } catch (Exception e) {
+            // logger.error("cccc", e);
+            // }
+
+            // Method 2
+
+            List<File> tools = filesService
+                    .getFilesFromResources("/" + etToolsResourceFolderPath);
+            if (tools == null || tools.size() == 0) {
+                logger.debug("No tools found in {}", etToolsResourceFolderPath);
+            } else {
+                filesService.saveFilesInPath(tools, etToolsVolumePathIntoEtm);
+                logger.debug("EtTools copied to {} successfully",
+                        etToolsVolumePathIntoEtm);
             }
-
-            File targetDirectoryFile = new File(etToolsVolumePathIntoEtm);
-
-            FileUtils.copyDirectory(sourceDirectoryFile, targetDirectoryFile);
+            // File sourceDirectoryFile = ResourceUtils
+            // .getFile(etToolsResourceFolderPath);
+            //
+            // if (!sourceDirectoryFile.exists()) { // Dev mode
+            // Resource resource = new ClassPathResource(
+            // etToolsResourceFolderPath);
+            // sourceDirectoryFile = resource.getFile();
+            // }
+            //
+            // File targetDirectoryFile = new File(etToolsVolumePathIntoEtm);
+            //
+            // FileUtils.copyDirectory(sourceDirectoryFile,
+            // targetDirectoryFile);
         } catch (Exception e) {
             logger.error("Error on create EtTools Volume", e);
         }

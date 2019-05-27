@@ -389,13 +389,12 @@ public class EtmFilesService {
 
     public File getFileFromJarFile(String sourcePath, String targetPath)
             throws IOException {
-        InputStream iStream = getFileContentAsInputStream(sourcePath);
+        InputStream iStream = getFileContentAsInputStreamFromResource(sourcePath);
         return createFileFromInputStream(iStream, targetPath);
     }
 
-    public InputStream getFileContentAsInputStream(String path) {
-        InputStream fileAsInputStream = getClass().getResourceAsStream(path);
-        return fileAsInputStream;
+    public InputStream getFileContentAsInputStreamFromResource(String path) {
+        return getClass().getResourceAsStream(path);
     }
 
     public File createFileFromInputStream(InputStream iStream,

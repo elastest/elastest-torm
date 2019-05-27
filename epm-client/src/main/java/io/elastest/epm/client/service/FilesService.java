@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -44,7 +45,7 @@ public class FilesService {
     public static final Logger logger = LoggerFactory
             .getLogger(FilesService.class);
 
-    public List<File> getFilesFromFolder(String path) throws IOException {
+    public List<File> getFilesFromResources(String path) throws IOException {
         logger.info("Get files inside the folder: {}", path);
         List<File> files = new ArrayList<>();
         try {
@@ -88,6 +89,36 @@ public class FilesService {
         }
     }
 
+    public List<File> getFilesFromResources1(String path, String tmpFolder)
+            throws IOException, URISyntaxException {
+        List<File> files = new ArrayList<>();
+        boolean inProd = false;
+        logger.info("Load files in dev mode. Path {}, target path {}", path,
+                tmpFolder);
+        Resource resource = new ClassPathResource(path);
+        logger.info("Resource loading ok? {}", resource.exists());
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(resource.getInputStream()), 1024)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                logger.info("File name (dev mode):" + line);
+                File file = new ClassPathResource(path + line).getFile();
+                if (files.size() == 0 && (file == null || !file.exists())) {
+                    inProd = true;
+                    break;
+                }
+                files.add(file);
+            }
+        }
+
+        if (inProd) {
+            logger.info("Load files prod mode");
+            files = getFilesFromJarFile("/" + path + "/", tmpFolder + "/");
+            logger.info("Files loaded");
+        }
+        return files;
+    }
+
     public File getFileFromResources(String path, String fileName,
             String tmpFolder) throws IOException, URISyntaxException {
         File file = null;
@@ -119,13 +150,21 @@ public class FilesService {
 
     public File getFileFromJarFile(String sourcePath, String targetPath)
             throws IOException {
-        InputStream iStream = getFileContentAsInputStream(sourcePath);
+        InputStream iStream = getResourceAsInputStream(sourcePath);
         return createFileFromInputStream(iStream, targetPath);
     }
 
-    public InputStream getFileContentAsInputStream(String path) {
-        InputStream fileAsInputStream = getClass().getResourceAsStream(path);
-        return fileAsInputStream;
+    public List<File> getFilesFromJarFile(String sourcePath, String targetPath)
+            throws IOException {
+        InputStream iStream = getResourceAsInputStream(sourcePath);
+        return createFilesFromInputStream(iStream, targetPath);
+    }
+
+    public InputStream getResourceAsInputStream(String path) {
+        final InputStream in = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream(path);
+
+        return in == null ? getClass().getResourceAsStream(path) : in;
     }
 
     public File createFileFromInputStream(InputStream iStream,
@@ -133,6 +172,20 @@ public class FilesService {
         File file = new File(targetPath);
         FileUtils.copyInputStreamToFile(iStream, file);
         return ResourceUtils.getFile(targetPath);
+    }
+
+    public List<File> createFilesFromInputStream(InputStream iStream,
+            String targetPath) throws IOException {
+        List<File> files = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(iStream), 1024)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                File file = createFileFromString(line, targetPath);
+                files.add(file);
+            }
+        }
+        return files;
     }
 
     public File createFileFromString(String string, String targetPath)
@@ -156,6 +209,21 @@ public class FilesService {
         }
 
         return content;
+    }
+
+    public void saveFileInPath(File file, String path) throws IOException {
+        byte[] fileContent = Files.readAllBytes(file.toPath());
+
+        OutputStream out = new FileOutputStream(new File(path));
+        out.write(fileContent);
+        out.close();
+    }
+
+    public void saveFilesInPath(List<File> files, String path)
+            throws IOException {
+        for (File file : files) {
+            saveFileInPath(file, path);
+        }
     }
 
     public void writeFileFromString(String content, File file)
@@ -206,8 +274,9 @@ public class FilesService {
                 addToArchiveCompression(out, file, ".");
             }
         }
-        
-        logger.info("Path of the tar file: {}", files[0].getAbsolutePath() + ".tar");
+
+        logger.info("Path of the tar file: {}",
+                files[0].getAbsolutePath() + ".tar");
         return new File(files[0].getAbsolutePath() + ".tar");
     }
 
@@ -255,7 +324,7 @@ public class FilesService {
                 ? basePath + prefix + formatter.format(date)
                 : prefix + formatter.format(date);
     }
-    
+
     private void unTar(TarArchiveInputStream tis, File destFolder)
             throws IOException {
         TarArchiveEntry entry = null;
