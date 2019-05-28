@@ -1,0 +1,14 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="edu (generated)" id="1559034805108-1">
+        <createTable tableName="ExternalTJobExecution_servicesInstances">
+            <column name="ExternalTJobExecution_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="servicesInstances" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1559034805108-2">
+        <addForeignKeyConstraint baseColumnNames="ExternalTJobExecution_id" baseTableName="ExternalTJobExecution_servicesInstances" constraintName="FKe6gqa2qmjj43shv2cb1m0sf2c" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="ExternalTJobExecution"/>
+    </changeSet>
+</databaseChangeLog>

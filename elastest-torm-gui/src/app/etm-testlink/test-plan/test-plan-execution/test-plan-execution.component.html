@@ -43,8 +43,8 @@
             <div fxLayout="row" class="push-top-sm">
               <span id="resultMsgText" class="mat-subheading-1">{{ exTJobExec.resultMsg }}</span>
               <span fxFlex></span>
-              <div *ngIf="totalCases > 0 && externalTestCases && data" class="mat-caption">
-                {{ totalCases - externalTestCases.length }}/{{ totalCases }}
+              <div *ngIf="totalCases > 0 && testCases && data" class="mat-caption">
+                {{ totalCases - testCases.length }}/{{ totalCases }}
               </div>
             </div>
           </div>
@@ -187,6 +187,14 @@
 
 <!-- logs & Metrics -->
 <etm-monitoring-view *ngIf="exTJobExec !== undefined" #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
+
+<!-- TSS Services Instances -->
+
+<div *ngFor="let serviceInstance of serviceInstances">
+  <ng-container *ngIf="serviceInstance.serviceName.toLowerCase() !== 'eus'">
+    <esm-service-detail [serviceInstance]="serviceInstance" [standaloneService]="false"></esm-service-detail>
+  </ng-container>
+</div>
 
 <!-- Files -->
 <etm-files-manager

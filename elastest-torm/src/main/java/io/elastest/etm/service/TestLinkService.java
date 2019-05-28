@@ -984,6 +984,7 @@ public class TestLinkService {
             externalTJob.setSut(savedTJob.getSut());
             externalTJob
                     .setExecDashboardConfig(savedTJob.getExecDashboardConfig());
+            externalTJob.setSelectedServices(savedTJob.getSelectedServices());
 
             externalTJob = externalTJobRepository.save(externalTJob);
         }

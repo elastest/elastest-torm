@@ -747,8 +747,8 @@ public class TJobService {
         TJobExecution tJobExec = tJobExecRepositoryImpl
                 .findById(Long.valueOf(tJobExecId)).get();
         result = platformService.copyFilesFomContainer(podName,
-                tJobExec.getTjob().getResultsPath(),
-                etmFilesService.getTJobExecFolderPath(tJobExec));
+                tJobExec.getTjob().getResultsPath(), etmFilesService
+                        .getExecutionFolderPath(new Execution(tJobExec)));
         return result;
     }
 }

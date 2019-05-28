@@ -7,8 +7,9 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 import { PullingObjectModel } from '../shared/pulling-obj.model';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { interval } from 'rxjs';
+import { ExternalTJobExecModel } from '../elastest-etm/external/external-tjob-execution/external-tjob-execution-model';
 
 export type tssParentType = 'normal' | 'tjobexec' | 'external';
 
@@ -55,6 +56,11 @@ export class EsmService {
 
   getSupportServicesInstancesByTJobExec(tJobExec: TJobExecModel): Observable<EsmServiceInstanceModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/esm/services/instances/tJobExec/' + tJobExec.id;
+    return this.http.get(url).map((data: any[]) => this.transformIntoSupportServiceInstanceList(data));
+  }
+
+  getSupportServicesInstancesByExternalTJobExec(exTJobExec: ExternalTJobExecModel): Observable<EsmServiceInstanceModel[]> {
+    let url: string = this.configurationService.configModel.hostApi + '/esm/services/instances/external/' + exTJobExec.id;
     return this.http.get(url).map((data: any[]) => this.transformIntoSupportServiceInstanceList(data));
   }
 

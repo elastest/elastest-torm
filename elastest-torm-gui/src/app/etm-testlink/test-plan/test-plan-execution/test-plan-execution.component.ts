@@ -15,7 +15,7 @@ import { BuildModel } from '../../models/build-model';
 import { IExternalExecutionSaveModel } from '../../../elastest-etm/external/models/external-execution-save.model';
 import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
 import { TLTestCaseModel } from '../../models/test-case-model';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, interval, Subject } from 'rxjs';
 import { EtmMonitoringViewComponent } from '../../../elastest-etm/etm-monitoring-view/etm-monitoring-view.component';
 import { PullingObjectModel } from '../../../shared/pulling-obj.model';
 import { EsmServiceInstanceModel } from '../../../elastest-esm/esm-service-instance.model';
@@ -27,6 +27,7 @@ import { sleep } from '../../../shared/utils';
 import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TdDialogService } from '@covalent/core';
+import { EtmRestClientService } from '../../../shared/services/etm-rest-client.service';
 
 @Component({
   selector: 'testlink-test-plan-execution',
@@ -48,7 +49,6 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   exTJob: ExternalTJobModel;
   exTJobExec: ExternalTJobExecModel;
-  externalTestCases: ExternalTestCaseModel[] = [];
   currentExternalTestExecution: ExternalTestExecutionModel;
 
   exTJobExecFinish: boolean = false;
@@ -111,6 +111,11 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   browserFilesToUpload: File | FileList;
   downloadFilePath: string = '';
 
+  // TSS
+  serviceInstances: EsmServiceInstanceModel[] = [];
+  instancesNumber: number;
+  checkTSSInstancesSubscription: Subscription;
+
   // For development only! RETURN TO FALSE ON COMMIT
   activateGUIDevelopmentMode: boolean = false;
 
@@ -125,6 +130,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     private elastestRabbitmqService: ElastestRabbitmqService,
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
+    private etmRestClientService: EtmRestClientService,
   ) {
     if (!this.activateGUIDevelopmentMode) {
       let queryParams: any = router.parseUrl(router.url).queryParams;
@@ -176,6 +182,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       this.forceEnd();
     }
     this.elastestRabbitmqService.unsubscribeWSDestination();
+    this.unsubscribeCheckTssInstances();
   }
 
   loadPlanAndBuild(): void {
@@ -216,10 +223,16 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     this.exTJobExec = new ExternalTJobExecModel();
     this.externalService.createExternalTJobExecutionByExTJobId(this.exTJob.id).subscribe((exTJobExec: ExternalTJobExecModel) => {
       this.exTJobExec = exTJobExec;
-      this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
-
+      // +1 because EUS
+      this.instancesNumber = this.exTJobExec.exTJob.esmServicesChecked + 1;
       this.checkFinished();
-      this.waitForEus(exTJobExec);
+      this.getSupportServicesInstances().subscribe(
+        (ok: boolean) => {
+          this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
+          this.waitForEus(exTJobExec);
+        },
+        (error: Error) => console.log(error),
+      );
     });
   }
 
@@ -294,6 +307,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
           this.initLoadBrowser(withWait);
         });
       } else {
+        this.initSutUrl();
         this.loadBrowser();
       }
     } else {
@@ -305,6 +319,8 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     this.browserCardMsg = 'Waiting for Browser...';
     this.executionCardMsg = 'Just a little more...';
     let extraCapabilities: any = { manualRecording: true, elastestTimeout: 0 };
+
+    extraCapabilities = this.addTssCapabilities(extraCapabilities);
     this.eusService.startSession(this.browserName, this.browserVersion, extraCapabilities, false, this.extraHosts).subscribe(
       (eusTestModel: EusTestModel) => {
         this.eusTestModel = eusTestModel;
@@ -334,12 +350,46 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     );
   }
 
-  openSutUrl(): void {
+  addTssCapabilities(extraCapabilities: any): any {
+    if (this.serviceInstances) {
+      for (let instance of this.serviceInstances) {
+        if (instance.serviceName.toLowerCase() === 'ess') {
+          let proxyUrl: string = instance.ip + ':8080';
+
+          if (extraCapabilities['chromeOptions'] === undefined || extraCapabilities['chromeOptions'] === null) {
+            extraCapabilities['chromeOptions'] = {};
+          }
+
+          if (extraCapabilities['chromeOptions']['args'] === undefined || extraCapabilities['chromeOptions']['args'] === null) {
+            extraCapabilities['chromeOptions']['args'] = [];
+          }
+
+          extraCapabilities['chromeOptions']['args'].push('--proxy-server=' + proxyUrl);
+          let essApiUrl: string = instance.urls.api;
+
+          this.etmRestClientService.doPost(essApiUrl + '/start/', { sites: [this.sutUrl] }).subscribe(
+            (response: any) => {
+              console.log('ESS response:', response);
+            },
+            (error: Error) => console.log(error),
+          );
+        }
+      }
+    }
+    return extraCapabilities;
+  }
+
+  initSutUrl(): void {
     if (this.exTJob.withSut()) {
       if (this.exTJobExec.envVars['ET_SUT_URL'] !== undefined) {
         this.sutUrl = this.exTJobExec.envVars['ET_SUT_URL'];
-        this.eusService.navigateToUrl(this.sessionId, this.sutUrl).subscribe();
       }
+    }
+  }
+
+  openSutUrl(): void {
+    if (this.exTJob.withSut() && this.sutUrl !== '') {
+      this.eusService.navigateToUrl(this.sessionId, this.sutUrl).subscribe();
     }
   }
 
@@ -711,5 +761,39 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
           );
         }
       });
+  }
+
+  getSupportServicesInstances(): Observable<boolean> {
+    let _obs: Subject<boolean> = new Subject<boolean>();
+    let obs: Observable<boolean> = _obs.asObservable();
+
+    let timer: Observable<number> = interval(2200);
+    if (this.checkTSSInstancesSubscription === null || this.checkTSSInstancesSubscription === undefined) {
+      this.checkTSSInstancesSubscription = timer.subscribe(() => {
+        this.esmService.getSupportServicesInstancesByExternalTJobExec(this.exTJobExec).subscribe(
+          (serviceInstances: EsmServiceInstanceModel[]) => {
+            if (serviceInstances.length === this.instancesNumber || this.exTJobExec.finished()) {
+              this.unsubscribeCheckTssInstances();
+              this.serviceInstances = [...serviceInstances];
+              _obs.next(true);
+            }
+          },
+          (error: Error) => {
+            console.log(error);
+            if (this.instancesNumber === 1) {
+              _obs.next(true);
+            }
+          },
+        );
+      });
+    }
+    return obs;
+  }
+
+  unsubscribeCheckTssInstances(): void {
+    if (this.checkTSSInstancesSubscription !== undefined) {
+      this.checkTSSInstancesSubscription.unsubscribe();
+      this.checkTSSInstancesSubscription = undefined;
+    }
   }
 }

@@ -187,9 +187,20 @@
 
   <!-- Suts -->
   <auto-height-row>
-    <!-- Suts Grid -->
-    <auto-height-grid *ngIf="exProject">
-      <auto-height-row> <etm-suts-manager [exProjectId]="exProject.id"></etm-suts-manager> </auto-height-row>
-    </auto-height-grid>
+    <mat-spinner
+      strokeWidth="6"
+      *ngIf="loadingExProject; else showSutsGrid"
+      color="accent"
+      class="push-top-sm spinnerCenter"
+    ></mat-spinner>
+
+    <ng-template #showSutsGrid>
+      <!-- Suts Grid -->
+      <auto-height-grid *ngIf="exProject">
+        <auto-height-row>
+          <etm-suts-manager [exProjectId]="exProject.id"></etm-suts-manager>
+        </auto-height-row>
+      </auto-height-grid>
+    </ng-template>
   </auto-height-row>
 </auto-height-grid>

@@ -7,6 +7,7 @@ import { ETModelsTransformServices } from '../../shared/services/et-models-trans
 import { SutModel } from '../sut/sut-model';
 import { ExternalTestExecutionModel } from './external-test-execution/external-test-execution-model';
 import { DashboardConfigModel } from '../tjob/dashboard-config-model';
+import { TssManifest, EsmServiceModel } from '../../elastest-esm/esm-service.model';
 
 @Injectable()
 export class ETExternalModelsTransformService {
@@ -94,6 +95,27 @@ export class ETExternalModelsTransformService {
     }
     newTJob.execDashboardConfig = tjob.execDashboardConfig;
     newTJob.execDashboardConfigModel = new DashboardConfigModel(tjob.execDashboardConfig, false, false, false);
+
+    if (tjob.esmServicesString !== undefined && tjob.esmServicesString !== null && tjob.esmServicesString !== '') {
+      newTJob.esmServicesString = tjob.esmServicesString;
+      for (let service of JSON.parse(tjob.esmServicesString)) {
+        let manifest: any = service.manifest;
+        if (manifest === undefined || manifest === null) {
+          manifest = { config: undefined };
+        }
+        service.manifest = manifest;
+        let tssManifest: TssManifest = new TssManifest();
+
+        if (service.manifest) {
+          tssManifest.initFromJson(service.manifest);
+        }
+
+        newTJob.esmServices.push(new EsmServiceModel(service.id, service.name, service.selected, tssManifest));
+        if (service.selected) {
+          newTJob.esmServicesChecked++;
+        }
+      }
+    }
 
     return newTJob;
   }

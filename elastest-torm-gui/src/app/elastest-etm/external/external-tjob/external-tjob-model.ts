@@ -4,6 +4,7 @@ import { ExternalTestCaseModel } from '../external-test-case/external-test-case-
 import { SutModel } from '../../sut/sut-model';
 import { AbstractTJobModel } from '../../models/abstract-tjob-model';
 import { DashboardConfigModel } from '../../tjob/dashboard-config-model';
+import { EsmServiceModel } from '../../../elastest-esm/esm-service.model';
 
 export class ExternalTJobModel extends AbstractTJobModel {
   id: number;
@@ -15,6 +16,9 @@ export class ExternalTJobModel extends AbstractTJobModel {
   exTJobExecs: ExternalTJobExecModel[];
   exTestCases: ExternalTestCaseModel[];
   sut: SutModel;
+  esmServicesString: string;
+  esmServices: EsmServiceModel[];
+  esmServicesChecked: number;
 
   execDashboardConfig: string;
   execDashboardConfigModel: DashboardConfigModel;
@@ -28,6 +32,10 @@ export class ExternalTJobModel extends AbstractTJobModel {
     this.exTJobExecs = [];
     this.exTestCases = [];
     this.sut = undefined;
+
+    this.esmServicesString = '';
+    this.esmServices = [];
+    this.esmServicesChecked = 0;
 
     this.execDashboardConfigModel = new DashboardConfigModel(undefined, false, false, false);
   }

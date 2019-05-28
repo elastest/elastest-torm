@@ -148,6 +148,7 @@ import { ManageElasticsearchComponent } from './elastest-etm/manage-elastest/man
 import { ElasticsearchApiService } from './elastest-etm/manage-elastest/manage-elasticsearch/elasticsearch-api.service';
 import { ManageClustersComponent } from './elastest-etm/manage-elastest/manage-clusters/manage-clusters.component';
 import { ManageClustersService } from './elastest-etm/manage-elastest/manage-clusters/manage-clusters.service';
+import { EtmRestClientService } from './shared/services/etm-rest-client.service';
 
 library.add(faJenkins);
 library.add(fas);
@@ -290,6 +291,7 @@ library.add(fas);
     TestLinkService,
     ExternalService,
     TransformService,
+    EtmRestClientService,
     ConfigurationService,
     {
       provide: APP_INITIALIZER,

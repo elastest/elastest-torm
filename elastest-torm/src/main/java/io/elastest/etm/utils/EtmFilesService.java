@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.ElastestFile;
+import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 
 @Service
@@ -185,7 +186,7 @@ public class EtmFilesService {
     /* ************************** TJob Exec ************************** */
     /* *************************************************************** */
 
-    public String getTJobExecFolderPath(TJobExecution tJobExec,
+    private String getTJobExecFolderPath(TJobExecution tJobExec,
             boolean relativePath) {
 
         String path = (relativePath ? "" : sharedFolder) + FILE_SEPARATOR
@@ -193,10 +194,6 @@ public class EtmFilesService {
                 + tJobExec.getTjob().getId() + FILE_SEPARATOR
                 + TJOB_EXEC_FOLDER_PREFIX + tJobExec.getId() + FILE_SEPARATOR;
         return path;
-    }
-
-    public String getTJobExecFolderPath(TJobExecution tJobExec) {
-        return getTJobExecFolderPath(tJobExec, false);
     }
 
     public List<ElastestFile> getTJobExecFilesUrls(Long tJobId, Long tJobExecId)
@@ -325,7 +322,7 @@ public class EtmFilesService {
         return filesList;
     }
 
-    public String getExternalTJobExecFolderPath(
+    private String getExternalTJobExecFolderPath(
             ExternalTJobExecution exTJobExec, boolean relativePath) {
         return (relativePath ? "" : sharedFolder) + FILE_SEPARATOR
                 + EXTERNAL_TJOBS_FOLDER + FILE_SEPARATOR
@@ -334,9 +331,22 @@ public class EtmFilesService {
                 + exTJobExec.getId() + FILE_SEPARATOR;
     }
 
-    public String getExternalTJobExecFolderPath(
-            ExternalTJobExecution exTJobExe) {
-        return getExternalTJobExecFolderPath(exTJobExe, false);
+    /* ********************************************************** */
+    /* *********************** Execution *********************** */
+    /* ********************************************************** */
+
+    public String getExecutionFolderPath(Execution execution,
+            boolean relativePath) {
+        if (execution.isExternal()) {
+            return getExternalTJobExecFolderPath(
+                    execution.getExternalTJobExec(), relativePath);
+        } else {
+            return getTJobExecFolderPath(execution.getTJobExec(), relativePath);
+        }
+    }
+
+    public String getExecutionFolderPath(Execution execution) {
+        return getExecutionFolderPath(execution, false);
     }
 
     /* *********************************************************** */
@@ -389,7 +399,8 @@ public class EtmFilesService {
 
     public File getFileFromJarFile(String sourcePath, String targetPath)
             throws IOException {
-        InputStream iStream = getFileContentAsInputStreamFromResource(sourcePath);
+        InputStream iStream = getFileContentAsInputStreamFromResource(
+                sourcePath);
         return createFileFromInputStream(iStream, targetPath);
     }
 

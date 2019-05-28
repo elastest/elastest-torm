@@ -1,6 +1,7 @@
 package io.elastest.etm.model.external;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -113,6 +114,9 @@ public class ExternalTJobExecution implements Serializable {
     @JsonProperty("monitoringStorageType")
     private MonitoringStorageType monitoringStorageType;
 
+    @ElementCollection
+    private List<String> servicesInstances;
+
     /* **************************/
     /* ***** Constructors *******/
     /* **************************/
@@ -120,12 +124,14 @@ public class ExternalTJobExecution implements Serializable {
     public ExternalTJobExecution() {
         this.envVars = new HashMap<>();
         this.result = ResultEnum.NOT_EXECUTED;
+        this.servicesInstances = new ArrayList<>();
     }
 
     public ExternalTJobExecution(Long id) {
         this.id = id == null ? 0 : id;
         this.envVars = new HashMap<>();
         this.result = ResultEnum.NOT_EXECUTED;
+        this.servicesInstances = new ArrayList<>();
     }
 
     /* *****************************/
@@ -231,6 +237,22 @@ public class ExternalTJobExecution implements Serializable {
         this.monitoringStorageType = monitoringStorageType;
     }
 
+    /*
+     * servicesInstances get/set
+     */
+
+    public List<String> getServicesInstances() {
+        return servicesInstances;
+    }
+
+    public void setServicesInstances(List<String> servicesInstances) {
+        this.servicesInstances = servicesInstances;
+    }
+
+    /* ********************************** */
+    /* ************* OTHERS ************* */
+    /* ********************************** */
+
     public boolean isWithSut() {
         return this.exTJob != null && this.exTJob.isWithSut();
     }
@@ -242,7 +264,8 @@ public class ExternalTJobExecution implements Serializable {
                 + ", resultMsg=" + resultMsg + ", envVars=" + envVars
                 + ", exTestExecs=" + exTestExecs + ", startDate=" + startDate
                 + ", endDate=" + endDate + ", monitoringStorageType="
-                + monitoringStorageType + "]";
+                + monitoringStorageType + ", servicesInstances="
+                + servicesInstances + "]";
     }
 
 }

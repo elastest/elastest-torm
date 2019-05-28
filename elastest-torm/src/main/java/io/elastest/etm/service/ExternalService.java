@@ -27,6 +27,7 @@ import io.elastest.etm.dao.external.ExternalTestCaseRepository;
 import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
 import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.model.EusExecutionData;
+import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
@@ -476,6 +477,8 @@ public class ExternalService {
 
     public ExternalTJobExecution createExternalTJobExecution(
             ExternalTJobExecution exec) {
+        ExternalTJob exTJob = this.externalTJobRepository
+                .findById(exec.getExTJob().getId()).get();
 
         if (utilsService.isElastestMini()) {
             exec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
@@ -483,34 +486,6 @@ public class ExternalService {
             exec.setMonitoringStorageType(MonitoringStorageType.ELASTICSEARCH);
         }
 
-        exec = this.externalTJobExecutionRepository.save(exec);
-        if (exec.getMonitoringIndex().isEmpty()
-                || "".equals(exec.getMonitoringIndex())) {
-            exec.generateMonitoringIndex();
-            exec = this.externalTJobExecutionRepository.save(exec);
-        }
-
-        exec = startEus(exec);
-
-        monitoringService
-                .createMonitoringIndex(exec.getMonitoringIndicesList());
-
-        return exec;
-    }
-
-    public ExternalTJobExecution createExternalTJobExecutionByExternalTJobId(
-            Long exTJobId) {
-        ExternalTJob exTJob = this.externalTJobRepository.findById(exTJobId)
-                .get();
-        ExternalTJobExecution exec = new ExternalTJobExecution();
-
-        if (utilsService.isElastestMini()) {
-            exec.setMonitoringStorageType(MonitoringStorageType.MYSQL);
-        } else {
-            exec.setMonitoringStorageType(MonitoringStorageType.ELASTICSEARCH);
-        }
-
-        exec.setExTJob(exTJob);
         exec.setStartDate(new Date());
 
         exec = this.externalTJobExecutionRepository.save(exec);
@@ -529,6 +504,16 @@ public class ExternalService {
                 .createMonitoringIndex(exec.getMonitoringIndicesList());
 
         return exec;
+    }
+
+    public ExternalTJobExecution createExternalTJobExecutionByExternalTJobId(
+            Long exTJobId) {
+        ExternalTJob exTJob = this.externalTJobRepository.findById(exTJobId)
+                .get();
+        ExternalTJobExecution exec = new ExternalTJobExecution();
+        exec.setExTJob(exTJob);
+
+        return createExternalTJobExecution(exec);
     }
 
     // Modify or end ExternalTJobExecution
@@ -563,9 +548,8 @@ public class ExternalService {
             String instanceId = UtilTools.generateUniqueId();
 
             if (utilsService.isElastestMini()) { // use started instance
-                instanceId = esmService
-                        .provisionExternalTJobExecServiceInstanceSync(
-                                eus.getId(), exec);
+                instanceId = esmService.provisionExecutionServiceInstanceSync(
+                        eus.getId(), new Execution(exec));
 
                 // Get new EUS API
                 String etEusApiKey = "ET_EUS_API";
@@ -588,10 +572,11 @@ public class ExternalService {
             } else { // Start new EUS instance
                 String serviceId = eus.getId();
                 boolean isShared = false;
+                Execution execution = new Execution(exec);
                 if (esmService.isSharedTssInstance("EUS")) {
                     String tssInstanceId = esmService
-                            .provisionExternalTJobExecSharedTSSSync(serviceId,
-                                    exec);
+                            .provisionExecutionSharedTSSSync(serviceId,
+                                    execution);
 
                     if (tssInstanceId != null) {
                         instanceId = tssInstanceId;
@@ -600,8 +585,8 @@ public class ExternalService {
                 }
 
                 if (!isShared) {
-                    esmService.provisionExternalTJobExecServiceInstanceAsync(
-                            serviceId, exec, instanceId);
+                    esmService.provisionExecutionServiceInstanceAsync(serviceId,
+                            execution, instanceId);
                 }
             }
             exec.getEnvVars().put("EUS_ID", eus.getId());

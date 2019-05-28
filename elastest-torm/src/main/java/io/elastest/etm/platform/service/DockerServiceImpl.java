@@ -397,7 +397,6 @@ public class DockerServiceImpl extends PlatformService {
         }
     }
 
-
     /* ************** */
     /* **** Test **** */
     /* ************** */
@@ -441,8 +440,8 @@ public class DockerServiceImpl extends PlatformService {
             execution.updateTJobExecutionStatus(ResultEnum.WAITING, resultMsg);
             execution.setStatusMsg(resultMsg);
             String resultsPath = execution.gettJob().getResultsPath();
-            String testResultsAsString = getFileContentFromContainer(testContainerId,
-                    resultsPath);
+            String testResultsAsString = getFileContentFromContainer(
+                    testContainerId, resultsPath);
             List<ReportTestSuite> testResults = null;
             testResults = getTestSuitesByString(testResultsAsString);
 
@@ -591,13 +590,9 @@ public class DockerServiceImpl extends PlatformService {
 
         // Create Containers
         String pathToSaveTmpYml = "";
-        if (execution.isExternal()) {
-            pathToSaveTmpYml = etmFilesService.getExternalTJobExecFolderPath(
-                    execution.getExternalTJobExec());
-        } else {
-            pathToSaveTmpYml = etmFilesService
-                    .getTJobExecFolderPath(execution.getTJobExec());
-        }
+
+        pathToSaveTmpYml = etmFilesService.getExecutionFolderPath(execution);
+
         boolean created = dockerComposeService.createProject(project,
                 pathToSaveTmpYml, false, false, false);
 
@@ -750,7 +745,6 @@ public class DockerServiceImpl extends PlatformService {
         }
         return container;
     }
-
 
     private String waitForSutInContainer(Execution execution, long timeout)
             throws Exception {
@@ -1365,7 +1359,8 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public Integer copyFilesFomContainer(String container, String originPath, String targetPath) {
+    public Integer copyFilesFomContainer(String container, String originPath,
+            String targetPath) {
         // TODO Auto-generated method stub
         return null;
     }

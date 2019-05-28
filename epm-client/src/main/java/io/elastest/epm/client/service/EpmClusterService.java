@@ -43,6 +43,9 @@ public class EpmClusterService {
     private ResourceGroup ansibleRG;
     private ResourceGroup ansible2RG;
 
+    @Value("${et.enable.cloud.mode}")
+    public boolean enableCloudMode;
+
     @Value("${et.epm.api}")
     String etEpmApi;
 
@@ -74,66 +77,68 @@ public class EpmClusterService {
 
     @PostConstruct
     private void init() throws ApiException {
-        String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
-        epmPackagescompletePath = etSharedFolder;
-        if (!epmPackagescompletePath.endsWith(fileSeparator)) {
-            epmPackagescompletePath += fileSeparator;
-        }
-
-        epmPackagescompletePath += etEpmPackagesPath;
-
-        if (!epmPackagescompletePath.endsWith(fileSeparator)) {
-            epmPackagescompletePath += fileSeparator;
-        }
-
-        ApiClient apiClient = new ApiClient();
-        apiClient.setBasePath(etEpmApi);
-
-        clusterApi.setApiClient(apiClient);
-        packageApi.setApiClient(apiClient);
-        workerApi.setApiClient(apiClient);
-        adapterApi.setApiClient(apiClient);
-        poPApi.setApiClient(apiClient);
-        runtimeApi.setApiClient(apiClient);
-
-        try {
-            PoP pop = new PoP();
-            pop.setName(interfaceName);
-            pop.setInterfaceEndpoint(interfaceUrl);
-            pop.addInterfaceInfoItem(
-                    new KeyValuePair().key("auth_url").value(interfaceUrl));
-            pop.addInterfaceInfoItem(
-                    new KeyValuePair().key("password").value(interfacePass));
-            pop.addInterfaceInfoItem(new KeyValuePair().key("project_name")
-                    .value(interfaceProjectName));
-            pop.addInterfaceInfoItem(
-                    new KeyValuePair().key("username").value(interfaceUser));
-            String interfaceType = "openstack";
-            pop.addInterfaceInfoItem(
-                    new KeyValuePair().key("type").value(interfaceType));
-            PoP poPR = poPApi.registerPoP(pop);
-
-            List<Adapter> adapters = adapterApi.getAllAdapters();
-            for (Adapter adapter : adapters) {
-                if ("ansible".equals(adapter.getType())) {
-                    logger.debug("Ansible adapter available!");
-                }
+        if (enableCloudMode) {
+            String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
+            epmPackagescompletePath = etSharedFolder;
+            if (!epmPackagescompletePath.endsWith(fileSeparator)) {
+                epmPackagescompletePath += fileSeparator;
             }
 
-        } catch (ApiException e) {
-            logger.error("Exception when calling PoPApi#registerPoP", e);
-        }
+            epmPackagescompletePath += etEpmPackagesPath;
 
-        try {
-            updateClusterTar();
-        } catch (Exception e) {
-            logger.error("Error on updateClusterTar:", e);
-        }
+            if (!epmPackagescompletePath.endsWith(fileSeparator)) {
+                epmPackagescompletePath += fileSeparator;
+            }
 
-        try {
-            updateNodesTar();
-        } catch (Exception e) {
-            logger.error("Error on updateNodesTar:", e);
+            ApiClient apiClient = new ApiClient();
+            apiClient.setBasePath(etEpmApi);
+
+            clusterApi.setApiClient(apiClient);
+            packageApi.setApiClient(apiClient);
+            workerApi.setApiClient(apiClient);
+            adapterApi.setApiClient(apiClient);
+            poPApi.setApiClient(apiClient);
+            runtimeApi.setApiClient(apiClient);
+
+            try {
+                PoP pop = new PoP();
+                pop.setName(interfaceName);
+                pop.setInterfaceEndpoint(interfaceUrl);
+                pop.addInterfaceInfoItem(
+                        new KeyValuePair().key("auth_url").value(interfaceUrl));
+                pop.addInterfaceInfoItem(new KeyValuePair().key("password")
+                        .value(interfacePass));
+                pop.addInterfaceInfoItem(new KeyValuePair().key("project_name")
+                        .value(interfaceProjectName));
+                pop.addInterfaceInfoItem(new KeyValuePair().key("username")
+                        .value(interfaceUser));
+                String interfaceType = "openstack";
+                pop.addInterfaceInfoItem(
+                        new KeyValuePair().key("type").value(interfaceType));
+                PoP poPR = poPApi.registerPoP(pop);
+
+                List<Adapter> adapters = adapterApi.getAllAdapters();
+                for (Adapter adapter : adapters) {
+                    if ("ansible".equals(adapter.getType())) {
+                        logger.debug("Ansible adapter available!");
+                    }
+                }
+
+            } catch (ApiException e) {
+                logger.error("Exception when calling PoPApi#registerPoP", e);
+            }
+
+            try {
+                updateClusterTar();
+            } catch (Exception e) {
+                logger.error("Error on updateClusterTar:", e);
+            }
+
+            try {
+                updateNodesTar();
+            } catch (Exception e) {
+                logger.error("Error on updateNodesTar:", e);
+            }
         }
     }
 

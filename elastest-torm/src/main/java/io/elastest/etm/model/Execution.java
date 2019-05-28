@@ -9,7 +9,7 @@ import io.elastest.etm.model.external.ExternalTJobExecution;
  * This class stores the whole context of a TJob Execution.
  *
  */
-public class Execution extends DockerServiceStatus{
+public class Execution extends DockerServiceStatus {
     private TJobExecution tJobExec;
     private TJob tJob;
     private ExternalTJob externalTJob;
@@ -120,8 +120,9 @@ public class Execution extends DockerServiceStatus{
     public void setSutExec(SutExecution sutExec) {
         this.sutExec = sutExec;
     }
-    
-    public void updateTJobExecutionStatus(ResultEnum resultCode, String resultMsg) {
+
+    public void updateTJobExecutionStatus(ResultEnum resultCode,
+            String resultMsg) {
         if (isExternal()) {
             externalTJobExec.setResult(resultCode);
             externalTJobExec.setResultMsg(resultMsg);
@@ -129,14 +130,38 @@ public class Execution extends DockerServiceStatus{
             tJobExec.setResult(resultCode);
             tJobExec.setResultMsg(resultMsg);
         }
-        
+
         setStatusMsg(resultMsg);
+    }
+
+    public String getTJobType() {
+        if (isExternal()) {
+            return "External TJob";
+        } else {
+            return "TJob";
+        }
+    }
+
+    public String getTJobExecType() {
+        if (isExternal()) {
+            return "External TJob Execution";
+        } else {
+            return "TJob Execution";
+        }
+    }
+
+    public boolean hasJobAndExecution() {
+        if (isExternal()) {
+            return getExternalTJobExec() != null && getExternalTJob() != null;
+        } else {
+            return getTJobExec() != null && gettJob() != null;
+        }
     }
 
     @Override
     public String toString() {
-        return "Execution [isExternal=" + isExternal() + ", tJobExec=" + tJobExec
-                + ", tJob=" + tJob + ", externalTJob=" + externalTJob
+        return "Execution [isExternal=" + isExternal() + ", tJobExec="
+                + tJobExec + ", tJob=" + tJob + ", externalTJob=" + externalTJob
                 + ", externalTJobExec=" + externalTJobExec + ", sut=" + sut
                 + ", sutExec=" + sutExec + ", withSut=" + isWithSut() + "]";
     }

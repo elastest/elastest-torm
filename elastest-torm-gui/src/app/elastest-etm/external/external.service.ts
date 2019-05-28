@@ -79,6 +79,7 @@ export class ExternalService {
     }
 
     tJob.generateExecDashboardConfig();
+    tJob.esmServicesString = JSON.stringify(tJob.esmServices);
     tJob.exTJobExecs = undefined;
     let url: string = this.configurationService.configModel.hostApi + '/external/extjob';
     return this.http.put(url, tJob).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTJobModel(data));

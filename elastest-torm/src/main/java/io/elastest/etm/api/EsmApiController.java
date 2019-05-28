@@ -115,4 +115,12 @@ public class EsmApiController implements EsmApi {
         return new ResponseEntity<List<SupportServiceInstance>>(
                 esmService.getTJobExecServicesInstancesList(id), HttpStatus.OK);
     }
+
+    @Override
+    @JsonView(FrontView.class)
+    public ResponseEntity<List<SupportServiceInstance>> getTSSInstByExternalTJobExecId(
+            @ApiParam(value = "id", required = true) @PathVariable(value = "id", required = true) Long id) {
+        return new ResponseEntity<List<SupportServiceInstance>>(
+                esmService.getExternalTJobExecServicesInstancesList(id), HttpStatus.OK);
+    }
 }

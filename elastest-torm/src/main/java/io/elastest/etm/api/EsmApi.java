@@ -3,12 +3,9 @@ package io.elastest.etm.api;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
@@ -130,6 +127,16 @@ public interface EsmApi extends EtmApiRoot {
     @RequestMapping(value = "/esm/services/instances/tJobExec/{id}", produces = {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<List<SupportServiceInstance>> getTSSInstByTJobExecId(
+            @ApiParam(value = "id", required = true) @PathVariable(value = "id", required = true) Long id);
+
+    @ApiOperation(value = "Returns all Support Services Instances associated with an External tJobExec", notes = "Returns all Support Services Instances associated with an ExternaltJobExec.", response = SupportServiceInstance.class, responseContainer = "List", tags = {
+            "ESM", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = SupportServiceInstance.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Resource not found") })
+    @RequestMapping(value = "/esm/services/instances/external/{id}", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<List<SupportServiceInstance>> getTSSInstByExternalTJobExecId(
             @ApiParam(value = "id", required = true) @PathVariable(value = "id", required = true) Long id);
 
 }

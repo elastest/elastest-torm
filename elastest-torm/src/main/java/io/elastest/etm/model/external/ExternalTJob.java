@@ -1,7 +1,9 @@
 package io.elastest.etm.model.external;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -26,6 +28,10 @@ import org.hibernate.annotations.LazyCollectionOption;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
@@ -114,6 +120,13 @@ public class ExternalTJob implements Serializable {
     @Column(name = "execDashboardConfig", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("execDashboardConfig")
     private String execDashboardConfig = null;
+
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
+    @Column(name = "selectedServices", columnDefinition = "TEXT", length = 65535)
+    @JsonProperty("esmServicesString")
+    private String selectedServices;
 
     /* **************************/
     /* ***** Constructors *******/
@@ -221,8 +234,59 @@ public class ExternalTJob implements Serializable {
         this.execDashboardConfig = execDashboardConfig;
     }
 
+    public String getSelectedServices() {
+        return selectedServices;
+    }
+
+    public void setSelectedServices(String selectedServices) {
+        this.selectedServices = selectedServices;
+    }
+
+    /* ************************************** */
+    /* *************** Others *************** */
+    /* ************************************** */
+
     public boolean isWithSut() {
         return this.sut != null;
+    }
+
+    public boolean isSelectedService(String serviceName) {
+        try {
+            List<ObjectNode> services = getSelectedServicesObj();
+            for (ObjectNode service : services) {
+                String currentServiceName = service.get("name").asText();
+                if (serviceName.toLowerCase()
+                        .equals(currentServiceName.toLowerCase())) {
+                    return (service.get("selected").asBoolean());
+                }
+            }
+        } catch (Exception e) {
+        }
+
+        return false;
+    }
+
+    public List<ObjectNode> getSelectedServicesObj()
+            throws JsonParseException, JsonMappingException, IOException {
+        if (selectedServices != null) {
+            ObjectMapper mapper = new ObjectMapper();
+
+            return Arrays.asList(
+                    mapper.readValue(selectedServices, ObjectNode[].class));
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<ObjectNode> getSupportServicesObj() {
+        List<ObjectNode> services = new ArrayList<>();
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            services = Arrays.asList(mapper
+                    .readValue(this.getSelectedServices(), ObjectNode[].class));
+        } catch (Exception e) {
+        }
+        return services;
     }
 
     @Override

@@ -24,6 +24,7 @@ export class TestProjectComponent implements OnInit {
   showSpinnerPlans: boolean = true;
 
   exProject: ExternalProjectModel;
+  loadingExProject: boolean = true;
 
   // Test Suite Data
   suiteColumns: any[] = [
@@ -100,8 +101,12 @@ export class TestProjectComponent implements OnInit {
     this.testLinkService.getExternalProjectByTestProjectId(this.testProject.id).subscribe(
       (exProject: ExternalProjectModel) => {
         this.exProject = exProject;
+        this.loadingExProject = false;
       },
-      (error: Error) => console.log(error),
+      (error: Error) => {
+        console.log(error);
+        this.loadingExProject = false;
+      },
     );
   }
 

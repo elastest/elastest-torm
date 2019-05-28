@@ -86,7 +86,8 @@ public class TJobExecOrchestratorService {
             SutService sutService, AbstractMonitoringService monitoringService,
             EtmContextService etmContextService, UtilsService utilsService,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
-            PlatformService platformService, EtmTestResultService etmTestResultService) {
+            PlatformService platformService,
+            EtmTestResultService etmTestResultService) {
         super();
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.dbmanager = dbmanager;
@@ -123,7 +124,7 @@ public class TJobExecOrchestratorService {
         execution.addObserver(new StatusUpdater());
 
         try {
-            initSupportServicesProvision(tJobExec,
+            initSupportServicesProvision(new Execution(tJobExec),
                     tJobExec.getTjob().getSelectedServices());
             setTJobExecEnvVars(tJobExec, true, false);
             tJobExec = tJobExecRepositoryImpl.save(tJobExec);
@@ -204,7 +205,8 @@ public class TJobExecOrchestratorService {
         } else { // Simple/child execution
 
             try {
-                initSupportServicesProvision(tJobExec, tJobServices);
+                initSupportServicesProvision(new Execution(tJobExec),
+                        tJobServices);
                 setTJobExecEnvVars(tJobExec, false, false);
                 tJobExec = tJobExecRepositoryImpl.save(tJobExec);
                 execution.updateFromTJobExec(tJobExec);
@@ -265,7 +267,7 @@ public class TJobExecOrchestratorService {
             } finally {
                 if (tJobServices != null && tJobServices != "") {
                     try {
-                        deprovisionServices(tJobExec);
+                        deprovisionServices(new Execution(tJobExec));
                     } catch (Exception e) {
                         logger.error(
                                 "TJob Exec {} => Exception on deprovision TSS: {}",
@@ -420,7 +422,7 @@ public class TJobExecOrchestratorService {
         // Deprovision all TSS associated
         logger.debug("Requesting the TSS deprovision.");
         try {
-            deprovisionServices(tJobExec);
+            deprovisionServices(new Execution(tJobExec));
         } catch (Exception e) {
             logger.error("Exception during the deprovision of services");
         }
@@ -491,7 +493,7 @@ public class TJobExecOrchestratorService {
 
     public void releaseResourcesFromExtExecution(TJobExecution tJobExec) {
         try {
-            deprovisionServices(tJobExec);
+            deprovisionServices(new Execution(tJobExec));
         } catch (Exception e) {
             logger.error(
                     "Exception deprovisioning TSSs associated with an external execution.");
@@ -515,16 +517,16 @@ public class TJobExecOrchestratorService {
     /* *** TSS methods *** */
     /* ******************* */
 
-    private void initSupportServicesProvision(TJobExecution tJobExec,
+    public void initSupportServicesProvision(Execution execution,
             String tJobServices) throws Exception {
         try {
             if (tJobServices != null && tJobServices != "") {
-                provideServices(tJobServices, tJobExec);
+                provideServices(tJobServices, execution);
 
                 // Wait only if not is mini. (In mini is already waiting for
                 // them individually in provideService)
                 if (!utilsService.isElastestMini()) {
-                    esmService.waitForTJobExecServicesAreReady(tJobExec);
+                    esmService.waitForExecutionServicesAreReady(execution);
                 }
             } else {
                 logger.info("There aren't TSSs to be provided");
@@ -536,7 +538,7 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    private void provideServices(String tJobServices, TJobExecution tJobExec)
+    private void provideServices(String tJobServices, Execution execution)
             throws Exception {
         logger.info("Start the service provision.");
         String resultMsg = "Starting Test Support Service: ";
@@ -548,15 +550,15 @@ public class TJobExecOrchestratorService {
 
             // Start EMS first if is selected
             List<TJobSupportService> servicesWithoutEMS = provideEmsTssIfSelected(
-                    services, tJobExec);
+                    services, execution);
 
             for (TJobSupportService service : servicesWithoutEMS) {
                 if (service.isSelected()) {
-                    updateTJobExecResultStatus(tJobExec,
+                    updateExecutionResultStatus(execution,
                             ResultEnum.STARTING_TSS,
                             resultMsg + service.getName());
 
-                    this.provideService(service, tJobExec);
+                    this.provideService(service, execution);
                 }
             }
         } catch (IOException e) {
@@ -565,7 +567,7 @@ public class TJobExecOrchestratorService {
     }
 
     private String provideService(TJobSupportService service,
-            TJobExecution tJobExec) {
+            Execution execution) {
         String instanceId = "";
 
         // If mini mode, provision async and show pulling
@@ -575,40 +577,44 @@ public class TJobExecOrchestratorService {
             instanceId = esmService.generateNewOrGetInstanceId(tssId);
             if (esmService.isSharedTssInstanceByServiceId(tssId)) {
                 // If is shared, is started
-                esmService.provisionTJobExecSharedTSSSync(tssId, tJobExec,
+                esmService.provisionExecutionSharedTSSSync(tssId, execution,
                         instanceId);
             } else {
                 // Else provision async and wait after for tss
-                esmService.provisionTJobExecServiceInstanceAsync(tssId,
-                        tJobExec, instanceId);
+                esmService.provisionExecutionServiceInstanceAsync(tssId,
+                        execution, instanceId);
             }
 
             String serviceName = esmService.getServiceNameByServiceId(tssId)
                     .toUpperCase();
 
-            esmService.waitForTssStartedInMini(tJobExec, instanceId,
+            esmService.waitForTssStartedInMini(execution, instanceId,
                     serviceName);
         } else { // Sync provision
-            instanceId = esmService.provisionTJobExecServiceInstanceSync(tssId,
-                    tJobExec);
+            instanceId = esmService.provisionExecutionServiceInstanceSync(tssId,
+                    execution);
         }
 
-        tJobExec.getServicesInstances().add(instanceId);
+        if (execution.isExternal()) {
+            execution.getExternalTJobExec().getServicesInstances()
+                    .add(instanceId);
+        } else {
+            execution.getTJobExec().getServicesInstances().add(instanceId);
+        }
         return instanceId;
     }
 
     public List<TJobSupportService> provideEmsTssIfSelected(
-            List<TJobSupportService> services, TJobExecution tJobExec)
+            List<TJobSupportService> services, Execution execution)
             throws JsonParseException, JsonMappingException, IOException {
         List<TJobSupportService> servicesWithoutEMS = new ArrayList<>(services);
         int pos = 0;
         for (TJobSupportService service : services) {
             if (service.getName().toLowerCase().equals("ems")
                     && service.isSelected()) {
-                String instanceId = this.provideService(service, tJobExec);
+                String instanceId = this.provideService(service, execution);
                 servicesWithoutEMS.remove(pos);
-                this.setTJobExecTssEnvVars(tJobExec,
-                        tJobExec.getTjob().isExternal(), false, instanceId);
+                this.setExecutionTssEnvVars(execution, false, instanceId);
                 break;
             }
             pos++;
@@ -622,11 +628,52 @@ public class TJobExecOrchestratorService {
     private Map<String, String> getTJobExecTssEnvVars(boolean externalTJob,
             boolean withPublicPrefix, String tSSInstanceId) {
         SupportServiceInstance ssi = esmService
-                .getTJobServiceInstancesById(tSSInstanceId);
+                .getTJobServiceInstanceById(tSSInstanceId);
         Map<String, String> tssInstanceEnvVars = esmService
                 .getTSSInstanceEnvVars(ssi, externalTJob, withPublicPrefix);
 
         return tssInstanceEnvVars;
+    }
+
+    /*
+     * Gets the Env vars of given External TJob TSS Instance
+     */
+    private Map<String, String> getExternalTJobExecTssEnvVars(
+            boolean publicEnvVars, boolean withPublicPrefix,
+            String tSSInstanceId) {
+        SupportServiceInstance ssi = esmService
+                .getExternalTJobServiceInstanceById(tSSInstanceId);
+        Map<String, String> tssInstanceEnvVars = esmService
+                .getTSSInstanceEnvVars(ssi, publicEnvVars, withPublicPrefix);
+
+        return tssInstanceEnvVars;
+    }
+
+    /*
+     * Sets the Env vars of given TSS Instance into generic execution
+     */
+
+    private void setExecutionTssEnvVars(Execution execution,
+            boolean withPublicPrefix, String tSSInstanceId) {
+        if (execution.isExternal()) {
+            this.setExternalTJobExecTssEnvVars(execution.getExternalTJobExec(),
+                    withPublicPrefix, tSSInstanceId);
+        } else {
+            this.setTJobExecTssEnvVars(execution.getTJobExec(),
+                    execution.gettJob().isExternal(), false, tSSInstanceId);
+        }
+    }
+
+    /*
+     * Sets the Env vars of given TSS Instance into External TJobExec
+     */
+    private void setExternalTJobExecTssEnvVars(ExternalTJobExecution exTJobExec,
+            boolean withPublicPrefix, String tSSInstanceId) {
+        Map<String, String> envVars = new HashMap<>();
+        envVars.putAll(exTJobExec.getEnvVars());
+        envVars.putAll(this.getExternalTJobExecTssEnvVars(false,
+                withPublicPrefix, tSSInstanceId));
+        exTJobExec.setEnvVars(envVars);
     }
 
     /*
@@ -733,28 +780,37 @@ public class TJobExecOrchestratorService {
         tJobExec.setEnvVars(envVars);
     }
 
-    public void deprovisionServices(TJobExecution tJobExec) {
-        Long execId = tJobExec.getId();
-        logger.info("TJob Exec {} => Start the services deprovision.", execId);
+    public void deprovisionServices(Execution execution) {
+        Long execId = execution.getExecutionId();
+        String execType = execution.getTJobExecType();
+        logger.info("{} {} => Start the services deprovision.", execType,
+                execId);
         List<String> instancesAux = new ArrayList<String>();
-        if (tJobExec.getServicesInstances().size() > 0) {
+
+        List<String> servicesInstances = esmService
+                .getServicesInstancesByExecution(execution);
+
+        if (servicesInstances != null && servicesInstances.size() > 0) {
             logger.debug(
-                    "TJob Exec {} => Deprovisioning TJob's TSSs stored in the TJob object",
-                    execId);
-            instancesAux = tJobExec.getServicesInstances();
-        } else if (esmService.gettSSIByTJobExecAssociated()
+                    "{} {} => Deprovisioning TJob's TSSs stored in the TJob object",
+                    execType, execId);
+            instancesAux = servicesInstances;
+        } else if (esmService.gettSSIByExecutionAssociated(execution)
                 .get(execId) != null) {
             logger.debug(
-                    "TJob Exec {} => Deprovisioning TJob's TSSs stored in the EsmService",
-                    execId);
-            instancesAux = esmService.gettSSIByTJobExecAssociated().get(execId);
+                    "{} {} => Deprovisioning TJob's TSSs stored in the EsmService",
+                    execType, execId);
+            instancesAux = esmService.gettSSIByExecutionAssociated(execution)
+                    .get(execId);
         }
 
-        logger.debug("TJob Exec {} => TSS list size: {}", execId, instancesAux);
+        logger.debug("{} {} => TSS list size: {}", execType, execId,
+                instancesAux);
         for (String instanceId : instancesAux) {
-            esmService.deprovisionTJobExecServiceInstance(instanceId, execId);
-            logger.debug("TJob Exec {} => TSS Instance id to deprovision: {}",
-                    execId, instanceId);
+            esmService.deprovisionExecutionServiceInstance(instanceId,
+                    execution);
+            logger.debug("{} {} => TSS Instance id to deprovision: {}",
+                    execType, execId, instanceId);
         }
     }
 
@@ -772,10 +828,16 @@ public class TJobExecOrchestratorService {
         try {
             updateExecutionResultStatus(execution, ResultEnum.IN_PROGRESS,
                     "Initializing execution...");
+            
+            // TSS
+            initSupportServicesProvision(new Execution(exec),
+                    exec.getExTJob().getSelectedServices());
 
+            // SUT
             if (execution.isWithSut()) {
                 this.initSut(execution);
             }
+            
             String resultMsg = "Executing Test";
             updateExecutionResultStatus(execution, ResultEnum.EXECUTING_TEST,
                     resultMsg);
@@ -815,6 +877,18 @@ public class TJobExecOrchestratorService {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+
+        }
+
+        if (exec.getExTJob().getSelectedServices() != null
+                && exec.getExTJob().getSelectedServices() != "") {
+            try {
+                deprovisionServices(new Execution(exec));
+            } catch (Exception e) {
+                logger.error("TJob Exec {} => Exception on deprovision TSS: {}",
+                        exec.getId(), e.getMessage());
+                // TODO Customize Exception
             }
         }
 
