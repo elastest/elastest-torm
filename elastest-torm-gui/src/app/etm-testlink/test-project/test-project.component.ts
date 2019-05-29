@@ -39,6 +39,7 @@ export class TestProjectComponent implements OnInit {
   planColumns: any[] = [
     { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Name' },
+    { name: 'sut', label: 'Sut', width: 80 },
     { name: 'notes', label: 'Notes' },
     { name: 'active', label: 'Active' },
     { name: 'public', label: 'Public' },
@@ -142,5 +143,20 @@ export class TestProjectComponent implements OnInit {
     this.sortBy = sortEvent.name;
     this.sortOrder = sortEvent.order;
     this.testPlans = this.dataTableService.sortData(this.testPlans, this.sortBy, this.sortOrder);
+  }
+
+  getSut(testPlan: TestPlanModel): string {
+    let sut: string = 'None';
+    if (this.exProject && this.exProject.exTJobs) {
+      for (let exTJob of this.exProject.exTJobs) {
+        if (exTJob && exTJob.externalId === testPlan.id + '') {
+          if (exTJob.sut && exTJob.sut.id > 0) {
+            return exTJob.sut.id + '';
+          }
+          break;
+        }
+      }
+    }
+    return sut;
   }
 }

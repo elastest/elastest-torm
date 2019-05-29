@@ -224,8 +224,12 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     this.externalService.createExternalTJobExecutionByExTJobId(this.exTJob.id).subscribe((exTJobExec: ExternalTJobExecModel) => {
       this.exTJobExec = exTJobExec;
       // +1 because EUS
-      this.instancesNumber = this.exTJobExec.exTJob.esmServicesChecked + 1;
       this.checkFinished();
+      this.instancesNumber = this.exTJobExec.exTJob.esmServicesChecked + 1;
+      if (this.instancesNumber > 1) {
+        this.browserCardMsg = 'Waiting for Test Support Services';
+      }
+      
       this.getSupportServicesInstances().subscribe(
         (ok: boolean) => {
           this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);

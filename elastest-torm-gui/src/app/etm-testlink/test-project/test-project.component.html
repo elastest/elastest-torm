@@ -160,7 +160,7 @@
                 let-row="row"
               >
                 <div
-                  *ngIf="column.name !== 'options'"
+                  *ngIf="column.name !== 'options' && column.name !== 'sut'"
                   [routerLink]="['/testlink/projects', testProject.id, 'plans', row.id]"
                   class="hover-pointer"
                 >
@@ -168,6 +168,13 @@
                   <div *ngIf="column.name !== 'notes'">{{ value }}</div>
                 </div>
               </ng-template>
+              
+              <ng-template tdDataTableTemplate="sut" let-value="value" let-row="row" let-column="column">
+                <div fxLayout="row">
+                  {{ getSut(row) }}
+                </div>
+              </ng-template>
+
               <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                 <div fxLayout="row" class="optionsColumn">
                   <button mat-button (click)="runTestPlan(row)" class="iconBtn" matTooltip="Run Test Plan">
