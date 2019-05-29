@@ -129,5 +129,13 @@ public class UtilTools {
     public static ObjectNode convertObjToObjectNode(Object object) {
         return UtilTools.convertObjToJsonNode(object).deepCopy();
     }
+    
+    public static void sleep(Integer timeout) {
+        try {
+            Thread.sleep(timeout * 1000);
+        } catch (InterruptedException e) {
+            logger.warn("Thread waiting interrupted: {}", e.getMessage());
+        }
+    }
 
 }

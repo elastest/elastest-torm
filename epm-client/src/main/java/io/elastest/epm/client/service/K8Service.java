@@ -22,6 +22,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import io.elastest.epm.client.DockerContainer;
+import io.elastest.epm.client.utils.UtilTools;
+import io.fabric8.kubernetes.api.model.Capabilities;
+import io.fabric8.kubernetes.api.model.CapabilitiesBuilder;
+import io.fabric8.kubernetes.api.model.Container;
+import io.fabric8.kubernetes.api.model.ContainerBuilder;
+import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.DoneableService;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
@@ -30,6 +36,8 @@ import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.SecurityContext;
+import io.fabric8.kubernetes.api.model.SecurityContextBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServiceList;
@@ -225,7 +233,9 @@ public class K8Service {
         try {
             logger.info("Container name: {}",
                     container.getContainerName().get());
-            logger.info(String.join(",", container.getCmd().get()));
+            if (container.getCmd().isPresent()) {
+                logger.info(String.join(",", container.getCmd().get()));
+            }
 
             Map<String, String> k8sPobLabels = container.getLabels().get();
             String containerNameWithoutUnderscore = container.getContainerName()
@@ -233,18 +243,69 @@ public class K8Service {
 
             k8sPobLabels.put(LABEL_POD_NAME, containerNameWithoutUnderscore);
 
-            pod = new PodBuilder().withNewMetadata()
-                    .withName(containerNameWithoutUnderscore).endMetadata()
-                    .withNewSpec().addNewContainer()
-                    .withName(containerNameWithoutUnderscore)
+            // Create Container
+            ContainerBuilder containerBuilder = new ContainerBuilder();
+            containerBuilder.withName(containerNameWithoutUnderscore)
                     .withImage(container.getImageId())
                     .withEnv(getEnvVarListFromStringList(
-                            container.getEnvs().get()))
-                    .endContainer().endSpec().build();
+                            container.getEnvs().get()));
 
-            pod = client.pods().inNamespace(namespace).createOrReplace(pod);
+            // Add ports
+            if (container.getExposedPorts().isPresent()
+                    && !container.getExposedPorts().get().isEmpty()) {
+                List<ContainerPort> ports = new ArrayList<>();
+                container.getExposedPorts().get().forEach(port -> {
+                    ContainerPort containerPort = new ContainerPort();
+                    containerPort.setContainerPort(new Integer(port));
+                    ports.add(containerPort);
+                });
+                containerBuilder.withPorts(ports);
+            }
+
+            if (container.getCapAdd().isPresent()
+                    && !container.getCapAdd().get().isEmpty()) {
+                SecurityContextBuilder securityContextBuilder = new SecurityContextBuilder();
+                List<String> stringCapabilities = new ArrayList<>();
+                container.getCapAdd().get().forEach(cap -> {
+                    stringCapabilities.add(cap);
+                });
+                Capabilities capabilities = new CapabilitiesBuilder()
+                        .withAdd(stringCapabilities).build();
+
+                securityContextBuilder.withCapabilities(capabilities);
+                containerBuilder
+                        .withSecurityContext(securityContextBuilder.build());
+            }
+
+//            pod = new PodBuilder().withNewMetadata()
+//                    .withName(containerNameWithoutUnderscore).endMetadata()
+//                    .withNewSpec().addNewContainer()
+//                    .withName(containerNameWithoutUnderscore)
+//                    .withImage(container.getImageId())
+//                    .withEnv(getEnvVarListFromStringList(
+//                            container.getEnvs().get()))
+//                    .endContainer()
+//                    .endSpec()
+//                    .build();
+
+            PodBuilder podBuilder = new PodBuilder();
+            podBuilder.withNewMetadata()
+                    .withName(containerNameWithoutUnderscore).endMetadata()
+                    .withNewSpec().addNewContainerLike(containerBuilder.build())
+                    .endContainer().endSpec();
+
+            // Set Labels if there are
+            if (container.getLabels().isPresent()
+                    && container.getLabels().get().size() > 0) {
+                podBuilder.buildMetadata()
+                        .setLabels(container.getLabels().get());
+            }
+
+            podBuilder.buildSpec().getContainers().get(0);
+            pod = client.pods().inNamespace(namespace).createOrReplace(podBuilder.build());
 
             while (!isReady(containerNameWithoutUnderscore)) {
+                UtilTools.sleep(1);
             }
             pod = client.pods().inNamespace(DEFAULT_NAMESPACE)
                     .withName(containerNameWithoutUnderscore).get();
@@ -422,6 +483,23 @@ public class K8Service {
             throws NullPointerException {
         return getServiceByName(serviceName).getSpec().getClusterIP();
     }
+    
+    public List<Pod> getPodsFromNamespace(String namespace) {
+        return client.pods().inNamespace(namespace).list().getItems();
+    }
+    
+    public boolean existPodByName(String name) {
+        return client.pods().inNamespace(DEFAULT_NAMESPACE).withName(name).get() != null ? Boolean.TRUE : Boolean.FALSE ;        
+    }
+    
+    public Pod getPodByName(String name) {
+        return client.pods().inNamespace(DEFAULT_NAMESPACE).withName(name).get();
+    }
+    
+    public String getPodIpByPodName(String name) {
+        return getPodByName(name).getStatus().getPodIP();
+    }
+    
 
     public HostPathVolumeSource createEtToolsVolume() throws IOException {
         // TODO

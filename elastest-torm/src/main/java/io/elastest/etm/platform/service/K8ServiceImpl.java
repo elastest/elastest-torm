@@ -44,6 +44,8 @@ public class K8ServiceImpl extends PlatformService {
 
     @Value("${et.etm.internal.host}")
     private String etEtmInternalHost;
+    @Value("${hostname}")
+    private String hostname;
 
     private K8Service k8Service;
     private UtilsService utilsService;
@@ -294,7 +296,7 @@ public class K8ServiceImpl extends PlatformService {
         if (utilsService.isEtmInDevelopment()) {
             return utilsService.getEtPublicHostValue();
         } else {
-            return k8Service.getServiceIpByName(etEtmInternalHost);
+            return k8Service.getPodIpByPodName(hostname);
         }
     }
 
