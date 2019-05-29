@@ -44,9 +44,9 @@
       </div>
     </div>
     <div fxLayout="row" class="mat-small">
-      <span>Errors: {{ model.getErrors().length }}</span>
+      <span style.color="{{ errors > 0 ? errorColor : 'initial' }}">Errors: {{ getErrors() }}</span>
       <span>&nbsp;|&nbsp;</span>
-      <span>Warnings: {{ model.getWarnings().length }}</span>
+      <span style.color="{{ warnings > 0 ? warnColor : 'initial' }}">Warnings: {{ getWarnings() }}</span>
     </div>
   </mat-card-title>
   <mat-divider></mat-divider>

@@ -42,16 +42,16 @@ export function getResultIconByString(result: defaultResult | string): any {
     case 'SUCCESS':
     case 'PASSED':
       icon.name = 'check_circle';
-      icon.color = '#669a13';
+      icon.color = getInfoColor();
       break;
     case 'FAIL':
     case 'FAILED':
       icon.name = 'error';
-      icon.color = '#c82a0e';
+      icon.color = getErrorColor();
       break;
     case 'STOPPED':
       icon.name = 'indeterminate_check_box';
-      icon.color = '#c82a0e';
+      icon.color = getErrorColor();
       break;
     case 'NOT_EXECUTED':
     case 'SKIPPED':
@@ -60,11 +60,11 @@ export function getResultIconByString(result: defaultResult | string): any {
       break;
     case 'ERROR':
       icon.name = 'do_not_disturb';
-      icon.color = '#c82a0e';
+      icon.color = getErrorColor();
       break;
     case 'BLOCKED':
       icon.name = 'warning';
-      icon.color = '#ffac2f';
+      icon.color = getWarnColor();
       break;
     default:
       icon.color = '#000000de';
@@ -72,6 +72,18 @@ export function getResultIconByString(result: defaultResult | string): any {
   }
 
   return icon;
+}
+
+export function getErrorColor(): string {
+  return '#c82a0e';
+}
+
+export function getWarnColor(): string {
+  return '#ffac2f';
+}
+
+export function getInfoColor(): string {
+  return '#669a13';
 }
 
 // Usage!

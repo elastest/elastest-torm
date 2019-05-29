@@ -1,5 +1,6 @@
 import { VersionInfo } from './version-info.model';
 import { ContainerPortModel } from './container-port.model';
+import { getErrorColor, getWarnColor, getInfoColor } from '../../shared/utils';
 
 export class CoreServiceModel {
   name: string;
@@ -27,11 +28,11 @@ export class CoreServiceModel {
     if (this.status) {
       let lowerCaseStatus: string = this.status.toLowerCase();
       if (lowerCaseStatus.startsWith('up')) {
-        icon.color = '#669a13';
+        icon.color = getInfoColor();
       } else if (lowerCaseStatus.startsWith('created')) {
-        icon.color = '#ffac2f';
+        icon.color = getWarnColor();
       } else {
-        icon.color = '#c82a0e';
+        icon.color = getErrorColor();
       }
     }
     return icon;

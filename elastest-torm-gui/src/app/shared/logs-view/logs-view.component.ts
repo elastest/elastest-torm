@@ -3,6 +3,7 @@ import { LogViewModel } from './log-view-model';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { LogsViewTextComponent } from '../logs-view-text/logs-view-text.component';
 import { FilesService } from '../services/files.service';
+import { getErrorColor, getWarnColor } from '../utils';
 
 @Component({
   selector: 'logs-view',
@@ -17,6 +18,9 @@ export class LogsViewComponent implements OnInit {
 
   errors: number = 0;
   warnings: number = 0;
+
+  errorColor: string = getErrorColor();
+  warnColor: string = getWarnColor();
 
   constructor(private filesService: FilesService) {}
 
@@ -60,8 +64,12 @@ export class LogsViewComponent implements OnInit {
     return logArray;
   }
 
-  loadLevels(): void {
+  getErrors(): number {
     this.errors = this.model.getErrors().length;
+    return this.errors;
+  }
+  getWarnings(): number {
     this.warnings = this.model.getWarnings().length;
+    return this.warnings;
   }
 }
