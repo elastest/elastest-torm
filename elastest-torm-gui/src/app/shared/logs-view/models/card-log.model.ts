@@ -31,4 +31,58 @@ export class CardLogModel implements LogViewModel {
     this.prevLoaded = true;
   }
   getAllLogs(): void {}
+
+  isInfoTrace(trace: any): boolean {
+    if (trace && trace.level) {
+      let lowerCasedLevel: string = trace.level.toLowerCase();
+      return lowerCasedLevel === 'info';
+    }
+  }
+
+  isErrorTrace(trace: any): boolean {
+    if (trace && trace.level) {
+      let lowerCasedLevel: string = trace.level.toLowerCase();
+      return lowerCasedLevel === 'error' || lowerCasedLevel === 'err';
+    }
+  }
+
+  isWarningTrace(trace: any): boolean {
+    if (trace && trace.level) {
+      let lowerCasedLevel: string = trace.level.toLowerCase();
+      return lowerCasedLevel === 'warn' || lowerCasedLevel === 'warning';
+    }
+  }
+
+  getTracesByCondition(condition: Function): any[] {
+    let tracesMatched: any[] = [];
+    if (this.prevTraces) {
+      for (let trace of this.prevTraces) {
+        if (condition(trace)) {
+          tracesMatched.push(trace);
+        }
+      }
+    }
+
+    if (this.traces) {
+      for (let trace of this.traces) {
+        if (condition(trace)) {
+          tracesMatched.push(trace);
+        }
+      }
+    }
+
+    return tracesMatched;
+  }
+
+  getInfos(): any[] {
+    return this.getTracesByCondition(this.isInfoTrace);
+  }
+
+  getErrors(): any[] {
+    return this.getTracesByCondition(this.isErrorTrace);
+  }
+
+  getWarnings(): any[] {
+    return this.getTracesByCondition(this.isWarningTrace);
+  }
 }

@@ -1,8 +1,8 @@
 import { Observable } from 'rxjs/Rx';
-import { LogViewModel } from '../log-view-model';
 import { MonitoringService } from '../../services/monitoring.service';
+import { CardLogModel } from './card-log.model';
 
-export class ESRabLogModel implements LogViewModel {
+export class ESRabLogModel extends CardLogModel {
   monitoringService: MonitoringService;
 
   name: string;
@@ -21,6 +21,7 @@ export class ESRabLogModel implements LogViewModel {
   endDate: Date;
 
   constructor(monitoringService: MonitoringService) {
+    super();
     this.name = '';
     this.prevTraces = [];
     this.traces = [];
@@ -36,6 +37,7 @@ export class ESRabLogModel implements LogViewModel {
     this.endDate = undefined;
 
     this.monitoringService = monitoringService;
+    this.previousFunctionObj = { function: this.loadPrevious.bind(this) };
   }
 
   getAllLogs(from?: Date, to?: Date, includedFrom: boolean = true, includedTo: boolean = true): void {

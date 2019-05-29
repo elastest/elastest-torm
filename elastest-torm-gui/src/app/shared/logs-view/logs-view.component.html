@@ -43,9 +43,14 @@
         </div>
       </div>
     </div>
+    <div fxLayout="row" class="mat-small">
+      <span>Errors: {{ model.getErrors().length }}</span>
+      <span>&nbsp;|&nbsp;</span>
+      <span>Warnings: {{ model.getWarnings().length }}</span>
+    </div>
   </mat-card-title>
   <mat-divider></mat-divider>
-  <mat-card-content>
+  <mat-card-content style="padding-top: 4px; padding-bottom: 4px;">
     <logs-view-text #logsViewText [model]="model"></logs-view-text>
   </mat-card-content>
 </mat-card>

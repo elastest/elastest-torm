@@ -15,6 +15,9 @@ export class LogsViewComponent implements OnInit {
   @Input() public model: LogViewModel;
   @Input() public remove: Function;
 
+  errors: number = 0;
+  warnings: number = 0;
+
   constructor(private filesService: FilesService) {}
 
   ngOnInit(): void {}
@@ -55,5 +58,10 @@ export class LogsViewComponent implements OnInit {
       }
     }
     return logArray;
+  }
+
+  loadLevels(): void {
+    this.errors = this.model.getErrors().length;
+    this.warnings = this.model.getWarnings().length;
   }
 }

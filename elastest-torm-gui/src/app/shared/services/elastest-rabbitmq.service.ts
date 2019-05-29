@@ -100,6 +100,11 @@ export class ElastestRabbitmqService {
       trace = {
         timestamp: timestamp,
         message: data.message,
+        level: data.level,
+        stream: data.stream,
+        stream_type: data.stream_type,
+        exec: data.exec,
+        component: data.component,
       };
     } else if (data['stream_type'] === 'composed_metrics' || data['stream_type'] === 'atomic_metric') {
       trace = data;

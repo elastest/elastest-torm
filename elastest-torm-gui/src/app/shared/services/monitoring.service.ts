@@ -214,6 +214,11 @@ export class MonitoringService {
         tracesList.push({
           timestamp: source['@timestamp'],
           message: source['message'],
+          level: source.level,
+          stream: source.stream,
+          stream_type: source.stream_type,
+          exec: source.exec,
+          component: source.component,
         });
       }
     }
