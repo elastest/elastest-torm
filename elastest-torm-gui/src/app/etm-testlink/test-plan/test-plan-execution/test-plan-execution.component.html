@@ -154,6 +154,16 @@
               }}</span>
             </div>
           </div>
+          <div fxLayout="row" class="mat-small push-top-sm" *ngIf="logsAndMetrics && !browserAndEusLoading">
+            <span>Logs status =></span>
+            <span style.color="{{ logErrors > 0 ? errorColor : 'initial' }}" class="push-left-xs"
+              >Errors: {{ getLogsErrors() }}</span
+            >
+            <span class="push-left-xs">|</span>
+            <span style.color="{{ logWarnings > 0 ? warnColor : 'initial' }}" class="push-left-xs"
+              >Warnings: {{ getLogsWarnings() }}</span
+            >
+          </div>
         </mat-card-title>
         <mat-divider [inset]="true"></mat-divider>
         <mat-card-content *ngIf="exTJobExec" fxFlex style="overflow: auto;" class="push-bottom-none">

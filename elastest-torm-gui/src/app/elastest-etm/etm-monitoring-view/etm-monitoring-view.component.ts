@@ -495,4 +495,20 @@ export class EtmMonitoringViewComponent implements OnInit {
       return tJobExec;
     }
   }
+
+  getLogsErrors(): number {
+    if (this.logsGroup) {
+      return this.logsGroup.getErrors();
+    } else {
+      return 0;
+    }
+  }
+
+  getLogsWarnings(): number {
+    if (this.logsGroup) {
+      return this.logsGroup.getWarnings();
+    } else {
+      return 0;
+    }
+  }
 }

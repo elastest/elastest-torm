@@ -392,4 +392,22 @@ export class EtmLogsGroupComponent implements OnInit {
       }
     }
   }
+
+  getErrors(): number {
+    let errors: number = 0;
+    for (let log of this.logsList) {
+      errors += log.getErrors().length;
+    }
+
+    return errors;
+  }
+
+  getWarnings(): number {
+    let warns: number = 0;
+    for (let log of this.logsList) {
+      warns += log.getWarnings().length;
+    }
+
+    return warns;
+  }
 }

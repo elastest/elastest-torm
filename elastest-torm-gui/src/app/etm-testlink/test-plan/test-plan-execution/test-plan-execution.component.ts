@@ -23,7 +23,7 @@ import { EsmService } from '../../../elastest-esm/esm-service.service';
 import { TestPlanModel } from '../../models/test-plan-model';
 import { EusTestModel } from '../../../elastest-eus/elastest-eus-test-model';
 import { TitlesService } from '../../../shared/services/titles.service';
-import { sleep } from '../../../shared/utils';
+import { sleep, getWarnColor, getErrorColor } from '../../../shared/utils';
 import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TdDialogService } from '@covalent/core';
@@ -118,6 +118,12 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   // For development only! RETURN TO FALSE ON COMMIT
   activateGUIDevelopmentMode: boolean = false;
+  
+  logErrors: number = 0;
+  logWarnings: number = 0;
+
+  errorColor: string = getErrorColor();
+  warnColor: string = getWarnColor();
 
   constructor(
     private externalService: ExternalService,
@@ -229,7 +235,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       if (this.instancesNumber > 1) {
         this.browserCardMsg = 'Waiting for Test Support Services';
       }
-      
+
       this.getSupportServicesInstances().subscribe(
         (ok: boolean) => {
           this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
@@ -799,5 +805,15 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       this.checkTSSInstancesSubscription.unsubscribe();
       this.checkTSSInstancesSubscription = undefined;
     }
+  }
+
+  getLogsErrors(): number {
+    this.logErrors = this.logsAndMetrics.getLogsErrors();
+    return this.logErrors;
+  }
+
+  getLogsWarnings(): number {
+    this.logWarnings = this.logsAndMetrics.getLogsWarnings();
+    return this.logWarnings;
   }
 }
