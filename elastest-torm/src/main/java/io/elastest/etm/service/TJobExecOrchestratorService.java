@@ -73,6 +73,7 @@ public class TJobExecOrchestratorService {
     private UtilsService utilsService;
     private PlatformService platformService;
     private EtmTestResultService etmTestResultService;
+    private EimService eimService;
 
     private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
 
@@ -87,7 +88,7 @@ public class TJobExecOrchestratorService {
             EtmContextService etmContextService, UtilsService utilsService,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
             PlatformService platformService,
-            EtmTestResultService etmTestResultService) {
+            EtmTestResultService etmTestResultService, EimService eimService) {
         super();
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.dbmanager = dbmanager;
@@ -99,6 +100,7 @@ public class TJobExecOrchestratorService {
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
         this.platformService = platformService;
         this.etmTestResultService = etmTestResultService;
+        this.eimService = eimService;
     }
 
     @PreDestroy
@@ -702,6 +704,11 @@ public class TJobExecOrchestratorService {
         envVars.putAll(
                 etmContextService.getTJobExecMonitoringEnvVars(tJobExec));
 
+        // Get EIM URL Env Var
+        if (eimService.isStarted()) {
+            envVars.put("ET_EIM_API", eimService.getEimApiUrl());
+        }
+
         /*
          * Test File Attachments Api URL TODO build url in Context, not here
          */
@@ -828,7 +835,7 @@ public class TJobExecOrchestratorService {
         try {
             updateExecutionResultStatus(execution, ResultEnum.IN_PROGRESS,
                     "Initializing execution...");
-            
+
             // TSS
             initSupportServicesProvision(new Execution(exec),
                     exec.getExTJob().getSelectedServices());
@@ -837,7 +844,7 @@ public class TJobExecOrchestratorService {
             if (execution.isWithSut()) {
                 this.initSut(execution);
             }
-            
+
             String resultMsg = "Executing Test";
             updateExecutionResultStatus(execution, ResultEnum.EXECUTING_TEST,
                     resultMsg);

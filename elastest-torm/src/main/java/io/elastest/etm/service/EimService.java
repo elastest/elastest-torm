@@ -39,14 +39,16 @@ public class EimService {
     private DatabaseSessionManager dbmanager;
 
     @Value("${exec.mode}")
-    public String execMode;
+    private String execMode;
 
     @Value("${et.eim.api}")
-    public String eimUrl;
+    private String eimUrl;
 
-    public String eimApiPath = "eim/api";
+    private String eimApiPath = "eim/api";
 
-    public String eimApiUrl;
+    private String eimApiUrl;
+
+    private static final String EIM_ETPLUGIN_PROJECT_NAME = "eim";
 
     public EimService(EimConfigRepository eimConfigRepository,
             EimMonitoringConfigRepository eimMonitoringConfigRepository,
@@ -66,15 +68,25 @@ public class EimService {
         this.eimApiUrl = this.eimUrl + eimApiPath;
     }
 
+    public boolean isStarted() {
+        // If not mini it's always started (at ET startup)
+        return !utilsService.isElastestMini() || (utilsService.isElastestMini()
+                && etPluginsService.isRunning(EIM_ETPLUGIN_PROJECT_NAME));
+    }
+
+    public String getEimApiUrl() {
+        return this.eimApiUrl;
+    }
+
     private void startEimIfNotStarted() {
         // Only in mini mode
-        String eimProjectName = "eim";
-        if (utilsService.isElastestMini()
-                && !etPluginsService.isRunning(eimProjectName)) {
-            etPluginsService.startEngineOrUniquePlugin(eimProjectName);
+        if (!isStarted()) {
+            etPluginsService
+                    .startEngineOrUniquePlugin(EIM_ETPLUGIN_PROJECT_NAME);
 
             // Init URL
-            this.eimUrl = etPluginsService.getEtPluginUrl(eimProjectName);
+            this.eimUrl = etPluginsService
+                    .getEtPluginUrl(EIM_ETPLUGIN_PROJECT_NAME);
             this.eimUrl = this.eimUrl.endsWith("/") ? this.eimUrl
                     : this.eimUrl + "/";
             this.eimApiPath = this.eimApiPath.startsWith("/")
