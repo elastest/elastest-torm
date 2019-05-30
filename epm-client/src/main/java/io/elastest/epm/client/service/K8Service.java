@@ -167,6 +167,10 @@ public class K8Service {
             logger.info("Creating job: {}.",
                     job.getMetadata().getLabels().get(LABEL_JOB_NAME));
             client.batch().jobs().inNamespace(namespace).create(job);
+            
+            result.setResult("Fail");
+            result.setJobName(job.getMetadata().getName());
+            result.setPodName("");
 
             final CountDownLatch watchLatch = new CountDownLatch(1);
             try (final Watch ignored = client.pods().inNamespace(namespace)
@@ -186,12 +190,14 @@ public class K8Service {
                             logger.debug("Event received: {}",
                                     pod.getStatus().getPhase());
                             logger.debug("Action: {}", action.toString());
+                            
+                            if (result.getPodName().isEmpty()) {
+                                result.setPodName(pod.getMetadata().getName());
+                            }
 
                             if (pod.getStatus().getPhase()
                                     .equals("Succeeded")) {
                                 result.setResult(pod.getStatus().getPhase());
-                                result.setJobName(job.getMetadata().getName());
-                                result.setPodName(pod.getMetadata().getName());
                                 logger.info("Job {} is completed!",
                                         pod.getMetadata().getName());
                                 watchLatch.countDown();
@@ -205,10 +211,11 @@ public class K8Service {
                             client.batch().jobs().inNamespace(namespace)
                                     .delete(job);
                             deleteJob(job.getMetadata().getName());
+                            
                         }
                     })) {
-                watchLatch.await(2, TimeUnit.MINUTES);
-            } catch (final KubernetesClientException | InterruptedException e) {
+                watchLatch.await();
+            } catch (final KubernetesClientException e) {
                 logger.error("Could not watch pod", e);
 
             }

@@ -390,11 +390,15 @@ public class UtilTools {
         URL url = new URL(urlValue);
         int responseCode = 0;
 
-        HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-        huc.setConnectTimeout(2000);
-        responseCode = huc.getResponseCode();
-        return ((responseCode >= 200 && responseCode <= 299)
-                || (responseCode >= 400 && responseCode <= 415));
+        try {
+            HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+            huc.setConnectTimeout(2000);
+            responseCode = huc.getResponseCode();
+            return ((responseCode >= 200 && responseCode <= 299)
+                    || (responseCode >= 400 && responseCode <= 415));
+        } catch (IOException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
     public static String replaceAllSpecialCharacters(String text) {

@@ -34,6 +34,7 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.EtmFilesService;
+import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
 @org.springframework.stereotype.Service
@@ -189,7 +190,6 @@ public class K8ServiceImpl extends PlatformService {
 
             // Create and start container
             result = k8Service.deployJob(testContainer);
-            // Thread.sleep(5000);
 
             tJobExec.setEndDate(new Date());
             logger.info("Ending Execution {}...", tJobExec.getId());
@@ -202,7 +202,7 @@ public class K8ServiceImpl extends PlatformService {
                     "Error on create and start TJob container: Stopped", e);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new Exception("Error on create and start TJob container", e);
+            throw new Exception("Error running the TJob", e);
         } finally {
             if (result != null) {
                 k8Service.deleteJob(result.getJobName());
@@ -226,6 +226,13 @@ public class K8ServiceImpl extends PlatformService {
 
             // Create and start container
             podInfo = k8Service.deployPod(sutContainer);
+            execution.getSutExec().setUrl(
+                    execution.getSut().getSutUrlByGivenIp(podInfo.getPodIp()));
+            logger.info("Waiting for sut {}", execution.getSut().getName());
+            while (!UtilTools.checkIfUrlIsUp(execution.getSutExec().getUrl())){
+                logger.trace("SUT {} is not ready yet", execution.getSut().getName());
+            };
+            
             sutsByExecution.put(execution.getExecutionId().toString(),
                     podInfo.getPodName());
 
@@ -235,8 +242,6 @@ public class K8ServiceImpl extends PlatformService {
             execution.getSutExec().setIp(podInfo.getPodIp());
             logger.debug("Sut Ip stored in the sutExec {}",
                     execution.getSutExec().getIp());
-            execution.getSutExec().setUrl(
-                    execution.getSut().getSutUrlByGivenIp(podInfo.getPodIp()));
             logger.debug(" Url stored in the sutExec {}",
                     execution.getSutExec().getUrl());
 
