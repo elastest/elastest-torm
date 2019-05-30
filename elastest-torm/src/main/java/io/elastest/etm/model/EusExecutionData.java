@@ -55,7 +55,7 @@ public class EusExecutionData {
         this.type = "tJob";
         this.tJobId = tJobExec.getTjob().getId();
         this.tJobExecId = tJobExec.getId();
-        this.monitoringIndex = tJobExec.getMonitoringIndex();
+        this.monitoringIndex = tJobExec.getOnlyTJobExecMonitoringIndex();
         this.folderPath = folderPath;
         initWebRtcStatsActivated(tJobExec);
         this.useSutNetwork = useSutNetwork;
@@ -66,7 +66,7 @@ public class EusExecutionData {
         this.type = "tJob";
         this.tJobId = tJobExec.getTjob().getId();
         this.tJobExecId = tJobExec.getId();
-        this.monitoringIndex = tJobExec.getMonitoringIndex();
+        this.monitoringIndex = tJobExec.getOnlyTJobExecMonitoringIndex();
         this.folderPath = folderPath;
         initWebRtcStatsActivated(tJobExec);
         this.useSutNetwork = false;
@@ -77,7 +77,7 @@ public class EusExecutionData {
         this.type = "externalTJob";
         this.tJobId = exTJobExec.getExTJob().getId();
         this.tJobExecId = exTJobExec.getId();
-        this.monitoringIndex = exTJobExec.getMonitoringIndex();
+        this.monitoringIndex = exTJobExec.getExternalTJobExecMonitoringIndex();
         this.folderPath = folderPath;
         // initWebRtcStatsActivated(exTJobExec);
         this.webRtcStatsActivated = false;
