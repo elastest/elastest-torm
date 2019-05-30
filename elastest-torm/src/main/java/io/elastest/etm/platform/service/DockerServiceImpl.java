@@ -706,7 +706,7 @@ public class DockerServiceImpl extends PlatformService {
         boolean isDockerCompose = false;
         logger.debug("Execution {} => Ending Sut In Container",
                 execution.getExecutionId());
-        
+
         // If is Docker compose Sut
         if (sut.getCommandsOption() == CommandsOptionEnum.IN_DOCKER_COMPOSE) {
             containerName = this.getCurrentExecSutMainServiceName(sut,
@@ -718,7 +718,7 @@ public class DockerServiceImpl extends PlatformService {
         else if (sut
                 .getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
             containerName = generateContainerName(ContainerPrefix.SUT,
-                    execution);
+                    execution, true);
             sutPrefix = containerName;
         }
 
