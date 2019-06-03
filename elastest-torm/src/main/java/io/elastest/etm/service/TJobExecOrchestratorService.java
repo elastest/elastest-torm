@@ -978,7 +978,7 @@ public class TJobExecOrchestratorService {
             // Sut instrumented by EIM
             if (sut.isInstrumentedByElastest() && sut.isInstrumentalized()) {
                 execution.updateTJobExecutionStatus(ResultEnum.WAITING_SUT,
-                        "Deploying beats");
+                        "Deploying beats in Sut");
 
                 if (execution.isExternal()) {
                     logger.debug("External TJob Exec {} => Deploy Beats",

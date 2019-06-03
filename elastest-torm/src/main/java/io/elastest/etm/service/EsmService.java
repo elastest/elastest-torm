@@ -536,6 +536,8 @@ public class EsmService {
                 HttpEntity<EusExecutionData> request = new HttpEntity<EusExecutionData>(
                         eusExecutionData, headers);
 
+                logger.debug("Registering {} {} in EUS (url: {})",
+                        execution.getTJobExecType(), response, url);
                 response = restTemplate.postForObject(url, request,
                         String.class);
             }
