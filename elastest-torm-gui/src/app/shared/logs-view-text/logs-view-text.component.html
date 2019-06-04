@@ -9,7 +9,7 @@
       </li>
       <!-- <mat-divider *ngIf="model.prevTraces.length > 0" class="push-bottom push-top"></mat-divider> -->
       <li *ngFor="let trace of model.traces">
-        <pre>{{trace.message}}</pre>
+        <pre [class]="getTraceLevelClass(trace)">{{trace.message}}</pre>
       </li>
     </ng-container>
     <ng-container *ngIf="model.filteredTraces.length > 0">

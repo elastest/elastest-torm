@@ -73,4 +73,12 @@ export class LogsViewTextComponent implements OnInit, AfterViewChecked {
       this.lockScroll = !this.lockScroll;
     }
   }
+
+  getTraceLevelClass(trace: any): string {
+    let levelClass: string = 'simple-color-class';
+    if (trace && trace.level) {
+      levelClass = trace.level.toLowerCase() + '-color-class';
+    }
+    return levelClass;
+  }
 }
