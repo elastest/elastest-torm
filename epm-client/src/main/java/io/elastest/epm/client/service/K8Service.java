@@ -1,6 +1,7 @@
 package io.elastest.epm.client.service;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,7 +26,6 @@ import io.elastest.epm.client.DockerContainer;
 import io.elastest.epm.client.utils.UtilTools;
 import io.fabric8.kubernetes.api.model.Capabilities;
 import io.fabric8.kubernetes.api.model.CapabilitiesBuilder;
-import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.DoneableService;
@@ -36,7 +36,6 @@ import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
-import io.fabric8.kubernetes.api.model.SecurityContext;
 import io.fabric8.kubernetes.api.model.SecurityContextBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
@@ -48,8 +47,11 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.dsl.ExecListener;
+import io.fabric8.kubernetes.client.dsl.ExecWatch;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.ServiceResource;
+import okhttp3.Response;
 
 @org.springframework.stereotype.Service
 public class K8Service {
@@ -167,7 +169,7 @@ public class K8Service {
             logger.info("Creating job: {}.",
                     job.getMetadata().getLabels().get(LABEL_JOB_NAME));
             client.batch().jobs().inNamespace(namespace).create(job);
-            
+
             result.setResult("Fail");
             result.setJobName(job.getMetadata().getName());
             result.setPodName("");
@@ -190,7 +192,7 @@ public class K8Service {
                             logger.debug("Event received: {}",
                                     pod.getStatus().getPhase());
                             logger.debug("Action: {}", action.toString());
-                            
+
                             if (result.getPodName().isEmpty()) {
                                 result.setPodName(pod.getMetadata().getName());
                             }
@@ -211,7 +213,7 @@ public class K8Service {
                             client.batch().jobs().inNamespace(namespace)
                                     .delete(job);
                             deleteJob(job.getMetadata().getName());
-                            
+
                         }
                     })) {
                 watchLatch.await();
@@ -284,17 +286,6 @@ public class K8Service {
                         .withSecurityContext(securityContextBuilder.build());
             }
 
-//            pod = new PodBuilder().withNewMetadata()
-//                    .withName(containerNameWithoutUnderscore).endMetadata()
-//                    .withNewSpec().addNewContainer()
-//                    .withName(containerNameWithoutUnderscore)
-//                    .withImage(container.getImageId())
-//                    .withEnv(getEnvVarListFromStringList(
-//                            container.getEnvs().get()))
-//                    .endContainer()
-//                    .endSpec()
-//                    .build();
-
             PodBuilder podBuilder = new PodBuilder();
             podBuilder.withNewMetadata()
                     .withName(containerNameWithoutUnderscore).endMetadata()
@@ -309,16 +300,14 @@ public class K8Service {
             }
 
             podBuilder.buildSpec().getContainers().get(0);
-            pod = client.pods().inNamespace(namespace).createOrReplace(podBuilder.build());
+            pod = client.pods().inNamespace(namespace)
+                    .createOrReplace(podBuilder.build());
 
             while (!isReady(containerNameWithoutUnderscore)) {
                 UtilTools.sleep(1);
             }
             pod = client.pods().inNamespace(DEFAULT_NAMESPACE)
                     .withName(containerNameWithoutUnderscore).get();
-            // Pod podUpdated =
-            // client.pods().withName(containerNameWithoutUnderscore).get();
-            // logger.debug("Sut Pod ip: {}", pod.getMetadata().getName());
             logger.debug("Sut Pod ip: {}", pod.getStatus().getPodIP());
 
         } catch (final KubernetesClientException e) {
@@ -412,7 +401,47 @@ public class K8Service {
         Integer result = 0;
         result = client.pods().inNamespace(DEFAULT_NAMESPACE).withName(podName)
                 .dir(originPath).copy(Paths.get(targetPath)) ? result : 1;
+        if (result != 1) {
+            logger.debug("*** File copied ***");
+        } else {
+            logger.debug("*** File not copied ***");
+        }
+
         return result;
+    }
+
+    public void execCommand(Pod pod, String container, String... command) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final CountDownLatch latch = new CountDownLatch(1);
+        try (ExecWatch execWatch = client.pods()
+                .inNamespace(pod.getMetadata().getNamespace())
+                .withName(pod.getMetadata().getName())
+                .readingInput(null).writingOutput(baos)
+                .usingListener(new ExecListener() {
+
+                    @Override
+                    public void onClose(int i, String s) {
+                        logger.debug("Command finalized without errors.");
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void onOpen(Response response) {
+                        logger.info("Running command on pod {}: {}",
+                                pod.getMetadata().getName(), command);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t, Response response) {
+                        logger.debug("Command finalized with errors.");
+                        latch.countDown();
+                    }
+                }).exec(command)) {
+            latch.await(3, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            logger.error("Exception running command {} on pod: {}", command,
+                    e.getMessage());
+        }
     }
 
     public class PodInfo {
@@ -490,23 +519,24 @@ public class K8Service {
             throws NullPointerException {
         return getServiceByName(serviceName).getSpec().getClusterIP();
     }
-    
+
     public List<Pod> getPodsFromNamespace(String namespace) {
         return client.pods().inNamespace(namespace).list().getItems();
     }
-    
+
     public boolean existPodByName(String name) {
-        return client.pods().inNamespace(DEFAULT_NAMESPACE).withName(name).get() != null ? Boolean.TRUE : Boolean.FALSE ;        
+        return client.pods().inNamespace(DEFAULT_NAMESPACE).withName(name)
+                .get() != null ? Boolean.TRUE : Boolean.FALSE;
     }
-    
+
     public Pod getPodByName(String name) {
-        return client.pods().inNamespace(DEFAULT_NAMESPACE).withName(name).get();
+        return client.pods().inNamespace(DEFAULT_NAMESPACE).withName(name)
+                .get();
     }
-    
+
     public String getPodIpByPodName(String name) {
         return getPodByName(name).getStatus().getPodIP();
     }
-    
 
     public HostPathVolumeSource createEtToolsVolume() throws IOException {
         // TODO
