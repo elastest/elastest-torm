@@ -364,7 +364,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     if (this.serviceInstances) {
       for (let instance of this.serviceInstances) {
         if (instance.serviceName.toLowerCase() === 'ess') {
-          let proxyUrl: string = instance.ip + ':' + instance.servicePort;
+          let proxyUrl: string = instance.ip + ':' + instance.port;
 
           if (extraCapabilities['chromeOptions'] === undefined || extraCapabilities['chromeOptions'] === null) {
             extraCapabilities['chromeOptions'] = {};
