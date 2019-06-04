@@ -118,7 +118,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   // For development only! RETURN TO FALSE ON COMMIT
   activateGUIDevelopmentMode: boolean = false;
-  
+
   logErrors: number = 0;
   logWarnings: number = 0;
 
@@ -364,7 +364,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     if (this.serviceInstances) {
       for (let instance of this.serviceInstances) {
         if (instance.serviceName.toLowerCase() === 'ess') {
-          let proxyUrl: string = instance.ip + ':8080';
+          let proxyUrl: string = instance.ip + ':' + instance.servicePort;
 
           if (extraCapabilities['chromeOptions'] === undefined || extraCapabilities['chromeOptions'] === null) {
             extraCapabilities['chromeOptions'] = {};
