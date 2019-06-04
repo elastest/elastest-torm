@@ -41,11 +41,19 @@
             "ess": {
                 "description": "The ESS API",
                 "main": true,
-                "api": {
-                    "protocol": "http",
-                    "port": 80,
-                    "path": "/ess/api/r4"
-                },
+                "api": [
+                    {
+                       "protocol": "http",
+                       "port": 80,
+                       "path": "/ess/api/r4"
+                    },
+                    {
+                       "name": "httpproxy",
+                       "protocol": "http",
+                       "port": 8080,
+                       "path": ""
+                    }
+                ],
         "gui": {
             "protocol": "http",
                     "path": "/gui/",

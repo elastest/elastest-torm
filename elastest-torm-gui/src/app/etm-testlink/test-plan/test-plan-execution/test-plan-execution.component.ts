@@ -364,25 +364,29 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     if (this.serviceInstances) {
       for (let instance of this.serviceInstances) {
         if (instance.serviceName.toLowerCase() === 'ess') {
-          let proxyUrl: string = instance.ip + ':' + instance.port;
+          if (!instance.urls || !instance.urls.httpproxyapi) {
+            this.forceEnd(true, 'Error on initialize browser', 'ERROR', 'ESS proxy api url is not available');
+          } else {
+            let proxyUrl: string = instance.urls.httpproxyapi;
 
-          if (extraCapabilities['chromeOptions'] === undefined || extraCapabilities['chromeOptions'] === null) {
-            extraCapabilities['chromeOptions'] = {};
+            if (extraCapabilities['chromeOptions'] === undefined || extraCapabilities['chromeOptions'] === null) {
+              extraCapabilities['chromeOptions'] = {};
+            }
+
+            if (extraCapabilities['chromeOptions']['args'] === undefined || extraCapabilities['chromeOptions']['args'] === null) {
+              extraCapabilities['chromeOptions']['args'] = [];
+            }
+
+            extraCapabilities['chromeOptions']['args'].push('--proxy-server=' + proxyUrl);
+            let essApiUrl: string = instance.urls.api;
+
+            this.etmRestClientService.doPost(essApiUrl + '/start/', { sites: [this.sutUrl] }).subscribe(
+              (response: any) => {
+                console.log('ESS response:', response);
+              },
+              (error: Error) => console.log(error),
+            );
           }
-
-          if (extraCapabilities['chromeOptions']['args'] === undefined || extraCapabilities['chromeOptions']['args'] === null) {
-            extraCapabilities['chromeOptions']['args'] = [];
-          }
-
-          extraCapabilities['chromeOptions']['args'].push('--proxy-server=' + proxyUrl);
-          let essApiUrl: string = instance.urls.api;
-
-          this.etmRestClientService.doPost(essApiUrl + '/start/', { sites: [this.sutUrl] }).subscribe(
-            (response: any) => {
-              console.log('ESS response:', response);
-            },
-            (error: Error) => console.log(error),
-          );
         }
       }
     }
