@@ -79,12 +79,18 @@ export class LogsViewComponent implements OnInit {
   loadErrors(): number {
     this.errors = this.model.getErrors();
     this.filteredErrorsModel.traces = this.errors;
+    if (this.errorsFiltered && this.warningsFiltered) {
+      this.loadErrorsAndWarnings();
+    }
     return this.errors.length;
   }
 
   loadWarnings(): number {
     this.warnings = this.model.getWarnings();
     this.filteredWarningsModel.traces = this.warnings;
+    if (this.errorsFiltered && this.warningsFiltered) {
+      this.loadErrorsAndWarnings();
+    }
     return this.warnings.length;
   }
 
@@ -96,15 +102,9 @@ export class LogsViewComponent implements OnInit {
 
   switchFilterErrors(): void {
     this.errorsFiltered = !this.errorsFiltered;
-    if (this.errorsFiltered && this.warningsFiltered) {
-      this.loadErrorsAndWarnings();
-    }
   }
 
   switchFilterWarnings(): void {
     this.warningsFiltered = !this.warningsFiltered;
-    if (this.errorsFiltered && this.warningsFiltered) {
-      this.loadErrorsAndWarnings();
-    }
   }
 }
