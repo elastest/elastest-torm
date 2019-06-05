@@ -43,14 +43,52 @@
         </div>
       </div>
     </div>
+    <!-- Errors/Warns -->
     <div fxLayout="row" class="mat-small">
-      <span style.color="{{ errors > 0 ? errorColor : 'initial' }}">Errors: {{ getErrors() }}</span>
+      <button
+        mat-button
+        [style.background-color]="errorsFiltered ? '#eeeeee' : 'initial'"
+        (click)="switchFilterErrors()"
+        [disabled]="errors.length === 0"
+        class="pad-left-none pad-right-none mat-button-little"
+        matTooltip="Filter Error logs"
+      >
+        <span class="mat-small" style.color="{{ errors.length > 0 ? errorColor : 'initial' }}">Errors: {{ loadErrors() }}</span>
+      </button>
       <span class="push-left-xs">|</span>
-      <span style.color="{{ warnings > 0 ? warnColor : 'initial' }}" class="push-left-xs">Warnings: {{ getWarnings() }}</span>
+      <button
+        mat-button
+        [style.background-color]="warningsFiltered ? '#eeeeee' : 'initial'"
+        (click)="switchFilterWarnings()"
+        [disabled]="warnings.length === 0"
+        class="pad-left-none pad-right-none mat-button-little push-left-xs"
+        matTooltip="Filter Warning logs"
+      >
+        <span class="mat-small" style.color="{{ warnings.length > 0 ? warnColor : 'initial' }}"
+          >Warnings: {{ loadWarnings() }}</span
+        >
+      </button>
     </div>
   </mat-card-title>
   <mat-divider></mat-divider>
   <mat-card-content style="padding-top: 4px; padding-bottom: 4px;">
-    <logs-view-text #logsViewText [model]="model"></logs-view-text>
+    <!-- Normal -->
+    <ng-container *ngIf="!warningsFiltered && !errorsFiltered; else filterErrorsOrWarnings">
+      <logs-view-text #logsViewText [model]="model"></logs-view-text>
+    </ng-container>
+    <!-- Filter Errors/Warnings -->
+    <ng-template #filterErrorsOrWarnings>
+      <ng-container *ngIf="warningsFiltered && errorsFiltered; else filterNotMixed">
+        <logs-view-text #logsViewTextErrorsAndWarnings [model]="filteredErrorsAndWarningsModel"></logs-view-text>
+      </ng-container>
+      <ng-template #filterNotMixed>
+        <ng-container *ngIf="errorsFiltered; else filterWarnings">
+          <logs-view-text #logsViewTextErrors [model]="filteredErrorsModel"></logs-view-text>
+        </ng-container>
+        <ng-template #filterWarnings
+          ><logs-view-text #logsViewTextWarnings [model]="filteredWarningsModel"></logs-view-text>
+        </ng-template>
+      </ng-template>
+    </ng-template>
   </mat-card-content>
 </mat-card>

@@ -11,6 +11,10 @@ a[mat-icon-button] {
   line-height: 36px;
 }
 
+.mat-button-little {
+  min-width: initial !important;
+}
+
 .mat-button,
 .mat-raised-button {
   line-height: 33px !important;

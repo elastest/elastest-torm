@@ -16,15 +16,27 @@ export class LogsViewComponent implements OnInit {
   @Input() public model: LogViewModel;
   @Input() public remove: Function;
 
-  errors: number = 0;
-  warnings: number = 0;
+  errors: any[] = [];
+  warnings: any[] = [];
+  errorsAndWarnings: any[] = [];
 
   errorColor: string = getErrorColor();
   warnColor: string = getWarnColor();
 
+  errorsFiltered: boolean = false;
+  warningsFiltered: boolean = false;
+
+  filteredErrorsModel: LogViewModel;
+  filteredWarningsModel: LogViewModel;
+  filteredErrorsAndWarningsModel: LogViewModel;
+
   constructor(private filesService: FilesService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.filteredErrorsModel = this.model.cloneModel();
+    this.filteredWarningsModel = this.model.cloneModel();
+    this.filteredErrorsAndWarningsModel = this.model.cloneModel();
+  }
 
   scrollToElement(position: number): void {
     this.logsViewText.scrollToElement(position);
@@ -64,12 +76,35 @@ export class LogsViewComponent implements OnInit {
     return logArray;
   }
 
-  getErrors(): number {
-    this.errors = this.model.getErrors().length;
-    return this.errors;
+  loadErrors(): number {
+    this.errors = this.model.getErrors();
+    this.filteredErrorsModel.traces = this.errors;
+    return this.errors.length;
   }
-  getWarnings(): number {
-    this.warnings = this.model.getWarnings().length;
-    return this.warnings;
+
+  loadWarnings(): number {
+    this.warnings = this.model.getWarnings();
+    this.filteredWarningsModel.traces = this.warnings;
+    return this.warnings.length;
+  }
+
+  loadErrorsAndWarnings(): number {
+    this.errorsAndWarnings = this.model.getErrorsAndWarnings();
+    this.filteredErrorsAndWarningsModel.traces = this.errorsAndWarnings;
+    return this.errorsAndWarnings.length;
+  }
+
+  switchFilterErrors(): void {
+    this.errorsFiltered = !this.errorsFiltered;
+    if (this.errorsFiltered && this.warningsFiltered) {
+      this.loadErrorsAndWarnings();
+    }
+  }
+
+  switchFilterWarnings(): void {
+    this.warningsFiltered = !this.warningsFiltered;
+    if (this.errorsFiltered && this.warningsFiltered) {
+      this.loadErrorsAndWarnings();
+    }
   }
 }

@@ -26,11 +26,14 @@
 .info-color-class {
 }
 
-.error-color-class {
+.error-color-class,
+.err-color-class,
+.severe-color-class {
   color: #c82a0e !important;
 }
 
-.warning-color-class {
+.warning-color-class,
+.warn-color-class {
   color: #ffac2f !important;
 }
 

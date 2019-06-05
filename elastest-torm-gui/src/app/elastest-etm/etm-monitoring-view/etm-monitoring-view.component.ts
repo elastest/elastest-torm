@@ -409,7 +409,10 @@ export class EtmMonitoringViewComponent implements OnInit {
   updateAIOMetrics(activate: boolean): void {
     let alreadyActivated: boolean = this.tJob.execDashboardConfigModel.showAllInOne;
     this.tJob.execDashboardConfigModel.showAllInOne = activate;
-    this.tJobExec.tJob.execDashboardConfigModel.showAllInOne = activate;
+
+    if (this.tJobExec.tJob) {
+      this.tJobExec.tJob.execDashboardConfigModel.showAllInOne = activate;
+    }
 
     if (activate && !alreadyActivated) {
       this.metricsGroup.initAIO();

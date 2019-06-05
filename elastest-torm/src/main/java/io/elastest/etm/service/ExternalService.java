@@ -443,7 +443,17 @@ public class ExternalService {
     }
 
     public ExternalTJob modifyExternalTJob(ExternalTJob externalTJob) {
-        if (externalTJobRepository.findById(externalTJob.getId()) != null) {
+        Optional<ExternalTJob> savedExTJob = externalTJobRepository
+                .findById(externalTJob.getId());
+
+        if (savedExTJob != null) {
+            // If sut comes with id or any data, get from saved
+            if (externalTJob.getSut() != null
+                    && externalTJob.getSut().getId() == null
+                    || externalTJob.getSut().getId() == 0) {
+                externalTJob.setSut(savedExTJob.get().getSut());
+            }
+
             return externalTJobRepository.save(externalTJob);
         } else {
             throw new HTTPException(405);
