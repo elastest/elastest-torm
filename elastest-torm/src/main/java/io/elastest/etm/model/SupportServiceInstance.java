@@ -440,31 +440,6 @@ public class SupportServiceInstance extends EtPlugin {
         return null;
     }
 
-    public String getInternalApiUrlIfExist() {
-        if (this.getInternalServiceIp() != null
-                && !"".equals(this.getInternalServiceIp())
-                && this.getInternalServicePort() != 0) {
-
-            for (Map.Entry<String, SSIUrl> urlHash : getUrls().entrySet()) {
-                SSIUrl url = urlHash.getValue();
-                if (!urlHash.getKey().equals(API_STATUS_KEY)
-                        && url.getInternal() != null
-                        && (url.getInternal().contains("http")
-                                || url.getInternal().contains("https"))) {
-
-                    String protocol = url.getInternal().split("://")[0];
-                    String internalUrl = protocol + "://"
-                            + this.getInternalServiceIp() + ":"
-                            + this.getInternalServicePort();
-
-                    return internalUrl;
-                }
-            }
-
-        }
-        return null;
-    }
-
     public String getApiStatusUrlIfExist() {
         if (getUrls().containsKey(API_STATUS_KEY)) {
             return getUrls().get(API_STATUS_KEY).getInternal();

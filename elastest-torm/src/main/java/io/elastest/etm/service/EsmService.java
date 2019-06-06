@@ -1680,7 +1680,7 @@ public class EsmService {
             if (tSSInstance.getUrls() != null
                     && !tSSInstance.getUrls().isEmpty()) {
                 // First check if internal api url exists
-                String urlValue = tSSInstance.getInternalApiUrlIfExist();
+                String urlValue = tSSInstance.getApiUrlIfExist(false);
                 logger.debug("{} Internal url {} ", serviceName, urlValue);
                 if (urlValue == null) {
 
