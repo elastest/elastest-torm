@@ -979,9 +979,20 @@ public class SutSpecification {
     }
 
     public String getSutUrlByGivenIp(String sutIp) {
-        return getProtocol() + "://" + sutIp
-                + (getPort() != null && !"".equals(getPort()) ? ":" + getPort()
-                        : (":" + getDefaultPortByProtocol()));
+        String port = getPort() != null && !"".equals(getPort()) ? getPort()
+                : getDefaultPortByProtocol();
+        String url = getProtocol() + "://" + sutIp;
+
+        // If port 443 and protocol https, don't set port
+        if ("443".equals(port) && getProtocol().equals(ProtocolEnum.HTTPS)) {
+            port = null;
+        }
+
+        if (port != null && !"".equals(getPort())) {
+            url += ":" + port;
+        }
+
+        return url;
     }
 
     public List<String> getAllMonitoringIndices() {
