@@ -167,6 +167,7 @@ public class EsmService {
     private final WebDriverService eusWebDriverService;
     private final EtPluginsService etPluginsService;
     private final UtilsService utilsService;
+    private boolean withServerAddress;
 
     @Autowired
     public EsmService(SupportServiceClientInterface supportServiceClient,
@@ -209,6 +210,8 @@ public class EsmService {
 
                 String tssInstanceId = null;
 
+                withServerAddress = !utilsService.isDefaultEtPublicHost();
+
                 // If mini and EUS, use integrated EUS
                 if (utilsService.isElastestMini()
                         && serviceName.equals("EUS")) {
@@ -249,58 +252,90 @@ public class EsmService {
             eusInstance.setContainerIp(serviceIp);
             int internalServicePort = Integer.parseInt(etmServerPort);
             int bindedServicePort = Integer.parseInt(etProxyPort);
-            int servicePort = internalServicePort;
             eusInstance.setInternalServiceIp(serviceIp);
 
-            if (!utilsService.isDefaultEtPublicHost()) {
+            // If server address, binded
+
+            if (withServerAddress) {
                 serviceIp = utilsService.getEtPublicHostValue();
                 eusInstance.setBindedServiceIp(serviceIp);
-                if (etmInContainer) {
-                    servicePort = bindedServicePort;
-                }
             }
+
             eusInstance.setServiceIp(serviceIp);
             eusInstance.setEndpointName("elastest-eus");
             eusInstance = buildTssInstanceUrls(eusInstance);
+
+            // Replace EUS port to ETM port
+            String originalInternalPort = String
+                    .valueOf(eusInstance.getInternalServicePort());
+            String originalExternalPort = String
+                    .valueOf(eusInstance.getBindedServicePort());
 
             // Set ports after buildTssInstanceUrls to update
             eusInstance.setInternalServicePort(internalServicePort);
             eusInstance.setBindedServicePort(bindedServicePort);
 
-            // Replace EUS port to ETM port
-            String originalPort = String.valueOf(eusInstance.getServicePort());
             for (String key : eusInstance.getUrls().keySet()) {
-                String newValue = eusInstance.getUrls().get(key)
-                        .replaceAll(originalPort, String.valueOf(servicePort));
-                eusInstance.getUrls().put(key, newValue);
-                logger.info("Replace the port {} by {}", originalPort,
-                        servicePort);
-                logger.info("EUS URLs: {} => {}", key, newValue);
+
+                String newInternalUrlValue = eusInstance
+                        .getUrlIfExistsByKey(key, false)
+                        .replaceAll(originalInternalPort,
+                                String.valueOf(internalServicePort));
+                eusInstance.setUrlValue(key, newInternalUrlValue, false);
+
+                logger.info("Replace internal EUS port {} by {}",
+                        originalInternalPort, internalServicePort);
+                logger.info("EUS internal URL: {} => {}", key,
+                        newInternalUrlValue);
+
+                if (withServerAddress) {
+                    String newExternalUrlValue = eusInstance
+                            .getUrlIfExistsByKey(key, true)
+                            .replaceAll(originalExternalPort,
+                                    String.valueOf(bindedServicePort));
+
+                    eusInstance.setUrlValue(key, newExternalUrlValue, true);
+
+                    logger.info("Replace external EUS port {} by {}",
+                            originalExternalPort, bindedServicePort);
+                    logger.info("EUS external URL: {} => {}", key,
+                            newExternalUrlValue);
+                }
 
             }
+
             for (String key : eusInstance.getEndpointsData().keySet()) {
                 JsonNode node = eusInstance.getEndpointsData().get(key);
 
                 for (Iterator<String> it = node.fieldNames(); it.hasNext();) {
                     String field = it.next();
 
-                    if (node.get(field).asText().equals(originalPort)) {
-                        ((ObjectNode) node).put(field, servicePort);
+                    if (node.get(field).asText().equals(originalInternalPort)) {
+                        ((ObjectNode) node).put(field, internalServicePort);
+                    }
+
+                    if (node.get(field).asText().equals(originalExternalPort)) {
+                        ((ObjectNode) node).put(field, bindedServicePort);
                     }
 
                 }
             }
 
-            eusInstance.setServicePort(servicePort);
+            eusInstance.setServicePort(withServerAddress ? bindedServicePort
+                    : internalServicePort);
 
-            String apiUrl = eusInstance.getApiUrlIfExist();
-
-            eusInstance.getUrls().put("api-status", apiUrl + "status");
+            String internalApiUrl = eusInstance.getApiUrlIfExist(false);
+            eusInstance.setApiStatusUrl(internalApiUrl + "status", false);
+            if (withServerAddress) {
+                String externalApiUrl = eusInstance.getApiUrlIfExist(true);
+                eusInstance.setApiStatusUrl(externalApiUrl + "status", true);
+            }
 
             dynamicDataService.setLogstashHttpsApi(etmContextAuxService
                     .getContextInfo().getLogstashSSLHttpUrl());
 
-            servicesInstances.put(tssInstanceId, eusInstance);
+            putInstanceInMap(tssInstanceId, eusInstance);
+
             etmContextAuxService.getContextInfo().setEusSSInstance(eusInstance);
         } catch (Exception e) {
             logger.error("Error on start integrated EUS:", e);
@@ -521,7 +556,7 @@ public class EsmService {
                         .getBody();
             } else {
                 String eusApi = servicesInstances.get(tssInstanceId)
-                        .getApiUrlIfExist();
+                        .getInternalApiUrlIfExist();
                 String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
                 url += "execution/register";
 
@@ -537,7 +572,8 @@ public class EsmService {
                         eusExecutionData, headers);
 
                 logger.debug("Registering {} {} in EUS (url: {})",
-                        execution.getTJobExecType(), response, url);
+                        execution.getTJobExecType(), eusExecutionData, url);
+
                 response = restTemplate.postForObject(url, request,
                         String.class);
             }
@@ -563,7 +599,7 @@ public class EsmService {
                         .unregisterExecution(eusExecutionData.getKey());
             } else {
                 String eusApi = servicesInstances.get(tssInstanceId)
-                        .getApiUrlIfExist();
+                        .getApiUrlIfExist(withServerAddress);
 
                 String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
                 url += "execution/unregister/" + eusExecutionData.getKey();
@@ -622,11 +658,9 @@ public class EsmService {
             SupportServiceInstance instance = servicesInstances
                     .get(tssInstanceId);
             instance.gettJobExecIdList().add(execution.getExecutionId());
-            if (execution.isExternal()) {
-                externalTJobServicesInstances.put(tssInstanceId, instance);
-            } else {
-                tJobServicesInstances.put(tssInstanceId, instance);
-            }
+
+            putInstanceInExecutionMap(tssInstanceId, instance, execution);
+
             return tssInstanceId;
         }
         return null;
@@ -670,9 +704,10 @@ public class EsmService {
             this.setTSSFilesConfig(newServiceInstance);
             this.fillEnvVariablesToTSS(newServiceInstance);
 
-            servicesInstances.put(instanceId, newServiceInstance);
+            putInstanceInMap(instanceId, newServiceInstance);
             newServiceInstance = this.provisionServiceInstanceByObject(
                     newServiceInstance, instanceId);
+            putInstanceInMap(instanceId, newServiceInstance);
         } catch (Exception e) {
             if (newServiceInstance != null) {
                 deprovisionServiceInstance(newServiceInstance.getInstanceId(),
@@ -715,7 +750,7 @@ public class EsmService {
                     tJobExec, tJobIsExternal, false);
 
             if (tJobExec != null && execId != null) {
-                tJobServicesInstances.put(instanceId, newServiceInstance);
+                putInstanceInTJobExecMap(instanceId, newServiceInstance);
                 List<String> tSSIByTJobExecAssociatedList = tSSIByTJobExecAssociated
                         .get(execId) == null ? new ArrayList<>()
                                 : tSSIByTJobExecAssociated.get(execId);
@@ -726,13 +761,14 @@ public class EsmService {
 
                 createExecFilesFolder(newServiceInstance);
             } else {
-                servicesInstances.put(instanceId, newServiceInstance);
+                putInstanceInMap(instanceId, newServiceInstance);
             }
 
             newServiceInstance = this.provisionServiceInstanceByObject(
                     newServiceInstance, instanceId);
 
-            tJobServicesInstances.put(instanceId, newServiceInstance);
+            putInstanceInTJobExecMap(instanceId, newServiceInstance);
+
         } catch (Exception e) {
             if (newServiceInstance != null) {
                 deprovisionServiceInstance(newServiceInstance.getInstanceId(),
@@ -824,7 +860,7 @@ public class EsmService {
             if (servicesInstances.containsKey(instanceId)) {
                 // Put is carried out in the method provision, but we put it
                 // here also in case async is executed
-                tJobServicesInstances.put(instanceId,
+                putInstanceInTJobExecMap(instanceId,
                         servicesInstances.get(instanceId));
             }
 
@@ -896,7 +932,7 @@ public class EsmService {
                 // Update instance in map to have the entrypoint values
                 tssInstance = supportServiceClient
                         .initSupportServiceInstanceData(tssInstance);
-                tJobServicesInstances.put(instanceId, tssInstance);
+                putInstanceInTJobExecMap(instanceId, tssInstance);
             }
         }
 
@@ -998,11 +1034,13 @@ public class EsmService {
                     exTJobExec);
 
             if (exTJobExec != null && execId != null) {
-                externalTJobServicesInstances.put(instanceId,
+                putInstanceInExternalTJobExecMap(instanceId,
                         newServiceInstance);
+
                 List<String> tSSIByExternalTJobExecAssociatedList = tSSIByExternalTJobExecAssociated
                         .get(execId) == null ? new ArrayList<>()
                                 : tSSIByExternalTJobExecAssociated.get(execId);
+
                 tSSIByExternalTJobExecAssociatedList
                         .add(newServiceInstance.getInstanceId());
                 tSSIByExternalTJobExecAssociated.put(execId,
@@ -1010,11 +1048,18 @@ public class EsmService {
 
                 createExecFilesFolder(newServiceInstance);
             } else {
-                servicesInstances.put(instanceId, newServiceInstance);
+                putInstanceInMap(instanceId, newServiceInstance);
             }
 
-            this.provisionServiceInstanceByObject(newServiceInstance,
-                    instanceId);
+            newServiceInstance = this.provisionServiceInstanceByObject(
+                    newServiceInstance, instanceId);
+
+            if (exTJobExec != null && execId != null) {
+                putInstanceInExternalTJobExecMap(instanceId,
+                        newServiceInstance);
+            } else {
+                putInstanceInMap(instanceId, newServiceInstance);
+            }
 
         } catch (Exception e) {
             if (newServiceInstance != null) {
@@ -1046,7 +1091,7 @@ public class EsmService {
                         .unregisterExecution(eusExecutionData.getKey());
             } else {
                 String eusApi = servicesInstances.get(tssInstanceId)
-                        .getApiUrlIfExist();
+                        .getApiUrlIfExist(withServerAddress);
 
                 String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
                 url += "execution/unregister/" + eusExecutionData.getKey();
@@ -1105,6 +1150,7 @@ public class EsmService {
         newServiceInstance.setFullyInitialized(true);
         logger.info("Service {} with instance id {} has been fully initialized",
                 newServiceInstance.getServiceName(), instanceId);
+        logger.debug("Service instance data: {} ", newServiceInstance);
         return newServiceInstance;
     }
 
@@ -1114,7 +1160,7 @@ public class EsmService {
                 serviceInstance.getEndpointName());
         TssManifest manifest = supportServiceClient
                 .getManifestById(serviceInstance.getManifestId());
-        createSubserviceUrls(serviceInstance, manifest);
+        serviceInstance = createSubserviceUrls(serviceInstance, manifest);
         for (SupportServiceInstance subService : serviceInstance
                 .getSubServices()) {
             logger.debug("Sub-services names: {}",
@@ -1123,15 +1169,16 @@ public class EsmService {
                 throw new Exception("Field ip not found for "
                         + subService.getEndpointName() + " instance.");
             } else {
-                createSubserviceUrls(subService, manifest);
+                serviceInstance = createSubserviceUrls(subService, manifest);
             }
         }
 
         return serviceInstance;
     }
 
-    private void createSubserviceUrls(SupportServiceInstance serviceInstance,
-            TssManifest manifest) throws Exception {
+    private SupportServiceInstance createSubserviceUrls(
+            SupportServiceInstance serviceInstance, TssManifest manifest)
+            throws Exception {
         JsonNode manifestEndpoints = manifest.getEndpoints();
         logger.debug("Endpoints for the service: {}",
                 manifestEndpoints.toString());
@@ -1153,13 +1200,13 @@ public class EsmService {
 
             if (manifestEndpointServiceApi != null) {
                 if (!manifestEndpointServiceApi.isArray()) {
-                    getEndpointsInfo(serviceInstance,
+                    serviceInstance = getEndpointsInfo(serviceInstance,
                             manifestEndpointServiceApi, tssContainerName,
                             networkName, "api");
                 } else {
                     for (final JsonNode apiNode : manifestEndpointServiceApi) {
-                        getEndpointsInfo(serviceInstance, apiNode,
-                                tssContainerName, networkName,
+                        serviceInstance = getEndpointsInfo(serviceInstance,
+                                apiNode, tssContainerName, networkName,
                                 apiNode.get("name") != null
                                         ? apiNode.get("name").toString()
                                                 .replaceAll("\"", "") + "api"
@@ -1170,13 +1217,13 @@ public class EsmService {
 
             if (manifestEndpointServiceGui != null) {
                 if (!manifestEndpointServiceGui.isArray()) {
-                    getEndpointsInfo(serviceInstance,
+                    serviceInstance = getEndpointsInfo(serviceInstance,
                             manifestEndpointServiceGui, tssContainerName,
                             networkName, "gui");
                 } else {
                     for (final JsonNode guiNode : manifestEndpointServiceGui) {
-                        getEndpointsInfo(serviceInstance, guiNode,
-                                tssContainerName, networkName,
+                        serviceInstance = getEndpointsInfo(serviceInstance,
+                                guiNode, tssContainerName, networkName,
                                 guiNode.get("name") != null
                                         ? guiNode.get("name").toString()
                                                 .replaceAll("\"", "") + "gui"
@@ -1189,6 +1236,7 @@ public class EsmService {
             throw new Exception(
                     "Error building endpoints info: " + e.getMessage());
         }
+        return serviceInstance;
     }
 
     private SupportServiceInstance getEndpointsInfo(
@@ -1201,6 +1249,7 @@ public class EsmService {
             String nodePort = node.get("port").toString().replaceAll("\"", "");
 
             int internalPort = Integer.parseInt(nodePort);
+            ((ObjectNode) node).put("internalPort", internalPort);
             serviceInstance.setInternalServicePort(internalPort);
 
             // If server address, binded
@@ -1247,8 +1296,8 @@ public class EsmService {
                 serviceInstance.setBindedServicePort(bindedPort);
 
                 auxPort = bindedPort;
-                ((ObjectNode) node).put("port", auxPort);
-
+                ((ObjectNode) node).put("bindedPort", bindedPort);
+                ((ObjectNode) node).put("port", bindedPort);
             } else {
                 auxPort = internalPort;
             }
@@ -1259,9 +1308,17 @@ public class EsmService {
                     || node.get("protocol").toString().contains("ws"))) {
                 serviceInstance.setServicePort(auxPort);
 
-                serviceInstance.getUrls().put(nodeName,
-                        createServiceInstanceUrl(node,
-                                serviceInstance.getServiceIp()));
+                String internalUrl = createServiceInstanceUrl(node,
+                        serviceInstance.getInternalServiceIp(),
+                        serviceInstance.getInternalServicePort());
+                serviceInstance.setUrlValue(nodeName, internalUrl, false);
+
+                if (withServerAddress) {
+                    String externalUrl = createServiceInstanceUrl(node,
+                            serviceInstance.getBindedServiceIp(),
+                            serviceInstance.getBindedServicePort());
+                    serviceInstance.setUrlValue(nodeName, externalUrl, true);
+                }
             }
 
             serviceInstance.getEndpointsData().put(nodeName, node);
@@ -1269,14 +1326,15 @@ public class EsmService {
         return serviceInstance;
     }
 
-    private String createServiceInstanceUrl(JsonNode node, String ip) {
+    private String createServiceInstanceUrl(JsonNode node, String ip,
+            int port) {
         String url = null;
 
-        url = node.get("protocol").toString().replaceAll("\"", "") + "://" + ip
-                + ":" + node.get("port").toString().replaceAll("\"", "")
-                + (node.get("path") != null
-                        ? node.get("path").toString().replaceAll("\"", "")
-                        : "/");
+        String protocol = node.get("protocol").toString().replaceAll("\"", "");
+        String path = node.get("path") != null
+                ? node.get("path").toString().replaceAll("\"", "")
+                : "/";
+        url = protocol + "://" + ip + ":" + port + path;
         logger.info("New url: " + url);
         return url;
     }
@@ -1494,6 +1552,10 @@ public class EsmService {
         return servicesInstancesList;
     }
 
+    /* *************************** */
+    /* **** TSS Instances Map **** */
+    /* *************************** */
+
     public Map<String, SupportServiceInstance> getServicesInstances() {
         return servicesInstances;
     }
@@ -1519,6 +1581,32 @@ public class EsmService {
             String tSSInstId) {
         return externalTJobServicesInstances.get(tSSInstId);
     }
+
+    public void putInstanceInMap(String tssInstanceId,
+            SupportServiceInstance tssi) {
+        servicesInstances.put(tssInstanceId, tssi);
+    }
+
+    public void putInstanceInTJobExecMap(String tssInstanceId,
+            SupportServiceInstance tssi) {
+        tJobServicesInstances.put(tssInstanceId, tssi);
+    }
+
+    public void putInstanceInExternalTJobExecMap(String tssInstanceId,
+            SupportServiceInstance tssi) {
+        externalTJobServicesInstances.put(tssInstanceId, tssi);
+    }
+
+    public void putInstanceInExecutionMap(String tssInstanceId,
+            SupportServiceInstance tssi, Execution execution) {
+        if (execution.isExternal()) {
+            putInstanceInExternalTJobExecMap(tssInstanceId, tssi);
+        } else {
+            putInstanceInTJobExecMap(tssInstanceId, tssi);
+        }
+    }
+
+    /* *** *** */
 
     public Map<String, SupportServiceInstance> getExecutionServicesInstances(
             Execution execution) {
@@ -1603,7 +1691,8 @@ public class EsmService {
 
                     // else normal url
                     if (urlValue == null) {
-                        urlValue = tSSInstance.getApiUrlIfExist();
+                        urlValue = tSSInstance
+                                .getApiUrlIfExist(withServerAddress);
                         logger.debug("{} Normal url {} ", serviceName,
                                 urlValue);
                     }

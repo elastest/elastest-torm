@@ -111,7 +111,7 @@
     <!-- TSS Services Instances -->
     <div *ngIf="this.elastestMode && this.elastestMode === 'mini' && serviceInstances.length > 0 && eusInstance; else tSServices">
       <app-elastest-eus
-        [eusUrl]="eusInstance.urls.api"
+        [eusUrl]="eusInstance.getUrlIfExistsByKey('api')"
         [eusHost]="eusInstance.ip"
         [eusPort]="eusInstance.port"
         [standalone]="false"

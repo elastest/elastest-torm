@@ -33,6 +33,10 @@ public class EsmApiController implements EsmApi {
         this.esmService = esmService;
     }
 
+    /* ***************************** */
+    /* ************ TSS ************ */
+    /* ***************************** */
+
     @Override
     public ResponseEntity<List<String>> getSupportServicesNames() {
         List<String> servicesList = esmService.getRegisteredServicesName();
@@ -46,12 +50,11 @@ public class EsmApiController implements EsmApi {
                 HttpStatus.OK);
     }
 
-    @Override
-    @JsonView(FrontView.class)
-    public ResponseEntity<List<SupportServiceInstance>> getSupportServicesInstances() {
-        return new ResponseEntity<List<SupportServiceInstance>>(
-                esmService.getServicesInstancesAsList(), HttpStatus.OK);
-    }
+    /* *************************************** */
+    /* ************ TSS INSTANCES ************ */
+    /* *************************************** */
+
+    /* *** PROVIDE *** */
 
     @Override
     public ResponseEntity<String> provisionServiceInstance(
@@ -61,6 +64,8 @@ public class EsmApiController implements EsmApi {
         esmService.provisionServiceInstanceAsync(serviceId, instanceId);
         return new ResponseEntity<String>(instanceId, HttpStatus.OK);
     }
+
+    /* *** DEPROVIDE *** */
 
     @Override
     public ResponseEntity<String> deprovisionServiceInstance(
@@ -86,6 +91,15 @@ public class EsmApiController implements EsmApi {
                 esmService.deprovisionExternalTJobExecServiceInstance(id,
                         externalTJobExecId),
                 HttpStatus.OK);
+    }
+
+    /* *** GET *** */
+
+    @Override
+    @JsonView(FrontView.class)
+    public ResponseEntity<List<SupportServiceInstance>> getSupportServicesInstances() {
+        return new ResponseEntity<List<SupportServiceInstance>>(
+                esmService.getServicesInstancesAsList(), HttpStatus.OK);
     }
 
     @Override
@@ -121,6 +135,7 @@ public class EsmApiController implements EsmApi {
     public ResponseEntity<List<SupportServiceInstance>> getTSSInstByExternalTJobExecId(
             @ApiParam(value = "id", required = true) @PathVariable(value = "id", required = true) Long id) {
         return new ResponseEntity<List<SupportServiceInstance>>(
-                esmService.getExternalTJobExecServicesInstancesList(id), HttpStatus.OK);
+                esmService.getExternalTJobExecServicesInstancesList(id),
+                HttpStatus.OK);
     }
 }

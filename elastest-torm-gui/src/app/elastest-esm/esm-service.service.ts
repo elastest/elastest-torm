@@ -28,9 +28,9 @@ export class EsmService {
     return this.http.post(url, undefined, { responseType: 'text' });
   }
 
-  deprovisionServiceInstance(serviceInstanceId: string): Observable<any> {
+  deprovisionServiceInstance(serviceInstanceId: string): Observable<string> {
     let url: string = this.configurationService.configModel.hostApi + '/esm/services/instances/' + serviceInstanceId;
-    return this.http.delete(url).map((data: any) => console.log(data));
+    return this.http.delete(url, { responseType: 'text' });
   }
 
   deprovisionTJobExecServiceInstance(serviceInstanceId: string, tJobExecId: string | number): Observable<any> {

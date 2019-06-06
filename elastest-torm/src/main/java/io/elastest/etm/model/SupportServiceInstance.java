@@ -98,7 +98,7 @@ public class SupportServiceInstance extends EtPlugin {
 
     @JsonView(FrontView.class)
     @JsonProperty("urls")
-    private Map<String, String> urls;
+    private Map<String, SSIUrl> urls;
 
     @JsonView(FrontView.class)
     @JsonProperty("subServices")
@@ -338,11 +338,11 @@ public class SupportServiceInstance extends EtPlugin {
         this.subServices = subServices;
     }
 
-    public Map<String, String> getUrls() {
+    public Map<String, SSIUrl> getUrls() {
         return urls;
     }
 
-    public void setUrls(Map<String, String> urls) {
+    public void setUrls(Map<String, SSIUrl> urls) {
         this.urls = urls;
     }
 
@@ -394,12 +394,47 @@ public class SupportServiceInstance extends EtPlugin {
         this.context = context;
     }
 
-    public String getApiUrlIfExist() {
-        for (Map.Entry<String, String> urlHash : getUrls().entrySet()) {
-            if (!urlHash.getKey().equals(API_STATUS_KEY)
-                    && urlHash.getValue().contains("http")
-                    || urlHash.getValue().contains("https")) {
-                return urlHash.getValue();
+    public String getUrlIfExistsByKey(String urlKey, boolean external) {
+        String url = null;
+        if (getUrls().containsKey(urlKey)) {
+            SSIUrl urlObj = getUrls().get(urlKey);
+            // If external, return external, else return internal
+            if (urlObj != null) {
+                url = external ? urlObj.getExternal() : urlObj.getInternal();
+            }
+        }
+        return url;
+    }
+
+    public void setUrlValue(String urlKey, String value, boolean external) {
+        if (!getUrls().containsKey(urlKey)) {
+            SSIUrl newUrl = new SSIUrl();
+            getUrls().put(urlKey, newUrl);
+        }
+
+        SSIUrl urlObj = getUrls().get(urlKey);
+        // If external, return external, else return internal
+        if (urlObj != null) {
+            if (external) {
+                urlObj.setExternal(value);
+
+            } else {
+                urlObj.setInternal(value);
+            }
+            getUrls().put(urlKey, urlObj);
+        }
+    }
+
+    public String getApiUrlIfExist(boolean external) {
+        for (Map.Entry<String, SSIUrl> urlHash : getUrls().entrySet()) {
+            SSIUrl url = urlHash.getValue();
+            if (!urlHash.getKey().equals(API_STATUS_KEY)) {
+                String apiUrl = external ? url.getExternal()
+                        : url.getInternal();
+                if (apiUrl != null && apiUrl.contains("http")
+                        || apiUrl.contains("https")) {
+                    return apiUrl;
+                }
             }
         }
         return null;
@@ -410,12 +445,14 @@ public class SupportServiceInstance extends EtPlugin {
                 && !"".equals(this.getInternalServiceIp())
                 && this.getInternalServicePort() != 0) {
 
-            for (Map.Entry<String, String> urlHash : getUrls().entrySet()) {
+            for (Map.Entry<String, SSIUrl> urlHash : getUrls().entrySet()) {
+                SSIUrl url = urlHash.getValue();
                 if (!urlHash.getKey().equals(API_STATUS_KEY)
-                        && urlHash.getValue().contains("http")
-                        || urlHash.getValue().contains("https")) {
+                        && url.getInternal() != null
+                        && (url.getInternal().contains("http")
+                                || url.getInternal().contains("https"))) {
 
-                    String protocol = urlHash.getValue().split("://")[0];
+                    String protocol = url.getInternal().split("://")[0];
                     String internalUrl = protocol + "://"
                             + this.getInternalServiceIp() + ":"
                             + this.getInternalServicePort();
@@ -430,22 +467,39 @@ public class SupportServiceInstance extends EtPlugin {
 
     public String getApiStatusUrlIfExist() {
         if (getUrls().containsKey(API_STATUS_KEY)) {
-            return getUrls().get(API_STATUS_KEY);
+            return getUrls().get(API_STATUS_KEY).getInternal();
         }
         return null;
+    }
+
+    public void setApiStatusUrl(String url, boolean external) {
+        SSIUrl apiStatusObj;
+        if (!getUrls().containsKey(API_STATUS_KEY)) {
+            apiStatusObj = new SSIUrl();
+            getUrls().put(API_STATUS_KEY, apiStatusObj);
+        }
+
+        apiStatusObj = getUrls().get(API_STATUS_KEY);
+
+        if (external) {
+            apiStatusObj.setExternal(url);
+        } else {
+            apiStatusObj.setInternal(url);
+        }
+        getUrls().put(API_STATUS_KEY, apiStatusObj);
     }
 
     @Override
     public String toString() {
         return "SupportServiceInstance [instanceId=" + instanceId
                 + ", service_id=" + service_id + ", serviceName=" + serviceName
-                + ", serviceShortName=" + serviceShortName + ", fullyInitialized="
-                + fullyInitialized + ", plan_id=" + plan_id + ", organization_guid="
-                + organization_guid + ", context=" + context + ", space_guid="
-                + space_guid + ", tJobExecIdList=" + tJobExecIdList
-                + ", internalServiceIp=" + internalServiceIp
-                + ", internalServicePort=" + internalServicePort
-                + ", bindedServiceIp=" + bindedServiceIp
+                + ", serviceShortName=" + serviceShortName
+                + ", fullyInitialized=" + fullyInitialized + ", plan_id="
+                + plan_id + ", organization_guid=" + organization_guid
+                + ", context=" + context + ", space_guid=" + space_guid
+                + ", tJobExecIdList=" + tJobExecIdList + ", internalServiceIp="
+                + internalServiceIp + ", internalServicePort="
+                + internalServicePort + ", bindedServiceIp=" + bindedServiceIp
                 + ", bindedServicePort=" + bindedServicePort + ", serviceIp="
                 + serviceIp + ", servicePort=" + servicePort + ", containerIp="
                 + containerIp + ", containerName=" + containerName
@@ -455,6 +509,44 @@ public class SupportServiceInstance extends EtPlugin {
                 + ", portBindingContainers=" + portBindingContainers
                 + ", endpointsBindingsPorts=" + endpointsBindingsPorts
                 + ", toString()=" + super.toString() + "]";
+    }
+
+    public class SSIUrl {
+        @JsonView({ ProvisionView.class, FrontView.class })
+        private String internal;
+
+        @JsonView({ ProvisionView.class, FrontView.class })
+        private String external;
+
+        public void SupportServiceInstance() {
+        }
+
+        public void SupportServiceInstance(String internal, String external) {
+            this.internal = internal;
+            this.external = external;
+        }
+
+        public String getInternal() {
+            return internal;
+        }
+
+        public void setInternal(String internal) {
+            this.internal = internal;
+        }
+
+        public String getExternal() {
+            return external;
+        }
+
+        public void setExternal(String external) {
+            this.external = external;
+        }
+
+        @Override
+        public String toString() {
+            return "SSIUrl [internal=" + internal + ", external=" + external
+                    + "]";
+        }
     }
 
 }

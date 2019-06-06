@@ -565,8 +565,14 @@ public class ExternalService {
                 String etEusApiKey = "ET_EUS_API";
                 EusExecutionData eusExecutionDate = new EusExecutionData(exec,
                         "");
+
+                // with server address, binded
+                boolean withServerAddress = !utilsService
+                        .isDefaultEtPublicHost();
+
                 String eusApi = esmService.getSharedTssInstance(instanceId)
-                        .getApiUrlIfExist();
+                        .getApiUrlIfExist(withServerAddress);
+
                 eusApi = eusApi.endsWith("/") ? eusApi : eusApi + "/";
                 eusApi += "/execution/" + eusExecutionDate.getKey() + "/";
                 exec.getEnvVars().put(etEusApiKey, eusApi);

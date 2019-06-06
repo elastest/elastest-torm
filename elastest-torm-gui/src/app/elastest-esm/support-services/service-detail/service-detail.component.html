@@ -1,37 +1,36 @@
-<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs" >
+<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
   <div fxFlex.gt-sm="100" *ngIf="serviceInstance">
     <mat-card tdMediaToggle="gt-xs">
       <mat-card-title>
-        {{serviceInstance.serviceName}}
+        {{ serviceInstance.serviceName }}
       </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content class="push-bottom-none">
-
         <div *ngIf="standaloneService">
           <mat-list>
-            <mat-list-item>
-              <strong class="push-right-xs">Instance Id:</strong> {{serviceInstance.id}}
-            </mat-list-item>
+            <mat-list-item> <strong class="push-right-xs">Instance Id:</strong> {{ serviceInstance.id }} </mat-list-item>
 
             <div *ngIf="serviceInstance.urls != undefined">
               <mat-list-item *ngFor="let key of serviceInstance.urlsKeys">
-                <strong class="push-right-xs">URL {{key}}:</strong>
-                <a [attr.href]="serviceInstance.urls[key]" target="_blank">{{serviceInstance.urls[key]}}</a>
+                <strong class="push-right-xs">URL {{ key }}:</strong>
+                <a [attr.href]="serviceInstance.getUrlIfExistsByKey(key)" target="_blank">{{
+                  serviceInstance.getUrlIfExistsByKey(key)
+                }}</a>
               </mat-list-item>
             </div>
 
             <div *ngIf="serviceInstance.endpointsOtherData">
               <div *ngFor="let key of serviceInstance.endpointsDataKeys">
-                <td-expansion-panel label="Endpoint data {{key}}" expand="false" class="push-bottom">
+                <td-expansion-panel label="Endpoint data {{ key }}" expand="false" class="push-bottom">
                   <div class="mat-padding">
                     <mat-list>
                       <mat-list-item>
                         <div>
-                          <strong class="push-right-xs">Protocol:</strong> {{serviceInstance.endpointsOtherData[key].protocol}}</div>
+                          <strong class="push-right-xs">Protocol:</strong> {{ serviceInstance.endpointsOtherData[key].protocol }}
+                        </div>
                       </mat-list-item>
                       <mat-list-item>
-                        <div>
-                          <strong class="push-right-xs">Port:</strong>{{serviceInstance.endpointsOtherData[key].port}}</div>
+                        <div><strong class="push-right-xs">Port:</strong>{{ serviceInstance.endpointsOtherData[key].port }}</div>
                       </mat-list-item>
                     </mat-list>
                   </div>
@@ -45,54 +44,60 @@
               <mat-list>
                 <mat-list-item *ngFor="let envVarKey of serviceInstance.tssEnvVariablesKeys">
                   <span class="push-right">
-                    <strong>{{envVarKey}}:</strong>
+                    <strong>{{ envVarKey }}:</strong>
                   </span>
-                  <span>{{serviceInstance.tssEnvVariables[envVarKey]}}</span>
+                  <span>{{ serviceInstance.tssEnvVariables[envVarKey] }}</span>
                 </mat-list-item>
               </mat-list>
             </div>
-
           </td-expansion-panel>
         </div>
 
         <div *ngIf="serviceInstance.uiUrl">
           <mat-divider></mat-divider>
-          <esm-service-gui [serviceUrl]='serviceInstance.uiUrl'></esm-service-gui>
+          <esm-service-gui [serviceUrl]="serviceInstance.uiUrl"></esm-service-gui>
         </div>
 
-        <div *ngIf="serviceInstance.serviceName.toLowerCase() === 'elastest-eus' || serviceInstance.serviceName.toLowerCase() === 'eus'">
-          <app-elastest-eus [eusUrl]="serviceInstance.urls.api" [eusHost]="serviceInstance.ip" [eusPort]="serviceInstance.port" [standalone]="standaloneService"
-            [isNested]="true"></app-elastest-eus>
+        <div
+          *ngIf="
+            serviceInstance.serviceName.toLowerCase() === 'elastest-eus' || serviceInstance.serviceName.toLowerCase() === 'eus'
+          "
+        >
+          <app-elastest-eus
+            [eusUrl]="serviceInstance.getUrlIfExistsByKey('api')"
+            [eusHost]="serviceInstance.ip"
+            [eusPort]="serviceInstance.port"
+            [standalone]="standaloneService"
+            [isNested]="true"
+          ></app-elastest-eus>
         </div>
       </mat-card-content>
     </mat-card>
 
     <div *ngIf="standaloneService">
       <mat-card *ngFor="let subService of serviceInstance.subServices" tdMediaToggle="gt-xs">
-        <mat-card-title>
-          {{serviceInstance.serviceName}} - {{subService.endpointName}}
-        </mat-card-title>
+        <mat-card-title> {{ serviceInstance.serviceName }} - {{ subService.endpointName }} </mat-card-title>
         <mat-divider></mat-divider>
         <mat-card-content class="push-bottom-none">
           <mat-list>
             <div *ngIf="subService.urls != undefined">
               <mat-list-item *ngFor="let key of subService.urlsKeys">
-                <strong class="push-right-xs">URL {{key}}:</strong>
-                <a [attr.href]="subService.urls[key]" target="_blank">{{subService.urls[key]}}</a>
+                <strong class="push-right-xs">URL {{ key }}:</strong>
+                <a [attr.href]="subService.getUrlIfExistsByKey(key)" target="_blank">{{ subService.getUrlIfExistsByKey(key) }}</a>
               </mat-list-item>
             </div>
             <div *ngIf="subService.endpointsOtherData">
               <div *ngFor="let key of subService.endpointsDataKeys">
-                <td-expansion-panel label="Endpoint data {{key}}" expand="false" class="push-bottom">
+                <td-expansion-panel label="Endpoint data {{ key }}" expand="false" class="push-bottom">
                   <div class="mat-padding">
                     <mat-list>
                       <mat-list-item>
                         <div>
-                          <strong class="push-right-xs">Protocol:</strong> {{subService.endpointsOtherData[key].protocol}}</div>
+                          <strong class="push-right-xs">Protocol:</strong> {{ subService.endpointsOtherData[key].protocol }}
+                        </div>
                       </mat-list-item>
                       <mat-list-item>
-                        <div>
-                          <strong class="push-right-xs">Port:</strong>{{subService.endpointsOtherData[key].port}}</div>
+                        <div><strong class="push-right-xs">Port:</strong>{{ subService.endpointsOtherData[key].port }}</div>
                       </mat-list-item>
                     </mat-list>
                   </div>
@@ -107,23 +112,21 @@
               <mat-list>
                 <mat-list-item *ngFor="let envVarKey of subService.tssEnvVariablesKeys">
                   <span class="push-right">
-                    <strong>{{envVarKey}}:</strong>
+                    <strong>{{ envVarKey }}:</strong>
                   </span>
-                  <span>{{subService.tssEnvVariables[envVarKey]}}</span>
+                  <span>{{ subService.tssEnvVariables[envVarKey] }}</span>
                 </mat-list-item>
               </mat-list>
             </div>
-
           </td-expansion-panel>
 
           <div *ngIf="subService.uiUrl">
             <mat-divider></mat-divider>
-            <esm-service-gui [serviceUrl]='subService.uiUrl'></esm-service-gui>
+            <esm-service-gui [serviceUrl]="subService.uiUrl"></esm-service-gui>
           </div>
         </mat-card-content>
         <mat-divider></mat-divider>
       </mat-card>
     </div>
-
   </div>
 </div>

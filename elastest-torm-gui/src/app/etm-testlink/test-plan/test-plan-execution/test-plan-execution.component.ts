@@ -364,10 +364,11 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     if (this.serviceInstances) {
       for (let instance of this.serviceInstances) {
         if (instance.serviceName.toLowerCase() === 'ess') {
-          if (!instance.urls || !instance.urls.httpproxyapi) {
+          let httpproxyapiKey: string = 'httpproxyapi';
+          if (!instance.urls || !instance.urls.get(httpproxyapiKey)) {
             this.forceEnd(true, 'Error on initialize browser', 'ERROR', 'ESS proxy api url is not available');
           } else {
-            let proxyUrl: string = instance.urls.httpproxyapi;
+            let proxyUrl: string = instance.urls.get(httpproxyapiKey).internal;
 
             if (extraCapabilities['chromeOptions'] === undefined || extraCapabilities['chromeOptions'] === null) {
               extraCapabilities['chromeOptions'] = {};
@@ -378,7 +379,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
             }
 
             extraCapabilities['chromeOptions']['args'].push('--proxy-server=' + proxyUrl);
-            let essApiUrl: string = instance.urls.api;
+            let essApiUrl: string = instance.urls.get('api').internal;
 
             this.etmRestClientService.doPost(essApiUrl + '/start/', { sites: [this.sutUrl] }).subscribe(
               (response: any) => {

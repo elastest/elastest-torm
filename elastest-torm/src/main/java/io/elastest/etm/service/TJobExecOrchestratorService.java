@@ -597,6 +597,10 @@ public class TJobExecOrchestratorService {
                     execution);
         }
 
+        logger.debug("{} {} = > Adding TSS instance id {} to execution",
+                execution.getTJobExecType(), execution.getExecutionId(),
+                instanceId);
+
         if (execution.isExternal()) {
             execution.getExternalTJobExec().getServicesInstances()
                     .add(instanceId);

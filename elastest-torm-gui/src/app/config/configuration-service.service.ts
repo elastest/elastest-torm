@@ -5,6 +5,7 @@ import { environment } from '../../environments/environment';
 import { ConfigModel } from './config-model';
 import { CoreServiceModel } from '../elastest-etm/models/core-service.model';
 import { Observable } from 'rxjs';
+import { EsmServiceInstanceModel } from '../elastest-esm/esm-service-instance.model';
 
 @Injectable()
 export class ConfigurationService {
@@ -30,8 +31,9 @@ export class ConfigurationService {
         let eusUrl: URL =
           servicesInfo.eusSSInstance !== null &&
           servicesInfo.eusSSInstance !== undefined &&
-          servicesInfo.eusSSInstance.urls !== undefined
-            ? new URL(servicesInfo.eusSSInstance.urls.api)
+          servicesInfo.eusSSInstance.urls !== undefined &&
+          servicesInfo.eusSSInstance.getUrlIfExistsByKey('api') !== undefined
+            ? new URL(servicesInfo.eusSSInstance.getUrlIfExistsByKey('api'))
             : null;
 
         let proxyHost: string = this.host;
@@ -51,14 +53,14 @@ export class ConfigurationService {
           eusServiceUrl:
             servicesInfo.eusSSInstance !== null
               ? this.protocol === 'https:'
-                ? String(servicesInfo.eusSSInstance.urls.api).replace('http://', 'https://')
-                : servicesInfo.eusSSInstance.urls.api
+                ? String(servicesInfo.eusSSInstance.getUrlIfExistsByKey('api')).replace('http://', 'https://')
+                : servicesInfo.eusSSInstance.getUrlIfExistsByKey('api')
               : null,
           eusWebSocketUrl:
             servicesInfo.eusSSInstance !== null
               ? this.protocol === 'https:'
-                ? String(servicesInfo.eusSSInstance.urls.eusWSapi).replace('ws://', 'wss://')
-                : servicesInfo.eusSSInstance.urls.eusWSapi
+                ? String(servicesInfo.eusSSInstance.getUrlIfExistsByKey('eusWSapi')).replace('ws://', 'wss://')
+                : servicesInfo.eusSSInstance.getUrlIfExistsByKey('eusWSapi')
               : null,
           elasTestExecMode: servicesInfo.elasTestExecMode,
           testLinkStarted: servicesInfo.testLinkStarted,
@@ -76,7 +78,12 @@ export class ConfigurationService {
 
   public getServicesInfo(): Observable<any> {
     let url: string = this.hostApi + '/context/services/info';
-    return this.http.get(url);
+    return this.http.get(url).map((response: any) => {
+      if (response && response['eusSSInstance']) {
+        response['eusSSInstance'] = new EsmServiceInstanceModel(response['eusSSInstance']);
+      }
+      return response;
+    });
   }
 
   public getWSHost(): Observable<any> {
