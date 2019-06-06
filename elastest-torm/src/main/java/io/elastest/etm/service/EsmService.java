@@ -556,7 +556,7 @@ public class EsmService {
                         .getBody();
             } else {
                 String eusApi = servicesInstances.get(tssInstanceId)
-                        .getInternalApiUrlIfExist();
+                        .getApiUrlIfExist(false);
                 String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
                 url += "execution/register";
 
