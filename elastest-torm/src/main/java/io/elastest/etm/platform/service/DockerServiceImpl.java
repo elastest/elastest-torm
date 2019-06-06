@@ -396,7 +396,7 @@ public class DockerServiceImpl extends PlatformService {
     /* ************** */
 
     @Override
-    public List<ReportTestSuite> deployAndRunTJobExecution(Execution execution)
+    public void deployAndRunTJobExecution(Execution execution)
             throws Exception {
         TJobExecution tJobExec = execution.getTJobExec();
         try {
@@ -436,11 +436,8 @@ public class DockerServiceImpl extends PlatformService {
             String resultsPath = execution.gettJob().getResultsPath();
             List<ReportTestSuite> testResults = getTestResultsFromContainer(
                     testContainerId, resultsPath);
-
-            tJobExec.setEndDate(new Date());
-            logger.info("Ending Execution {}...", tJobExec.getId());
-            saveFinishStatus(tJobExec, execution, exitCode);
-            return testResults;
+            execution.setReportTestSuite(testResults);
+            execution.setExitCode(exitCode);
 
         } catch (TJobStoppedException | InterruptedException e) {
             throw new TJobStoppedException(

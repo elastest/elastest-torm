@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -177,7 +178,7 @@ public abstract class PlatformService {
     public abstract void disableMetricMonitoring(Execution execution,
             boolean force) throws Exception;
 
-    public abstract List<ReportTestSuite> deployAndRunTJobExecution(
+    public abstract void deployAndRunTJobExecution(
             Execution execution) throws Exception;
 
     public String generateContainerName(ContainerPrefix prefix,
@@ -587,29 +588,7 @@ public abstract class PlatformService {
         return dockerBuilder.build();
     }
 
-    protected void saveFinishStatus(TJobExecution tJobExec, Execution execution,
-            int exitCode) {
-        String resultMsg = "";
-        ResultEnum finishStatus = ResultEnum.SUCCESS;
-
-        if (tJobExec.getTestSuites() != null
-                && tJobExec.getTestSuites().size() > 0) {
-            for (TestSuite testSuite : tJobExec.getTestSuites()) {
-                if (testSuite.getFinalStatus() == ResultEnum.FAIL) {
-                    finishStatus = testSuite.getFinalStatus();
-                    break;
-                }
-            }
-
-        } else {
-            if (exitCode != 0) {
-                finishStatus = ResultEnum.FAIL;
-            }
-        }
-
-        resultMsg = "Finished: " + finishStatus;
-        execution.updateTJobExecutionStatus(finishStatus, resultMsg);
-    }
+    
 
     /* ************************* */
     /* **** Get TestResults **** */

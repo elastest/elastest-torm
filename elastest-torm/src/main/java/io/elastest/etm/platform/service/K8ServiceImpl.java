@@ -166,7 +166,7 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public List<ReportTestSuite> deployAndRunTJobExecution(Execution execution)
+    public void deployAndRunTJobExecution(Execution execution)
             throws Exception {
         // TODO Auto-generated method stub
         List<ReportTestSuite> testResults = new ArrayList<ReportTestSuite>();
@@ -190,12 +190,13 @@ public class K8ServiceImpl extends PlatformService {
 
             // Create and start container
             result = k8Service.deployJob(testContainer);
+            execution.setExitCode(result.getResult());
 
-            tJobExec.setEndDate(new Date());
-            logger.info("Ending Execution {}...", tJobExec.getId());
-            saveFinishStatus(tJobExec, execution,
-                    (result.getResult().equals("Succeeded") ? 0 : 1));
-            return testResults;
+//            tJobExec.setEndDate(new Date());
+//            logger.info("Ending Execution {}...", tJobExec.getId());
+//            saveFinishStatus(tJobExec, execution, result.getResult());
+//            testResults = tJobExec.getTestSuites();
+//            return testResults;
 
         } catch (TJobStoppedException | InterruptedException e) {
             throw new TJobStoppedException(
@@ -204,7 +205,8 @@ public class K8ServiceImpl extends PlatformService {
             e.printStackTrace();
             throw new Exception("Error running the TJob", e);
         } finally {
-            if (result != null) {
+            if (result != null
+                    && k8Service.existJobByName(result.getJobName())) {
                 k8Service.deleteJob(result.getJobName());
             }
         }

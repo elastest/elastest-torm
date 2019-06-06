@@ -1,5 +1,9 @@
 package io.elastest.etm.model;
 
+import java.util.List;
+
+import org.apache.maven.plugins.surefire.report.ReportTestSuite;
+
 import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.external.ExternalTJob;
@@ -16,6 +20,8 @@ public class Execution extends DockerServiceStatus {
     private ExternalTJobExecution externalTJobExec;
     private SutSpecification sut;
     private SutExecution sutExec;
+    private List<ReportTestSuite> reportTestSuite;
+    
 
     public Execution() {
     }
@@ -148,6 +154,14 @@ public class Execution extends DockerServiceStatus {
         } else {
             return "TJob Execution";
         }
+    }
+
+    public List<ReportTestSuite> getReportTestSuite() {
+        return reportTestSuite;
+    }
+
+    public void setReportTestSuite(List<ReportTestSuite> reportTestSuite) {
+        this.reportTestSuite = reportTestSuite;
     }
 
     public boolean hasJobAndExecution() {

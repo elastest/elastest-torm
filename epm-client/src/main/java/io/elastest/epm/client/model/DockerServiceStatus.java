@@ -8,6 +8,15 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public class DockerServiceStatus extends Observable {
     private String statusMsg;
     private DockerServiceStatusEnum status;
+    protected int exitCode;
+
+    public int getExitCode() {
+        return exitCode;
+    }
+
+    public void setExitCode(int exitCode) {
+        this.exitCode = exitCode;
+    }
 
     public DockerServiceStatus() {
         this.initToDefault();

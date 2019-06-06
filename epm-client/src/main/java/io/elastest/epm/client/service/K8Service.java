@@ -22,7 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import io.elastest.epm.client.DockerContainer;
+import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.epm.client.utils.UtilTools;
 import io.fabric8.kubernetes.api.model.Capabilities;
 import io.fabric8.kubernetes.api.model.CapabilitiesBuilder;
@@ -36,6 +40,7 @@ import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
+import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.SecurityContextBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
@@ -101,6 +106,34 @@ public class K8Service {
         }
     }
 
+    public enum PodsStatusEnum {
+        PENDING("Not initialized"), RUNNING("Running"), PULLING("Succeeded"),
+        FAILED("Failed"), UNKNOWN("Unknown");
+
+        private String value;
+
+        PodsStatusEnum(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static PodsStatusEnum fromValue(String text) {
+            for (PodsStatusEnum b : PodsStatusEnum.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+
+    }
+
     // TODO
     public void startFromYml(String ymlPath) {
         try {
@@ -158,19 +191,14 @@ public class K8Service {
                     .withArgs(container.getCmd().get())
                     .withEnv(getEnvVarListFromStringList(
                             container.getEnvs().get()))
-                    // .addNewVolumeMount().withMountPath(etToolsInternalPath)
-                    // .withName(etToolsVolumeName).endVolumeMount()
-                    .endContainer().withRestartPolicy("Never")
-                    // .addNewVolume()
-                    // .withHostPath(etToolsVolume).withName(etToolsVolumeName)
-                    // .endVolume()
-                    .endSpec().endTemplate().endSpec().build();
+                    .endContainer().withRestartPolicy("Never").endSpec()
+                    .endTemplate().endSpec().build();
 
             logger.info("Creating job: {}.",
                     job.getMetadata().getLabels().get(LABEL_JOB_NAME));
             client.batch().jobs().inNamespace(namespace).create(job);
 
-            result.setResult("Fail");
+            result.setResult(1);
             result.setJobName(job.getMetadata().getName());
             result.setPodName("");
 
@@ -197,9 +225,13 @@ public class K8Service {
                                 result.setPodName(pod.getMetadata().getName());
                             }
 
-                            if (pod.getStatus().getPhase()
-                                    .equals("Succeeded")) {
-                                result.setResult(pod.getStatus().getPhase());
+                            if (!pod.getStatus().getPhase().equals("Pending")
+                                    && !pod.getStatus().getPhase()
+                                            .equals("Running")) {
+                                logger.info("Pod executed with result: {}",
+                                        pod.getStatus().getPhase());
+                                result.setResult(pod.getStatus().getPhase()
+                                        .equals("Succeeded") ? 0 : 1);
                                 logger.info("Job {} is completed!",
                                         pod.getMetadata().getName());
                                 watchLatch.countDown();
@@ -208,11 +240,6 @@ public class K8Service {
 
                         @Override
                         public void onClose(final KubernetesClientException e) {
-                            logger.debug("Cleaning up job {}.",
-                                    job.getMetadata().getName());
-                            client.batch().jobs().inNamespace(namespace)
-                                    .delete(job);
-                            deleteJob(job.getMetadata().getName());
 
                         }
                     })) {
@@ -340,9 +367,17 @@ public class K8Service {
     }
 
     public void deleteJob(String jobName) {
-        logger.info("Cleaning up job {}.", jobName);
-        client.pods().inNamespace(DEFAULT_NAMESPACE)
-                .withLabel(LABEL_JOB_NAME, jobName).delete();
+        logger.info("Deleting job {}.", jobName);
+        client.batch().jobs().inNamespace(DEFAULT_NAMESPACE).withName(jobName)
+                .delete();
+        deletePods(client.pods().inNamespace(DEFAULT_NAMESPACE)
+                .withLabel(LABEL_JOB_NAME, jobName).list());
+    }
+
+    public void deletePods(PodList podList) {
+        podList.getItems().forEach(pod -> {
+            deletePod(pod.getMetadata().getName());
+        });
     }
 
     public void deletePod(String podName) {
@@ -429,7 +464,8 @@ public class K8Service {
         return result;
     }
 
-    public void execCommand(Pod pod, String container, String... command) {
+    public void execCommand(Pod pod, String container, Boolean awaitCompletion,
+            String... command) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final CountDownLatch latch = new CountDownLatch(1);
         try (ExecWatch execWatch = client.pods()
@@ -455,7 +491,12 @@ public class K8Service {
                         latch.countDown();
                     }
                 }).exec(command)) {
-            latch.await(3, TimeUnit.SECONDS);
+            if (awaitCompletion) {
+                latch.await();
+            } else {
+                latch.await(3, TimeUnit.SECONDS);
+            }
+
         } catch (Exception e) {
             logger.error("Exception running command {} on pod: {}", command,
                     e.getMessage());
@@ -485,7 +526,7 @@ public class K8Service {
     }
 
     public class JobResult {
-        private String result;
+        private Integer result;
         private String jobName;
         private String podName;
 
@@ -515,11 +556,11 @@ public class K8Service {
             this.jobName = jobName;
         }
 
-        public String getResult() {
+        public Integer getResult() {
             return result;
         }
 
-        public void setResult(String result) {
+        public void setResult(Integer result) {
             this.result = result;
         }
     }
@@ -554,6 +595,16 @@ public class K8Service {
 
     public String getPodIpByPodName(String name) {
         return getPodByName(name).getStatus().getPodIP();
+    }
+
+    public Boolean existJobByName(String name) {
+        Boolean result = false;
+        if (name != null && !name.isEmpty()) {
+            result = client.batch().jobs().inNamespace(DEFAULT_NAMESPACE)
+                    .withName(name).get() != null ? Boolean.TRUE
+                            : Boolean.FALSE;
+        }
+        return result;
     }
 
     public HostPathVolumeSource createEtToolsVolume() throws IOException {

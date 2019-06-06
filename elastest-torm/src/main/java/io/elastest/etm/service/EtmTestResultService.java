@@ -12,6 +12,7 @@ import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
+import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TestCaseRepository;
 import io.elastest.etm.dao.TestSuiteRepository;
 import io.elastest.etm.model.TJobExecution;
@@ -25,15 +26,19 @@ public class EtmTestResultService {
     private final TestSuiteRepository testSuiteRepo;
     private final TestCaseRepository testCaseRepo;
     private AbstractMonitoringService monitoringService;
+    private final TJobExecRepository tJobExecRepositoryImpl;
 
     public EtmTestResultService(TestSuiteRepository testSuiteRepo,
             TestCaseRepository testCaseRepo,
-            AbstractMonitoringService monitoringService) {
+            AbstractMonitoringService monitoringService,
+            TJobExecRepository tJobExecRepositoryImpl) {
         super();
         this.testSuiteRepo = testSuiteRepo;
         this.testCaseRepo = testCaseRepo;
         this.monitoringService = monitoringService;
+        this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
     }
+
 
     public void saveTestResults(List<ReportTestSuite> testSuites,
             TJobExecution tJobExec) {

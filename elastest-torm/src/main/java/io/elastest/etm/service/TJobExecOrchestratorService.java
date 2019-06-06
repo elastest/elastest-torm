@@ -42,6 +42,7 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
 import io.elastest.etm.model.TJobSupportService;
+import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.service.exception.TJobStoppedException;
@@ -230,16 +231,31 @@ public class TJobExecOrchestratorService {
                 resultMsg = "Preparing Test";
                 updateExecutionResultStatus(execution,
                         ResultEnum.EXECUTING_TEST, resultMsg);
-                etmTestResultService.saveTestResults(
-                        platformService.deployAndRunTJobExecution(execution),
-                        tJobExec);
-
+                
+                platformService.deployAndRunTJobExecution(execution);
+                
+                // Saving test suites
+                if (!(execution.getTJobExec().getTestSuites().size() > 0)
+                        && execution.getReportTestSuite() != null) {
+                    logger.debug("Saving test suitest from a TJob on docker");
+                    etmTestResultService.saveTestResults(
+                            execution.getReportTestSuite(), tJobExec);
+                } else if (execution.getReportTestSuite() == null) {
+                    logger.debug("Saving test suitest from a TJob on k8s");
+                    tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId())
+                            .isPresent()
+                                    ? tJobExecRepositoryImpl
+                                            .findById(tJobExec.getId()).get()
+                                    : tJobExec;
+                }
+                
                 tJobExec.setEndDate(new Date());
 
                 // Only if using External ES
                 updateManageSutByExtESEndDate(tJobExec.getEndDate(), tJobExec);
 
                 logger.info("Ending Execution {}...", tJobExec.getId());
+                saveFinishStatus(tJobExec, execution);
                 // End and purge services
                 endAllExecs(execution);
 
@@ -1134,11 +1150,11 @@ public class TJobExecOrchestratorService {
         }
     }
 
-    public void updateTJobExecResultStatus(TJobExecution tJobExec,
+    public TJobExecution updateTJobExecResultStatus(TJobExecution tJobExec,
             ResultEnum result, String msg) {
         tJobExec.setResult(result);
         tJobExec.setResultMsg(msg);
-        tJobExecRepositoryImpl.save(tJobExec);
+        return tJobExecRepositoryImpl.save(tJobExec);
     }
 
     public void updateExternalTJobExecResultStatus(
@@ -1157,6 +1173,33 @@ public class TJobExecOrchestratorService {
         } else {
             updateTJobExecResultStatus(exection.getTJobExec(), result, msg);
         }
+    }
+    
+    protected void saveFinishStatus(TJobExecution tJobExec, Execution execution) {
+        logger.debug("Updating test results.");
+        String resultMsg = "";
+        ResultEnum finishStatus = ResultEnum.SUCCESS;
+        tJobExec = execution.getTJobExec();
+        tJobExec.setEndDate(new Date());
+
+        if (tJobExec.getTestSuites() != null
+                && tJobExec.getTestSuites().size() > 0) {
+            logger.debug("There are Test Suites");
+            for (TestSuite testSuite : tJobExec.getTestSuites()) {
+                if (testSuite.getFinalStatus() == ResultEnum.FAIL) {
+                    finishStatus = testSuite.getFinalStatus();
+                    break;
+                }
+            }
+
+        } else {
+            if (execution.getExitCode() != 0) {
+                finishStatus = ResultEnum.FAIL;
+            }
+        }
+
+        resultMsg = "Finished: " + finishStatus;
+        execution.updateTJobExecutionStatus(finishStatus, resultMsg);
     }
 
     public class StatusUpdater implements Observer {
