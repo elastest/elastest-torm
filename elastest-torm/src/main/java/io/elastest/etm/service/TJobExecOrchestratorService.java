@@ -242,11 +242,7 @@ public class TJobExecOrchestratorService {
                             execution.getReportTestSuite(), tJobExec);
                 } else if (execution.getReportTestSuite() == null) {
                     logger.debug("Saving test suitest from a TJob on k8s");
-                    tJobExec = tJobExecRepositoryImpl.findById(tJobExec.getId())
-                            .isPresent()
-                                    ? tJobExecRepositoryImpl
-                                            .findById(tJobExec.getId()).get()
-                                    : tJobExec;
+                    dbmanager.reloaEntityFromDb(tJobExec);
                 }
                 
                 tJobExec.setEndDate(new Date());
