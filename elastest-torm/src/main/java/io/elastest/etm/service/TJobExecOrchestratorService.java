@@ -126,7 +126,7 @@ public class TJobExecOrchestratorService {
         execution.addObserver(new StatusUpdater());
 
         try {
-            initSupportServicesProvision(new Execution(tJobExec),
+            initSupportServicesProvision(execution,
                     tJobExec.getTjob().getSelectedServices());
             setTJobExecEnvVars(tJobExec, true, false);
             tJobExec = tJobExecRepositoryImpl.save(tJobExec);
@@ -207,7 +207,7 @@ public class TJobExecOrchestratorService {
         } else { // Simple/child execution
 
             try {
-                initSupportServicesProvision(new Execution(tJobExec),
+                initSupportServicesProvision(execution,
                         tJobServices);
                 setTJobExecEnvVars(tJobExec, false, false);
                 tJobExec = tJobExecRepositoryImpl.save(tJobExec);
@@ -269,7 +269,7 @@ public class TJobExecOrchestratorService {
             } finally {
                 if (tJobServices != null && tJobServices != "") {
                     try {
-                        deprovisionServices(new Execution(tJobExec));
+                        deprovisionServices(execution);
                     } catch (Exception e) {
                         logger.error(
                                 "TJob Exec {} => Exception on deprovision TSS: {}",
@@ -424,7 +424,7 @@ public class TJobExecOrchestratorService {
         // Deprovision all TSS associated
         logger.debug("Requesting the TSS deprovision.");
         try {
-            deprovisionServices(new Execution(tJobExec));
+            deprovisionServices(execution);
         } catch (Exception e) {
             logger.error("Exception during the deprovision of services");
         }
@@ -841,7 +841,7 @@ public class TJobExecOrchestratorService {
                     "Initializing execution...");
 
             // TSS
-            initSupportServicesProvision(new Execution(exec),
+            initSupportServicesProvision(execution,
                     exec.getExTJob().getSelectedServices());
 
             // SUT
