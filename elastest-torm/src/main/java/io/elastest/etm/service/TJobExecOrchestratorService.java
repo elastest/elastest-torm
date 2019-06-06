@@ -208,7 +208,7 @@ public class TJobExecOrchestratorService {
         } else { // Simple/child execution
 
             try {
-                initSupportServicesProvision(execution,
+                initSupportServicesProvision(new Execution(tJobExec),
                         tJobServices);
                 setTJobExecEnvVars(tJobExec, false, false);
                 tJobExec = tJobExecRepositoryImpl.save(tJobExec);
@@ -281,7 +281,7 @@ public class TJobExecOrchestratorService {
             } finally {
                 if (tJobServices != null && tJobServices != "") {
                     try {
-                        deprovisionServices(execution);
+                        deprovisionServices(new Execution(tJobExec));
                     } catch (Exception e) {
                         logger.error(
                                 "TJob Exec {} => Exception on deprovision TSS: {}",
@@ -436,7 +436,7 @@ public class TJobExecOrchestratorService {
         // Deprovision all TSS associated
         logger.debug("Requesting the TSS deprovision.");
         try {
-            deprovisionServices(execution);
+            deprovisionServices(new Execution(tJobExec));
         } catch (Exception e) {
             logger.error("Exception during the deprovision of services");
         }
