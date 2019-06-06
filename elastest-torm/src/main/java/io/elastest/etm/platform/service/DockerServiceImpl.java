@@ -1197,7 +1197,7 @@ public class DockerServiceImpl extends PlatformService {
     @Override
     public void deploySut(Execution execution) throws Exception {
         SutSpecification sut = execution.getSut();
-        SutExecution sutExec = execution.getSutExec();
+
         // By Docker Image
         if (sut.getManagedDockerType() != ManagedDockerType.COMPOSE) {
             logger.debug("Is Sut By Docker Image");
@@ -1239,8 +1239,8 @@ public class DockerServiceImpl extends PlatformService {
 
         // Save SuT Url and Ip into sutexec
         String sutUrl = sut.getSutUrlByGivenIp(sutIp);
-        sutExec.setUrl(sutUrl);
-        sutExec.setIp(sutIp);
+        execution.getSutExec().setUrl(sutUrl);
+        execution.getSutExec().setIp(sutIp);
     }
 
     @Override
