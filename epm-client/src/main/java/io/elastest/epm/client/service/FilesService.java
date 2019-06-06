@@ -1,6 +1,7 @@
 package io.elastest.epm.client.service;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,6 +13,8 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -358,4 +361,74 @@ public class FilesService {
         }
     }
 
+    public InputStream getInputStreamFromTarArchive(
+            TarArchiveInputStream tarInput, TarArchiveEntry currentEntry)
+            throws IOException {
+        // black magic because currentEntry.getFile() is null
+        byte[] buf = new byte[(int) currentEntry.getSize()];
+        IOUtils.readFully(tarInput, buf);
+        return new ByteArrayInputStream(buf);
+    }
+
+    public List<InputStream> getFilesFromTarInputStreamAsInputStreamList(
+            TarArchiveInputStream tarInput, String fullPath,
+            List<String> filterExtensions) throws Exception {
+        List<InputStream> files = new ArrayList<>();
+
+        TarArchiveEntry currentEntry = tarInput.getNextTarEntry();
+
+        while (currentEntry != null) {
+            boolean addFile = true;
+            if (currentEntry.isFile()) {
+                if (filterExtensions != null) {
+                    String fileName = currentEntry.getName();
+                    String[] splittedFileName = fileName != null
+                            ? fileName.split("\\.")
+                            : null;
+                    String fileExtension = splittedFileName != null
+                            && splittedFileName.length > 1
+                                    ? splittedFileName[splittedFileName.length
+                                            - 1]
+                                    : null;
+
+                    if (fileExtension != null) {
+                        addFile = filterExtensions.stream().anyMatch(
+                                str -> str.trim().equals(fileExtension));
+                    } else {
+                        addFile = false;
+                    }
+
+                }
+
+                if (addFile) {
+                    files.add(getInputStreamFromTarArchive(tarInput,
+                            currentEntry));
+                }
+
+            } else if (currentEntry.isDirectory()) {
+                // TODO
+            }
+            currentEntry = tarInput.getNextTarEntry();
+        }
+        return files;
+    }
+
+    public InputStream getSingleFileFromTarInputStream(
+            TarArchiveInputStream tarInput, String containerNameOrId,
+            String fullFilePath) throws Exception {
+
+        TarArchiveEntry currentEntry = tarInput.getNextTarEntry();
+
+        Path p = Paths.get(fullFilePath);
+        String fileName = p.getFileName().toString();
+
+        while (fileName != null && currentEntry != null) {
+            if (currentEntry.isFile()
+                    && fileName.equals(currentEntry.getName())) {
+                return getInputStreamFromTarArchive(tarInput, currentEntry);
+            }
+            currentEntry = tarInput.getNextTarEntry();
+        }
+        return null;
+    }
 }

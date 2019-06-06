@@ -247,8 +247,9 @@ public abstract class PlatformService {
             boolean withFollow) throws Exception;
 
     public abstract String undeployTSSByContainerId(String containerId);
-    
-    public abstract Integer copyFilesFomContainer(String container, String originPath, String targetPath);
+
+    public abstract Integer copyFilesFomContainer(String container,
+            String originPath, String targetPath);
 
     protected String getSutPath(Execution execution) {
         String sutPath;
@@ -261,9 +262,10 @@ public abstract class PlatformService {
         } else {
             TJobExecution tJobExec = execution.getTJobExec();
 
-            logger.debug("etmFilesService {}", etmFilesService!= null);
-            logger.debug("tJobExec {}", tJobExec!= null);
-            logger.debug("ElastestConstants.SUT_FOLDER {}", ElastestConstants.SUT_FOLDER!= null);
+            logger.debug("etmFilesService {}", etmFilesService != null);
+            logger.debug("tJobExec {}", tJobExec != null);
+            logger.debug("ElastestConstants.SUT_FOLDER {}",
+                    ElastestConstants.SUT_FOLDER != null);
             sutPath = etmFilesService.buildTJobFilesPath(tJobExec,
                     ElastestConstants.SUT_FOLDER);
         }
@@ -613,8 +615,28 @@ public abstract class PlatformService {
     /* **** Get TestResults **** */
     /* ************************* */
 
-    public abstract String getFileContentFromContainer(String testContainer,
-            String filePath) throws Exception;
+    public List<ReportTestSuite> getTestResultsFromContainer(
+            String testContainer, String filePath) throws Exception {
+        List<ReportTestSuite> results = new ArrayList<>();
+        List<String> files = getFilesContentFromContainer(testContainer,
+                filePath, Arrays.asList("xml"));
+
+        if (files != null) {
+            for (String fileContent : files) {
+                List<ReportTestSuite> testResults = getTestSuitesByString(
+                        fileContent);
+                if (testResults != null) {
+                    results.addAll(testResults);
+                }
+            }
+        }
+
+        return results;
+    }
+
+    public abstract List<String> getFilesContentFromContainer(
+            String testContainer, String filePath,
+            List<String> filterExtensions) throws Exception;
 
     public List<ReportTestSuite> getTestSuitesByString(String result) {
         List<ReportTestSuite> results = new ArrayList<>();
@@ -666,7 +688,6 @@ public abstract class PlatformService {
         return testSuiteXmlParser
                 .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
     }
-    
 
     protected void removeSutVolumeFolder(Execution execution) {
         String sutPath = getSutPath(execution);
@@ -678,7 +699,7 @@ public abstract class PlatformService {
                     e.getMessage());
         }
     }
-    
+
     protected void updateSutExecDeployStatus(Execution execution,
             DeployStatusEnum status) {
         SutExecution sutExec = execution.getSutExec();
@@ -688,10 +709,9 @@ public abstract class PlatformService {
         }
         execution.setSutExec(sutExec);
     }
-    
+
     protected abstract void endContainer(String containerName, int timeout)
             throws Exception;
-    
-    protected abstract void endContainer(String containerName)
-            throws Exception;
+
+    protected abstract void endContainer(String containerName) throws Exception;
 }

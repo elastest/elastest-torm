@@ -82,7 +82,7 @@ public class PcapService {
         String containerName = containerPrefix + execId;
         try {
             InputStream inputStream = dockerService
-                    .getFilesFromContainer(containerName, "/data/capture.pcap");
+                    .getFilesFromContainerAsInputStreamTar(containerName, "/data/capture.pcap");
 
             // remove bad characters
             byte[] removedChars = new byte[350];

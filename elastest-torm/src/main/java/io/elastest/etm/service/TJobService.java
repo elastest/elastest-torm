@@ -705,7 +705,6 @@ public class TJobService {
     public Integer getTestResultsFromContainer(String podName) {
         logger.info("TJobService: Copying files from a container");
         Integer result = 0;
-        String testResultsAsString = null;
         List<ReportTestSuite> testResults = new ArrayList<ReportTestSuite>();
         String[] splitPodName = podName.split("-");
         logger.info("TJobID: {}", splitPodName[1]);
@@ -721,12 +720,9 @@ public class TJobService {
                 execution.updateTJobExecutionStatus(
                         TJobExecution.ResultEnum.WAITING, resultMsg);
                 execution.setStatusMsg(resultMsg);
-                testResultsAsString = platformService
-                        .getFileContentFromContainer(podName,
-                                tJobExec.getTjob().getResultsPath());
 
-                testResults = platformService
-                        .getTestSuitesByString(testResultsAsString);
+                testResults = platformService.getTestResultsFromContainer(
+                        podName, tJobExec.getTjob().getResultsPath());
                 etmTestResultService.saveTestResults(testResults, tJobExec);
             }
 

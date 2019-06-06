@@ -229,10 +229,12 @@ public class K8ServiceImpl extends PlatformService {
             execution.getSutExec().setUrl(
                     execution.getSut().getSutUrlByGivenIp(podInfo.getPodIp()));
             logger.info("Waiting for sut {}", execution.getSut().getName());
-            while (!UtilTools.checkIfUrlIsUp(execution.getSutExec().getUrl())){
-                logger.trace("SUT {} is not ready yet", execution.getSut().getName());
-            };
-            
+            while (!UtilTools.checkIfUrlIsUp(execution.getSutExec().getUrl())) {
+                logger.trace("SUT {} is not ready yet",
+                        execution.getSut().getName());
+            }
+            ;
+
             sutsByExecution.put(execution.getExecutionId().toString(),
                     podInfo.getPodName());
 
@@ -372,9 +374,10 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getFileContentFromContainer(String testContainer,
-            String filePath) throws Exception {
-        return k8Service.readFileFromContainer(testContainer, filePath);
+    public List<String> getFilesContentFromContainer(String testContainer,
+            String filePath, List<String> filterExtensions) throws Exception {
+        return k8Service.readFilesFromContainer(testContainer, filePath,
+                filterExtensions);
     }
 
     @Override

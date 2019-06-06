@@ -3,12 +3,9 @@ package io.elastest.etm.platform.service;
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,14 +18,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ws.rs.NotFoundException;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
-import org.apache.maven.plugins.surefire.report.TestSuiteXmlParser;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -440,10 +434,8 @@ public class DockerServiceImpl extends PlatformService {
             execution.updateTJobExecutionStatus(ResultEnum.WAITING, resultMsg);
             execution.setStatusMsg(resultMsg);
             String resultsPath = execution.gettJob().getResultsPath();
-            String testResultsAsString = getFileContentFromContainer(
+            List<ReportTestSuite> testResults = getTestResultsFromContainer(
                     testContainerId, resultsPath);
-            List<ReportTestSuite> testResults = null;
-            testResults = getTestSuitesByString(testResultsAsString);
 
             tJobExec.setEndDate(new Date());
             logger.info("Ending Execution {}...", tJobExec.getId());
@@ -459,27 +451,38 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getFileContentFromContainer(String testContainer,
-            String filePath) throws Exception {
-        String result = null;
+    public List<String> getFilesContentFromContainer(String testContainer,
+            String filePath, List<String> filterExtensions) throws Exception {
+        List<String> filesList = new ArrayList<>();
         try {
             if (filePath != null && !filePath.isEmpty()) {
                 try {
-                    InputStream inputStream = dockerService
-                            .getFilesFromContainer(testContainer, filePath);
+                    List<InputStream> filesIS = dockerService
+                            .getFilesFromContainerAsInputStreamList(
+                                    testContainer, filePath, filterExtensions);
 
-                    result = IOUtils.toString(inputStream,
-                            StandardCharsets.UTF_8);
+                    if (filesIS != null) {
+                        for (InputStream fileIS : filesIS) {
+                            try {
+                                filesList.add(IOUtils.toString(fileIS,
+                                        StandardCharsets.UTF_8));
+                                fileIS.close();
+                            } catch (IOException e) {
+                                logger.error(
+                                        "Error on transform InputStream file to String.");
+                            }
+                        }
+                    }
                 } catch (IOException e) {
                     logger.error("Error retrieving files from container.");
                 }
             }
-            return result;
         } catch (Exception e) {
             throw new Exception(
                     "Error on get test results. Maybe the specified path is incorrect.",
                     e);
         }
+        return filesList;
     }
 
     /* *************** */

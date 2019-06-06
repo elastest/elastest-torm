@@ -10,7 +10,6 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,8 +18,6 @@ import java.net.HttpURLConnection;
 import java.net.ServerSocket;
 import java.net.SocketException;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -38,9 +35,7 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,6 +111,9 @@ public class DockerService {
     private boolean isRunningInContainer = false;
     private boolean containerCheked = false;
     private DockerClient dockerClient;
+
+    @Autowired
+    FilesService filesService;
 
     @Autowired
     ShellService shellService;
@@ -811,8 +809,8 @@ public class DockerService {
     }
 
     // Returns InputStream .tar file with file(s) into
-    public InputStream getFilesFromContainer(String containerNameOrId,
-            String fullPath) throws Exception {
+    public InputStream getFilesFromContainerAsInputStreamTar(
+            String containerNameOrId, String fullPath) throws Exception {
         InputStream inputStream = null;
         if (existsContainer(containerNameOrId)) {
             inputStream = getDockerClient().archiveContainer(containerNameOrId,
@@ -823,32 +821,26 @@ public class DockerService {
 
     public TarArchiveInputStream getFilesFromContainerAsTar(
             String containerNameOrId, String fullPath) throws Exception {
-        InputStream is = getFilesFromContainer(containerNameOrId, fullPath);
+        InputStream is = getFilesFromContainerAsInputStreamTar(
+                containerNameOrId, fullPath);
         return new TarArchiveInputStream(is);
+    }
+
+    public List<InputStream> getFilesFromContainerAsInputStreamList(
+            String containerNameOrId, String fullPath,
+            List<String> filterExtensions) throws Exception {
+        TarArchiveInputStream tarInput = getFilesFromContainerAsTar(
+                containerNameOrId, fullPath);
+        return filesService.getFilesFromTarInputStreamAsInputStreamList(
+                tarInput, fullPath, filterExtensions);
     }
 
     public InputStream getSingleFileFromContainer(String containerNameOrId,
             String fullFilePath) throws Exception {
         TarArchiveInputStream tarInput = getFilesFromContainerAsTar(
                 containerNameOrId, fullFilePath);
-        TarArchiveEntry currentEntry = tarInput.getNextTarEntry();
-
-        Path p = Paths.get(fullFilePath);
-        String fileName = p.getFileName().toString();
-
-        while (fileName != null && currentEntry != null) {
-            if (currentEntry.isFile()
-                    && fileName.equals(currentEntry.getName())) {
-
-                // black magic because currentEntry.getFile() is null
-                byte[] buf = new byte[(int) currentEntry.getSize()];
-                IOUtils.readFully(tarInput, buf);
-
-                return new ByteArrayInputStream(buf);
-            }
-            currentEntry = tarInput.getNextTarEntry();
-        }
-        return null;
+        return filesService.getSingleFileFromTarInputStream(tarInput,
+                containerNameOrId, fullFilePath);
     }
 
     public boolean existsContainer(String containerName) throws Exception {

@@ -1,12 +1,11 @@
 package io.elastest.epm.client.service;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,10 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -375,23 +375,42 @@ public class K8Service {
         return envVars;
     }
 
-    public String readFileFromContainer(String podName, String filePath) {
+    public List<String> readFilesFromContainer(String podName, String filePath,
+            List<String> filterExtensions) {
+        List<String> filesList = new ArrayList<>();
         logger.info("Reading files from k8s pod {} in this path {}", podName,
                 filePath);
-        String result = null;
 
         if (filePath != null && !filePath.isEmpty()) {
             try (InputStream is = client.pods().inNamespace(DEFAULT_NAMESPACE)
                     .withName(podName).dir(filePath).read()) {
-                result = new BufferedReader(new InputStreamReader(is)).lines()
-                        .collect(Collectors.joining("\n"));
-                logger.debug("File content: {}", result);
+                TarArchiveInputStream tarInput = new TarArchiveInputStream(is);
+                try {
+                    List<InputStream> filesIS = filesService
+                            .getFilesFromTarInputStreamAsInputStreamList(
+                                    tarInput, filePath, filterExtensions);
+                    if (filesIS != null) {
+                        for (InputStream fileIS : filesIS) {
+                            try {
+                                filesList.add(IOUtils.toString(fileIS,
+                                        StandardCharsets.UTF_8));
+                                fileIS.close();
+                            } catch (IOException e) {
+                                logger.error(
+                                        "Error on transform InputStream file to String.");
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    logger.error("Error retrieving files from container.");
+                }
+
             } catch (Exception e) {
                 logger.error("Error reading files");
                 e.printStackTrace();
             }
         }
-        return result;
+        return filesList;
     }
 
     public Integer copyFileFromContainer(String podName, String originPath,
@@ -415,9 +434,8 @@ public class K8Service {
         final CountDownLatch latch = new CountDownLatch(1);
         try (ExecWatch execWatch = client.pods()
                 .inNamespace(pod.getMetadata().getNamespace())
-                .withName(pod.getMetadata().getName())
-                .readingInput(null).writingOutput(baos)
-                .usingListener(new ExecListener() {
+                .withName(pod.getMetadata().getName()).readingInput(null)
+                .writingOutput(baos).usingListener(new ExecListener() {
 
                     @Override
                     public void onClose(int i, String s) {
