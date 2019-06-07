@@ -109,21 +109,32 @@
     <etm-monitoring-view #logsAndMetrics [live]="true" [showConfigBtn]="false"></etm-monitoring-view>
 
     <!-- TSS Services Instances -->
-    <div *ngIf="this.elastestMode && this.elastestMode === 'mini' && serviceInstances.length > 0 && eusInstance; else tSServices">
-      <app-elastest-eus
-        [eusUrl]="eusInstance.getUrlIfExistsByKey('api')"
-        [eusHost]="eusInstance.ip"
-        [eusPort]="eusInstance.port"
-        [standalone]="false"
-        [isNested]="true"
-        [abstractTJobExec]="tJobExec"
-      ></app-elastest-eus>
-    </div>
-    <ng-template #tSServices>
-      <div *ngFor="let serviceInstance of serviceInstances">
-        <esm-service-detail [serviceInstance]="serviceInstance" [standaloneService]="false"></esm-service-detail>
+    <div *ngFor="let serviceInstance of serviceInstances">
+      <div
+        *ngIf="
+          this.elastestMode &&
+            this.elastestMode === 'mini' &&
+            serviceInstances.length > 0 &&
+            eusInstance &&
+            serviceInstance.serviceName &&
+            serviceInstance.serviceName.toLowerCase() === 'eus';
+          else tSServices
+        "
+      >
+        <app-elastest-eus
+          [eusUrl]="eusInstance.getUrlIfExistsByKey('api')"
+          [eusHost]="eusInstance.ip"
+          [eusPort]="eusInstance.port"
+          [standalone]="false"
+          [isNested]="true"
+          [abstractTJobExec]="tJobExec"
+        ></app-elastest-eus>
       </div>
-    </ng-template>
+
+      <ng-template #tSServices>
+        <esm-service-detail [serviceInstance]="serviceInstance" [standaloneService]="false"></esm-service-detail>
+      </ng-template>
+    </div>
 
     <!-- Execution files -->
     <etm-files-manager *ngIf="tJobExec.finished()" [tJob]="tJob" [tJobExec]="tJobExec"></etm-files-manager>

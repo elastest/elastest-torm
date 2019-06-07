@@ -6,7 +6,7 @@ import { Component, OnInit, Input } from '@angular/core';
 @Component({
   selector: 'esm-service-detail',
   templateUrl: './service-detail.component.html',
-  styleUrls: ['./service-detail.component.scss']
+  styleUrls: ['./service-detail.component.scss'],
 })
 export class ServiceDetailComponent implements OnInit {
   @Input()
@@ -14,17 +14,16 @@ export class ServiceDetailComponent implements OnInit {
   @Input()
   standaloneService: boolean = true;
 
-  constructor(private route: ActivatedRoute, private esmService: EsmService) {
-  }
+  constructor(private route: ActivatedRoute, private esmService: EsmService) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (this.serviceInstance === undefined && (this.route.params !== null || this.route.params !== undefined)) {
-      this.route.params.switchMap((params: Params) => this.esmService.getSupportServiceInstance(params['id']))
+      this.route.params
+        .switchMap((params: Params) => this.esmService.getSupportServiceInstance(params['id']))
         .subscribe((serviceInstance: EsmServiceInstanceModel) => {
           this.serviceInstance = serviceInstance;
           console.log('Service instance: ' + JSON.stringify(this.serviceInstance));
         });
     }
   }
-
 }
