@@ -3,7 +3,7 @@
     <mat-card tdMediaToggle="gt-xs" fxFlex style="overflow: auto;">
       <div fxLayout="column" fxFlexFill>
         <mat-card-title>
-          <div fxLayout="column" fxLayoutAlign="none" *ngIf="exTJobExec">
+          <div fxLayout="column" fxLayoutAlign="none" *ngIf="exTJobExec; else showEmptyTitle">
             <div fxLayout="row">
               <span>
                 <button
@@ -48,6 +48,9 @@
               </div>
             </div>
           </div>
+          <ng-template #showEmptyTitle>
+            <span id="executingTitle">Executing Test Plan (loading...) </span>
+          </ng-template>
         </mat-card-title>
         <mat-divider [inset]="true"></mat-divider>
         <mat-card-content fxFlex class="push-bottom-none" style="padding-top: 6px !important">

@@ -137,9 +137,12 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     private _dialogService: TdDialogService,
     private _viewContainerRef: ViewContainerRef,
     private etmRestClientService: EtmRestClientService,
-  ) {
+  ) {}
+
+  ngOnInit(): void {
+    this.titlesService.setPathName(this.router.routerState.snapshot.url);
     if (!this.activateGUIDevelopmentMode) {
-      let queryParams: any = router.parseUrl(router.url).queryParams;
+      let queryParams: any = this.router.parseUrl(this.router.url).queryParams;
       if (queryParams) {
         if (queryParams.browserName) {
           this.browserName = queryParams.browserName;
@@ -158,16 +161,15 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       }
 
       if (this.route.params !== null || this.route.params !== undefined) {
-        this.route.params.subscribe((params: Params) => {
-          this.params = params;
-          this.loadPlanAndBuild();
-        });
+        this.route.params.subscribe(
+          (params: Params) => {
+            this.params = params;
+            this.loadPlanAndBuild();
+          },
+          (error: Error) => console.error(error),
+        );
       }
     }
-  }
-
-  ngOnInit(): void {
-    this.titlesService.setPathName(this.router.routerState.snapshot.url);
   }
 
   ngOnDestroy(): void {
@@ -211,9 +213,9 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     );
   }
 
-  /**********************/
-  /* **** External **** */
-  /**********************/
+  /************************************/
+  /* *********** External *********** */
+  /************************************/
 
   loadExternalTJob(): void {
     this.testLinkService.getExternalTJobByTestPlanId(this.testPlan.id).subscribe(
@@ -541,9 +543,9 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     return testExecUrl;
   }
 
-  /**********************/
-  /* **** TestLink **** */
-  /**********************/
+  /************************************/
+  /* *********** TestLink *********** */
+  /************************************/
 
   loadNextTestLinkCase(): void {
     let nextTLCase: TLTestCaseModel = this.testCases.shift();
