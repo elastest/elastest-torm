@@ -26,7 +26,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import io.elastest.epm.client.DockerContainer;
-import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.epm.client.utils.UtilTools;
 import io.fabric8.kubernetes.api.model.Capabilities;
 import io.fabric8.kubernetes.api.model.CapabilitiesBuilder;
@@ -107,7 +106,7 @@ public class K8Service {
     }
 
     public enum PodsStatusEnum {
-        PENDING("Not initialized"), RUNNING("Running"), PULLING("Succeeded"),
+        PENDING("Not initialized"), RUNNING("Running"), SUCCEEDED("Succeeded"),
         FAILED("Failed"), UNKNOWN("Unknown");
 
         private String value;
@@ -505,6 +504,7 @@ public class K8Service {
 
     public class PodInfo {
         private String podName;
+        private String podIp;
 
         public String getPodName() {
             return podName;
@@ -521,8 +521,6 @@ public class K8Service {
         public void setPodIp(String podIp) {
             this.podIp = podIp;
         }
-
-        private String podIp;
     }
 
     public class JobResult {

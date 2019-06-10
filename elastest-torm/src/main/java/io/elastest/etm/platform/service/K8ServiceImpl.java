@@ -180,11 +180,6 @@ public class K8ServiceImpl extends PlatformService {
             DockerContainer testContainer = createContainer(execution,
                     ContainerType.TJOB);
 
-            // String resultMsg = "Starting Test Execution";
-            // execution.updateTJobExecutionStatus(
-            // TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
-            // execution.setStatusMsg(resultMsg);
-
             resultMsg = "Executing Test";
             execution.updateTJobExecutionStatus(
                     TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
@@ -193,12 +188,6 @@ public class K8ServiceImpl extends PlatformService {
             // Create and start container
             result = k8Service.deployJob(testContainer);
             execution.setExitCode(result.getResult());
-
-            // tJobExec.setEndDate(new Date());
-            // logger.info("Ending Execution {}...", tJobExec.getId());
-            // saveFinishStatus(tJobExec, execution, result.getResult());
-            // testResults = tJobExec.getTestSuites();
-            // return testResults;
 
         } catch (TJobStoppedException | InterruptedException e) {
             throw new TJobStoppedException(
