@@ -1,23 +1,35 @@
 <!-- Monitoring Configuration -->
-<div *ngIf="showConfigBtn" fxLayout.gt-sm="row" tdMediaToggle="gt-xs" >
-    <div fxFlex.gt-sm="100">
-        <mat-card>
-            <div fxLayout="row">
-                <mat-card-title> Monitoring Configuration </mat-card-title>
-                <span fxFlex></span>
-                <div style="padding: 0 20px;">
-                    <button mat-raised-button color="accent" title="Open Monitoring Config" (click)="openMonitoringConfig()" class="iconBtn push-top-sm push-left-sm">
-                        <mat-icon class="color-white">settings_applications</mat-icon>
-                    </button>
-                </div>
-            </div>
-        </mat-card>
-    </div>
+<div *ngIf="showConfigBtn" fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
+  <div fxFlex.gt-sm="100">
+    <mat-card>
+      <div fxLayout="row">
+        <mat-card-title> Monitoring Configuration </mat-card-title>
+        <span fxFlex></span>
+        <div style="padding: 0 20px;">
+          <button
+            mat-raised-button
+            color="accent"
+            title="Open Monitoring Config"
+            (click)="openMonitoringConfig()"
+            class="iconBtn push-top-sm push-left-sm"
+          >
+            <mat-icon class="color-white">settings_applications</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-card>
+  </div>
 </div>
 
 <!-- Metrics -->
-<etm-chart-group #metricsGroup [live]="live" (timelineObs)="timelineEvent($event)" (hoverObs)="hoverEvent($event)"
-    (leaveObs)="leaveEvent()"></etm-chart-group>
+<etm-chart-group
+  #metricsGroup
+  *ngIf="!hideMetrics"
+  [live]="live"
+  (timelineObs)="timelineEvent($event)"
+  (hoverObs)="hoverEvent($event)"
+  (leaveObs)="leaveEvent()"
+></etm-chart-group>
 
 <!-- Logs -->
-<etm-logs-group #logsGroup [live]="live"></etm-logs-group>
+<etm-logs-group #logsGroup *ngIf="!hideLogs" [live]="live"></etm-logs-group>

@@ -54,11 +54,13 @@ public class K8ServiceImpl extends PlatformService {
     public K8ServiceImpl(K8Service k8Service, EtmFilesService etmFilesService,
             UtilsService utilsService) {
         super();
-        logger.info("******* ElasTest on K8s *******");
+        this.utilsService = utilsService;
+        if (utilsService.isKubernetes()) {
+            logger.info("******* ElasTest on K8s *******");
+        }
         this.k8Service = k8Service;
         sutsByExecution = new ConcurrentHashMap<String, String>();
         this.etmFilesService = etmFilesService;
-        this.utilsService = utilsService;
     }
 
     @Override
@@ -192,11 +194,11 @@ public class K8ServiceImpl extends PlatformService {
             result = k8Service.deployJob(testContainer);
             execution.setExitCode(result.getResult());
 
-//            tJobExec.setEndDate(new Date());
-//            logger.info("Ending Execution {}...", tJobExec.getId());
-//            saveFinishStatus(tJobExec, execution, result.getResult());
-//            testResults = tJobExec.getTestSuites();
-//            return testResults;
+            // tJobExec.setEndDate(new Date());
+            // logger.info("Ending Execution {}...", tJobExec.getId());
+            // saveFinishStatus(tJobExec, execution, result.getResult());
+            // testResults = tJobExec.getTestSuites();
+            // return testResults;
 
         } catch (TJobStoppedException | InterruptedException e) {
             throw new TJobStoppedException(

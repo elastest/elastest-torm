@@ -17,6 +17,16 @@
           >
             <mat-icon>library_books</mat-icon>
           </button>
+          <!-- <button
+            id="openMonitoringConfigBtn"
+            mat-button
+            *ngIf="showLogsAndMetrics"
+            (click)="logsAndMetrics.openMonitoringConfig()"
+            class="onlyIconBtn iconBtn-lg"
+            matTooltip="Open Monitoring Config"
+          >
+            <mat-icon>settings</mat-icon>
+          </button> -->
         </div>
       </sa-card-title>
       <sa-card-content fxFlex id="cardContent">
@@ -125,3 +135,6 @@
     </self-adjustable-card>
   </auto-height-row>
 </auto-height-grid>
+<auto-height-row>
+  <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false" [hideLogs]="true"></etm-monitoring-view>
+</auto-height-row>

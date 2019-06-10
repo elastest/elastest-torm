@@ -16,7 +16,6 @@ import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { LogAnalyzerService } from '../../elastest-log-analyzer/log-analyzer.service';
 import { MonitorMarkModel } from './monitor-mark.model';
 import { sleep, allArrayPairCombinations } from '../../shared/utils';
-import { LogComparisonModel } from '../../elastest-log-comparator/model/log-comparison.model';
 import { LogFieldModel } from '../../shared/logs-view/models/log-field-model';
 import { MetricsFieldModel } from '../../shared/metrics-view/metrics-chart-card/models/metrics-field-model';
 
@@ -36,6 +35,12 @@ export class EtmMonitoringViewComponent implements OnInit {
 
   @Input()
   public showConfigBtn: boolean;
+
+  @Input()
+  public hideLogs: boolean = false;
+
+  @Input()
+  public hideMetrics: boolean = false;
 
   tJob: AbstractTJobModel;
   tJobExec: AbstractTJobExecModel;
@@ -58,7 +63,7 @@ export class EtmMonitoringViewComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  initView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
+  initView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel, customStartDate?: Date, customEndDate?: Date): void {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
@@ -74,19 +79,27 @@ export class EtmMonitoringViewComponent implements OnInit {
 
     // If !Multi Parent init directly. Else, init after monitor marks loaded
     if (!this.isMultiParentTJobExec) {
-      this.initLogAndMetricViews();
+      this.initLogAndMetricViews(this.tJobExec, customStartDate, customEndDate);
     }
   }
 
-  initLogAndMetricViews(parentTJobExec: AbstractTJobExecModel = this.tJobExec): void {
+  initLogAndMetricViews(
+    parentTJobExec: AbstractTJobExecModel = this.tJobExec,
+    customStartDate?: Date,
+    customEndDate?: Date,
+  ): void {
     this.tJobExec = parentTJobExec;
 
     if (!this.isInitialized) {
       // Load logs
-      this.logsGroup.initLogsView(this.tJob, this.tJobExec);
+      if (!this.hideLogs) {
+        this.logsGroup.initLogsView(this.tJob, this.tJobExec, customStartDate, customEndDate);
+      }
 
       // Load metrics
-      this.metricsGroup.initMetricsView(this.tJob, this.tJobExec);
+      if (!this.hideMetrics) {
+        this.metricsGroup.initMetricsView(this.tJob, this.tJobExec, undefined, customStartDate, customEndDate);
+      }
 
       this.isInitialized = true;
     }

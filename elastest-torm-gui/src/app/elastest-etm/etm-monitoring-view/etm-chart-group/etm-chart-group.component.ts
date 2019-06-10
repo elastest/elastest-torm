@@ -141,8 +141,17 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   // When metric card is already activated
-  initMetricsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel, activeView?: string): void {
+  initMetricsView(
+    tJob: AbstractTJobModel,
+    tJobExec: AbstractTJobExecModel,
+    activeView?: string,
+    customStartDate?: Date,
+    customEndDate?: Date,
+  ): void {
     tJobExec.activeView = activeView;
+
+    customStartDate = customStartDate ? customStartDate : tJobExec.startDate;
+    customEndDate = customEndDate ? customEndDate : tJobExec.endDate;
 
     this.allInOneMetrics = undefined;
     this.metricsList = [];
@@ -173,8 +182,8 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
       if (metric.activated) {
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
         individualMetrics.monitoringIndex = monitoringIndex;
-        individualMetrics.startDate = this.tJobExec.startDate;
-        individualMetrics.endDate = this.tJobExec.endDate;
+        individualMetrics.startDate = customStartDate;
+        individualMetrics.endDate = customEndDate;
         if (metric.component === '') {
           // If no component, is a default metric (dockbeat whit more than 1 component)
           if (ignoreDefaultDockbeatMetrics) {
@@ -201,8 +210,8 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
                 metric.component,
                 metricName,
                 passTJobExec ? tJobExec : undefined,
-                tJobExec.startDate,
-                tJobExec.endDate,
+                customStartDate,
+                customEndDate,
                 true,
                 true,
                 'metric',

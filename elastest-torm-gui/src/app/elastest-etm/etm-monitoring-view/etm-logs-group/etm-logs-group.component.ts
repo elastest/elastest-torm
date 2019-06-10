@@ -48,9 +48,12 @@ export class EtmLogsGroupComponent implements OnInit {
   ngOnInit(): void {}
 
   // When a log card is already activated
-  initLogsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel): void {
+  initLogsView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel, customStartDate?: Date, customEndDate?: Date): void {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
+
+    customStartDate = customStartDate ? customStartDate : this.tJobExec.startDate;
+    customEndDate = customEndDate ? customEndDate : this.tJobExec.endDate;
 
     for (let log of this.tJob.execDashboardConfigModel.allLogsTypes.logsList) {
       if (log.activated) {
@@ -68,11 +71,11 @@ export class EtmLogsGroupComponent implements OnInit {
           individualLogs.stream = log.stream;
           individualLogs.hidePrevBtn = !this.live;
           individualLogs.monitoringIndex = this.tJobExec.monitoringIndex;
-          individualLogs.startDate = this.tJobExec.startDate;
-          individualLogs.endDate = this.tJobExec.endDate;
+          individualLogs.startDate = customStartDate;
+          individualLogs.endDate = customEndDate;
 
           if (!this.live) {
-            individualLogs.getAllLogs(this.tJobExec.startDate, this.tJobExec.endDate);
+            individualLogs.getAllLogs(customStartDate, customEndDate);
           } else {
             if (log.component !== 'sut') {
               this.createSubjectAndSubscribe(individualLogs.component, log.stream, log.streamType);
