@@ -407,25 +407,49 @@ public class EsmService {
                 ParserService.getNodeByElemChain(serviceDefJson,
                         Arrays.asList("register", "name")));
 
+        // Register Tss service
         supportServiceClient
                 .registerService(serviceDefJson.get("register").toString());
-        supportServiceClient.registerManifest("{ " + "\"id\": "
-                + serviceDefJson.get("manifest").get("id").toString()
-                + ", \"manifest_content\": "
-                + serviceDefJson.get("manifest").get("manifest_content")
-                        .toString()
-                + ", \"manifest_type\": "
-                + serviceDefJson.get("manifest").get("manifest_type").toString()
-                + ", \"plan_id\": "
-                + serviceDefJson.get("manifest").get("plan_id").toString()
-                + ", \"service_id\": "
-                + serviceDefJson.get("manifest").get("service_id").toString()
-                + ", \"endpoints\": "
-                + serviceDefJson.get("manifest").get("endpoints").toString()
-                // + ", \"config\": " + config
-                + " }",
-                serviceDefJson.get("manifest").get("id").toString()
-                        .replaceAll("\"", ""));
+
+        // Register associated manifests
+        JsonNode manifests = serviceDefJson.get("manifests");
+
+        JsonNode manifestToRegister = null;
+
+        if (manifests != null && manifests.isArray()) {
+            for (final JsonNode manifestNode : manifests) {
+                logger.debug("Manifest: {}", manifestNode);
+                if ((utilsService.isKubernetes() && manifestNode
+                        .get("manifest_type").toString().contains("kubernetes"))
+                        || (!utilsService.isKubernetes()
+                                && manifestNode.get("manifest_type").toString()
+                                        .contains("docker-compose"))) {
+                    manifestToRegister = manifestNode;
+                    break;
+                }
+            }
+        } else {
+            manifestToRegister = serviceDefJson.get("manifest");
+            logger.debug("Register manifest Id {} associated to service {}",
+                    serviceDefJson.get("register").get("id"),
+                    manifestToRegister.get("id"));
+        }
+
+        supportServiceClient.registerManifest(
+                "{ " + "\"id\": " + manifestToRegister.get("id").toString()
+                        + ", \"manifest_content\": "
+                        + manifestToRegister.get("manifest_content").toString()
+                        + ", \"manifest_type\": "
+                        + manifestToRegister.get("manifest_type").toString()
+                        + ", \"plan_id\": "
+                        + manifestToRegister.get("plan_id").toString()
+                        + ", \"service_id\": "
+                        + manifestToRegister.get("service_id").toString()
+                        + ", \"endpoints\": "
+                        + manifestToRegister.get("endpoints").toString()
+                        // + ", \"config\": " + config
+                        + " }",
+                manifestToRegister.get("id").toString().replaceAll("\"", ""));
     }
 
     public List<String> getRegisteredServicesName() {
