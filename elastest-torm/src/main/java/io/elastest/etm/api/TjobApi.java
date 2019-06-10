@@ -13,11 +13,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.model.ExecData;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
-import io.elastest.etm.model.external.ExternalTestExecution;
-import io.elastest.etm.model.ElastestFile;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

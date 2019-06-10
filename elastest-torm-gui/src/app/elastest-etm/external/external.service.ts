@@ -116,6 +116,11 @@ export class ExternalService {
     return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(data));
   }
 
+  public deleteExternalTJobExecById(tJobExecId: number | string): Observable<any> {
+    let url: string = this.hostApi + '/external/tjobexec/' + tJobExecId;
+    return this.http.delete(url);
+  }
+
   public createExternalTJobExecution(exec: ExternalTJobExecModel): Observable<ExternalTJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/external/tjobexec';
     return this.http
@@ -128,6 +133,11 @@ export class ExternalService {
     return this.http
       .post(url, {}, { observe: 'response' })
       .map((response: HttpResponse<any>) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.body));
+  }
+
+  public resumeExternalTJobExecution(exTJobExecId: number | string): Observable<ExternalTJobExecModel> {
+    let url: string = this.configurationService.configModel.hostApi + '/external/tjobexec/resume/' + exTJobExecId;
+    return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(data));
   }
 
   public modifyExternalTJobExec(exec: ExternalTJobExecModel): Observable<ExternalTJobExecModel> {
@@ -173,7 +183,7 @@ export class ExternalService {
               _obs.next(new ExternalTJobExecFinishedModel(false, exec));
             }
           },
-          (error) => console.log(error),
+          (error: Error) => console.log(error),
         );
       });
     }
@@ -208,6 +218,14 @@ export class ExternalService {
 
   public getExternalTestExecById(execId: number): Observable<ExternalTestExecutionModel> {
     let url: string = this.hostApi + '/external/testexec/' + execId;
+    return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(data));
+  }
+
+  public getExternalTestExecByExternalIdAndSystemId(
+    externalId: string,
+    externalSystemId: string,
+  ): Observable<ExternalTestExecutionModel> {
+    let url: string = this.hostApi + '/external/testexec/byexternal/' + externalSystemId + '/' + externalId;
     return this.http.get(url).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTestExecutionModel(data));
   }
 

@@ -54,7 +54,11 @@ export class SelectBuildModalComponent implements OnInit {
     this.eusService.setEusUrl(this.configurationService.configModel.eusServiceUrl);
     this.eusService.setEusHost(this.configurationService.configModel.eusHost);
 
-    this.init();
+    if (this.data.savedConfig) {
+      this.initFromSavedConfig();
+    } else {
+      this.init();
+    }
   }
 
   ngOnInit(): void {}
@@ -76,6 +80,10 @@ export class SelectBuildModalComponent implements OnInit {
         (error: Error) => console.log(error),
       );
     }
+  }
+
+  initFromSavedConfig(): void {
+    this.runTestPlan(true);
   }
 
   isBasicDataLoaded(): boolean {
@@ -143,18 +151,46 @@ export class SelectBuildModalComponent implements OnInit {
     }
   }
 
-  runTestPlan(): void {
-    this.router.navigate(
-      ['/testlink/projects', this.testProjectId, 'plans', this.testPlan.id, 'builds', this.selectedBuild.id, 'exec', 'new'],
-      {
-        queryParams: {
-          browserName: this.selectedBrowser,
-          browserVersion: this.selectedVersion[this.selectedBrowser],
-          extraHosts: this.extraHosts,
-          platform: this.selectedPlatform.id,
+  runTestPlan(fromSavedConfig: boolean = false): void {
+    if (!fromSavedConfig) {
+      this.router.navigate(
+        ['/testlink/projects', this.testProjectId, 'plans', this.testPlan.id, 'builds', this.selectedBuild.id, 'exec', 'new'],
+        {
+          queryParams: {
+            browserName: this.selectedBrowser,
+            browserVersion: this.selectedVersion[this.selectedBrowser],
+            extraHosts: this.extraHosts,
+            platform: this.selectedPlatform.id,
+          },
         },
-      },
-    );
+      );
+    } else {
+      let savedConfig: any = this.data.savedConfig;
+
+      this.router.navigate(
+        [
+          '/testlink/projects',
+          savedConfig.testProjectId,
+          'plans',
+          savedConfig.planId,
+          'builds',
+          savedConfig.buildId,
+          'exec',
+          'new',
+        ],
+        {
+          queryParams: {
+            browserName: savedConfig.browserName,
+            browserVersion: savedConfig.browserVersion,
+            extraHosts: savedConfig.extraHosts,
+            platform: savedConfig.platformId,
+            fromSaved: true,
+            exTJobExecId: savedConfig.exTJobExecId,
+          },
+        },
+      );
+      this.dialogRef.close();
+    }
   }
 
   /* *** Browsers *** */

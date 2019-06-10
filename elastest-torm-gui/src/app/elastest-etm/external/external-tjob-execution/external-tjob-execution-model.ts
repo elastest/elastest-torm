@@ -8,6 +8,9 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
   exTJob: ExternalTJobModel;
   envVars: any;
   exTestExecs: ExternalTestExecutionModel[];
+  lastExecutedTCaseId: string;
+  executionConfig: string;
+  executionConfigObj: {};
 
   constructor() {
     super();
@@ -16,6 +19,9 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
     this.exTJob = undefined;
     this.envVars = {};
     this.exTestExecs = [];
+    this.lastExecutedTCaseId = undefined;
+    this.executionConfig = '{}';
+    this.executionConfigObj = {};
   }
 
   public getRouteString(): string {

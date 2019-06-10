@@ -1,6 +1,7 @@
 package io.elastest.etm.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -526,6 +527,24 @@ public class ExternalService {
         return createExternalTJobExecution(exec);
     }
 
+    // Resume External TJob Execution
+    public ExternalTJobExecution resumeExternalTJobExecution(
+            Long exTJobExecId) {
+        ExternalTJobExecution exec = this.getExternalTJobExecById(exTJobExecId);
+
+        exec.setResult(ResultEnum.IN_PROGRESS);
+
+        if (exec.getExTJob().getExProject().getType()
+                .equals(TypeEnum.TESTLINK)) {
+            exec = startEus(exec);
+        }
+
+        tJobExecOrchestratorService.executeExternalTJob(exec);
+
+        return exec;
+
+    }
+
     // Modify or end ExternalTJobExecution
     public ExternalTJobExecution modifyExternalTJobExec(
             ExternalTJobExecution externalTJobExec) {
@@ -541,6 +560,16 @@ public class ExternalService {
         } else {
             throw new HTTPException(405);
         }
+    }
+
+    public void deleteExternalTJobExec(Long exTJobExecId) {
+        ExternalTJobExecution exTJobExec = externalTJobExecutionRepository
+                .findById(exTJobExecId).get();
+        String index = exTJobExec.getExternalTJobExecMonitoringIndex();
+        monitoringService
+                .deleteMonitoringDataByIndicesAsync(Arrays.asList(index));
+        // TODO remove video folders 
+        externalTJobExecutionRepository.delete(exTJobExec);
     }
 
     public ExternalTJobExecution startEus(ExternalTJobExecution exec) {

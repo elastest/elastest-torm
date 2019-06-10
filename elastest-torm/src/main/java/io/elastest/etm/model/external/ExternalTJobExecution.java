@@ -117,6 +117,19 @@ public class ExternalTJobExecution implements Serializable {
     @ElementCollection
     private List<String> servicesInstances;
 
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTJobExecutionView.class, ExternalTestCaseView.class,
+            ExternalTestExecutionView.class })
+    @Column(name = "lastExecutedTCaseId")
+    private String lastExecutedTCaseId = null;
+
+    @JsonView({ ExternalProjectView.class, ExternalTJobView.class,
+            ExternalTestCaseView.class, ExternalTestExecutionView.class,
+            ExternalTJobExecutionView.class })
+    @Column(name = "executionConfig", columnDefinition = "TEXT", length = 65535)
+    @JsonProperty("executionConfig")
+    private String executionConfig = null;
+
     /* **************************/
     /* ***** Constructors *******/
     /* **************************/
@@ -249,10 +262,29 @@ public class ExternalTJobExecution implements Serializable {
         this.servicesInstances = servicesInstances;
     }
 
+    /*
+     * lastExecutedTCaseId get/set
+     */
+
+    public String getLastExecutedTCaseId() {
+        return lastExecutedTCaseId;
+    }
+
+    public void setLastExecutedTCaseId(String lastExecutedTCaseId) {
+        this.lastExecutedTCaseId = lastExecutedTCaseId;
+    }
+
+    public String getExecutionConfig() {
+        return executionConfig;
+    }
+
+    public void setExecutionConfig(String executionConfig) {
+        this.executionConfig = executionConfig;
+    }
+
     /* ********************************** */
     /* ************* OTHERS ************* */
     /* ********************************** */
-
     public boolean isWithSut() {
         return this.exTJob != null && this.exTJob.isWithSut();
     }
@@ -265,7 +297,8 @@ public class ExternalTJobExecution implements Serializable {
                 + ", exTestExecs=" + exTestExecs + ", startDate=" + startDate
                 + ", endDate=" + endDate + ", monitoringStorageType="
                 + monitoringStorageType + ", servicesInstances="
-                + servicesInstances + "]";
+                + servicesInstances + ", executionConfig=" + executionConfig
+                + "]";
     }
 
 }

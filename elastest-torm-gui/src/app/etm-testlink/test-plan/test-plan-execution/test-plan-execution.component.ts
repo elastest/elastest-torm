@@ -42,6 +42,9 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   params: Params;
 
+  resume: boolean = false;
+  exTJobExecId: string;
+
   testPlan: TestPlanModel;
   selectedBuild: BuildModel;
 
@@ -49,6 +52,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   exTJob: ExternalTJobModel;
   exTJobExec: ExternalTJobExecModel;
+  currentExternalTestCase: ExternalTestCaseModel;
   currentExternalTestExecution: ExternalTestExecutionModel;
 
   exTJobExecFinish: boolean = false;
@@ -57,7 +61,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   alreadyLeave: boolean = false;
 
-  showStopBtn: boolean = false;
+  showStopAndPauseBtns: boolean = false;
 
   executionCardMsg: string = 'Loading...';
   executionCardSubMsg: string = '';
@@ -82,6 +86,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   vncBrowserUrl: string;
   autoconnect: boolean = true;
   viewOnly: boolean = false;
+  currentVideoName: string;
 
   browserName: string = 'chrome';
   browserVersion: string = 'latest';
@@ -125,6 +130,8 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   errorColor: string = getErrorColor();
   warnColor: string = getWarnColor();
 
+  startScan: boolean = true;
+
   constructor(
     private externalService: ExternalService,
     public router: Router,
@@ -158,6 +165,14 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
         if (queryParams.platform) {
           this.platformId = queryParams.platform;
         }
+
+        if (queryParams.fromSaved) {
+          this.resume = queryParams.fromSaved;
+        }
+
+        if (queryParams.exTJobExecId) {
+          this.exTJobExecId = queryParams.exTJobExecId;
+        }
       }
 
       if (this.route.params !== null || this.route.params !== undefined) {
@@ -184,7 +199,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   }
 
   clear(): void {
-    if (this.exTJobExec.finished()) {
+    if (this.exTJobExec.finished() || this.exTJobExec.paused()) {
       this.end();
     } else {
       this.forceEnd();
@@ -221,16 +236,41 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     this.testLinkService.getExternalTJobByTestPlanId(this.testPlan.id).subscribe(
       (exTJob: ExternalTJobModel) => {
         this.exTJob = exTJob;
-        this.createTJobExecution();
+        this.initExternalTJobExecution();
       },
       (error: Error) => console.log(error),
     );
   }
 
-  createTJobExecution(): void {
+  initExternalTJobExecution(): void {
     this.exTJobExec = new ExternalTJobExecModel();
-    this.externalService.createExternalTJobExecutionByExTJobId(this.exTJob.id).subscribe((exTJobExec: ExternalTJobExecModel) => {
+
+    let initExtTJobExecMethod: Observable<ExternalTJobExecModel>;
+
+    // Resume paused Execution
+    if (this.resume) {
+      initExtTJobExecMethod = this.externalService.resumeExternalTJobExecution(this.exTJobExecId);
+    } else {
+      // Create new Execution
+      initExtTJobExecMethod = this.externalService.createExternalTJobExecutionByExTJobId(this.exTJob.id);
+    }
+
+    initExtTJobExecMethod.subscribe((exTJobExec: ExternalTJobExecModel) => {
       this.exTJobExec = exTJobExec;
+
+      let executionConfig: any = {
+        testProjectId: this.params['projectId'],
+        buildId: this.selectedBuild.id,
+        planId: this.testPlan.id,
+        platformId: this.platformId,
+        extraHosts: this.extraHosts,
+        browserName: this.browserName,
+        browserVersion: this.browserVersion,
+      };
+
+      this.exTJobExec.executionConfigObj = executionConfig;
+      this.exTJobExec.executionConfig = JSON.stringify(executionConfig);
+
       // +1 because EUS
       this.checkFinished();
       this.instancesNumber = this.exTJobExec.exTJob.esmServicesChecked + 1;
@@ -338,7 +378,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
         this.eusTestModel = eusTestModel;
         this.sessionId = eusTestModel.id;
         this.hubContainerName = eusTestModel.hubContainerName;
-        this.showStopBtn = true;
+        this.showStopAndPauseBtns = true;
         this.exTJobExec.envVars['BROWSER_SESSION_ID'] = this.sessionId;
         let browserLog: any = this.exTJobExec.getBrowserLogObj();
         if (browserLog) {
@@ -382,18 +422,48 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
             extraCapabilities['chromeOptions']['args'].push('--proxy-server=' + proxyUrl);
             let essApiUrl: string = instance.urls.get('api').internal;
-
-            this.etmRestClientService.doPost(essApiUrl + '/start/', { sites: [this.sutUrl] }).subscribe(
-              (response: any) => {
-                console.log('ESS response:', response);
-              },
-              (error: Error) => console.log(error),
-            );
+            this.startEssScan(essApiUrl);
           }
         }
       }
     }
     return extraCapabilities;
+  }
+
+  startEssScan(essApiUrl: string): void {
+    if (!this.startScan) {
+      sleep(5000).then(() => {
+        this.startEssScan(essApiUrl);
+      });
+    } else {
+      this.etmRestClientService.doPost(essApiUrl + '/start/', { sites: [this.sutUrl] }).subscribe(
+        (response: any) => {
+          console.log('ESS start response:', response);
+
+          // Checking the status of the scan
+          if (response && response.status === 'starting-ess') {
+            this.checkEssScanStatus(essApiUrl);
+          }
+        },
+        (error: Error) => console.log(error),
+      );
+    }
+  }
+
+  checkEssScanStatus(essApiUrl: string): void {
+    this.etmRestClientService.doGet(essApiUrl + '/status/').subscribe(
+      (response: any) => {
+        console.log('ESS status response', response);
+        if (response && response.status === 'not-yet') {
+          sleep(5000).then(() => {
+            this.checkEssScanStatus(essApiUrl);
+          });
+        }
+      },
+      (error: Error) => {
+        console.error(error);
+      },
+    );
   }
 
   initSutUrl(): void {
@@ -416,14 +486,32 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       .subscribe((testCases: TLTestCaseModel[]) => {
         this.testCases = testCases;
 
+        if (this.testCases) {
+          this.totalCases = this.testCases.length;
+        }
+
+        if (this.resume) {
+          let lastExecutedTCaseId: string = this.exTJobExec.lastExecutedTCaseId;
+          let lastExecutedTCasePosition: number = 0;
+
+          if (lastExecutedTCaseId && this.testCases) {
+            for (let testCase of this.testCases) {
+              if (testCase.id + '' === lastExecutedTCaseId) {
+                break;
+              }
+              lastExecutedTCasePosition++;
+            }
+          }
+
+          this.testCases = this.testCases.slice(lastExecutedTCasePosition + 1);
+        }
+
         this.startExecution();
       });
   }
 
   startExecution(): void {
     if (this.testCases && this.testCases.length > 0) {
-      this.totalCases = this.testCases.length;
-
       this.setTJobExecutionUrl('Test Plan Execution:');
       this.data = {
         build: this.selectedBuild,
@@ -484,16 +572,16 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     }
   }
 
-  end(fromError: boolean = false): void {
+  end(fromError: boolean = false, fromPause: boolean = false): void {
     if (this.websocket) {
       this.manuallyClosed = true;
       this.websocket.close();
     }
-    if (!fromError) {
+    if (!fromError && !fromPause) {
       this.executionCardMsg = 'The execution has been finished!';
       this.executionCardSubMsg = 'The associated files will be shown when browser and eus have stopped';
     }
-    this.showStopBtn = false;
+    this.showStopAndPauseBtns = false;
     this.unsubscribeExecFinished();
     this.deprovideBrowserAndEus();
   }
@@ -506,7 +594,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   ): void {
     this.stopping = true;
     this.executionCardMsg = execCardMsg;
-    this.showStopBtn = false;
+    this.showStopAndPauseBtns = false;
     this.exTJobExec.result = result;
     this.exTJobExec.resultMsg = resultMsg;
     this.exTJobExec.endDate = new Date();
@@ -548,22 +636,47 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   /************************************/
 
   loadNextTestLinkCase(): void {
+    // Set last Executed TCase Id for pause
+    if (this.currentExternalTestCase !== undefined && this.currentExternalTestCase !== null) {
+      this.exTJobExec.lastExecutedTCaseId = this.currentExternalTestCase.externalId;
+    }
+
     let nextTLCase: TLTestCaseModel = this.testCases.shift();
     if (nextTLCase !== undefined) {
       // Load External Test Case
       this.testLinkService.getExternalTestCaseByTestCaseId(nextTLCase.id).subscribe(
         (exTestCase: ExternalTestCaseModel) => {
-          let videoName: string = nextTLCase.name.split(' ').join('-') + '_' + this.sessionId;
+          this.currentExternalTestCase = exTestCase;
+          this.currentVideoName = nextTLCase.name.split(' ').join('-') + '_' + this.sessionId;
           // Start recording
-          this.eusService.startRecording(this.sessionId, this.hubContainerName, videoName).subscribe(
+          this.eusService.startRecording(this.sessionId, this.hubContainerName, this.currentVideoName).subscribe(
             (ok) => {
               this.initCurrentExternalTestExecution(exTestCase);
+
               this.externalService.createExternalTestExecution(this.currentExternalTestExecution).subscribe(
                 (savedExTestExec: ExternalTestExecutionModel) => {
                   this.currentExternalTestExecution = savedExTestExec;
                   this.startTestLinkTestCaseExecution(nextTLCase);
                 },
-                (error: Error) => console.log(error),
+                (error: Error) => {
+                  if (this.resume) {
+                    // Is Test Execution paused and tmp saved
+                    this.externalService
+                      .getExternalTestExecByExternalIdAndSystemId(
+                        this.currentExternalTestExecution.externalId,
+                        this.currentExternalTestExecution.externalSystemId,
+                      )
+                      .subscribe((savedExTestExec: ExternalTestExecutionModel) => {
+                        this.currentExternalTestExecution = savedExTestExec;
+                        this.currentExternalTestExecution.startDate = new Date();
+
+                        this.startTestLinkTestCaseExecution(nextTLCase);
+                      });
+                  } else {
+                    console.log(error);
+                    this.forceEnd();
+                  }
+                },
               );
             },
             (error: Error) => console.log(error),
@@ -649,6 +762,8 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   }
 
   finishTJobExecution(): void {
+    // this.startScan = true;
+
     this.executionCardMsg = 'The execution has been finished!';
     this.executionCardSubMsg = 'The associated files will be shown when browser and eus have stopped';
     this.disableTLNextBtn = true;
@@ -681,8 +796,52 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     }
   }
 
-  viewEndedTJobExec(): void {
-    this.router.navigate(['/external/projects/', this.exTJob.exProject.id, 'tjob', this.exTJob.id, 'exec', this.exTJobExec.id]);
+  pauseExecution(): void {
+    this.showStopAndPauseBtns = false;
+    this.stopping = true;
+    this.exTJobExec.result = 'PAUSED';
+    this.exTJobExec.resultMsg = 'Pausing...';
+    this.executionCardMsg = 'Pausing...';
+    this.eusService.stopRecording(this.sessionId, this.hubContainerName).subscribe(
+      (ok: any) => {
+        this.eusService.deleteRecording(this.currentVideoName).subscribe((ok: any) => {
+          this.end(false, true);
+          this.disableTLNextBtn = true;
+          this.execFinished = true;
+          this.externalService.getExternalTestExecsByExternalTJobExecId(this.exTJobExec.id).subscribe(
+            (exTestExecs: ExternalTestExecutionModel[]) => {
+              this.exTJobExec.exTestExecs = exTestExecs;
+
+              this.exTJobExec.endDate = new Date();
+              this.exTJobExec.exTestExecs = []; // TODO fix No _valueDeserializer assigned
+              this.exTJobExec.exTJob.exTestCases = []; // TODO fix No _valueDeserializer assigned
+
+              this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
+              this.executionCardMsg = 'The execution has been paused!';
+              this.exTJobExec.resultMsg = 'Paused';
+              this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
+              this.executionCardSubMsg = '';
+            },
+            (error: Error) => {
+              console.log(error);
+              this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
+              this.executionCardMsg = 'The execution has been paused!';
+              this.exTJobExec.resultMsg = 'Paused';
+              this.externalService.modifyExternalTJobExec(this.exTJobExec).subscribe();
+              this.executionCardSubMsg = '';
+            },
+          );
+        });
+      },
+      (error: Error) => {
+        console.log(error);
+        this.savingAndLoadingTCase = false;
+      },
+    );
+
+    // Save last executed tc id
+    // Set paused status
+    // Stop browser, eus and execution (status paused)
   }
 
   startWebSocket(wsUrl: string): void {
@@ -789,7 +948,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       this.checkTSSInstancesSubscription = timer.subscribe(() => {
         this.esmService.getSupportServicesInstancesByExternalTJobExec(this.exTJobExec).subscribe(
           (serviceInstances: EsmServiceInstanceModel[]) => {
-            if (serviceInstances.length === this.instancesNumber || this.exTJobExec.finished()) {
+            if (serviceInstances.length === this.instancesNumber || this.exTJobExec.finished() || this.exTJobExec.paused()) {
               this.unsubscribeCheckTssInstances();
               this.serviceInstances = [...serviceInstances];
               _obs.next(true);
@@ -812,6 +971,10 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       this.checkTSSInstancesSubscription.unsubscribe();
       this.checkTSSInstancesSubscription = undefined;
     }
+  }
+
+  viewEndedTJobExec(): void {
+    this.router.navigate(['/external/projects/', this.exTJob.exProject.id, 'tjob', this.exTJob.id, 'exec', this.exTJobExec.id]);
   }
 
   getLogsErrors(): number {

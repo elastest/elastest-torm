@@ -168,6 +168,10 @@ export class ETExternalModelsTransformService {
 
     newTJobExec.monitoringStorageType = tjobexec.monitoringStorageType;
 
+    newTJobExec.lastExecutedTCaseId = tjobexec.lastExecutedTCaseId;
+    newTJobExec.executionConfig = tjobexec.executionConfig;
+    newTJobExec.executionConfigObj = newTJobExec.executionConfig ? JSON.parse(newTJobExec.executionConfig) : {};
+
     return newTJobExec;
   }
 

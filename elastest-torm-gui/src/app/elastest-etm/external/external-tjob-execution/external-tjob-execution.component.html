@@ -6,7 +6,7 @@
           <span>
             <mat-icon
               id="tJobExecResultIcon"
-              *ngIf="exTJobExec.finished() || exTJobExec.notExecuted()"
+              *ngIf="exTJobExec.finished() || exTJobExec.notExecuted() || exTJobExec.paused()"
               style="vertical-align: sub;"
               [style.color]="exTJobExec.getResultIcon().color"
               matTooltip="{{ exTJobExec.result }}"

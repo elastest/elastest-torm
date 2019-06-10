@@ -109,13 +109,17 @@ export class AbstractTJobExecModel {
     return this.result === 'STOPPED';
   }
 
+  paused(): boolean {
+    return this.result === 'PAUSED';
+  }
+
   public getResultIcon(): any {
     let icon: any = {
       name: '',
       color: '',
       result: this.result,
     };
-    if (this.finished() || this.notExecuted()) {
+    if (this.finished() || this.notExecuted() || this.paused()) {
       icon = getResultIconByString(this.result);
     }
     return icon;

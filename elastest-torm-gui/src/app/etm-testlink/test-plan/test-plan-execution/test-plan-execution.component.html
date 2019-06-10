@@ -8,10 +8,10 @@
               <span>
                 <button
                   mat-button
-                  *ngIf="exTJobExec.finished()"
+                  *ngIf="exTJobExec.finished() || exTJobExec.paused()"
                   (click)="viewEndedTJobExec()"
                   class="onlyIconBtn"
-                  title="Navigate to result page"
+                  matTooltip="Navigate to result page"
                 >
                   <mat-icon style="vertical-align: middle;" [style.color]="this.exTJobExec.getResultIcon().color">{{
                     this.exTJobExec.getResultIcon().name
@@ -24,7 +24,22 @@
               <span fxFlex></span>
               <span>
                 <button
-                  *ngIf="showStopBtn"
+                  *ngIf="
+                    showStopAndPauseBtns &&
+                    exTJobExec.lastExecutedTCaseId !== undefined &&
+                    exTJobExec.lastExecutedTCaseId !== null
+                  "
+                  mat-button
+                  (click)="pauseExecution()"
+                  title="Pause execution"
+                  class="iconBtn"
+                >
+                  <mat-icon>pause</mat-icon>
+                </button>
+              </span>
+              <span>
+                <button
+                  *ngIf="showStopAndPauseBtns"
                   mat-button
                   (click)="forceEnd()"
                   [style.color]="'#c82a0e'"
@@ -185,7 +200,11 @@
             <ng-template #loadingBrowser>
               <div class="mat-headline text-center">{{ browserCardMsg }}</div>
               <mat-spinner
-                *ngIf="exTJobExec && (!exTJobExec.finished() || (exTJobExec.finished() && !browserAndEusDeprovided))"
+                *ngIf="
+                  exTJobExec &&
+                  (!exTJobExec.finished() || (exTJobExec.finished() && !browserAndEusDeprovided)) &&
+                  (!exTJobExec.paused() || (exTJobExec.paused() && !browserAndEusDeprovided))
+                "
                 strokeWidth="6"
                 color="accent"
                 class="push-top-sm"

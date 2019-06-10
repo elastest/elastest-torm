@@ -29,6 +29,7 @@ export type defaultResult =
   | 'ERROR'
   | 'BLOCKED'
   | 'SKIPPED'
+  | 'PAUSED'
   | '';
 
 export function getResultIconByString(result: defaultResult | string): any {
@@ -64,6 +65,10 @@ export function getResultIconByString(result: defaultResult | string): any {
       break;
     case 'BLOCKED':
       icon.name = 'warning';
+      icon.color = getWarnColor();
+      break;
+    case 'PAUSED':
+      icon.name = 'pause';
       icon.color = getWarnColor();
       break;
     default:

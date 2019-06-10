@@ -43,25 +43,48 @@
             </ng-container>
             <ng-template #resultColumn>
               <mat-spinner
-                *ngIf="!row.finished() && !row.notExecuted()"
+                *ngIf="!row.finished() && !row.notExecuted() && !row.paused(); else showResultIcon"
                 strokeWidth="3"
                 diameter="20"
                 color="accent"
                 style="vertical-align: middle; display: inline-block"
               ></mat-spinner>
 
-              <mat-icon
-                *ngIf="row.finished() || row.notExecuted()"
-                style="vertical-align: middle;"
-                [style.color]="row.getResultIcon().color"
-                matTooltip="{{ row.getResultIcon().result }}"
-                >{{ row.getResultIcon().name }}</mat-icon
-              >
+              <ng-template #showResultIcon>
+                <mat-icon
+                  style="vertical-align: middle;"
+                  [style.color]="row.getResultIcon().color"
+                  matTooltip="{{ row.getResultIcon().result }}"
+                  >{{ row.getResultIcon().name }}</mat-icon
+                >
+              </ng-template>
             </ng-template>
           </div>
         </ng-template>
         <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
-          <div fxLayout="row" class="optionsColumn"></div>
+          <div fxLayout="row" class="optionsColumn">
+            <button
+              id="deleteExTJobExecBtn"
+              mat-button
+              (click)="deleteExternalTJobExec(row)"
+              [disabled]="deletingInProgress"
+              class="iconBtn"
+              title="Delete External TJob Execution"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+
+            <button
+              id="resumeExTJobExec"
+              mat-button
+              (click)="resumeExTJobExec(row)"
+              [disabled]="!row.paused()"
+              class="iconBtn"
+              title="Resume External TJob Execution"
+            >
+              <mat-icon>play_arrow</mat-icon>
+            </button>
+          </div>
         </ng-template>
       </td-data-table>
     </ng-template>

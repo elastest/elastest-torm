@@ -9,24 +9,27 @@ export class EtmRestClientService {
   constructor(private http: HttpClient, private configurationService: ConfigurationService) {}
 
   doGet(urlToGet: string): Observable<any> {
-    let url: string = this.configurationService.configModel.hostApi + '/rest/get/' + urlToGet;
-    return this.http.get(url);
+    let jsonStr: string = JSON.stringify({});
+    return this.call(urlToGet, jsonStr, 'get');
   }
 
   doDelete(urlToDelete: string): Observable<any> {
-    let url: string = this.configurationService.configModel.hostApi + '/rest/delete/' + urlToDelete;
-    return this.http.delete(url);
+    let jsonStr: string = JSON.stringify({});
+    return this.call(urlToDelete, jsonStr, 'delete');
   }
 
   doPost(urlToPost: string, body: any): Observable<any> {
-    let url: string = this.configurationService.configModel.hostApi + '/rest/post/' + urlToPost;
     let jsonStr: string = JSON.stringify(body);
-    return this.http.post(url, jsonStr);
+    return this.call(urlToPost, jsonStr, 'post');
   }
 
   doPut(urlToPut: string, body: any): Observable<any> {
-    let url: string = this.configurationService.configModel.hostApi + '/rest/get/' + urlToPut;
     let jsonStr: string = JSON.stringify(body);
-    return this.http.put(url, jsonStr);
+    return this.call(urlToPut, jsonStr, 'put');
+  }
+
+  private call(urlToCall: string, jsonStr: string, method: 'get' | 'post' | 'delete' | 'put'): Observable<any> {
+    let url: string = this.configurationService.configModel.hostApi + '/rest/' + method + '/' + urlToCall;
+    return this.http.post(url, jsonStr);
   }
 }

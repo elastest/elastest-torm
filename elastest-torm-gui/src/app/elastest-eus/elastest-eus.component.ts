@@ -357,7 +357,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
     return 'http://' + this.eusHost + ':' + this.eusPort + data;
   }
 
-  opneRecordingInNewTab(testModel: EusTestModel): void {
+  openRecordingInNewTab(testModel: EusTestModel): void {
     this.eusService.getRecording(testModel.id).subscribe(
       (data: string) => {
         window.open(this.getRecordingUrl(data));

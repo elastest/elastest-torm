@@ -155,6 +155,13 @@ public class ExternalApiController implements ExternalApi {
     }
 
     @JsonView({ ExternalTJobExecutionView.class })
+    public ResponseEntity<Long> deleteExternalTJobExecById(
+            @ApiParam(value = "Id of an External TJob Exec.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+        externalService.deleteExternalTJobExec(tJobExecId);
+        return new ResponseEntity<Long>(tJobExecId, HttpStatus.OK);
+    }
+
+    @JsonView({ ExternalTJobExecutionView.class })
     public ResponseEntity<ExternalTJobExecution> createExternalTJobExecution(
             @ApiParam(value = "Object with the External TJob Execution data to create.", required = true) @Valid @RequestBody ExternalTJobExecution body) {
         return new ResponseEntity<ExternalTJobExecution>(
@@ -172,6 +179,14 @@ public class ExternalApiController implements ExternalApi {
     }
 
     @JsonView({ ExternalTJobExecutionView.class })
+    public ResponseEntity<ExternalTJobExecution> resumeExternalTJobExecution(
+            @ApiParam(value = "Id of an External TJob.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
+        return new ResponseEntity<ExternalTJobExecution>(
+                externalService.resumeExternalTJobExecution(tJobExecId),
+                HttpStatus.OK);
+    }
+
+    @JsonView({ ExternalTJobExecutionView.class })
     public ResponseEntity<ExternalTJobExecution> modifyExternalTJobExecution(
             @ApiParam(value = "TJob Execution object that needs to modify.", required = true) @Valid @RequestBody ExternalTJobExecution body) {
         return new ResponseEntity<ExternalTJobExecution>(
@@ -183,13 +198,12 @@ public class ExternalApiController implements ExternalApi {
 
         ResponseEntity<List<ElastestFile>> response;
         try {
-            response = new ResponseEntity<List<ElastestFile>>(
-                    externalService.getExternalTJobExecutionFilesUrls(
-                            tJobExecId),
+            response = new ResponseEntity<List<ElastestFile>>(externalService
+                    .getExternalTJobExecutionFilesUrls(tJobExecId),
                     HttpStatus.OK);
         } catch (Exception e) {
-            response = new ResponseEntity<List<ElastestFile>>(
-                    new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+            response = new ResponseEntity<List<ElastestFile>>(new ArrayList<>(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         return response;
@@ -235,6 +249,16 @@ public class ExternalApiController implements ExternalApi {
             @ApiParam(value = "Id of an External Test Execution.", required = true) @PathVariable("execId") Long execId) {
         return new ResponseEntity<ExternalTestExecution>(
                 externalService.getExternalTestExecutionById(execId),
+                HttpStatus.OK);
+    }
+
+    @JsonView({ ExternalTestExecutionView.class })
+    public ResponseEntity<ExternalTestExecution> getExternalTestExecByExternalIdAndSystemId(
+            @ApiParam(value = "Id of an External Test Execution.", required = true) @PathVariable("externalId") String externalId,
+            @ApiParam(value = "External System Id.", required = true) @PathVariable("externalSystemId") String externalSystemId) {
+        return new ResponseEntity<ExternalTestExecution>(
+                externalService.getExternalTestExecByExternalIdAndSystemId(
+                        externalId, externalSystemId),
                 HttpStatus.OK);
     }
 

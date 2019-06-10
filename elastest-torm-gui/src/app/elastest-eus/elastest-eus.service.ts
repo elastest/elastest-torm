@@ -110,13 +110,13 @@ export class EusService {
     return this.http.delete(url);
   }
 
-  public getRecording(sessionId: string): Observable<string> {
-    let url: string = this.eusUrl + this.sessionPath + '/' + encodeURIComponent(sessionId) + '/recording';
+  public getRecording(sessionIdOrFileName: string): Observable<string> {
+    let url: string = this.eusUrl + this.sessionPath + '/' + encodeURIComponent(sessionIdOrFileName) + '/recording';
     return this.http.get(url, { responseType: 'text' });
   }
 
-  public deleteRecording(sessionId: string): Observable<any> {
-    let url: string = this.eusUrl + this.sessionPath + '/' + encodeURIComponent(sessionId) + '/recording';
+  public deleteRecording(sessionIdOrFileName: string): Observable<any> {
+    let url: string = this.eusUrl + this.sessionPath + '/' + encodeURIComponent(sessionIdOrFileName) + '/recording';
     return this.http.delete(url);
   }
 

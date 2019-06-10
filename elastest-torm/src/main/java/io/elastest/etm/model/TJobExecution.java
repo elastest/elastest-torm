@@ -241,7 +241,9 @@ public class TJobExecution {
 
         WAITING_TSS("WAITING TSS"),
 
-        QUEUED("QUEUED");
+        QUEUED("QUEUED"),
+
+        PAUSED("PAUSED");
 
         private String value;
 

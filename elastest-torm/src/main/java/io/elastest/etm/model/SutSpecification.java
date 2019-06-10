@@ -983,6 +983,11 @@ public class SutSpecification {
                 : getDefaultPortByProtocol();
         String url = getProtocol() + "://" + sutIp;
 
+        // If port 80 and protocol http, don't set port
+        if ("80".equals(port) && getProtocol().equals(ProtocolEnum.HTTP)) {
+            port = null;
+        }
+
         // If port 443 and protocol https, don't set port
         if ("443".equals(port) && getProtocol().equals(ProtocolEnum.HTTPS)) {
             port = null;
