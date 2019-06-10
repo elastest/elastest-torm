@@ -812,8 +812,8 @@ public class EsmService {
                     execution);
 
             servicesInstances.forEach((tSSInstId) -> {
-                SupportServiceInstance mainSubService = getTJobServiceInstanceById(
-                        tSSInstId);
+                SupportServiceInstance mainSubService = getExecutionServiceInstanceById(
+                        execution, tSSInstId);
                 logger.debug("Wait for TSS {} in {} {}",
                         mainSubService.getEndpointName(),
                         execution.getTJobExecType(),
