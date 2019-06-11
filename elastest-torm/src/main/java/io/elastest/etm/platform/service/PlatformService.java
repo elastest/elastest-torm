@@ -25,6 +25,7 @@ import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.messages.HostConfig.Bind;
 import com.spotify.docker.client.messages.HostConfig.Bind.Builder;
@@ -38,6 +39,7 @@ import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.ServiceBindedPort;
+import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
@@ -80,6 +82,9 @@ public abstract class PlatformService {
     public String logstashOrMiniHost;
     @Value("${et.enable.cloud.mode}")
     public boolean etEnableCloudMode;
+    @Value("${et.proxy.port}")
+    String etProxyPort;
+    
 
     public enum ContainerPrefix {
         TEST("test_"), SUT("sut_"), CHECK("check_"), SUT_EXT("sut_ext_");
@@ -219,7 +224,7 @@ public abstract class PlatformService {
             throws Exception;
 
     public abstract ServiceBindedPort getBindingPort(String containerIp,
-            String containerSufix, String port, String networkName)
+            String containerSufix, String port)
             throws Exception;
 
     public abstract String getEtmHost() throws Exception;
@@ -251,6 +256,10 @@ public abstract class PlatformService {
 
     public abstract Integer copyFilesFomContainer(String container,
             String originPath, String targetPath);
+    
+    public abstract int bindingPort(SupportServiceInstance serviceInstance,
+            String nodePort, JsonNode node, Boolean integratedService)
+            throws Exception;
 
     protected String getSutPath(Execution execution) {
         String sutPath;

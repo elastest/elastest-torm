@@ -24,7 +24,9 @@ import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
@@ -48,6 +50,7 @@ import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.ServiceBindedPort;
+import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
@@ -990,7 +993,7 @@ public class DockerServiceImpl extends PlatformService {
 
     @Override
     public ServiceBindedPort getBindingPort(String containerIp,
-            String containerSufix, String port, String networkName)
+            String containerSufix, String port)
             throws Exception {
         String bindedPort = "37000";
         String socatContainerId = null;
@@ -1008,7 +1011,7 @@ public class DockerServiceImpl extends PlatformService {
                     + (containerSufix != null && !containerSufix.isEmpty()
                             ? containerSufix
                             : bindedPort));
-            dockerBuilder.network(networkName);
+            dockerBuilder.network(elastestNetwork);
             dockerBuilder.exposedPorts(Arrays.asList(bindedPort));
 
             // portBindings
@@ -1366,6 +1369,53 @@ public class DockerServiceImpl extends PlatformService {
             String targetPath) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public int bindingPort(SupportServiceInstance serviceInstance,
+            String nodePort, JsonNode node, Boolean integratedService)
+            throws Exception {
+
+        int hostPort;
+
+        // If there is server address ports will be binded
+        int bindedPort;
+        if (serviceInstance.getEndpointsBindingsPorts().containsKey(nodePort)) {
+            bindedPort = Integer.parseInt(
+                    serviceInstance.getEndpointsBindingsPorts().get(nodePort));
+        } else {
+
+            if (utilsService.isKubernetes() && integratedService) {
+                bindedPort = Integer.valueOf(etProxyPort);
+            } else {
+                try {
+                    ServiceBindedPort socatBindedPortObj = getBindingPort(
+                            serviceInstance.getContainerIp(), null,
+                            node.get("port").toString());
+                    serviceInstance.getPortBindingContainers()
+                            .add(socatBindedPortObj.getContainerId());
+                    bindedPort = Integer
+                            .parseInt(socatBindedPortObj.getBindedPort());
+                    serviceInstance.getEndpointsBindingsPorts().put(nodePort,
+                            String.valueOf(bindedPort));
+                } catch (Exception e) {
+                    String message = "Ports binding fails in Service "
+                            + serviceInstance.getServiceName()
+                            + " with instance id "
+                            + serviceInstance.getInstanceId();
+
+                    logger.error("{}: {} ", message, e.getMessage());
+                    throw new Exception(message + ": " + e.getMessage());
+                }
+            }
+        }
+
+        serviceInstance.setBindedServicePort(bindedPort);
+
+        hostPort = bindedPort;
+        ((ObjectNode) node).put("bindedPort", bindedPort);
+        ((ObjectNode) node).put("port", bindedPort);
+        return hostPort;
     }
 
 }

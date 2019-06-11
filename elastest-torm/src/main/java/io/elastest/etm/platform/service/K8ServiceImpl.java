@@ -15,6 +15,7 @@ import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.spotify.docker.client.ProgressHandler;
 
 import io.elastest.epm.client.DockerContainer;
@@ -26,6 +27,7 @@ import io.elastest.epm.client.service.K8Service.PodInfo;
 import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.ServiceBindedPort;
+import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
@@ -283,13 +285,6 @@ public class K8ServiceImpl extends PlatformService {
 
     }
 
-    @Override
-    public ServiceBindedPort getBindingPort(String containerIp,
-            String containerSufix, String port, String networkName)
-            throws Exception {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     @Override
     public String getEtmHost() throws Exception {
@@ -401,5 +396,21 @@ public class K8ServiceImpl extends PlatformService {
         // TODO Auto-generated method stub
 
     }
+
+    @Override
+    public ServiceBindedPort getBindingPort(String containerIp,
+            String containerSufix, String port) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public int bindingPort(SupportServiceInstance serviceInstance,
+            String nodePort, JsonNode node, Boolean integratedService)
+            throws Exception {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
 
 }

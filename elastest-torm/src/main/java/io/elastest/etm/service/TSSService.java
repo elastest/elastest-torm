@@ -1184,7 +1184,11 @@ public class TSSService {
                 serviceInstance.getEndpointName());
         TssManifest manifest = supportServiceClient
                 .getManifestById(serviceInstance.getManifestId());
+        
+        // Build the URL for the service checked as main 
         serviceInstance = buildSubserviceUrls(serviceInstance, manifest);
+        
+        // Build URLs for the Subservices 
         for (SupportServiceInstance subService : serviceInstance
                 .getSubServices()) {
             logger.debug("Sub-services names: {}",
@@ -1216,21 +1220,17 @@ public class TSSService {
         JsonNode manifestEndpointServiceGui = manifestEndpointService
                 .get("gui");
 
-        String networkName = etDockerNetwork;
-        logger.debug("Network name: " + networkName);
-
         try {
             String tssContainerName = serviceInstance.getContainerName();
 
             if (manifestEndpointServiceApi != null) {
                 if (!manifestEndpointServiceApi.isArray()) {
-                    serviceInstance = getEndpointsInfo(serviceInstance,
-                            manifestEndpointServiceApi, tssContainerName,
-                            networkName, "api");
+                    buildEndpointUrl(serviceInstance,
+                            manifestEndpointServiceApi, tssContainerName, "api");
                 } else {
                     for (final JsonNode apiNode : manifestEndpointServiceApi) {
-                        serviceInstance = getEndpointsInfo(serviceInstance,
-                                apiNode, tssContainerName, networkName,
+                        buildEndpointUrl(serviceInstance,
+                                apiNode, tssContainerName,
                                 apiNode.get("name") != null
                                         ? apiNode.get("name").toString()
                                                 .replaceAll("\"", "") + "api"
@@ -1241,13 +1241,12 @@ public class TSSService {
 
             if (manifestEndpointServiceGui != null) {
                 if (!manifestEndpointServiceGui.isArray()) {
-                    serviceInstance = getEndpointsInfo(serviceInstance,
-                            manifestEndpointServiceGui, tssContainerName,
-                            networkName, "gui");
+                    buildEndpointUrl(serviceInstance,
+                            manifestEndpointServiceGui, tssContainerName, "gui");
                 } else {
                     for (final JsonNode guiNode : manifestEndpointServiceGui) {
-                        serviceInstance = getEndpointsInfo(serviceInstance,
-                                guiNode, tssContainerName, networkName,
+                        buildEndpointUrl(serviceInstance,
+                                guiNode, tssContainerName, 
                                 guiNode.get("name") != null
                                         ? guiNode.get("name").toString()
                                                 .replaceAll("\"", "") + "gui"
@@ -1263,10 +1262,11 @@ public class TSSService {
         return serviceInstance;
     }
 
-    private SupportServiceInstance getEndpointsInfo(
-            SupportServiceInstance serviceInstance, JsonNode node,
-            String tSSContainerName, String networkName, String nodeName)
+    private void buildEndpointUrl(SupportServiceInstance serviceInstance,
+            JsonNode node, String tSSContainerName, String nodeName)
             throws Exception {
+
+        // Default aux port correspond with ElasTest external port
         int auxPort = 37000;
 
         if (node != null && node.get("port") != null) {
@@ -1276,52 +1276,9 @@ public class TSSService {
             ((ObjectNode) node).put("internalPort", internalPort);
             serviceInstance.setInternalServicePort(internalPort);
 
-            // If server address, binded
             if (!utilsService.isDefaultEtPublicHost()) {
-                int bindedPort;
-                logger.debug("");
-                if (serviceInstance.getEndpointsBindingsPorts()
-                        .containsKey(nodePort)) {
-                    bindedPort = Integer.parseInt(serviceInstance
-                            .getEndpointsBindingsPorts().get(nodePort));
-                } else {
-
-                    if (utilsService.isKubernetes()
-                            && isIntegratedEUS(serviceInstance)) {
-                        // Do nothing. For other TSS, implement getBindingPort
-                        // in K8ServiceImpl
-                        bindedPort = auxPort;
-                    } else {
-                        try {
-                            ServiceBindedPort socatBindedPortObj = platformService
-                                    .getBindingPort(
-                                            serviceInstance.getContainerIp(),
-                                            null, node.get("port").toString(),
-                                            networkName);
-                            serviceInstance.getPortBindingContainers()
-                                    .add(socatBindedPortObj.getContainerId());
-                            bindedPort = Integer.parseInt(
-                                    socatBindedPortObj.getBindedPort());
-                            serviceInstance.getEndpointsBindingsPorts()
-                                    .put(nodePort, String.valueOf(bindedPort));
-                        } catch (Exception e) {
-                            String message = "Ports binding fails in Service "
-                                    + serviceInstance.getServiceName()
-                                    + " with instance id "
-                                    + serviceInstance.getInstanceId();
-
-                            logger.error("{}: {} ", message, e.getMessage());
-                            throw new Exception(
-                                    message + ": " + e.getMessage());
-                        }
-                    }
-                }
-
-                serviceInstance.setBindedServicePort(bindedPort);
-
-                auxPort = bindedPort;
-                ((ObjectNode) node).put("bindedPort", bindedPort);
-                ((ObjectNode) node).put("port", bindedPort);
+                auxPort = platformService.bindingPort(serviceInstance, nodePort,
+                        node, isIntegratedEUS(serviceInstance));
             } else {
                 auxPort = internalPort;
             }
@@ -1332,13 +1289,13 @@ public class TSSService {
                     || node.get("protocol").toString().contains("ws"))) {
                 serviceInstance.setServicePort(auxPort);
 
-                String internalUrl = createServiceInstanceUrl(node,
+                String internalUrl = buildEndpointUrlAsString(node,
                         serviceInstance.getInternalServiceIp(),
                         serviceInstance.getInternalServicePort());
                 serviceInstance.setUrlValue(nodeName, internalUrl, false);
 
                 if (withServerAddress) {
-                    String externalUrl = createServiceInstanceUrl(node,
+                    String externalUrl = buildEndpointUrlAsString(node,
                             serviceInstance.getBindedServiceIp(),
                             serviceInstance.getBindedServicePort());
                     serviceInstance.setUrlValue(nodeName, externalUrl, true);
@@ -1347,10 +1304,9 @@ public class TSSService {
 
             serviceInstance.getEndpointsData().put(nodeName, node);
         }
-        return serviceInstance;
     }
 
-    private String createServiceInstanceUrl(JsonNode node, String ip,
+    private String buildEndpointUrlAsString(JsonNode node, String ip,
             int port) {
         String url = null;
 
