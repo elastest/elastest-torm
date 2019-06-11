@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -118,6 +119,32 @@ public class UtilTools {
                 failOnUnknownProperties);
     }
 
+    // JSON to Obj by TypeRef
+
+    @SuppressWarnings("unchecked")
+    public static <T, K> T convertJsonStringToObjByTypeReference(String json,
+            TypeReference<K> serializationView, JsonInclude.Include inclusion,
+            boolean failOnUnknownProperties) {
+        T object = null;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.setSerializationInclusion(inclusion);
+            objectMapper.configure(
+                    DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            object = (T) objectMapper.readValue(json, serializationView);
+        } catch (IOException e) {
+            logger.error("Error during conversion: " + e.getMessage());
+        }
+        return object;
+    }
+
+    public static <T, K> T convertJsonStringToObjByTypeReference(String json,
+            TypeReference<K> serializationView) {
+        return convertJsonStringToObjByTypeReference(json, serializationView,
+                Include.ALWAYS, true);
+    }
+
     // Obj to JsonNode
     public static JsonNode convertObjToJsonNode(Object obj) {
         ObjectMapper mapper = new ObjectMapper();
@@ -129,7 +156,7 @@ public class UtilTools {
     public static ObjectNode convertObjToObjectNode(Object object) {
         return UtilTools.convertObjToJsonNode(object).deepCopy();
     }
-    
+
     public static void sleep(Integer timeout) {
         try {
             Thread.sleep(timeout * 1000);

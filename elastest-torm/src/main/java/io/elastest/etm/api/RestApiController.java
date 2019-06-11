@@ -11,7 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import io.elastest.etm.utils.RestClient;
+import io.elastest.etm.utils.FixedUrlRestClient;
 import io.swagger.annotations.ApiParam;
 
 @Controller
@@ -30,7 +30,7 @@ public class RestApiController implements RestApi {
 
         logger.debug("url {}", url);
 
-        RestClient restClient = new RestClient(url);
+        FixedUrlRestClient restClient = new FixedUrlRestClient(url);
 
         if ("post".equals(method)) {
             return restClient.post(jsonBody);
