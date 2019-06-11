@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -70,9 +71,6 @@ public class K8Service {
     private static final String LABEL_POD_NAME = "pod-name";
     private static final String LABEL_APP_NAME = "app";
     private static final String SUT_PORT_NAME = "sut-port";
-    private static final String PHASE_SUCCEEDED = "Succeeded";
-    private static final String LOCAL_K8S_MASTER = "localhost";
-    private static final String SERVICE_ACCOUNT_DEFAULT = "default";
 
     @Value("${et.data.in.host}")
     public String etDataInHost;
@@ -224,13 +222,13 @@ public class K8Service {
                                 result.setPodName(pod.getMetadata().getName());
                             }
 
-                            if (!pod.getStatus().getPhase().equals("Pending")
+                            if (!pod.getStatus().getPhase().equals(PodsStatusEnum.PENDING.toString())
                                     && !pod.getStatus().getPhase()
-                                            .equals("Running")) {
+                                            .equals(PodsStatusEnum.RUNNING.toString())) {
                                 logger.info("Pod executed with result: {}",
                                         pod.getStatus().getPhase());
                                 result.setResult(pod.getStatus().getPhase()
-                                        .equals("Succeeded") ? 0 : 1);
+                                        .equals(PodsStatusEnum.SUCCEEDED.toString()) ? 0 : 1);
                                 logger.info("Job {} is completed!",
                                         pod.getMetadata().getName());
                                 watchLatch.countDown();
@@ -343,6 +341,43 @@ public class K8Service {
         podInfo.setPodIp(pod.getStatus().getPodIP());
         podInfo.setPodName(pod.getMetadata().getName());
 
+        return podInfo;
+    }
+    
+    public PodInfo deployPod(String spec) throws Exception {
+        return deployPod(spec, DEFAULT_NAMESPACE);
+    }
+    
+    /**
+     * Deploy a pod from a yaml string
+     * @param spec
+     * @param namespace
+     * @return
+     * @throws IOException
+     */
+    public PodInfo deployPod(String spec, String namespace) throws IOException {
+        PodInfo podInfo = new PodInfo();
+        Pod pod = null;
+        
+        try (InputStream is = IOUtils.toInputStream(spec, CharEncoding.UTF_16)){            
+            List<HasMetadata> podMetada = client.load(is).createOrReplace();
+            String podName = podMetada.get(0).getMetadata().getName();
+            
+            pod = client.pods().inNamespace(DEFAULT_NAMESPACE)
+                    .withName(podName).get();
+            
+            while (!isReady(podName)) {
+                UtilTools.sleep(1);
+            }
+            
+            podInfo.setPodName(podName);
+            podInfo.setPodIp(pod.getStatus().getPodIP());
+        } catch (IOException e) {
+            logger.error("Error loading pod from a yaml string" );
+            e.printStackTrace();
+            throw e;
+        }
+        
         return podInfo;
     }
 
