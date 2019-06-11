@@ -12,16 +12,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import io.elastest.etm.model.SupportService;
-import io.elastest.etm.service.EsmService;
+import io.elastest.etm.service.TSSService;
 import io.elastest.etm.test.IntegrationBaseTest;
 
 @TestInstance(Lifecycle.PER_CLASS)
 public class EsmServiceItTest extends IntegrationBaseTest {
 	
-	private static final Logger logger = LoggerFactory.getLogger(EsmService.class);
+	private static final Logger logger = LoggerFactory.getLogger(TSSService.class);
 	
 	@Autowired
-	private EsmService esmService;
+	private TSSService esmService;
 	
 	@AfterAll
 	public void cleanEnvironment() {

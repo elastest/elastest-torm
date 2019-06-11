@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SupportServiceInstance.FrontView;
-import io.elastest.etm.service.EsmService;
+import io.elastest.etm.service.TSSService;
 import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiParam;
 
@@ -25,10 +25,10 @@ public class EsmApiController implements EsmApi {
     private static final Logger logger = LoggerFactory
             .getLogger(EsmApiController.class);
 
-    private EsmService esmService;
+    private TSSService esmService;
 
     @Autowired
-    public EsmApiController(EsmService esmService) {
+    public EsmApiController(TSSService esmService) {
         super();
         this.esmService = esmService;
     }

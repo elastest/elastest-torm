@@ -28,7 +28,7 @@ import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJob.TJobCompleteView;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.TJobExecCompleteView;
-import io.elastest.etm.service.EsmService;
+import io.elastest.etm.service.TSSService;
 import io.elastest.etm.service.TJobService;
 import io.swagger.annotations.ApiParam;
 
@@ -44,7 +44,7 @@ public class TjobApiController implements TjobApi {
     private TJobService tJobService;
 
     @Autowired
-    EsmService esmService;
+    TSSService esmService;
 
     /* *************** */
     /* **** TJobs **** */

@@ -20,7 +20,7 @@ import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.HelpInfo;
 import io.elastest.etm.model.LogAnalyzerConfig;
 import io.elastest.etm.model.LogAnalyzerConfig.LogAnalyzerConfigView;
-import io.elastest.etm.service.EsmService;
+import io.elastest.etm.service.TSSService;
 import io.elastest.etm.service.EtmContextService;
 import io.elastest.etm.utils.UtilsService;
 import io.swagger.annotations.ApiParam;
@@ -29,7 +29,7 @@ import io.swagger.annotations.ApiParam;
 public class EtmContextApiController implements EtmContextApi {
 
     @Autowired
-    EsmService esmService;
+    TSSService esmService;
     @Autowired
     EtmContextService etmContextService;
     @Autowired

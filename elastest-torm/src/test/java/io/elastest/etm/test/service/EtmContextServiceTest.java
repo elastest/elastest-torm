@@ -23,7 +23,7 @@ import io.elastest.epm.client.service.DockerService;
 import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.platform.service.DockerServiceImpl;
-import io.elastest.etm.service.EsmService;
+import io.elastest.etm.service.TSSService;
 import io.elastest.etm.service.EtmContextAuxService;
 import io.elastest.etm.service.EtmContextService;
 import io.elastest.etm.test.extensions.MockitoExtension;
@@ -42,7 +42,7 @@ public class EtmContextServiceTest {
     @Mock
     public DockerServiceImpl dockerServiceImpl;
     @Mock
-    public EsmService esmService;
+    public TSSService esmService;
     @Mock
     public UtilsService utilService;
 

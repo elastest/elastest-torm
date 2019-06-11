@@ -55,7 +55,7 @@ import io.elastest.eus.service.DynamicDataService;
 import io.elastest.eus.service.WebDriverService;
 
 @Service
-public class EsmService {
+public class TSSService {
     final Logger logger = getLogger(lookup().lookupClass());
 
     @Value("${et.esm.ss.desc.files.path}")
@@ -170,7 +170,7 @@ public class EsmService {
     private boolean withServerAddress;
 
     @Autowired
-    public EsmService(SupportServiceClientInterface supportServiceClient,
+    public TSSService(SupportServiceClientInterface supportServiceClient,
             EtmFilesService filesServices,
             EtmContextAuxService etmContextAuxService,
             TJobExecRepository tJobExecRepositoryImpl,
@@ -374,7 +374,7 @@ public class EsmService {
 
             if (content != null) {
                 ObjectNode serviceDefJson = ParserService
-                        .fromStringToJson(content);
+                        .getJsonNodeFromString(content);
                 logger.debug("TSS file {}", serviceFile.getName());
                 String serviceName = serviceFile.getName().split("-")[0]
                         .toUpperCase();
@@ -1184,7 +1184,7 @@ public class EsmService {
                 serviceInstance.getEndpointName());
         TssManifest manifest = supportServiceClient
                 .getManifestById(serviceInstance.getManifestId());
-        serviceInstance = createSubserviceUrls(serviceInstance, manifest);
+        serviceInstance = buildSubserviceUrls(serviceInstance, manifest);
         for (SupportServiceInstance subService : serviceInstance
                 .getSubServices()) {
             logger.debug("Sub-services names: {}",
@@ -1193,14 +1193,14 @@ public class EsmService {
                 throw new Exception("Field ip not found for "
                         + subService.getEndpointName() + " instance.");
             } else {
-                serviceInstance = createSubserviceUrls(subService, manifest);
+                serviceInstance = buildSubserviceUrls(subService, manifest);
             }
         }
 
         return serviceInstance;
     }
 
-    private SupportServiceInstance createSubserviceUrls(
+    private SupportServiceInstance buildSubserviceUrls(
             SupportServiceInstance serviceInstance, TssManifest manifest)
             throws Exception {
         JsonNode manifestEndpoints = manifest.getEndpoints();

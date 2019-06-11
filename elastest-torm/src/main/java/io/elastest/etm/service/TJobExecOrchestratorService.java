@@ -66,7 +66,7 @@ public class TJobExecOrchestratorService {
 
     private final TJobExecRepository tJobExecRepositoryImpl;
     private DatabaseSessionManager dbmanager;
-    private final EsmService esmService;
+    private final TSSService esmService;
     private SutService sutService;
     private AbstractMonitoringService monitoringService;
 
@@ -84,7 +84,7 @@ public class TJobExecOrchestratorService {
 
     public TJobExecOrchestratorService(
             TJobExecRepository tJobExecRepositoryImpl,
-            DatabaseSessionManager dbmanager, EsmService esmService,
+            DatabaseSessionManager dbmanager, TSSService esmService,
             SutService sutService, AbstractMonitoringService monitoringService,
             EtmContextService etmContextService, UtilsService utilsService,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,

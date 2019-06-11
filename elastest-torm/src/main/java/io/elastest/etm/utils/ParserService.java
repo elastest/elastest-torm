@@ -16,10 +16,21 @@ public class ParserService {
             .getLogger(ParserService.class);
     static ObjectMapper mapper = new ObjectMapper();
 
-    public static ObjectNode fromStringToJson(String jsonString)
+    public static ObjectNode getJsonNodeFromString(String jsonString)
             throws IOException {
         try {
             return mapper.readValue(jsonString, ObjectNode.class);
+        } catch (IOException ioe) {
+            logger.error("Error parsing a json string: {}", jsonString);
+            throw ioe;
+        }
+    }
+
+    public static List<ObjectNode> getJsonNodeListFromString(String jsonString)
+            throws IOException {
+        try {
+            return Arrays
+                    .asList(mapper.readValue(jsonString, ObjectNode[].class));
         } catch (IOException ioe) {
             logger.error("Error parsing a json string: {}", jsonString);
             throw ioe;

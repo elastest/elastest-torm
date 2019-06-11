@@ -18,14 +18,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import io.elastest.etm.service.EsmService;
+import io.elastest.etm.service.TSSService;
 
 @RunWith(JUnitPlatform.class)
 public class EsmApiItTest extends EtmApiItTest{
 	static final Logger log = LoggerFactory.getLogger(EsmApiItTest.class);
 	
 	@Autowired
-	EsmService esmService;
+	TSSService esmService;
 	
 	@BeforeEach
 	public void initContext(){

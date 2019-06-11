@@ -18,7 +18,7 @@ import io.elastest.etm.model.Project;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.service.AbstractMonitoringService;
-import io.elastest.etm.service.EsmService;
+import io.elastest.etm.service.TSSService;
 import io.elastest.etm.service.EtmTestResultService;
 import io.elastest.etm.service.TJobExecOrchestratorService;
 import io.elastest.etm.service.TJobService;
@@ -49,7 +49,7 @@ public class TJobServiceTest {
     public void createTJobTest(// @Autowired TJob tJob,
             @Mock TJobRepository tJobRepo,
             @Mock TJobExecOrchestratorService epmIntegrationService,
-            @Mock TJobExecRepository tJobExecRepo, @Mock EsmService esmService,
+            @Mock TJobExecRepository tJobExecRepo, @Mock TSSService esmService,
             @Mock UtilsService utilsService,
             @Mock AbstractMonitoringService abstractMonitoringService,
             @Mock EtmTestResultService etmTestResultService,

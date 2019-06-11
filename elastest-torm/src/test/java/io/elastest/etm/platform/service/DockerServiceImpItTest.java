@@ -38,7 +38,7 @@ import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
-import io.elastest.etm.service.EsmService;
+import io.elastest.etm.service.TSSService;
 import io.elastest.etm.service.EtPluginsService;
 import io.elastest.etm.service.ProjectService;
 import io.elastest.etm.service.SutService;
@@ -64,7 +64,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
     @Autowired
     TJobExecRepository tJobExecRepositoryImpl;
     @Autowired
-    EsmService esmService;
+    TSSService esmService;
     @Autowired
     EtPluginsService etPluginService;
 

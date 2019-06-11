@@ -102,7 +102,7 @@ public class EtmContextService {
     PlatformService platformService;
 
     public EtmContextService(LogAnalyzerRepository logAnalyzerRepository,
-            EsmService esmService, EtmContextAuxService etmContextAuxService,
+            TSSService esmService, EtmContextAuxService etmContextAuxService,
             PlatformService platformService) {
         this.logAnalyzerRepository = logAnalyzerRepository;
         this.etmContextAuxService = etmContextAuxService;

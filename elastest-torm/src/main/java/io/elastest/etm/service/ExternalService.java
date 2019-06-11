@@ -99,7 +99,7 @@ public class ExternalService {
     private final ExternalTJobRepository externalTJobRepository;
     private final ExternalTJobExecutionRepository externalTJobExecutionRepository;
 
-    private final EsmService esmService;
+    private final TSSService esmService;
     private EtmContextService etmContextService;
     private LogstashService logstashService;
 
@@ -115,7 +115,7 @@ public class ExternalService {
             ExternalTestExecutionRepository externalTestExecutionRepository,
             ExternalTJobRepository externalTJobRepository,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
-            EsmService esmService, AbstractMonitoringService monitoringService,
+            TSSService esmService, AbstractMonitoringService monitoringService,
             EtmContextService etmContextService,
             LogstashService logstashService, UtilsService utilsService,
             TJobExecOrchestratorService tJobExecOrchestratorService,

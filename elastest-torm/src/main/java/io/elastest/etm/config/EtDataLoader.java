@@ -33,7 +33,7 @@ import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalTJob;
-import io.elastest.etm.service.EsmService;
+import io.elastest.etm.service.TSSService;
 import io.elastest.etm.service.ProjectService;
 import io.elastest.etm.service.SutService;
 import io.elastest.etm.service.TJobService;
@@ -49,11 +49,11 @@ public class EtDataLoader {
     private ProjectService projectService;
     private TJobService tJobService;
     private SutService sutService;
-    private EsmService esmService;
+    private TSSService esmService;
     public TestLinkService testLinkService;
 
     public EtDataLoader(ProjectService projectService, TJobService tJobService,
-            SutService sutService, EsmService esmService,
+            SutService sutService, TSSService esmService,
             TestLinkService testLinkService) {
         this.projectService = projectService;
         this.tJobService = tJobService;
