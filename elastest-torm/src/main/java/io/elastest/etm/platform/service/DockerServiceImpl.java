@@ -1040,7 +1040,8 @@ public class DockerServiceImpl extends PlatformService {
             Map<String, String> envs, boolean withBindedExposedPortsToRandom,
             boolean withRemoveVolumes) throws Exception {
         return dockerComposeService.createProjectWithEnv(projectName,
-                serviceDescriptor, targetPath, true, envs, false, false);
+                serviceDescriptor, targetPath, true, envs,
+                withBindedExposedPortsToRandom, withBindedExposedPortsToRandom);
     }
 
     @Override
