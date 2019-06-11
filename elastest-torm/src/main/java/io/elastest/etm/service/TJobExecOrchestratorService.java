@@ -956,8 +956,7 @@ public class TJobExecOrchestratorService {
                         ServiceBindedPort socatBindedPortObj = platformService
                                 .getBindingPort(sutExec.getIp(),
                                         "sut_" + sutExec.getId(),
-                                        execution.getSut().getPort(),
-                                        elastestDockerNetwork);
+                                        execution.getSut().getPort());
                         sutExec.setPublicPort(Long
                                 .parseLong(socatBindedPortObj.getBindedPort()));
                         sutService.modifySutExec(sutExec);
