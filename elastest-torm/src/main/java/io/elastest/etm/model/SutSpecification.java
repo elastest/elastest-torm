@@ -37,7 +37,8 @@ import io.elastest.etm.model.Project.ProjectMediumView;
 import io.elastest.etm.model.TJob.TJobCompleteView;
 import io.elastest.etm.model.TJob.TJobMediumView;
 import io.elastest.etm.model.TJobExecution.TJobExecCompleteView;
-import io.elastest.etm.model.external.ExternalElasticsearch;
+import io.elastest.etm.model.external.ExternalMonitoringDBForLogs;
+import io.elastest.etm.model.external.ExternalMonitoringDBForMetrics;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 import io.elastest.etm.model.external.ExternalTJob;
@@ -156,6 +157,22 @@ public class SutSpecification {
     @JsonView({ SutView.class, ProjectMediumView.class,
             ExternalProjectView.class, ExternalTJobView.class,
             TJobCompleteView.class })
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "externalMonitoringDBForLogs")
+    @JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)
+    private ExternalMonitoringDBForLogs externalMonitoringDBForLogs;
+
+    @JsonView({ SutView.class, ProjectMediumView.class,
+            ExternalProjectView.class, ExternalTJobView.class,
+            TJobCompleteView.class })
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "externalMonitoringDBForMetrics")
+    @JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)
+    private ExternalMonitoringDBForMetrics externalMonitoringDBForMetrics;
+
+    @JsonView({ SutView.class, ProjectMediumView.class,
+            ExternalProjectView.class, ExternalTJobView.class,
+            TJobCompleteView.class })
     @Column(name = "protocol")
     @JsonProperty("protocol")
     private ProtocolEnum protocol = ProtocolEnum.HTTP;
@@ -201,14 +218,6 @@ public class SutSpecification {
     @JsonProperty("commandsOption")
     private CommandsOptionEnum commandsOption;
 
-    @JsonView({ SutView.class, ProjectMediumView.class,
-            ExternalProjectView.class, ExternalTJobView.class,
-            TJobCompleteView.class })
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "externalElasticsearch")
-    @JsonIgnoreProperties(value = "sutSpecification", allowSetters = true)
-    private ExternalElasticsearch externalElasticsearch;
-
     /* ** External ** */
 
     @JsonView({ SutView.class })
@@ -237,17 +246,15 @@ public class SutSpecification {
     }
 
     public SutSpecification(Long id, String name, String specification,
-            String description, Project project, List<TJob> tJobs,
-            SutTypeEnum sutType, boolean instrumentalize,
-            Boolean instrumentalized, Long currentSutExec,
-            InstrumentedByEnum instrumentedBy, String port,
+            String description, List<TJob> tJobs, SutTypeEnum sutType,
+            boolean instrumentalize, Boolean instrumentalized,
+            Long currentSutExec, InstrumentedByEnum instrumentedBy, String port,
             ManagedDockerType managedDockerType,
             CommandsOptionEnum commandsOption, ProtocolEnum protocol) {
         this.id = id == null ? 0 : id;
         this.name = name;
         this.specification = specification;
         this.description = description;
-        this.project = project;
         this.tJobs = tJobs;
         this.sutType = sutType;
         this.instrumentalize = instrumentalize;
@@ -261,6 +268,22 @@ public class SutSpecification {
         this.protocol = protocol;
     }
 
+    // Normal Project
+    public SutSpecification(Long id, String name, String specification,
+            String description, Project project, List<TJob> tJobs,
+            SutTypeEnum sutType, boolean instrumentalize,
+            Boolean instrumentalized, Long currentSutExec,
+            InstrumentedByEnum instrumentedBy, String port,
+            ManagedDockerType managedDockerType,
+            CommandsOptionEnum commandsOption, ProtocolEnum protocol) {
+        this(id, name, specification, description, tJobs, sutType,
+                instrumentalize, instrumentalized, currentSutExec,
+                instrumentedBy, port, managedDockerType, commandsOption,
+                protocol);
+        this.project = project;
+    }
+
+    // External Project
     public SutSpecification(Long id, String name, String specification,
             String description, ExternalProject exProject, List<TJob> tJobs,
             SutTypeEnum sutType, boolean instrumentalize,
@@ -268,27 +291,12 @@ public class SutSpecification {
             InstrumentedByEnum instrumentedBy, String port,
             ManagedDockerType managedDockerType,
             CommandsOptionEnum commandsOption, ProtocolEnum protocol) {
-        this.id = id == null ? 0 : id;
-        this.name = name;
-        this.specification = specification;
-        this.description = description;
+        this(id, name, specification, description, tJobs, sutType,
+                instrumentalize, instrumentalized, currentSutExec,
+                instrumentedBy, port, managedDockerType, commandsOption,
+                protocol);
         this.exProject = exProject;
-        this.tJobs = tJobs;
-        this.sutType = sutType;
-        this.instrumentalize = instrumentalize;
-        this.instrumentalized = instrumentalized != null ? instrumentalized
-                : false;
-        this.currentSutExec = currentSutExec;
-        this.instrumentedBy = instrumentedBy;
-        this.port = port;
-        this.managedDockerType = managedDockerType;
-        this.commandsOption = commandsOption;
-        this.protocol = protocol;
     }
-
-    /* *****************************/
-    /* ********** Enums ************/
-    /* *****************************/
 
     public SutSpecification(SutSpecification sut) {
         this.id = 0l;
@@ -304,6 +312,8 @@ public class SutSpecification {
         this.instrumentalized = false;
         this.currentSutExec = null;
         this.instrumentedBy = sut.instrumentedBy;
+        this.externalMonitoringDBForLogs = sut.externalMonitoringDBForLogs;
+        this.externalMonitoringDBForMetrics = sut.externalMonitoringDBForMetrics;
         this.protocol = sut.protocol;
         this.port = sut.port;
         this.managedDockerType = sut.managedDockerType;
@@ -321,13 +331,14 @@ public class SutSpecification {
             }
         }
 
-        this.externalElasticsearch = new ExternalElasticsearch(
-                sut.externalElasticsearch);
-
         this.eimConfig = new EimConfig(sut.eimConfig);
         this.eimMonitoringConfig = new EimMonitoringConfig(
                 sut.eimMonitoringConfig);
     }
+
+    /* *********************************************** */
+    /* ******************** Enums ******************** */
+    /* *********************************************** */
 
     public enum SutTypeEnum {
         MANAGED("MANAGED"),
@@ -366,7 +377,7 @@ public class SutSpecification {
 
         ADMIN("ADMIN"),
 
-        EXTERNAL_ELASTICSEARCH("EXTERNAL_ELASTICSEARCH");
+        EXTERNAL_MONITORING_DB("EXTERNAL_MONITORING_DB");
 
         private String value;
 
@@ -660,6 +671,36 @@ public class SutSpecification {
     }
 
     /**
+     * Get externalMonitoringDBForLogs
+     * 
+     * @return externalMonitoringDBForLogs
+     **/
+
+    public ExternalMonitoringDBForLogs getExternalMonitoringDBForLogs() {
+        return externalMonitoringDBForLogs;
+    }
+
+    public void setExternalMonitoringDBForLogs(
+            ExternalMonitoringDBForLogs externalMonitoringDBForLogs) {
+        this.externalMonitoringDBForLogs = externalMonitoringDBForLogs;
+    }
+
+    /**
+     * Get externalMonitoringDBForMetrics
+     * 
+     * @return externalMonitoringDBForMetrics
+     **/
+
+    public ExternalMonitoringDBForMetrics getExternalMonitoringDBForMetrics() {
+        return externalMonitoringDBForMetrics;
+    }
+
+    public void setExternalMonitoringDBForMetrics(
+            ExternalMonitoringDBForMetrics externalMonitoringDBForMetrics) {
+        this.externalMonitoringDBForMetrics = externalMonitoringDBForMetrics;
+    }
+
+    /**
      * Get currentSutExec
      * 
      * @return currentSutExec
@@ -813,27 +854,14 @@ public class SutSpecification {
         this.commandsOption = commandsOption;
     }
 
-    /**
-     * Get externalElasticsearch
-     * 
-     * @return externalElasticsearch
-     **/
-
-    public ExternalElasticsearch getExternalElasticsearch() {
-        return externalElasticsearch;
-    }
-
-    public void setExternalElasticsearch(
-            ExternalElasticsearch externalElasticsearch) {
-        this.externalElasticsearch = externalElasticsearch;
-    }
+    /* ******************************************* */
+    /* ************** Other methods ************** */
+    /* ******************************************* */
 
     // TODO tmp
     public boolean isSutInNewContainer() {
         return this.commandsOption != CommandsOptionEnum.DEFAULT;
     }
-
-    /* ** Other methods ** */
 
     public String getSutInContainerAuxLabel() {
         return "aux";
@@ -864,9 +892,27 @@ public class SutSpecification {
                 && this.getInstrumentedBy() == InstrumentedByEnum.ELASTEST;
     }
 
-    public boolean isUsingExternalElasticsearch() {
+    private boolean isUsingExternalMonitoringDB() {
         return this.isDeployedOutside() && this
-                .getInstrumentedBy() == InstrumentedByEnum.EXTERNAL_ELASTICSEARCH;
+                .getInstrumentedBy() == InstrumentedByEnum.EXTERNAL_MONITORING_DB;
+    }
+
+    public boolean isUsingExternalElasticsearchForLogs() {
+        return isUsingExternalMonitoringDB()
+                && this.getExternalMonitoringDBForLogs()
+                        .isUsingExternalElasticsearchForLogs();
+    }
+
+    public boolean isUsingExternalElasticsearchForMetrics() {
+        return isUsingExternalMonitoringDB()
+                && this.getExternalMonitoringDBForMetrics()
+                        .isUsingExternalElasticsearchForMetrics();
+    }
+
+    public boolean isUsingExternalPrometheusForMetrics() {
+        return isUsingExternalMonitoringDB()
+                && this.getExternalMonitoringDBForMetrics()
+                        .isUsingExternalPrometheusForMetrics();
     }
 
     @Override
@@ -909,8 +955,10 @@ public class SutSpecification {
                 && Objects.equals(this.exTJobs, sutSpecification.exTJobs)
                 && Objects.equals(this.commandsOption,
                         sutSpecification.commandsOption)
-                && Objects.equals(this.externalElasticsearch,
-                        sutSpecification.externalElasticsearch);
+                && Objects.equals(this.externalMonitoringDBForLogs,
+                        sutSpecification.externalMonitoringDBForLogs)
+                && Objects.equals(this.externalMonitoringDBForMetrics,
+                        sutSpecification.externalMonitoringDBForMetrics);
     }
 
     @Override
@@ -918,7 +966,8 @@ public class SutSpecification {
         return Objects.hash(id, name, specification, description, project,
                 sutType, eimConfig, eimMonitoringConfig, instrumentedBy, port,
                 managedDockerType, mainService, parameters, commands, exProject,
-                exTJobs, commandsOption, protocol, externalElasticsearch);
+                exTJobs, commandsOption, protocol, externalMonitoringDBForLogs,
+                externalMonitoringDBForMetrics);
     }
 
     @Override
@@ -948,8 +997,10 @@ public class SutSpecification {
                 exProject != null ? exProject.getId() : "null");
         sb = toStringAppender(sb, "exTJobs", exTJobs);
         sb = toStringAppender(sb, "commandsOption", commandsOption);
-        sb = toStringAppender(sb, "externalElasticsearch",
-                externalElasticsearch);
+        sb = toStringAppender(sb, "externalMonitoringDBForLogs",
+                externalMonitoringDBForLogs);
+        sb = toStringAppender(sb, "externalMonitoringDBForMetrics",
+                externalMonitoringDBForMetrics);
         sb.append("}");
 
         return sb.toString();

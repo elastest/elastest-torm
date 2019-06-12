@@ -376,7 +376,8 @@ public class SutService {
             SutSpecification sut, String monitoringIndex, Date startDate,
             Map<String, SharedAsyncModel<Void>> sharedAsyncModelMap,
             String sharedAsyncModelKey, String endDateKey) {
-        ExternalElasticsearch extES = sut.getExternalElasticsearch();
+        ExternalElasticsearch extES = (ExternalElasticsearch) sut
+                .getExternalMonitoringDBForLogs().getExternalMonitoringDB();
 
         String esApiUrl = extES.getProtocol() + "://" + extES.getIp() + ":"
                 + extES.getPort();
@@ -404,11 +405,15 @@ public class SutService {
                     }
                 }
                 String indexes = extES.getIndices();
-                for (Parameter param : sut.getParameters()) {
-                    if (param.getName().equals("EXT_ELASTICSEARCH_INDICES")) {
-                        indexes = param.getValue();
-                        logger.debug("Indexes as String: {}", indexes);
-                        break;
+
+                if (extES.getUseESIndicesByExecution()) {
+                    for (Parameter param : sut.getParameters()) {
+                        if (param.getName()
+                                .equals("EXT_ELASTICSEARCH_INDICES")) {
+                            indexes = param.getValue();
+                            logger.debug("Indexes as String: {}", indexes);
+                            break;
+                        }
                     }
                 }
 
@@ -432,6 +437,7 @@ public class SutService {
                         trace.put("exec", monitoringIndex);
                         trace.put("component", "sut");
 
+                        // Only works in mini...
                         tracesService.processBeatTrace(trace, false);
                     }
                     try {

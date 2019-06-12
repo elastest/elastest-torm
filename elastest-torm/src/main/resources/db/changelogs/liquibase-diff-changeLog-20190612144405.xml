@@ -1,0 +1,74 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="edu (generated)" id="1560343453127-1">
+        <createTable tableName="ExternalMonitoringDBForLogs">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="ExternalMonitoringDBForLogsPK"/>
+            </column>
+            <column name="type" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="externalMonitoringDB" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1560343453127-2">
+        <createTable tableName="ExternalMonitoringDBForMetrics">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="ExternalMonitoringDBForMetricsPK"/>
+            </column>
+            <column name="type" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="externalMonitoringDB" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1560343453127-3">
+        <createTable tableName="ExternalPrometheus">
+            <column name="id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ip" type="VARCHAR(255)"/>
+            <column name="pass" type="VARCHAR(255)"/>
+            <column name="path" type="VARCHAR(255)"/>
+            <column name="port" type="VARCHAR(255)"/>
+            <column name="protocol" type="INT"/>
+            <column name="user" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1560343453127-4">
+        <createTable tableName="hibernate_sequences">
+            <column name="sequence_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="next_val" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1560343453127-5">
+        <addColumn tableName="SutSpecification">
+            <column name="externalMonitoringDBForLogs" type="bigint"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1560343453127-6">
+        <addColumn tableName="SutSpecification">
+            <column name="externalMonitoringDBForMetrics" type="bigint"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1560343453127-7">
+        <addPrimaryKey columnNames="sequence_name" tableName="hibernate_sequences"/>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1560343453127-8">
+        <addPrimaryKey columnNames="id" constraintName="ExternalMonitPK" tableName="ExternalPrometheus"/>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1560343453127-9">
+        <addForeignKeyConstraint baseColumnNames="externalMonitoringDBForLogs" baseTableName="SutSpecification" constraintName="FK58njkrww2kfuxeoi5ilsb2s7t" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="ExternalMonitoringDBForLogs"/>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1560343453127-10">
+        <addForeignKeyConstraint baseColumnNames="externalMonitoringDBForMetrics" baseTableName="SutSpecification" constraintName="FKefyehmd085qjm7oxyywmmxc6m" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="ExternalMonitoringDBForMetrics"/>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1560343453127-11">
+        <dropForeignKeyConstraint baseTableName="SutSpecification" constraintName="FKoeixg2j8i8jmx9gs803hb1bmx"/>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1560343453127-12">
+        <dropColumn columnName="externalElasticsearch" tableName="SutSpecification"/>
+    </changeSet>
+</databaseChangeLog>

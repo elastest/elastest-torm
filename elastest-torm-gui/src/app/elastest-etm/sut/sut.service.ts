@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import 'rxjs/Rx';
-import { ExternalElasticsearch } from './external-elasticsearch.model';
+import { ExternalElasticsearch } from '../external-monitoring-db/external-elasticsearch.model';
 
 @Injectable()
 export class SutService {

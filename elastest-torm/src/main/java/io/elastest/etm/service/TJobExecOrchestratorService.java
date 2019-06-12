@@ -231,9 +231,9 @@ public class TJobExecOrchestratorService {
                 resultMsg = "Preparing Test";
                 updateExecutionResultStatus(execution,
                         ResultEnum.EXECUTING_TEST, resultMsg);
-                
+
                 platformService.deployAndRunTJobExecution(execution);
-                
+
                 // Saving test suites
                 if (!(execution.getTJobExec().getTestSuites().size() > 0)
                         && execution.getReportTestSuite() != null) {
@@ -244,7 +244,7 @@ public class TJobExecOrchestratorService {
                     logger.debug("Saving test suitest from a TJob on k8s");
                     dbmanager.reloaEntityFromDb(tJobExec);
                 }
-                
+
                 tJobExec.setEndDate(new Date());
 
                 // Only if using External ES
@@ -1014,7 +1014,7 @@ public class TJobExecOrchestratorService {
             sutExec.setIp(sutIP);
 
             // Sut logs from External Elasticsearch
-            if (sut.isUsingExternalElasticsearch()) {
+            if (sut.isUsingExternalElasticsearchForLogs()) {
                 String key = getMapNameByExec(execution);
                 Date startDate;
                 if (execution.isExternal()) {
@@ -1170,8 +1170,9 @@ public class TJobExecOrchestratorService {
             updateTJobExecResultStatus(exection.getTJobExec(), result, msg);
         }
     }
-    
-    protected void saveFinishStatus(TJobExecution tJobExec, Execution execution) {
+
+    protected void saveFinishStatus(TJobExecution tJobExec,
+            Execution execution) {
         logger.debug("Updating test results.");
         String resultMsg = "";
         ResultEnum finishStatus = ResultEnum.SUCCESS;

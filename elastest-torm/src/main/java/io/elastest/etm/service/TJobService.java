@@ -31,6 +31,7 @@ import org.xml.sax.SAXException;
 
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
+import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.MultiConfig;
@@ -44,7 +45,6 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TJobExecution.TypeEnum;
 import io.elastest.etm.platform.service.PlatformService;
-import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.TestResultParser;
 import io.elastest.etm.utils.UtilsService;
@@ -96,6 +96,10 @@ public class TJobService {
 
     @PostConstruct
     private void init() {
+//
+//        PrometheusService a = new PrometheusService("http://10.111.5.160:9090");
+//        a.getMetric("go_memstats_alloc_bytes_total");
+
         manageZombieJobs();
     }
 

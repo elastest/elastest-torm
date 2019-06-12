@@ -12,6 +12,7 @@ import { ExternalService } from '../../external/external.service';
 import { ExternalProjectModel } from '../../external/external-project/external-project-model';
 import { ParameterModel } from '../../parameter/parameter-model';
 import { ParametersViewComponent } from '../../../shared/parameters-view/parameters-view.component';
+import { ExternalMonitoringDbComponent } from './external-monitoring-db/external-monitoring-db.component';
 
 @Component({
   selector: 'etm-sut-form',
@@ -21,6 +22,8 @@ import { ParametersViewComponent } from '../../../shared/parameters-view/paramet
 export class SutFormComponent implements OnInit, DoCheck {
   @ViewChild('sutNameInput')
   sutNameInput: ElementRef;
+  @ViewChild('externalMonitoringDBComponent')
+  externalMonitoringDBComponent: ExternalMonitoringDbComponent;
 
   alreadyFocusedSutNameInput: boolean = false;
 
@@ -38,7 +41,7 @@ export class SutFormComponent implements OnInit, DoCheck {
   withoutInsCheck: boolean = true;
   elastestInsCheck: boolean = false;
   adminInsCheck: boolean = false;
-  extElasticsearchInsCheck: boolean = false;
+  extMonitoringDBInsCheck: boolean = false;
 
   // Managed Docker Type
   commands: boolean = true;
@@ -83,19 +86,6 @@ export class SutFormComponent implements OnInit, DoCheck {
   eimDockerContainerLogsPathHelpDesc: string =
     'The path where docker writes the containers logs. By default it is /var/lib/docker/containers/';
   eimDockerSockPathHelpDesc: string = 'The path of docker.sock. By default it is /var/run/docker.sock';
-
-  // External Elasticsearch
-  useESIndicesByExecutionCheck: boolean = false;
-  esIndicesParamName: string = 'EXT_ELASTICSEARCH_INDICES';
-
-  extESConnectedStatus: string = '';
-  extESConnectedStatusColor: string = '';
-  extESConnectedStatusIcon: string = '';
-  extESCheckingConnection: boolean = false;
-  extESFilterFieldsLabel: string = 'You can filter by fields and values';
-  extESFilterFieldsSubLabel: string =
-    'ElasTest will save only traces that contain the specified values of the specified fields.' +
-    ' If more than one field is specified, the combinatorics are performed using AND. Values for field are made by OR. Fields must be root fields';
 
   constructor(
     private titlesService: TitlesService,
@@ -144,7 +134,7 @@ export class SutFormComponent implements OnInit, DoCheck {
     }
   }
 
-  ngDoCheck() {
+  ngDoCheck(): void {
     if (this.sutNameInput !== undefined && !this.alreadyFocusedSutNameInput) {
       this.alreadyFocusedSutNameInput = true;
       this.sutNameInput.nativeElement.focus();
@@ -185,15 +175,7 @@ export class SutFormComponent implements OnInit, DoCheck {
     this.withoutInsCheck = this.sut.instrumentedBy === 'WITHOUT';
     this.elastestInsCheck = this.sut.instrumentedBy === 'ELASTEST';
     this.adminInsCheck = this.sut.instrumentedBy === 'ADMIN';
-    this.extElasticsearchInsCheck = this.sut.instrumentedBy === 'EXTERNAL_ELASTICSEARCH';
-
-    if (this.extElasticsearchInsCheck && this.sut.parameters) {
-      for (let param of this.sut.parameters) {
-        if (param.name === this.esIndicesParamName) {
-          this.useESIndicesByExecutionCheck = true;
-        }
-      }
-    }
+    this.extMonitoringDBInsCheck = this.sut.instrumentedBy === 'EXTERNAL_MONITORING_DB';
   }
 
   initInstrumentalized(): void {
@@ -235,7 +217,7 @@ export class SutFormComponent implements OnInit, DoCheck {
     this.withoutInsCheck = false;
     this.elastestInsCheck = false;
     this.adminInsCheck = false;
-    this.extElasticsearchInsCheck = false;
+    this.extMonitoringDBInsCheck = false;
 
     if (selected === 'withoutIns') {
       this.sut.instrumentedBy = 'WITHOUT';
@@ -247,9 +229,8 @@ export class SutFormComponent implements OnInit, DoCheck {
       this.sut.instrumentedBy = 'ADMIN';
       this.adminInsCheck = true;
     } else {
-      this.sut.instrumentedBy = 'EXTERNAL_ELASTICSEARCH';
-      console.log(this.sut.instrumentedBy);
-      this.extElasticsearchInsCheck = true;
+      this.sut.instrumentedBy = 'EXTERNAL_MONITORING_DB';
+      this.extMonitoringDBInsCheck = true;
     }
   }
 
@@ -338,14 +319,26 @@ export class SutFormComponent implements OnInit, DoCheck {
 
           this.sut.eimConfig.logstashHttpPort = data.logstashHttpPort;
           this.sut.eimConfig.logstashHttpApiUrl = data.logstashHttpApiUrl;
+
+          if (this.sut.instrumentedBy !== 'EXTERNAL_MONITORING_DB') {
+            this.sut.externalMonitoringDBForLogs = undefined;
+            this.sut.externalMonitoringDBForMetrics = undefined;
+          }
+
           this.save(exit);
         },
-        (error) => console.log(error),
+        (error: Error) => console.log(error),
       );
     } else {
       this.sut.eimConfig = undefined;
-      this.sut.externalElasticsearch = undefined;
-      this.switchUseESIndicesByExecution(false);
+
+      if (this.externalMonitoringDBComponent) {
+        this.externalMonitoringDBComponent.switchUseESIndicesByExecution(false);
+      }
+
+      this.sut.externalMonitoringDBForLogs = undefined;
+      this.sut.externalMonitoringDBForMetrics = undefined;
+
       if (!this.sut.isInstrumentedByElastest()) {
         this.sut.eimMonitoringConfig = undefined;
       }
@@ -363,7 +356,7 @@ export class SutFormComponent implements OnInit, DoCheck {
 
     this.sutService.createSut(this.sut).subscribe(
       (sut: SutModel) => this.postSave(sut, exit),
-      (error) => {
+      (error: Error) => {
         this.externalService.popupService.openSnackBar('An error has occurred');
         console.log(error);
       },
@@ -381,58 +374,5 @@ export class SutFormComponent implements OnInit, DoCheck {
 
   cancel(): void {
     window.history.back();
-  }
-
-  switchUseESIndicesByExecution($event): void {
-    this.useESIndicesByExecutionCheck = $event.checked;
-
-    if (
-      this.sut.parameters === undefined ||
-      this.sut.parameters === null ||
-      this.sut.externalElasticsearch === undefined ||
-      this.sut.externalElasticsearch === null
-    ) {
-      return;
-    }
-
-    let index: number = 0;
-    for (let param of this.sut.parameters) {
-      if (param.name === this.esIndicesParamName) {
-        this.sut.parameters.splice(index, 1);
-        this.sut.parameters = [...this.sut.parameters];
-
-        break;
-      }
-      index += 1;
-    }
-
-    if (this.useESIndicesByExecutionCheck) {
-      let indiceParam: ParameterModel = new ParameterModel();
-      indiceParam.name = this.esIndicesParamName;
-      indiceParam.value = this.sut.externalElasticsearch.indices;
-      this.sut.parameters.push(indiceParam);
-    }
-  }
-
-  checkExternalESConnection(): void {
-    this.extESCheckingConnection = true;
-    this.sutService.checkExternalElasticsearchConnection(this.sut.externalElasticsearch).subscribe(
-      (connected: boolean) => {
-        if (connected) {
-          this.extESConnectedStatus = 'Connected';
-          this.extESConnectedStatusColor = '#7fac16';
-          this.extESConnectedStatusIcon = 'fiber_manual_record';
-        } else {
-          this.extESConnectedStatus = 'Error';
-          this.extESConnectedStatusColor = '#cc200f';
-          this.extESConnectedStatusIcon = 'error';
-        }
-        this.extESCheckingConnection = false;
-      },
-      (error: Error) => {
-        console.log(error);
-        this.extESCheckingConnection = false;
-      },
-    );
   }
 }

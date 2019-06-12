@@ -12,9 +12,13 @@ import { ExternalProjectModel } from '../../elastest-etm/external/external-proje
 import { TestSuiteModel } from '../../elastest-etm/test-suite/test-suite-model';
 import { TestCaseModel } from '../../elastest-etm/test-case/test-case-model';
 import { EimMonitoringConfigModel, EimBeatConfigModel } from '../../elastest-etm/sut/eim-monitoring-config.model';
-import { ExternalElasticsearch } from '../../elastest-etm/sut/external-elasticsearch.model';
+import { ExternalElasticsearch } from '../../elastest-etm/external-monitoring-db/external-elasticsearch.model';
+import { ExternalPrometheus } from '../../elastest-etm/external-monitoring-db/external-prometheus.model';
+
 import { ParameterModel } from '../../elastest-etm/parameter/parameter-model';
 import { MultiConfigModel } from '../multi-config-view/multi-config-view.component';
+import { ExternalMonitoringDBForLogs } from '../../elastest-etm/external-monitoring-db/external-monitoring-db-for-logs.model';
+import { ExternalMonitoringDBForMetrics } from '../../elastest-etm/external-monitoring-db/external-monitoring-db-for-metrics.model';
 @Injectable()
 export class ETModelsTransformServices {
   constructor() {}
@@ -300,6 +304,10 @@ export class ETModelsTransformServices {
 
       newSut.currentSutExec = sut.currentSutExec;
       newSut.instrumentedBy = sut.instrumentedBy;
+
+      newSut.externalMonitoringDBForLogs = sut.externalMonitoringDBForLogs;
+      newSut.externalMonitoringDBForMetrics = sut.externalMonitoringDBForMetrics;
+
       newSut.protocol = sut.protocol !== undefined && sut.protocol !== null ? sut.protocol : 'http';
       newSut.port = sut.port;
       newSut.path = sut.path;
@@ -316,7 +324,8 @@ export class ETModelsTransformServices {
         newSut.exProject = sut.exProject;
       }
 
-      newSut.externalElasticsearch = new ExternalElasticsearch(sut.externalElasticsearch);
+      newSut.externalMonitoringDBForLogs = new ExternalMonitoringDBForLogs(sut.externalMonitoringDBForLogs);
+      newSut.externalMonitoringDBForMetrics = new ExternalMonitoringDBForMetrics(sut.externalMonitoringDBForMetrics);
 
       newSut.commandsOption = sut.commandsOption;
 

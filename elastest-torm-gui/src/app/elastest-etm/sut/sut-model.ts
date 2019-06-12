@@ -3,7 +3,8 @@ import { EimConfigModel } from './eim-config-model';
 import { ProjectModel } from '../project/project-model';
 import { ExternalProjectModel } from '../external/external-project/external-project-model';
 import { EimMonitoringConfigModel } from './eim-monitoring-config.model';
-import { ExternalElasticsearch } from './external-elasticsearch.model';
+import { ExternalMonitoringDBForLogs } from '../external-monitoring-db/external-monitoring-db-for-logs.model';
+import { ExternalMonitoringDBForMetrics } from '../external-monitoring-db/external-monitoring-db-for-metrics.model';
 
 export class SutModel {
   id: number;
@@ -19,7 +20,11 @@ export class SutModel {
   // Indicates if the Sut is instrumentalized
   instrumentalized: boolean;
   currentSutExec: string;
-  instrumentedBy: 'WITHOUT' | 'ELASTEST' | 'ADMIN' | 'EXTERNAL_ELASTICSEARCH' | '';
+  instrumentedBy: 'WITHOUT' | 'ELASTEST' | 'ADMIN' | 'EXTERNAL_MONITORING_DB' | '';
+
+  externalMonitoringDBForLogs: ExternalMonitoringDBForLogs;
+  externalMonitoringDBForMetrics: ExternalMonitoringDBForMetrics;
+
   protocol: 'http' | 'https' | ''; // On add new, add too in getProtocolsList
   port: string;
   path: string;
@@ -30,8 +35,6 @@ export class SutModel {
   commandsOption: 'DEFAULT' | 'IN_NEW_CONTAINER' | 'IN_DOCKER_COMPOSE' | '';
 
   exProject: ExternalProjectModel;
-
-  externalElasticsearch: ExternalElasticsearch;
 
   constructor(sut?: SutModel) {
     if (sut === undefined) {
@@ -57,7 +60,8 @@ export class SutModel {
       this.commandsOption = '';
 
       this.exProject = undefined;
-      this.externalElasticsearch = new ExternalElasticsearch();
+      this.externalMonitoringDBForLogs = new ExternalMonitoringDBForLogs();
+      this.externalMonitoringDBForMetrics = new ExternalMonitoringDBForMetrics();
     } else {
       this.id = sut.id;
       this.name = sut.name;
@@ -81,7 +85,8 @@ export class SutModel {
       this.commandsOption = sut.commandsOption;
 
       this.exProject = sut.exProject;
-      this.externalElasticsearch = sut.externalElasticsearch;
+      this.externalMonitoringDBForLogs = new ExternalMonitoringDBForLogs(sut.externalMonitoringDBForLogs);
+      this.externalMonitoringDBForMetrics = new ExternalMonitoringDBForMetrics(sut.externalMonitoringDBForMetrics);
     }
   }
 
@@ -166,5 +171,21 @@ export class SutModel {
           this.eimMonitoringConfig.beats.filebeat.dockerized !== undefined &&
           this.eimMonitoringConfig.beats.filebeat.dockerized.length > 0))
     );
+  }
+
+  isUsingExternalMonitoringDB(): boolean {
+    return this.isDeployed() && this.instrumentedBy === 'EXTERNAL_MONITORING_DB';
+  }
+
+  public isUsingExternalElasticsearchForLogs(): boolean {
+    return this.isUsingExternalMonitoringDB && this.externalMonitoringDBForLogs.isUsingExternalElasticsearchForLogs();
+  }
+
+  public isUsingExternalElasticsearchForMetrics(): boolean {
+    return this.isUsingExternalMonitoringDB && this.externalMonitoringDBForMetrics.isUsingExternalElasticsearchForMetrics();
+  }
+
+  public isUsingExternalPrometheusForMetrics(): boolean {
+    return this.isUsingExternalMonitoringDB && this.externalMonitoringDBForMetrics.isUsingExternalPrometheusForMetrics();
   }
 }
