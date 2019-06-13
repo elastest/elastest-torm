@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,6 @@ import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.messages.HostConfig.Bind;
 import com.spotify.docker.client.messages.HostConfig.Bind.Builder;
@@ -45,8 +43,6 @@ import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
-import io.elastest.etm.model.TJobExecution.ResultEnum;
-import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.utils.ElastestConstants;
@@ -223,10 +219,6 @@ public abstract class PlatformService {
     public abstract void undeployTJob(Execution execution, boolean force)
             throws Exception;
 
-    public abstract ServiceBindedPort getBindingPort(String containerIp,
-            String containerSufix, String port)
-            throws Exception;
-
     public abstract String getEtmHost() throws Exception;
 
     public abstract String getLogstashHost() throws Exception;
@@ -257,10 +249,10 @@ public abstract class PlatformService {
     public abstract Integer copyFilesFomContainer(String container,
             String originPath, String targetPath);
     
-    public abstract int bindingPort(SupportServiceInstance serviceInstance,
-            String nodePort, JsonNode node, Boolean integratedService)
+    public abstract ServiceBindedPort getBindedPort(String serviceIdentifier,
+            String containerSufix, String port)
             throws Exception;
-
+    
     protected String getSutPath(Execution execution) {
         String sutPath;
         if (execution.isExternal()) {

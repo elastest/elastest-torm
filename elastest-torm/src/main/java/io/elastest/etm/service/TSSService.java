@@ -1276,8 +1276,9 @@ public class TSSService {
             ((ObjectNode) node).put("internalPort", internalPort);
             serviceInstance.setInternalServicePort(internalPort);
 
+            // If ElasTest works locally, a binded port is not required.
             if (!utilsService.isDefaultEtPublicHost()) {
-                auxPort = platformService.bindingPort(serviceInstance, nodePort,
+                auxPort = bindingPort(serviceInstance, nodePort,
                         node, isIntegratedEUS(serviceInstance));
             } else {
                 auxPort = internalPort;
@@ -1317,6 +1318,54 @@ public class TSSService {
         url = protocol + "://" + ip + ":" + port + path;
         logger.info("New url: " + url);
         return url;
+    }
+    
+    public int bindingPort(SupportServiceInstance serviceInstance,
+            String nodePort, JsonNode node, Boolean integratedService)
+            throws Exception {
+
+        int hostPort;
+
+        // If there is server address ports will be binded
+        int bindedPort;
+        if (serviceInstance.getEndpointsBindingsPorts().containsKey(nodePort)) {
+            bindedPort = Integer.parseInt(
+                    serviceInstance.getEndpointsBindingsPorts().get(nodePort));
+        } else {
+            if (utilsService.isKubernetes()
+                    && isIntegratedEUS(serviceInstance)) {
+                // Do nothing. For other TSS, implement getBindingPort
+                // in K8ServiceImpl
+                bindedPort = Integer.valueOf(etProxyPort);
+            } else {
+                try {
+                    ServiceBindedPort socatBindedPortObj = platformService
+                            .getBindedPort(serviceInstance.getServiceName(),
+                                    null, node.get("port").toString());
+                    serviceInstance.getPortBindingContainers()
+                            .add(socatBindedPortObj.getContainerId());
+                    bindedPort = Integer
+                            .parseInt(socatBindedPortObj.getBindedPort());
+                    serviceInstance.getEndpointsBindingsPorts().put(nodePort,
+                            String.valueOf(bindedPort));
+                } catch (Exception e) {
+                    String message = "Ports binding fails in Service "
+                            + serviceInstance.getServiceName()
+                            + " with instance id "
+                            + serviceInstance.getInstanceId();
+
+                    logger.error("{}: {} ", message, e.getMessage());
+                    throw new Exception(message + ": " + e.getMessage());
+                }
+            }
+        }
+
+        serviceInstance.setBindedServicePort(bindedPort);
+
+        hostPort = bindedPort;
+        ((ObjectNode) node).put("bindedPort", bindedPort);
+        ((ObjectNode) node).put("port", bindedPort);
+        return hostPort;
     }
 
     public void deprovisionServicesInstances() {

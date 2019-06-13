@@ -954,7 +954,7 @@ public class TJobExecOrchestratorService {
                     sutExec = startManagedSut(execution);
                     if (publicSut) {
                         ServiceBindedPort socatBindedPortObj = platformService
-                                .getBindingPort(sutExec.getIp(),
+                                .getBindedPort(sutExec.getIp(),
                                         "sut_" + sutExec.getId(),
                                         execution.getSut().getPort());
                         sutExec.setPublicPort(Long
@@ -962,6 +962,7 @@ public class TJobExecOrchestratorService {
                         sutService.modifySutExec(sutExec);
                     }
                 } catch (TJobStoppedException e) {
+                    logger.error("Error deploying SUT managed by ElasTest");
                     throw e;
                 }
             }

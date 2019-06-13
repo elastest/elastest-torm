@@ -31,7 +31,7 @@ import io.elastest.epm.client.model.Worker;
 @Service
 public class EpmClusterService {
     private static final Logger logger = LoggerFactory
-            .getLogger(K8Service.class);
+            .getLogger(K8sService.class);
 
     private final PackageApi packageApi = new PackageApi();
     private final WorkerApi workerApi = new WorkerApi();

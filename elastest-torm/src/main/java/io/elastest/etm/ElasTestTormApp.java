@@ -19,7 +19,7 @@ import org.springframework.web.socket.server.standard.ServletServerContainerFact
 
 import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService;
-import io.elastest.epm.client.service.K8Service;
+import io.elastest.epm.client.service.K8sService;
 import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.platform.service.DockerServiceImpl;
 import io.elastest.etm.platform.service.K8ServiceImpl;
@@ -58,7 +58,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Autowired
     EtmTestResultService etmTestResultService;
     @Autowired
-    K8Service k8Service;
+    K8sService k8Service;
 
     @Value("${additional.server.port}")
     int additionalServerPort;

@@ -59,9 +59,9 @@ import io.fabric8.kubernetes.client.dsl.ServiceResource;
 import okhttp3.Response;
 
 @org.springframework.stereotype.Service
-public class K8Service {
+public class K8sService {
     private static final Logger logger = LoggerFactory
-            .getLogger(K8Service.class);
+            .getLogger(K8sService.class);
 
     @Value("${et.enable.cloud.mode}")
     public boolean enableCloudMode;
@@ -71,6 +71,7 @@ public class K8Service {
     private static final String LABEL_POD_NAME = "pod-name";
     private static final String LABEL_APP_NAME = "app";
     private static final String SUT_PORT_NAME = "sut-port";
+    private static final String BINDING_PORT_SUFIX = "-host-port";
 
     @Value("${et.data.in.host}")
     public String etDataInHost;
@@ -88,7 +89,7 @@ public class K8Service {
 
     private FilesService filesService;
 
-    public K8Service(FilesService filesService) {
+    public K8sService(FilesService filesService) {
         this.filesService = filesService;
     }
 
@@ -130,6 +131,35 @@ public class K8Service {
         }
 
     }
+    
+    public enum ServicesType {
+        NODE_PORT("NodePort");
+
+        private String value;
+
+        ServicesType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static ServicesType fromValue(String text) {
+            for (ServicesType b : ServicesType.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+
+    }
+    
+    
 
     // TODO
     public void startFromYml(String ymlPath) {
@@ -381,16 +411,21 @@ public class K8Service {
         return podInfo;
     }
 
-    public String createService(String serviceName, Integer port,
+    public String createServiceSUT(String serviceName, Integer port,
             String protocol) {
-        io.fabric8.kubernetes.api.model.Service service = new ServiceBuilder()
+        Service service = new ServiceBuilder()
                 .withNewMetadata().withName(serviceName + "-service")
                 .endMetadata().withNewSpec()
                 .withSelector(
                         Collections.singletonMap(LABEL_APP_NAME, serviceName))
-                .addNewPort().withName(SUT_PORT_NAME).withProtocol(protocol)
-                .withPort(port).withTargetPort(new IntOrString(9376)).endPort()
-                .withType("NodePort").endSpec().build();
+                .addNewPort()
+                .withName(SUT_PORT_NAME)
+                .withProtocol(protocol)
+                .withPort(port)
+                .endPort()
+                .withType("NodePort")
+                .endSpec()
+                .build();
 
         service = client.services().inNamespace(client.getNamespace())
                 .create(service);
@@ -399,7 +434,32 @@ public class K8Service {
                 .getURL(SUT_PORT_NAME);
         return serviceURL;
     }
+    
+    public String createService(String serviceName, Integer port,
+            String protocol) {
+        Service service = new ServiceBuilder()
+                .withNewMetadata().withName(serviceName + "-service")
+                .endMetadata().withNewSpec()
+                .withSelector(
+                        Collections.singletonMap(LABEL_APP_NAME, serviceName))
+                .addNewPort()
+                .withName(BINDING_PORT_SUFIX)
+                .withProtocol(protocol)
+                .withPort(port)
+                .endPort()
+                .withType(ServicesType.NODE_PORT.toString())
+                .endSpec()
+                .build();
 
+        service = client.services().inNamespace(DEFAULT_NAMESPACE)
+                .create(service);
+        String serviceURL = client.services().inNamespace(client.getNamespace())
+                .withName(service.getMetadata().getName())
+                .getURL(BINDING_PORT_SUFIX);
+        
+        return serviceURL;
+    }
+    
     public void deleteJob(String jobName) {
         logger.info("Deleting job {}.", jobName);
         client.batch().jobs().inNamespace(DEFAULT_NAMESPACE).withName(jobName)

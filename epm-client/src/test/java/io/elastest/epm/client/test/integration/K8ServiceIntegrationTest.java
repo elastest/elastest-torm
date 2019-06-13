@@ -31,7 +31,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import io.elastest.epm.client.service.K8Service;
+import io.elastest.epm.client.service.K8sService;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.batch.Job;
@@ -39,7 +39,7 @@ import io.fabric8.kubernetes.api.model.batch.JobBuilder;
 import io.fabric8.kubernetes.client.dsl.ExecWatch;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { K8Service.class }, webEnvironment = RANDOM_PORT)
+@SpringBootTest(classes = { K8sService.class }, webEnvironment = RANDOM_PORT)
 @Tag("integration")
 @DisplayName("Integration tests for K8Docker Compose Service")
 @EnableAutoConfiguration
@@ -49,7 +49,7 @@ import io.fabric8.kubernetes.client.dsl.ExecWatch;
 public class K8ServiceIntegrationTest {
     private static final Logger logger = getLogger((lookup().lookupClass()));
     @Autowired
-    K8Service k8Service;
+    K8sService k8Service;
 
     private static final String SYSTEM_NAMESPACE = "default";
     private Pod pod1;

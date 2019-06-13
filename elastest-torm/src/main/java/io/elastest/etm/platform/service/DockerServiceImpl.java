@@ -978,21 +978,9 @@ public class DockerServiceImpl extends PlatformService {
         serviceToPull.setStatus(status);
         serviceToPull.setStatusMsg(statusMsg);
     }
-
+    
     @Override
-    public String undeployTSSByContainerId(String containerId) {
-        try {
-            dockerService.stopDockerContainer(containerId);
-            dockerService.removeDockerContainer(containerId);
-        } catch (Exception e) {
-            logger.error("Error on stop and remove container {}", containerId,
-                    e);
-        }
-        return null;
-    }
-
-    @Override
-    public ServiceBindedPort getBindingPort(String containerIp,
+    public ServiceBindedPort getBindedPort(String serviceIp,
             String containerSufix, String port)
             throws Exception {
         String bindedPort = "37000";
@@ -1002,7 +990,7 @@ public class DockerServiceImpl extends PlatformService {
             List<String> envVariables = new ArrayList<>();
             envVariables.add("LISTEN_PORT=" + bindedPort);
             envVariables.add("FORWARD_PORT=" + port);
-            envVariables.add("TARGET_SERVICE_IP=" + containerIp);
+            envVariables.add("TARGET_SERVICE_IP=" + serviceIp);
             // String listenPortAsString = String.valueOf(bindedPort);
 
             DockerBuilder dockerBuilder = new DockerBuilder(etSocatImage);
@@ -1037,6 +1025,20 @@ public class DockerServiceImpl extends PlatformService {
         return bindedPortObj;
     }
 
+
+    @Override
+    public String undeployTSSByContainerId(String containerId) {
+        try {
+            dockerService.stopDockerContainer(containerId);
+            dockerService.removeDockerContainer(containerId);
+        } catch (Exception e) {
+            logger.error("Error on stop and remove container {}", containerId,
+                    e);
+        }
+        return null;
+    }
+
+ 
     @Override
     public boolean createServiceDeploymentProject(String projectName,
             String serviceDescriptor, String targetPath, boolean override,
@@ -1369,53 +1371,6 @@ public class DockerServiceImpl extends PlatformService {
             String targetPath) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    public int bindingPort(SupportServiceInstance serviceInstance,
-            String nodePort, JsonNode node, Boolean integratedService)
-            throws Exception {
-
-        int hostPort;
-
-        // If there is server address ports will be binded
-        int bindedPort;
-        if (serviceInstance.getEndpointsBindingsPorts().containsKey(nodePort)) {
-            bindedPort = Integer.parseInt(
-                    serviceInstance.getEndpointsBindingsPorts().get(nodePort));
-        } else {
-
-            if (utilsService.isKubernetes() && integratedService) {
-                bindedPort = Integer.valueOf(etProxyPort);
-            } else {
-                try {
-                    ServiceBindedPort socatBindedPortObj = getBindingPort(
-                            serviceInstance.getContainerIp(), null,
-                            node.get("port").toString());
-                    serviceInstance.getPortBindingContainers()
-                            .add(socatBindedPortObj.getContainerId());
-                    bindedPort = Integer
-                            .parseInt(socatBindedPortObj.getBindedPort());
-                    serviceInstance.getEndpointsBindingsPorts().put(nodePort,
-                            String.valueOf(bindedPort));
-                } catch (Exception e) {
-                    String message = "Ports binding fails in Service "
-                            + serviceInstance.getServiceName()
-                            + " with instance id "
-                            + serviceInstance.getInstanceId();
-
-                    logger.error("{}: {} ", message, e.getMessage());
-                    throw new Exception(message + ": " + e.getMessage());
-                }
-            }
-        }
-
-        serviceInstance.setBindedServicePort(bindedPort);
-
-        hostPort = bindedPort;
-        ((ObjectNode) node).put("bindedPort", bindedPort);
-        ((ObjectNode) node).put("port", bindedPort);
-        return hostPort;
     }
 
 }
