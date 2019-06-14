@@ -329,9 +329,11 @@ public class TracesSearchService extends AbstractMonitoringService {
                             // 2019-03-01 10:54:01.462
                             String msgWithTimestampRegex = "^\\d\\d\\d\\d*-\\d\\d-\\d\\d\\s\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\d\\s";
                             // Feb 25, 2019 11:15:34 AM
-                            String msgWithTimestampRegex2 = "^[A-Z][a-z][a-z]\\s\\d\\d,\\s\\d\\d\\d\\d\\s\\d\\d:\\d\\d:\\d\\d\\s[A-Z][A-Z]\\s";
+                            String msgWithTimestampRegex2 = "^[A-Z][a-z][a-z]\\s\\d\\d,\\s\\d\\d\\d\\d\\s\\d?\\d:\\d\\d:\\d\\d\\s[A-Z][A-Z]\\s";
                             // 11:00:01.309
                             String msgWithTimestampRegex3 = "^\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\d\\s";
+                            
+//                            Jun 14, 2019 8:23:52 AM
 
                             if (message.matches(msgWithTimestampRegex + ".*")) {
                                 message = message.replaceFirst(
