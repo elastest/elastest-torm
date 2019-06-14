@@ -49,7 +49,7 @@ public class TracesService {
     String javaLogLevelExpression = "%{JAVALOGLEVEL:level}";
     String containerNameExpression = "%{CONTAINERNAME:containerName}";
     String monitoringExecExpression = "(\\d+|ext\\d+_e\\d+|s\\d+_e\\d+)";
-    String componentExecAndComponentServiceExpression = "^(?<component>(test|sut|dynamic))_?(?<exec>"
+    String componentExecAndComponentServiceExpression = "^(?<component>(test|sut|dynamic|k8s_test|k8s_sut))(_|-)?(?<exec>"
             + monitoringExecExpression
             + ")(_(?<componentService>[^_]*(?=_\\d*)?))?";
 
