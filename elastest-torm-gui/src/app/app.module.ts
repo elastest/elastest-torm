@@ -150,6 +150,7 @@ import { ManageClustersComponent } from './elastest-etm/manage-elastest/manage-c
 import { ManageClustersService } from './elastest-etm/manage-elastest/manage-clusters/manage-clusters.service';
 import { EtmRestClientService } from './shared/services/etm-rest-client.service';
 import { ExternalMonitoringDbComponent } from './elastest-etm/sut/sut-form/external-monitoring-db/external-monitoring-db.component';
+import { ExternalElasticsearchConfigurationComponent } from './elastest-etm/sut/sut-form/external-monitoring-db/external-elasticsearch-configuration/external-elasticsearch-configuration.component';
 
 library.add(faJenkins);
 library.add(fas);
@@ -236,6 +237,7 @@ library.add(fas);
     ManageElasticsearchComponent,
     ManageClustersComponent,
     ExternalMonitoringDbComponent,
+    ExternalElasticsearchConfigurationComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

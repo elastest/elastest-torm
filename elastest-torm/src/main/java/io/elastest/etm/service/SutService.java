@@ -409,7 +409,7 @@ public class SutService {
                 if (extES.getUseESIndicesByExecution()) {
                     for (Parameter param : sut.getParameters()) {
                         if (param.getName()
-                                .equals("EXT_ELASTICSEARCH_INDICES")) {
+                                .equals("EXT_ELASTICSEARCH_LOGS_INDICES")) {
                             indexes = param.getValue();
                             logger.debug("Indexes as String: {}", indexes);
                             break;

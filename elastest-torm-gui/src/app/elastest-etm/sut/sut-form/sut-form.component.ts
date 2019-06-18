@@ -210,6 +210,8 @@ export class SutFormComponent implements OnInit, DoCheck {
         this.repoNameChecked = true;
       }
     }
+
+    this.manageParameters();
   }
 
   deployedType(selected: string): void {
@@ -232,16 +234,7 @@ export class SutFormComponent implements OnInit, DoCheck {
       this.sut.instrumentedBy = 'EXTERNAL_MONITORING_DB';
       this.extMonitoringDBInsCheck = true;
     }
-  }
-
-  showGetInfoBtn(): boolean {
-    return (
-      !this.sut.eimConfig.logstashIp &&
-      !this.sut.eimConfig.logstashBeatsPort &&
-      !this.sut.eimConfig.logstashHttpPort &&
-      !this.sut.eimConfig.logstashHttpApiUrl &&
-      !this.sut.currentSutExec
-    );
+    this.manageParameters();
   }
 
   managedDockerTypeBy(mode: string): void {
@@ -263,6 +256,17 @@ export class SutFormComponent implements OnInit, DoCheck {
         break;
       default:
     }
+    this.manageParameters();
+  }
+
+  showGetInfoBtn(): boolean {
+    return (
+      !this.sut.eimConfig.logstashIp &&
+      !this.sut.eimConfig.logstashBeatsPort &&
+      !this.sut.eimConfig.logstashHttpPort &&
+      !this.sut.eimConfig.logstashHttpApiUrl &&
+      !this.sut.currentSutExec
+    );
   }
 
   changeCommandsOption(option: string): void {
@@ -332,9 +336,7 @@ export class SutFormComponent implements OnInit, DoCheck {
     } else {
       this.sut.eimConfig = undefined;
 
-      if (this.externalMonitoringDBComponent) {
-        this.externalMonitoringDBComponent.switchUseESIndicesByExecution(false);
-      }
+      this.manageParameters();
 
       this.sut.externalMonitoringDBForLogs = undefined;
       this.sut.externalMonitoringDBForMetrics = undefined;
@@ -374,5 +376,26 @@ export class SutFormComponent implements OnInit, DoCheck {
 
   cancel(): void {
     window.history.back();
+  }
+
+  manageParameters(): void {
+    if (!this.sut.isUsingExternalElasticsearchForLogs()) {
+      if (
+        this.sut.parameters &&
+        this.sut.externalMonitoringDBForLogs &&
+        this.sut.externalMonitoringDBForLogs.getExternalElasticsearch()
+      ) {
+        let index: number = 0;
+        for (let param of this.sut.parameters) {
+          if (param.name === this.sut.externalMonitoringDBForLogs.getExternalElasticsearch().getLogIndicesParamName()) {
+            this.sut.parameters.splice(index, 1);
+            this.sut.parameters = [...this.sut.parameters];
+
+            break;
+          }
+          index += 1;
+        }
+      }
+    }
   }
 }

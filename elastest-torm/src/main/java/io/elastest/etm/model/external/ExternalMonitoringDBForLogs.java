@@ -24,7 +24,6 @@ import io.elastest.etm.model.SutSpecification.SutView;
 import io.elastest.etm.model.TJob.TJobCompleteView;
 import io.elastest.etm.model.external.ExternalElasticsearch.ExternalElasticsearchView;
 import io.elastest.etm.model.external.ExternalMonitoringDB.ExternalMonitoringDBView;
-import io.elastest.etm.model.external.ExternalMonitoringDBForMetrics.ExternalMonitoringDBForMetricsType;
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 import io.elastest.etm.model.external.ExternalPrometheus.ExternalPrometheusView;
 import io.elastest.etm.model.external.ExternalTJob.ExternalTJobView;
@@ -121,6 +120,7 @@ public class ExternalMonitoringDBForLogs {
     }
 
     public ExternalMonitoringDB getExternalMonitoringDB() {
+        // TODO return by type...
         return externalMonitoringDB;
     }
 

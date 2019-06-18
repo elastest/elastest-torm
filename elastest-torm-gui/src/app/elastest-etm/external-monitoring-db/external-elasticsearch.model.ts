@@ -28,4 +28,8 @@ export class ExternalElasticsearch extends ExternalMonitoringDB {
           : false;
     }
   }
+
+  getLogIndicesParamName(): string {
+    return 'EXT_ELASTICSEARCH_LOGS_INDICES';
+  }
 }

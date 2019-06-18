@@ -1,0 +1,136 @@
+<ng-container *ngIf="externalES">
+  <td-expansion-panel expand="true" class="push-bottom push-top">
+    <ng-template td-expansion-panel-label>
+      <!-- <mat-icon mat-list-icon svgIcon="icon-elastic-elasticsearch"></mat-icon>  -->
+      <span>ElasticSearch</span>
+    </ng-template>
+    <div fxLayout="column">
+      <div fxLayout="row" fxLayout.lt-md="column" fxLayoutAlign.lt-md="start start" fxLayoutAlign="start center" class="push-sm">
+        <!-- ES Protocol -->
+        <mat-select
+          fxFlex="9"
+          fxFlex.gt-lg="7"
+          fxFlexOffset.md="1"
+          fxFlexOffset.gt-md="1"
+          [(ngModel)]="externalES.protocol"
+          placeholder="Select a protocol"
+          required
+          name="esProtocol"
+          class="push-right"
+        >
+          <mat-option *ngFor="let protocol of externalES.getProtocolsList()" [value]="protocol">
+            {{ protocol.toLowerCase() }}
+          </mat-option>
+        </mat-select>
+
+        <!-- ES IP -->
+        <mat-form-field fxFlex.gt-lg="22" fxFlex.lg="25" fxFlex.gt-md="26" fxFlex.md="28">
+          <input matInput trim="blur" type="text" placeholder="IP" [(ngModel)]="this.externalES.ip" name="esIp" required />
+        </mat-form-field>
+
+        <!-- ES Port -->
+        <mat-form-field fxFlex.gt-md="7" fxFlex.md="7" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
+          <input
+            matInput
+            trim="blur"
+            type="number"
+            min="0"
+            placeholder="Port"
+            [(ngModel)]="this.externalES.port"
+            name="esPort"
+            required
+          />
+        </mat-form-field>
+
+        <!-- ES PATH -->
+        <mat-form-field fxFlex.gt-md="10" fxFlex.md="10" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
+          <input matInput trim="blur" type="text" placeholder="PATH" [(ngModel)]="this.externalES.path" name="esPath" />
+        </mat-form-field>
+
+        <!-- ES User -->
+        <mat-form-field fxFlex.gt-md="13" fxFlex.md="15" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
+          <input matInput trim="blur" type="text" placeholder="User" [(ngModel)]="this.externalES.user" name="esUser" />
+        </mat-form-field>
+
+        <!-- ES Pass -->
+        <mat-form-field fxFlex.gt-md="12" fxFlex.md="15" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
+          <input matInput trim="blur" type="password" placeholder="Pass" [(ngModel)]="this.externalES.pass" name="esPass" />
+        </mat-form-field>
+      </div>
+      <div class="push-sm" fxLayout="row" fxLayoutAlign="start center">
+        <button
+          mat-raised-button
+          color="accent"
+          [disabled]="extESCheckingConnection"
+          (click)="checkExternalESConnection()"
+          title="Check ES connection"
+          fxFlexOffset="0.5"
+        >
+          Check connection
+        </button>
+        <div fxLayout="row" *ngIf="extESConnectedStatus != '' && !extESCheckingConnection" fxFlexOffset="0.5">
+          <mat-icon [style.color]="extESConnectedStatusColor">{{ extESConnectedStatusIcon }}</mat-icon>
+          <div fxFlexOffset="1" fxLayoutAlign="start center">{{ extESConnectedStatus }}</div>
+        </div>
+        <mat-spinner
+          *ngIf="extESCheckingConnection"
+          strokeWidth="3"
+          diameter="20"
+          color="accent"
+          style="vertical-align: middle; display: inline-block"
+          fxFlexOffset="0.5"
+        ></mat-spinner>
+      </div>
+      <div fxLayout="row" fxLayout.lt-md="column" fxLayoutAlign.lt-md="start start" fxLayoutAlign="start center" class="push-sm">
+        <!-- ES streamFields -->
+        <mat-form-field fxFlex.gt-md="30" fxFlex.md="30" fxFlexOffset.md="1" fxFlexOffset.gt-md="1">
+          <input
+            matInput
+            trim="blur"
+            type="text"
+            placeholder="Stream Fields (comma separated)"
+            [(ngModel)]="this.externalES.streamFields"
+            name="streamFields"
+            required
+          />
+        </mat-form-field>
+
+        <!-- ES Indices -->
+        <mat-form-field fxFlex.gt-md="30" fxFlex.md="30" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
+          <input
+            matInput
+            trim="blur"
+            type="text"
+            placeholder="ES Indices (comma separated)"
+            [(ngModel)]="this.externalES.indices"
+            name="esIndices"
+            required
+          />
+        </mat-form-field>
+
+        <mat-checkbox
+          [checked]="this.externalES.useESIndicesByExecution"
+          (change)="switchUseESIndicesByExecution($event)"
+          fxFlexOffset.md="2"
+          fxFlexOffset.gt-md="2"
+          >Use indices by execution</mat-checkbox
+        >
+      </div>
+      <div fxLayout="column" class="push-sm">
+        <td-expansion-panel expand="true">
+          <ng-template td-expansion-panel-label> <span>Filter by fields values</span> </ng-template>
+          <td-message label="{{ extESFilterFieldsLabel }}" sublabel="{{ extESFilterFieldsSubLabel }}" color="primary" icon="info">
+            <!-- <button td-message-actions mat-button (click)="dockerTypeInfo.close()">X</button> -->
+          </td-message>
+          <div class="pad">
+            <multi-config-view
+              [model]="this.externalES.fieldFilters"
+              [name]="'field filters'"
+              [btnText]="'Field Filters'"
+            ></multi-config-view>
+          </div>
+        </td-expansion-panel>
+      </div>
+    </div>
+  </td-expansion-panel>
+</ng-container>

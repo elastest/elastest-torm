@@ -178,14 +178,14 @@ export class SutModel {
   }
 
   public isUsingExternalElasticsearchForLogs(): boolean {
-    return this.isUsingExternalMonitoringDB && this.externalMonitoringDBForLogs.isUsingExternalElasticsearchForLogs();
+    return this.isUsingExternalMonitoringDB() && this.externalMonitoringDBForLogs.isUsingExternalElasticsearchForLogs();
   }
 
   public isUsingExternalElasticsearchForMetrics(): boolean {
-    return this.isUsingExternalMonitoringDB && this.externalMonitoringDBForMetrics.isUsingExternalElasticsearchForMetrics();
+    return this.isUsingExternalMonitoringDB() && this.externalMonitoringDBForMetrics.isUsingExternalElasticsearchForMetrics();
   }
 
   public isUsingExternalPrometheusForMetrics(): boolean {
-    return this.isUsingExternalMonitoringDB && this.externalMonitoringDBForMetrics.isUsingExternalPrometheusForMetrics();
+    return this.isUsingExternalMonitoringDB() && this.externalMonitoringDBForMetrics.isUsingExternalPrometheusForMetrics();
   }
 }
