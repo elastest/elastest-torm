@@ -24,8 +24,8 @@ import io.elastest.etm.service.EtPluginsService;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
-public class EtmMiniSupportServiceClient
-        implements SupportServiceClientInterface {
+public class MiniEsmServiceClient
+        implements EsmServiceClient {
     final Logger logger = getLogger(lookup().lookupClass());
 
     @Value("${et.shared.folder}")
@@ -42,7 +42,7 @@ public class EtmMiniSupportServiceClient
 
     UtilsService utilsService;
 
-    public EtmMiniSupportServiceClient(EtPluginsService etPluginsService,
+    public MiniEsmServiceClient(EtPluginsService etPluginsService,
             UtilsService utilsService, PlatformService platformService) {
         this.etPluginsService = etPluginsService;
         this.utilsService = utilsService;
@@ -87,7 +87,7 @@ public class EtmMiniSupportServiceClient
         String composeYml = manifest.getManifestContent();
 
         composeYml.replaceAll("\\\\n", "\\n");
-
+        
         try {
             etPluginsService.createTssInstanceProject(instanceId, composeYml,
                     serviceInstance);

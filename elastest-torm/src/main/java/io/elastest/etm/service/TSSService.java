@@ -46,7 +46,7 @@ import io.elastest.etm.model.TJobExecution.ResultEnum;
 import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.platform.service.PlatformService;
-import io.elastest.etm.service.client.SupportServiceClientInterface;
+import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.ParserService;
 import io.elastest.etm.utils.UtilTools;
@@ -144,7 +144,7 @@ public class TSSService {
     @Value("${eus.tss.id}")
     public String EUS_TSS_ID;
 
-    public SupportServiceClientInterface supportServiceClient;
+    public EsmServiceClient esmServiceClient;
     public EtmContextAuxService etmContextAuxService;
     public EtmFilesService filesServices;
     public PlatformService platformService;
@@ -170,7 +170,7 @@ public class TSSService {
     private boolean withServerAddress;
 
     @Autowired
-    public TSSService(SupportServiceClientInterface supportServiceClient,
+    public TSSService(EsmServiceClient supportServiceClient,
             EtmFilesService filesServices,
             EtmContextAuxService etmContextAuxService,
             TJobExecRepository tJobExecRepositoryImpl,
@@ -179,7 +179,7 @@ public class TSSService {
             WebDriverService eusWebDriverService,
             EtPluginsService etPluginsService, UtilsService utilsService,
             PlatformService platformService) {
-        this.supportServiceClient = supportServiceClient;
+        this.esmServiceClient = supportServiceClient;
         this.servicesInstances = new ConcurrentHashMap<>();
         this.tJobServicesInstances = new HashMap<>();
         this.externalTJobServicesInstances = new HashMap<>();
@@ -245,7 +245,7 @@ public class TSSService {
         try {
             SupportServiceInstance eusInstance = this
                     .createNewServiceInstance(serviceId, null, tssInstanceId);
-            TssManifest manifest = supportServiceClient
+            TssManifest manifest = esmServiceClient
                     .getManifestBySupportServiceInstance(eusInstance);
             eusInstance.setManifestId(manifest.getId());
             String serviceIp = platformService.getEtmHost();
@@ -408,7 +408,7 @@ public class TSSService {
                         Arrays.asList("register", "name")));
 
         // Register Tss service
-        supportServiceClient
+        esmServiceClient
                 .registerService(serviceDefJson.get("register").toString());
 
         // Register associated manifests
@@ -435,7 +435,7 @@ public class TSSService {
                     manifestToRegister.get("id"));
         }
 
-        supportServiceClient.registerManifest(
+        esmServiceClient.registerManifest(
                 "{ " + "\"id\": " + manifestToRegister.get("id").toString()
                         + ", \"manifest_content\": "
                         + manifestToRegister.get("manifest_content").toString()
@@ -467,7 +467,7 @@ public class TSSService {
     public List<SupportService> getRegisteredServices() {
         logger.info("Get registered services.");
         List<SupportService> services = new ArrayList<>();
-        SupportService[] servicesObj = supportServiceClient
+        SupportService[] servicesObj = esmServiceClient
                 .getRegisteredServices();
 
         for (SupportService esmService : servicesObj) {
@@ -702,7 +702,7 @@ public class TSSService {
             Long executionId, String instanceId) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
-        JsonNode service = supportServiceClient.getRawServiceById(serviceId);
+        JsonNode service = esmServiceClient.getRawServiceById(serviceId);
         logger.info("Service instance: " + instanceId);
         List<ObjectNode> plans = Arrays.asList(mapper.readValue(
                 service.get("plans").toString(), ObjectNode[].class));
@@ -954,7 +954,7 @@ public class TSSService {
                         execution.getExecutionId());
 
                 // Update instance in map to have the entrypoint values
-                tssInstance = supportServiceClient
+                tssInstance = esmServiceClient
                         .initSupportServiceInstanceData(tssInstance);
                 putInstanceInTJobExecMap(instanceId, tssInstance);
             }
@@ -1163,11 +1163,11 @@ public class TSSService {
     public SupportServiceInstance provisionServiceInstanceByObject(
             SupportServiceInstance newServiceInstance, String instanceId)
             throws Exception {
-        supportServiceClient.provisionServiceInstance(newServiceInstance,
+        esmServiceClient.provisionServiceInstance(newServiceInstance,
                 instanceId, Boolean.toString(false));
 
         logger.info("Get registered all data of a service.");
-        newServiceInstance = supportServiceClient
+        newServiceInstance = esmServiceClient
                 .getServiceInstanceInfo(newServiceInstance);
 
         newServiceInstance = buildTssInstanceUrls(newServiceInstance);
@@ -1182,7 +1182,7 @@ public class TSSService {
             SupportServiceInstance serviceInstance) throws Exception {
         logger.info("Building TSSs URLs for {}",
                 serviceInstance.getEndpointName());
-        TssManifest manifest = supportServiceClient
+        TssManifest manifest = esmServiceClient
                 .getManifestById(serviceInstance.getManifestId());
         
         // Build the URL for the service checked as main 
@@ -1499,7 +1499,7 @@ public class TSSService {
                     platformService.undeployTSSByContainerId(containerId);
                 }
             }
-            supportServiceClient.deprovisionServiceInstance(instanceId,
+            esmServiceClient.deprovisionServiceInstance(instanceId,
                     serviceInstance);
         }
         ssiMap.remove(instanceId);
@@ -1509,7 +1509,7 @@ public class TSSService {
     public boolean isInstanceUp(String instanceId) {
         boolean result = false;
         try {
-            result = supportServiceClient.getServiceInstanceInfo(instanceId)
+            result = esmServiceClient.getServiceInstanceInfo(instanceId)
                     .toString().equals("{}") ? false : true;
             logger.info("Check instance status:{}", instanceId, ". Info: {}",
                     result);
