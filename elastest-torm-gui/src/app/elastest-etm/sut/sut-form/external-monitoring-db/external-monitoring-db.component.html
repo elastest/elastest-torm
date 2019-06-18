@@ -1,5 +1,6 @@
 <ng-container *ngIf="sut.externalMonitoringDBForLogs && sut.externalMonitoringDBForMetrics && externalElasticsearch">
   <etm-external-elasticsearch-configuration
+    #externalESForLogs
     [externalES]="externalElasticsearch"
     [type]="logs"
     [getParameters]="getParameters.bind(this)"

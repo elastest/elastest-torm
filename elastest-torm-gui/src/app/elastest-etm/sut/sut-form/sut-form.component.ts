@@ -10,8 +10,6 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { DoCheck } from '@angular/core/src/metadata/lifecycle_hooks';
 import { ExternalService } from '../../external/external.service';
 import { ExternalProjectModel } from '../../external/external-project/external-project-model';
-import { ParameterModel } from '../../parameter/parameter-model';
-import { ParametersViewComponent } from '../../../shared/parameters-view/parameters-view.component';
 import { ExternalMonitoringDbComponent } from './external-monitoring-db/external-monitoring-db.component';
 
 @Component({
@@ -20,6 +18,8 @@ import { ExternalMonitoringDbComponent } from './external-monitoring-db/external
   styleUrls: ['./sut-form.component.scss'],
 })
 export class SutFormComponent implements OnInit, DoCheck {
+  @ViewChild('sutForm')
+  sutForm: HTMLFormElement;
   @ViewChild('sutNameInput')
   sutNameInput: ElementRef;
   @ViewChild('externalMonitoringDBComponent')
@@ -397,5 +397,15 @@ export class SutFormComponent implements OnInit, DoCheck {
         }
       }
     }
+  }
+
+  isValidForm(): boolean {
+    let isValid: boolean = this.sutForm && this.sutForm.valid;
+
+    if (this.externalMonitoringDBComponent) {
+      isValid = this.externalMonitoringDBComponent.isValidForm();
+    }
+
+    return isValid;
   }
 }

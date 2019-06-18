@@ -437,7 +437,7 @@
               <button
                 mat-raised-button
                 color="accent"
-                [disabled]="!sutForm.valid"
+                [disabled]="!isValidForm()"
                 *ngIf="deployedChecked && adminInsCheck"
                 (click)="preSave(false)"
                 title="Save and get monitoring details"
@@ -486,7 +486,7 @@
     <button
       id="saveSutBtn"
       mat-button
-      [disabled]="sut === undefined || (sutForm && !sutForm.valid)"
+      [disabled]="sut === undefined || !isValidForm()"
       color="primary"
       (click)="preSave()"
       matTooltip="Save and return to previous page"

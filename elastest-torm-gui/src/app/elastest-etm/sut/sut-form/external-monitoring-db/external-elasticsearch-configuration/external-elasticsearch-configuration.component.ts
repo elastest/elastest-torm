@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { ExternalElasticsearch } from '../../../../external-monitoring-db/external-elasticsearch.model';
 import { ParameterModel } from '../../../../parameter/parameter-model';
 import { SutService } from '../../../sut.service';
+import { Validators, FormGroup, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'etm-external-elasticsearch-configuration',
@@ -31,6 +32,14 @@ export class ExternalElasticsearchConfigurationComponent implements OnInit {
   extESFilterFieldsSubLabel: string =
     'ElasTest will save only traces that contain the specified values of the specified fields.' +
     ' If more than one field is specified, the combinatorics are performed using AND. Values for field are made by OR. Fields must be root fields';
+
+  public esFormGroup: FormGroup = new FormGroup({
+    esProtocol: new FormControl('', [Validators.required]),
+    esIp: new FormControl('', [Validators.required]),
+    esPort: new FormControl('', [Validators.required]),
+    streamFields: new FormControl('', [Validators.required]),
+    esIndices: new FormControl('', [Validators.required]),
+  });
 
   constructor(private sutService: SutService) {}
 
@@ -85,5 +94,9 @@ export class ExternalElasticsearchConfigurationComponent implements OnInit {
         this.extESCheckingConnection = false;
       },
     );
+  }
+
+  isValidForm(): boolean {
+    return this.esFormGroup.valid;
   }
 }

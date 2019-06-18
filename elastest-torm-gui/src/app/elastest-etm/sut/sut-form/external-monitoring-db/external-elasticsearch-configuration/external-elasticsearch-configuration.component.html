@@ -1,5 +1,5 @@
 <ng-container *ngIf="externalES">
-  <td-expansion-panel expand="true" class="push-bottom push-top">
+  <td-expansion-panel expand="true" class="push-bottom push-top" [formGroup]="esFormGroup">
     <ng-template td-expansion-panel-label>
       <!-- <mat-icon mat-list-icon svgIcon="icon-elastic-elasticsearch"></mat-icon>  -->
       <span>ElasticSearch</span>
@@ -14,9 +14,10 @@
           fxFlexOffset.gt-md="1"
           [(ngModel)]="externalES.protocol"
           placeholder="Select a protocol"
-          required
           name="esProtocol"
+          formControlName="esProtocol"
           class="push-right"
+          required
         >
           <mat-option *ngFor="let protocol of externalES.getProtocolsList()" [value]="protocol">
             {{ protocol.toLowerCase() }}
@@ -25,7 +26,16 @@
 
         <!-- ES IP -->
         <mat-form-field fxFlex.gt-lg="22" fxFlex.lg="25" fxFlex.gt-md="26" fxFlex.md="28">
-          <input matInput trim="blur" type="text" placeholder="IP" [(ngModel)]="this.externalES.ip" name="esIp" required />
+          <input
+            matInput
+            trim="blur"
+            type="text"
+            placeholder="IP"
+            [(ngModel)]="this.externalES.ip"
+            name="esIp"
+            formControlName="esIp"
+            required
+          />
         </mat-form-field>
 
         <!-- ES Port -->
@@ -38,23 +48,48 @@
             placeholder="Port"
             [(ngModel)]="this.externalES.port"
             name="esPort"
+            formControlName="esPort"
             required
           />
         </mat-form-field>
 
         <!-- ES PATH -->
         <mat-form-field fxFlex.gt-md="10" fxFlex.md="10" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
-          <input matInput trim="blur" type="text" placeholder="PATH" [(ngModel)]="this.externalES.path" name="esPath" />
+          <input
+            matInput
+            trim="blur"
+            type="text"
+            placeholder="PATH"
+            [(ngModel)]="this.externalES.path"
+            name="esPath"
+            [ngModelOptions]="{ standalone: true }"
+          />
         </mat-form-field>
 
         <!-- ES User -->
         <mat-form-field fxFlex.gt-md="13" fxFlex.md="15" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
-          <input matInput trim="blur" type="text" placeholder="User" [(ngModel)]="this.externalES.user" name="esUser" />
+          <input
+            matInput
+            trim="blur"
+            type="text"
+            placeholder="User"
+            [(ngModel)]="this.externalES.user"
+            name="esUser"
+            [ngModelOptions]="{ standalone: true }"
+          />
         </mat-form-field>
 
         <!-- ES Pass -->
         <mat-form-field fxFlex.gt-md="12" fxFlex.md="15" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
-          <input matInput trim="blur" type="password" placeholder="Pass" [(ngModel)]="this.externalES.pass" name="esPass" />
+          <input
+            matInput
+            trim="blur"
+            type="password"
+            placeholder="Pass"
+            [(ngModel)]="this.externalES.pass"
+            name="esPass"
+            [ngModelOptions]="{ standalone: true }"
+          />
         </mat-form-field>
       </div>
       <div class="push-sm" fxLayout="row" fxLayoutAlign="start center">
@@ -91,6 +126,7 @@
             placeholder="Stream Fields (comma separated)"
             [(ngModel)]="this.externalES.streamFields"
             name="streamFields"
+            formControlName="streamFields"
             required
           />
         </mat-form-field>
@@ -104,6 +140,7 @@
             placeholder="ES Indices (comma separated)"
             [(ngModel)]="this.externalES.indices"
             name="esIndices"
+            formControlName="esIndices"
             required
           />
         </mat-form-field>
