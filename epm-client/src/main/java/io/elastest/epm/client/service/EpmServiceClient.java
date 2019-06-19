@@ -44,9 +44,9 @@ import io.elastest.epm.client.model.Cluster;
 import io.elastest.epm.client.service.ServiceException.ExceptionCode;
 
 @Service
-public class EpmService {
+public class EpmServiceClient {
     private static final Logger logger = LoggerFactory
-            .getLogger(EpmService.class);
+            .getLogger(EpmServiceClient.class);
 
     private final int MAX_ATTEMPTS = 10;
     private final int TIME_BETWEEN_ATTEMPTS = 15;
@@ -89,7 +89,7 @@ public class EpmService {
         }
     }
 
-    public EpmService(FilesService filesService) {
+    public EpmServiceClient(FilesService filesService) {
         apiClient = new ApiClient();
         packageApiInstance = new PackageApi();
         packageApiInstance.setApiClient(apiClient);
@@ -116,7 +116,7 @@ public class EpmService {
 
     @Value("${et.epm.compose.packages.path}")
     public void setComposePackageFilePath(String composePackageFilePath) {
-        EpmService.composePackageFilePath = composePackageFilePath;
+        EpmServiceClient.composePackageFilePath = composePackageFilePath;
     }
 
     @PostConstruct

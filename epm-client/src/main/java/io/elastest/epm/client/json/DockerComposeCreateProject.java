@@ -36,48 +36,15 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
  */
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class DockerComposeCreateProject {
+public class DockerComposeCreateProject extends DockerProject{
 
-    String name;
-    String yml;
-    Map<String, String> env = new HashMap<>();
+    public DockerComposeCreateProject(String name, String yml) {
+        super(name, yml);
+        }
 
     public DockerComposeCreateProject(String name, String yml,
             List<String> envList) {
-        this.name = name;
-        this.yml = yml;
-        this.env = new HashMap<>();
-
-        for (String var : envList) {
-            String[] envPair = var.split("=");
-            if (envPair != null && envPair.length == 2) {
-                this.env.put(envPair[0], envPair[1]);
-            }
-        }
-    }
-
-    public DockerComposeCreateProject(String name, String yml) {
-        this.name = name;
-        this.yml = yml;
-        this.env = new HashMap<>();
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getYml() {
-        return yml;
-    }
-
-    public Map<String, String> getEnv() {
-        return env;
-    }
-
-    @Override
-    public String toString() {
-        return "DockerComposeCreateProject [name=" + name + ", yml=" + yml
-                + ", env=" + env + "]";
+        super(name, yml, envList);
     }
 
     public List<String> envsAsList() {

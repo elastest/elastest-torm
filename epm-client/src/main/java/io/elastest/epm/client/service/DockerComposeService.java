@@ -65,7 +65,7 @@ import io.elastest.epm.client.json.DockerContainerInfo;
 public class DockerComposeService {
 
     @Autowired
-    EpmService epmService;
+    EpmServiceClient epmService;
 
     @Autowired
     FilesService filesService;

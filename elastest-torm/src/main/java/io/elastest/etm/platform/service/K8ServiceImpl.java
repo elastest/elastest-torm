@@ -14,19 +14,22 @@ import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.spotify.docker.client.ProgressHandler;
 
 import io.elastest.epm.client.DockerContainer;
+import io.elastest.epm.client.DockerException;
+import io.elastest.epm.client.json.DockerComposeProjectMessage;
 import io.elastest.epm.client.json.DockerContainerInfo;
+import io.elastest.epm.client.json.DockerProject;
 import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.epm.client.service.K8sService;
+import io.elastest.epm.client.service.ServiceException;
 import io.elastest.epm.client.service.K8sService.JobResult;
 import io.elastest.epm.client.service.K8sService.PodInfo;
 import io.elastest.etm.model.CoreServiceInfo;
+import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.ServiceBindedPort;
-import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
@@ -70,15 +73,15 @@ public class K8ServiceImpl extends PlatformService {
             String serviceDescriptor, String targetPath, boolean override,
             Map<String, String> envs, boolean withBindedExposedPortsToRandom,
             boolean withRemoveVolumes) throws Exception {
-        // TODO Auto-generated method stub
-        return false;
+
+        return k8sService.createk8sProject(projectName, serviceDescriptor,
+                envs) != null ? true : false;
     }
 
     @Override
     public boolean deployService(String projectName, boolean withPull)
-            throws IOException {
-        // TODO Auto-generated method stub
-        return false;
+            throws IOException {    
+        return k8sService.deployResourcesFromProject(projectName) != null ? true : false;
     }
 
     @Override
@@ -100,6 +103,14 @@ public class K8ServiceImpl extends PlatformService {
         return null;
     }
 
+
+    @Override
+    public void pullProject(String projectName,
+            Map<String, EtPlugin> currentEtPluginMap) throws Exception {
+        // TODO Auto-generated method stub
+        
+    }
+    
     @Override
     public void pullImageWithProgress(String projectName,
             ProgressHandler progressHandler, String image) throws Exception {
@@ -140,13 +151,6 @@ public class K8ServiceImpl extends PlatformService {
             throws Exception {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    public void insertIntoETNetwork(String engineName, String network)
-            throws Exception {
-        // TODO Auto-generated method stub
-
     }
 
     @Override

@@ -47,6 +47,7 @@ import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService;
 import io.elastest.epm.client.service.DockerService.ContainersListActionEnum;
 import io.elastest.etm.model.CoreServiceInfo;
+import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.ServiceBindedPort;
@@ -1069,8 +1070,10 @@ public class DockerServiceImpl extends PlatformService {
 
     @Override
     public boolean deployService(String projectName, boolean withPull)
-            throws IOException {
-        return dockerComposeService.startProject(projectName, false);
+            throws Exception {
+        boolean result = dockerComposeService.startProject(projectName, false);
+        insertIntoETNetwork(projectName, elastestNetwork);
+        return result;
     }
 
     @Override
@@ -1078,7 +1081,32 @@ public class DockerServiceImpl extends PlatformService {
             throws Exception {
         return dockerComposeService.getProjectImages(projectName);
     }
+   
+    /* *************************** */
+    /* ****** Pull Projects ****** */
+    /* *************************** */
 
+    @Override
+    public void pullProject(String projectName,
+            Map<String, EtPlugin> currentEtPluginMap) throws Exception {
+
+        List<String> images = currentEtPluginMap.get(projectName)
+                .getImagesList();
+
+        if (images == null || images.isEmpty()) {
+            images = getDeploymentImages(projectName);
+            currentEtPluginMap.get(projectName).setImagesList(images);
+        }
+
+        DockerServiceStatus serviceStatus = null;
+        if (currentEtPluginMap != null) {
+            serviceStatus = currentEtPluginMap.get(projectName);
+        }
+
+        pullDeploymentImages(projectName, serviceStatus, images,
+                true);
+    }
+    
     @Override
     public void pullImageWithProgress(String projectName,
             ProgressHandler progressHandler, String image) throws Exception {
@@ -1128,7 +1156,6 @@ public class DockerServiceImpl extends PlatformService {
         return dockerService.getContainerIpByNetwork(containerId, network);
     }
 
-    @Override
     public void insertIntoETNetwork(String engineName, String network)
             throws Exception {
         try {

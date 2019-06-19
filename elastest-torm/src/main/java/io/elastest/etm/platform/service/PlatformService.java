@@ -34,6 +34,7 @@ import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.json.DockerContainerInfo;
 import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.etm.model.CoreServiceInfo;
+import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.ServiceBindedPort;
@@ -140,7 +141,7 @@ public abstract class PlatformService {
             boolean withRemoveVolumes) throws Exception;
 
     public abstract boolean deployService(String projectName, boolean withPull)
-            throws IOException;
+            throws IOException, Exception;
 
     public abstract boolean undeployService(String projectName)
             throws IOException;
@@ -150,6 +151,9 @@ public abstract class PlatformService {
     public abstract List<String> getDeploymentImages(String projectName)
             throws Exception;
 
+    public abstract void pullProject(String projectName,
+            Map<String, EtPlugin> currentEtPluginMap) throws Exception;
+    
     public abstract void pullImageWithProgress(String projectName,
             ProgressHandler progressHandler, String image) throws Exception;
 
@@ -167,9 +171,6 @@ public abstract class PlatformService {
 
     public abstract String getContainerIpByNetwork(String containerId,
             String network) throws Exception;
-
-    public abstract void insertIntoETNetwork(String engineName, String network)
-            throws Exception;
 
     public abstract String getContainerName(String serviceName, String network);
 

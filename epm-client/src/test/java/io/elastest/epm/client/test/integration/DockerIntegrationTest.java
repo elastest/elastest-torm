@@ -46,7 +46,7 @@ import com.spotify.docker.client.messages.PortBinding;
 
 import io.elastest.epm.client.DockerContainer.DockerBuilder;
 import io.elastest.epm.client.service.DockerService;
-import io.elastest.epm.client.service.EpmService;
+import io.elastest.epm.client.service.EpmServiceClient;
 import io.elastest.epm.client.service.FilesService;
 import io.elastest.epm.client.service.ShellService;
 
@@ -60,7 +60,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = { DockerService.class, ShellService.class,
-        EpmService.class, FilesService.class }, webEnvironment = RANDOM_PORT)
+        EpmServiceClient.class, FilesService.class }, webEnvironment = RANDOM_PORT)
 @Tag("integration")
 @DisplayName("Integration test for Docker Service")
 @EnableAutoConfiguration

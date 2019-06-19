@@ -345,15 +345,25 @@ public class EtPluginsService {
                     "Initializing...");
             logger.debug("Initializing {} plugin...", projectName);
 
-            // Pull
-            this.pullProject(projectName);
+            Map<String, EtPlugin> currentEtPluginMap;
+            if (enginesMap.containsKey(projectName)) {
+                currentEtPluginMap = enginesMap;
+            } else if (uniqueEtPluginsMap.containsKey(projectName)) {
+                currentEtPluginMap = uniqueEtPluginsMap;
+            } else if (tssInstancesMap.containsKey(projectName)) {
+                currentEtPluginMap = tssInstancesMap;
+            } else {
+                throw new Exception("Error on pulling images of " + projectName
+                        + ": EtPlugin does not exists");
+            }
+            // Pull            
+            platformService.pullProject(projectName, currentEtPluginMap);
 
             // Start
             this.updateStatus(projectName, DockerServiceStatusEnum.STARTING,
                     "Starting...");
             logger.debug("Starting {} plugin...", projectName);
             platformService.deployService(projectName, false);
-            platformService.insertIntoETNetwork(projectName, network);
         } catch (Exception e) {
             logger.error("Cannot start {} plugin", projectName, e);
             logger.error("Stopping service {}", projectName);
@@ -379,40 +389,6 @@ public class EtPluginsService {
         return this.getEtPlugin(projectName);
     }
 
-    /* *************************** */
-    /* ****** Pull Projects ****** */
-    /* *************************** */
-
-    private void pullProject(String projectName) throws Exception {
-        Map<String, EtPlugin> currentEtPluginMap;
-        if (enginesMap.containsKey(projectName)) {
-            currentEtPluginMap = enginesMap;
-        } else if (uniqueEtPluginsMap.containsKey(projectName)) {
-            currentEtPluginMap = uniqueEtPluginsMap;
-        } else if (tssInstancesMap.containsKey(projectName)) {
-            currentEtPluginMap = tssInstancesMap;
-        } else {
-            throw new Exception("Error on pulling images of " + projectName
-                    + ": EtPlugin does not exists");
-        }
-
-        List<String> images = currentEtPluginMap.get(projectName)
-                .getImagesList();
-
-        if (images == null || images.isEmpty()) {
-            images = platformService.getDeploymentImages(projectName);
-            currentEtPluginMap.get(projectName).setImagesList(images);
-        }
-
-        Map<String, EtPlugin> map = getMapThatContainsEtPlugin(projectName);
-        DockerServiceStatus serviceStatus = null;
-        if (map != null) {
-            serviceStatus = map.get(projectName);
-        }
-
-        platformService.pullDeploymentImages(projectName, serviceStatus, images,
-                true);
-    }
 
     /* ************************** */
     /* *** Wait/Check methods *** */

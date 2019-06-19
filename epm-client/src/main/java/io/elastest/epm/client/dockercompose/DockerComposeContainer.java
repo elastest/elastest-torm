@@ -31,7 +31,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 
 import io.elastest.epm.client.model.ResourceGroup;
-import io.elastest.epm.client.service.EpmService;
+import io.elastest.epm.client.service.EpmServiceClient;
 import io.elastest.epm.client.service.FilesService;
 import io.elastest.epm.client.service.ServiceException;
 
@@ -57,7 +57,7 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     private boolean started = false;
     private boolean removeVolumes = false;
 
-    EpmService epmService;
+    EpmServiceClient epmService;
     FilesService filesService;
     private String basePath;
     /* ******************** */
@@ -78,14 +78,14 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
     }
 
     public DockerComposeContainer(String identifier, boolean withUniqueId,
-            EpmService epmService, FilesService filesService, String basePath,
+            EpmServiceClient epmService, FilesService filesService, String basePath,
             File... composeFiles) {
         this(identifier, withUniqueId, epmService, filesService, basePath,
                 Arrays.asList(composeFiles));
     }
 
     public DockerComposeContainer(String identifier, boolean withUniqueId,
-            EpmService epmService, FilesService filesServices, String basePath,
+            EpmServiceClient epmService, FilesService filesServices, String basePath,
             List<File> composeFiles) {
         this.composeFiles = composeFiles;
         this.identifier = identifier;
@@ -122,7 +122,7 @@ public class DockerComposeContainer<SELF extends DockerComposeContainer<SELF>> {
         final DockerCompose dockerCompose;
         ProcessResult processResult;
 
-        if (EpmService.etMasterSlaveMode && epmService != null) {
+        if (EpmServiceClient.etMasterSlaveMode && epmService != null) {
             logger.info("Deploying SUT in a Slave.");
             dockerCompose = new RemoteDockerCompose(composeFiles.get(0),
                     this.composeYmlList.get(0), project, epmService,
@@ -272,13 +272,13 @@ class RemoteDockerCompose implements DockerCompose {
     private final File composeFile;
     private final String composeYml;
     private final String identifier;
-    private final EpmService epmService;
+    private final EpmServiceClient epmService;
     private final FilesService filesService;
     private final String basePath;
     private final String cmd;
 
     public RemoteDockerCompose(File composeFile, String composeYml,
-            String identifier, EpmService epmService, FilesService filesService,
+            String identifier, EpmServiceClient epmService, FilesService filesService,
             String basePath, String cmd) {
         this.composeFile = composeFile;
         this.composeYml = composeYml;
@@ -314,9 +314,9 @@ class RemoteDockerCompose implements DockerCompose {
         String metadataContent;
         try {
             logger.info("Metadata file path: {}",
-                    EpmService.composePackageFilePath);
+                    EpmServiceClient.composePackageFilePath);
             metadataContent = filesService.readFile(filesService
-                    .getFileFromResources(EpmService.composePackageFilePath,
+                    .getFileFromResources(EpmServiceClient.composePackageFilePath,
                             "metadata.yaml", basePath));
             logger.info("Metadata: {}", metadataContent);
             // HashMap<String, String> ymlMap = stringYmlToMap(metadataContent);

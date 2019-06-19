@@ -9,8 +9,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -27,7 +29,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import io.elastest.epm.client.DockerContainer;
+import io.elastest.epm.client.dockercompose.DockerComposeContainer;
+import io.elastest.epm.client.json.DockerProject;
 import io.elastest.epm.client.utils.UtilTools;
+import io.fabric8.kubernetes.api.builder.Visitor;
 import io.fabric8.kubernetes.api.model.Capabilities;
 import io.fabric8.kubernetes.api.model.CapabilitiesBuilder;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
@@ -37,6 +42,7 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
+import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -91,6 +97,8 @@ public class K8sService {
     public K8sService(FilesService filesService) {
         this.filesService = filesService;
     }
+    
+    private static final Map<String, DockerProject> projects = new HashMap<>();
 
     @PostConstruct
     public void init() throws IOException {
@@ -372,42 +380,78 @@ public class K8sService {
 
         return podInfo;
     }
+//    
+//    public PodInfo deployPod(String manifest) throws Exception {
+//        return deployResourcesFromProject(manifest, DEFAULT_NAMESPACE,
+//                getEnvVarListFromStringList(new ArrayList<String>()));
+//    }
     
-    public PodInfo deployPod(String spec) throws Exception {
-        return deployPod(spec, DEFAULT_NAMESPACE);
+    public PodInfo deployResourcesFromProject(String projectName)
+            throws IOException {
+        return deployResourcesFromProject(projectName, DEFAULT_NAMESPACE);
     }
-    
-    /**
-     * Deploy a pod from a yaml string
-     * @param spec
-     * @param namespace
-     * @return
-     * @throws IOException
-     */
-    public PodInfo deployPod(String spec, String namespace) throws IOException {
+
+    public PodInfo deployResourcesFromProject(String projectName, String namespace)
+            throws IOException {
         PodInfo podInfo = new PodInfo();
-        Pod pod = null;
-        
-        try (InputStream is = IOUtils.toInputStream(spec, CharEncoding.UTF_16)){            
-            List<HasMetadata> podMetada = client.load(is).createOrReplace();
-            String podName = podMetada.get(0).getMetadata().getName();
-            
-            pod = client.pods().inNamespace(DEFAULT_NAMESPACE)
-                    .withName(podName).get();
-            
-            while (!isReady(podName)) {
-                UtilTools.sleep(1);
+        DockerProject project = projects.get(projectName);
+
+        try (InputStream is = IOUtils.toInputStream(project.getYml(),
+                CharEncoding.UTF_16)) {
+            List<HasMetadata> resourcesMetadata = client.load(is).inNamespace(namespace)
+                    .accept((Visitor<ContainerBuilder>) item -> item
+                            .withEnv(getEnvVarListFromMap(project.getEnv())))
+                    .createOrReplace();
+
+            for (HasMetadata resource : resourcesMetadata) {
+                if (resource.getKind().equals("Pod")) {
+                    Pod pod = (Pod) resource;
+                    if (pod.getMetadata().getLabels()
+                            .get("io.elastest.tjob.tss.type") != null
+                            && pod.getMetadata().getLabels()
+                                    .get("io.elastest.tjob.tss.type")
+                                    .equals("main")) {
+                        while (!isReady(pod.getMetadata().getName())) {
+                            UtilTools.sleep(1);
+                        }
+                        podInfo.setPodName(pod.getMetadata().getName());
+                        podInfo.setPodIp(pod.getStatus().getPodIP());
+                    }
+                }
             }
             
-            podInfo.setPodName(podName);
-            podInfo.setPodIp(pod.getStatus().getPodIP());
         } catch (IOException e) {
-            logger.error("Error loading pod from a yaml string" );
+            logger.error("Error loading deployment from a yaml string");
             e.printStackTrace();
             throw e;
         }
-        
+
         return podInfo;
+    }
+    
+    public void deleteResourcesFromYmlString(String manifest, String namespace)
+            throws IOException {
+        try (InputStream is = IOUtils.toInputStream(manifest,
+                CharEncoding.UTF_16)) {
+            List<HasMetadata> resourcesMetadata = client.load(is).get();
+            client.resourceList(resourcesMetadata).inNamespace(namespace)
+                    .delete();
+        } catch (IOException e) {
+            logger.error("Error deleting resources from a yaml string");
+            e.printStackTrace();
+            throw e;
+        }
+    }
+    
+    public DockerProject createk8sProject(String projectName,
+            String serviceDescriptor, Map<String, String> envs) {
+        DockerProject project = new DockerProject(projectName,
+                serviceDescriptor);
+        if (envs != null) {
+            project.getEnv().putAll(envs);
+        }
+        projects.put(projectName, project);
+        return project;
     }
 
     public String createServiceSUT(String serviceName, Integer port,
@@ -501,6 +545,19 @@ public class K8sService {
             envVars.add(envVar);
         });
         return envVars;
+    }
+    
+    private List<EnvVar> getEnvVarListFromMap(Map<String, String> envs) {
+        List<EnvVar> envVarsList = new ArrayList<>();
+        if (envs != null) {
+            for (Map.Entry<String, String> envEntryMap : envs.entrySet()) {
+                EnvVar envVar = new EnvVar(envEntryMap.getKey(),
+                        envEntryMap.getValue(), null);
+                envVarsList.add(envVar);
+            }
+        }
+
+        return envVarsList;
     }
 
     public List<String> readFilesFromContainer(String podName, String filePath,
