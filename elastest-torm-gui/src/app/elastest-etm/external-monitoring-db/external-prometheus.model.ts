@@ -18,4 +18,8 @@ export class ExternalPrometheus extends ExternalMonitoringDB {
     } else {
     }
   }
+
+  public getProtocolsList(): string[] {
+    return ['http', 'https'];
+  }
 }

@@ -56,6 +56,11 @@ public class PrometheusService {
         init();
     }
 
+    public PrometheusService(String protocol, String host, String port,
+            String user, String pass, String path) {
+        this(protocol, host, Integer.parseInt(port), user, pass, path);
+    }
+
     private void init() {
         URL url;
         try {
@@ -91,6 +96,20 @@ public class PrometheusService {
                     this.prometheusApiUrl);
         }
 
+    }
+
+    /* ************************************* */
+    /* ************** Methods ************** */
+    /* ************************************* */
+
+    public boolean isHealthy() {
+
+        return this.prometheusClient.isHealthy();
+    }
+
+    public boolean isReady() {
+        logger.debug("prometheusService.isReady() {}",prometheusClient.isReady());
+        return this.prometheusClient.isReady();
     }
 
     public void getMetric(String metricName) {

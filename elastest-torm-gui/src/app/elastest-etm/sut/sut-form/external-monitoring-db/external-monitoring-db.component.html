@@ -1,9 +1,56 @@
-<ng-container *ngIf="sut.externalMonitoringDBForLogs && sut.externalMonitoringDBForMetrics && externalElasticsearch">
-  <etm-external-elasticsearch-configuration
-    #externalESForLogs
-    [externalES]="externalElasticsearch"
-    [type]="logs"
-    [getParameters]="getParameters.bind(this)"
-    [setParameters]="setParameters.bind(this,i)"
-  ></etm-external-elasticsearch-configuration>
+<ng-container *ngIf="sut.externalMonitoringDBForLogs">
+  <td-expansion-panel expand="true" class="push-bottom push-top dark">
+    <ng-template td-expansion-panel-label>
+      <mat-icon>library_books</mat-icon>
+      <span class="push-left-sm">Monitoring DB For Logs</span>
+    </ng-template>
+
+    <div fxLayout="column">
+      <ng-container *ngIf="sut.externalMonitoringDBForMetrics && externalElasticsearchForLogs">
+        <etm-external-elasticsearch-configuration
+          #externalElasticsearchConfigurationComponent
+          [externalES]="externalElasticsearchForLogs"
+          [type]="logs"
+          [getParameters]="getParameters.bind(this)"
+          [setParameters]="setParameters.bind(this,i)"
+        ></etm-external-elasticsearch-configuration>
+      </ng-container>
+    </div>
+  </td-expansion-panel>
+</ng-container>
+
+<ng-container *ngIf="sut.externalMonitoringDBForMetrics && 1===0">
+  <td-expansion-panel expand="true" class="push-bottom push-top dark">
+    <ng-template td-expansion-panel-label>
+      <mat-icon>insert_chart_outlined</mat-icon>
+      <span class="push-left-sm">Monitoring DB For Metrics</span>
+    </ng-template>
+    <div fxLayout="column" class="push-sm">
+      <mat-form-field class="push-sm">
+        <mat-select placeholder="Select a DB" name="metricsDBSelector" [(ngModel)]="sut.externalMonitoringDBForMetrics.type">
+          <!-- <mat-option *ngFor="let type of sut.externalMonitoringDBForMetrics.getTypes()" [value]="type"> -->
+          <mat-option *ngFor="let type of ['PROMETHEUS']" [value]="type">
+            {{ type }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <ng-container *ngIf="sut.externalMonitoringDBForMetrics.type === 'ELASTICSEARCH'; else showPrometheus">
+        <!-- <etm-external-elasticsearch-configuration
+          #externalESForMetrics
+          [externalES]="externalElasticsearchForMetrics"
+          [type]="metrics"
+          [getParameters]="getParameters.bind(this)"
+          [setParameters]="setParameters.bind(this,i)"
+        ></etm-external-elasticsearch-configuration> -->
+      </ng-container>
+      <ng-template #showPrometheus>
+        <etm-external-prometheus-configuration
+          #externalPrometheusConfigurationComponent
+          [externalPrometheus]="externalPrometheusForMetrics"
+          [type]="metrics"
+        ></etm-external-prometheus-configuration>
+      </ng-template>
+    </div>
+  </td-expansion-panel>
 </ng-container>

@@ -29,6 +29,14 @@ public class PrometheusApiClient {
     private static final ParameterizedTypeReference<PrometheusApiResponse<PrometheusQueryData>> responseTypeDataQuery = new ParameterizedTypeReference<PrometheusApiResponse<PrometheusQueryData>>() {
     };
 
+    private static final ParameterizedTypeReference<String> responseString = new ParameterizedTypeReference<String>() {
+    };
+
+    // Endpoint
+    private static final String HEALTH_PATH = "/-/healthy";
+    private static final String READY_PATH = "/-/ready";
+
+    // Api
     private static final String API_PATH = "/api/v1/";
     private static final String LABEL_NAMES_PATH = "label/__name__/values";
     private static final String QUERY_PATH = "query?query=";
@@ -65,7 +73,7 @@ public class PrometheusApiClient {
         List<String> labelNames = new ArrayList<>();
 
         ResponseEntity<PrometheusApiResponse<Object>> response = this
-                .get(LABEL_NAMES_PATH, responseTypeDataObject);
+                .get(API_PATH + LABEL_NAMES_PATH, responseTypeDataObject);
 
         logger.debug(
                 "getAllLabelNames ResponseEntity<PrometheusApiResponse>: {}",
@@ -105,7 +113,7 @@ public class PrometheusApiClient {
         }
 
         ResponseEntity<PrometheusApiResponse<PrometheusQueryData>> response = this
-                .get(uri, responseTypeDataQuery);
+                .get(API_PATH + uri, responseTypeDataQuery);
 
         if (response != null) {
             return response.getBody();
@@ -137,7 +145,7 @@ public class PrometheusApiClient {
         }
 
         ResponseEntity<PrometheusApiResponse<PrometheusQueryData>> response = this
-                .get(uri, responseTypeDataQuery);
+                .get(API_PATH + uri, responseTypeDataQuery);
 
         if (response != null) {
             return response.getBody();
@@ -151,6 +159,26 @@ public class PrometheusApiClient {
         return executeQueryRange(jsonOrMetricName, start, end, null, null);
     }
 
+    public ResponseEntity<String> getHealthy() {
+        return get(HEALTH_PATH, responseString);
+    }
+
+    public boolean isHealthy() {
+        ResponseEntity<String> response = getHealthy();
+        return response.getStatusCode() == HttpStatus.OK
+                && "Prometheus is Healthy.".equals(response.getBody().trim());
+    }
+
+    public ResponseEntity<String> getReady() {
+        return get(READY_PATH, responseString);
+    }
+
+    public boolean isReady() {
+        ResponseEntity<String> response = getReady();
+        return response.getStatusCode() == HttpStatus.OK
+                && "Prometheus is Ready.".equals(response.getBody().trim());
+    }
+
     /* ********************************************** */
     /* **************** Rest Methods **************** */
     /* ********************************************** */
@@ -158,9 +186,8 @@ public class PrometheusApiClient {
     private <T> ResponseEntity<T> get(String uri,
             ParameterizedTypeReference<T> responseType) {
         HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
-        ResponseEntity<T> responseEntity = rest.exchange(
-                server + API_PATH + uri, HttpMethod.GET, requestEntity,
-                responseType);
+        ResponseEntity<T> responseEntity = rest.exchange(server + uri,
+                HttpMethod.GET, requestEntity, responseType);
         return responseEntity;
     }
 
@@ -168,9 +195,8 @@ public class PrometheusApiClient {
             ParameterizedTypeReference<T> responseType) {
         HttpEntity<String> requestEntity = new HttpEntity<String>(json,
                 headers);
-        ResponseEntity<T> responseEntity = rest.exchange(
-                server + API_PATH + uri, HttpMethod.POST, requestEntity,
-                responseType);
+        ResponseEntity<T> responseEntity = rest.exchange(server + uri,
+                HttpMethod.POST, requestEntity, responseType);
         return responseEntity;
     }
 
@@ -178,9 +204,8 @@ public class PrometheusApiClient {
             ParameterizedTypeReference<T> responseType) {
         HttpEntity<String> requestEntity = new HttpEntity<String>(json,
                 headers);
-        ResponseEntity<T> responseEntity = rest.exchange(
-                server + API_PATH + uri, HttpMethod.PUT, requestEntity,
-                responseType);
+        ResponseEntity<T> responseEntity = rest.exchange(server + uri,
+                HttpMethod.PUT, requestEntity, responseType);
 
         return responseEntity;
     }
@@ -188,9 +213,8 @@ public class PrometheusApiClient {
     private <T> ResponseEntity<T> delete(String uri,
             ParameterizedTypeReference<T> responseType) {
         HttpEntity<String> requestEntity = new HttpEntity<String>("", headers);
-        ResponseEntity<T> responseEntity = rest.exchange(
-                server + API_PATH + uri, HttpMethod.DELETE, requestEntity,
-                responseType);
+        ResponseEntity<T> responseEntity = rest.exchange(server + uri,
+                HttpMethod.DELETE, requestEntity, responseType);
         return responseEntity;
     }
 }

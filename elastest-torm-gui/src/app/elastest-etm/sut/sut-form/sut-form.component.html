@@ -290,18 +290,19 @@
 
             <div fxLayout="row" fxLayoutAlign="start center">
               <!-- Protocol -->
-              <mat-select
-                fxFlex="7"
-                [(ngModel)]="sut.protocol"
-                placeholder="Select a protocol"
-                required
-                name="protocol"
-                class="push-right"
-              >
-                <mat-option *ngFor="let protocol of sut.getProtocolsList()" [value]="protocol">
-                  {{ protocol.toLowerCase() }}
-                </mat-option>
-              </mat-select>
+              <mat-form-field fxFlex="7">
+                <mat-select
+                  [(ngModel)]="sut.protocol"
+                  placeholder="Select a protocol"
+                  required
+                  name="protocol"
+                  class="push-right"
+                >
+                  <mat-option *ngFor="let protocol of sut.getProtocolsList()" [value]="protocol">
+                    {{ protocol.toLowerCase() }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
 
               <!-- Port -->
               <mat-form-field fxFlex="15" fxFlexOffset="2">

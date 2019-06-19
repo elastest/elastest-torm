@@ -18,6 +18,7 @@ import io.elastest.etm.model.SutExecution.SutExecView;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.SutView;
 import io.elastest.etm.model.external.ExternalElasticsearch;
+import io.elastest.etm.model.external.ExternalPrometheus;
 import io.elastest.etm.service.SutService;
 import io.swagger.annotations.ApiParam;
 
@@ -116,4 +117,13 @@ public class SutApiController implements SutApi {
                 sutService.checkExtElasticsearchConnection(body),
                 HttpStatus.OK);
     }
+
+    @JsonView(SutExecView.class)
+    public ResponseEntity<Boolean> checkExternalPrometheusConnection(
+            @ApiParam(value = "External Prometheus", required = true) @Valid @RequestBody ExternalPrometheus body) {
+        return new ResponseEntity<Boolean>(
+                sutService.checkExternalPrometheusConnection(body),
+                HttpStatus.OK);
+    }
+
 }

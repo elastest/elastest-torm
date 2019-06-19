@@ -2,6 +2,11 @@ import { ExternalMonitoringDB } from './external-monitoring-db.model';
 import { ExternalElasticsearch } from './external-elasticsearch.model';
 import { ExternalPrometheus } from './external-prometheus.model';
 
+const STATE: any = {
+  ELASTICSEARCH: 'ELASTICSEARCH',
+  PROMETHEUS: 'PROMETHEUS',
+};
+
 export class ExternalMonitoringDBForMetrics {
   id: number;
   type: ExternalMonitoringDBForMetricsType;
@@ -32,6 +37,26 @@ export class ExternalMonitoringDBForMetrics {
   isUsingExternalPrometheusForMetrics(): boolean {
     return this.type === 'PROMETHEUS';
   }
+
+  getTypes(): ExternalMonitoringDBForMetricsType[] {
+    return Object.keys(STATE);
+  }
+
+  getExternalElasticsearch(): ExternalElasticsearch {
+    if (this.externalMonitoringDB instanceof ExternalElasticsearch) {
+      return this.externalMonitoringDB;
+    } else {
+      return undefined;
+    }
+  }
+
+  getExternalPrometheus(): ExternalPrometheus {
+    if (this.externalMonitoringDB instanceof ExternalPrometheus) {
+      return this.externalMonitoringDB;
+    } else {
+      return undefined;
+    }
+  }
 }
 
-export type ExternalMonitoringDBForMetricsType = 'ELASTICSEARCH' | 'PROMETHEUS' | '';
+export type ExternalMonitoringDBForMetricsType = keyof typeof STATE;

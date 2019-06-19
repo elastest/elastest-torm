@@ -6,6 +6,7 @@ import { Observable } from 'rxjs/Rx';
 import { ConfigurationService } from '../../config/configuration-service.service';
 import 'rxjs/Rx';
 import { ExternalElasticsearch } from '../external-monitoring-db/external-elasticsearch.model';
+import { ExternalPrometheus } from '../external-monitoring-db/external-prometheus.model';
 
 @Injectable()
 export class SutService {
@@ -63,8 +64,15 @@ export class SutService {
   }
 
   public checkExternalElasticsearchConnection(extES: ExternalElasticsearch): Observable<boolean> {
-    let url: string = this.configurationService.configModel.hostApi + '/sut/externalelasticsearch/connection';
+    let url: string = this.configurationService.configModel.hostApi + '/sut/externaldb/elasticsearch/connection';
     return this.http.post(url, extES, { observe: 'response' }).map((data: HttpResponse<boolean>) => {
+      return data.body;
+    });
+  }
+
+  public checkExternalPrometheusConnection(externalPrometheus: ExternalPrometheus): Observable<boolean> {
+    let url: string = this.configurationService.configModel.hostApi + '/sut/externaldb/prometheus/connection';
+    return this.http.post(url, externalPrometheus, { observe: 'response' }).map((data: HttpResponse<boolean>) => {
       return data.body;
     });
   }

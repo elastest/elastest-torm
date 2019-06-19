@@ -24,6 +24,7 @@ import io.elastest.etm.model.SharedAsyncModel;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.external.ExternalElasticsearch;
+import io.elastest.etm.model.external.ExternalPrometheus;
 import io.elastest.etm.utils.UtilsService;
 
 @Service
@@ -365,6 +366,27 @@ public class SutService {
                 esService.getInfo();
                 connected = true;
             } catch (Exception e) {
+            }
+        }
+
+        return connected;
+    }
+
+    public boolean checkExternalPrometheusConnection(
+            ExternalPrometheus prometheus) {
+        boolean connected = false;
+        if (prometheus != null) {
+            try {
+                PrometheusService prometheusService = new PrometheusService(
+                        prometheus.getProtocol().toString(), prometheus.getIp(),
+                        prometheus.getPort(), prometheus.getUser(),
+                        prometheus.getPass(), prometheus.getPath());
+
+                connected = prometheusService.isReady()
+                        && prometheusService.isHealthy();
+            } catch (Exception e) {
+                logger.error("Error on check External Prometheus Connection",
+                        e);
             }
         }
 

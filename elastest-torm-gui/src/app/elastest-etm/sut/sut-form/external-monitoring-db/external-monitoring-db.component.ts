@@ -5,6 +5,8 @@ import { SutModel } from '../../sut-model';
 import { ExternalElasticsearch } from '../../../external-monitoring-db/external-elasticsearch.model';
 import { ParameterModel } from '../../../parameter/parameter-model';
 import { ExternalElasticsearchConfigurationComponent } from './external-elasticsearch-configuration/external-elasticsearch-configuration.component';
+import { ExternalPrometheus } from '../../../external-monitoring-db/external-prometheus.model';
+import { ExternalPrometheusConfigurationComponent } from './external-prometheus-configuration/external-prometheus-configuration.component';
 
 @Component({
   selector: 'etm-external-monitoring-db',
@@ -12,13 +14,17 @@ import { ExternalElasticsearchConfigurationComponent } from './external-elastics
   styleUrls: ['./external-monitoring-db.component.scss'],
 })
 export class ExternalMonitoringDbComponent implements OnInit {
-  @ViewChild('externalESForLogs')
-  externalESForLogs: ExternalElasticsearchConfigurationComponent;
+  @ViewChild('externalElasticsearchConfigurationComponent')
+  externalElasticsearchConfigurationComponent: ExternalElasticsearchConfigurationComponent;
+
+  @ViewChild('externalPrometheusConfigurationComponent')
+  externalPrometheusConfigurationComponent: ExternalPrometheusConfigurationComponent;
 
   @Input()
   sut: SutModel;
 
-  externalElasticsearch: ExternalElasticsearch;
+  externalElasticsearchForLogs: ExternalElasticsearch;
+  externalPrometheusForMetrics: ExternalPrometheus;
 
   constructor() {}
 
@@ -31,7 +37,8 @@ export class ExternalMonitoringDbComponent implements OnInit {
       this.sut.externalMonitoringDBForMetrics = new ExternalMonitoringDBForMetrics();
     }
 
-    this.externalElasticsearch = this.sut.externalMonitoringDBForLogs.getExternalElasticsearch();
+    this.externalElasticsearchForLogs = this.sut.externalMonitoringDBForLogs.getExternalElasticsearch();
+    this.externalPrometheusForMetrics = this.sut.externalMonitoringDBForMetrics.getExternalPrometheus();
   }
 
   getParameters(): ParameterModel[] {
@@ -45,6 +52,15 @@ export class ExternalMonitoringDbComponent implements OnInit {
   }
 
   isValidForm(): boolean {
-    return this.externalESForLogs && this.externalESForLogs.isValidForm();
+    let valid: boolean = true;
+    if (this.externalElasticsearchConfigurationComponent) {
+      valid = valid && this.externalElasticsearchConfigurationComponent.isValidForm();
+    }
+
+    if (this.externalPrometheusConfigurationComponent) {
+      valid = valid && this.externalPrometheusConfigurationComponent.isValidForm();
+    }
+
+    return valid;
   }
 }
