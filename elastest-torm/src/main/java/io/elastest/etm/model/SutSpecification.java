@@ -312,8 +312,10 @@ public class SutSpecification {
         this.instrumentalized = false;
         this.currentSutExec = null;
         this.instrumentedBy = sut.instrumentedBy;
-        this.externalMonitoringDBForLogs = sut.externalMonitoringDBForLogs;
-        this.externalMonitoringDBForMetrics = sut.externalMonitoringDBForMetrics;
+        this.externalMonitoringDBForLogs = new ExternalMonitoringDBForLogs(
+                sut.externalMonitoringDBForLogs);
+        this.externalMonitoringDBForMetrics = new ExternalMonitoringDBForMetrics(
+                sut.externalMonitoringDBForMetrics);
         this.protocol = sut.protocol;
         this.port = sut.port;
         this.managedDockerType = sut.managedDockerType;

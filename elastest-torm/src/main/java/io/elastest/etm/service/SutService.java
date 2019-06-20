@@ -25,6 +25,8 @@ import io.elastest.etm.model.SharedAsyncModel;
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.external.ExternalElasticsearch;
+import io.elastest.etm.model.external.ExternalMonitoringDBForLogs;
+import io.elastest.etm.model.external.ExternalMonitoringDBForMetrics;
 import io.elastest.etm.model.external.ExternalPrometheus;
 import io.elastest.etm.prometheus.client.PrometheusQueryData;
 import io.elastest.etm.utils.UtilsService;
@@ -41,11 +43,13 @@ public class SutService {
     private AbstractMonitoringService monitoringService;
     private final UtilsService utilsService;
     private final TracesService tracesService;
+    private final ExternalMonitoringDBService externalMonitoringDBService;
 
     public SutService(SutRepository sutRepository,
             SutExecutionRepository sutExecutionRepository,
             EimService eimService, AbstractMonitoringService monitoringService,
-            UtilsService utilsService, TracesService tracesService) {
+            UtilsService utilsService, TracesService tracesService,
+            ExternalMonitoringDBService externalMonitoringDBService) {
         super();
         this.sutRepository = sutRepository;
         this.sutExecutionRepository = sutExecutionRepository;
@@ -53,6 +57,7 @@ public class SutService {
         this.monitoringService = monitoringService;
         this.utilsService = utilsService;
         this.tracesService = tracesService;
+        this.externalMonitoringDBService = externalMonitoringDBService;
     }
 
     public SutSpecification createSutSpecification(
@@ -271,6 +276,18 @@ public class SutService {
     public SutSpecification duplicateSut(Long sutId) {
         SutSpecification sut = sutRepository.findById(sutId).get();
         SutSpecification newSut = new SutSpecification(sut);
+
+        ExternalMonitoringDBForMetrics externalMonitoringDBForMetrics = externalMonitoringDBService
+                .duplicateExternalMonitoringDBForMetrics(
+                        newSut.getExternalMonitoringDBForMetrics());
+        newSut.setExternalMonitoringDBForMetrics(
+                externalMonitoringDBForMetrics);
+
+        ExternalMonitoringDBForLogs externalMonitoringDBForLogs = externalMonitoringDBService
+                .duplicateExternalMonitoringDBForLogs(
+                        newSut.getExternalMonitoringDBForLogs());
+        newSut.setExternalMonitoringDBForLogs(externalMonitoringDBForLogs);
+
         return this.createSutSpecification(newSut);
     }
 

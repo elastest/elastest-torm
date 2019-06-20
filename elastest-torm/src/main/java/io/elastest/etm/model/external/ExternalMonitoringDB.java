@@ -140,12 +140,14 @@ public abstract class ExternalMonitoringDB {
 
     public ExternalMonitoringDB(ExternalMonitoringDB externalMonitoringDB) {
         this.setId(null);
-        this.ip = externalMonitoringDB.getIp();
-        this.port = externalMonitoringDB.getPort();
-        this.path = externalMonitoringDB.getPath();
-        this.user = externalMonitoringDB.getUser();
-        this.pass = externalMonitoringDB.getPass();
-        this.protocol = externalMonitoringDB.getProtocol();
+        if (externalMonitoringDB != null) {
+            this.ip = externalMonitoringDB.getIp();
+            this.port = externalMonitoringDB.getPort();
+            this.path = externalMonitoringDB.getPath();
+            this.user = externalMonitoringDB.getUser();
+            this.pass = externalMonitoringDB.getPass();
+            this.protocol = externalMonitoringDB.getProtocol();
+        }
     }
 
     /* *************************** */

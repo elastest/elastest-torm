@@ -110,6 +110,16 @@ public class ExternalMonitoringDBForMetrics {
         }
     }
 
+    public ExternalMonitoringDBForMetrics(
+            ExternalMonitoringDBForMetrics externalMonitoringDBForMetrics) {
+        this.setId(null);
+        if (externalMonitoringDBForMetrics != null) {
+            this.type = externalMonitoringDBForMetrics.getType();
+            this.externalMonitoringDB = externalMonitoringDBForMetrics
+                    .getExternalMonitoringDB();
+        }
+    }
+
     /* *************************** */
     /* *** Getters and setters *** */
     /* *************************** */

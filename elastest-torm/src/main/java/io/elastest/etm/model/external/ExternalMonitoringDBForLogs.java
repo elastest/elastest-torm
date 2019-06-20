@@ -99,6 +99,15 @@ public class ExternalMonitoringDBForLogs {
         }
     }
 
+    public ExternalMonitoringDBForLogs(
+            ExternalMonitoringDBForLogs externalMonitoringDBForLogs) {
+        this.setId(null);
+        if (externalMonitoringDBForLogs != null) {
+            this.type = externalMonitoringDBForLogs.getType();
+            this.externalMonitoringDB = externalMonitoringDBForLogs.getExternalMonitoringDB();
+        }
+    }
+
     /* *************************** */
     /* *** Getters and setters *** */
     /* *************************** */
@@ -120,7 +129,6 @@ public class ExternalMonitoringDBForLogs {
     }
 
     public ExternalMonitoringDB getExternalMonitoringDB() {
-        // TODO return by type...
         return externalMonitoringDB;
     }
 

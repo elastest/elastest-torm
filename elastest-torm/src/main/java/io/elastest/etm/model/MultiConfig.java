@@ -45,6 +45,15 @@ public class MultiConfig {
         this.configValues = configValues;
     }
 
+    public MultiConfig(MultiConfig fieldFilter) {
+        if (fieldFilter != null) {
+            this.name = fieldFilter.getName();
+            if (fieldFilter.getValues() != null) {
+                this.configValues = new ArrayList<>(fieldFilter.getValues());
+            }
+        }
+    }
+
     // Getters and setters
     public String getName() {
         return name;

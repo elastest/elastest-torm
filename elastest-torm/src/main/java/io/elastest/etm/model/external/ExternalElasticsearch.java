@@ -98,7 +98,15 @@ public class ExternalElasticsearch extends ExternalMonitoringDB {
         super(externalElasticsearch);
         this.indices = externalElasticsearch.getIndices();
         this.streamFields = externalElasticsearch.getStreamFields();
-        this.fieldFilters = externalElasticsearch.getFieldFilters();
+
+        if (externalElasticsearch.getFieldFilters() != null) {
+            this.fieldFilters = new ArrayList<>();
+            for (MultiConfig fieldFilter : externalElasticsearch
+                    .getFieldFilters()) {
+                this.fieldFilters.add(new MultiConfig(fieldFilter));
+            }
+        }
+
         this.useESIndicesByExecution = externalElasticsearch
                 .getUseESIndicesByExecution() != null
                         ? externalElasticsearch.getUseESIndicesByExecution()

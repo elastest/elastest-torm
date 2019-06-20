@@ -8,6 +8,8 @@ import io.elastest.etm.dao.external.ExternalElasticsearchRepository;
 import io.elastest.etm.dao.external.ExternalMonitoringDBRepository;
 import io.elastest.etm.dao.external.ExternalPrometheusRepository;
 import io.elastest.etm.model.external.ExternalElasticsearch;
+import io.elastest.etm.model.external.ExternalMonitoringDBForLogs;
+import io.elastest.etm.model.external.ExternalMonitoringDBForMetrics;
 import io.elastest.etm.model.external.ExternalPrometheus;
 import io.elastest.etm.utils.UtilsService;
 
@@ -81,6 +83,81 @@ public class ExternalMonitoringDBService {
             Long externalPrometheusId) {
         return externalPrometheusRepository.findById(externalPrometheusId)
                 .get();
+    }
+
+    public ExternalMonitoringDBForLogs duplicateExternalMonitoringDBForLogs(
+            ExternalMonitoringDBForLogs externalMonitoringDBForLogs) {
+        try {
+            if (externalMonitoringDBForLogs != null
+                    && externalMonitoringDBForLogs
+                            .getExternalMonitoringDB() != null
+                    && externalMonitoringDBForLogs.getExternalMonitoringDB()
+                            .getId() != null) {
+                switch (externalMonitoringDBForLogs.getType()) {
+                case ELASTICSEARCH:
+                    ExternalElasticsearch externalElasticsearch = externalElasticsearchRepository
+                            .findById(externalMonitoringDBForLogs
+                                    .getExternalMonitoringDB().getId())
+                            .get();
+
+                    ExternalElasticsearch newExternalElasticsearch = new ExternalElasticsearch(
+                            externalElasticsearch);
+                    externalMonitoringDBForLogs
+                            .setExternalElasticsearch(newExternalElasticsearch);
+                    break;
+                default:
+                    break;
+                }
+
+            }
+        } catch (Exception e) {
+            logger.error("Error on duplicate ExternalMonitoringDB For Logs", e);
+        }
+
+        return externalMonitoringDBForLogs;
+    }
+
+    public ExternalMonitoringDBForMetrics duplicateExternalMonitoringDBForMetrics(
+            ExternalMonitoringDBForMetrics externalMonitoringDBForMetrics) {
+        try {
+            if (externalMonitoringDBForMetrics != null
+                    && externalMonitoringDBForMetrics
+                            .getExternalMonitoringDB() != null
+                    && externalMonitoringDBForMetrics.getExternalMonitoringDB()
+                            .getId() != null) {
+                switch (externalMonitoringDBForMetrics.getType()) {
+                case PROMETHEUS:
+                    ExternalPrometheus externalPrometheus = externalPrometheusRepository
+                            .findById(externalMonitoringDBForMetrics
+                                    .getExternalMonitoringDB().getId())
+                            .get();
+
+                    ExternalPrometheus newExternalPrometheus = new ExternalPrometheus(
+                            externalPrometheus);
+                    externalMonitoringDBForMetrics
+                            .setExternalPrometheus(newExternalPrometheus);
+                    break;
+                case ELASTICSEARCH:
+                    ExternalElasticsearch externalElasticsearch = externalElasticsearchRepository
+                            .findById(externalMonitoringDBForMetrics
+                                    .getExternalMonitoringDB().getId())
+                            .get();
+
+                    ExternalElasticsearch newExternalElasticsearch = new ExternalElasticsearch(
+                            externalElasticsearch);
+                    externalMonitoringDBForMetrics
+                            .setExternalElasticsearch(newExternalElasticsearch);
+                    break;
+                default:
+                    break;
+                }
+
+            }
+        } catch (Exception e) {
+            logger.error("Error on duplicate ExternalMonitoringDB For Logs", e);
+        }
+
+        return externalMonitoringDBForMetrics;
     }
 
 }
