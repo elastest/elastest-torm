@@ -130,8 +130,8 @@ public class PrometheusApiClient {
     /* *** Query Range *** */
 
     public PrometheusApiResponse<PrometheusQueryData> executeQueryRange(
-            String jsonOrMetricName, Double start, Double end, Integer step,
-            Double timeout) {
+            String jsonOrMetricName, String start, String end, Integer step,
+            String timeout) {
 
         String uri = QUERY_RANGE_PATH + jsonOrMetricName + "&start=" + start
                 + "&end=" + end;
@@ -155,8 +155,14 @@ public class PrometheusApiClient {
     }
 
     public PrometheusApiResponse<PrometheusQueryData> executeQueryRange(
-            String jsonOrMetricName, Double start, Double end) {
+            String jsonOrMetricName, String start, String end) {
         return executeQueryRange(jsonOrMetricName, start, end, null, null);
+    }
+
+    public PrometheusApiResponse<PrometheusQueryData> executeQueryRange(
+            String jsonOrMetricName, Double start, Double end) {
+        return executeQueryRange(jsonOrMetricName, start.toString(),
+                end.toString());
     }
 
     public ResponseEntity<String> getHealthy() {

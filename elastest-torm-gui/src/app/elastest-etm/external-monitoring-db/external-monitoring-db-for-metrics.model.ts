@@ -2,9 +2,10 @@ import { ExternalMonitoringDB } from './external-monitoring-db.model';
 import { ExternalElasticsearch } from './external-elasticsearch.model';
 import { ExternalPrometheus } from './external-prometheus.model';
 
-const STATE: any = {
+const TYPE: any = {
   ELASTICSEARCH: 'ELASTICSEARCH',
   PROMETHEUS: 'PROMETHEUS',
+  NONE: 'NONE',
 };
 
 export class ExternalMonitoringDBForMetrics {
@@ -14,8 +15,7 @@ export class ExternalMonitoringDBForMetrics {
 
   constructor(externalMonitoringDBForMetrics: any = undefined) {
     if (!externalMonitoringDBForMetrics) {
-      this.type = 'PROMETHEUS';
-      this.externalMonitoringDB = new ExternalPrometheus();
+      this.initFromType('NONE');
     } else {
       this.id = externalMonitoringDBForMetrics.id;
       this.type = externalMonitoringDBForMetrics.type;
@@ -25,7 +25,24 @@ export class ExternalMonitoringDBForMetrics {
           this.externalMonitoringDB = new ExternalElasticsearch(externalMonitoringDBForMetrics.externalMonitoringDB);
         } else if (this.type === 'PROMETHEUS') {
           this.externalMonitoringDB = new ExternalPrometheus(externalMonitoringDBForMetrics.externalMonitoringDB);
+        } else if (this.type === 'NONE') {
+          this.externalMonitoringDB = undefined;
         }
+      }
+    }
+  }
+
+  initFromType(type: ExternalMonitoringDBForMetricsType): void {
+    if (type) {
+      if (type === 'ELASTICSEARCH') {
+        this.type = type;
+        this.externalMonitoringDB = new ExternalElasticsearch();
+      } else if (type === 'PROMETHEUS') {
+        this.type = type;
+        this.externalMonitoringDB = new ExternalPrometheus();
+      } else if (type === 'NONE') {
+        this.type = type;
+        this.externalMonitoringDB = undefined;
       }
     }
   }
@@ -38,8 +55,12 @@ export class ExternalMonitoringDBForMetrics {
     return this.type === 'PROMETHEUS';
   }
 
+  isUsingExternalDBForMetrics(): boolean {
+    return this.type !== 'NONE';
+  }
+
   getTypes(): ExternalMonitoringDBForMetricsType[] {
-    return Object.keys(STATE);
+    return Object.keys(TYPE);
   }
 
   getExternalElasticsearch(): ExternalElasticsearch {
@@ -59,4 +80,4 @@ export class ExternalMonitoringDBForMetrics {
   }
 }
 
-export type ExternalMonitoringDBForMetricsType = keyof typeof STATE;
+export type ExternalMonitoringDBForMetricsType = keyof typeof TYPE;

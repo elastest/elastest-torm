@@ -29,6 +29,17 @@ export class ExternalElasticsearch extends ExternalMonitoringDB {
     }
   }
 
+  initByGiven(externalES: ExternalElasticsearch): void {
+    super.initByGiven(externalES);
+    this.indices = externalES.indices;
+    this.streamFields = externalES.streamFields ? externalES.streamFields : '';
+    this.fieldFilters = externalES.fieldFilters ? externalES.fieldFilters : [];
+    this.useESIndicesByExecution =
+      externalES.useESIndicesByExecution !== undefined && externalES.useESIndicesByExecution !== null
+        ? externalES.useESIndicesByExecution
+        : false;
+  }
+
   getLogIndicesParamName(): string {
     return 'EXT_ELASTICSEARCH_LOGS_INDICES';
   }

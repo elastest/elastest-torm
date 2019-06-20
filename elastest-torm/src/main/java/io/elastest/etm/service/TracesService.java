@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,6 +29,9 @@ import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.model.Enums.LevelEnum;
 import io.elastest.etm.model.Enums.StreamType;
 import io.elastest.etm.model.Trace;
+import io.elastest.etm.prometheus.client.PrometheusQueryData;
+import io.elastest.etm.prometheus.client.PrometheusQueryData.PrometheusQueryDataResultType;
+import io.elastest.etm.prometheus.client.PrometheusQueryDataResult;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 import io.krakens.grok.api.Grok;
@@ -489,6 +493,19 @@ public class TracesService {
         return procesed;
     }
 
+    public boolean processBeatTracesList(List<Map<String, Object>> dataMapList,
+            boolean fromDockbeat) {
+        boolean failures = false;
+        if (dataMapList == null) {
+            return true;
+        }
+        for (Map<String, Object> trace : dataMapList) {
+            failures = failures || !processBeatTrace(trace, fromDockbeat);
+        }
+        return failures;
+
+    }
+
     /* ************ */
     /* *** HTTP *** */
     /* ************ */
@@ -600,5 +617,30 @@ public class TracesService {
 
         }
         return dataMap;
+    }
+
+    public List<Map<String, Object>> convertExternalPrometheusTrace(
+            PrometheusQueryData labelTraces,
+            Map<String, Object> additionalFields) {
+        List<Map<String, Object>> traces = new ArrayList<>();
+
+        if (labelTraces != null && labelTraces.getResultType() != null
+                && labelTraces.getResult() != null) {
+            for (PrometheusQueryDataResult trace : labelTraces.getResult()) {
+                // A list of values for each metric
+                if (labelTraces
+                        .getResultType() == PrometheusQueryDataResultType.MATRIX) {
+
+                } else 
+                // Single value for each metric
+                    if (labelTraces
+                        .getResultType() == PrometheusQueryDataResultType.VECTOR) {
+
+                }
+
+            }
+        }
+
+        return traces;
     }
 }

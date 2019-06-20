@@ -163,7 +163,7 @@ public class ExternalMonitoringDBForMetrics {
     }
 
     public enum ExternalMonitoringDBForMetricsType {
-        ELASTICSEARCH("ELASTICSEARCH"), PROMETHEUS("PROMETHEUS");
+        ELASTICSEARCH("ELASTICSEARCH"), PROMETHEUS("PROMETHEUS"), NONE("NONE");
 
         private String value;
 

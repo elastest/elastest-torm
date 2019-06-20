@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
-import io.elastest.etm.model.external.ExternalElasticsearch;
-import io.elastest.etm.model.external.ExternalPrometheus;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -120,23 +118,4 @@ public interface SutApi extends EtmApiRoot {
     ResponseEntity<SutSpecification> getSutById(
             @ApiParam(value = "SUT id to return.", required = true) @PathVariable("sutId") Long sutId);
 
-    @ApiOperation(value = "Gets connection status of an External ElasticSearch", notes = "Gets connection status of an External ElasticSearch", response = Boolean.class, tags = {
-            "SUT", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Boolean.class),
-            @ApiResponse(code = 405, message = "Invalid input") })
-    @RequestMapping(value = "/sut/externaldb/elasticsearch/connection", consumes = {
-            "application/json" }, method = RequestMethod.POST)
-    ResponseEntity<Boolean> checkExternalElasticsearchConnection(
-            @ApiParam(value = "External Elasticsearch", required = true) @Valid @RequestBody ExternalElasticsearch body);
-
-    @ApiOperation(value = "Gets connection status of an External Prometheus", notes = "Gets connection status of an External Prometheus", response = Boolean.class, tags = {
-            "SUT", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = Boolean.class),
-            @ApiResponse(code = 405, message = "Invalid input") })
-    @RequestMapping(value = "/sut/externaldb/prometheus/connection", consumes = {
-            "application/json" }, method = RequestMethod.POST)
-    ResponseEntity<Boolean> checkExternalPrometheusConnection(
-            @ApiParam(value = "External Prometheus", required = true) @Valid @RequestBody ExternalPrometheus body);
 }

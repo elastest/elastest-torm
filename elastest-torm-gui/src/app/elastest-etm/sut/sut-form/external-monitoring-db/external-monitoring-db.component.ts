@@ -7,6 +7,7 @@ import { ParameterModel } from '../../../parameter/parameter-model';
 import { ExternalElasticsearchConfigurationComponent } from './external-elasticsearch-configuration/external-elasticsearch-configuration.component';
 import { ExternalPrometheus } from '../../../external-monitoring-db/external-prometheus.model';
 import { ExternalPrometheusConfigurationComponent } from './external-prometheus-configuration/external-prometheus-configuration.component';
+import { MatSelectChange } from '@angular/material';
 
 @Component({
   selector: 'etm-external-monitoring-db',
@@ -23,8 +24,12 @@ export class ExternalMonitoringDbComponent implements OnInit {
   @Input()
   sut: SutModel;
 
+  // Logs
   externalElasticsearchForLogs: ExternalElasticsearch;
+
+  // Metrics
   externalPrometheusForMetrics: ExternalPrometheus;
+  externalElasticsearchForMetrics: ExternalElasticsearch;
 
   constructor() {}
 
@@ -62,5 +67,35 @@ export class ExternalMonitoringDbComponent implements OnInit {
     }
 
     return valid;
+  }
+
+  changeLogsDBType(event: MatSelectChange): void {
+    if (event && event.value) {
+      if (!this.sut.externalMonitoringDBForLogs) {
+        this.sut.externalMonitoringDBForLogs = new ExternalMonitoringDBForLogs();
+      }
+
+      this.sut.externalMonitoringDBForLogs.initFromType(event.value);
+
+      if (event.value === 'ELASTICSEARCH' && !this.externalElasticsearchForLogs) {
+        this.externalElasticsearchForLogs = this.sut.externalMonitoringDBForLogs.getExternalElasticsearch();
+      }
+    }
+  }
+
+  changeMetricsDBType(event: MatSelectChange): void {
+    if (event && event.value) {
+      if (!this.sut.externalMonitoringDBForMetrics) {
+        this.sut.externalMonitoringDBForMetrics = new ExternalMonitoringDBForMetrics();
+      }
+
+      this.sut.externalMonitoringDBForMetrics.initFromType(event.value);
+
+      if (event.value === 'PROMETHEUS' && !this.externalPrometheusForMetrics) {
+        this.externalPrometheusForMetrics = this.sut.externalMonitoringDBForMetrics.getExternalPrometheus();
+      } else if (event.value === 'ELASTICSEARCH' && !this.externalElasticsearchForMetrics) {
+        this.externalElasticsearchForMetrics = this.sut.externalMonitoringDBForMetrics.getExternalElasticsearch();
+      }
+    }
   }
 }

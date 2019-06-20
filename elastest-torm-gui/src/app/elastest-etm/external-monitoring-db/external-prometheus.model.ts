@@ -22,4 +22,8 @@ export class ExternalPrometheus extends ExternalMonitoringDB {
   public getProtocolsList(): string[] {
     return ['http', 'https'];
   }
+
+  initByGiven(externalPrometheus: ExternalPrometheus): void {
+    super.initByGiven(externalPrometheus);
+  }
 }

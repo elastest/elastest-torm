@@ -1028,7 +1028,7 @@ public class TJobExecOrchestratorService {
                 }
 
                 Future<Void> asyncExElasticsearch = sutService
-                        .manageSutExecutionUsingExternalElasticsearch(sut,
+                        .manageSutExecutionUsingExternalElasticsearchForLogs(sut,
                                 sutExec.getSutExecMonitoringIndex(), startDate,
                                 asyncExternalElasticsearchSutExecs, key,
                                 EXEC_END_DATE_KEY);
@@ -1116,7 +1116,7 @@ public class TJobExecOrchestratorService {
     }
 
     public void stopManageSutByExternalElasticsearch(String mapKey) {
-        sutService.stopManageSutByExternalElasticsearch(
+        sutService.stopManageSutByExternalElasticsearchForLogs(
                 asyncExternalElasticsearchSutExecs, mapKey);
     }
 

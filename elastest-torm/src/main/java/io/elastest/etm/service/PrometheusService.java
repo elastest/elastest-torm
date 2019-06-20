@@ -5,12 +5,18 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import io.elastest.etm.prometheus.client.PrometheusApiClient;
 import io.elastest.etm.prometheus.client.PrometheusApiResponse;
 import io.elastest.etm.prometheus.client.PrometheusQueryData;
+import io.elastest.etm.utils.UtilsService;
 
 public class PrometheusService {
     protected final Logger logger = getLogger(lookup().lookupClass());
@@ -24,6 +30,9 @@ public class PrometheusService {
     private String user;
     private String pass;
     private String path;
+
+    @Autowired
+    protected UtilsService utilsService;
 
     PrometheusApiClient prometheusClient;
 
@@ -108,8 +117,13 @@ public class PrometheusService {
     }
 
     public boolean isReady() {
-        logger.debug("prometheusService.isReady() {}",prometheusClient.isReady());
+        logger.debug("prometheusService.isReady() {}",
+                prometheusClient.isReady());
         return this.prometheusClient.isReady();
+    }
+
+    public List<String> getAllLabelNames() {
+        return prometheusClient.getAllLabelNames();
     }
 
     public void getMetric(String metricName) {
@@ -118,7 +132,35 @@ public class PrometheusService {
                 .executeQuery(metricName);
 
         logger.debug("aaaaaaa {}", a);
+        // TODO
+    }
 
+    public PrometheusApiResponse<PrometheusQueryData> getMetricByRange(
+            String metricName, String start, String end) {
+        return this.prometheusClient.executeQueryRange(metricName, start, end);
+    }
+
+    public List<PrometheusQueryData> searchTraces(Date startDate, Date endDate)
+            throws ParseException {
+        List<PrometheusQueryData> traces = new ArrayList<>();
+
+        Double startTime = (double) (utilsService
+                .getIso8601UTCDateFromDate(startDate).getTime() / 1000);
+        Double endTime = (double) utilsService
+                .getIso8601UTCDateFromDate(endDate).getTime() / 1000;
+
+        List<String> labels = getAllLabelNames();
+        if (labels != null) {
+            for (String label : labels) {
+                PrometheusApiResponse<PrometheusQueryData> metricData = getMetricByRange(
+                        label, startTime.toString(), endTime.toString());
+                if (metricData != null) {
+                    traces.add(metricData.getData());
+                }
+            }
+        }
+
+        return traces;
     }
 
 }

@@ -3,6 +3,7 @@ package io.elastest.etm.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -25,6 +26,7 @@ import io.elastest.etm.model.SutExecution;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.external.ExternalElasticsearch;
 import io.elastest.etm.model.external.ExternalPrometheus;
+import io.elastest.etm.prometheus.client.PrometheusQueryData;
 import io.elastest.etm.utils.UtilsService;
 
 @Service
@@ -353,48 +355,8 @@ public class SutService {
         }
     }
 
-    public boolean checkExtElasticsearchConnection(
-            ExternalElasticsearch extES) {
-        boolean connected = false;
-        if (extES != null) {
-            try {
-                String esApiUrl = extES.getProtocol() + "://" + extES.getIp()
-                        + ":" + extES.getPort();
-                ElasticsearchService esService = new ElasticsearchService(
-                        esApiUrl, extES.getUser(), extES.getPass(),
-                        extES.getPath(), utilsService);
-                esService.getInfo();
-                connected = true;
-            } catch (Exception e) {
-            }
-        }
-
-        return connected;
-    }
-
-    public boolean checkExternalPrometheusConnection(
-            ExternalPrometheus prometheus) {
-        boolean connected = false;
-        if (prometheus != null) {
-            try {
-                PrometheusService prometheusService = new PrometheusService(
-                        prometheus.getProtocol().toString(), prometheus.getIp(),
-                        prometheus.getPort(), prometheus.getUser(),
-                        prometheus.getPass(), prometheus.getPath());
-
-                connected = prometheusService.isReady()
-                        && prometheusService.isHealthy();
-            } catch (Exception e) {
-                logger.error("Error on check External Prometheus Connection",
-                        e);
-            }
-        }
-
-        return connected;
-    }
-
     @Async
-    public Future<Void> manageSutExecutionUsingExternalElasticsearch(
+    public Future<Void> manageSutExecutionUsingExternalElasticsearchForLogs(
             SutSpecification sut, String monitoringIndex, Date startDate,
             Map<String, SharedAsyncModel<Void>> sharedAsyncModelMap,
             String sharedAsyncModelKey, String endDateKey) {
@@ -485,13 +447,13 @@ public class SutService {
             logger.error("Error on connect to external Elasticsearch", e);
         }
 
-        stopManageSutByExternalElasticsearch(sharedAsyncModelMap,
+        stopManageSutByExternalElasticsearchForLogs(sharedAsyncModelMap,
                 sharedAsyncModelKey);
 
         return new AsyncResult<Void>(null);
     }
 
-    public void stopManageSutByExternalElasticsearch(
+    public void stopManageSutByExternalElasticsearchForLogs(
             Map<String, SharedAsyncModel<Void>> asyncExternalElasticsearchSutExecs,
             String mapKey) {
         if (!asyncExternalElasticsearchSutExecs.containsKey(mapKey)) {
@@ -512,4 +474,122 @@ public class SutService {
         }
 
     }
+
+    @Async
+    public Future<Void> manageSutExecutionUsingExternalPrometheusForMetrics(
+            SutSpecification sut, String monitoringIndex, Date startDate,
+            Map<String, SharedAsyncModel<Void>> sharedAsyncModelMap,
+            String sharedAsyncModelKey, String endDateKey) {
+        ExternalPrometheus prometheus = (ExternalPrometheus) sut
+                .getExternalMonitoringDBForLogs().getExternalMonitoringDB();
+
+        try {
+            PrometheusService prometheusService = new PrometheusService(
+                    prometheus.getProtocol().toString(), prometheus.getIp(),
+                    prometheus.getPort(), prometheus.getUser(),
+                    prometheus.getPass(), prometheus.getPath());
+            List<PrometheusQueryData> labelsTraces = new ArrayList<>();
+
+            boolean finish = false;
+
+            // LOOP
+            while (!finish) {
+                Date endExecDate = null;
+                if (sharedAsyncModelMap.containsKey(sharedAsyncModelKey)
+                        && sharedAsyncModelMap.get(sharedAsyncModelKey)
+                                .getData().containsKey(endDateKey)) {
+                    try {
+                        endExecDate = (Date) sharedAsyncModelMap
+                                .get(sharedAsyncModelKey).getData()
+                                .get(endDateKey);
+                    } catch (Exception e) {
+                    }
+                }
+
+                // TODO change for filter by labels?
+                // String indexes = prometheus.getIndices();
+
+                // if (prometheus.getUseESIndicesByExecution()) {
+                // for (Parameter param : sut.getParameters()) {
+                // if (param.getName()
+                // .equals("EXT_ELASTICSEARCH_LOGS_INDICES")) {
+                // indexes = param.getValue();
+                // logger.debug("Indexes as String: {}", indexes);
+                // break;
+                // }
+                // }
+                // }
+
+                try {
+                    Date tmpEndDate = new Date();
+                    labelsTraces = prometheusService.searchTraces(startDate,
+                            tmpEndDate);
+
+                    // On next iteration startDate from currentEndDate
+                    startDate = tmpEndDate;
+
+                    for (PrometheusQueryData labelTraces : labelsTraces) {
+                        Map<String, Object> additionalFields = new HashMap<>();
+                        additionalFields.put("exec", monitoringIndex);
+                        additionalFields.put("component", "sut");
+
+                        List<Map<String, Object>> traces = tracesService
+                                .convertExternalPrometheusTrace(labelTraces,
+                                        additionalFields);
+
+                        // Only works in mini... TODO send to Logstash
+                        tracesService.processBeatTracesList(traces, false);
+                    }
+                    try {
+                        Thread.sleep(1500);
+                    } catch (InterruptedException e) {
+                        logger.info(
+                                "TJob Execution {}: Manage Sut by External Elasticsearch thread has been interrupted ",
+                                monitoringIndex);
+                        break;
+                    }
+
+                } catch (Exception e) {
+                    logger.error(
+                            "Error on getting traces from external Elasticsearch",
+                            e);
+                }
+
+                if (endExecDate != null && labelsTraces.size() == 0) {
+                    finish = true;
+                }
+            } // End Loop
+        } catch (Exception e) {
+            logger.error("Error on connect to external Elasticsearch", e);
+        }
+
+        stopManageSutByExternalPrometheusForMetrics(sharedAsyncModelMap,
+                sharedAsyncModelKey);
+
+        return new AsyncResult<Void>(null);
+    }
+
+    public void stopManageSutByExternalPrometheusForMetrics(
+            Map<String, SharedAsyncModel<Void>> asyncExternalElasticsearchSutExecs,
+            String mapKey) {
+        // if (!asyncExternalElasticsearchSutExecs.containsKey(mapKey)) {
+        // return;
+        // }
+        // Future<Void> asyncExec =
+        // asyncExternalElasticsearchSutExecs.get(mapKey)
+        // .getFuture();
+        //
+        // try {
+        // asyncExec.cancel(true);
+        // asyncExternalElasticsearchSutExecs.remove(mapKey);
+        // logger.info("Stopped Async Manage Sut by external Elasticsearch {}",
+        // mapKey);
+        // } catch (Exception e) {
+        // logger.info(
+        // "Error during stop Manage Sut by external Elasticsearch {}",
+        // mapKey, e);
+        // }
+
+    }
+
 }

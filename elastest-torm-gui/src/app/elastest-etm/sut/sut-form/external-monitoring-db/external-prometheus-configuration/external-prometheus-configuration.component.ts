@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { ExternalPrometheus } from '../../../../external-monitoring-db/external-prometheus.model';
 import { FormGroup, Validators, FormControl } from '@angular/forms';
 import { SutService } from '../../../sut.service';
+import { ExternalMonitoringDBService } from '../external-monitoring-db.service';
 
 @Component({
   selector: 'etm-external-prometheus-configuration',
@@ -15,6 +16,8 @@ export class ExternalPrometheusConfigurationComponent implements OnInit {
   @Input()
   monitoringType: 'logs' | 'metrics';
 
+  ready: boolean = false;
+
   externalPrometheusConnectedStatus: string = '';
   externalPrometheusConnectedStatusColor: string = '';
   externalPrometheusConnectedStatusIcon: string = '';
@@ -26,13 +29,29 @@ export class ExternalPrometheusConfigurationComponent implements OnInit {
     prometheusPort: new FormControl('', [Validators.required]),
   });
 
-  constructor(private sutService: SutService) {}
+  constructor(private externalMonitoringDBService: ExternalMonitoringDBService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (
+      this.externalPrometheus &&
+      this.externalPrometheus.id !== undefined &&
+      this.externalPrometheus.id !== null &&
+      this.externalPrometheus.id > 0
+    ) {
+      this.externalMonitoringDBService
+        .getExternalPrometheusById(this.externalPrometheus.id)
+        .subscribe((externalPrometheus: ExternalPrometheus) => {
+          this.externalPrometheus.initByGiven(externalPrometheus);
+          this.ready = true;
+        });
+    } else {
+      this.ready = true;
+    }
+  }
 
   checkExternalPrometheusConnection(): void {
     this.externalPrometheusCheckingConnection = true;
-    this.sutService.checkExternalPrometheusConnection(this.externalPrometheus).subscribe(
+    this.externalMonitoringDBService.checkExternalPrometheusConnection(this.externalPrometheus).subscribe(
       (connected: boolean) => {
         if (connected) {
           this.externalPrometheusConnectedStatus = 'Connected';

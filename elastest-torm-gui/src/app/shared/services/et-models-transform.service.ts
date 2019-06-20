@@ -305,8 +305,8 @@ export class ETModelsTransformServices {
       newSut.currentSutExec = sut.currentSutExec;
       newSut.instrumentedBy = sut.instrumentedBy;
 
-      newSut.externalMonitoringDBForLogs = sut.externalMonitoringDBForLogs;
-      newSut.externalMonitoringDBForMetrics = sut.externalMonitoringDBForMetrics;
+      newSut.externalMonitoringDBForLogs = new ExternalMonitoringDBForLogs(sut.externalMonitoringDBForLogs);
+      newSut.externalMonitoringDBForMetrics = new ExternalMonitoringDBForMetrics(sut.externalMonitoringDBForMetrics);
 
       newSut.protocol = sut.protocol !== undefined && sut.protocol !== null ? sut.protocol : 'http';
       newSut.port = sut.port;

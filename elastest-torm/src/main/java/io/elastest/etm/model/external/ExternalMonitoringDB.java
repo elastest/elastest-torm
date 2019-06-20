@@ -27,10 +27,11 @@ import io.elastest.etm.model.external.ExternalMonitoringDBForMetrics.ExternalMon
 import io.elastest.etm.model.external.ExternalProject.ExternalProjectView;
 import io.elastest.etm.model.external.ExternalPrometheus.ExternalPrometheusView;
 
-@JsonTypeInfo(use = com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "monitoringType")
+@JsonTypeInfo(use = com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "monitoringType", visible = true)
 @JsonSubTypes({
         @Type(value = ExternalElasticsearch.class, name = "ELASTICSEARCH"),
-        @Type(value = ExternalPrometheus.class, name = "PROMETHEUS") })
+        @Type(value = ExternalPrometheus.class, name = "PROMETHEUS"),
+        @Type(value = ExternalMonitoringDB.class, name = "NONE") })
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)

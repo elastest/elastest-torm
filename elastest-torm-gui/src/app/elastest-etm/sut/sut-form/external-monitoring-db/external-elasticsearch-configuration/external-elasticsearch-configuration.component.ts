@@ -3,6 +3,7 @@ import { ExternalElasticsearch } from '../../../../external-monitoring-db/extern
 import { ParameterModel } from '../../../../parameter/parameter-model';
 import { SutService } from '../../../sut.service';
 import { Validators, FormGroup, FormControl } from '@angular/forms';
+import { ExternalMonitoringDBService } from '../external-monitoring-db.service';
 
 @Component({
   selector: 'etm-external-elasticsearch-configuration',
@@ -21,6 +22,8 @@ export class ExternalElasticsearchConfigurationComponent implements OnInit {
 
   @Input()
   setParameters: Function;
+
+  ready: boolean = false;
 
   // External Elasticsearch
 
@@ -41,9 +44,20 @@ export class ExternalElasticsearchConfigurationComponent implements OnInit {
     esIndices: new FormControl('', [Validators.required]),
   });
 
-  constructor(private sutService: SutService) {}
+  constructor(private externalMonitoringDBService: ExternalMonitoringDBService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if (this.externalES && this.externalES.id !== undefined && this.externalES.id !== null && this.externalES.id > 0) {
+      this.externalMonitoringDBService
+        .getExternalElasticsearchById(this.externalES.id)
+        .subscribe((externalES: ExternalElasticsearch) => {
+          this.externalES.initByGiven(externalES);
+          this.ready = true;
+        });
+    } else {
+      this.ready = true;
+    }
+  }
 
   switchUseESIndicesByExecution($event): void {
     this.externalES.useESIndicesByExecution = $event.checked;
@@ -76,7 +90,7 @@ export class ExternalElasticsearchConfigurationComponent implements OnInit {
 
   checkExternalESConnection(): void {
     this.extESCheckingConnection = true;
-    this.sutService.checkExternalElasticsearchConnection(this.externalES).subscribe(
+    this.externalMonitoringDBService.checkExternalElasticsearchConnection(this.externalES).subscribe(
       (connected: boolean) => {
         if (connected) {
           this.extESConnectedStatus = 'Connected';

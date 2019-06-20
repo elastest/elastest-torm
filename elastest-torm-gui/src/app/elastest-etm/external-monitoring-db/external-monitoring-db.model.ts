@@ -27,6 +27,16 @@ export abstract class ExternalMonitoringDB {
     }
   }
 
+  initByGiven(externalDB: ExternalMonitoringDB): void {
+    this.id = externalDB.id;
+    this.protocol = externalDB.protocol;
+    this.ip = externalDB.ip;
+    this.port = externalDB.port;
+    this.path = externalDB.path;
+    this.user = externalDB.user;
+    this.pass = externalDB.pass;
+  }
+
   public getProtocolsList(): string[] {
     return ['http', 'https'];
   }

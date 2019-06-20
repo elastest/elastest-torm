@@ -62,18 +62,4 @@ export class SutService {
       .post(url, sut, { observe: 'response' })
       .map((response: HttpResponse<any>) => this.eTModelsTransformServices.jsonToSutModel(response.body));
   }
-
-  public checkExternalElasticsearchConnection(extES: ExternalElasticsearch): Observable<boolean> {
-    let url: string = this.configurationService.configModel.hostApi + '/sut/externaldb/elasticsearch/connection';
-    return this.http.post(url, extES, { observe: 'response' }).map((data: HttpResponse<boolean>) => {
-      return data.body;
-    });
-  }
-
-  public checkExternalPrometheusConnection(externalPrometheus: ExternalPrometheus): Observable<boolean> {
-    let url: string = this.configurationService.configModel.hostApi + '/sut/externaldb/prometheus/connection';
-    return this.http.post(url, externalPrometheus, { observe: 'response' }).map((data: HttpResponse<boolean>) => {
-      return data.body;
-    });
-  }
 }

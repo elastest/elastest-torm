@@ -42,7 +42,7 @@ public class PrometheusApiResponse<T> {
         this.status = status;
     }
 
-    public Object getData() {
+    public T getData() {
         return data;
     }
 

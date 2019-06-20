@@ -5,17 +5,32 @@
       <span class="push-left-sm">Monitoring DB For Logs</span>
     </ng-template>
 
-    <div fxLayout="column">
-      <ng-container *ngIf="sut.externalMonitoringDBForMetrics && externalElasticsearchForLogs">
-        <etm-external-elasticsearch-configuration
-          #externalElasticsearchConfigurationComponent
-          [externalES]="externalElasticsearchForLogs"
-          [type]="logs"
-          [getParameters]="getParameters.bind(this)"
-          [setParameters]="setParameters.bind(this,i)"
-        ></etm-external-elasticsearch-configuration>
-      </ng-container>
+    <div fxLayout="column" class="push-sm">
+      <mat-form-field class="push-sm">
+        <mat-select
+          placeholder="Select a DB"
+          name="logsDBSelector"
+          [(ngModel)]="sut.externalMonitoringDBForLogs.type"
+          (selectionChange)="changeLogsDBType($event)"
+        >
+          <mat-option *ngFor="let type of sut.externalMonitoringDBForLogs.getTypes()" [value]="type">
+            {{ type }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <ng-container *ngIf="sut.externalMonitoringDBForLogs.type === 'NONE'; else showDBs"> </ng-container>
+      <ng-template #showDBs>
+        <ng-container *ngIf="sut.externalMonitoringDBForLogs.type === 'ELASTICSEARCH'">
+          <etm-external-elasticsearch-configuration
+            #externalElasticsearchConfigurationComponent
+            [externalES]="externalElasticsearchForLogs"
+            [type]="logs"
+            [getParameters]="getParameters.bind(this)"
+            [setParameters]="setParameters.bind(this,i)"
+          ></etm-external-elasticsearch-configuration>
+        </ng-container>
+      </ng-template>
     </div>
   </td-expansion-panel>
 </ng-container>
-

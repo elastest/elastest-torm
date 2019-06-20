@@ -85,7 +85,7 @@ public class ExternalMonitoringDBForLogs {
             ExternalMonitoringDB externalMonitoringDB) {
         this.id = id == null ? 0 : id;
         this.type = type;
-        this.externalMonitoringDB = externalMonitoringDB;
+        this.setExternalMonitoringDB(externalMonitoringDB);
     }
 
     public ExternalMonitoringDBForLogs(Long id,
@@ -93,7 +93,7 @@ public class ExternalMonitoringDBForLogs {
             ExternalElasticsearch externalES) {
         this.id = id == null ? 0 : id;
         this.type = type;
-        this.externalMonitoringDB = externalES;
+        this.setExternalElasticsearch(externalES);
         if (this.type == null) {
             this.type = ExternalMonitoringDBForLogsType.ELASTICSEARCH;
         }
@@ -151,7 +151,7 @@ public class ExternalMonitoringDBForLogs {
     }
 
     public enum ExternalMonitoringDBForLogsType {
-        ELASTICSEARCH("ELASTICSEARCH");
+        ELASTICSEARCH("ELASTICSEARCH"), NONE("NONE");
 
         private String value;
 

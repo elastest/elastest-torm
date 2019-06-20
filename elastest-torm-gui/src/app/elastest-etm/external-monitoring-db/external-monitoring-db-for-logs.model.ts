@@ -1,6 +1,11 @@
 import { ExternalMonitoringDB } from './external-monitoring-db.model';
 import { ExternalElasticsearch } from './external-elasticsearch.model';
 
+const TYPE: any = {
+  ELASTICSEARCH: 'ELASTICSEARCH',
+  NONE: 'NONE',
+};
+
 export class ExternalMonitoringDBForLogs {
   private externalMonitoringDB: ExternalMonitoringDB;
 
@@ -9,9 +14,7 @@ export class ExternalMonitoringDBForLogs {
 
   constructor(externalMonitoringDBForLogs: any = undefined) {
     if (!externalMonitoringDBForLogs) {
-      // Hardcoded because has only 1 type
-      this.type = 'ELASTICSEARCH';
-      this.externalMonitoringDB = new ExternalElasticsearch();
+      this.initFromType('NONE');
     } else {
       this.id = externalMonitoringDBForLogs.id;
       this.type = externalMonitoringDBForLogs.type;
@@ -20,6 +23,18 @@ export class ExternalMonitoringDBForLogs {
         if (this.type === 'ELASTICSEARCH') {
           this.externalMonitoringDB = new ExternalElasticsearch(externalMonitoringDBForLogs.externalMonitoringDB);
         }
+      }
+    }
+  }
+
+  initFromType(type: ExternalMonitoringDBForLogsType): void {
+    if (type) {
+      if (type === 'ELASTICSEARCH') {
+        this.type = type;
+        this.externalMonitoringDB = new ExternalElasticsearch();
+      } else if (type === 'NONE') {
+        this.type = type;
+        this.externalMonitoringDB = undefined;
       }
     }
   }
@@ -35,6 +50,10 @@ export class ExternalMonitoringDBForLogs {
       return undefined;
     }
   }
+
+  getTypes(): ExternalMonitoringDBForLogsType[] {
+    return Object.keys(TYPE);
+  }
 }
 
-export type ExternalMonitoringDBForLogsType = 'ELASTICSEARCH' | '';
+export type ExternalMonitoringDBForLogsType = keyof typeof TYPE;

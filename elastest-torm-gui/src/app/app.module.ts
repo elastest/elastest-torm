@@ -152,6 +152,7 @@ import { EtmRestClientService } from './shared/services/etm-rest-client.service'
 import { ExternalMonitoringDbComponent } from './elastest-etm/sut/sut-form/external-monitoring-db/external-monitoring-db.component';
 import { ExternalElasticsearchConfigurationComponent } from './elastest-etm/sut/sut-form/external-monitoring-db/external-elasticsearch-configuration/external-elasticsearch-configuration.component';
 import { ExternalPrometheusConfigurationComponent } from './elastest-etm/sut/sut-form/external-monitoring-db/external-prometheus-configuration/external-prometheus-configuration.component';
+import { ExternalMonitoringDBService } from './elastest-etm/sut/sut-form/external-monitoring-db/external-monitoring-db.service';
 
 library.add(faJenkins);
 library.add(fas);
@@ -276,6 +277,7 @@ library.add(fas);
     TdLayoutManageListComponent,
     StompWSManager,
     SutService,
+    ExternalMonitoringDBService,
     SutExecService,
     TJobService,
     TestCaseService,
