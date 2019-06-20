@@ -177,12 +177,12 @@ public class MiniEsmServiceClient
                         serviceName);
                 JsonNode manifestEndpointService = manifestEndpoints
                         .get(serviceName);
-                String containerName = serviceInstance.getInstanceId() + "_"
-                        + serviceName + "_1";
+                String containerName = platformService
+                        .getTSSInstanceContainerName(
+                                serviceInstance.getInstanceId(), serviceName);
                 try {
                     String containerIp = platformService
-                            .getContainerIpByNetwork(containerName,
-                                    etDockerNetwork);
+                            .getContainerIp(containerName);
                     logger.debug("Container ip {} for the service {}",
                             containerIp, containerName);
                     logger.info("ET_PUBLIC_HOST value: "

@@ -169,11 +169,17 @@ public abstract class PlatformService {
     public abstract boolean isContainerIntoNetwork(String networkId,
             String containerId) throws Exception;
 
-    public abstract String getContainerIpByNetwork(String containerId,
+    public String getContainerIp(String containerId) throws Exception {
+        return getContainerIp(containerId, elastestNetwork);
+    }
+    
+    public abstract String getContainerIp(String containerId,
             String network) throws Exception;
 
-    public abstract String getContainerName(String serviceName, String network);
+    public abstract String getUniqPluginContainerName(String serviceName, String network);
 
+    public abstract String getTSSInstanceContainerName(String... params);
+    
     public abstract void enableServiceMetricMonitoring(Execution execution)
             throws Exception;
 

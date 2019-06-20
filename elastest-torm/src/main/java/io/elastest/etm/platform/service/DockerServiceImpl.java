@@ -1149,9 +1149,9 @@ public class DockerServiceImpl extends PlatformService {
             throws Exception {
         return dockerService.isContainerIntoNetwork(networkId, containerId);
     }
-
+    
     @Override
-    public String getContainerIpByNetwork(String containerId, String network)
+    public String getContainerIp(String containerId, String network)
             throws Exception {
         return dockerService.getContainerIpByNetwork(containerId, network);
     }
@@ -1184,7 +1184,7 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getContainerName(String serviceName, String network) {
+    public String getUniqPluginContainerName(String serviceName, String network) {
         String currentContainerName = null;
         try {
             for (Container container : dockerComposeService.dockerService
@@ -1398,6 +1398,11 @@ public class DockerServiceImpl extends PlatformService {
             String targetPath) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public String getTSSInstanceContainerName(String... params) {
+        return params[0] + "_" + params[1] + "_1";
     }
 
 }

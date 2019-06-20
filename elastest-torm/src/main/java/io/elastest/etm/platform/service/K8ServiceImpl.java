@@ -147,14 +147,14 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getContainerIpByNetwork(String containerId, String network)
+    public String getContainerIp(String containerId, String network)
             throws Exception {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public String getContainerName(String serviceName, String network) {
+    public String getUniqPluginContainerName(String serviceName, String network) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -412,6 +412,17 @@ public class K8ServiceImpl extends PlatformService {
 
         return bindedPortObj;
 
+    }
+
+    @Override
+    public String getTSSInstanceContainerName(String... params) {
+        String name = "";
+        Map<String, String> labels = new HashMap<>();
+        labels.put("io.elastest.tjob.tss.subservice.id", params[1]);
+        if (k8sService.getPodsByLabels(labels).size() > 0) {
+            name = params[1];
+        }
+        return name;
     }
 
 }

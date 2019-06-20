@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +28,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import io.elastest.epm.client.DockerContainer;
-import io.elastest.epm.client.dockercompose.DockerComposeContainer;
 import io.elastest.epm.client.json.DockerProject;
 import io.elastest.epm.client.utils.UtilTools;
 import io.fabric8.kubernetes.api.builder.Visitor;
@@ -42,7 +40,6 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
-import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -112,7 +109,7 @@ public class K8sService {
     }
 
     public enum PodsStatusEnum {
-        PENDING("Not initialized"), RUNNING("Running"), SUCCEEDED("Succeeded"),
+        PENDING("Pending"), RUNNING("Running"), SUCCEEDED("Succeeded"),
         FAILED("Failed"), UNKNOWN("Unknown");
 
         private String value;
@@ -248,20 +245,23 @@ public class K8sService {
                                         logger.debug("Label: {}-{}", label,
                                                 value);
                                     });
-                            logger.debug("Job {} receive an event",
+                            logger.debug("Job {} receives an event",
                                     job.getMetadata().getLabels()
                                             .get(LABEL_JOB_NAME));
                             logger.debug("Event received: {}",
                                     pod.getStatus().getPhase());
                             logger.debug("Action: {}", action.toString());
 
+                            logger.debug("Enum Pending: {}", PodsStatusEnum.PENDING.toString());
+                            
                             if (result.getPodName().isEmpty()) {
                                 result.setPodName(pod.getMetadata().getName());
                             }
+                            
 
-                            if (!pod.getStatus().getPhase().equals(PodsStatusEnum.PENDING.toString())
-                                    && !pod.getStatus().getPhase()
-                                            .equals(PodsStatusEnum.RUNNING.toString())) {
+                            if (!(pod.getStatus().getPhase().equals(PodsStatusEnum.PENDING.toString()))
+                                    && !(pod.getStatus().getPhase()
+                                            .equals(PodsStatusEnum.RUNNING.toString()))) {
                                 logger.info("Pod executed with result: {}",
                                         pod.getStatus().getPhase());
                                 result.setResult(pod.getStatus().getPhase()
@@ -386,14 +386,15 @@ public class K8sService {
 //                getEnvVarListFromStringList(new ArrayList<String>()));
 //    }
     
-    public PodInfo deployResourcesFromProject(String projectName)
+    public List<PodInfo> deployResourcesFromProject(String projectName)
             throws IOException {
         return deployResourcesFromProject(projectName, DEFAULT_NAMESPACE);
     }
 
-    public PodInfo deployResourcesFromProject(String projectName, String namespace)
+    public List<PodInfo> deployResourcesFromProject(String projectName, String namespace)
             throws IOException {
         PodInfo podInfo = new PodInfo();
+        List<PodInfo> podsInfoList = new ArrayList<>();
         DockerProject project = projects.get(projectName);
 
         try (InputStream is = IOUtils.toInputStream(project.getYml(),
@@ -406,17 +407,24 @@ public class K8sService {
             for (HasMetadata resource : resourcesMetadata) {
                 if (resource.getKind().equals("Pod")) {
                     Pod pod = (Pod) resource;
-                    if (pod.getMetadata().getLabels()
-                            .get("io.elastest.tjob.tss.type") != null
-                            && pod.getMetadata().getLabels()
-                                    .get("io.elastest.tjob.tss.type")
-                                    .equals("main")) {
-                        while (!isReady(pod.getMetadata().getName())) {
-                            UtilTools.sleep(1);
-                        }
-                        podInfo.setPodName(pod.getMetadata().getName());
-                        podInfo.setPodIp(pod.getStatus().getPodIP());
+//                    if (pod.getMetadata().getLabels()
+//                            .get("io.elastest.tjob.tss.type") != null
+//                            && pod.getMetadata().getLabels()
+//                                    .get("io.elastest.tjob.tss.type")
+//                                    .equals("main")) {
+//                        while (!isReady(pod.getMetadata().getName())) {
+//                            UtilTools.sleep(1);
+//                        }
+//                        podInfo.setPodName(pod.getMetadata().getName());
+//                        podInfo.setPodIp(pod.getStatus().getPodIP());
+//                    }
+                    while (!isReady(pod.getMetadata().getName())) {
+                        UtilTools.sleep(1);
                     }
+                    podInfo.setPodName(pod.getMetadata().getName());
+                    podInfo.setPodIp(pod.getStatus().getPodIP());
+                    podInfo.setLabels(pod.getMetadata().getLabels());
+                    podsInfoList.add(podInfo);
                 }
             }
             
@@ -426,7 +434,7 @@ public class K8sService {
             throw e;
         }
 
-        return podInfo;
+        return podsInfoList;
     }
     
     public void deleteResourcesFromYmlString(String manifest, String namespace)
@@ -652,68 +660,7 @@ public class K8sService {
                     e.getMessage());
         }
     }
-
-    public class PodInfo {
-        private String podName;
-        private String podIp;
-
-        public String getPodName() {
-            return podName;
-        }
-
-        public void setPodName(String podName) {
-            this.podName = podName;
-        }
-
-        public String getPodIp() {
-            return podIp;
-        }
-
-        public void setPodIp(String podIp) {
-            this.podIp = podIp;
-        }
-    }
-
-    public class JobResult {
-        private Integer result;
-        private String jobName;
-        private String podName;
-
-        public String getPodName() {
-            return podName;
-        }
-
-        public void setPodName(String podName) {
-            this.podName = podName;
-        }
-
-        private String testResults;
-
-        public String getTestResults() {
-            return testResults;
-        }
-
-        public void setTestResults(String testResults) {
-            this.testResults = testResults;
-        }
-
-        public String getJobName() {
-            return jobName;
-        }
-
-        public void setJobName(String jobName) {
-            this.jobName = jobName;
-        }
-
-        public Integer getResult() {
-            return result;
-        }
-
-        public void setResult(Integer result) {
-            this.result = result;
-        }
-    }
-
+    
     public MixedOperation<Service, ServiceList, DoneableService, ServiceResource<Service, DoneableService>> getAllServicesToOperate() {
         return client.services();
     }
@@ -744,6 +691,11 @@ public class K8sService {
 
     public String getPodIpByPodName(String name) {
         return getPodByName(name).getStatus().getPodIP();
+    }
+    
+    public List<Pod> getPodsByLabels(Map<String, String> labels) {
+        return client.pods().inNamespace(DEFAULT_NAMESPACE).withLabels(labels)
+                .list().getItems();
     }
 
     public Boolean existJobByName(String name) {
@@ -819,5 +771,76 @@ public class K8sService {
         }
 
         return etToolsVolume;
+    }
+    
+
+    public class PodInfo {
+        private String podName;
+        private String podIp;
+        private Map<String, String> labels;
+
+        public String getPodName() {
+            return podName;
+        }
+
+        public void setPodName(String podName) {
+            this.podName = podName;
+        }
+
+        public String getPodIp() {
+            return podIp;
+        }
+
+        public void setPodIp(String podIp) {
+            this.podIp = podIp;
+        }
+
+        public Map<String, String> getLabels() {
+            return labels;
+        }
+
+        public void setLabels(Map<String, String> labels) {
+            this.labels = labels;
+        }
+    }
+
+    public class JobResult {
+        private Integer result;
+        private String jobName;
+        private String podName;
+
+        public String getPodName() {
+            return podName;
+        }
+
+        public void setPodName(String podName) {
+            this.podName = podName;
+        }
+
+        private String testResults;
+
+        public String getTestResults() {
+            return testResults;
+        }
+
+        public void setTestResults(String testResults) {
+            this.testResults = testResults;
+        }
+
+        public String getJobName() {
+            return jobName;
+        }
+
+        public void setJobName(String jobName) {
+            this.jobName = jobName;
+        }
+
+        public Integer getResult() {
+            return result;
+        }
+
+        public void setResult(Integer result) {
+            this.result = result;
+        }
     }
 }

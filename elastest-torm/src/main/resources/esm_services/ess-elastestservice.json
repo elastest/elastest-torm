@@ -43,15 +43,15 @@
                 "main": true,
                 "api": [
                     {
-                        "protocol": "http",
-                        "port": 80,
-                        "path": "/ess/api/r4"
+                       "protocol": "http",
+                       "port": 80,
+                       "path": "/ess/api/r4"
                     },
                     {
-                        "name": "httpproxy",
-                        "protocol": "http",
-                        "port": 8080,
-                        "path": ""
+                       "name": "httpproxy",
+                       "protocol": "http",
+                       "port": 8080,
+                       "path": ""
                     }
                 ],
                 "gui": {

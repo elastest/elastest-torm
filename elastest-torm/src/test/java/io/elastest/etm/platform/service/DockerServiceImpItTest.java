@@ -227,7 +227,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
         deployDummyTSS();
         DockerContainerInfo containerInfo = platformService
                 .getContainers(instanceId);
-        String ip = platformService.getContainerIpByNetwork(
+        String ip = platformService.getContainerIp(
                 containerInfo.getContainers().get(0).getName(),
                 elastestNetwork);
         log.info("Container ip: {}", ip);
@@ -248,7 +248,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
         log.info(
                 "Start the test to retrive the name of a container by service name and network");
         deployDummyTSS();
-        String containerName = platformService.getContainerName("dummy-tss",
+        String containerName = platformService.getUniqPluginContainerName("dummy-tss",
                 elastestNetwork);
         assertEquals(instanceId + "_dummy-tss_1", containerName.split("/")[1]);
         platformService.undeployService(instanceId);
