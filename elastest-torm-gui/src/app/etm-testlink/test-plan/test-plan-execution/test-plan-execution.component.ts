@@ -411,16 +411,13 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
             this.forceEnd(true, 'Error on initialize browser', 'ERROR', 'ESS proxy api url is not available');
           } else {
             let proxyUrl: string = instance.urls.get(httpproxyapiKey).internal;
-
-            if (extraCapabilities['chromeOptions'] === undefined || extraCapabilities['chromeOptions'] === null) {
-              extraCapabilities['chromeOptions'] = {};
+            extraCapabilities['proxy'] = { httpProxy: proxyUrl, proxyType: 'MANUAL' };
+            if (extraCapabilities['firstMatch'] === undefined || extraCapabilities['firstMatch'] === null) {
+              extraCapabilities['firstMatch'] = [{ proxy: { httpProxy: proxyUrl, proxyType: 'manual' } }];
+            } else {
+              extraCapabilities['firstMatch'][0]['proxy'] = { httpProxy: proxyUrl, proxyType: 'manual' };
             }
 
-            if (extraCapabilities['chromeOptions']['args'] === undefined || extraCapabilities['chromeOptions']['args'] === null) {
-              extraCapabilities['chromeOptions']['args'] = [];
-            }
-
-            extraCapabilities['chromeOptions']['args'].push('--proxy-server=' + proxyUrl);
             let essApiUrl: string = instance.urls.get('api').internal;
             this.startEssScan(essApiUrl);
           }
