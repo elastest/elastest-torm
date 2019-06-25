@@ -25,11 +25,55 @@
           <etm-external-elasticsearch-configuration
             #externalElasticsearchConfigurationComponent
             [externalES]="externalElasticsearchForLogs"
-            [type]="logs"
+            [monitoringType]="logs"
             [getParameters]="getParameters.bind(this)"
             [setParameters]="setParameters.bind(this,i)"
           ></etm-external-elasticsearch-configuration>
         </ng-container>
+      </ng-template>
+    </div>
+  </td-expansion-panel>
+</ng-container>
+
+<ng-container *ngIf="sut.externalMonitoringDBForMetrics">
+  <td-expansion-panel expand="true" class="push-bottom push-top dark">
+    <ng-template td-expansion-panel-label>
+      <mat-icon>insert_chart_outlined</mat-icon>
+      <span class="push-left-sm">Monitoring DB For Metrics</span>
+    </ng-template>
+    <div fxLayout="column" class="push-sm">
+      <mat-form-field class="push-sm">
+        <mat-select
+          placeholder="Select a DB"
+          name="metricsDBSelector"
+          [(ngModel)]="sut.externalMonitoringDBForMetrics.type"
+          (selectionChange)="changeMetricsDBType($event)"
+        >
+          <!-- <mat-option *ngFor="let type of sut.externalMonitoringDBForMetrics.getTypes()" [value]="type"> -->
+          <mat-option *ngFor="let type of ['NONE', 'PROMETHEUS']" [value]="type">
+            {{ type }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <ng-container *ngIf="sut.externalMonitoringDBForMetrics.type === 'NONE'; else showDBs"> </ng-container>
+      <ng-template #showDBs>
+        <ng-container *ngIf="sut.externalMonitoringDBForMetrics.type === 'ELASTICSEARCH'; else showPrometheus">
+          <!-- <etm-external-elasticsearch-configuration
+            #externalESForMetrics
+            [externalES]="externalElasticsearchForMetrics"
+            [monitoringType]="metrics"
+            [getParameters]="getParameters.bind(this)"
+            [setParameters]="setParameters.bind(this,i)"
+            ></etm-external-elasticsearch-configuration> -->
+        </ng-container>
+        <ng-template #showPrometheus>
+          <etm-external-prometheus-configuration
+            #externalPrometheusConfigurationComponent
+            [externalPrometheus]="externalPrometheusForMetrics"
+            [monitoringType]="metrics"
+          ></etm-external-prometheus-configuration>
+        </ng-template>
       </ng-template>
     </div>
   </td-expansion-panel>

@@ -80,7 +80,7 @@ public class TJobExecOrchestratorService {
 
     Map<String, Boolean> execsAreStopped = new HashMap<String, Boolean>();
 
-    Map<String, SharedAsyncModel<Void>> asyncExternalElasticsearchSutExecs = new HashMap<String, SharedAsyncModel<Void>>();
+    Map<String, List<SharedAsyncModel<Void>>> asyncExternalMonitoringDBSutExecs = new HashMap<String, List<SharedAsyncModel<Void>>>();
 
     public TJobExecOrchestratorService(
             TJobExecRepository tJobExecRepositoryImpl,
@@ -106,9 +106,9 @@ public class TJobExecOrchestratorService {
 
     @PreDestroy
     private void destroy() {
-        for (HashMap.Entry<String, SharedAsyncModel<Void>> asyncMap : asyncExternalElasticsearchSutExecs
+        for (HashMap.Entry<String, List<SharedAsyncModel<Void>>> asyncMap : asyncExternalMonitoringDBSutExecs
                 .entrySet()) {
-            this.stopManageSutByExternalElasticsearch(asyncMap.getKey());
+            this.stopManageSutByExternalMonitoringDB(asyncMap.getKey());
         }
     }
 
@@ -1014,7 +1014,7 @@ public class TJobExecOrchestratorService {
             sutExec.setIp(sutIP);
 
             // Sut logs from External Elasticsearch
-            if (sut.isUsingExternalElasticsearchForLogs()) {
+            if (sut.isUsingAnExternalMonitoringDBAtLeast()) {
                 String key = getMapNameByExec(execution);
                 Date startDate;
                 if (execution.isExternal()) {
@@ -1027,17 +1027,7 @@ public class TJobExecOrchestratorService {
                     startDate = new Date();
                 }
 
-                Future<Void> asyncExElasticsearch = sutService
-                        .manageSutExecutionUsingExternalElasticsearchForLogs(sut,
-                                sutExec.getSutExecMonitoringIndex(), startDate,
-                                asyncExternalElasticsearchSutExecs, key,
-                                EXEC_END_DATE_KEY);
-
-                SharedAsyncModel<Void> sharedExElasticsearchAsync = new SharedAsyncModel<>(
-                        asyncExElasticsearch);
-
-                asyncExternalElasticsearchSutExecs.put(key,
-                        sharedExElasticsearchAsync);
+                startExternalMonitoring(sut, sutExec, key, startDate);
             }
 
             return sutExec;
@@ -1095,6 +1085,33 @@ public class TJobExecOrchestratorService {
         return exTJobExec.getExTJob().getId() + "_" + exTJobExec.getId();
     }
 
+    private void startExternalMonitoring(SutSpecification sut,
+            SutExecution sutExec, String key, Date startDate) {
+        List<SharedAsyncModel<Void>> sharedExMonitoringDBAsync = new ArrayList<>();
+
+        // External ES for logs
+        Future<Void> asyncExElasticsearchForLogs = sutService
+                .manageSutExecutionUsingExternalElasticsearchForLogs(sut,
+                        sutExec.getSutExecMonitoringIndex(), startDate,
+                        asyncExternalMonitoringDBSutExecs, key,
+                        EXEC_END_DATE_KEY);
+
+        sharedExMonitoringDBAsync
+                .add(new SharedAsyncModel<>(asyncExElasticsearchForLogs));
+
+        // External Prometheus for Metrics
+        Future<Void> asyncExPrometheusForMetrics = sutService
+                .manageSutExecutionUsingExternalPrometheusForMetrics(sut,
+                        sutExec.getSutExecMonitoringIndex(), startDate,
+                        asyncExternalMonitoringDBSutExecs, key,
+                        EXEC_END_DATE_KEY);
+        sharedExMonitoringDBAsync
+                .add(new SharedAsyncModel<>(asyncExPrometheusForMetrics));
+
+        // Add Async list to Execs map
+        asyncExternalMonitoringDBSutExecs.put(key, sharedExMonitoringDBAsync);
+    }
+
     public void updateManageSutByExtESEndDate(Date endDate,
             TJobExecution tJobExec) {
         this.updateManageSutByExtESEndDate(endDate,
@@ -1102,22 +1119,24 @@ public class TJobExecOrchestratorService {
     }
 
     public void updateManageSutByExtESEndDate(Date endDate, String mapKey) {
-        if (!asyncExternalElasticsearchSutExecs.containsKey(mapKey)) {
+        if (!asyncExternalMonitoringDBSutExecs.containsKey(mapKey)) {
             return;
         }
 
-        asyncExternalElasticsearchSutExecs.get(mapKey).getData()
-                .put(EXEC_END_DATE_KEY, endDate);
+        for (SharedAsyncModel<Void> sharedAsyncModel : asyncExternalMonitoringDBSutExecs
+                .get(mapKey)) {
+            sharedAsyncModel.getData().put(EXEC_END_DATE_KEY, endDate);
+        }
     }
 
     public void stopManageSutByExternalElasticsearch(TJobExecution tJobExec) {
-        this.stopManageSutByExternalElasticsearch(
+        this.stopManageSutByExternalMonitoringDB(
                 getMapNameByTJobExec(tJobExec));
     }
 
-    public void stopManageSutByExternalElasticsearch(String mapKey) {
-        sutService.stopManageSutByExternalElasticsearchForLogs(
-                asyncExternalElasticsearchSutExecs, mapKey);
+    public void stopManageSutByExternalMonitoringDB(String mapKey) {
+        sutService.stopManageSutByExternalMonitoringDB(
+                asyncExternalMonitoringDBSutExecs, mapKey);
     }
 
     public void updateExecutionResultStatus(Execution execution,

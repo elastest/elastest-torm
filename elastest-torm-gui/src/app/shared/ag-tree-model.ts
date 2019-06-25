@@ -4,6 +4,7 @@ import { TreeNode } from 'angular-tree-component/dist/models/tree-node.model';
 export interface ITreeElementModel {
   name: string;
   children: ITreeElementModel[];
+  additionalData: object;
   setByObj(elem: any): void;
 }
 
@@ -18,11 +19,13 @@ export interface IAgTreeModel {
 export class TreeCheckElementModel implements ITreeElementModel {
   name: string;
   children: TreeCheckElementModel[];
+  additionalData: object;
   checked: boolean;
 
   constructor() {
     this.name = '';
     this.children = [];
+    this.additionalData = {};
     this.checked = false;
   }
 
@@ -134,6 +137,7 @@ export class AgTreeCheckModel implements IAgTreeModel {
         newElem.name = node.name;
         newElem.checked = node.checked;
         newElem.children = this.getOnlyCheckedTree(node.children);
+        newElem.additionalData = node.additionalData;
         checkedTree.push(newElem);
       }
     }

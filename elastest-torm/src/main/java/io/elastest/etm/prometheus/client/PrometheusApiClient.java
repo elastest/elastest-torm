@@ -75,10 +75,6 @@ public class PrometheusApiClient {
         ResponseEntity<PrometheusApiResponse<Object>> response = this
                 .get(API_PATH + LABEL_NAMES_PATH, responseTypeDataObject);
 
-        logger.debug(
-                "getAllLabelNames ResponseEntity<PrometheusApiResponse>: {}",
-                response);
-
         if (response != null && response.getStatusCode() == HttpStatus.OK) {
             PrometheusApiResponse<Object> prometheusResponse = response
                     .getBody();
@@ -130,17 +126,13 @@ public class PrometheusApiClient {
     /* *** Query Range *** */
 
     public PrometheusApiResponse<PrometheusQueryData> executeQueryRange(
-            String jsonOrMetricName, String start, String end, Integer step,
+            String jsonOrMetricName, String start, String end, String step,
             String timeout) {
 
         String uri = QUERY_RANGE_PATH + jsonOrMetricName + "&start=" + start
-                + "&end=" + end;
+                + "&end=" + end + "&step=" + step;
 
-        if (step != null) {
-            uri += "&step=" + step;
-        }
-
-        if (step != null) {
+        if (timeout != null) {
             uri += "&timeout=" + timeout;
         }
 
@@ -156,7 +148,7 @@ public class PrometheusApiClient {
 
     public PrometheusApiResponse<PrometheusQueryData> executeQueryRange(
             String jsonOrMetricName, String start, String end) {
-        return executeQueryRange(jsonOrMetricName, start, end, null, null);
+        return executeQueryRange(jsonOrMetricName, start, end, "15s", null);
     }
 
     public PrometheusApiResponse<PrometheusQueryData> executeQueryRange(

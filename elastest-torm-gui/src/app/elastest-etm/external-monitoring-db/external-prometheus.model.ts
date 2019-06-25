@@ -1,29 +1,27 @@
 import { ExternalMonitoringDB } from './external-monitoring-db.model';
+import { MultiConfigModel } from '../../shared/multi-config-view/multi-config-view.component';
 
 export class ExternalPrometheus extends ExternalMonitoringDB {
   // CONSTANT
   monitoringType: string = 'PROMETHEUS';
 
-  id: number;
-  protocol: 'http' | 'https' | ''; // On add new, add too in getProtocolsList
-  ip: string;
-  port: string;
-  path: string;
-  user: string;
-  pass: string;
+  fieldFilters: MultiConfigModel[];
 
   constructor(externalPrometheusJson: any = undefined) {
     super(externalPrometheusJson);
     if (!externalPrometheusJson) {
+      this.fieldFilters = [];
+      // Default
+      this.traceNameField = '__name__';
     } else {
+      this.fieldFilters = externalPrometheusJson.fieldFilters ? externalPrometheusJson.fieldFilters : [];
+      this.traceNameField = externalPrometheusJson.traceNameField ? externalPrometheusJson.traceNameField : '__name__';
     }
-  }
-
-  public getProtocolsList(): string[] {
-    return ['http', 'https'];
   }
 
   initByGiven(externalPrometheus: ExternalPrometheus): void {
     super.initByGiven(externalPrometheus);
+    this.fieldFilters = externalPrometheus.fieldFilters ? externalPrometheus.fieldFilters : [];
+    this.traceNameField = externalPrometheus.traceNameField ? externalPrometheus.traceNameField : '__name__';
   }
 }

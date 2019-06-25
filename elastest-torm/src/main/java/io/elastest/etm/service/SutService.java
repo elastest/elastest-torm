@@ -375,10 +375,12 @@ public class SutService {
     @Async
     public Future<Void> manageSutExecutionUsingExternalElasticsearchForLogs(
             SutSpecification sut, String monitoringIndex, Date startDate,
-            Map<String, SharedAsyncModel<Void>> sharedAsyncModelMap,
+            Map<String, List<SharedAsyncModel<Void>>> asyncExternalMonitoringDBSutExecs,
             String sharedAsyncModelKey, String endDateKey) {
-        ExternalElasticsearch extES = (ExternalElasticsearch) sut
-                .getExternalMonitoringDBForLogs().getExternalMonitoringDB();
+        ExternalElasticsearch extES = externalMonitoringDBService
+                .getExternalElasticsearchById(
+                        sut.getExternalMonitoringDBForLogs()
+                                .getExternalMonitoringDB().getId());
 
         String esApiUrl = extES.getProtocol() + "://" + extES.getIp() + ":"
                 + extES.getPort();
@@ -395,12 +397,14 @@ public class SutService {
             // LOOP
             while (!finish) {
                 Date endDate = null;
-                if (sharedAsyncModelMap.containsKey(sharedAsyncModelKey)
-                        && sharedAsyncModelMap.get(sharedAsyncModelKey)
-                                .getData().containsKey(endDateKey)) {
+                List<SharedAsyncModel<Void>> sharedAsyncModelList = asyncExternalMonitoringDBSutExecs
+                        .get(sharedAsyncModelKey);
+                if (sharedAsyncModelList != null
+                        && sharedAsyncModelList.size() > 0
+                        && sharedAsyncModelList.get(0).getData()
+                                .containsKey(endDateKey)) {
                     try {
-                        endDate = (Date) sharedAsyncModelMap
-                                .get(sharedAsyncModelKey).getData()
+                        endDate = (Date) sharedAsyncModelList.get(0).getData()
                                 .get(endDateKey);
                     } catch (Exception e) {
                     }
@@ -433,8 +437,10 @@ public class SutService {
                         }
                     }
                     for (Map<String, Object> trace : traces) {
-                        trace = tracesService.convertExternalElasticsearchTrace(
-                                trace, extES.getStreamFieldsAsList());
+                        trace = tracesService
+                                .convertExternalElasticsearchLogTrace(trace,
+                                        extES.getContentFieldName(),
+                                        extES.getStreamFieldsAsList());
                         trace.put("exec", monitoringIndex);
                         trace.put("component", "sut");
 
@@ -445,7 +451,7 @@ public class SutService {
                         Thread.sleep(1500);
                     } catch (InterruptedException e) {
                         logger.info(
-                                "TJob Execution {}: Manage Sut by External Elasticsearch thread has been interrupted ",
+                                "TJob Execution {}: Manage Sut by External Elasticsearch for metrics thread has been interrupted ",
                                 monitoringIndex);
                         break;
                     }
@@ -464,47 +470,27 @@ public class SutService {
             logger.error("Error on connect to external Elasticsearch", e);
         }
 
-        stopManageSutByExternalElasticsearchForLogs(sharedAsyncModelMap,
+        stopManageSutByExternalMonitoringDB(asyncExternalMonitoringDBSutExecs,
                 sharedAsyncModelKey);
 
         return new AsyncResult<Void>(null);
     }
 
-    public void stopManageSutByExternalElasticsearchForLogs(
-            Map<String, SharedAsyncModel<Void>> asyncExternalElasticsearchSutExecs,
-            String mapKey) {
-        if (!asyncExternalElasticsearchSutExecs.containsKey(mapKey)) {
-            return;
-        }
-        Future<Void> asyncExec = asyncExternalElasticsearchSutExecs.get(mapKey)
-                .getFuture();
-
-        try {
-            asyncExec.cancel(true);
-            asyncExternalElasticsearchSutExecs.remove(mapKey);
-            logger.info("Stopped Async Manage Sut by external Elasticsearch {}",
-                    mapKey);
-        } catch (Exception e) {
-            logger.info(
-                    "Error during stop Manage Sut by external Elasticsearch {}",
-                    mapKey, e);
-        }
-
-    }
-
     @Async
     public Future<Void> manageSutExecutionUsingExternalPrometheusForMetrics(
             SutSpecification sut, String monitoringIndex, Date startDate,
-            Map<String, SharedAsyncModel<Void>> sharedAsyncModelMap,
+            Map<String, List<SharedAsyncModel<Void>>> asyncExternalMonitoringDBSutExecs,
             String sharedAsyncModelKey, String endDateKey) {
-        ExternalPrometheus prometheus = (ExternalPrometheus) sut
-                .getExternalMonitoringDBForLogs().getExternalMonitoringDB();
+        ExternalPrometheus prometheus = externalMonitoringDBService
+                .getExternalPrometheusById(
+                        sut.getExternalMonitoringDBForMetrics()
+                                .getExternalMonitoringDB().getId());
 
         try {
             PrometheusService prometheusService = new PrometheusService(
                     prometheus.getProtocol().toString(), prometheus.getIp(),
                     prometheus.getPort(), prometheus.getUser(),
-                    prometheus.getPass(), prometheus.getPath());
+                    prometheus.getPass(), prometheus.getPath(), utilsService);
             List<PrometheusQueryData> labelsTraces = new ArrayList<>();
 
             boolean finish = false;
@@ -512,35 +498,28 @@ public class SutService {
             // LOOP
             while (!finish) {
                 Date endExecDate = null;
-                if (sharedAsyncModelMap.containsKey(sharedAsyncModelKey)
-                        && sharedAsyncModelMap.get(sharedAsyncModelKey)
-                                .getData().containsKey(endDateKey)) {
+                List<SharedAsyncModel<Void>> sharedAsyncModelList = asyncExternalMonitoringDBSutExecs
+                        .get(sharedAsyncModelKey);
+                if (sharedAsyncModelList != null
+                        && sharedAsyncModelList.size() > 0
+                        && sharedAsyncModelList.get(0).getData()
+                                .containsKey(endDateKey)) {
                     try {
-                        endExecDate = (Date) sharedAsyncModelMap
-                                .get(sharedAsyncModelKey).getData()
-                                .get(endDateKey);
+                        endExecDate = (Date) sharedAsyncModelList.get(0)
+                                .getData().get(endDateKey);
                     } catch (Exception e) {
                     }
                 }
 
-                // TODO change for filter by labels?
-                // String indexes = prometheus.getIndices();
-
-                // if (prometheus.getUseESIndicesByExecution()) {
-                // for (Parameter param : sut.getParameters()) {
-                // if (param.getName()
-                // .equals("EXT_ELASTICSEARCH_LOGS_INDICES")) {
-                // indexes = param.getValue();
-                // logger.debug("Indexes as String: {}", indexes);
-                // break;
-                // }
-                // }
-                // }
-
                 try {
                     Date tmpEndDate = new Date();
+                    if (endExecDate != null) {
+                        tmpEndDate = endExecDate;
+                    }
                     labelsTraces = prometheusService.searchTraces(startDate,
                             tmpEndDate);
+
+                    logger.trace("Prometheus labels: {}", labelsTraces);
 
                     // On next iteration startDate from currentEndDate
                     startDate = tmpEndDate;
@@ -551,8 +530,12 @@ public class SutService {
                         additionalFields.put("component", "sut");
 
                         List<Map<String, Object>> traces = tracesService
-                                .convertExternalPrometheusTrace(labelTraces,
-                                        additionalFields);
+                                .convertExternalPrometheusMetricTraces(
+                                        labelTraces,
+                                        prometheus.getTraceNameField(),
+                                        prometheus.getStreamFieldsAsList(),
+                                        additionalFields,
+                                        prometheus.getFieldFilters());
 
                         // Only works in mini... TODO send to Logstash
                         tracesService.processBeatTracesList(traces, false);
@@ -561,52 +544,52 @@ public class SutService {
                         Thread.sleep(1500);
                     } catch (InterruptedException e) {
                         logger.info(
-                                "TJob Execution {}: Manage Sut by External Elasticsearch thread has been interrupted ",
+                                "TJob Execution {}: Manage Sut by External Prometheus for metrics thread has been interrupted ",
                                 monitoringIndex);
                         break;
                     }
 
                 } catch (Exception e) {
                     logger.error(
-                            "Error on getting traces from external Elasticsearch",
+                            "Error on getting metric traces from external Prometheus",
                             e);
                 }
 
-                if (endExecDate != null && labelsTraces.size() == 0) {
+                if (endExecDate != null) {
                     finish = true;
                 }
             } // End Loop
         } catch (Exception e) {
-            logger.error("Error on connect to external Elasticsearch", e);
+            logger.error("Error on connect to external Prometheus", e);
         }
 
-        stopManageSutByExternalPrometheusForMetrics(sharedAsyncModelMap,
+        stopManageSutByExternalMonitoringDB(asyncExternalMonitoringDBSutExecs,
                 sharedAsyncModelKey);
 
         return new AsyncResult<Void>(null);
     }
 
-    public void stopManageSutByExternalPrometheusForMetrics(
-            Map<String, SharedAsyncModel<Void>> asyncExternalElasticsearchSutExecs,
+    public void stopManageSutByExternalMonitoringDB(
+            Map<String, List<SharedAsyncModel<Void>>> asyncExternalMonitoringDBSutExecs,
             String mapKey) {
-        // if (!asyncExternalElasticsearchSutExecs.containsKey(mapKey)) {
-        // return;
-        // }
-        // Future<Void> asyncExec =
-        // asyncExternalElasticsearchSutExecs.get(mapKey)
-        // .getFuture();
-        //
-        // try {
-        // asyncExec.cancel(true);
-        // asyncExternalElasticsearchSutExecs.remove(mapKey);
-        // logger.info("Stopped Async Manage Sut by external Elasticsearch {}",
-        // mapKey);
-        // } catch (Exception e) {
-        // logger.info(
-        // "Error during stop Manage Sut by external Elasticsearch {}",
-        // mapKey, e);
-        // }
+        if (!asyncExternalMonitoringDBSutExecs.containsKey(mapKey)) {
+            return;
+        }
 
+        for (SharedAsyncModel<Void> sharedAsyncModel : asyncExternalMonitoringDBSutExecs
+                .get(mapKey)) {
+            Future<Void> asyncExec = sharedAsyncModel.getFuture();
+            try {
+                asyncExec.cancel(true);
+                asyncExternalMonitoringDBSutExecs.remove(mapKey);
+                logger.info(
+                        "Stopped Async Manage Sut by external Monitoring {}",
+                        mapKey);
+            } catch (Exception e) {
+                logger.info(
+                        "Error during stop Manage Sut by external Monitoring {}",
+                        mapKey, e);
+            }
+        }
     }
-
 }

@@ -14,12 +14,10 @@ export class ExternalElasticsearch extends ExternalMonitoringDB {
     super(externalElasticsearchJson);
     if (!externalElasticsearchJson) {
       this.indices = '';
-      this.streamFields = '';
       this.fieldFilters = [];
       this.useESIndicesByExecution = false;
     } else {
       this.indices = externalElasticsearchJson.indices;
-      this.streamFields = externalElasticsearchJson.streamFields ? externalElasticsearchJson.streamFields : '';
       this.fieldFilters = externalElasticsearchJson.fieldFilters ? externalElasticsearchJson.fieldFilters : [];
       this.useESIndicesByExecution =
         externalElasticsearchJson.useESIndicesByExecution !== undefined &&

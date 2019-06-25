@@ -373,6 +373,7 @@ export class EtmMonitoringViewComponent implements OnInit {
           metric.unit,
           metric.component,
           metric.stream,
+          metric.streamType,
         );
 
         this.tJob.execDashboardConfigModel.allMetricsFields.disableMetricFieldByTitleName(metricField.name);
@@ -395,6 +396,7 @@ export class EtmMonitoringViewComponent implements OnInit {
       metric.unit,
       metric.component,
       metric.stream,
+      metric.streamType,
     );
 
     this.tJob.execDashboardConfigModel.allMetricsFields.addMetricsFieldToList(

@@ -458,7 +458,10 @@ export class MonitoringService {
     return metrics;
   }
 
-  getMetricsTree(tJobExec: AbstractTJobExecModel): Observable<any[]> {
+  getMetricsTree(tJobExec: AbstractTJobExecModel, oldSupport: boolean = false): Observable<any[]> {
+    let _obs: Subject<any[]> = new Subject<any[]>();
+    let obs: Observable<any[]> = _obs.asObservable();
+
     let query: MonitoringQueryModel = new MonitoringQueryModel();
     if (tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
       query.indices = tJobExec.getChildsMonitoringIndices().split(',');
@@ -466,8 +469,31 @@ export class MonitoringService {
       query.indices = tJobExec.getMonitoringIndexAsList();
     }
     query.selectedTerms.push('component', 'stream', 'et_type');
+    if (!oldSupport) {
+      query.selectedTerms.push('stream_type');
+    }
 
-    return this.searchMetricsTree(query);
+    this.searchMetricsTree(query).subscribe(
+      (data: any[]) => {
+        _obs.next(data);
+      },
+      (error: Error) => {
+        if (!oldSupport) {
+          console.log('Error on get metrics Tree. Retrying');
+          this.getMetricsTree(tJobExec, true).subscribe(
+            (data: any[]) => {
+              _obs.next(data);
+            },
+            (error2: Error) => {
+              console.error(error2);
+            },
+          );
+        } else {
+          console.error(error);
+        }
+      },
+    );
+    return obs;
   }
 
   /* ********************* */
@@ -1093,11 +1119,11 @@ export class MonitoringService {
     let _metrics: Subject<MetricTraces[]> = new Subject<MetricTraces[]>();
     let metricsObs: Observable<MetricTraces[]> = _metrics.asObservable();
     let metrics: MetricTraces[] = [];
-    this.getMetricsTree(tJobExec).subscribe((metricsComponentStreamTypes: any[]) => {
+    this.getMetricsTree(tJobExec).subscribe((metricsComponentStreamEtTypes: any[]) => {
       let allMetrics: ESRabComplexMetricsModel[] = [];
-      for (let componentStreamType of metricsComponentStreamTypes) {
-        for (let streamType of componentStreamType.children) {
-          for (let etType of streamType.children) {
+      for (let componentStreamEtType of metricsComponentStreamEtTypes) {
+        for (let streamEtType of componentStreamEtType.children) {
+          for (let etType of streamEtType.children) {
             let currentMetricFieldGroupList: MetricFieldGroupModel[] = [];
             if (isMetricFieldGroup(etType.name, this.metricbeatFieldGroupList)) {
               // If is Metricbeat etType
@@ -1111,8 +1137,8 @@ export class MonitoringService {
               if (metricFieldGroup.etType === etType.name) {
                 for (let subtype of metricFieldGroup.subtypes) {
                   let currentMetric: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this);
-                  currentMetric.component = componentStreamType.name;
-                  currentMetric.stream = streamType.name;
+                  currentMetric.component = componentStreamEtType.name;
+                  currentMetric.stream = streamEtType.name;
                   currentMetric.name = etType.name + '.' + subtype.subtype;
                   currentMetric.monitoringIndex = tJobExec.monitoringIndex;
 

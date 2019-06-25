@@ -1,9 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ExternalElasticsearch } from '../../../../external-monitoring-db/external-elasticsearch.model';
-import { ParameterModel } from '../../../../parameter/parameter-model';
-import { SutService } from '../../../sut.service';
+import { ExternalElasticsearch } from '../external-elasticsearch.model';
+import { ParameterModel } from '../../parameter/parameter-model';
 import { Validators, FormGroup, FormControl } from '@angular/forms';
-import { ExternalMonitoringDBService } from '../external-monitoring-db.service';
+import { ExternalMonitoringDBService } from '../../sut/sut-form/external-monitoring-db/external-monitoring-db.service';
 
 @Component({
   selector: 'etm-external-elasticsearch-configuration',
@@ -40,6 +39,7 @@ export class ExternalElasticsearchConfigurationComponent implements OnInit {
     esProtocol: new FormControl('', [Validators.required]),
     esIp: new FormControl('', [Validators.required]),
     esPort: new FormControl('', [Validators.required]),
+    contentFieldName: new FormControl('', [Validators.required]),
     streamFields: new FormControl('', [Validators.required]),
     esIndices: new FormControl('', [Validators.required]),
   });

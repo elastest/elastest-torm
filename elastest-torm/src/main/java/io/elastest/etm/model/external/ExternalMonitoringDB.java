@@ -1,5 +1,9 @@
 package io.elastest.etm.model.external;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,9 +18,9 @@ import javax.persistence.OneToOne;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.Project.ProjectMediumView;
@@ -120,6 +124,30 @@ public abstract class ExternalMonitoringDB {
     @JsonIgnoreProperties(value = "externalMonitoringDB")
     private ExternalMonitoringDBForMetrics externalMonitoringDBForMetrics;
 
+    @JsonView({ ExternalMonitoringDBForLogsView.class,
+            ExternalMonitoringDBForMetricsView.class,
+            ExternalMonitoringDBView.class, ExternalElasticsearchView.class,
+            SutView.class, ExternalProjectView.class, ProjectMediumView.class })
+    @Column(name = "streamFields")
+    @JsonProperty("streamFields")
+    private String streamFields;
+
+    @JsonView({ ExternalMonitoringDBForLogsView.class,
+            ExternalMonitoringDBForMetricsView.class,
+            ExternalMonitoringDBView.class, ExternalElasticsearchView.class,
+            SutView.class, ExternalProjectView.class, ProjectMediumView.class })
+    @Column(name = "contentFieldName")
+    @JsonProperty("contentFieldName")
+    private String contentFieldName;
+
+    @JsonView({ ExternalMonitoringDBForLogsView.class,
+            ExternalMonitoringDBForMetricsView.class,
+            ExternalMonitoringDBView.class, ExternalElasticsearchView.class,
+            SutView.class, ExternalProjectView.class, ProjectMediumView.class })
+    @Column(name = "traceNameField")
+    @JsonProperty("traceNameField")
+    private String traceNameField;
+
     /* ************************** */
     /* ****** Constructors ****** */
     /* ************************** */
@@ -128,7 +156,9 @@ public abstract class ExternalMonitoringDB {
     }
 
     public ExternalMonitoringDB(Long id, String ip, String port, String path,
-            ProtocolEnum protocol, String user, String pass) {
+            ProtocolEnum protocol, String user, String pass,
+            String streamFields, String contentFieldName,
+            String traceNameField) {
         this.id = id;
         this.ip = ip;
         this.port = port;
@@ -136,6 +166,9 @@ public abstract class ExternalMonitoringDB {
         this.protocol = protocol;
         this.user = user;
         this.pass = pass;
+        this.streamFields = streamFields;
+        this.contentFieldName = contentFieldName;
+        this.traceNameField = traceNameField;
     }
 
     public ExternalMonitoringDB(ExternalMonitoringDB externalMonitoringDB) {
@@ -147,6 +180,9 @@ public abstract class ExternalMonitoringDB {
             this.user = externalMonitoringDB.getUser();
             this.pass = externalMonitoringDB.getPass();
             this.protocol = externalMonitoringDB.getProtocol();
+            this.streamFields = externalMonitoringDB.getStreamFields();
+            this.contentFieldName = externalMonitoringDB.getContentFieldName();
+            this.traceNameField = externalMonitoringDB.getTraceNameField();
         }
     }
 
@@ -228,6 +264,40 @@ public abstract class ExternalMonitoringDB {
         this.externalMonitoringDBForMetrics = externalMonitoringDBForMetrics;
     }
 
+    public String getStreamFields() {
+        return streamFields;
+    }
+
+    public List<String> getStreamFieldsAsList() {
+        List<String> streamFieldsList = new ArrayList<>();
+
+        if (streamFields != null && !streamFields.isEmpty()) {
+            streamFieldsList = Arrays.asList(streamFields.split(","));
+        }
+
+        return streamFieldsList;
+    }
+
+    public void setStreamFields(String streamFields) {
+        this.streamFields = streamFields;
+    }
+
+    public String getContentFieldName() {
+        return contentFieldName;
+    }
+
+    public void setContentFieldName(String contentFieldName) {
+        this.contentFieldName = contentFieldName;
+    }
+
+    public String getTraceNameField() {
+        return traceNameField;
+    }
+
+    public void setTraceNameField(String traceNameField) {
+        this.traceNameField = traceNameField;
+    }
+
     /* *************************** */
     /* ****** Other methods ****** */
     /* *************************** */
@@ -236,7 +306,8 @@ public abstract class ExternalMonitoringDB {
     public String toString() {
         return "ExternalMonitoringDB [id=" + id + ", ip=" + ip + ", port="
                 + port + ", path=" + path + ", protocol=" + protocol + ", user="
-                + user + ", pass=" + pass + "]";
+                + user + ", pass=" + pass + ", streamFields=" + streamFields
+                + ", contentFieldName=" + contentFieldName + "]";
     }
 
 }

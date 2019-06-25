@@ -131,20 +131,21 @@ export class MonitoringConfigurationComponent implements OnInit {
     // Delete metricbeat non supported by ET (ej: system_core...)
     let componentPos: number = 0;
 
-    for (let componentStreamType of metricTree) {
-      if (componentStreamType.children) {
+    // Component -> Stream -> EtType (And after 1.5.0 version) -> StreamType
+    for (let componentStreamEtType of metricTree) {
+      if (componentStreamEtType.children) {
         let streamPos: number = 0;
-        for (let streamType of componentStreamType.children) {
-          if (streamType.children) {
-            if (streamType.name !== defaultStreamMap.composed_metrics && streamType !== defaultStreamMap.atomic_metric) {
+        for (let streamEtType of componentStreamEtType.children) {
+          if (streamEtType.children) {
+            if (streamEtType.name !== defaultStreamMap.composed_metrics && streamEtType !== defaultStreamMap.atomic_metric) {
               let newTypeList: any[] = [];
-              for (let etType of streamType.children) {
-                let typeName: string = etType.name;
+              for (let etType of streamEtType.children) {
+                let ettypeName: string = etType.name;
                 let deleted: boolean = false;
                 for (let metricbeatType in MetricbeatType) {
                   if (isNaN(parseInt(metricbeatType))) {
                     if (
-                      typeName.startsWith(metricbeatType + '_') &&
+                      ettypeName.startsWith(metricbeatType + '_') &&
                       !isMetricFieldGroup(etType.name, this.metricbeatFieldGroupList)
                     ) {
                       deleted = true;
@@ -192,12 +193,27 @@ export class MonitoringConfigurationComponent implements OnInit {
   }
 
   loadSubtypesAndInitMetricTree(): void {
-    for (let componentStreamType of this.metricTree.tree) {
-      let component: string = componentStreamType.name;
-      for (let streamType of componentStreamType.children) {
-        let stream: string = streamType.name;
-        for (let typeTree of streamType.children) {
-          let etType: string = typeTree.name;
+    // Component -> Stream -> EtType (And after 1.5.0 version) -> StreamType
+    for (let componentStreamEtType of this.metricTree.tree) {
+      let component: string = componentStreamEtType.name;
+      for (let streamEtType of componentStreamEtType.children) {
+        let stream: string = streamEtType.name;
+        for (let ettypeStreamTypeTree of streamEtType.children) {
+          let etType: string = ettypeStreamTypeTree.name;
+
+          // If has streamType (since after 1.5.0v)
+          // Add streamType to additionalData field and remove from children
+          // Because children is used after to add subtypes
+          if (ettypeStreamTypeTree.children.length > 0) {
+            ettypeStreamTypeTree.additionalData['streamTypes'] = [];
+            for (let streamTypeTree of ettypeStreamTypeTree.children) {
+              if (streamTypeTree.name) {
+                ettypeStreamTypeTree.additionalData['streamTypes'].push(streamTypeTree.name);
+              }
+            }
+            ettypeStreamTypeTree.children = [];
+          }
+
           let currentMetricFieldGroupList: MetricFieldGroupModel[] = [];
           if (isMetricFieldGroup(etType, this.metricbeatFieldGroupList)) {
             // If is Metricbeat etType
@@ -206,6 +222,7 @@ export class MonitoringConfigurationComponent implements OnInit {
             // If it's Dockbeat etType
             currentMetricFieldGroupList = metricFieldGroupList;
           }
+          // Add subtype manually for default metrics (dockbeat and metricbeat)
           for (let metricFieldGroup of currentMetricFieldGroupList) {
             if (metricFieldGroup.etType === etType) {
               for (let subtype of metricFieldGroup.subtypes) {
@@ -218,7 +235,7 @@ export class MonitoringConfigurationComponent implements OnInit {
                   subtypeTree.checked = true;
                 }
 
-                typeTree.children.push(subtypeTree);
+                ettypeStreamTypeTree.children.push(subtypeTree);
               }
               break;
             }
@@ -249,38 +266,69 @@ export class MonitoringConfigurationComponent implements OnInit {
 
   getMetricsList(): any {
     let metricsList: any[] = [];
-    for (let componentStreamTypeSubtype of this.metricTree.tree) {
-      let component: string = componentStreamTypeSubtype.name;
-      for (let streamTypeSubtype of componentStreamTypeSubtype.children) {
-        let stream: string = streamTypeSubtype.name;
-        for (let typeSubtype of streamTypeSubtype.children) {
-          let etType: string = typeSubtype.name;
-          if (typeSubtype.children.length > 0) {
-            for (let subtype of typeSubtype.children) {
-              let metric: any = {
-                component: component,
-                stream: stream,
-                etType: etType,
-                metricName: etType + '.' + subtype.name,
-                subtype: subtype.name,
-                activated: subtype.checked,
-              };
-              metricsList.push(metric);
+    // Component -> Stream -> EtType (And after 1.5.0 version) -> StreamType
+    for (let componentStreamEtTypeSubtype of this.metricTree.tree) {
+      let component: string = componentStreamEtTypeSubtype.name;
+      for (let streamEtTypeSubtype of componentStreamEtTypeSubtype.children) {
+        let stream: string = streamEtTypeSubtype.name;
+        for (let ettypeSubtype of streamEtTypeSubtype.children) {
+          let etType: string = ettypeSubtype.name;
+          let streamTypes: string[];
+          if (
+            ettypeSubtype.additionalData &&
+            ettypeSubtype.additionalData['streamTypes'] &&
+            ettypeSubtype.additionalData['streamTypes']
+          ) {
+            streamTypes = ettypeSubtype.additionalData['streamTypes'];
+          }
+
+          if (streamTypes && streamTypes.length > 0) {
+            for (let streamType of streamTypes) {
+              metricsList.push(
+                this.getMetric(component, stream, etType, ettypeSubtype.checked, ettypeSubtype.children, streamType),
+              );
             }
           } else {
-            let metric: any = {
-              component: component,
-              stream: stream,
-              etType: etType,
-              metricName: etType,
-              activated: typeSubtype.checked,
-            };
-            metricsList.push(metric);
+            metricsList.push(this.getMetric(component, stream, etType, ettypeSubtype.checked, ettypeSubtype.children));
           }
         }
       }
     }
     return metricsList;
+  }
+
+  getMetric(
+    component: string,
+    stream: string,
+    etType: string,
+    checked: boolean,
+    subtypes: TreeCheckElementModel[] = [],
+    streamType?: string,
+  ): any {
+    if (subtypes && subtypes.length > 0) {
+      for (let subtype of subtypes) {
+        let metric: any = {
+          component: component,
+          stream: stream,
+          etType: etType,
+          metricName: etType + '.' + subtype.name,
+          subtype: subtype.name,
+          activated: subtype.checked,
+          streamType: streamType,
+        };
+        return metric;
+      }
+    } else {
+      let metric: any = {
+        component: component,
+        stream: stream,
+        etType: etType,
+        metricName: etType,
+        activated: checked,
+        streamType: streamType,
+      };
+      return metric;
+    }
   }
 
   applyAndSave(): void {

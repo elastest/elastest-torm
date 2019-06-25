@@ -917,6 +917,14 @@ public class SutSpecification {
                         .isUsingExternalPrometheusForMetrics();
     }
 
+    public boolean isUsingAnExternalMonitoringDBAtLeast() {
+        return isUsingExternalMonitoringDB()
+                && (isUsingExternalElasticsearchForLogs()
+                        || isUsingExternalElasticsearchForMetrics()
+                        || isUsingExternalPrometheusForMetrics());
+
+    }
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {

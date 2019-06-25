@@ -28,6 +28,7 @@ import com.google.gson.Gson;
 import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.model.Enums.LevelEnum;
 import io.elastest.etm.model.Enums.StreamType;
+import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Trace;
 import io.elastest.etm.prometheus.client.PrometheusQueryData;
 import io.elastest.etm.prometheus.client.PrometheusQueryData.PrometheusQueryDataResultType;
@@ -500,7 +501,7 @@ public class TracesService {
             return true;
         }
         for (Map<String, Object> trace : dataMapList) {
-            failures = failures || !processBeatTrace(trace, fromDockbeat);
+            failures = !processBeatTrace(trace, fromDockbeat) || failures;
         }
         return failures;
 
@@ -531,23 +532,15 @@ public class TracesService {
         }
     }
 
-    /* ********************* */
-    /* *** Elasticsearch *** */
-    /* ********************* */
-    public Map<String, Object> convertExternalElasticsearchTrace(
-            Map<String, Object> dataMap, List<String> streamFieldsList) {
-        logger.trace("Converting external Elasticsearch trace {}",
-                dataMap.toString());
+    /* ********************************** */
+    /* ***** External Monitoring DB ***** */
+    /* ********************************** */
+
+    public Map<String, Object> convertExternalMonitoringDBTrace(
+            Map<String, Object> dataMap, String contentFieldName,
+            List<String> streamFieldsList, StreamType streamType) {
+
         if (dataMap != null && !dataMap.isEmpty()) {
-
-            // Add raw data
-            try {
-                Gson gson = new Gson();
-                String json = gson.toJson(dataMap);
-                dataMap.put("raw_data", json);
-            } catch (Exception e) {
-            }
-
             // Stream
             boolean useDefaultStream = false;
             if (streamFieldsList != null && streamFieldsList.size() > 0) {
@@ -570,7 +563,7 @@ public class TracesService {
 
                 if (currentValue != null && !currentValue.isEmpty()) {
                     dataMap.put("stream", currentValue);
-                    dataMap.put("stream_type", StreamType.LOG.toString());
+                    dataMap.put("stream_type", streamType.toString());
                 } else {
                     useDefaultStream = true;
                 }
@@ -579,39 +572,45 @@ public class TracesService {
             }
 
             if (useDefaultStream) { // Default
-                if (dataMap.containsKey("log_type")) {
-                    dataMap.put("stream", dataMap.get("log_type"));
-                    dataMap.put("stream_type", StreamType.LOG.toString());
-                } else if (dataMap.containsKey("type")) {
-                    dataMap.put("stream", dataMap.get("log_type"));
+                if (streamType == StreamType.LOG) {
+                    dataMap.put("stream", "default_log");
                 } else {
-                    return dataMap;
+                    //
                 }
+                dataMap.put("stream_type", streamType.toString());
             }
 
-            // Message
-            if (dataMap.containsKey("description")) {
-                dataMap.put("stream_type", StreamType.LOG.toString());
-                dataMap.put("message", dataMap.get("description"));
-            } else if (dataMap.containsKey("description_clean")) {
-                dataMap.put("stream_type", StreamType.LOG.toString());
-                dataMap.put("message", dataMap.get("description_clean"));
-            }
-
-            // Level
-            if (dataMap.containsKey("severity")) {
-                dataMap.put("stream_type", StreamType.LOG.toString());
-                LevelEnum level = LevelEnum
-                        .fromValue(dataMap.get("severity").toString());
-                if (level != null) {
-                    dataMap.put("level", level.toString());
+            // If Logs
+            if (streamType == StreamType.LOG) {
+                // Message
+                if (dataMap.containsKey(contentFieldName)) {
+                    dataMap.put("stream_type", streamType.toString());
+                    dataMap.put("message", dataMap.get(contentFieldName));
                 }
-            } else if (dataMap.containsKey("severity_unified")) {
-                dataMap.put("stream_type", StreamType.LOG.toString());
-                LevelEnum level = LevelEnum
-                        .fromValue(dataMap.get("severity_unified").toString());
-                if (level != null) {
-                    dataMap.put("level", level.toString());
+
+                // Level
+                if (dataMap.containsKey("severity")) {
+                    dataMap.put("stream_type", streamType.toString());
+                    LevelEnum level = LevelEnum
+                            .fromValue(dataMap.get("severity").toString());
+                    if (level != null) {
+                        dataMap.put("level", level.toString());
+                    }
+                } else if (dataMap.containsKey("severity_unified")) {
+                    dataMap.put("stream_type", streamType.toString());
+                    LevelEnum level = LevelEnum.fromValue(
+                            dataMap.get("severity_unified").toString());
+                    if (level != null) {
+                        dataMap.put("level", level.toString());
+                    }
+                }
+            } else {
+                dataMap.put("stream_type", streamType.toString());
+
+                if (streamType == StreamType.ATOMIC_METRIC) {
+
+                } else {
+                    // TODO composed metrics
                 }
             }
 
@@ -619,28 +618,156 @@ public class TracesService {
         return dataMap;
     }
 
-    public List<Map<String, Object>> convertExternalPrometheusTrace(
-            PrometheusQueryData labelTraces,
-            Map<String, Object> additionalFields) {
+    public Map<String, Object> convertExternalElasticsearchLogTrace(
+            Map<String, Object> dataMap, String contentFieldName,
+            List<String> streamFieldsList) {
+        logger.trace("Converting external Elasticsearch Log trace {}",
+                dataMap.toString());
+
+        if (dataMap != null && !dataMap.isEmpty()) {
+            // Add raw data
+            try {
+                Gson gson = new Gson();
+                String json = gson.toJson(dataMap);
+                dataMap.put("raw_data", json);
+            } catch (Exception e) {
+            }
+        }
+
+        return convertExternalMonitoringDBTrace(dataMap, contentFieldName,
+                streamFieldsList, StreamType.LOG);
+    }
+
+    public List<Map<String, Object>> convertExternalPrometheusMetricTraces(
+            PrometheusQueryData labelTraces, String traceNameField,
+            List<String> streamFieldsList, Map<String, Object> additionalFields,
+            List<MultiConfig> fieldFilters) {
         List<Map<String, Object>> traces = new ArrayList<>();
 
         if (labelTraces != null && labelTraces.getResultType() != null
                 && labelTraces.getResult() != null) {
             for (PrometheusQueryDataResult trace : labelTraces.getResult()) {
-                // A list of values for each metric
-                if (labelTraces
-                        .getResultType() == PrometheusQueryDataResultType.MATRIX) {
+                try {
+                    // First, filter by field if necessary
+                    boolean add = true;
+                    if (fieldFilters != null && fieldFilters.size() > 0) {
+                        for (MultiConfig fieldFilter : fieldFilters) {
+                            if (fieldFilter.getName() != null
+                                    && !fieldFilter.getName().isEmpty()
+                                    && fieldFilter.getValues() != null
+                                    && fieldFilter.getValues().size() > 0) {
+                                if (trace.getMetric()
+                                        .containsKey(fieldFilter.getName())) {
+                                    String value = (String) trace.getMetric()
+                                            .get(fieldFilter.getName());
+                                    if (!fieldFilter.getValues()
+                                            .contains(value)) {
+                                        add = false;
+                                        break;
+                                    }
+                                } else {
+                                    add = false;
+                                    break;
+                                }
 
-                } else 
-                // Single value for each metric
-                    if (labelTraces
-                        .getResultType() == PrometheusQueryDataResultType.VECTOR) {
+                            }
+                        }
 
+                    }
+
+                    if (add) {
+                        // Init data Map
+                        Map<String, Object> auxTraceMap = UtilTools
+                                .convertObjToMap(trace);
+                        Map<String, Object> traceMetricFieldMap = UtilTools
+                                .convertObjToMap(auxTraceMap.get("metric"));
+
+                        auxTraceMap.putAll(traceMetricFieldMap);
+                        auxTraceMap.putAll(additionalFields);
+
+                        String traceName = (String) auxTraceMap
+                                .get(traceNameField);
+
+                        // Default stream = original TraceName
+                        String stream = traceName;
+                        auxTraceMap.put("stream", stream);
+
+                        // TraceName = combination of all metric fields
+                        for (HashMap.Entry<String, Object> pair : traceMetricFieldMap
+                                .entrySet()) {
+                            if (!pair.getKey().trim()
+                                    .equals(traceNameField.trim())
+                                    && pair.getValue() != null) {
+                                traceName += "_" + pair.getValue();
+                            }
+                        }
+                        // Points are not allowed
+                        traceName = traceName.replaceAll("\\.", "_");
+
+                        auxTraceMap.put("et_type", traceName);
+                        auxTraceMap.put("metricName", traceName);
+
+                        // A list of values for each metric
+                        if (labelTraces
+                                .getResultType() == PrometheusQueryDataResultType.MATRIX) {
+                            for (List<Object> valueObj : trace.getValues()) {
+                                // Convert individual trace/value
+                                traces.add(convertExternalPrometheusMetricTrace(
+                                        trace, auxTraceMap, traceName, valueObj,
+                                        streamFieldsList));
+                            }
+                        } else
+                        // Single value for each metric
+                        if (labelTraces
+                                .getResultType() == PrometheusQueryDataResultType.VECTOR) {
+                            List<Object> valueObj = trace.getValue();
+                            // Convert individual trace/value
+                            traces.add(convertExternalPrometheusMetricTrace(
+                                    trace, auxTraceMap, traceName, valueObj,
+                                    streamFieldsList));
+
+                        }
+                    }
+                } catch (IllegalArgumentException | ParseException e1) {
+                    logger.error(
+                            "Could not to process Prometheus Metric trace {}",
+                            trace, e1);
                 }
 
             }
         }
 
         return traces;
+    }
+
+    private Map<String, Object> convertExternalPrometheusMetricTrace(
+            PrometheusQueryDataResult trace, Map<String, Object> auxTraceMap,
+            String traceName, List<Object> valueObj,
+            List<String> streamFieldsList) throws ParseException {
+        Map<String, Object> traceMap = new HashMap<>();
+        traceMap.putAll(auxTraceMap);
+
+        // Add raw data
+        try {
+            Gson gson = new Gson();
+            String json = gson.toJson(trace);
+            traceMap.put("raw_data", json);
+        } catch (Exception e) {
+        }
+
+        traceMap = convertExternalMonitoringDBTrace(traceMap, "",
+                streamFieldsList, StreamType.ATOMIC_METRIC);
+
+        // rfc3339 | unix_timestamp
+        Long timestamp = Double.valueOf((double) valueObj.get(0) * 1000)
+                .longValue();
+        String timestampDateStr = utilsService
+                .getIso8601UTCStrFromDate(new Date(timestamp));
+
+        traceMap.put("@timestamp", timestampDateStr);
+        traceMap.put(traceName, valueObj.get(1));
+        // Unit not known
+        traceMap.put("unit", "unit");
+        return traceMap;
     }
 }

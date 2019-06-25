@@ -1,7 +1,6 @@
 package io.elastest.etm.model.external;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.CollectionTable;
@@ -45,14 +44,6 @@ public class ExternalElasticsearch extends ExternalMonitoringDB {
             ExternalMonitoringDBForMetricsView.class,
             ExternalMonitoringDBView.class, ExternalElasticsearchView.class,
             SutView.class, ExternalProjectView.class, ProjectMediumView.class })
-    @Column(name = "streamFields")
-    @JsonProperty("streamFields")
-    private String streamFields;
-
-    @JsonView({ ExternalMonitoringDBForLogsView.class,
-            ExternalMonitoringDBForMetricsView.class,
-            ExternalMonitoringDBView.class, ExternalElasticsearchView.class,
-            SutView.class, ExternalProjectView.class, ProjectMediumView.class })
     @ElementCollection
     @CollectionTable(name = "ExternalElasticsearchFieldFilters", joinColumns = @JoinColumn(name = "ExternalElasticsearch"))
     @MapKeyColumn(name = "NAME")
@@ -84,10 +75,12 @@ public class ExternalElasticsearch extends ExternalMonitoringDB {
             @JsonProperty("indices") String indices,
             @JsonProperty("protocol") ProtocolEnum protocol,
             @JsonProperty("streamFields") String streamFields,
+            @JsonProperty("contentFieldName") String contentFieldName,
+            @JsonProperty("traceNameField") String traceNameField,
             @JsonProperty("useESIndicesByExecution") Boolean useESIndicesByExecution) {
-        super(id, ip, port, path, protocol, user, pass);
+        super(id, ip, port, path, protocol, user, pass, streamFields,
+                contentFieldName,traceNameField);
         this.indices = indices;
-        this.streamFields = streamFields;
         this.fieldFilters = new ArrayList<>();
         this.useESIndicesByExecution = useESIndicesByExecution != null
                 ? useESIndicesByExecution
@@ -97,7 +90,6 @@ public class ExternalElasticsearch extends ExternalMonitoringDB {
     public ExternalElasticsearch(ExternalElasticsearch externalElasticsearch) {
         super(externalElasticsearch);
         this.indices = externalElasticsearch.getIndices();
-        this.streamFields = externalElasticsearch.getStreamFields();
 
         if (externalElasticsearch.getFieldFilters() != null) {
             this.fieldFilters = new ArrayList<>();
@@ -125,24 +117,6 @@ public class ExternalElasticsearch extends ExternalMonitoringDB {
         this.indices = indices;
     }
 
-    public String getStreamFields() {
-        return streamFields;
-    }
-
-    public List<String> getStreamFieldsAsList() {
-        List<String> streamFieldsList = new ArrayList<>();
-
-        if (streamFields != null && !streamFields.isEmpty()) {
-            streamFieldsList = Arrays.asList(streamFields.split(","));
-        }
-
-        return streamFieldsList;
-    }
-
-    public void setStreamFields(String streamFields) {
-        this.streamFields = streamFields;
-    }
-
     public List<MultiConfig> getFieldFilters() {
         return fieldFilters;
     }
@@ -164,9 +138,9 @@ public class ExternalElasticsearch extends ExternalMonitoringDB {
 
     @Override
     public String toString() {
-        return "ExternalElasticsearch [indices=" + indices + ", streamFields="
-                + streamFields + ", fieldFilters=" + fieldFilters
-                + ", useESIndicesByExecution=" + useESIndicesByExecution
-                + ", toString()=" + super.toString() + "]";
+        return "ExternalElasticsearch [indices=" + indices + ", fieldFilters="
+                + fieldFilters + ", useESIndicesByExecution="
+                + useESIndicesByExecution + ", toString()=" + super.toString()
+                + "]";
     }
 }

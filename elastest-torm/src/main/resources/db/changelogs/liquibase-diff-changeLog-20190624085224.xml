@@ -1,0 +1,20 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="edu (generated)" id="1561359151513-1">
+        <createTable tableName="ExternalPrometheusViewFieldFilters">
+            <column name="ExternalPrometheusView" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="configValues" type="MEDIUMBLOB"/>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1561359151513-2">
+        <addColumn tableName="ExternalPrometheus">
+            <column name="streamFields" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="edu (generated)" id="1561359151513-3">
+        <addForeignKeyConstraint baseColumnNames="ExternalPrometheusView" baseTableName="ExternalPrometheusViewFieldFilters" constraintName="FKfp9xe3j2jqvqdrt6jw8tl6vjt" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="ExternalPrometheus"/>
+    </changeSet>
+</databaseChangeLog>

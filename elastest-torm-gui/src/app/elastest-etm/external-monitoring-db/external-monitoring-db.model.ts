@@ -6,6 +6,9 @@ export abstract class ExternalMonitoringDB {
   protocol: 'http' | 'https' | ''; // On add new, add too in getProtocolsList
   user: string;
   pass: string;
+  streamFields: string;
+  contentFieldName: string;
+  traceNameField: string;
 
   constructor(externalMonitoringDBJson: any = undefined) {
     if (!externalMonitoringDBJson) {
@@ -16,6 +19,9 @@ export abstract class ExternalMonitoringDB {
       this.path = '';
       this.user = '';
       this.pass = '';
+      this.streamFields = '';
+      this.contentFieldName = '';
+      this.traceNameField = '';
     } else {
       this.id = externalMonitoringDBJson.id;
       this.protocol = externalMonitoringDBJson.protocol;
@@ -24,6 +30,9 @@ export abstract class ExternalMonitoringDB {
       this.path = externalMonitoringDBJson.path;
       this.user = externalMonitoringDBJson.user;
       this.pass = externalMonitoringDBJson.pass;
+      this.streamFields = externalMonitoringDBJson.streamFields ? externalMonitoringDBJson.streamFields : '';
+      this.contentFieldName = externalMonitoringDBJson.contentFieldName ? externalMonitoringDBJson.contentFieldName : '';
+      this.traceNameField = externalMonitoringDBJson.traceNameField ? externalMonitoringDBJson.traceNameField : '';
     }
   }
 
@@ -35,6 +44,9 @@ export abstract class ExternalMonitoringDB {
     this.path = externalDB.path;
     this.user = externalDB.user;
     this.pass = externalDB.pass;
+    this.streamFields = externalDB.streamFields;
+    this.contentFieldName = externalDB.contentFieldName;
+    this.traceNameField = externalDB.traceNameField;
   }
 
   public getProtocolsList(): string[] {

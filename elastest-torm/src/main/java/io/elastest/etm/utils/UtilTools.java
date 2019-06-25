@@ -269,6 +269,17 @@ public class UtilTools {
         return UtilTools.convertObjToJsonNode(object).deepCopy();
     }
 
+    // JsonNode to Map
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> convertJsonNodeToMap(JsonNode jsonNode) {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.convertValue(jsonNode, Map.class);
+    }
+
+    public static Map<String, Object> convertObjToMap(Object obj) {
+        return convertJsonNodeToMap(convertObjToJsonNode(obj));
+    }
+
     // String to Json
 
     public static JsonNode stringToJsonNode(String jsonString)
@@ -405,8 +416,7 @@ public class UtilTools {
         String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
         return text.replaceAll(regex, "\\\\$1");
     }
-    
-    
+
     public static String replaceAllSpecialCharactersForQueryDsl(String text) {
         String regex = "([\\[\\]^*\\.]|[&\\|]{2})";
         return text.replaceAll(regex, "\\\\$1");

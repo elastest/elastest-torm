@@ -4,9 +4,9 @@ import { ExternalMonitoringDBForMetrics } from '../../../external-monitoring-db/
 import { SutModel } from '../../sut-model';
 import { ExternalElasticsearch } from '../../../external-monitoring-db/external-elasticsearch.model';
 import { ParameterModel } from '../../../parameter/parameter-model';
-import { ExternalElasticsearchConfigurationComponent } from './external-elasticsearch-configuration/external-elasticsearch-configuration.component';
+import { ExternalElasticsearchConfigurationComponent } from '../../../external-monitoring-db/external-elasticsearch-configuration/external-elasticsearch-configuration.component';
 import { ExternalPrometheus } from '../../../external-monitoring-db/external-prometheus.model';
-import { ExternalPrometheusConfigurationComponent } from './external-prometheus-configuration/external-prometheus-configuration.component';
+import { ExternalPrometheusConfigurationComponent } from '../../../external-monitoring-db/external-prometheus-configuration/external-prometheus-configuration.component';
 import { MatSelectChange } from '@angular/material';
 
 @Component({

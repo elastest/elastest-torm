@@ -15,6 +15,9 @@ export class MultiConfigViewComponent implements OnInit {
   @Input()
   public name: string = 'multi config';
 
+  @Input()
+  public addBtnName: string = 'addNewMultiConfiguration';
+
   public updateInProgress: boolean = false;
 
   constructor() {}

@@ -31,34 +31,38 @@ public class PrometheusService {
     private String pass;
     private String path;
 
-    @Autowired
     protected UtilsService utilsService;
 
     PrometheusApiClient prometheusClient;
 
-    public PrometheusService(String prometheusApiUrl) {
+    public PrometheusService(String prometheusApiUrl,
+            UtilsService utilsService) {
         this.prometheusApiUrl = prometheusApiUrl;
+        this.utilsService = utilsService;
         init();
     }
 
     public PrometheusService(String prometheusApiUrl, String user, String pass,
-            String path) {
+            String path, UtilsService utilsService) {
         this.prometheusApiUrl = prometheusApiUrl;
         this.user = !"".equals(user) ? user : null;
         this.pass = pass;
         this.path = path;
+        this.utilsService = utilsService;
         init();
     }
 
-    public PrometheusService(String protocol, String host, int port) {
+    public PrometheusService(String protocol, String host, int port,
+            UtilsService utilsService) {
         this.protocol = protocol;
         this.host = host;
         this.port = port;
+        this.utilsService = utilsService;
     }
 
     public PrometheusService(String protocol, String host, int port,
-            String user, String pass, String path) {
-        this(protocol, host, port);
+            String user, String pass, String path, UtilsService utilsService) {
+        this(protocol, host, port, utilsService);
         this.user = !"".equals(user) ? user : null;
         this.pass = pass;
         this.path = path;
@@ -66,8 +70,9 @@ public class PrometheusService {
     }
 
     public PrometheusService(String protocol, String host, String port,
-            String user, String pass, String path) {
-        this(protocol, host, Integer.parseInt(port), user, pass, path);
+            String user, String pass, String path, UtilsService utilsService) {
+        this(protocol, host, Integer.parseInt(port), user, pass, path,
+                utilsService);
     }
 
     private void init() {
@@ -117,8 +122,6 @@ public class PrometheusService {
     }
 
     public boolean isReady() {
-        logger.debug("prometheusService.isReady() {}",
-                prometheusClient.isReady());
         return this.prometheusClient.isReady();
     }
 
@@ -144,16 +147,14 @@ public class PrometheusService {
             throws ParseException {
         List<PrometheusQueryData> traces = new ArrayList<>();
 
-        Double startTime = (double) (utilsService
-                .getIso8601UTCDateFromDate(startDate).getTime() / 1000);
-        Double endTime = (double) utilsService
-                .getIso8601UTCDateFromDate(endDate).getTime() / 1000;
+        String startTime = utilsService.getIso8601UTCStrFromDate(startDate);
+        String endTime = utilsService.getIso8601UTCStrFromDate(endDate);
 
         List<String> labels = getAllLabelNames();
         if (labels != null) {
             for (String label : labels) {
                 PrometheusApiResponse<PrometheusQueryData> metricData = getMetricByRange(
-                        label, startTime.toString(), endTime.toString());
+                        label, startTime, endTime);
                 if (metricData != null) {
                     traces.add(metricData.getData());
                 }

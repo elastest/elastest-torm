@@ -1,43 +1,43 @@
-<ng-container *ngIf="externalES && ready">
-  <div fxLayout="column" [formGroup]="esFormGroup">
+<ng-container *ngIf="externalPrometheus && ready">
+  <div fxLayout="column" [formGroup]="prometheusFormGroup">
     <div fxLayout="column" fxLayoutAlign="start start" class="push-sm push-left-md">
-      <span class="mat-h3 push-botom-sm">ElasticSearch</span>
+      <span class="mat-h3 push-botom-sm">Prometheus</span>
       <mat-divider [inset]="true"></mat-divider>
     </div>
     <div fxLayout="row" fxLayout.lt-md="column" fxLayoutAlign.lt-md="start start" fxLayoutAlign="start center" class="push-sm">
-      <!-- ES Protocol -->
+      <!-- Prometheus Protocol -->
       <mat-select
         fxFlex="9"
         fxFlex.gt-lg="7"
         fxFlexOffset.md="1"
         fxFlexOffset.gt-md="1"
-        [(ngModel)]="externalES.protocol"
+        [(ngModel)]="externalPrometheus.protocol"
         placeholder="Select a protocol"
-        name="esProtocol"
-        formControlName="esProtocol"
+        name="prometheusProtocol"
+        formControlName="prometheusProtocol"
         class="push-right"
         required
       >
-        <mat-option *ngFor="let protocol of externalES.getProtocolsList()" [value]="protocol">
+        <mat-option *ngFor="let protocol of externalPrometheus.getProtocolsList()" [value]="protocol">
           {{ protocol.toLowerCase() }}
         </mat-option>
       </mat-select>
 
-      <!-- ES IP -->
+      <!-- Prometheus IP -->
       <mat-form-field fxFlex.gt-lg="22" fxFlex.lg="25" fxFlex.gt-md="26" fxFlex.md="28">
         <input
           matInput
           trim="blur"
           type="text"
           placeholder="IP"
-          [(ngModel)]="this.externalES.ip"
-          name="esIp"
-          formControlName="esIp"
+          [(ngModel)]="this.externalPrometheus.ip"
+          name="prometheusIp"
+          formControlName="prometheusIp"
           required
         />
       </mat-form-field>
 
-      <!-- ES Port -->
+      <!-- Prometheus Port -->
       <mat-form-field fxFlex.gt-md="7" fxFlex.md="7" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
         <input
           matInput
@@ -45,48 +45,48 @@
           type="number"
           min="0"
           placeholder="Port"
-          [(ngModel)]="this.externalES.port"
-          name="esPort"
-          formControlName="esPort"
+          [(ngModel)]="this.externalPrometheus.port"
+          name="prometheusPort"
+          formControlName="prometheusPort"
           required
         />
       </mat-form-field>
 
-      <!-- ES PATH -->
+      <!-- Prometheus PATH -->
       <mat-form-field fxFlex.gt-md="10" fxFlex.md="10" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
         <input
           matInput
           trim="blur"
           type="text"
           placeholder="PATH"
-          [(ngModel)]="this.externalES.path"
-          name="esPath"
+          [(ngModel)]="this.externalPrometheus.path"
+          name="prometheusPath"
           [ngModelOptions]="{ standalone: true }"
         />
       </mat-form-field>
 
-      <!-- ES User -->
+      <!-- Prometheus User -->
       <mat-form-field fxFlex.gt-md="13" fxFlex.md="15" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
         <input
           matInput
           trim="blur"
           type="text"
           placeholder="User"
-          [(ngModel)]="this.externalES.user"
-          name="esUser"
+          [(ngModel)]="this.externalPrometheus.user"
+          name="prometheusUser"
           [ngModelOptions]="{ standalone: true }"
         />
       </mat-form-field>
 
-      <!-- ES Pass -->
+      <!-- Prometheus Pass -->
       <mat-form-field fxFlex.gt-md="12" fxFlex.md="15" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
         <input
           matInput
           trim="blur"
           type="password"
           placeholder="Pass"
-          [(ngModel)]="this.externalES.pass"
-          name="esPass"
+          [(ngModel)]="this.externalPrometheus.pass"
+          name="prometheusPass"
           [ngModelOptions]="{ standalone: true }"
         />
       </mat-form-field>
@@ -95,19 +95,19 @@
       <button
         mat-raised-button
         color="accent"
-        [disabled]="extESCheckingConnection"
-        (click)="checkExternalESConnection()"
-        title="Check ES connection"
+        [disabled]="checkingConnection"
+        (click)="checkExternalPrometheusConnection()"
+        title="Check Prometheus connection"
         fxFlexOffset="0.5"
       >
         Check connection
       </button>
-      <div fxLayout="row" *ngIf="extESConnectedStatus != '' && !extESCheckingConnection" fxFlexOffset="0.5">
-        <mat-icon [style.color]="extESConnectedStatusColor">{{ extESConnectedStatusIcon }}</mat-icon>
-        <div fxFlexOffset="1" fxLayoutAlign="start center">{{ extESConnectedStatus }}</div>
+      <div fxLayout="row" *ngIf="connectedStatus != '' && !checkingConnection" fxFlexOffset="0.5">
+        <mat-icon [style.color]="connectedStatusColor">{{ connectedStatusIcon }}</mat-icon>
+        <div fxFlexOffset="1" fxLayoutAlign="start center">{{ connectedStatus }}</div>
       </div>
       <mat-spinner
-        *ngIf="extESCheckingConnection"
+        *ngIf="checkingConnection"
         strokeWidth="3"
         diameter="20"
         color="accent"
@@ -116,53 +116,44 @@
       ></mat-spinner>
     </div>
     <div fxLayout="row" fxLayout.lt-md="column" fxLayoutAlign.lt-md="start start" fxLayoutAlign="start center" class="push-sm">
-      <!-- ES streamFields -->
-      <mat-form-field fxFlex.gt-md="30" fxFlex.md="30" fxFlexOffset.md="1" fxFlexOffset.gt-md="1">
+      <!-- Prometheus traceNameField -->
+      <mat-form-field fxFlex.gt-md="20" fxFlex.md="20" fxFlexOffset.md="1" fxFlexOffset.gt-md="1">
+        <input
+          matInput
+          trim="blur"
+          type="text"
+          placeholder="Trace Name Field (default: __name__)"
+          [(ngModel)]="this.externalPrometheus.traceNameField"
+          name="traceNameField"
+          formControlName="traceNameField"
+          required
+        />
+      </mat-form-field>
+
+      <!-- Prometheus streamFields -->
+      <!-- <mat-form-field fxFlex.gt-md="30" fxFlex.md="30" fxFlexOffset.md="1" fxFlexOffset.gt-md="1">
         <input
           matInput
           trim="blur"
           type="text"
           placeholder="Stream Fields (comma separated)"
-          [(ngModel)]="this.externalES.streamFields"
+          [(ngModel)]="this.externalPrometheus.streamFields"
           name="streamFields"
-          formControlName="streamFields"
-          required
+          [ngModelOptions]="{ standalone: true }"
         />
-      </mat-form-field>
-
-      <!-- ES Indices -->
-      <mat-form-field fxFlex.gt-md="30" fxFlex.md="30" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
-        <input
-          matInput
-          trim="blur"
-          type="text"
-          placeholder="ES Indices (comma separated)"
-          [(ngModel)]="this.externalES.indices"
-          name="esIndices"
-          formControlName="esIndices"
-          required
-        />
-      </mat-form-field>
-
-      <mat-checkbox
-        [checked]="this.externalES.useESIndicesByExecution"
-        (change)="switchUseESIndicesByExecution($event)"
-        fxFlexOffset.md="2"
-        fxFlexOffset.gt-md="2"
-        >Use indices by execution</mat-checkbox
-      >
+      </mat-form-field> -->
     </div>
     <div fxLayout="column" class="push-sm">
       <td-expansion-panel expand="true">
         <ng-template td-expansion-panel-label> <span>Filter by fields values</span> </ng-template>
-        <td-message label="{{ extESFilterFieldsLabel }}" sublabel="{{ extESFilterFieldsSubLabel }}" color="primary" icon="info">
-          <!-- <button td-message-actions mat-button (click)="dockerTypeInfo.close()">X</button> -->
+        <td-message label="{{ filterFieldsLabel }}" sublabel="{{ filterFieldsSubLabel }}" color="primary" icon="info">
         </td-message>
         <div class="pad">
           <multi-config-view
-            [model]="this.externalES.fieldFilters"
+            [model]="this.externalPrometheus.fieldFilters"
             [name]="'field filters'"
             [btnText]="'Field Filters'"
+            [addBtnName]="'addNewPrometheusFieldFiltersFor' + monitoringType"
           ></multi-config-view>
         </div>
       </td-expansion-panel>

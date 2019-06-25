@@ -1,8 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { ExternalPrometheus } from '../../../../external-monitoring-db/external-prometheus.model';
+import { ExternalPrometheus } from '../external-prometheus.model';
 import { FormGroup, Validators, FormControl } from '@angular/forms';
-import { SutService } from '../../../sut.service';
-import { ExternalMonitoringDBService } from '../external-monitoring-db.service';
+import { ExternalMonitoringDBService } from '../../sut/sut-form/external-monitoring-db/external-monitoring-db.service';
 
 @Component({
   selector: 'etm-external-prometheus-configuration',
@@ -18,15 +17,21 @@ export class ExternalPrometheusConfigurationComponent implements OnInit {
 
   ready: boolean = false;
 
-  externalPrometheusConnectedStatus: string = '';
-  externalPrometheusConnectedStatusColor: string = '';
-  externalPrometheusConnectedStatusIcon: string = '';
-  externalPrometheusCheckingConnection: boolean = false;
+  connectedStatus: string = '';
+  connectedStatusColor: string = '';
+  connectedStatusIcon: string = '';
+  checkingConnection: boolean = false;
+
+  filterFieldsLabel: string = 'You can filter by fields and values';
+  filterFieldsSubLabel: string =
+    'ElasTest will save only traces that contain the specified values of the specified fields.' +
+    ' If more than one field is specified, the combinatorics are performed using AND. Values for field are made by OR. Fields must be root fields';
 
   public prometheusFormGroup: FormGroup = new FormGroup({
     prometheusProtocol: new FormControl('', [Validators.required]),
     prometheusIp: new FormControl('', [Validators.required]),
     prometheusPort: new FormControl('', [Validators.required]),
+    traceNameField: new FormControl('', [Validators.required]),
   });
 
   constructor(private externalMonitoringDBService: ExternalMonitoringDBService) {}
@@ -50,23 +55,23 @@ export class ExternalPrometheusConfigurationComponent implements OnInit {
   }
 
   checkExternalPrometheusConnection(): void {
-    this.externalPrometheusCheckingConnection = true;
+    this.checkingConnection = true;
     this.externalMonitoringDBService.checkExternalPrometheusConnection(this.externalPrometheus).subscribe(
       (connected: boolean) => {
         if (connected) {
-          this.externalPrometheusConnectedStatus = 'Connected';
-          this.externalPrometheusConnectedStatusColor = '#7fac16';
-          this.externalPrometheusConnectedStatusIcon = 'fiber_manual_record';
+          this.connectedStatus = 'Connected';
+          this.connectedStatusColor = '#7fac16';
+          this.connectedStatusIcon = 'fiber_manual_record';
         } else {
-          this.externalPrometheusConnectedStatus = 'Error';
-          this.externalPrometheusConnectedStatusColor = '#cc200f';
-          this.externalPrometheusConnectedStatusIcon = 'error';
+          this.connectedStatus = 'Error';
+          this.connectedStatusColor = '#cc200f';
+          this.connectedStatusIcon = 'error';
         }
-        this.externalPrometheusCheckingConnection = false;
+        this.checkingConnection = false;
       },
       (error: Error) => {
         console.log(error);
-        this.externalPrometheusCheckingConnection = false;
+        this.checkingConnection = false;
       },
     );
   }

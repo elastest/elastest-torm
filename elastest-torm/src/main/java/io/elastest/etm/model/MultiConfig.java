@@ -13,6 +13,9 @@ import io.elastest.etm.model.SutExecution.SutExecView;
 import io.elastest.etm.model.SutSpecification.SutView;
 import io.elastest.etm.model.TJob.TJobMediumView;
 import io.elastest.etm.model.TJobExecution.TJobExecCompleteView;
+import io.elastest.etm.model.external.ExternalElasticsearch.ExternalElasticsearchView;
+import io.elastest.etm.model.external.ExternalMonitoringDB.ExternalMonitoringDBView;
+import io.elastest.etm.model.external.ExternalPrometheus.ExternalPrometheusView;
 import io.swagger.annotations.ApiModel;
 
 @Embeddable
@@ -24,14 +27,16 @@ public class MultiConfig {
 
     @JsonView({ MultiConfigView.class, TJobMediumView.class,
             ProjectMediumView.class, TJobExecCompleteView.class, SutView.class,
-            SutExecView.class })
+            SutExecView.class, ExternalMonitoringDBView.class,
+            ExternalPrometheusView.class, ExternalElasticsearchView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name = null;
 
     @JsonView({ MultiConfigView.class, TJobMediumView.class,
             ProjectMediumView.class, TJobExecCompleteView.class, SutView.class,
-            SutExecView.class })
+            SutExecView.class, ExternalMonitoringDBView.class,
+            ExternalPrometheusView.class, ExternalElasticsearchView.class })
     @Column(name = "configValues", length = 16777215)
     @JsonProperty("configValues")
     private ArrayList<String> configValues = null;

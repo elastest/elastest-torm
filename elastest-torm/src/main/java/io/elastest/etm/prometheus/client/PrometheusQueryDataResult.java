@@ -2,12 +2,11 @@ package io.elastest.etm.prometheus.client;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Map;
 
 public class PrometheusQueryDataResult {
 
-    PrometheusQueryDataResultMetric metric;
+    Map<String, Object> metric;
 
     List<Object> value;
 
@@ -17,25 +16,25 @@ public class PrometheusQueryDataResult {
     public PrometheusQueryDataResult() {
     }
 
-    public PrometheusQueryDataResult(PrometheusQueryDataResultMetric metric,
+    public PrometheusQueryDataResult(Map<String, Object> metric,
             ArrayList<Object> value) {
         super();
         this.metric = metric;
         this.value = value;
     }
 
-    public PrometheusQueryDataResult(PrometheusQueryDataResultMetric metric,
+    public PrometheusQueryDataResult(Map<String, Object> metric,
             List<List<Object>> values) {
         super();
         this.metric = metric;
         this.values = values;
     }
 
-    public PrometheusQueryDataResultMetric getMetric() {
+    public Map<String, Object> getMetric() {
         return metric;
     }
 
-    public void setMetric(PrometheusQueryDataResultMetric metric) {
+    public void setMetric(Map<String, Object> metric) {
         this.metric = metric;
     }
 
@@ -59,56 +58,6 @@ public class PrometheusQueryDataResult {
     public String toString() {
         return "PrometheusQueryDataResult [metric=" + metric + ", value="
                 + value + ", values=" + values + "]";
-    }
-
-    public class PrometheusQueryDataResultMetric {
-        private String instance;
-        private String job;
-
-        @JsonProperty("__name__")
-        private String name;
-
-        public PrometheusQueryDataResultMetric() {
-        }
-
-        public PrometheusQueryDataResultMetric(String instance, String job,
-                String name) {
-            super();
-            this.instance = instance;
-            this.job = job;
-            this.name = name;
-        }
-
-        public String getInstance() {
-            return instance;
-        }
-
-        public void setInstance(String instance) {
-            this.instance = instance;
-        }
-
-        public String getJob() {
-            return job;
-        }
-
-        public void setJob(String job) {
-            this.job = job;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String toString() {
-            return "PrometheusQueryDataResultMetric [instance=" + instance
-                    + ", job=" + job + ", name=" + name + "]";
-        }
-
     }
 
 }

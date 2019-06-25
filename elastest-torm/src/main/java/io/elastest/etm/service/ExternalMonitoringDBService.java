@@ -61,13 +61,15 @@ public class ExternalMonitoringDBService {
                 PrometheusService prometheusService = new PrometheusService(
                         prometheus.getProtocol().toString(), prometheus.getIp(),
                         prometheus.getPort(), prometheus.getUser(),
-                        prometheus.getPass(), prometheus.getPath());
+                        prometheus.getPass(), prometheus.getPath(),
+                        utilsService);
 
                 connected = prometheusService.isReady()
                         && prometheusService.isHealthy();
             } catch (Exception e) {
-                logger.error("Error on check External Prometheus Connection",
-                        e);
+                logger.error(
+                        "Error on check External Prometheus Connection: {}",
+                        e.getMessage());
             }
         }
 

@@ -1,15 +1,10 @@
 package io.elastest.etm.prometheus.client;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-
-import io.elastest.etm.utils.UtilTools;
 
 public class PrometheusQueryData {
 
