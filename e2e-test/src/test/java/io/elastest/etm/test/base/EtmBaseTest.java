@@ -598,8 +598,9 @@ public class EtmBaseTest {
         log.info("Creating new SuT");
         this.getElementById(driver, "newSutBtn").click();
         this.getElementsByName(driver, "sutName").get(0).sendKeys(sutName);
+        sleep(1000);
         this.getElementsByName(driver, "sutDesc").get(0).sendKeys(desc);
-
+        sleep(1000);
         // TODO params
     }
 
@@ -730,7 +731,7 @@ public class EtmBaseTest {
 
     protected String getSutXpathFromProjectPage(String sutName) {
         String xpath = getSutsTableXpathFromProjectPage();
-        xpath += "//*/td/span[text()='" + sutName + "']";
+        xpath += "//*/td/*/span[text()='" + sutName + "']";
 
         return xpath;
     }
