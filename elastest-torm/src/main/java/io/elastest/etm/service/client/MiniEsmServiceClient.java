@@ -182,7 +182,7 @@ public class MiniEsmServiceClient
                                 serviceInstance.getInstanceId(), serviceName);
                 try {
                     String containerIp = platformService
-                            .getContainerIp(containerName);
+                            .getContainerIp(containerName, serviceInstance);
                     logger.debug("Container ip {} for the service {}",
                             containerIp, containerName);
                     logger.info("ET_PUBLIC_HOST value: "

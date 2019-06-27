@@ -1278,9 +1278,11 @@ public class TSSService {
 
             // If ElasTest works locally, a binded port is not required.
             if (!utilsService.isDefaultEtPublicHost()) {
+                logger.debug("It's necessary to bind ports");
                 auxPort = bindingPort(serviceInstance, nodePort,
                         node, isIntegratedEUS(serviceInstance));
             } else {
+                logger.debug("It is not necessary to bind ports");
                 auxPort = internalPort;
             }
 
@@ -1297,7 +1299,7 @@ public class TSSService {
 
                 if (withServerAddress) {
                     String externalUrl = buildEndpointUrlAsString(node,
-                            serviceInstance.getBindedServiceIp(),
+                            platformService.getBindedServiceIp(serviceInstance, nodePort),//serviceInstance.getBindedServiceIp(),
                             serviceInstance.getBindedServicePort());
                     serviceInstance.setUrlValue(nodeName, externalUrl, true);
                 }
@@ -1341,7 +1343,7 @@ public class TSSService {
                 try {
                     ServiceBindedPort socatBindedPortObj = platformService
                             .getBindedPort(serviceInstance.getServiceName(),
-                                    null, node.get("port").toString());
+                                    null, node.get("port").toString(), serviceInstance.getInstanceId());
                     serviceInstance.getPortBindingContainers()
                             .add(socatBindedPortObj.getContainerId());
                     bindedPort = Integer
@@ -1486,17 +1488,17 @@ public class TSSService {
 
         // If not empty and not integrated EUS
         if (serviceInstance != null && !this.isIntegratedEUS(serviceInstance)) {
-            for (String containerId : serviceInstance
+            for (String bindedPortId : serviceInstance
                     .getPortBindingContainers()) {
-                logger.debug("Socat container to remove: {}", containerId);
-                platformService.undeployTSSByContainerId(containerId);
+                logger.debug("Socat container to remove: {}", bindedPortId);
+                platformService.removeBindedPort(bindedPortId);
             }
 
             for (SupportServiceInstance subServiceInstance : serviceInstance
                     .getSubServices()) {
-                for (String containerId : subServiceInstance
+                for (String bindedPortId : subServiceInstance
                         .getPortBindingContainers()) {
-                    platformService.undeployTSSByContainerId(containerId);
+                    platformService.removeBindedPort(bindedPortId);
                 }
             }
             esmServiceClient.deprovisionServiceInstance(instanceId,

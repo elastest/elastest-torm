@@ -26,10 +26,12 @@ import io.elastest.epm.client.service.K8sService;
 import io.elastest.epm.client.service.ServiceException;
 import io.elastest.epm.client.service.K8sService.JobResult;
 import io.elastest.epm.client.service.K8sService.PodInfo;
+import io.elastest.epm.client.service.K8sService.ServiceInfo;
 import io.elastest.etm.model.CoreServiceInfo;
 import io.elastest.etm.model.EtPlugin;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.ServiceBindedPort;
+import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
@@ -40,6 +42,7 @@ import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
+import io.fabric8.kubernetes.api.model.Service;
 
 @org.springframework.stereotype.Service
 public class K8ServiceImpl extends PlatformService {
@@ -80,20 +83,19 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public boolean deployService(String projectName, boolean withPull)
-            throws IOException {    
+            throws IOException {
+        k8sService.createNamespace(projectName);
         return k8sService.deployResourcesFromProject(projectName) != null ? true : false;
     }
 
     @Override
     public boolean undeployService(String projectName) throws IOException {
-        // TODO Auto-generated method stub
-        return false;
+        return k8sService.deleteResourcesFromYmlString(projectName);
     }
 
     @Override
     public boolean undeployAndCleanDeployment(String projectName) {
-        // TODO Auto-generated method stub
-        return false;
+        return k8sService.deleteResourcesFromYmlString(projectName);
     }
 
     @Override
@@ -147,10 +149,18 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getContainerIp(String containerId, String network)
+    public String getContainerIp(String containerId)
             throws Exception {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    @Override
+    public String getContainerIp(String serviceName,
+            SupportServiceInstance serviceInstance) {
+        k8sService.getServiceIpByName(serviceName,
+                serviceInstance.getInstanceId());
+        return "";
     }
 
     @Override
@@ -300,9 +310,8 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public String undeployTSSByContainerId(String containerId) {
-        // TODO Auto-generated method stub
-        return null;
+    public void removeBindedPort(String bindedPortId) {
+        k8sService.deleteService(bindedPortId);        
     }
 
     @Override
@@ -403,17 +412,29 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public ServiceBindedPort getBindedPort(String serviceName,
-            String containerSufix, String port) throws Exception {
-        String serviceUrl = k8sService.createService(serviceName,
-                Integer.valueOf(port), "http");
-        String bindedPort = serviceUrl.split(":")[1];
+            String containerSufix, String port, String namespace) throws Exception {        
+        logger.debug("Init binding port with k8s");
+        k8sService.createNamespace(namespace);
+        ServiceInfo serviceInfo = k8sService.createService(serviceName,
+                Integer.valueOf(port), "http", namespace);
+        logger.debug("Getting binding port");
         ServiceBindedPort bindedPortObj = new ServiceBindedPort(port,
-                bindedPort, serviceName);
-
+                serviceInfo.getServicePort(), serviceInfo.getServiceName());
+        logger.debug("Port binded against: {}", serviceInfo.getServicePort());
         return bindedPortObj;
 
     }
-
+    
+    @Override
+    public String getBindedServiceIp(SupportServiceInstance serviceInstance,
+            String port) {
+        logger.debug("Getting binded service ip for the service: {}",
+                serviceInstance.getServiceName());
+        return k8sService.getServiceIp(
+                serviceInstance.getServiceName().toLowerCase(), port,
+                serviceInstance.getInstanceId());
+    }
+    
     @Override
     public String getTSSInstanceContainerName(String... params) {
         String name = "";

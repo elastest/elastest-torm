@@ -169,12 +169,9 @@ public abstract class PlatformService {
     public abstract boolean isContainerIntoNetwork(String networkId,
             String containerId) throws Exception;
 
-    public String getContainerIp(String containerId) throws Exception {
-        return getContainerIp(containerId, elastestNetwork);
-    }
+    public abstract String getContainerIp(String containerId) throws Exception;
     
-    public abstract String getContainerIp(String containerId,
-            String network) throws Exception;
+    public abstract String getContainerIp(String serviceId, SupportServiceInstance serviceInstance);
 
     public abstract String getUniqPluginContainerName(String serviceName, String network);
 
@@ -251,14 +248,16 @@ public abstract class PlatformService {
     public abstract String getContainerLogsFrom(String containerId, int from,
             boolean withFollow) throws Exception;
 
-    public abstract String undeployTSSByContainerId(String containerId);
+    public abstract void removeBindedPort(String portBindedId) ;
 
     public abstract Integer copyFilesFomContainer(String container,
             String originPath, String targetPath);
     
     public abstract ServiceBindedPort getBindedPort(String serviceIdentifier,
-            String containerSufix, String port)
+            String containerSufix, String port, String namespace)
             throws Exception;
+    
+    public abstract String getBindedServiceIp(SupportServiceInstance serviceInstance, String port);
     
     protected String getSutPath(Execution execution) {
         String sutPath;

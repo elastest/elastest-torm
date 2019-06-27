@@ -228,8 +228,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
         DockerContainerInfo containerInfo = platformService
                 .getContainers(instanceId);
         String ip = platformService.getContainerIp(
-                containerInfo.getContainers().get(0).getName(),
-                elastestNetwork);
+                containerInfo.getContainers().get(0).getName());
         log.info("Container ip: {}", ip);
         assertNotNull(ip);
         platformService.undeployService(instanceId);

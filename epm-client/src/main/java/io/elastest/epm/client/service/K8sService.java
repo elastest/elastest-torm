@@ -30,23 +30,22 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import io.elastest.epm.client.DockerContainer;
 import io.elastest.epm.client.json.DockerProject;
 import io.elastest.epm.client.utils.UtilTools;
-import io.fabric8.kubernetes.api.builder.Visitor;
 import io.fabric8.kubernetes.api.model.Capabilities;
 import io.fabric8.kubernetes.api.model.CapabilitiesBuilder;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerPort;
-import io.fabric8.kubernetes.api.model.DoneableService;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
+import io.fabric8.kubernetes.api.model.Namespace;
+import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.SecurityContextBuilder;
 import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
-import io.fabric8.kubernetes.api.model.ServiceList;
 import io.fabric8.kubernetes.api.model.batch.Job;
 import io.fabric8.kubernetes.api.model.batch.JobBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -56,8 +55,6 @@ import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.ExecListener;
 import io.fabric8.kubernetes.client.dsl.ExecWatch;
-import io.fabric8.kubernetes.client.dsl.MixedOperation;
-import io.fabric8.kubernetes.client.dsl.ServiceResource;
 import okhttp3.Response;
 
 @org.springframework.stereotype.Service
@@ -154,6 +151,35 @@ public class K8sService {
         @JsonCreator
         public static ServicesType fromValue(String text) {
             for (ServicesType b : ServicesType.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
+
+    }
+    
+    public enum ServiceProtocolEnum {
+        TCP("TCP"),
+        UDP("UDP"),
+        SCTP("SCTP");
+
+        private String value;
+
+        ServiceProtocolEnum(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static ServiceProtocolEnum fromValue(String text) {
+            for (ServiceProtocolEnum b : ServiceProtocolEnum.values()) {
                 if (String.valueOf(b.value).equals(text)) {
                     return b;
                 }
@@ -386,22 +412,24 @@ public class K8sService {
 //                getEnvVarListFromStringList(new ArrayList<String>()));
 //    }
     
-    public List<PodInfo> deployResourcesFromProject(String projectName)
-            throws IOException {
-        return deployResourcesFromProject(projectName, DEFAULT_NAMESPACE);
-    }
+//    public List<PodInfo> deployResourcesFromProject(String projectName)
+//            throws IOException {
+//        return deployResourcesFromProject(projectName, DEFAULT_NAMESPACE);
+//    }
 
-    public List<PodInfo> deployResourcesFromProject(String projectName, String namespace)
+    public List<PodInfo> deployResourcesFromProject(String projectName)
             throws IOException {
         PodInfo podInfo = new PodInfo();
         List<PodInfo> podsInfoList = new ArrayList<>();
         DockerProject project = projects.get(projectName);
+        logger.debug("Resources as string: {}", project.getYml());
 
         try (InputStream is = IOUtils.toInputStream(project.getYml(),
-                CharEncoding.UTF_16)) {
-            List<HasMetadata> resourcesMetadata = client.load(is).inNamespace(namespace)
-                    .accept((Visitor<ContainerBuilder>) item -> item
-                            .withEnv(getEnvVarListFromMap(project.getEnv())))
+                CharEncoding.UTF_8)) {
+            List<HasMetadata> resourcesMetadata = client.load(is)
+                    .inNamespace(projectName)
+//                    .accept((Visitor<ContainerBuilder>) item -> item
+//                            .withEnv(getEnvVarListFromMap(project.getEnv())))
                     .createOrReplace();
 
             for (HasMetadata resource : resourcesMetadata) {
@@ -427,7 +455,7 @@ public class K8sService {
                     podsInfoList.add(podInfo);
                 }
             }
-            
+
         } catch (IOException e) {
             logger.error("Error loading deployment from a yaml string");
             e.printStackTrace();
@@ -437,18 +465,23 @@ public class K8sService {
         return podsInfoList;
     }
     
-    public void deleteResourcesFromYmlString(String manifest, String namespace)
-            throws IOException {
+    public boolean deleteResourcesFromYmlString(String projectName){
+        DockerProject project = projects.get(projectName);
+        return deleteResourcesFromYmlString(project.getYml(), DEFAULT_NAMESPACE);
+    }
+    
+    public boolean deleteResourcesFromYmlString(String manifest, String namespace){
+        boolean deleted = false;
         try (InputStream is = IOUtils.toInputStream(manifest,
                 CharEncoding.UTF_16)) {
             List<HasMetadata> resourcesMetadata = client.load(is).get();
-            client.resourceList(resourcesMetadata).inNamespace(namespace)
+            deleted = client.resourceList(resourcesMetadata).inNamespace(namespace)
                     .delete();
         } catch (IOException e) {
             logger.error("Error deleting resources from a yaml string");
             e.printStackTrace();
-            throw e;
         }
+        return deleted;
     }
     
     public DockerProject createk8sProject(String projectName,
@@ -486,15 +519,21 @@ public class K8sService {
         return serviceURL;
     }
     
-    public String createService(String serviceName, Integer port,
-            String protocol) {
+    public ServiceInfo createService(String serviceName, Integer port,
+            String protocol, String namespace) {
+        protocol = protocol.contains("http")
+                ? ServiceProtocolEnum.TCP.toString()
+                : protocol;
+        serviceName = serviceName.toLowerCase();
+        logger.debug("Creating a new service for the service {} with port {}",
+                serviceName, port);        
         Service service = new ServiceBuilder()
-                .withNewMetadata().withName(serviceName + "-service")
+                .withNewMetadata().withName(serviceName + "-" + port + "-service")
                 .endMetadata().withNewSpec()
                 .withSelector(
                         Collections.singletonMap(LABEL_APP_NAME, serviceName))
                 .addNewPort()
-                .withName(BINDING_PORT_SUFIX)
+                .withName(serviceName + "-" + port + BINDING_PORT_SUFIX)
                 .withProtocol(protocol)
                 .withPort(port)
                 .endPort()
@@ -502,13 +541,46 @@ public class K8sService {
                 .endSpec()
                 .build();
 
-        service = client.services().inNamespace(DEFAULT_NAMESPACE)
+        service = client.services()
+                .inNamespace(namespace == null ? DEFAULT_NAMESPACE : namespace)
                 .create(service);
-        String serviceURL = client.services().inNamespace(client.getNamespace())
+        String serviceURL = client.services().inNamespace(namespace)
                 .withName(service.getMetadata().getName())
-                .getURL(BINDING_PORT_SUFIX);
+                .getURL(serviceName + "-" + port + BINDING_PORT_SUFIX);
         
-        return serviceURL;
+        logger.debug("Service url: {}", serviceURL);
+        
+        String[] urlParts = serviceURL.split(":");
+                
+        return new ServiceInfo(urlParts[2], service.getMetadata().getName()); 
+    }
+    
+    public String getServiceIp(String serviceName, String port, String namespace) {
+        logger.debug("Getting the service ip for the service {}", serviceName);
+        String serviceURL = client.services().inNamespace(namespace)
+                .withName(serviceName + "-" + port + "-service")
+                .getURL(serviceName + "-" + port + BINDING_PORT_SUFIX);
+        logger.debug("Service ip {}", serviceURL.split(":")[1].replace("//", ""));
+        return serviceURL.split(":")[1].replace("//", "");
+    }
+    
+    public void createNamespace(String name) {
+        if (client.namespaces().withName(name).get() == null) {
+            logger.debug("Creating namespace -> {}", name);
+            Namespace ns = new NamespaceBuilder().withNewMetadata()
+                    .withName(name).addToLabels("io.elastest.name", name)
+                    .endMetadata().build();
+            client.namespaces().create(ns);
+        } else {
+            logger.info("Namespace -> {} already exists", name);
+        }
+    }
+    
+    public void deleteService(String serviceName) {
+        serviceName = serviceName.toLowerCase().concat("-service");
+        logger.debug("Removing kubernetes service {}", serviceName);
+        client.services().inNamespace(DEFAULT_NAMESPACE).withName(serviceName)
+                .delete();
     }
     
     public void deleteJob(String jobName) {
@@ -661,19 +733,33 @@ public class K8sService {
         }
     }
     
-    public MixedOperation<Service, ServiceList, DoneableService, ServiceResource<Service, DoneableService>> getAllServicesToOperate() {
-        return client.services();
+//    public MixedOperation<Service, ServiceList, DoneableService, ServiceResource<Service, DoneableService>> getAllServicesToOperate() {
+//        return client.services();
+//    }
+//
+//    public Service getServiceByName(String serviceName)
+//            throws NullPointerException {
+//        return getAllServicesToOperate().withName(serviceName).get();
+//    }
+//
+//    public String getServiceIpByName(String serviceName)
+//            throws NullPointerException {
+//        return getServiceByName(serviceName).getSpec().getClusterIP();
+//    }
+    
+    public Service getServiceByName(String serviceName, String namespace) {
+        logger.debug("Get service by name-namespace: {}-{}", serviceName,
+                namespace);
+        return client.services()
+                .inNamespace(namespace == null ? DEFAULT_NAMESPACE : namespace)
+                .withName(serviceName).get();
+    }
+    
+    public String getServiceIpByName(String serviceName, String namespace)
+            throws NullPointerException {
+        return getServiceByName(serviceName, namespace).getMetadata().getName();
     }
 
-    public Service getServiceByName(String serviceName)
-            throws NullPointerException {
-        return getAllServicesToOperate().withName(serviceName).get();
-    }
-
-    public String getServiceIpByName(String serviceName)
-            throws NullPointerException {
-        return getServiceByName(serviceName).getSpec().getClusterIP();
-    }
 
     public List<Pod> getPodsFromNamespace(String namespace) {
         return client.pods().inNamespace(namespace).list().getItems();
@@ -841,6 +927,29 @@ public class K8sService {
 
         public void setResult(Integer result) {
             this.result = result;
+        }
+    }
+    
+    public class ServiceInfo {
+        private String servicePort;
+        private String serviceName;
+        
+        public ServiceInfo(String targetPort, String serviceName) {
+            super();
+            this.servicePort = targetPort;
+            this.serviceName = serviceName;
+        }
+        public String getServicePort() {
+            return servicePort;
+        }
+        public void setServicePort(String targetPort) {
+            this.servicePort = targetPort;
+        }
+        public String getServiceName() {
+            return serviceName;
+        }
+        public void setServiceName(String serviceName) {
+            this.serviceName = serviceName;
         }
     }
 }

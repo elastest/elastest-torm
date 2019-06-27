@@ -427,8 +427,7 @@ public class EtPluginsService {
                         if (platformService.isContainerIntoNetwork(network,
                                 containerName)) {
                             internalIp = platformService
-                                    .getContainerIp(containerName,
-                                            network);
+                                    .getContainerIp(containerName);
                         }
 
                         // If not server-address, use internal ip
@@ -723,7 +722,7 @@ public class EtPluginsService {
             containerName = platformService.getUniqPluginContainerName(serviceName,
                     network);
             internalHost = platformService
-                    .getContainerIp(containerName, network);
+                    .getContainerIp(containerName);
         } catch (Exception e) {
             logger.error("Error on get {} internal url", serviceName);
         }

@@ -982,7 +982,7 @@ public class DockerServiceImpl extends PlatformService {
     
     @Override
     public ServiceBindedPort getBindedPort(String serviceIp,
-            String containerSufix, String port)
+            String containerSufix, String port, String namespace)
             throws Exception {
         String bindedPort = "37000";
         String socatContainerId = null;
@@ -1028,7 +1028,7 @@ public class DockerServiceImpl extends PlatformService {
 
 
     @Override
-    public String undeployTSSByContainerId(String containerId) {
+    public void removeBindedPort(String containerId) {
         try {
             dockerService.stopDockerContainer(containerId);
             dockerService.removeDockerContainer(containerId);
@@ -1036,7 +1036,11 @@ public class DockerServiceImpl extends PlatformService {
             logger.error("Error on stop and remove container {}", containerId,
                     e);
         }
-        return null;
+    }
+    
+    @Override
+    public String getBindedServiceIp(SupportServiceInstance serviceInstance, String Port) {
+        return serviceInstance.getBindedServiceIp();
     }
 
  
@@ -1151,9 +1155,15 @@ public class DockerServiceImpl extends PlatformService {
     }
     
     @Override
-    public String getContainerIp(String containerId, String network)
+    public String getContainerIp(String containerId)
             throws Exception {
-        return dockerService.getContainerIpByNetwork(containerId, network);
+        return dockerService.getContainerIpByNetwork(containerId, elastestNetwork);
+    }
+    
+    @Override
+    public String getContainerIp(String serviceId, SupportServiceInstance serviceInstance) {
+        //TODO
+        return "";
     }
 
     public void insertIntoETNetwork(String engineName, String network)
