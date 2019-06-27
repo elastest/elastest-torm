@@ -1342,8 +1342,12 @@ public class TSSService {
             } else {
                 try {
                     ServiceBindedPort socatBindedPortObj = platformService
-                            .getBindedPort(serviceInstance.getServiceName(),
-                                    null, node.get("port").toString(), serviceInstance.getInstanceId());
+                            .getBindedPort(
+                                    utilsService.isKubernetes()
+                                            ? serviceInstance.getEndpointName()
+                                            : serviceInstance.getContainerIp(),
+                                    null, node.get("port").toString(),
+                                    serviceInstance.getInstanceId());
                     serviceInstance.getPortBindingContainers()
                             .add(socatBindedPortObj.getContainerId());
                     bindedPort = Integer
