@@ -68,7 +68,7 @@ public class K8sService {
     private static final String DEFAULT_NAMESPACE = "default";
     private static final String LABEL_JOB_NAME = "job-name";
     private static final String LABEL_POD_NAME = "pod-name";
-    private static final String LABEL_APP_NAME = "app";
+    private static final String LABEL_APP_NAME = "io.elastest.tjob.tss.subservice.id";
     private static final String SUT_PORT_NAME = "sut-port";
     private static final String BINDING_PORT_SUFIX = "-host-port";
 
@@ -779,9 +779,12 @@ public class K8sService {
         return getPodByName(name).getStatus().getPodIP();
     }
     
-    public List<Pod> getPodsByLabels(Map<String, String> labels) {
-        return client.pods().inNamespace(DEFAULT_NAMESPACE).withLabels(labels)
-                .list().getItems();
+    public List<Pod> getPodsByLabels(Map<String, String> labels, String namespace) {
+        return client.pods()
+                .inNamespace(
+                        (namespace != null && !namespace.isEmpty()) ? namespace
+                                : DEFAULT_NAMESPACE)
+                .withLabels(labels).list().getItems();
     }
 
     public Boolean existJobByName(String name) {

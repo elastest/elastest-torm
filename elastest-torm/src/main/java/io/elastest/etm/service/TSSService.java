@@ -1715,7 +1715,8 @@ public class TSSService {
             if (tSSInstance.getUrls() != null
                     && !tSSInstance.getUrls().isEmpty()) {
                 // First check if internal api url exists
-                String urlValue = tSSInstance.getApiUrlIfExist(false);
+                String urlValue = tSSInstance.getApiUrlIfExist(
+                        utilsService.isKubernetes() ? true : false);
                 logger.debug("{} Internal url {} ", serviceName, urlValue);
                 if (urlValue == null) {
 
@@ -1727,7 +1728,8 @@ public class TSSService {
                     // else normal url
                     if (urlValue == null) {
                         urlValue = tSSInstance
-                                .getApiUrlIfExist(withServerAddress);
+                                .getApiUrlIfExist((utilsService.isKubernetes()
+                                        || withServerAddress) ? true : false);
                         logger.debug("{} Normal url {} ", serviceName,
                                 urlValue);
                     }

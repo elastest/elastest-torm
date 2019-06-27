@@ -137,8 +137,8 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public DockerContainerInfo getContainers(String projectName) {
-        // TODO Auto-generated method stub
-        return null;
+        DockerContainerInfo containersInfo = new DockerContainerInfo();
+        return containersInfo;
     }
 
     @Override
@@ -158,9 +158,9 @@ public class K8ServiceImpl extends PlatformService {
     @Override
     public String getContainerIp(String serviceName,
             SupportServiceInstance serviceInstance) {
-        k8sService.getServiceIpByName(serviceName,
-                serviceInstance.getInstanceId());
-        return "";
+        return serviceName;
+//                k8sService.getServiceIpByName(serviceName,
+//                serviceInstance.getInstanceId());
     }
 
     @Override
@@ -431,18 +431,20 @@ public class K8ServiceImpl extends PlatformService {
         logger.debug("Getting binded service ip for the service: {}",
                 serviceInstance.getServiceName());
         return k8sService.getServiceIp(
-                serviceInstance.getServiceName().toLowerCase(), port,
+                serviceInstance.getEndpointName().toLowerCase(), port,
                 serviceInstance.getInstanceId());
     }
     
     @Override
     public String getTSSInstanceContainerName(String... params) {
+        logger.debug("Getting service name {} on k8s", params[1]);
         String name = "";
         Map<String, String> labels = new HashMap<>();
         labels.put("io.elastest.tjob.tss.subservice.id", params[1]);
-        if (k8sService.getPodsByLabels(labels).size() > 0) {
+        if (k8sService.getPodsByLabels(labels, params[0]).size() > 0) {
             name = params[1];
         }
+        logger.debug("Service name: {}", name);
         return name;
     }
 
