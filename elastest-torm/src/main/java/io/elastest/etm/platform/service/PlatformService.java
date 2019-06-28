@@ -248,7 +248,11 @@ public abstract class PlatformService {
     public abstract String getContainerLogsFrom(String containerId, int from,
             boolean withFollow) throws Exception;
 
-    public abstract void removeBindedPort(String portBindedId) ;
+    public abstract void removeBindedPorts(SupportServiceInstance serviceInstance);
+    
+    public abstract void removeBindedPort(String portBindedId);
+    
+    public abstract void removeWorkEnvironment(String name);
 
     public abstract Integer copyFilesFomContainer(String container,
             String originPath, String targetPath);

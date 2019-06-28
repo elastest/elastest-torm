@@ -310,8 +310,26 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
+    public void removeBindedPorts(SupportServiceInstance serviceInstance) {
+        for (String bindedPortId : serviceInstance
+                .getPortBindingContainers()) {
+            logger.debug("Socat container to remove: {}", bindedPortId);
+            removeBindedPort(bindedPortId, serviceInstance.getInstanceId());
+        }
+    }
+    
+    public void removeBindedPort(String bindedPortId, String namespace) {
+        k8sService.deleteService(bindedPortId, namespace);        
+    }
+    
+    @Override
     public void removeBindedPort(String bindedPortId) {
-        k8sService.deleteService(bindedPortId);        
+        removeBindedPort(bindedPortId, null);        
+    }
+    
+    @Override
+    public void removeWorkEnvironment(String namespace) {
+        k8sService.deleteNamespace(namespace);
     }
 
     @Override

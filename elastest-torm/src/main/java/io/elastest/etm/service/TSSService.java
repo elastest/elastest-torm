@@ -1392,6 +1392,9 @@ public class TSSService {
             // If is not EUS in mini mode, deprovision
             if (!isIntegratedEUS(tSSInstance)) {
                 deprovisionServiceInstance(tSSInstanceId, servicesInstances);
+            } else if (utilsService.isKubernetes()) {
+                platformService.removeBindedPorts(tSSInstance);
+                platformService.removeWorkEnvironment(tSSInstanceId);
             }
         });
 
@@ -1492,19 +1495,15 @@ public class TSSService {
 
         // If not empty and not integrated EUS
         if (serviceInstance != null && !this.isIntegratedEUS(serviceInstance)) {
-            for (String bindedPortId : serviceInstance
-                    .getPortBindingContainers()) {
-                logger.debug("Socat container to remove: {}", bindedPortId);
-                platformService.removeBindedPort(bindedPortId);
-            }
+
+            platformService.removeBindedPorts(serviceInstance);
 
             for (SupportServiceInstance subServiceInstance : serviceInstance
                     .getSubServices()) {
-                for (String bindedPortId : subServiceInstance
-                        .getPortBindingContainers()) {
-                    platformService.removeBindedPort(bindedPortId);
-                }
+                platformService.removeBindedPorts(subServiceInstance);
+
             }
+
             esmServiceClient.deprovisionServiceInstance(instanceId,
                     serviceInstance);
         }

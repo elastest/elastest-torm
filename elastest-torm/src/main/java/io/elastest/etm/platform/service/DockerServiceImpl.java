@@ -1026,8 +1026,15 @@ public class DockerServiceImpl extends PlatformService {
         return bindedPortObj;
     }
 
-
     @Override
+    public void removeBindedPorts(SupportServiceInstance serviceInstance) {
+        for (String bindedPortId : serviceInstance
+                .getPortBindingContainers()) {
+            logger.debug("Socat container to remove: {}", bindedPortId);
+            removeBindedPort(bindedPortId);
+        }
+    }
+
     public void removeBindedPort(String containerId) {
         try {
             dockerService.stopDockerContainer(containerId);
@@ -1042,7 +1049,11 @@ public class DockerServiceImpl extends PlatformService {
     public String getBindedServiceIp(SupportServiceInstance serviceInstance, String Port) {
         return serviceInstance.getBindedServiceIp();
     }
-
+    
+    @Override
+    public void removeWorkEnvironment(String name) {
+        
+    }
  
     @Override
     public boolean createServiceDeploymentProject(String projectName,
