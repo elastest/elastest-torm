@@ -1,0 +1,81 @@
+<mat-card tdMediaToggle="gt-xs" fxFlex>
+  <div fxLayout="column" fxFlexFill>
+    <mat-card-title>
+      <div fxLayout="column" fxLayoutAlign="none">
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <span>Browser</span>
+          <span class="mat-subheading-2 push-left-sm push-bottom-none">({{ browserName }} {{ browserVersion }})</span>
+          <span fxFlex></span>
+          <ng-container *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined">
+            <button
+              mat-raised-button
+              class="iconBtn-md"
+              color="accent"
+              (click)="downloadFile()"
+              matTooltip="Download file from browser context"
+            >
+              <mat-icon>get_app</mat-icon>
+            </button>
+
+            <td-file-input
+              fxFlexOffset="1"
+              [(ngModel)]="browserFilesToUpload"
+              color="primary"
+              (select)="onUploadBrowserFile($event)"
+              [disabled]="false"
+              multiple
+              matTooltip="Upload files to browser context"
+            >
+              <mat-icon>attach_file</mat-icon>
+            </td-file-input>
+            <a mat-button [attr.href]="vncBrowserUrl" class="iconBtn push-left-sm" target="_blank" matTooltip="Open in new tab">
+              <mat-icon>open_in_new</mat-icon>
+            </a>
+          </ng-container>
+        </div>
+
+        <div
+          *ngIf="
+            browserAndEusLoading &&
+            eusTestModel !== undefined &&
+            eusTestModel.statusMsg !== undefined &&
+            eusTestModel.statusMsg !== ''
+          "
+          fxLayout="row"
+          class="push-top-sm"
+        >
+          <span id="resultMsgText" class="mat-subheading-1" style="vertical-align: middle;">{{ eusTestModel.statusMsg }}</span>
+        </div>
+      </div>
+      <div fxLayout="row" class="mat-small push-top-sm" *ngIf="logsAndMetrics && !browserAndEusLoading">
+        <span>Logs status =></span>
+        <span style.color="{{ logErrors > 0 ? errorColor : 'initial' }}" class="push-left-xs">Errors: {{ getLogsErrors() }}</span>
+        <span class="push-left-xs">|</span>
+        <span style.color="{{ logWarnings > 0 ? warnColor : 'initial' }}" class="push-left-xs"
+          >Warnings: {{ getLogsWarnings() }}</span
+        >
+      </div>
+    </mat-card-title>
+    <mat-divider [inset]="true"></mat-divider>
+    <mat-card-content fxFlex style="overflow: auto;" class="push-bottom-none">
+      <div fxLayoutAlign="center center" fxLayout="column" fxFlexFill>
+        <ng-container *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined; else loadingBrowser">
+          <vnc-client
+            #browserVnc
+            [vncUrl]="vncBrowserUrl"
+            [autoconnect]="autoconnect"
+            [viewOnly]="viewOnly"
+            [showStatus]="false"
+            [showConnectionBtns]="false"
+            [bgColor]="'#ffffff'"
+            fxFlexFill
+          ></vnc-client>
+        </ng-container>
+        <ng-template #loadingBrowser>
+          <div class="mat-headline text-center">{{ browserCardMsg }}</div>
+          <mat-spinner *ngIf="showSpinner()" strokeWidth="6" color="accent" class="push-top-sm"></mat-spinner>
+        </ng-template>
+      </div>
+    </mat-card-content>
+  </div>
+</mat-card>

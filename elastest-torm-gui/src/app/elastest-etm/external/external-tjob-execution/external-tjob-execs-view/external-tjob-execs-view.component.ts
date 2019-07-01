@@ -61,7 +61,7 @@ export class ExternalTjobExecsViewComponent implements OnInit {
         data: {
           savedConfig: savedConfig,
         },
-        minWidth: '20%',
+        minWidth: '35%',
       });
     }
   }

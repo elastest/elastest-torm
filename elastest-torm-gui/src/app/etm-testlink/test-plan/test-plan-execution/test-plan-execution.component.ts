@@ -1,5 +1,5 @@
 import { ExecutionFormComponent } from '../../execution/execution-form/execution-form.component';
-import { Component, OnInit, ViewChild, HostListener, OnDestroy, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewChild, HostListener, OnDestroy } from '@angular/core';
 import { ExternalTJobModel } from '../../../elastest-etm/external/external-tjob/external-tjob-model';
 import {
   ExternalTJobExecModel,
@@ -8,7 +8,7 @@ import {
 import { ExternalService } from '../../../elastest-etm/external/external.service';
 import { Router, Params, ActivatedRoute } from '@angular/router';
 import { TestLinkService } from '../../testlink.service';
-import { EusService } from '../../../elastest-eus/elastest-eus.service';
+import { BrowserVersionModel } from '../../../elastest-eus/elastest-eus.service';
 import { ExternalTestCaseModel } from '../../../elastest-etm/external/external-test-case/external-test-case-model';
 import { ExternalTestExecutionModel } from '../../../elastest-etm/external/external-test-execution/external-test-execution-model';
 import { BuildModel } from '../../models/build-model';
@@ -21,15 +21,14 @@ import { PullingObjectModel } from '../../../shared/pulling-obj.model';
 import { EsmServiceInstanceModel } from '../../../elastest-esm/esm-service-instance.model';
 import { EsmService } from '../../../elastest-esm/esm-service.service';
 import { TestPlanModel } from '../../models/test-plan-model';
-import { EusTestModel } from '../../../elastest-eus/elastest-eus-test-model';
 import { TitlesService } from '../../../shared/services/titles.service';
-import { sleep, getWarnColor, getErrorColor } from '../../../shared/utils';
+import { sleep } from '../../../shared/utils';
 import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbitmq.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { TdDialogService } from '@covalent/core';
 import { EtmRestClientService } from '../../../shared/services/etm-rest-client.service';
 import { EusBowserSyncModel } from '../../../elastest-eus/elastest-eus-browser-sync.model';
-import { VncClientComponent } from '../../../shared/vnc-client/vnc-client.component';
+import { BrowserCardComponentComponent } from '../../../elastest-eus/browser-card-component/browser-card-component.component';
+import { CrossbrowserComponentComponent } from '../../../elastest-eus/crossbrowser-component/crossbrowser-component.component';
 
 @Component({
   selector: 'testlink-test-plan-execution',
@@ -41,8 +40,13 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   logsAndMetrics: EtmMonitoringViewComponent;
   @ViewChild('tlExecutionForm')
   tlExecutionForm: ExecutionFormComponent;
-  @ViewChild('browserVnc')
-  browserVnc: VncClientComponent;
+  @ViewChild('singleBrowserCard')
+  singleBrowserCard: BrowserCardComponentComponent;
+  @ViewChild('crossbrowser')
+  crossbrowser: CrossbrowserComponentComponent;
+
+  // For development only! RETURN TO FALSE ON COMMIT
+  activateGUIDevelopmentMode: boolean = false;
 
   params: Params;
 
@@ -74,29 +78,15 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   eusTimer: Observable<number>;
   eusSubscription: Subscription;
   eusInstanceId: string;
-  eusUrl: string;
-  manuallyClosed: boolean = false;
 
-  browserCardMsg: string = 'Loading...';
-  browserAndEusLoading: boolean = true;
   browserAndEusDeprovided: boolean = false;
-
-  websocket: WebSocket;
-  eusTestModel: EusTestModel = new EusTestModel();
-
-  // Browser
-  sessionId: string;
-  hubContainerName: string;
-  vncBrowserUrl: string;
-  autoconnect: boolean = true;
-  viewOnly: boolean = false;
-  currentVideoName: string;
 
   browserName: string = 'chrome';
   browserVersion: string = 'latest';
+  browserList: BrowserVersionModel[];
+  crossbrowserEnabled: boolean = false;
 
   platformId: number = 0;
-
   extraHosts: string[] = [];
 
   // Files
@@ -117,22 +107,10 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   totalCases: number = 0;
 
-  browserFilesToUpload: File | FileList;
-  downloadFilePath: string = '';
-
   // TSS
   serviceInstances: EsmServiceInstanceModel[] = [];
   instancesNumber: number;
   checkTSSInstancesSubscription: Subscription;
-
-  // For development only! RETURN TO FALSE ON COMMIT
-  activateGUIDevelopmentMode: boolean = false;
-
-  logErrors: number = 0;
-  logWarnings: number = 0;
-
-  errorColor: string = getErrorColor();
-  warnColor: string = getWarnColor();
 
   startScan: boolean = true;
 
@@ -141,12 +119,9 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     public router: Router,
     private route: ActivatedRoute,
     private esmService: EsmService,
-    private eusService: EusService,
     private testLinkService: TestLinkService,
     private titlesService: TitlesService,
     private elastestRabbitmqService: ElastestRabbitmqService,
-    private _dialogService: TdDialogService,
-    private _viewContainerRef: ViewContainerRef,
     private etmRestClientService: EtmRestClientService,
   ) {}
 
@@ -155,11 +130,23 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     if (!this.activateGUIDevelopmentMode) {
       let queryParams: any = this.router.parseUrl(this.router.url).queryParams;
       if (queryParams) {
+        // Single browser
         if (queryParams.browserName) {
           this.browserName = queryParams.browserName;
           if (queryParams.browserVersion) {
             this.browserVersion = queryParams.browserVersion;
           }
+        }
+
+        // Cross browser
+        if (queryParams.browserList) {
+          let browserVersionPairList: string[] = queryParams.browserList.split(',');
+          this.browserList = [];
+          for (let browserVersionPair of browserVersionPairList) {
+            let newBrowser: BrowserVersionModel = new BrowserVersionModel(browserVersionPair);
+            this.browserList.push(newBrowser);
+          }
+          this.crossbrowserEnabled = true;
         }
 
         if (queryParams.extraHosts) {
@@ -203,7 +190,6 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   }
 
   clear(): void {
-    // this.eusService.stopCrossbrowserSession(this.sessionId);
     if (this.exTJobExec.finished() || this.exTJobExec.paused()) {
       this.end();
     } else {
@@ -280,12 +266,13 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       this.checkFinished();
       this.instancesNumber = this.exTJobExec.exTJob.esmServicesChecked + 1;
       if (this.instancesNumber > 1) {
-        this.browserCardMsg = 'Waiting for Test Support Services';
+        this.updateBrowsersCardMsg('Waiting for Test Support Services');
       }
 
       this.getSupportServicesInstances().subscribe(
         (ok: boolean) => {
           this.logsAndMetrics.initView(this.exTJob, this.exTJobExec);
+          this.setLogsAndMetricsToBrowsers();
           this.waitForEus(exTJobExec);
         },
         (error: Error) => console.log(error),
@@ -317,22 +304,31 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     });
   }
 
+  initEusDataAndStartWS(eusIp: string, eusPort: string | number, eusUrl: string): void {
+    if (this.crossbrowserEnabled && this.crossbrowser) {
+      this.crossbrowser.initEusData(eusIp, eusPort, eusUrl);
+      // Websocket is started for each browser in crossbrowser component
+    } else if (this.singleBrowserCard) {
+      this.singleBrowserCard.initEusData(eusIp, eusPort, eusUrl);
+      this.singleBrowserCard.startWebSocket();
+    }
+  }
+
   waitForEus(exTJobExec: ExternalTJobExecModel): void {
     this.executionCardMsg = 'Please wait while the browser is loading. This may take a while.';
-    this.browserCardMsg = 'Waiting for EUS...';
+    this.updateBrowsersCardMsg('Waiting for EUS...');
     if (exTJobExec.envVars && exTJobExec.envVars['EUS_INSTANCE_ID']) {
       this.eusInstanceId = exTJobExec.envVars['EUS_INSTANCE_ID'];
 
       if (exTJobExec.envVars['ET_EUS_API']) {
         // If EUS is shared (started on init)
-        this.eusUrl = exTJobExec.envVars['ET_EUS_API'];
-        this.eusService.setEusUrl(this.eusUrl);
-
-        this.startWebSocket(
-          this.eusService.getEusWsByHostAndPort(exTJobExec.envVars['ET_EUS_HOST'], exTJobExec.envVars['ET_EUS_PORT']),
+        this.initEusDataAndStartWS(
+          exTJobExec.envVars['ET_EUS_HOST'],
+          exTJobExec.envVars['ET_EUS_PORT'],
+          exTJobExec.envVars['ET_EUS_API'],
         );
 
-        this.initLoadBrowser();
+        this.waitBeforeLoadBrowsers();
       } else {
         let responseObj: PullingObjectModel = this.esmService.waitForTssInstanceUp(
           this.eusInstanceId,
@@ -344,10 +340,8 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
         responseObj.observable.subscribe(
           (eus: EsmServiceInstanceModel) => {
-            this.eusUrl = eus.apiUrl;
-            this.eusService.setEusUrl(this.eusUrl);
-            this.startWebSocket(this.eusService.getEusWsByHostAndPort(eus.ip, eus.port));
-            this.initLoadBrowser();
+            this.initEusDataAndStartWS(eus.ip, eus.port + '', eus.apiUrl);
+            this.waitBeforeLoadBrowsers();
           },
           (error: Error) => console.log(error),
         );
@@ -355,74 +349,84 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     }
   }
 
-  initLoadBrowser(withWait: boolean = true): void {
+  waitBeforeLoadBrowsers(withWait: boolean = true): void {
     if (this.exTJob.withSut()) {
-      this.browserCardMsg = 'The session will start once the SuT is ready';
+      this.updateBrowsersCardMsg('The session will start once the SuT is ready');
       this.executionCardMsg = 'Waiting for SuT...';
       if (!this.exTJobExec.executing()) {
         sleep(2000).then(() => {
-          this.initLoadBrowser(withWait);
+          this.waitBeforeLoadBrowsers(withWait);
         });
       } else {
         this.initSutUrl();
-        this.loadBrowser();
+        this.startBrowsers();
       }
     } else {
-      this.loadBrowser();
+      this.startBrowsers();
     }
   }
 
-  loadBrowser(): void {
-    this.browserCardMsg = 'Waiting for Browser...';
+  startBrowsers(): void {
+    this.updateBrowsersCardMsg('Waiting for Browser(s)...');
     this.executionCardMsg = 'Just a little more...';
     let extraCapabilities: any = { manualRecording: true, elastestTimeout: 0 };
-
     extraCapabilities = this.addTssCapabilities(extraCapabilities);
 
-    // this.eusService
-    //   .startCrossbrowserSession(
-    //     [{ browser: this.browserName, version: this.browserVersion }],
-    //     this.sutUrl,
-    //     extraCapabilities,
-    //     false,
-    //     this.extraHosts,
-    //   )
-    //   .subscribe(
-    //     (browserSync: EusBowserSyncModel) => {
-    //       this.sessionId = browserSync.identifier;
-    //     },
-    //     (error: Error) => {
-    //       console.log(error);
-    //     },
-    //   );
+    // CrossBrowser
+    if (this.crossbrowserEnabled) {
+      this.startCrossbrowser(extraCapabilities);
+    } else {
+      // Single browser
+      this.startSingleBrowser(extraCapabilities);
+    }
+  }
 
-    this.eusService.startSession(this.browserName, this.browserVersion, extraCapabilities, false, this.extraHosts).subscribe(
-      (eusTestModel: EusTestModel) => {
-        this.eusTestModel = eusTestModel;
-        this.sessionId = eusTestModel.id;
-        this.hubContainerName = eusTestModel.hubContainerName;
-        this.showStopAndPauseBtns = true;
-        this.exTJobExec.envVars['BROWSER_SESSION_ID'] = this.sessionId;
-        let browserLog: any = this.exTJobExec.getBrowserLogObj();
-        if (browserLog) {
-          this.logsAndMetrics.addMoreFromObj(browserLog);
-        }
-        this.eusService.getVncUrl(this.sessionId).subscribe(
-          (vncUrl: string) => {
-            this.openSutUrl();
-            this.vncBrowserUrl = vncUrl;
-            this.browserAndEusLoading = false;
-            this.loadTestCases();
-          },
-          (error: Error) => console.error(error),
-        );
+  startSingleBrowser(extraCapabilities: any): void {
+    this.singleBrowserCard
+      .startSession(this.browserName, this.browserVersion, extraCapabilities, false, this.extraHosts)
+      .subscribe(
+        (sessionId: any) => {
+          this.exTJobExec.envVars['BROWSER_SESSION_ID'] = sessionId;
+          this.openSutUrl();
+          this.initAfterStartBrowsers();
+        },
+        (errorResponse: HttpErrorResponse | Error) => {
+          let errorMsg: any;
+          if (errorResponse instanceof HttpErrorResponse) {
+            errorMsg = errorResponse.error.stacktraceMessage;
+          } else {
+            errorMsg = errorResponse.stack;
+          }
+          this.forceEnd(true, 'Error on start browser session', 'ERROR', errorMsg ? errorMsg : '');
+        },
+      );
+  }
+
+  startCrossbrowser(extraCapabilities: any): void {
+    this.crossbrowser.startCrossbrowser(extraCapabilities, this.browserList, this.sutUrl, false, this.extraHosts).subscribe(
+      (browserSync: EusBowserSyncModel) => {
+        this.exTJobExec.envVars['CROSSBROWSER_SESSION_ID'] = browserSync.identifier;
+        this.initAfterStartBrowsers();
       },
-      (errorResponse: HttpErrorResponse) => {
-        let error: any = errorResponse.error;
-        this.forceEnd(true, 'Error on start browser session', 'ERROR', error ? error.stacktraceMessage : '');
-        this.eusTestModel.statusMsg = 'Error';
+      (errorResponse: HttpErrorResponse | Error) => {
+        let errorMsg: any;
+        if (errorResponse instanceof HttpErrorResponse) {
+          errorMsg = errorResponse.error.stacktraceMessage;
+        } else {
+          errorMsg = errorResponse.stack;
+        }
+        this.forceEnd(true, 'Error on start crossbrowser session', 'ERROR', errorMsg ? errorMsg : '');
       },
     );
+  }
+
+  initAfterStartBrowsers(): void {
+    this.showStopAndPauseBtns = true;
+    let browserLog: any = this.exTJobExec.getBrowserLogObj();
+    if (browserLog) {
+      this.logsAndMetrics.addMoreFromObj(browserLog);
+    }
+    this.loadTestCases();
   }
 
   addTssCapabilities(extraCapabilities: any): any {
@@ -431,7 +435,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
         if (instance.serviceName.toLowerCase() === 'ess') {
           let httpproxyapiKey: string = 'httpproxyapi';
           if (!instance.urls || !instance.urls.get(httpproxyapiKey)) {
-            this.forceEnd(true, 'Error on initialize browser', 'ERROR', 'ESS proxy api url is not available');
+            this.forceEnd(true, 'Error on initialize browser(s)', 'ERROR', 'ESS proxy api url is not available');
           } else {
             let proxyUrl: string = instance.urls.get(httpproxyapiKey).internal;
             extraCapabilities['proxy'] = { httpProxy: proxyUrl, proxyType: 'MANUAL' };
@@ -496,7 +500,9 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   openSutUrl(): void {
     if (this.exTJob.withSut() && this.sutUrl !== '') {
-      this.eusService.navigateToUrl(this.sessionId, this.sutUrl).subscribe();
+      if (this.singleBrowserCard && !this.crossbrowser) {
+        this.singleBrowserCard.navigateToUrl(this.sutUrl).subscribe();
+      }
     }
   }
 
@@ -544,17 +550,25 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     }
   }
 
-  deprovideBrowserAndEus(): void {
-    if (this.sessionId !== undefined) {
-      this.browserCardMsg = 'Shutting down Browser...';
-      this.vncBrowserUrl = undefined;
-      this.eusService.stopSession(this.sessionId).subscribe(
+  stopBrowsersAndDeprovideEus(): void {
+    if (this.singleBrowserCard !== undefined || this.crossbrowser !== undefined) {
+      this.updateBrowsersCardMsg('Shutting down Browser(s)...');
+
+      let stopMethod: Observable<any>;
+      if (this.crossbrowserEnabled && this.crossbrowser) {
+        stopMethod = this.crossbrowser.stopCrossbrowser();
+      } else if (this.singleBrowserCard) {
+        stopMethod = this.singleBrowserCard.stopBrowser();
+      } else {
+        this.deprovisionEUS();
+        return;
+      }
+
+      stopMethod.subscribe(
         (ok) => {
-          this.sessionId = undefined;
           this.deprovisionEUS();
         },
         (error: Error) => {
-          console.error(error);
           this.deprovisionEUS();
         },
       );
@@ -565,10 +579,10 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   deprovisionEUS(): void {
     if (this.eusInstanceId && this.exTJobExec) {
-      this.browserCardMsg = 'Shutting down EUS...';
+      this.updateBrowsersCardMsg('Shutting down EUS...');
       this.esmService.deprovisionExternalTJobExecServiceInstance(this.eusInstanceId, this.exTJobExec.id).subscribe(
         () => {
-          this.browserCardMsg = 'FINISHED';
+          this.updateBrowsersCardMsg('FINISHED');
           this.browserAndEusDeprovided = true;
           this.showFiles = true;
         },
@@ -576,6 +590,22 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       );
     }
     this.unsubscribeEus();
+  }
+
+  updateBrowsersCardMsg(msg: string): void {
+    if (this.crossbrowserEnabled && this.crossbrowser) {
+      this.crossbrowser.updateMsg(msg);
+    } else if (this.singleBrowserCard) {
+      this.singleBrowserCard.updateMsg(msg);
+    }
+  }
+
+  stopWebsocket(): void {
+    if (this.crossbrowserEnabled && this.crossbrowser) {
+      this.crossbrowser.stopWebsocket();
+    } else if (this.singleBrowserCard) {
+      this.singleBrowserCard.stopWebsocket();
+    }
   }
 
   unsubscribeEus(): void {
@@ -593,17 +623,14 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   }
 
   end(fromError: boolean = false, fromPause: boolean = false): void {
-    if (this.websocket) {
-      this.manuallyClosed = true;
-      this.websocket.close();
-    }
+    this.stopWebsocket();
     if (!fromError && !fromPause) {
       this.executionCardMsg = 'The execution has been finished!';
-      this.executionCardSubMsg = 'The associated files will be shown when browser and eus have stopped';
+      this.executionCardSubMsg = 'The associated files will be shown when browser(s) and eus have stopped';
     }
     this.showStopAndPauseBtns = false;
     this.unsubscribeExecFinished();
-    this.deprovideBrowserAndEus();
+    this.stopBrowsersAndDeprovideEus();
   }
 
   forceEnd(
@@ -667,9 +694,17 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       this.testLinkService.getExternalTestCaseByTestCaseId(nextTLCase.id).subscribe(
         (exTestCase: ExternalTestCaseModel) => {
           this.currentExternalTestCase = exTestCase;
-          this.currentVideoName = nextTLCase.name.split(' ').join('-') + '_' + this.sessionId;
+          let currentVideoNamePrefix: string = nextTLCase.name.split(' ').join('-') + '_';
+
           // Start recording
-          this.eusService.startRecording(this.sessionId, this.hubContainerName, this.currentVideoName).subscribe(
+          let startRecordingMethod: Observable<any>;
+          if (this.crossbrowserEnabled && this.crossbrowser) {
+            startRecordingMethod = this.crossbrowser.startRecording(currentVideoNamePrefix);
+          } else if (this.singleBrowserCard) {
+            startRecordingMethod = this.singleBrowserCard.startRecording(currentVideoNamePrefix);
+          }
+
+          startRecordingMethod.subscribe(
             (ok) => {
               this.initCurrentExternalTestExecution(exTestCase);
 
@@ -757,7 +792,15 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
           this.externalService.modifyExternalTestExecution(this.currentExternalTestExecution).subscribe(
             (savedExTestExec: ExternalTestExecutionModel) => {
               this.externalService.popupService.openSnackBar('TestCase Execution has been saved successfully');
-              this.eusService.stopRecording(this.sessionId, this.hubContainerName).subscribe(
+
+              let stopRecordingMethod: Observable<any>;
+              if (this.crossbrowserEnabled && this.crossbrowser) {
+                stopRecordingMethod = this.crossbrowser.stopRecording();
+              } else if (this.singleBrowserCard) {
+                stopRecordingMethod = this.singleBrowserCard.stopRecording();
+              }
+
+              stopRecordingMethod.subscribe(
                 (ok: any) => {
                   this.loadNextTestLinkCase();
                 },
@@ -822,9 +865,16 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     this.exTJobExec.result = 'PAUSED';
     this.exTJobExec.resultMsg = 'Pausing...';
     this.executionCardMsg = 'Pausing...';
-    this.eusService.stopRecording(this.sessionId, this.hubContainerName).subscribe(
+    this.singleBrowserCard.stopRecording().subscribe(
       (ok: any) => {
-        this.eusService.deleteRecording(this.currentVideoName).subscribe((ok: any) => {
+        let deleteRecordingMethod: Observable<any>;
+        if (this.crossbrowserEnabled && this.crossbrowser) {
+          deleteRecordingMethod = this.crossbrowser.deleteRecording();
+        } else if (this.singleBrowserCard) {
+          deleteRecordingMethod = this.singleBrowserCard.deleteRecording();
+        }
+
+        deleteRecordingMethod.subscribe((ok: any) => {
           this.end(false, true);
           this.disableTLNextBtn = true;
           this.execFinished = true;
@@ -862,101 +912,6 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     // Save last executed tc id
     // Set paused status
     // Stop browser, eus and execution (status paused)
-  }
-
-  startWebSocket(wsUrl: string): void {
-    if (!this.websocket && wsUrl !== undefined) {
-      this.websocket = new WebSocket(wsUrl);
-
-      this.websocket.onopen = () => {
-        this.websocket.send('getSessions');
-        this.websocket.send('getRecordings');
-      };
-
-      this.websocket.onclose = () => this.reconnect(wsUrl);
-
-      this.websocket.onmessage = (message: any) => {
-        let json: any = JSON.parse(message.data);
-        if (json.newSession) {
-          if (this.eusTestModel !== undefined) {
-            this.eusTestModel.status = json.newSession.status;
-            this.eusTestModel.statusMsg = json.newSession.statusMsg;
-          }
-        } else if (json.removeSession) {
-        }
-      };
-    }
-  }
-
-  reconnect(wsUrl: string): void {
-    if (!this.manuallyClosed) {
-      // try to reconnect websocket in 5 seconds
-      setTimeout(() => {
-        console.log('Trying to reconnect to EUS WS');
-        this.startWebSocket(wsUrl);
-      }, 5000);
-    }
-  }
-
-  onUploadBrowserFile(files: FileList | File): void {
-    if (files instanceof FileList) {
-      this.eusService.uploadFilesToSession(this.sessionId, files).subscribe(
-        (responseObj: object) => {
-          if (!responseObj || responseObj['errors'].length > 0) {
-            this.externalService.popupService.openSnackBar('An error has occurred in uploading some files');
-            for (let error of responseObj['errors']) {
-              console.log(error);
-            }
-          } else {
-            this.externalService.popupService.openSnackBar('All files has been uploaded succesfully');
-          }
-        },
-        (error: Error) => {
-          console.log(error);
-          this.externalService.popupService.openSnackBar('An error has occurred in uploading files');
-        },
-      );
-    } else if (files instanceof File) {
-      this.eusService.uploadFileToSession(this.sessionId, files).subscribe(
-        (response: any) => {
-          this.externalService.popupService.openSnackBar('The file has been uploaded succesfully');
-        },
-        (error: Error) => {
-          console.log(error);
-          this.externalService.popupService.openSnackBar('An error has occurred in uploading file');
-        },
-      );
-    }
-  }
-
-  downloadFile(): void {
-    this._dialogService
-      .openPrompt({
-        message: 'Pelase, insert the complete path to the file in the Browser context',
-        disableClose: true,
-        viewContainerRef: this._viewContainerRef,
-        title: 'Download a file',
-        value: '',
-        cancelButton: 'Cancel',
-        acceptButton: 'Download',
-        width: '400px',
-      })
-      .afterClosed()
-      .subscribe((path: string) => {
-        if (path) {
-          this.eusService.downloadFileFromSession(this.sessionId, path).subscribe(
-            (ok: boolean) => {
-              if (!ok) {
-                this.externalService.popupService.openSnackBar('Error on get file');
-              }
-            },
-            (error: Error) => {
-              console.log(error);
-              this.externalService.popupService.openSnackBar('Error on get file');
-            },
-          );
-        }
-      });
   }
 
   getSupportServicesInstances(): Observable<boolean> {
@@ -997,19 +952,37 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     this.router.navigate(['/external/projects/', this.exTJob.exProject.id, 'tjob', this.exTJob.id, 'exec', this.exTJobExec.id]);
   }
 
-  getLogsErrors(): number {
-    this.logErrors = this.logsAndMetrics.getLogsErrors();
-    return this.logErrors;
-  }
-
-  getLogsWarnings(): number {
-    this.logWarnings = this.logsAndMetrics.getLogsWarnings();
-    return this.logWarnings;
-  }
-
   resizeBrowsers($event): void {
-    if (this.browserVnc && this.browserVnc.vncUi) {
-      this.browserVnc.vncUi.onResize();
+    if (this.crossbrowserEnabled && this.crossbrowser) {
+      this.crossbrowser.resizeBrowsers($event);
+    } else if (this.singleBrowserCard) {
+      this.singleBrowserCard.resizeBrowsers($event);
     }
+  }
+
+  showBrowserMsgSpinner(): boolean {
+    return (
+      this.exTJobExec &&
+      (!this.exTJobExec.finished() || (this.exTJobExec.finished() && !this.browserAndEusDeprovided)) &&
+      (!this.exTJobExec.paused() || (this.exTJobExec.paused() && !this.browserAndEusDeprovided))
+    );
+  }
+
+  setLogsAndMetricsToBrowsers(): void {
+    if (this.crossbrowserEnabled && this.crossbrowser) {
+      this.crossbrowser.setLogsAndMetrics(this.logsAndMetrics);
+    } else if (this.singleBrowserCard) {
+      this.singleBrowserCard.setLogsAndMetrics(this.logsAndMetrics);
+    }
+  }
+
+  showExecution(): boolean {
+    let showExecution: boolean = this.exTJob && this.exTJobExec && !this.exTJobExec.finished() && this.exTJobExec.executing();
+    if (this.crossbrowserEnabled) {
+      showExecution = showExecution && this.crossbrowser !== undefined;
+    } else {
+      showExecution = showExecution && this.singleBrowserCard && !this.singleBrowserCard.browserAndEusLoading;
+    }
+    return showExecution;
   }
 }

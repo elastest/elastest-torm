@@ -122,7 +122,7 @@ export class TestPlanComponent implements OnInit {
         builds: this.builds,
         testProjectId: this.testProjectId,
       },
-      minWidth: '20%',
+      minWidth: '35%',
     });
   }
 

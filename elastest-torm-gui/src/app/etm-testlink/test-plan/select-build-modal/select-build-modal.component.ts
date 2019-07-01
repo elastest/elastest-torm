@@ -27,12 +27,17 @@ export class SelectBuildModalComponent implements OnInit {
   // Loaded to check if there are no test cases (not run)
   testPlanCases: TLTestCaseModel[];
 
+  availableBrowserVersions: object;
+  availableBrowserNamesList: string[];
+  loadingBrowsers: boolean = false;
+
+  // Single browser
   selectedBrowser: string;
   selectedVersion: object = {};
 
-  browserVersions: object;
-  browserNamesList: string[];
-  loadingBrowsers: boolean = false;
+  // Crossbrowser
+  crossbrowserEnabled: boolean = false;
+  selectedCrossbrowsers: string[] = [];
 
   ready: boolean = false;
   fail: boolean = false;
@@ -153,19 +158,38 @@ export class SelectBuildModalComponent implements OnInit {
 
   runTestPlan(fromSavedConfig: boolean = false): void {
     if (!fromSavedConfig) {
+      let queryParams: any = {
+        extraHosts: this.extraHosts,
+        platform: this.selectedPlatform.id,
+      };
+
+      if (this.crossbrowserEnabled) {
+        queryParams.browserList = this.selectedCrossbrowsers.join(',');
+      } else {
+        queryParams.browserName = this.selectedBrowser;
+        queryParams.browserVersion = this.selectedVersion[this.selectedBrowser];
+      }
+
       this.router.navigate(
         ['/testlink/projects', this.testProjectId, 'plans', this.testPlan.id, 'builds', this.selectedBuild.id, 'exec', 'new'],
-        {
-          queryParams: {
-            browserName: this.selectedBrowser,
-            browserVersion: this.selectedVersion[this.selectedBrowser],
-            extraHosts: this.extraHosts,
-            platform: this.selectedPlatform.id,
-          },
-        },
+        { queryParams: queryParams },
       );
     } else {
       let savedConfig: any = this.data.savedConfig;
+
+      let queryParams: any = {
+        extraHosts: savedConfig.extraHosts,
+        platform: savedConfig.platformId,
+        fromSaved: true,
+        exTJobExecId: savedConfig.exTJobExecId,
+      };
+
+      if (this.crossbrowserEnabled) {
+        queryParams.browserList = savedConfig.browserList;
+      } else {
+        queryParams.browserName = savedConfig.browserName;
+        queryParams.browserVersion = savedConfig.browserVersion;
+      }
 
       this.router.navigate(
         [
@@ -178,16 +202,7 @@ export class SelectBuildModalComponent implements OnInit {
           'exec',
           'new',
         ],
-        {
-          queryParams: {
-            browserName: savedConfig.browserName,
-            browserVersion: savedConfig.browserVersion,
-            extraHosts: savedConfig.extraHosts,
-            platform: savedConfig.platformId,
-            fromSaved: true,
-            exTJobExecId: savedConfig.exTJobExecId,
-          },
-        },
+        { queryParams: queryParams },
       );
       this.dialogRef.close();
     }
@@ -211,10 +226,10 @@ export class SelectBuildModalComponent implements OnInit {
   }
 
   initBrowsersByGiven(obj: object): void {
-    this.browserVersions = obj;
-    this.browserNamesList = Object.keys(this.browserVersions);
-    if (this.browserNamesList.length > 0) {
-      this.selectBrowser(this.browserNamesList[0]);
+    this.availableBrowserVersions = obj;
+    this.availableBrowserNamesList = Object.keys(this.availableBrowserVersions);
+    if (this.availableBrowserNamesList.length > 0) {
+      this.selectBrowser(this.availableBrowserNamesList[0]);
     }
   }
 
@@ -229,13 +244,27 @@ export class SelectBuildModalComponent implements OnInit {
 
   thereIsOnlyOneBrowser(): boolean {
     return (
-      this.browserNamesList &&
-      (this.browserNamesList.length === 0 ||
-        (this.browserNamesList.length === 1 && this.browserVersions[this.browserNamesList[0]].length === 1))
+      this.availableBrowserNamesList &&
+      (this.availableBrowserNamesList.length === 0 ||
+        (this.availableBrowserNamesList.length === 1 &&
+          this.availableBrowserVersions[this.availableBrowserNamesList[0]].length === 1))
     );
   }
 
   clearVersion(): void {
     Object.keys(this.selectedVersion).forEach((key: string) => (this.selectedVersion[key] = ''));
+  }
+
+  addBrowser(): void {
+    if (this.selectedBrowser) {
+      let version: string = 'latest';
+
+      if (this.selectedVersion && this.selectedVersion[this.selectedBrowser]) {
+        version = this.selectedVersion[this.selectedBrowser];
+      }
+
+      let newBrowserVersionPair: string = this.selectedBrowser + '_' + version;
+      this.selectedCrossbrowsers.push(newBrowserVersionPair);
+    }
   }
 }

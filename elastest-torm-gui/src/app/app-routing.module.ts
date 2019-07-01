@@ -54,6 +54,7 @@ import { DashboardComponent } from './elastest-etm/dashboard/dashboard.component
 import { TjobExecViewComponent } from './elastest-etm/tjob-exec/tjob-exec-view/tjob-exec-view.component';
 import { TjobExecsComparatorComponent } from './elastest-etm/tjob-exec/tjob-execs-comparator/tjob-execs-comparator.component';
 import { ManageElastestComponent } from './elastest-etm/manage-elastest/manage-elastest.component';
+import { CrossbrowserComponentComponent } from './elastest-eus/crossbrowser-component/crossbrowser-component.component';
 
 const routes: Routes = [
   {
@@ -274,7 +275,21 @@ const routes: Routes = [
       },
       {
         path: 'eus',
-        component: ElastestEusComponent,
+        children: [
+          {
+            path: '',
+            component: ElastestEusComponent,
+          },
+          {
+            path: 'crossbrowser',
+            children: [
+              {
+                path: ':crossbrowserId',
+                component: CrossbrowserComponentComponent,
+              },
+            ],
+          },
+        ],
       },
       {
         path: 'redirect',

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
 
 import { ConfigurationService } from '../config/configuration-service.service';
-import { getUrlObj, CompleteUrlObj } from '../shared/utils';
+import { getUrlObj, CompleteUrlObj, isString } from '../shared/utils';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { EusTestModel } from './elastest-eus-test-model';
@@ -32,23 +32,7 @@ export class EusService {
 
     let data: any = this.getSessionBody(browser, version, extraCapabilities, live, extraHosts);
     return this.http.post(url, data).map((json: any) => {
-      let testModel: EusTestModel = new EusTestModel();
-      testModel.id = json.sessionId;
-      testModel.hubContainerName = json.hubContainerName;
-
-      if (json.value) {
-        if (json.value.sessionId) {
-          testModel.id = json.value.sessionId;
-        }
-
-        testModel.browser = json.value.browserName;
-        testModel.version = json.value.version;
-        testModel.creationTime = json.value.creationTime;
-        testModel.url = json.value.url;
-        testModel.status = json.value.status;
-        testModel.statusMsg = json.value.statusMsg;
-      }
-
+      let testModel: EusTestModel = new EusTestModel(json);
       return testModel;
     });
   }
@@ -150,7 +134,7 @@ export class EusService {
   }
 
   public startCrossbrowserSession(
-    browsers: { browser: string; version: string }[],
+    browsers: BrowserVersionModel[],
     sutUrl: string,
     extraCapabilities?: any,
     live: boolean = true,
@@ -165,9 +149,17 @@ export class EusService {
     });
   }
 
-  public stopCrossbrowserSession(id: string): Observable<string> {
+  public stopCrossbrowserSession(id: string): Observable<any> {
     let url: string = this.eusUrl + 'crossbrowser/' + id;
-    return this.http.delete(url, { responseType: 'text' });
+    return this.http.delete(url);
+  }
+
+  public getCrossbrowserSession(id: string): Observable<any> {
+    let url: string = this.eusUrl + 'crossbrowser/' + id;
+    return this.http.get(url).map((json: any) => {
+      let model: EusBowserSyncModel = new EusBowserSyncModel(json);
+      return model;
+    });
   }
 
   /* ********************************* */
@@ -206,7 +198,7 @@ export class EusService {
   }
 
   public getCrossbrowserSessionBody(
-    browsers: { browser: string; version: string }[],
+    browsers: BrowserVersionModel[],
     sutUrl: string,
     extraCapabilities?: any,
     live: boolean = true,
@@ -291,11 +283,35 @@ export class EusService {
     this.eusUrl = eusUrl;
   }
 
+  public getEusUrl(): string {
+    return this.eusUrl;
+  }
+
   public setEusHost(eusHost: string): void {
     this.hostName = eusHost;
   }
 
   public getEusWsByHostAndPort(host: string, port: string | number): string {
     return 'ws://' + host + ':' + port + '/eus/v1/eus-ws';
+  }
+}
+
+export class BrowserVersionModel {
+  browser: string;
+  version: string;
+
+  constructor(jsonOrPairStr: string | { browser: string; version: string }) {
+    if (jsonOrPairStr) {
+      if (typeof jsonOrPairStr === 'string' || jsonOrPairStr instanceof String) {
+        // Pair browser_version
+        let splittedPair: string[] = jsonOrPairStr.split('_');
+        this.browser = splittedPair[0];
+        this.version = splittedPair[1];
+      } else {
+        // obj
+        this.browser = jsonOrPairStr.browser;
+        this.version = jsonOrPairStr.version;
+      }
+    }
   }
 }

@@ -12,7 +12,7 @@ import { ETTestlinkModelsTransformService } from './shared/services/et-testlink-
 import { TitlesService } from './shared/services/titles.service';
 import { EtPluginsService } from './elastest-test-engines/et-plugins.service';
 import { EsmService } from './elastest-esm/esm-service.service';
-import { TdLayoutManageListComponent, CovalentLoadingModule, CovalentFileModule } from '@covalent/core';
+import { TdLayoutManageListComponent, CovalentLoadingModule, CovalentFileModule, CovalentChipsModule } from '@covalent/core';
 import { CovalentExpansionPanelModule, CovalentMessageModule } from '@covalent/core';
 import { CovalentCodeEditorModule } from '@covalent/code-editor';
 
@@ -154,6 +154,8 @@ import { ExternalMonitoringDBService } from './elastest-etm/sut/sut-form/externa
 import { ExternalElasticsearchConfigurationComponent } from './elastest-etm/external-monitoring-db/external-elasticsearch-configuration/external-elasticsearch-configuration.component';
 import { ExternalPrometheusConfigurationComponent } from './elastest-etm/external-monitoring-db/external-prometheus-configuration/external-prometheus-configuration.component';
 import { AngularSplitModule } from 'angular-split';
+import { BrowserCardComponentComponent } from './elastest-eus/browser-card-component/browser-card-component.component';
+import { CrossbrowserComponentComponent } from './elastest-eus/crossbrowser-component/crossbrowser-component.component';
 
 library.add(faJenkins);
 library.add(fas);
@@ -242,6 +244,8 @@ library.add(fas);
     ExternalMonitoringDbComponent,
     ExternalElasticsearchConfigurationComponent,
     ExternalPrometheusConfigurationComponent,
+    BrowserCardComponentComponent,
+    CrossbrowserComponentComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,
@@ -251,6 +255,7 @@ library.add(fas);
     AutosizeModule,
     BrowserModule,
     BrowserAnimationsModule,
+    CovalentChipsModule,
     CovalentCodeEditorModule,
     CovalentExpansionPanelModule,
     CovalentLoadingModule,

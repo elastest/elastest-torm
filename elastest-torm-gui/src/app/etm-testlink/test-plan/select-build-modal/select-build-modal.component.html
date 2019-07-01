@@ -24,6 +24,7 @@
           <mat-divider class="push-top"></mat-divider>
         </div>
       </div>
+
       <div fxFlex class="push-top">
         <!-- BROWSERS -->
         <h3>Select a Browser and Version</h3>
@@ -33,8 +34,8 @@
         </div>
         <ng-template #showBrowsersSelection>
           <mat-radio-group [(ngModel)]="selectedBrowser" (ngModelChange)="clearVersion()">
-            <div *ngFor="let browser of browserNamesList">
-              <mat-radio-button [value]="browser" fxFlex id="{{ browser + '_radio' }}">{{
+            <div *ngFor="let browser of availableBrowserNamesList">
+              <mat-radio-button [value]="browser" fxFlex.gt-lg="12" fxFlex.gt-xs="20" id="{{ browser + '_radio' }}">{{
                 browser | capitalize
               }}</mat-radio-button>
               <mat-select
@@ -45,15 +46,43 @@
                 fxFlex
                 (ngModelChange)="selectBrowser(browser)"
               >
-                <mat-option *ngFor="let version of browserVersions[browser]" [value]="version"> {{ version }} </mat-option>
+                <mat-option *ngFor="let version of availableBrowserVersions[browser]" [value]="version">
+                  {{ version }}
+                </mat-option>
               </mat-select>
               <br />
               <br />
             </div>
           </mat-radio-group>
+          <div fxLayout="row" fxLayoutAlign="start center">
+            <mat-checkbox [(ngModel)]="crossbrowserEnabled" matTooltip="Enable Crossbrowser" name="enable-crossbrowser">
+              Enable Cross browser
+            </mat-checkbox>
+            <button
+              mat-raised-button
+              *ngIf="crossbrowserEnabled"
+              color="accent"
+              (click)="addBrowser()"
+              id="add_browser_btn"
+              class="push-left-sm"
+            >
+              Add browser
+            </button>
+          </div>
+          <td-chips
+            *ngIf="crossbrowserEnabled"
+            [chipAddition]="false"
+            [chipRemoval]="true"
+            [items]="filteredStrings"
+            [(ngModel)]="selectedCrossbrowsers"
+            placeholder="Selected browsers"
+            [disabled]="false"
+          >
+          </td-chips>
         </ng-template>
         <mat-divider class="push-top"></mat-divider>
       </div>
+
       <div fxFlex class="push-top">
         <div fxLayout="column">
           <!-- Platforms -->
@@ -96,7 +125,7 @@
     #runPlanModalBtn
     id="runPlanModalBtn"
     (click)="runTestPlan()"
-    [disabled]="selectedBuild === undefined || loadingBrowsers"
+    [disabled]="selectedBuild === undefined || loadingBrowsers || (crossbrowserEnabled && selectedCrossbrowsers.length < 2)"
   >
     Run Test Plan
   </button>
