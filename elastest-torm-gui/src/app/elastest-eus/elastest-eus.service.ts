@@ -6,6 +6,7 @@ import { getUrlObj, CompleteUrlObj } from '../shared/utils';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { EusTestModel } from './elastest-eus-test-model';
+import { EusBowserSyncModel } from './elastest-eus-browser-sync.model';
 
 @Injectable()
 export class EusService {
@@ -28,28 +29,8 @@ export class EusService {
     extraHosts: string[] = [],
   ): Observable<EusTestModel> {
     let url: string = this.eusUrl + this.sessionPath;
-    let versionValue: string = version;
-    if (!versionValue) {
-      versionValue = '';
-    }
-    let browserName: string = browser;
-    if (browser === 'opera') {
-      browserName = 'operablink';
-    }
-    if (typeof extraHosts === 'string') {
-      extraHosts = [extraHosts];
-    }
-    let capabilities: any = {
-      browserName: browserName,
-      version: versionValue,
-      platform: 'ANY',
-      live: live,
-      extraHosts: extraHosts,
-    };
-    if (extraCapabilities) {
-      capabilities = { ...capabilities, ...extraCapabilities };
-    }
-    let data: any = { desiredCapabilities: capabilities, capabilities: capabilities };
+
+    let data: any = this.getSessionBody(browser, version, extraCapabilities, live, extraHosts);
     return this.http.post(url, data).map((json: any) => {
       let testModel: EusTestModel = new EusTestModel();
       testModel.id = json.sessionId;
@@ -166,6 +147,82 @@ export class EusService {
 
     // Returns text/plain
     return this.http.post(url, formData, { responseType: 'text' });
+  }
+
+  public startCrossbrowserSession(
+    browsers: { browser: string; version: string }[],
+    sutUrl: string,
+    extraCapabilities?: any,
+    live: boolean = true,
+    extraHosts: string[] = [],
+  ): Observable<EusBowserSyncModel> {
+    let url: string = this.eusUrl + 'crossbrowser';
+
+    let data: any = this.getCrossbrowserSessionBody(browsers, sutUrl, extraCapabilities, live, extraHosts);
+    return this.http.post(url, data).map((json: any) => {
+      let model: EusBowserSyncModel = new EusBowserSyncModel(json);
+      return model;
+    });
+  }
+
+  public stopCrossbrowserSession(id: string): Observable<string> {
+    let url: string = this.eusUrl + 'crossbrowser/' + id;
+    return this.http.delete(url, { responseType: 'text' });
+  }
+
+  /* ********************************* */
+  /* ********* Other methods ********* */
+  /* ********************************* */
+
+  public getSessionBody(
+    browser: string,
+    version: string,
+    extraCapabilities?: any,
+    live: boolean = true,
+    extraHosts: string[] = [],
+  ): any {
+    let versionValue: string = version;
+    if (!versionValue) {
+      versionValue = '';
+    }
+    let browserName: string = browser;
+    if (browser === 'opera') {
+      browserName = 'operablink';
+    }
+    if (typeof extraHosts === 'string') {
+      extraHosts = [extraHosts];
+    }
+    let capabilities: any = {
+      browserName: browserName,
+      version: versionValue,
+      platform: 'ANY',
+      live: live,
+      extraHosts: extraHosts,
+    };
+    if (extraCapabilities) {
+      capabilities = { ...capabilities, ...extraCapabilities };
+    }
+    return { desiredCapabilities: capabilities, capabilities: capabilities };
+  }
+
+  public getCrossbrowserSessionBody(
+    browsers: { browser: string; version: string }[],
+    sutUrl: string,
+    extraCapabilities?: any,
+    live: boolean = true,
+    extraHosts: string[] = [],
+  ): any {
+    let data: any = this.getSessionBody(undefined, undefined, extraCapabilities, live, extraHosts);
+    data['sutUrl'] = sutUrl;
+    let sessionsCapabilities: any[] = [];
+
+    for (let browser of browsers) {
+      let currentData: any = this.getSessionBody(browser.browser, browser.version, extraCapabilities, live, extraHosts);
+      sessionsCapabilities.push(currentData);
+    }
+    data['sessionsCapabilities'] = sessionsCapabilities;
+
+    return data;
   }
 
   public downloadFileFromSession(sessionId: string, path: string, isDirectory: boolean = false): Observable<boolean> {

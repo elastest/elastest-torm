@@ -28,6 +28,8 @@ import { ElastestRabbitmqService } from '../../../shared/services/elastest-rabbi
 import { HttpErrorResponse } from '@angular/common/http';
 import { TdDialogService } from '@covalent/core';
 import { EtmRestClientService } from '../../../shared/services/etm-rest-client.service';
+import { EusBowserSyncModel } from '../../../elastest-eus/elastest-eus-browser-sync.model';
+import { VncClientComponent } from '../../../shared/vnc-client/vnc-client.component';
 
 @Component({
   selector: 'testlink-test-plan-execution',
@@ -39,6 +41,8 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   logsAndMetrics: EtmMonitoringViewComponent;
   @ViewChild('tlExecutionForm')
   tlExecutionForm: ExecutionFormComponent;
+  @ViewChild('browserVnc')
+  browserVnc: VncClientComponent;
 
   params: Params;
 
@@ -199,6 +203,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   }
 
   clear(): void {
+    // this.eusService.stopCrossbrowserSession(this.sessionId);
     if (this.exTJobExec.finished() || this.exTJobExec.paused()) {
       this.end();
     } else {
@@ -373,6 +378,24 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     let extraCapabilities: any = { manualRecording: true, elastestTimeout: 0 };
 
     extraCapabilities = this.addTssCapabilities(extraCapabilities);
+
+    // this.eusService
+    //   .startCrossbrowserSession(
+    //     [{ browser: this.browserName, version: this.browserVersion }],
+    //     this.sutUrl,
+    //     extraCapabilities,
+    //     false,
+    //     this.extraHosts,
+    //   )
+    //   .subscribe(
+    //     (browserSync: EusBowserSyncModel) => {
+    //       this.sessionId = browserSync.identifier;
+    //     },
+    //     (error: Error) => {
+    //       console.log(error);
+    //     },
+    //   );
+
     this.eusService.startSession(this.browserName, this.browserVersion, extraCapabilities, false, this.extraHosts).subscribe(
       (eusTestModel: EusTestModel) => {
         this.eusTestModel = eusTestModel;
@@ -982,5 +1005,11 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   getLogsWarnings(): number {
     this.logWarnings = this.logsAndMetrics.getLogsWarnings();
     return this.logWarnings;
+  }
+
+  resizeBrowsers($event): void {
+    if (this.browserVnc && this.browserVnc.vncUi) {
+      this.browserVnc.vncUi.onResize();
+    }
   }
 }

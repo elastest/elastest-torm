@@ -153,6 +153,7 @@ import { ExternalMonitoringDbComponent } from './elastest-etm/sut/sut-form/exter
 import { ExternalMonitoringDBService } from './elastest-etm/sut/sut-form/external-monitoring-db/external-monitoring-db.service';
 import { ExternalElasticsearchConfigurationComponent } from './elastest-etm/external-monitoring-db/external-elasticsearch-configuration/external-elasticsearch-configuration.component';
 import { ExternalPrometheusConfigurationComponent } from './elastest-etm/external-monitoring-db/external-prometheus-configuration/external-prometheus-configuration.component';
+import { AngularSplitModule } from 'angular-split';
 
 library.add(faJenkins);
 library.add(fas);
@@ -246,6 +247,7 @@ library.add(fas);
     appRoutes,
     AppRoutingModule,
     AgGridModule.withComponents([]),
+    AngularSplitModule.forRoot(),
     AutosizeModule,
     BrowserModule,
     BrowserAnimationsModule,
