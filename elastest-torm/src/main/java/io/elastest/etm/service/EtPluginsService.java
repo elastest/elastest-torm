@@ -35,6 +35,7 @@ import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
 import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.etm.model.EtPlugin;
+import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.utils.PasswordFactory;
@@ -193,13 +194,13 @@ public class EtPluginsService {
     @PreDestroy
     public void destroy() {
         for (String engine : this.enginesMap.keySet()) {
-            stopAndRemoveProject(engine);
+            stopAndRemoveProject(engine, null);
         }
         for (String uniqueEtPlugin : this.uniqueEtPluginsMap.keySet()) {
-            stopAndRemoveProject(uniqueEtPlugin);
+            stopAndRemoveProject(uniqueEtPlugin, null);
         }
         for (String tssInstance : this.tssInstancesMap.keySet()) {
-            stopAndRemoveProject(tssInstance);
+            stopAndRemoveProject(tssInstance, null);
         }
     }
 
@@ -311,9 +312,10 @@ public class EtPluginsService {
         return this.getEtPlugin(projectName);
     }
 
-    public boolean stopAndRemoveProject(String projectName) {
+    public boolean stopAndRemoveProject(String projectName,
+            SupportServiceInstance serviceInstance) {
         boolean removed = platformService
-                .undeployAndCleanDeployment(projectName);
+                .undeployAndCleanDeployment(projectName, serviceInstance);
 
         if (!removed) {
             return removed;

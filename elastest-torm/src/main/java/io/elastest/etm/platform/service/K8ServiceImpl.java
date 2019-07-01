@@ -17,13 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
 import com.spotify.docker.client.ProgressHandler;
 
 import io.elastest.epm.client.DockerContainer;
-import io.elastest.epm.client.DockerException;
-import io.elastest.epm.client.json.DockerComposeProjectMessage;
 import io.elastest.epm.client.json.DockerContainerInfo;
-import io.elastest.epm.client.json.DockerProject;
 import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.epm.client.service.K8sService;
-import io.elastest.epm.client.service.ServiceException;
 import io.elastest.epm.client.service.K8sService.JobResult;
 import io.elastest.epm.client.service.K8sService.PodInfo;
 import io.elastest.epm.client.service.K8sService.ServiceInfo;
@@ -42,7 +38,7 @@ import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
-import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.Pod;
 
 @org.springframework.stereotype.Service
 public class K8ServiceImpl extends PlatformService {
@@ -94,7 +90,16 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public boolean undeployAndCleanDeployment(String projectName) {
+    public boolean undeployAndCleanDeployment(String projectName,
+            SupportServiceInstance serviceInstance) {
+        if (serviceInstance != null) {
+            List<Pod> pods = k8sService.getPodsFromNamespace(serviceInstance.getInstanceId());
+            pods.forEach(pod -> {
+                k8sService.copyFileFromContainer(pod.getMetadata().getName(),
+                        serviceInstance.getParameters().get("ET_SHARED_FOLDER"),
+                        serviceInstance.getParameters().get("ET_DATA_IN_HOST"));
+            });
+        }
         return k8sService.deleteResourcesFromYmlString(projectName);
     }
 

@@ -146,7 +146,8 @@ public abstract class PlatformService {
     public abstract boolean undeployService(String projectName)
             throws IOException;
 
-    public abstract boolean undeployAndCleanDeployment(String projectName);
+    public abstract boolean undeployAndCleanDeployment(String projectName,
+            SupportServiceInstance serviceInstance);
 
     public abstract List<String> getDeploymentImages(String projectName)
             throws Exception;

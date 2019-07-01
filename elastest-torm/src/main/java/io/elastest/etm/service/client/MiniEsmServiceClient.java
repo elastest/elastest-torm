@@ -105,7 +105,8 @@ public class MiniEsmServiceClient
     @Async
     public void deprovisionServiceInstance(String instanceId,
             SupportServiceInstance serviceInstance) {
-        if (etPluginsService.stopAndRemoveProject(instanceId)) {
+        if (etPluginsService.stopAndRemoveProject(instanceId,
+                serviceInstance)) {
             logger.info("Service {} deprovisioned.",
                     serviceInstance.getServiceName());
         } else {
