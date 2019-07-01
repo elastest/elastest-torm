@@ -66,7 +66,7 @@ public class TJobExecOrchestratorService {
 
     private final TJobExecRepository tJobExecRepositoryImpl;
     private DatabaseSessionManager dbmanager;
-    private final TSSService esmService;
+    private final TSSService tSSService;
     private SutService sutService;
     private AbstractMonitoringService monitoringService;
 
@@ -93,7 +93,7 @@ public class TJobExecOrchestratorService {
         super();
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.dbmanager = dbmanager;
-        this.esmService = esmService;
+        this.tSSService = esmService;
         this.sutService = sutService;
         this.monitoringService = monitoringService;
         this.etmContextService = etmContextService;
@@ -540,7 +540,7 @@ public class TJobExecOrchestratorService {
                 // Wait only if not is mini. (In mini is already waiting for
                 // them individually in provideService)
                 if (!utilsService.isElastestMini()) {
-                    esmService.waitForExecutionServicesAreReady(execution);
+                    tSSService.waitForExecutionServicesAreReady(execution);
                 }
             } else {
                 logger.info("There aren't TSSs to be provided");
@@ -588,24 +588,24 @@ public class TJobExecOrchestratorService {
         // information
         String tssId = service.getId();
         if (utilsService.isElastestMini()) {
-            instanceId = esmService.generateNewOrGetInstanceId(tssId);
-            if (esmService.isSharedTssInstanceByServiceId(tssId)) {
+            instanceId = tSSService.generateNewOrGetInstanceId(tssId);
+            if (tSSService.isSharedTssInstanceByServiceId(tssId)) {
                 // If is shared, is started
-                esmService.provisionExecutionSharedTSSSync(tssId, execution,
+                tSSService.provisionExecutionSharedTSSSync(tssId, execution,
                         instanceId);
             } else {
                 // Else provision async and wait after for tss
-                esmService.provisionExecutionServiceInstanceAsync(tssId,
+                tSSService.provisionExecutionServiceInstanceAsync(tssId,
                         execution, instanceId);
             }
 
-            String serviceName = esmService.getServiceNameByServiceId(tssId)
+            String serviceName = tSSService.getServiceNameByServiceId(tssId)
                     .toUpperCase();
 
-            esmService.waitForTssStartedInMini(execution, instanceId,
+            tSSService.waitForTssStartedInMini(execution, instanceId,
                     serviceName);
         } else { // Sync provision
-            instanceId = esmService.provisionExecutionServiceInstanceSync(tssId,
+            instanceId = tSSService.provisionExecutionServiceInstanceSync(tssId,
                     execution);
         }
 
@@ -645,9 +645,9 @@ public class TJobExecOrchestratorService {
      */
     private Map<String, String> getTJobExecTssEnvVars(boolean externalTJob,
             boolean withPublicPrefix, String tSSInstanceId) {
-        SupportServiceInstance ssi = esmService
+        SupportServiceInstance ssi = tSSService
                 .getTJobServiceInstanceById(tSSInstanceId);
-        Map<String, String> tssInstanceEnvVars = esmService
+        Map<String, String> tssInstanceEnvVars = tSSService
                 .getTSSInstanceEnvVars(ssi, externalTJob, withPublicPrefix);
 
         return tssInstanceEnvVars;
@@ -659,9 +659,9 @@ public class TJobExecOrchestratorService {
     private Map<String, String> getExternalTJobExecTssEnvVars(
             boolean publicEnvVars, boolean withPublicPrefix,
             String tSSInstanceId) {
-        SupportServiceInstance ssi = esmService
+        SupportServiceInstance ssi = tSSService
                 .getExternalTJobServiceInstanceById(tSSInstanceId);
-        Map<String, String> tssInstanceEnvVars = esmService
+        Map<String, String> tssInstanceEnvVars = tSSService
                 .getTSSInstanceEnvVars(ssi, publicEnvVars, withPublicPrefix);
 
         return tssInstanceEnvVars;
@@ -810,7 +810,7 @@ public class TJobExecOrchestratorService {
                 execId);
         List<String> instancesAux = new ArrayList<String>();
 
-        List<String> servicesInstances = esmService
+        List<String> servicesInstances = tSSService
                 .getServicesInstancesByExecution(execution);
 
         if (servicesInstances != null && servicesInstances.size() > 0) {
@@ -818,19 +818,19 @@ public class TJobExecOrchestratorService {
                     "{} {} => Deprovisioning TJob's TSSs stored in the TJob object",
                     execType, execId);
             instancesAux = servicesInstances;
-        } else if (esmService.gettSSIByExecutionAssociated(execution)
+        } else if (tSSService.gettSSIByExecutionAssociated(execution)
                 .get(execId) != null) {
             logger.debug(
                     "{} {} => Deprovisioning TJob's TSSs stored in the EsmService",
                     execType, execId);
-            instancesAux = esmService.gettSSIByExecutionAssociated(execution)
+            instancesAux = tSSService.gettSSIByExecutionAssociated(execution)
                     .get(execId);
         }
 
         logger.debug("{} {} => TSS list size: {}", execType, execId,
                 instancesAux);
         for (String instanceId : instancesAux) {
-            esmService.deprovisionExecutionServiceInstance(instanceId,
+            tSSService.deprovisionExecutionServiceInstance(instanceId,
                     execution);
             logger.debug("{} {} => TSS Instance id to deprovision: {}",
                     execType, execId, instanceId);
