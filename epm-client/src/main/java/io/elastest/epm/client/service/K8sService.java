@@ -39,6 +39,8 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
+import io.fabric8.kubernetes.api.model.LabelSelector;
+import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
@@ -70,9 +72,11 @@ public class K8sService {
     private static final String DEFAULT_NAMESPACE = "default";
     private static final String LABEL_JOB_NAME = "job-name";
     private static final String LABEL_POD_NAME = "pod-name";
-    private static final String LABEL_APP_NAME = "io.elastest.tjob.tss.subservice.id";
+    private static final String LABEL_APP_NAME = "app";
     private static final String SUT_PORT_NAME = "sut-port";
     private static final String BINDING_PORT_SUFIX = "-host-port";
+    private static final String CLUSTER_DOMAIN = "svc.cluster.local";
+    private static final String LABEL_TSS_NAME = "io.elastest.tjob.tss.id";
 
     @Value("${et.data.in.host}")
     public String etDataInHost;
@@ -391,7 +395,7 @@ public class K8sService {
             pod = client.pods().inNamespace(namespace)
                     .createOrReplace(podBuilder.build());
 
-            while (!isReady(containerNameWithoutUnderscore)) {
+            while (!isReady(containerNameWithoutUnderscore, null)) {
                 UtilTools.sleep(1);
             }
             pod = client.pods().inNamespace(DEFAULT_NAMESPACE)
@@ -453,7 +457,7 @@ public class K8sService {
 //                        podInfo.setPodName(pod.getMetadata().getName());
 //                        podInfo.setPodIp(pod.getStatus().getPodIP());
 //                    }
-                    while (!isReady(pod.getMetadata().getName())) {
+                    while (!isReady(pod.getMetadata().getName(), null)) {
                         UtilTools.sleep(1);
                     }
                     podInfo.setPodName(pod.getMetadata().getName());
@@ -499,7 +503,8 @@ public class K8sService {
                     .withName(resourcesMetadata.get(0).getMetadata().getName())
                     .get();
 
-            deleted = client.resource(deployment).delete();
+//            deleted = client.extensions().deployments().withName(resourcesMetadata.get(0).getMetadata().getName()).delete();
+            deleted = client.resource(deployment).inNamespace(namespace).cascading(true).delete();
 //            deleted = client.apps().deployments()
 //                    .inNamespace((namespace != null && !namespace.isEmpty()
 //                            ? namespace
@@ -555,7 +560,7 @@ public class K8sService {
                 .withName(serviceName + "-" + port + "-service").endMetadata()
                 .withNewSpec()
                 .withSelector(
-                        Collections.singletonMap(LABEL_APP_NAME, serviceName))
+                        Collections.singletonMap(LABEL_TSS_NAME, serviceName))
                 .addNewPort()
                 .withName(serviceName + "-" + port + BINDING_PORT_SUFIX)
                 .withProtocol(protocol).withPort(port).endPort()
@@ -638,9 +643,12 @@ public class K8sService {
                 .withName(podName.replace("_", "-")).delete();
     }
 
-    public boolean isReady(String podName) {
-        Pod pod = client.pods().inNamespace(DEFAULT_NAMESPACE).withName(podName)
-                .get();
+    public boolean isReady(String podName, String namespace) {
+        Pod pod = client.pods()
+                .inNamespace(
+                        namespace != null && !namespace.isEmpty() ? namespace
+                                : DEFAULT_NAMESPACE)
+                .withName(podName).get();
         if (pod == null) {
             return false;
         } else {
@@ -714,11 +722,16 @@ public class K8sService {
     }
 
     public Integer copyFileFromContainer(String podName, String originPath,
-            String targetPath) {
-        logger.info("Copying file from k8s pod {} in this path {}", podName,
-                targetPath);
+            String targetPath, String namespace) {
+        logger.info(
+                "Copying files in the folder {} in the pod {}, in this local path {}",
+                originPath, podName, targetPath);
         Integer result = 0;
-        result = client.pods().inNamespace(DEFAULT_NAMESPACE).withName(podName)
+        result = client.pods()
+                .inNamespace(
+                        namespace != null && !namespace.isEmpty() ? namespace
+                                : DEFAULT_NAMESPACE)
+                .withName(podName)
                 .dir(originPath).copy(Paths.get(targetPath)) ? result : 1;
         if (result != 1) {
             logger.debug("*** File copied ***");
@@ -812,6 +825,24 @@ public class K8sService {
     public String getPodIpByPodName(String name) {
         return getPodByName(name).getStatus().getPodIP();
     }
+    
+    public String getPodIpByLabel(String label, String value,
+            String namespace) {
+        logger.debug("Get Ip by label {}-{}", label, value);
+        Map<String, String> labels = new HashMap<>();
+        labels.put(label, value);
+        UtilTools.sleep(4);
+        List<Pod> pods = getPodsByLabels(labels, namespace);
+        while (!isReady(pods.get(0).getMetadata().getName(), namespace)) {
+            UtilTools.sleep(1);
+        }
+        pods = getPodsByLabels(labels, namespace);
+        logger.debug("Pods recovered -> {}",
+                pods.get(0).getMetadata().getName());
+        logger.debug("Pod ip: {}", pods.get(0).getStatus().getPodIP());
+
+        return pods.get(0).getStatus().getPodIP();
+    }
 
     public List<Pod> getPodsByLabels(Map<String, String> labels,
             String namespace) {
@@ -895,6 +926,38 @@ public class K8sService {
         }
 
         return etToolsVolume;
+    }
+    
+    public String getFullDNS(String serviceName, String namespace) {
+        String fullDNS = "";
+        fullDNS = getServiceNameByLabelAppName(serviceName, namespace)
+                + ((namespace != null && !namespace.isEmpty())
+                ? "." + namespace + "."
+                : ".") + CLUSTER_DOMAIN;
+        logger.debug("Full DNS: {}", fullDNS);
+        return fullDNS;
+    }
+    
+    private String getServiceNameByLabelAppName(String value,
+            String namespace) {
+        logger.debug("Value label {}", value);
+        String serviceName = "";
+        LabelSelectorBuilder selectorBuilder = new LabelSelectorBuilder();
+        LabelSelector labelSelector = selectorBuilder
+                .withMatchLabels(
+                        Collections.singletonMap(LABEL_APP_NAME, value))
+                .build();
+        List<Service> services = client.services()
+                .inNamespace(
+                        (namespace != null && !namespace.isEmpty()) ? namespace
+                                : DEFAULT_NAMESPACE).list().getItems();
+        if (!services.isEmpty()) {
+            logger.debug("There are services with the label {}:{}",
+                    LABEL_APP_NAME, value);
+            serviceName = services.get(0).getMetadata().getName();
+        }
+
+        return serviceName;
     }
 
     public class PodInfo {

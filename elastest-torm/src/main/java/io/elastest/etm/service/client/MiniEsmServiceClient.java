@@ -226,7 +226,6 @@ public class MiniEsmServiceClient
                         serviceInstance.getSubServices()
                                 .add(auxServiceInstance);
                     }
-
                 } catch (Exception e) {
                     logger.error("Error on getting TSS instance container ip",
                             e);

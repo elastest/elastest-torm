@@ -93,11 +93,13 @@ public class K8ServiceImpl extends PlatformService {
     public boolean undeployAndCleanDeployment(String projectName,
             SupportServiceInstance serviceInstance) {
         if (serviceInstance != null) {
-            List<Pod> pods = k8sService.getPodsFromNamespace(serviceInstance.getInstanceId());
+            List<Pod> pods = k8sService
+                    .getPodsFromNamespace(serviceInstance.getInstanceId());
             pods.forEach(pod -> {
                 k8sService.copyFileFromContainer(pod.getMetadata().getName(),
                         serviceInstance.getParameters().get("ET_SHARED_FOLDER"),
-                        serviceInstance.getParameters().get("ET_DATA_IN_HOST"));
+                        serviceInstance.getParameters().get("ET_FILES_PATH"),
+                        serviceInstance.getInstanceId());
             });
         }
         return k8sService.deleteResourcesFromYmlString(projectName);
@@ -163,7 +165,12 @@ public class K8ServiceImpl extends PlatformService {
     @Override
     public String getContainerIp(String serviceName,
             SupportServiceInstance serviceInstance) {
-        return serviceName;
+        logger.debug(
+                "Get Container ip for the service {}-{} in the namespace {}",
+                serviceName, serviceInstance.getInstanceId());
+        return k8sService.getPodIpByLabel("io.elastest.tjob.tss.id",
+                serviceName, serviceInstance.getInstanceId());
+//        return serviceName;
 //                k8sService.getServiceIpByName(serviceName,
 //                serviceInstance.getInstanceId());
     }
@@ -411,7 +418,7 @@ public class K8ServiceImpl extends PlatformService {
                 targetPath);
         Integer result = 1;
         result = k8sService.copyFileFromContainer(container, originPath,
-                targetPath);
+                targetPath, null);
         return result;
     }
 
@@ -460,15 +467,17 @@ public class K8ServiceImpl extends PlatformService {
     
     @Override
     public String getTSSInstanceContainerName(String... params) {
-        logger.debug("Getting service name {} on k8s", params[1]);
-        String name = "";
-        Map<String, String> labels = new HashMap<>();
-        labels.put("io.elastest.tjob.tss.subservice.id", params[1]);
-        if (k8sService.getPodsByLabels(labels, params[0]).size() > 0) {
-            name = params[1];
-        }
-        logger.debug("Service name: {}", name);
-        return name;
+        logger.debug("Check if the TSS {} exist as a pod in the namespace {}",
+                params[1], params[0]);
+//        String name = "";
+//        Map<String, String> labels = new HashMap<>();
+//        labels.put("io.elastest.tjob.tss.id", params[1]);
+//        if (k8sService.getPodsByLabels(labels, params[0]).size() > 0) {
+//            name = params[1];
+//        }
+//        logger.debug("Service name: {}", name);
+//        return name;
+        return params[1];
     }
 
 }

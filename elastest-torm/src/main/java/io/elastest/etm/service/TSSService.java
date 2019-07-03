@@ -1285,6 +1285,11 @@ public class TSSService {
                 logger.debug("It is not necessary to bind ports");
                 auxPort = internalPort;
             }
+//            
+//            if (utilsService.isKubernetes()) {
+//                serviceInstance.setContainerIp(platformService.getContainerIp(
+//                        serviceInstance.getEndpointName(), serviceInstance));
+//            }
 
             if (node.get("protocol") != null && (node.get("protocol").toString()
                     .contains("http")

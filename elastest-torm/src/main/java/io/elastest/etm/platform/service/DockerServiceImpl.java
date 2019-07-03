@@ -1079,7 +1079,8 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public boolean undeployAndCleanDeployment(String projectName) {
+    public boolean undeployAndCleanDeployment(String projectName,
+            SupportServiceInstance serviceInstance) {
         return dockerComposeService.stopAndRemoveProject(projectName);
     }
 
