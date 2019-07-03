@@ -65,7 +65,6 @@ public class K8ServiceImpl extends PlatformService {
         sutsByExecution = new ConcurrentHashMap<String, String>();
         this.etmFilesService = etmFilesService;
     }
-    
 
     @Override
     public boolean createServiceDeploymentProject(String projectName,
@@ -81,7 +80,8 @@ public class K8ServiceImpl extends PlatformService {
     public boolean deployService(String projectName, boolean withPull)
             throws IOException {
         k8sService.createNamespace(projectName);
-        return k8sService.deployResourcesFromProject(projectName) != null ? true : false;
+        return k8sService.deployResourcesFromProject(projectName) != null ? true
+                : false;
     }
 
     @Override
@@ -112,14 +112,13 @@ public class K8ServiceImpl extends PlatformService {
         return null;
     }
 
-
     @Override
     public void pullProject(String projectName,
             Map<String, EtPlugin> currentEtPluginMap) throws Exception {
         // TODO Auto-generated method stub
-        
+
     }
-    
+
     @Override
     public void pullImageWithProgress(String projectName,
             ProgressHandler progressHandler, String image) throws Exception {
@@ -156,15 +155,14 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getContainerIp(String containerId)
-            throws Exception {
+    public String getContainerIp(String containerId) throws Exception {
         // TODO Auto-generated method stub
         return null;
     }
-    
+
     @Override
     public String getContainerIp(String serviceName,
-            SupportServiceInstance serviceInstance) {
+            SupportServiceInstance serviceInstance) throws Exception {
         logger.debug(
                 "Get Container ip for the service {}-{} in the namespace {}",
                 serviceName, serviceInstance.getInstanceId());
@@ -176,7 +174,8 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getUniqPluginContainerName(String serviceName, String network) {
+    public String getUniqPluginContainerName(String serviceName,
+            String network) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -311,7 +310,6 @@ public class K8ServiceImpl extends PlatformService {
 
     }
 
-
     @Override
     public String getEtmHost() throws Exception {
         if (utilsService.isEtmInDevelopment()) {
@@ -323,22 +321,21 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public void removeBindedPorts(SupportServiceInstance serviceInstance) {
-        for (String bindedPortId : serviceInstance
-                .getPortBindingContainers()) {
+        for (String bindedPortId : serviceInstance.getPortBindingContainers()) {
             logger.debug("Socat container to remove: {}", bindedPortId);
             removeBindedPort(bindedPortId, serviceInstance.getInstanceId());
         }
     }
-    
+
     public void removeBindedPort(String bindedPortId, String namespace) {
-        k8sService.deleteService(bindedPortId, namespace);        
+        k8sService.deleteService(bindedPortId, namespace);
     }
-    
+
     @Override
     public void removeBindedPort(String bindedPortId) {
-        removeBindedPort(bindedPortId, null);        
+        removeBindedPort(bindedPortId, null);
     }
-    
+
     @Override
     public void removeWorkEnvironment(String namespace) {
         k8sService.deleteNamespace(namespace);
@@ -442,7 +439,8 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public ServiceBindedPort getBindedPort(String serviceName,
-            String containerSufix, String port, String namespace) throws Exception {        
+            String containerSufix, String port, String namespace)
+            throws Exception {
         logger.debug("Init binding port with k8s");
         k8sService.createNamespace(namespace);
         ServiceInfo serviceInfo = k8sService.createService(serviceName,
@@ -454,7 +452,7 @@ public class K8ServiceImpl extends PlatformService {
         return bindedPortObj;
 
     }
-    
+
     @Override
     public String getBindedServiceIp(SupportServiceInstance serviceInstance,
             String port) {
@@ -464,7 +462,7 @@ public class K8ServiceImpl extends PlatformService {
                 serviceInstance.getEndpointName().toLowerCase(), port,
                 serviceInstance.getInstanceId());
     }
-    
+
     @Override
     public String getTSSInstanceContainerName(String... params) {
         logger.debug("Check if the TSS {} exist as a pod in the namespace {}",

@@ -979,7 +979,7 @@ public class DockerServiceImpl extends PlatformService {
         serviceToPull.setStatus(status);
         serviceToPull.setStatusMsg(statusMsg);
     }
-    
+
     @Override
     public ServiceBindedPort getBindedPort(String serviceIp,
             String containerSufix, String port, String namespace)
@@ -1028,8 +1028,7 @@ public class DockerServiceImpl extends PlatformService {
 
     @Override
     public void removeBindedPorts(SupportServiceInstance serviceInstance) {
-        for (String bindedPortId : serviceInstance
-                .getPortBindingContainers()) {
+        for (String bindedPortId : serviceInstance.getPortBindingContainers()) {
             logger.debug("Socat container to remove: {}", bindedPortId);
             removeBindedPort(bindedPortId);
         }
@@ -1044,17 +1043,18 @@ public class DockerServiceImpl extends PlatformService {
                     e);
         }
     }
-    
+
     @Override
-    public String getBindedServiceIp(SupportServiceInstance serviceInstance, String Port) {
+    public String getBindedServiceIp(SupportServiceInstance serviceInstance,
+            String Port) {
         return serviceInstance.getBindedServiceIp();
     }
-    
+
     @Override
     public void removeWorkEnvironment(String name) {
-        
+
     }
- 
+
     @Override
     public boolean createServiceDeploymentProject(String projectName,
             String serviceDescriptor, String targetPath, boolean override,
@@ -1097,7 +1097,7 @@ public class DockerServiceImpl extends PlatformService {
             throws Exception {
         return dockerComposeService.getProjectImages(projectName);
     }
-   
+
     /* *************************** */
     /* ****** Pull Projects ****** */
     /* *************************** */
@@ -1119,10 +1119,9 @@ public class DockerServiceImpl extends PlatformService {
             serviceStatus = currentEtPluginMap.get(projectName);
         }
 
-        pullDeploymentImages(projectName, serviceStatus, images,
-                true);
+        pullDeploymentImages(projectName, serviceStatus, images, true);
     }
-    
+
     @Override
     public void pullImageWithProgress(String projectName,
             ProgressHandler progressHandler, String image) throws Exception {
@@ -1165,17 +1164,19 @@ public class DockerServiceImpl extends PlatformService {
             throws Exception {
         return dockerService.isContainerIntoNetwork(networkId, containerId);
     }
-    
+
     @Override
-    public String getContainerIp(String containerId)
-            throws Exception {
-        return dockerService.getContainerIpByNetwork(containerId, elastestNetwork);
+    public String getContainerIp(String containerId) throws Exception {
+        logger.debug("Getting container ip2: {}", containerId);
+        return dockerService.getContainerIpByNetwork(containerId,
+                elastestNetwork);
     }
-    
+
     @Override
-    public String getContainerIp(String serviceId, SupportServiceInstance serviceInstance) {
-        //TODO
-        return "";
+    public String getContainerIp(String containerId,
+            SupportServiceInstance serviceInstance) throws Exception {
+        logger.debug("Getting container ip: {}", containerId); 
+        return getContainerIp(containerId);
     }
 
     public void insertIntoETNetwork(String engineName, String network)
@@ -1206,7 +1207,8 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getUniqPluginContainerName(String serviceName, String network) {
+    public String getUniqPluginContainerName(String serviceName,
+            String network) {
         String currentContainerName = null;
         try {
             for (Container container : dockerComposeService.dockerService
@@ -1424,6 +1426,8 @@ public class DockerServiceImpl extends PlatformService {
 
     @Override
     public String getTSSInstanceContainerName(String... params) {
+        logger.debug("Name of the container to retrieve {}",
+                params[0] + "_" + params[1] + "_1");
         return params[0] + "_" + params[1] + "_1";
     }
 

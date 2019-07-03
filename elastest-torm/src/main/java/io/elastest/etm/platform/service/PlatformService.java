@@ -81,7 +81,6 @@ public abstract class PlatformService {
     public boolean etEnableCloudMode;
     @Value("${et.proxy.port}")
     String etProxyPort;
-    
 
     public enum ContainerPrefix {
         TEST("test_"), SUT("sut_"), CHECK("check_"), SUT_EXT("sut_ext_");
@@ -154,7 +153,7 @@ public abstract class PlatformService {
 
     public abstract void pullProject(String projectName,
             Map<String, EtPlugin> currentEtPluginMap) throws Exception;
-    
+
     public abstract void pullImageWithProgress(String projectName,
             ProgressHandler progressHandler, String image) throws Exception;
 
@@ -171,21 +170,23 @@ public abstract class PlatformService {
             String containerId) throws Exception;
 
     public abstract String getContainerIp(String containerId) throws Exception;
-    
-    public abstract String getContainerIp(String serviceId, SupportServiceInstance serviceInstance);
 
-    public abstract String getUniqPluginContainerName(String serviceName, String network);
+    public abstract String getContainerIp(String serviceId,
+            SupportServiceInstance serviceInstance) throws Exception;
+
+    public abstract String getUniqPluginContainerName(String serviceName,
+            String network);
 
     public abstract String getTSSInstanceContainerName(String... params);
-    
+
     public abstract void enableServiceMetricMonitoring(Execution execution)
             throws Exception;
 
     public abstract void disableMetricMonitoring(Execution execution,
             boolean force) throws Exception;
 
-    public abstract void deployAndRunTJobExecution(
-            Execution execution) throws Exception;
+    public abstract void deployAndRunTJobExecution(Execution execution)
+            throws Exception;
 
     public String generateContainerName(ContainerPrefix prefix,
             Execution execution) {
@@ -249,21 +250,23 @@ public abstract class PlatformService {
     public abstract String getContainerLogsFrom(String containerId, int from,
             boolean withFollow) throws Exception;
 
-    public abstract void removeBindedPorts(SupportServiceInstance serviceInstance);
-    
+    public abstract void removeBindedPorts(
+            SupportServiceInstance serviceInstance);
+
     public abstract void removeBindedPort(String portBindedId);
-    
+
     public abstract void removeWorkEnvironment(String name);
 
     public abstract Integer copyFilesFomContainer(String container,
             String originPath, String targetPath);
-    
+
     public abstract ServiceBindedPort getBindedPort(String serviceIdentifier,
             String containerSufix, String port, String namespace)
             throws Exception;
-    
-    public abstract String getBindedServiceIp(SupportServiceInstance serviceInstance, String port);
-    
+
+    public abstract String getBindedServiceIp(
+            SupportServiceInstance serviceInstance, String port);
+
     protected String getSutPath(Execution execution) {
         String sutPath;
         if (execution.isExternal()) {
@@ -599,8 +602,6 @@ public abstract class PlatformService {
         // Create DockerContainer object
         return dockerBuilder.build();
     }
-
-    
 
     /* ************************* */
     /* **** Get TestResults **** */
