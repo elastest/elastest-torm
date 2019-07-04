@@ -17,7 +17,7 @@
             </a>
           </div>
         </div>
-        <div fxLayout="row" class="mat-small push-top-sm" *ngIf="logsAndMetrics && !browserAndEusLoading">
+        <div fxLayout="row" class="mat-small push-top-sm" *ngIf="logsAndMetrics">
           <span>Logs status =></span>
           <span style.color="{{ logErrors > 0 ? errorColor : 'initial' }}" class="push-left-xs"
             >Errors: {{ getLogsErrors() }}</span
