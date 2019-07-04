@@ -1,6 +1,6 @@
 <div fxLayout="row" tdMediaToggle="gt-xs" fxFlexFill>
   <as-split unit="percent" direction="horizontal" gutterSize="6" (dragEnd)="resizeBrowsers($event)">
-    <as-split-area size="{{crossbrowserEnabled ? 65 : 40}}" minSize="10">
+    <as-split-area size="{{crossbrowserEnabled ? 60 : 40}}" minSize="10">
       <div fxLayout.gt-sm="column" fxFlexFill>
         <mat-card tdMediaToggle="gt-xs" fxFlex style="overflow: auto;">
           <div fxLayout="column" fxFlexFill>
@@ -115,7 +115,7 @@
     </as-split-area>
 
     <!-- BROWSER -->
-    <as-split-area size="{{crossbrowserEnabled ? 35 : 60}}" minSize="10">
+    <as-split-area size="{{crossbrowserEnabled ? 40 : 60}}" minSize="10">
       <etm-eus-browser-card-component
         #singleBrowserCard
         *ngIf="!crossbrowserEnabled; else showCrossbrowser"
