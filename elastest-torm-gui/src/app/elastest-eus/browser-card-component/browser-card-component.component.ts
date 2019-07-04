@@ -301,7 +301,7 @@ export class BrowserCardComponentComponent implements OnInit {
     this.browserCardMsg = msg;
   }
 
-  resizeBrowsers($event): void {
+  resizeBrowser($event): void {
     if (this.browserVnc && this.browserVnc.vncUi) {
       this.browserVnc.vncUi.onResize();
     }

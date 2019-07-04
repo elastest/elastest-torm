@@ -11,6 +11,7 @@ import { getUrlObj } from '../utils';
 })
 export class VncClientComponent implements OnInit, OnDestroy {
   @ViewChild('canvas') vncCanvas: ElementRef;
+  @ViewChild('vncScreen') vncScreen: ElementRef;
 
   @Input() public host: string;
   @Input() public port: any;
@@ -56,7 +57,16 @@ export class VncClientComponent implements OnInit, OnDestroy {
 
   initVnc(): void {
     if (this.host && this.port) {
-      this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.viewOnly, this.password, this.resize, this.canvas);
+      this.vncUi = new VncUI(
+        this.host,
+        this.port,
+        this.autoconnect,
+        this.viewOnly,
+        this.password,
+        this.resize,
+        this.canvas,
+        this.vncScreen.nativeElement,
+      );
       this.vncUi.init();
       this.suscribeToStatus();
       this.preventFocus();

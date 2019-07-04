@@ -44,6 +44,7 @@ export class VncUI {
   resizeMode: 'scale' | 'downscale' | 'remote';
 
   canvasElement: HTMLElement;
+  vncScreen: HTMLElement;
 
   public rfb;
 
@@ -58,6 +59,7 @@ export class VncUI {
     password: string = undefined,
     resizeMode: 'scale' | 'downscale' | 'remote' = 'scale',
     canvasElement: HTMLElement,
+    vncScreen: HTMLElement,
   ) {
     this.connected = false;
     this.desktopName = '';
@@ -90,6 +92,7 @@ export class VncUI {
     this.viewOnly = viewOnly;
 
     this.canvasElement = canvasElement;
+    this.vncScreen = vncScreen;
   }
 
   prime(callback?): void {
@@ -1134,7 +1137,7 @@ export class VncUI {
     this.connectByCanvas(canvas, event, password);
   }
 
-  private connectByCanvas(canvasElement: HTMLElement, event?, password: string = this.password): void {
+  connectByCanvas(canvasElement: HTMLElement, event?, password: string = this.password): void {
     let path = this.getSetting('path');
 
     if (password === undefined) {
@@ -1367,7 +1370,11 @@ export class VncUI {
 
   // Gets the the size of the available viewport in the browser window
   screenSize(): ScreenSizeModel {
-    let screen: HTMLElement = document.getElementById('vnc_screen');
+    let screen: HTMLElement = this.vncScreen;
+    if (!screen) {
+      screen = document.getElementById('vnc_screen');
+      console.warn("Error: vnc screen element does not exist, using getElementById('vnc_screen')");
+    }
     if (screen) {
       return new ScreenSizeModel(screen.offsetWidth, screen.offsetHeight);
     } else {
@@ -1827,7 +1834,11 @@ export class VncUI {
     // This is a hack because Chrome screws up the calculation
     // for when scrollbars are needed. So to fix it we temporarily
     // toggle them off and on.
-    let screen: HTMLElement = document.getElementById('vnc_screen');
+    let screen: HTMLElement = this.vncScreen;
+    if (!screen) {
+      screen = document.getElementById('vnc_screen');
+      console.warn("Error: vnc screen element does not exist, using getElementById('vnc_screen')");
+    }
     screen.style.overflow = 'hidden';
     // Force Chrome to recalculate the layout by asking for
     // an element's dimensions

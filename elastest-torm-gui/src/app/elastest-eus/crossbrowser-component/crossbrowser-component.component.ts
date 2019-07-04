@@ -322,7 +322,7 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
         });
       } else {
         for (let browserCard of this.browserCards.toArray()) {
-          browserCard.resizeBrowsers($event);
+          browserCard.resizeBrowser($event);
         }
       }
     }

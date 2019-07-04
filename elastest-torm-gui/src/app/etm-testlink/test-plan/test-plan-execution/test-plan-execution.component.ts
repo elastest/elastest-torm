@@ -956,7 +956,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     if (this.crossbrowserEnabled && this.crossbrowser) {
       this.crossbrowser.resizeBrowsers($event);
     } else if (this.singleBrowserCard) {
-      this.singleBrowserCard.resizeBrowsers($event);
+      this.singleBrowserCard.resizeBrowser($event);
     }
   }
 
