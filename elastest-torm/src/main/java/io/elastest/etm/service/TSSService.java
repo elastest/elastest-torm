@@ -1303,8 +1303,11 @@ public class TSSService {
                 serviceInstance.setUrlValue(nodeName, internalUrl, false);
 
                 if (withServerAddress) {
+                    String serviceIp = platformService.getBindedServiceIp(serviceInstance, nodePort);
+                    serviceInstance.setServiceIp(serviceIp);
+                    serviceInstance.setBindedServiceIp(serviceIp);
                     String externalUrl = buildEndpointUrlAsString(node,
-                            platformService.getBindedServiceIp(serviceInstance, nodePort),//serviceInstance.getBindedServiceIp(),
+                            platformService.getBindedServiceIp(serviceInstance, nodePort),
                             serviceInstance.getBindedServicePort());
                     serviceInstance.setUrlValue(nodeName, externalUrl, true);
                 }
