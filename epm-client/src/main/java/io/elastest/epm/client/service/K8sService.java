@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -70,13 +73,13 @@ public class K8sService {
     public boolean enableCloudMode;
 
     private static final String DEFAULT_NAMESPACE = "default";
-    private static final String LABEL_JOB_NAME = "job-name";
-    private static final String LABEL_POD_NAME = "pod-name";
-    private static final String LABEL_APP_NAME = "app";
+    public static final String LABEL_JOB_NAME = "job-name";
+    public static final String LABEL_POD_NAME = "pod-name";
+    public static final String LABEL_APP_NAME = "app";
     private static final String SUT_PORT_NAME = "sut-port";
     private static final String BINDING_PORT_SUFIX = "-host-port";
     private static final String CLUSTER_DOMAIN = "svc.cluster.local";
-    private static final String LABEL_TSS_NAME = "io.elastest.tjob.tss.id";
+    public static final String LABEL_TSS_NAME = "io.elastest.tjob.tss.id";
 
     @Value("${et.data.in.host}")
     public String etDataInHost;
@@ -94,8 +97,20 @@ public class K8sService {
 
     private FilesService filesService;
 
+    private Map<String, List<String>> servicesAssociatedWithAPod;
+    
     public K8sService(FilesService filesService) {
         this.filesService = filesService;
+        this.servicesAssociatedWithAPod = new ConcurrentHashMap<>();
+    }
+
+    public Map<String, List<String>> getServicesAssociatedWithAPod() {
+        return servicesAssociatedWithAPod;
+    }
+
+    public void setServicesAssociatedWithAPod(
+            Map<String, List<String>> servicesAssociatedWithAPod) {
+        this.servicesAssociatedWithAPod = servicesAssociatedWithAPod;
     }
 
     private static final Map<String, DockerProject> projects = new HashMap<>();
@@ -339,10 +354,10 @@ public class K8sService {
             }
 
             Map<String, String> k8sPobLabels = container.getLabels().get();
+            k8sPobLabels.put(LABEL_POD_NAME, container.getContainerName().get());
+
             String containerNameWithoutUnderscore = container.getContainerName()
                     .get().replace("_", "-");
-
-            k8sPobLabels.put(LABEL_POD_NAME, containerNameWithoutUnderscore);
 
             // Create Container
             ContainerBuilder containerBuilder = new ContainerBuilder();
@@ -389,6 +404,13 @@ public class K8sService {
                     && container.getLabels().get().size() > 0) {
                 podBuilder.buildMetadata()
                         .setLabels(container.getLabels().get());
+            }
+            
+            if (podBuilder.buildMetadata().getLabels() != null) {
+                podBuilder.buildMetadata().getLabels().put(LABEL_POD_NAME,
+                        container.getContainerName().get());
+            } else {
+                podBuilder.buildMetadata().setLabels(k8sPobLabels);
             }
 
             podBuilder.buildSpec().getContainers().get(0);
@@ -549,35 +571,48 @@ public class K8sService {
     }
 
     public ServiceInfo createService(String serviceName, Integer port,
-            String protocol, String namespace) {
+            String protocol, String namespace, String selector)
+            throws MalformedURLException {
         protocol = protocol.contains("http")
                 ? ServiceProtocolEnum.TCP.toString()
                 : protocol;
         serviceName = serviceName.toLowerCase();
+        String k8sServiceName = serviceName + "-" + port + "-service";
+        String hostPortName = serviceName + "-" + port + BINDING_PORT_SUFIX;
         logger.debug("Creating a new service for the service {} with port {}",
                 serviceName, port);
         Service service = new ServiceBuilder().withNewMetadata()
                 .withName(serviceName + "-" + port + "-service").endMetadata()
                 .withNewSpec()
                 .withSelector(
-                        Collections.singletonMap(LABEL_TSS_NAME, serviceName))
+                        Collections.singletonMap(selector, serviceName))
                 .addNewPort()
-                .withName(serviceName + "-" + port + BINDING_PORT_SUFIX)
+                .withName(hostPortName)
                 .withProtocol(protocol).withPort(port).endPort()
                 .withType(ServicesType.NODE_PORT.toString()).endSpec().build();
 
         service = client.services()
                 .inNamespace(namespace == null ? DEFAULT_NAMESPACE : namespace)
                 .create(service);
+        
+        if (servicesAssociatedWithAPod.get(serviceName) != null) {
+            servicesAssociatedWithAPod.get(serviceName).add(k8sServiceName);       
+        } else {
+            List<String> associatedServices = new ArrayList<>();
+            associatedServices.add(k8sServiceName);
+            servicesAssociatedWithAPod.put(serviceName, associatedServices);
+        }
+        
         String serviceURL = client.services().inNamespace(namespace)
                 .withName(service.getMetadata().getName())
-                .getURL(serviceName + "-" + port + BINDING_PORT_SUFIX);
+                .getURL(hostPortName);
 
         logger.debug("Service url: {}", serviceURL);
 
         String[] urlParts = serviceURL.split(":");
 
-        return new ServiceInfo(urlParts[2], service.getMetadata().getName());
+        return new ServiceInfo(urlParts[2], serviceName, //service.getMetadata().getName(),
+                new URL(serviceURL.replaceAll("tcp", "http")));
     }
 
     public String getServiceIp(String serviceName, String port,
@@ -615,12 +650,16 @@ public class K8sService {
 
     public void deleteService(String serviceName, String namespace) {
         serviceName = serviceName.toLowerCase();
-        logger.debug("Removing kubernetes service {}", serviceName);
-        client.services()
-                .inNamespace(
-                        (namespace != null && !namespace.isEmpty()) ? namespace
-                                : DEFAULT_NAMESPACE)
-                .withName(serviceName).delete();
+        logger.debug("Removing kubernetes services associated with {}", serviceName);
+        
+        servicesAssociatedWithAPod.get(serviceName).forEach(k8sService -> {
+            logger.debug("Remove service {}", k8sService);
+            client.services()
+            .inNamespace(
+                    (namespace != null && !namespace.isEmpty()) ? namespace
+                            : DEFAULT_NAMESPACE)
+            .withName(k8sService).delete();            
+        });
     }
 
     public void deleteJob(String jobName) {
@@ -1033,11 +1072,13 @@ public class K8sService {
     public class ServiceInfo {
         private String servicePort;
         private String serviceName;
+        private URL serviceURL;
 
-        public ServiceInfo(String targetPort, String serviceName) {
+        public ServiceInfo(String targetPort, String serviceName, URL url) {
             super();
             this.servicePort = targetPort;
             this.serviceName = serviceName;
+            this.serviceURL = url;
         }
 
         public String getServicePort() {
@@ -1054,6 +1095,14 @@ public class K8sService {
 
         public void setServiceName(String serviceName) {
             this.serviceName = serviceName;
+        }
+
+        public URL getServiceURL() {
+            return serviceURL;
+        }
+
+        public void setServiceURL(URL serviceURL) {
+            this.serviceURL = serviceURL;
         }
     }
 }

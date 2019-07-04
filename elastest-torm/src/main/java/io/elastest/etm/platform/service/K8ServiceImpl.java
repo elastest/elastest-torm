@@ -444,7 +444,8 @@ public class K8ServiceImpl extends PlatformService {
         logger.debug("Init binding port with k8s");
         k8sService.createNamespace(namespace);
         ServiceInfo serviceInfo = k8sService.createService(serviceName,
-                Integer.valueOf(port), "http", namespace);
+                Integer.valueOf(port), "http", namespace,
+                k8sService.LABEL_TSS_NAME);
         logger.debug("Getting binding port");
         ServiceBindedPort bindedPortObj = new ServiceBindedPort(port,
                 serviceInfo.getServicePort(), serviceInfo.getServiceName());
