@@ -1,6 +1,6 @@
 <auto-height-grid fxLayout="column">
   <auto-height-row>
-    <self-adjustable-card [contentPaddingPixels]="0" [noContentBackground]="groupedSessions.length > 0 && !stoppingOrStopped">
+    <self-adjustable-card #mainCard [contentPaddingPixels]="0" [noContentBackground]="hideCardContentBackground()">
       <sa-card-title>
         <div fxLayout="column" fxLayoutAlign="none">
           <div fxLayout="row" fxLayoutAlign="start center">
@@ -8,7 +8,7 @@
             <span fxFlex></span>
             <a
               mat-button
-              [disabled]="!browserSync || !browserSync.identifier"
+              [disabled]="!browserSync || !browserSync.identifier || stoppingOrStopped"
               (click)="openInNewTab()"
               class="iconBtn push-left-sm"
               matTooltip="Open in new tab"
@@ -30,27 +30,30 @@
       </sa-card-title>
       <sa-card-content>
         <ng-container *ngIf="groupedSessions.length > 0 && !stoppingOrStopped; else showMsg">
-          <div
-            #logsContainer
-            *ngFor="let group of groupedSessions"
-            fxLayout.xs="column"
-            fxLayout.gt-xs="column"
-            fxLayout.gt-md="row"
-            fxFlexFill
-          >
-            <div
-              *ngFor="let session of group; let i = index; let f = first; let l = last"
-              [fxFlex.gt-md]="f && l ? 100 : 50"
-              fxLayout="column"
+          <as-split unit="percent" direction="vertical" gutterSize="6" (dragEnd)="resizeBrowsers($event)">
+            <as-split-area
+              minSize="15"
+              *ngFor="let group of groupedSessions; let i = index; let f = first; let l = last"
+              fxLayout.xs="column"
+              fxLayout.gt-xs="column"
+              fxLayout.gt-md="row"
             >
-              <etm-eus-browser-card-component
-                #singleBrowser
-                [showSpinner]="showSpinner.bind(this)"
-                fxLayout.gt-sm="column"
-                fxFlexFill
-              ></etm-eus-browser-card-component>
-            </div>
-          </div>
+              <as-split unit="percent" direction="horizontal" gutterSize="6" (dragEnd)="resizeBrowsers($event)">
+                <as-split-area
+                  minSize="15"
+                  *ngFor="let session of group; let i2 = index; let f2 = first; let l2 = last"
+                  size="{{ f2 && l2 ? 100 : 50 }}"
+                >
+                  <etm-eus-browser-card-component
+                    #singleBrowser
+                    [showSpinner]="showSpinner.bind(this)"
+                    fxLayout.gt-sm="column"
+                    fxFlexFill
+                  ></etm-eus-browser-card-component>
+                </as-split-area>
+              </as-split>
+            </as-split-area>
+          </as-split>
         </ng-container>
         <ng-template #showMsg>
           <div fxLayoutAlign="center center" fxLayout="column" fxFlexFill>

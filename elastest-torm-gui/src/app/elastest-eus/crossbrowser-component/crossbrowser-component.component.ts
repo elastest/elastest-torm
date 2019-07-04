@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChildren, QueryList, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, Input, ViewChildren, QueryList, OnDestroy, HostListener, ViewChild } from '@angular/core';
 import { EusService, BrowserVersionModel } from '../elastest-eus.service';
 import { EusBowserSyncModel } from '../elastest-eus-browser-sync.model';
 import { Subject, Observable } from 'rxjs';
@@ -8,6 +8,7 @@ import { BrowserCardComponentComponent } from '../browser-card-component/browser
 import { sleep, getErrorColor, getWarnColor } from '../../shared/utils';
 import { EusTestModel } from '../elastest-eus-test-model';
 import { ActivatedRoute, Params } from '@angular/router';
+import { SelfAdjustableCardComponent } from '../../shared/ng-self-adjustable-components/self-adjustable-card/self-adjustable-card.component';
 
 @Component({
   selector: 'etm-eus-crossbrowser-component',
@@ -16,6 +17,8 @@ import { ActivatedRoute, Params } from '@angular/router';
 })
 export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
   @ViewChildren('singleBrowser') browserCards: QueryList<BrowserCardComponentComponent>;
+  @ViewChild('mainCard')
+  mainCard: SelfAdjustableCardComponent;
 
   @Input()
   logsAndMetrics: EtmMonitoringViewComponent = undefined;
@@ -25,6 +28,8 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
 
   @Input()
   showSpinner: Function = this.showSpinnerDefault;
+
+  isNested: boolean = true;
 
   browserCardMsg: string = 'Loading...';
   stoppingOrStopped: boolean = false;
@@ -70,6 +75,7 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
           // Component page
           if (params.crossbrowserId) {
             this.browserSyncIdentifier = params.crossbrowserId;
+            this.isNested = false;
             this.ngOnInit();
           }
         });
@@ -119,6 +125,7 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
     this.browserSync = browserSync;
     this.createGroupedLogsList();
     await this.initBrowserCards();
+    this.hideCardContentBackground();
   }
 
   startCrossbrowser(
@@ -340,5 +347,13 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
 
   showSpinnerDefault(): boolean {
     return false;
+  }
+
+  hideCardContentBackground(): boolean {
+    let hide: boolean = this.groupedSessions.length > 0 && !this.stoppingOrStopped;
+    if (this.mainCard) {
+      this.mainCard.setNoContentBackground(hide);
+    }
+    return hide;
   }
 }
