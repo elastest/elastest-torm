@@ -42,6 +42,9 @@ export class VncUI {
   viewOnly: boolean;
 
   resizeMode: 'scale' | 'downscale' | 'remote';
+
+  canvasElement: HTMLElement;
+
   public rfb;
 
   _statusObs: Subject<string> = new Subject<string>();
@@ -54,6 +57,7 @@ export class VncUI {
     viewOnly: boolean = false,
     password: string = undefined,
     resizeMode: 'scale' | 'downscale' | 'remote' = 'scale',
+    canvasElement: HTMLElement,
   ) {
     this.connected = false;
     this.desktopName = '';
@@ -84,6 +88,8 @@ export class VncUI {
     this.password = password;
     this.autoconnect = autoconnect;
     this.viewOnly = viewOnly;
+
+    this.canvasElement = canvasElement;
   }
 
   prime(callback?): void {
@@ -256,10 +262,10 @@ export class VncUI {
     }
   }
 
-  initRFB(): boolean {
+  initRFB(canvasElement: HTMLElement): boolean {
     try {
       this.rfb = new RFB({
-        target: document.getElementById('vnc_canvas'),
+        target: canvasElement,
         onNotification: this.notification.bind(this),
         onUpdateState: this.updateState.bind(this),
         onDisconnected: this.disconnectFinished.bind(this),
@@ -1119,6 +1125,16 @@ export class VncUI {
   }
 
   connect(event?, password: string = this.password): void {
+    let canvas: HTMLElement = this.canvasElement;
+    if (canvas === undefined || canvas === null) {
+      console.warn("Error: canvas element does not exist, using getElementById('vnc_canvas')");
+      canvas = document.getElementById('vnc_canvas');
+    }
+
+    this.connectByCanvas(canvas, event, password);
+  }
+
+  private connectByCanvas(canvasElement: HTMLElement, event?, password: string = this.password): void {
     let path = this.getSetting('path');
 
     if (password === undefined) {
@@ -1136,7 +1152,7 @@ export class VncUI {
       return;
     }
 
-    if (!this.initRFB()) {
+    if (!this.initRFB(canvasElement)) {
       return;
     }
 

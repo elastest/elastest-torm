@@ -37,10 +37,10 @@ export class VncClientComponent implements OnInit, OnDestroy {
 
   constructor(private elementRef: ElementRef) {
     this.switchFocus = this.switchFocus.bind(this);
-    this.canvas = <HTMLCanvasElement>document.getElementById('vnc_canvas');
   }
 
   ngOnInit(): void {
+    this.canvas = this.vncCanvas.nativeElement as HTMLCanvasElement;
     this.manageKeyboard();
 
     if (this.host && this.port) {
@@ -56,7 +56,7 @@ export class VncClientComponent implements OnInit, OnDestroy {
 
   initVnc(): void {
     if (this.host && this.port) {
-      this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.viewOnly, this.password, this.resize);
+      this.vncUi = new VncUI(this.host, this.port, this.autoconnect, this.viewOnly, this.password, this.resize, this.canvas);
       this.vncUi.init();
       this.suscribeToStatus();
       this.preventFocus();
@@ -82,7 +82,7 @@ export class VncClientComponent implements OnInit, OnDestroy {
   }
 
   connect(): void {
-    if (this.vncUi !== undefined) {
+    if (this.vncUi !== undefined && this.canvas) {
       this.vncUi.connect();
     }
   }

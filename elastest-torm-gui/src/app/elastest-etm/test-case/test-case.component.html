@@ -1,23 +1,25 @@
 <auto-height-grid fxLayout="row" fxLayout.lt-md="column" *ngIf="testCase" id="testCaseContent" fxFlexFill>
-  <auto-height-row fxFlex="35" fxFlex.gt-lg="30" class="mat-content">
-    <self-adjustable-card id="testCaseCard" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
-      <sa-card-title>
-        <div fxLayout="row">
-          <mat-icon *ngIf="testCase.result && testCase.result.name" [style.color]="testCase.result.color">{{
-            testCase.result.name
-          }}</mat-icon>
-          Test {{ testCase.name }}
-          <span fxFlex></span>
-          <button
-            mat-button
-            (click)="viewInLogAnalyzer()"
-            [disabled]="!params"
-            class="onlyIconBtn"
-            matTooltip="View Case in Log Analyzer"
-          >
-            <mat-icon>library_books</mat-icon>
-          </button>
-          <!-- <button
+  <auto-height-row class="mat-content">
+    <as-split unit="percent" direction="horizontal" gutterSize="6">
+      <as-split-area size="30" minSize="10">
+        <self-adjustable-card id="testCaseCard" tdMediaToggle="gt-xs" [mediaClasses]="['push-sm']">
+          <sa-card-title>
+            <div fxLayout="row" class="wordBreakAll">
+              <mat-icon *ngIf="testCase.result && testCase.result.name" [style.color]="testCase.result.color">
+                {{ testCase.result.name }}
+              </mat-icon>
+              Test {{ testCase.name }}
+              <span fxFlex></span>
+              <button
+                mat-button
+                (click)="viewInLogAnalyzer()"
+                [disabled]="!params"
+                class="onlyIconBtn"
+                matTooltip="View Case in Log Analyzer"
+              >
+                <mat-icon>library_books</mat-icon>
+              </button>
+              <!-- <button
             id="openMonitoringConfigBtn"
             mat-button
             *ngIf="showLogsAndMetrics"
@@ -27,112 +29,114 @@
           >
             <mat-icon>settings</mat-icon>
           </button> -->
-        </div>
-      </sa-card-title>
-      <sa-card-content fxFlex id="cardContent">
-        <mat-list id="testCaseInfo">
-          <div>
-            <h4>Time (s)</h4>
-            <p>{{ testCase.time }}</p>
-            <mat-divider></mat-divider>
-          </div>
+            </div>
+          </sa-card-title>
+          <sa-card-content fxFlex id="cardContent">
+            <mat-list id="testCaseInfo">
+              <div>
+                <h4>Time (s)</h4>
+                <p>{{ testCase.time }}</p>
+                <mat-divider></mat-divider>
+              </div>
 
-          <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
-            <h4>Failure Message</h4>
-            <p>{{ testCase.failureMessage }}</p>
-            <mat-divider></mat-divider>
-          </div>
+              <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
+                <h4>Failure Message</h4>
+                <p>{{ testCase.failureMessage }}</p>
+                <mat-divider></mat-divider>
+              </div>
 
-          <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
-            <h4>Failure Type</h4>
-            <p>{{ testCase.failureType }}</p>
-            <mat-divider></mat-divider>
-          </div>
+              <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
+                <h4>Failure Type</h4>
+                <p>{{ testCase.failureType }}</p>
+                <mat-divider></mat-divider>
+              </div>
 
-          <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
-            <h4>Failure Error Line</h4>
-            <p>{{ testCase.failureErrorLine }}</p>
-            <mat-divider></mat-divider>
-          </div>
+              <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
+                <h4>Failure Error Line</h4>
+                <p>{{ testCase.failureErrorLine }}</p>
+                <mat-divider></mat-divider>
+              </div>
 
-          <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
-            <h4>Failure Detail</h4>
-            <p>{{ testCase.failureDetail }}</p>
-            <p></p>
-          </div>
-        </mat-list>
-      </sa-card-content>
-    </self-adjustable-card>
-  </auto-height-row>
+              <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
+                <h4>Failure Detail</h4>
+                <p>{{ testCase.failureDetail }}</p>
+                <p></p>
+              </div>
+            </mat-list>
+          </sa-card-content>
+        </self-adjustable-card>
+      </as-split-area>
 
-  <auto-height-row fxFlex="65" fxFlex.gt-lg="70">
-    <self-adjustable-card id="miniLogAnalyzerCard" [hideTitle]="true">
-      <sa-card-content fxFlexFill fxLayout="column">
-        <mat-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
-          <mat-tab label="All Logs">
-            <elastest-log-analyzer
-              #miniLogAnalyzer
-              *ngIf="params && testCase"
-              [isEmbed]="true"
-              [tJobId]="params.tJobId"
-              [tJobExecId]="params.tJobExecId"
-              [testCase]="testCase.name"
-            ></elastest-log-analyzer>
-          </mat-tab>
-          <div *ngIf="miniLogAnalyzer">
-            <mat-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes">
-              <ng-template mat-tab-label>
-                <span matTooltip="{{ component.name }}">{{ component.name }}</span>
-              </ng-template>
-              <ng-template matTabContent>
+      <as-split-area size="70" minSize="10">
+        <self-adjustable-card id="miniLogAnalyzerCard" [hideTitle]="true">
+          <sa-card-content fxFlexFill fxLayout="column">
+            <mat-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
+              <mat-tab label="All Logs">
                 <elastest-log-analyzer
+                  #miniLogAnalyzer
                   *ngIf="params && testCase"
                   [isEmbed]="true"
-                  [componentStreams]="[component]"
                   [tJobId]="params.tJobId"
                   [tJobExecId]="params.tJobExecId"
                   [testCase]="testCase.name"
                 ></elastest-log-analyzer>
-              </ng-template>
-            </mat-tab>
-          </div>
+              </mat-tab>
+              <div *ngIf="miniLogAnalyzer">
+                <mat-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes">
+                  <ng-template mat-tab-label>
+                    <span matTooltip="{{ component.name }}">{{ component.name }}</span>
+                  </ng-template>
+                  <ng-template matTabContent>
+                    <elastest-log-analyzer
+                      *ngIf="params && testCase"
+                      [isEmbed]="true"
+                      [componentStreams]="[component]"
+                      [tJobId]="params.tJobId"
+                      [tJobExecId]="params.tJobExecId"
+                      [testCase]="testCase.name"
+                    ></elastest-log-analyzer>
+                  </ng-template>
+                </mat-tab>
+              </div>
 
-          <mat-tab label="Files">
-            <ng-template matTabContent>
-              <div fxLayout="row" *ngFor="let file of testCase.files">
-                <div fxFlex id="filesContent">
-                  <div>
-                    <p>Title</p>
-                    <span>{{ file.name }}</span>
+              <mat-tab label="Files">
+                <ng-template matTabContent>
+                  <div fxLayout="row" *ngFor="let file of testCase.files">
+                    <div fxFlex id="filesContent">
+                      <div>
+                        <p>Title</p>
+                        <span>{{ file.name }}</span>
+                      </div>
+                      <a mat-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
+                        Open Video
+                        <mat-icon>open_in_new</mat-icon>
+                      </a>
+                    </div>
                   </div>
-                  <a mat-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
-                    Open Video
-                    <mat-icon>open_in_new</mat-icon>
-                  </a>
-                </div>
-              </div>
-              <centered-element *ngIf="testCase && testCase.files.length === 0" class="push-top-important messageEmptyCard">
-                <mat-icon>assignment</mat-icon>
-                <p>No Files found</p>
-              </centered-element>
-            </ng-template>
-          </mat-tab>
+                  <centered-element *ngIf="testCase && testCase.files.length === 0" class="push-top-important messageEmptyCard">
+                    <mat-icon>assignment</mat-icon>
+                    <p>No Files found</p>
+                  </centered-element>
+                </ng-template>
+              </mat-tab>
 
-          <mat-tab *ngFor="let file of mp4Files">
-            <ng-template mat-tab-label>
-              <mat-icon matTooltip="Video {{ file.name }}" id="videoIcon">play_circle_filled</mat-icon>
-            </ng-template>
-            <ng-template matTabContent>
-              <div id="videoContent">
-                <video controls id="video">
-                  <source src="{{ filesUrlPrefix }}{{ file.encodedUrl }}" type="video/mp4" />
-                </video>
-              </div>
-            </ng-template>
-          </mat-tab>
-        </mat-tab-group>
-      </sa-card-content>
-    </self-adjustable-card>
+              <mat-tab *ngFor="let file of mp4Files">
+                <ng-template mat-tab-label>
+                  <mat-icon matTooltip="Video {{ file.name }}" id="videoIcon">play_circle_filled</mat-icon>
+                </ng-template>
+                <ng-template matTabContent>
+                  <div id="videoContent">
+                    <video controls id="video">
+                      <source src="{{ filesUrlPrefix }}{{ file.encodedUrl }}" type="video/mp4" />
+                    </video>
+                  </div>
+                </ng-template>
+              </mat-tab>
+            </mat-tab-group>
+          </sa-card-content>
+        </self-adjustable-card>
+      </as-split-area>
+    </as-split>
   </auto-height-row>
 </auto-height-grid>
 <auto-height-row>
