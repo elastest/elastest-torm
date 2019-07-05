@@ -112,7 +112,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   instancesNumber: number;
   checkTSSInstancesSubscription: Subscription;
 
-  startScan: boolean = true;
+  startEssScan: boolean = false;
 
   constructor(
     private externalService: ExternalService,
@@ -422,6 +422,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   initAfterStartBrowsers(): void {
     this.showStopAndPauseBtns = true;
+    this.startEssScan = true;
     let browserLog: any = this.exTJobExec.getBrowserLogObj();
     if (browserLog) {
       this.logsAndMetrics.addMoreFromObj(browserLog);
@@ -437,16 +438,19 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
           if (!instance.urls || !instance.urls.get(httpproxyapiKey)) {
             this.forceEnd(true, 'Error on initialize browser(s)', 'ERROR', 'ESS proxy api url is not available');
           } else {
-            let proxyUrl: string = instance.urls.get(httpproxyapiKey).internal;
-            extraCapabilities['proxy'] = { httpProxy: proxyUrl, proxyType: 'MANUAL' };
+            let proxyUrl: URL = new URL(instance.urls.get(httpproxyapiKey).internal);
+            let proxyObj: object = { httpProxy: proxyUrl.host, sslProxy: proxyUrl.host, proxyType: 'MANUAL' };
+            let proxyObj2: object = { httpProxy: proxyUrl.host, sslProxy: proxyUrl.host, proxyType: 'manual' };
+
+            extraCapabilities['proxy'] = proxyObj;
             if (extraCapabilities['firstMatch'] === undefined || extraCapabilities['firstMatch'] === null) {
-              extraCapabilities['firstMatch'] = [{ proxy: { httpProxy: proxyUrl, proxyType: 'manual' } }];
+              extraCapabilities['firstMatch'] = [{ proxy: proxyObj2 }];
             } else {
-              extraCapabilities['firstMatch'][0]['proxy'] = { httpProxy: proxyUrl, proxyType: 'manual' };
+              extraCapabilities['firstMatch'][0]['proxy'] = proxyObj2;
             }
 
             let essApiUrl: string = instance.urls.get('api').internal;
-            this.startEssScan(essApiUrl);
+            this.initAndStartEssScan(essApiUrl);
           }
         }
       }
@@ -454,10 +458,10 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     return extraCapabilities;
   }
 
-  startEssScan(essApiUrl: string): void {
-    if (!this.startScan) {
+  initAndStartEssScan(essApiUrl: string): void {
+    if (!this.startEssScan) {
       sleep(5000).then(() => {
-        this.startEssScan(essApiUrl);
+        this.initAndStartEssScan(essApiUrl);
       });
     } else {
       this.etmRestClientService.doPost(essApiUrl + '/start/', { sites: [this.sutUrl] }).subscribe(
@@ -825,8 +829,6 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   }
 
   finishTJobExecution(): void {
-    // this.startScan = true;
-
     this.executionCardMsg = 'The execution has been finished!';
     this.executionCardSubMsg = 'The associated files will be shown when browser and eus have stopped';
     this.disableTLNextBtn = true;

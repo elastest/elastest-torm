@@ -129,7 +129,7 @@ export class BrowserCardComponentComponent implements OnInit {
       },
       (errorResponse: HttpErrorResponse) => {
         let error: any = errorResponse.error;
-        this.eusTestModel.statusMsg = 'Error';
+        this.updateMsg('Error');
         _obs.error(error);
       },
     );
