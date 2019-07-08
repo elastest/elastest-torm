@@ -78,7 +78,7 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public boolean deployService(String projectName, boolean withPull)
-            throws IOException {
+            throws Exception {
         k8sService.createNamespace(projectName);
         return k8sService.deployResourcesFromProject(projectName) != null ? true
                 : false;
@@ -321,14 +321,16 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public void removeBindedPorts(SupportServiceInstance serviceInstance) {
-        for (String bindedPortId : serviceInstance.getPortBindingContainers()) {
-            logger.debug("Socat container to remove: {}", bindedPortId);
-            removeBindedPort(bindedPortId, serviceInstance.getInstanceId());
+        for (String serviceName : serviceInstance.getPortBindingContainers()) {
+            logger.debug(
+                    "Deleteing the k8s service that bind the port of the service: {}",
+                    serviceName);
+            removeBindedPort(serviceName, serviceInstance.getInstanceId());
         }
     }
 
-    public void removeBindedPort(String bindedPortId, String namespace) {
-        k8sService.deleteService(bindedPortId, namespace);
+    public void removeBindedPort(String serviceName, String namespace) {
+        k8sService.deleteService(serviceName, namespace);
     }
 
     @Override

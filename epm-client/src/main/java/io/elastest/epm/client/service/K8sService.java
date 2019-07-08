@@ -19,6 +19,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -51,6 +52,8 @@ import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.SecurityContextBuilder;
 import io.fabric8.kubernetes.api.model.Service;
+import io.fabric8.kubernetes.api.model.ServiceAccount;
+import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.batch.Job;
@@ -124,6 +127,11 @@ public class K8sService {
             // TODO use volume into tjob to get testresults
             // etToolsVolume = createEtToolsVolume();
         }
+    }
+    
+    @PreDestroy
+    public void finish() {
+        client.close();
     }
 
     public enum PodsStatusEnum {
@@ -445,51 +453,39 @@ public class K8sService {
 //    }
 
     public List<PodInfo> deployResourcesFromProject(String projectName)
-            throws IOException {
+            throws Exception {
         PodInfo podInfo = new PodInfo();
         List<PodInfo> podsInfoList = new ArrayList<>();
         DockerProject project = projects.get(projectName);
+        
         logger.debug("Resources as string: {}", project.getYml());
 
         try (InputStream is = IOUtils.toInputStream(project.getYml(),
                 CharEncoding.UTF_8)) {
             List<HasMetadata> resourcesMetadata = client.load(is)
                     .inNamespace(projectName)
-//                    .accept((Visitor<ContainerBuilder>) item -> item
-//                            .withEnv(getEnvVarListFromMap(project.getEnv())))
                     .createOrReplace();
             
             logger.debug("Add these environment variables:");
             project.getEnv().forEach((key, value) -> {
                 logger.debug("Env var {} with value {}", key, value);
             });
-
-            Deployment deployment = null;
-            for (HasMetadata resource : resourcesMetadata) {
-                if (resource.getKind().equals("Pod")) {
-                    Pod pod = (Pod) resource;
-//                    if (pod.getMetadata().getLabels()
-//                            .get("io.elastest.tjob.tss.type") != null
-//                            && pod.getMetadata().getLabels()
-//                                    .get("io.elastest.tjob.tss.type")
-//                                    .equals("main")) {
-//                        while (!isReady(pod.getMetadata().getName())) {
-//                            UtilTools.sleep(1);
-//                        }
-//                        podInfo.setPodName(pod.getMetadata().getName());
-//                        podInfo.setPodIp(pod.getStatus().getPodIP());
-//                    }
-                    while (!isReady(pod.getMetadata().getName(), null)) {
-                        UtilTools.sleep(1);
-                    }
-                    podInfo.setPodName(pod.getMetadata().getName());
-                    podInfo.setPodIp(pod.getStatus().getPodIP());
-                    podInfo.setLabels(pod.getMetadata().getLabels());
-                    podsInfoList.add(podInfo);
-                }
+            
+            for (HasMetadata metadata: resourcesMetadata) {
+                String deploymentName = ((Deployment) metadata).getMetadata()
+                        .getName();
+                client.apps().deployments().inNamespace(projectName)
+                .withName(deploymentName).waitUntilReady(5, TimeUnit.MINUTES);
+                client.apps().deployments().inNamespace(projectName)
+                        .withName(deploymentName).edit().editSpec()
+                        .editTemplate().editSpec().editContainer(0)
+                        .addAllToEnv(getEnvVarListFromMap(project.getEnv()))
+                        .endContainer().endSpec().endTemplate().endSpec()
+                        .done();
+                
             }
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             logger.error("Error loading deployment from a yaml string");
             e.printStackTrace();
             throw e;
@@ -515,30 +511,27 @@ public class K8sService {
                 logger.debug("Resource '{}' of kind '{}' to remove",
                         metadata.getMetadata().getName(), metadata.getKind());
             });
-//            deleted = client.resourceList(resourcesMetadata)
-//                    .inNamespace((namespace != null && !namespace.isEmpty()
-//                            ? namespace
-//                            : DEFAULT_NAMESPACE))
-//                    .delete();
-            Deployment deployment = client.apps().deployments()
-                    .inNamespace(namespace)
-                    .withName(resourcesMetadata.get(0).getMetadata().getName())
-                    .get();
 
-//            deleted = client.extensions().deployments().withName(resourcesMetadata.get(0).getMetadata().getName()).delete();
-            deleted = client.resource(deployment).inNamespace(namespace).cascading(true).delete();
-//            deleted = client.apps().deployments()
-//                    .inNamespace((namespace != null && !namespace.isEmpty()
-//                            ? namespace
-//                            : DEFAULT_NAMESPACE))
-//                    .withName(resourcesMetadata.get(0).getMetadata().getName())
-//                    .delete();
-//            deleteNamespace(namespace);
-        } catch (IOException e) {
+            deleteNamespace(namespace);
+            deleted = true;
+        } catch (Exception e) {
             logger.error("Error deleting resources from a yaml string");
             e.printStackTrace();
         }
         return deleted;
+    }
+
+    public void waitForResourcesToBeDeleted(HasMetadata deployment,
+            String namespace) {
+        while (client.pods().inNamespace(namespace).list().getItems().size() > 0) {
+            logger.debug("Waiting");
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public DockerProject createk8sProject(String projectName,
@@ -638,13 +631,14 @@ public class K8sService {
         }
     }
 
-    public void deleteNamespace(String name) {
-        if (name != DEFAULT_NAMESPACE
-                && client.namespaces().withName(name).get() == null) {
+    public boolean deleteNamespace(String name) {
+        if (!name.equals(DEFAULT_NAMESPACE)
+                && client.namespaces().withName(name).get() != null) {
             logger.debug("Deleting namespace -> {}", name);
-            client.namespaces().withName(name).delete();
+            return client.namespaces().withName(name).delete();
         } else {
             logger.info("Namespace {} can not be deleted", name);
+            return false;
         }
     }
 
