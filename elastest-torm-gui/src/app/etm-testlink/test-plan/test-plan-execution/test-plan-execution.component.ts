@@ -406,6 +406,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     this.crossbrowser.startCrossbrowser(extraCapabilities, this.browserList, this.sutUrl, false, this.extraHosts).subscribe(
       (browserSync: EusBowserSyncModel) => {
         this.exTJobExec.envVars['CROSSBROWSER_SESSION_ID'] = browserSync.identifier;
+
         this.initAfterStartBrowsers();
       },
       (errorResponse: HttpErrorResponse | Error) => {
@@ -464,7 +465,12 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
         this.initAndStartEssScan(essApiUrl);
       });
     } else {
-      this.etmRestClientService.doPost(essApiUrl + '/start/', { sites: [this.sutUrl] }).subscribe(
+      let url: string = this.sutUrl;
+      if (this.crossbrowserEnabled && this.crossbrowser) {
+        url = this.crossbrowser.browserSync.appUrl;
+      }
+
+      this.etmRestClientService.doPost(essApiUrl + '/start/', { sites: [url] }).subscribe(
         (response: any) => {
           console.log('ESS start response:', response);
 
