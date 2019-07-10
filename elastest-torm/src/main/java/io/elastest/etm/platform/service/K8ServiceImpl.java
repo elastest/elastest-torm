@@ -92,17 +92,30 @@ public class K8ServiceImpl extends PlatformService {
     @Override
     public boolean undeployAndCleanDeployment(String projectName,
             SupportServiceInstance serviceInstance) {
-        if (serviceInstance != null) {
-            List<Pod> pods = k8sService
-                    .getPodsFromNamespace(serviceInstance.getInstanceId());
-            pods.forEach(pod -> {
-                k8sService.copyFileFromContainer(pod.getMetadata().getName(),
-                        serviceInstance.getParameters().get("ET_SHARED_FOLDER"),
-                        serviceInstance.getParameters().get("ET_FILES_PATH"),
-                        serviceInstance.getInstanceId());
-            });
+        boolean result = false;
+        try {
+            if (serviceInstance != null) {
+                List<Pod> pods = k8sService
+                        .getPodsFromNamespace(serviceInstance.getInstanceId());
+                pods.forEach(pod -> {
+                    k8sService.copyFileFromContainer(
+                            pod.getMetadata().getName(),
+                            serviceInstance.getParameters()
+                                    .get("ET_SHARED_FOLDER"),
+                            serviceInstance.getParameters()
+                                    .get("ET_FILES_PATH"),
+                            serviceInstance.getInstanceId());
+                });
+            }
+        } catch (Exception e) {
+            logger.error("Error copying files from {} to {}",
+                    serviceInstance.getParameters().get("ET_FILES_PATH"),
+                    serviceInstance.getParameters()
+                            .get("ET_FILES_PATH_IN_HOST"));
+        } finally {
+            result = k8sService.deleteResourcesFromYmlString(projectName);
         }
-        return k8sService.deleteResourcesFromYmlString(projectName);
+        return result;
     }
 
     @Override
@@ -197,7 +210,6 @@ public class K8ServiceImpl extends PlatformService {
     @Override
     public void deployAndRunTJobExecution(Execution execution)
             throws Exception {
-        // TODO Auto-generated method stub
         List<ReportTestSuite> testResults = new ArrayList<ReportTestSuite>();
         TJobExecution tJobExec = execution.getTJobExec();
         JobResult result = null;
@@ -306,8 +318,10 @@ public class K8ServiceImpl extends PlatformService {
     @Override
     public void undeployTJob(Execution execution, boolean force)
             throws Exception {
-        // TODO Auto-generated method stub
-
+        DockerContainer testContainer = createContainer(execution,
+                ContainerType.TJOB);
+        k8sService.deleteJob(testContainer.getContainerName()
+                .get().replace("_", "-"));
     }
 
     @Override
