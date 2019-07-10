@@ -465,7 +465,7 @@ public class K8sService {
             List<HasMetadata> resourcesMetadata = client.load(is)
                     .inNamespace(projectName)
                     .createOrReplace();
-            
+           
             logger.debug("Add these environment variables:");
             project.getEnv().forEach((key, value) -> {
                 logger.debug("Env var {} with value {}", key, value);
@@ -482,7 +482,12 @@ public class K8sService {
                         .addAllToEnv(getEnvVarListFromMap(project.getEnv()))
                         .endContainer().endSpec().endTemplate().endSpec()
                         .done();
-                
+                while (client.pods().inNamespace(projectName)
+                        .withLabel(LABEL_TSS_NAME, deploymentName).list()
+                        .getItems().size() != 1) {
+                    logger.debug("Waiting for TSS to be redeployed");
+                    Thread.sleep(500);
+                }
             }
 
         } catch (IOException | InterruptedException e) {
