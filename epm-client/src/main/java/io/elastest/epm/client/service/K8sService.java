@@ -56,6 +56,7 @@ import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
+import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.Job;
 import io.fabric8.kubernetes.api.model.batch.JobBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
@@ -457,37 +458,35 @@ public class K8sService {
         PodInfo podInfo = new PodInfo();
         List<PodInfo> podsInfoList = new ArrayList<>();
         DockerProject project = projects.get(projectName);
-        
+
         logger.debug("Resources as string: {}", project.getYml());
 
         try (InputStream is = IOUtils.toInputStream(project.getYml(),
                 CharEncoding.UTF_8)) {
             List<HasMetadata> resourcesMetadata = client.load(is)
-                    .inNamespace(projectName)
-                    .createOrReplace();
-           
+                    .inNamespace(projectName).get();
+
             logger.debug("Add these environment variables:");
             project.getEnv().forEach((key, value) -> {
                 logger.debug("Env var {} with value {}", key, value);
             });
-            
-            for (HasMetadata metadata: resourcesMetadata) {
+
+            for (HasMetadata metadata : resourcesMetadata) {
                 String deploymentName = ((Deployment) metadata).getMetadata()
                         .getName();
-                client.apps().deployments().inNamespace(projectName)
-                .withName(deploymentName).waitUntilReady(5, TimeUnit.MINUTES);
-                client.apps().deployments().inNamespace(projectName)
-                        .withName(deploymentName).edit().editSpec()
-                        .editTemplate().editSpec().editContainer(0)
+                DeploymentBuilder dpB = new DeploymentBuilder(
+                        ((Deployment) metadata));
+                Deployment dp = dpB.editSpec().editTemplate().editSpec()
+                        .editContainer(0)
                         .addAllToEnv(getEnvVarListFromMap(project.getEnv()))
                         .endContainer().endSpec().endTemplate().endSpec()
-                        .done();
-                while (client.pods().inNamespace(projectName)
-                        .withLabel(LABEL_TSS_NAME, deploymentName).list()
-                        .getItems().size() != 1) {
-                    logger.debug("Waiting for TSS to be redeployed");
-                    Thread.sleep(500);
-                }
+                        .build();
+
+                client.apps().deployments().inNamespace(projectName)
+                        .createOrReplace(dp);
+                client.apps().deployments().inNamespace(projectName)
+                        .withName(deploymentName)
+                        .waitUntilReady(5, TimeUnit.MINUTES);
             }
 
         } catch (IOException | InterruptedException e) {
