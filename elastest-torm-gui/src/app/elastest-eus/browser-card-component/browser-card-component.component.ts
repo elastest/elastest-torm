@@ -116,13 +116,14 @@ export class BrowserCardComponentComponent implements OnInit {
     extraCapabilities?: any,
     live: boolean = true,
     extraHosts: string[] = [],
+    acceptInsecure: boolean = false,
   ): Observable<any> {
     let _obs: Subject<any> = new Subject<any>();
     let obs: Observable<any> = _obs.asObservable();
 
     this.initBrowserCreationInfo(browser, version, extraCapabilities, live, extraHosts);
 
-    this.eusService.startSession(browser, version, extraCapabilities, live, extraHosts).subscribe(
+    this.eusService.startSession(browser, version, extraCapabilities, live, extraHosts, acceptInsecure).subscribe(
       (eusTestModel: EusTestModel) => {
         this.initBrowserInstanceInfo(eusTestModel);
         this.getAndInitVncUrl(_obs);

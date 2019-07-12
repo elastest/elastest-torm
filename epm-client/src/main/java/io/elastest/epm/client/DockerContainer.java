@@ -18,7 +18,7 @@ import com.spotify.docker.client.messages.PortBinding;
  * @author Boni Garcia (boni.gg@gmail.com)
  * @since 1.1.2
  */
-public class DockerContainer extends Container{
+public class DockerContainer extends Container {
     private String imageId;
     private Optional<String> containerName;
     private Optional<Map<String, List<PortBinding>>> portBindings;
@@ -274,6 +274,20 @@ public class DockerContainer extends Container{
         public DockerContainer build() {
             return new DockerContainer(this);
         }
+
+        @Override
+        public String toString() {
+            return "DockerBuilder [imageId=" + imageId + ", containerName="
+                    + containerName + ", portBindings=" + portBindings
+                    + ", exposedPorts=" + exposedPorts + ", binds=" + binds
+                    + ", envs=" + envs + ", cmd=" + cmd + ", network=" + network
+                    + ", entryPoint=" + entryPoint + ", privileged="
+                    + privileged + ", logConfig=" + logConfig
+                    + ", volumeBindList=" + volumeBindList + ", shmSize="
+                    + shmSize + ", capAdd=" + capAdd + ", extraHosts="
+                    + extraHosts + ", labels=" + labels + "]";
+        }
+
     }
 
 }

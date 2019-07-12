@@ -27,10 +27,11 @@ export class EusService {
     extraCapabilities?: any,
     live: boolean = true,
     extraHosts: string[] = [],
+    acceptInsecure: boolean = false,
   ): Observable<EusTestModel> {
     let url: string = this.eusUrl + this.sessionPath;
 
-    let data: any = this.getSessionBody(browser, version, extraCapabilities, live, extraHosts);
+    let data: any = this.getSessionBody(browser, version, extraCapabilities, live, extraHosts, acceptInsecure);
     return this.http.post(url, data).map((json: any) => {
       let testModel: EusTestModel = new EusTestModel(json);
       return testModel;
@@ -139,10 +140,11 @@ export class EusService {
     extraCapabilities?: any,
     live: boolean = true,
     extraHosts: string[] = [],
+    acceptInsecure: boolean = false,
   ): Observable<EusBowserSyncModel> {
     let url: string = this.eusUrl + 'crossbrowser';
 
-    let data: any = this.getCrossbrowserSessionBody(browsers, sutUrl, extraCapabilities, live, extraHosts);
+    let data: any = this.getCrossbrowserSessionBody(browsers, sutUrl, extraCapabilities, live, extraHosts, acceptInsecure);
     return this.http.post(url, data).map((json: any) => {
       let model: EusBowserSyncModel = new EusBowserSyncModel(json);
       return model;
@@ -172,6 +174,7 @@ export class EusService {
     extraCapabilities?: any,
     live: boolean = true,
     extraHosts: string[] = [],
+    acceptInsecure: boolean = false,
   ): any {
     let versionValue: string = version;
     if (!versionValue) {
@@ -191,9 +194,20 @@ export class EusService {
       live: live,
       extraHosts: extraHosts,
     };
+
+    if (acceptInsecure) {
+      if (extraCapabilities['firstMatch'] === undefined || extraCapabilities['firstMatch'] === null) {
+        extraCapabilities['firstMatch'] = [{ acceptInsecureCerts: true }];
+      } else {
+        extraCapabilities['firstMatch'][0]['acceptInsecureCerts'] = true;
+      }
+      extraCapabilities['acceptInsecureCerts'] = true;
+    }
+
     if (extraCapabilities) {
       capabilities = { ...capabilities, ...extraCapabilities };
     }
+
     return { desiredCapabilities: capabilities, capabilities: capabilities };
   }
 
@@ -203,13 +217,21 @@ export class EusService {
     extraCapabilities?: any,
     live: boolean = true,
     extraHosts: string[] = [],
+    acceptInsecure: boolean = false,
   ): any {
-    let data: any = this.getSessionBody(undefined, undefined, extraCapabilities, live, extraHosts);
+    let data: any = this.getSessionBody(undefined, undefined, extraCapabilities, live, extraHosts, acceptInsecure);
     data['sutUrl'] = sutUrl;
     let sessionsCapabilities: any[] = [];
 
     for (let browser of browsers) {
-      let currentData: any = this.getSessionBody(browser.browser, browser.version, extraCapabilities, live, extraHosts);
+      let currentData: any = this.getSessionBody(
+        browser.browser,
+        browser.version,
+        extraCapabilities,
+        live,
+        extraHosts,
+        acceptInsecure,
+      );
       sessionsCapabilities.push(currentData);
     }
     data['sessionsCapabilities'] = sessionsCapabilities;

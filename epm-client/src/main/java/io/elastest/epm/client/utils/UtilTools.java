@@ -164,5 +164,4 @@ public class UtilTools {
             logger.warn("Thread waiting interrupted: {}", e.getMessage());
         }
     }
-
 }

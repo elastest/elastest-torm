@@ -383,7 +383,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
 
   startSingleBrowser(extraCapabilities: any): void {
     this.singleBrowserCard
-      .startSession(this.browserName, this.browserVersion, extraCapabilities, false, this.extraHosts)
+      .startSession(this.browserName, this.browserVersion, extraCapabilities, false, this.extraHosts, true)
       .subscribe(
         (sessionId: any) => {
           this.exTJobExec.envVars['BROWSER_SESSION_ID'] = sessionId;
@@ -403,7 +403,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   }
 
   startCrossbrowser(extraCapabilities: any): void {
-    this.crossbrowser.startCrossbrowser(extraCapabilities, this.browserList, this.sutUrl, false, this.extraHosts).subscribe(
+    this.crossbrowser.startCrossbrowser(extraCapabilities, this.browserList, this.sutUrl, false, this.extraHosts, true).subscribe(
       (browserSync: EusBowserSyncModel) => {
         this.exTJobExec.envVars['CROSSBROWSER_SESSION_ID'] = browserSync.identifier;
 

@@ -401,8 +401,7 @@ public class UtilTools {
         String regex = "([+\\-!\\(\\){}\\[\\]^\"~*?:\\\\]|[&\\|]{2})";
         return text.replaceAll(regex, "\\\\$1");
     }
-    
-    
+
     public static String replaceAllSpecialCharactersForQueryDsl(String text) {
         String regex = "([\\[\\]^*\\.]|[&\\|]{2})";
         return text.replaceAll(regex, "\\\\$1");

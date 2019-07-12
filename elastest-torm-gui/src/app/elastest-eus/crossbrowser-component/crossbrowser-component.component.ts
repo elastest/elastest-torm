@@ -134,6 +134,7 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
     sutUrl: string,
     live?: boolean,
     extraHosts?: string[],
+    acceptInsecure: boolean = false,
   ): Observable<EusBowserSyncModel> {
     let _obs: Subject<any> = new Subject<any>();
     let obs: Observable<any> = _obs.asObservable();
@@ -145,7 +146,7 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
     this.extraHosts = extraHosts;
 
     // Async/await to wait for initialization
-    this.eusService.startCrossbrowserSession(browserList, sutUrl, extraCapabilities, live, extraHosts).subscribe(
+    this.eusService.startCrossbrowserSession(browserList, sutUrl, extraCapabilities, live, extraHosts, acceptInsecure).subscribe(
       async (browserSync: EusBowserSyncModel) => {
         await this.initByBrowserSync(browserSync);
         _obs.next(browserSync);
