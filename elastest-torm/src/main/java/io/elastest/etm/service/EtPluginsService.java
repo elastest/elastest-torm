@@ -830,9 +830,8 @@ public class EtPluginsService {
 
     public String getDockerCompose(String engineFileName) {
         String content = "";
-        try {
-            InputStream inputStream = getClass().getResourceAsStream(
-                    "/" + ET_TEST_ENGINES_PATH + engineFileName + ".yml");
+        try (InputStream inputStream = getClass().getResourceAsStream(
+                "/" + ET_TEST_ENGINES_PATH + engineFileName + ".yml")) {
             content = IOUtils.toString(inputStream, "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();
