@@ -1,11 +1,6 @@
 package io.elastest.epm.client.service;
 
-import static java.lang.System.currentTimeMillis;
-import static java.lang.Thread.sleep;
-import static java.net.HttpURLConnection.HTTP_OK;
 import static java.util.UUID.randomUUID;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
 
@@ -14,12 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
-import java.net.HttpURLConnection;
 import java.net.ServerSocket;
-import java.net.SocketException;
-import java.net.URL;
 import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -28,12 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.slf4j.Logger;
@@ -1072,92 +1057,6 @@ public class DockerService {
         String ipRoute = shellService.runAndWait("sh", "-c", "/sbin/ip route");
         String[] tokens = ipRoute.split("\\s");
         return tokens[2];
-    }
-
-    private void waitUrl(String url, long timeoutMillis, long endTimeMillis,
-            String errorMessage)
-            throws IOException, InterruptedException, DockerException {
-        int responseCode = 0;
-        while (true) {
-            try {
-                HttpURLConnection connection = (HttpURLConnection) new URL(url)
-                        .openConnection();
-                connection.setConnectTimeout((int) timeoutMillis);
-                connection.setReadTimeout((int) timeoutMillis);
-                connection.setRequestMethod("GET");
-                responseCode = connection.getResponseCode();
-
-                if (responseCode == HTTP_OK) {
-                    logger.debug("URL already reachable");
-                    break;
-                } else {
-                    logger.trace(
-                            "URL {} not reachable (response {}). Trying again in {} ms",
-                            url, responseCode, dockerPollTimeMs);
-                }
-
-            } catch (SSLHandshakeException | SocketException e) {
-                logger.trace("Error {} waiting URL {}, trying again in {} ms",
-                        e.getMessage(), url, dockerPollTimeMs);
-
-            } finally {
-                // Polling to wait a consistent state
-                sleep(dockerPollTimeMs);
-            }
-
-            if (currentTimeMillis() > endTimeMillis) {
-                throw new DockerException(errorMessage);
-            }
-        }
-    }
-
-    public void waitForHostIsReachable(String url) throws DockerException {
-        long timeoutMillis = MILLISECONDS.convert(dockerWaitTimeoutSec,
-                SECONDS);
-        long endTimeMillis = System.currentTimeMillis() + timeoutMillis;
-
-        logger.debug("Waiting for {} to be reachable (timeout {} seconds)", url,
-                dockerWaitTimeoutSec);
-        String errorMessage = "URL " + url + " not reachable in "
-                + dockerWaitTimeoutSec + " seconds";
-        TrustManager[] trustAllCerts = new TrustManager[] {
-                new X509TrustManager() {
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return new X509Certificate[] {};
-                    }
-
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] certs,
-                            String authType) {
-                        // No actions required
-                    }
-
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] certs,
-                            String authType) {
-                        // No actions required
-                    }
-                } };
-
-        try {
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection
-                    .setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-            HostnameVerifier allHostsValid = (hostname, session) -> true;
-            HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-
-            waitUrl(url, timeoutMillis, endTimeMillis, errorMessage);
-
-        } catch (Exception e) {
-            // Not propagating multiple exceptions (NoSuchAlgorithmException,
-            // KeyManagementException, IOException, InterruptedException) to
-            // improve readability
-            throw new DockerException(errorMessage, e);
-        }
-
     }
 
     public List<Container> getContainersByPrefix(String prefix)
