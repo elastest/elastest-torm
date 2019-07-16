@@ -77,10 +77,11 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public boolean deployService(String projectName, boolean withPull)
-            throws Exception {
+    public boolean deployService(String projectName, boolean withPull,
+            String namespace) throws Exception {
         k8sService.createNamespace(projectName);
-        return k8sService.deployResourcesFromProject(projectName) != null ? true
+        return k8sService.deployResourcesFromProject(projectName,
+                namespace) != null ? true
                 : false;
     }
 
@@ -156,8 +157,30 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public DockerContainerInfo getContainers(String projectName) {
+        logger.debug("Retriving containers for the service {}", projectName);
         DockerContainerInfo containersInfo = new DockerContainerInfo();
+        getServicesPods(projectName).forEach(pod -> {
+            logger.debug("Pod {} retrived", pod.getMetadata().getName());
+            logger.debug("Pod status {}", pod.getStatus().getPhase());
+            logger.debug("Pod status_1 {}", pod.getStatus().getMessage());
+            DockerContainerInfo.DockerContainer containerInfo = new DockerContainerInfo.DockerContainer();
+            containerInfo.initFromPod(pod);
+            containersInfo.getContainers().add(containerInfo);
+        });
+
         return containersInfo;
+    }
+    
+    private List<Pod> getServicesPods(String namespace){
+        List<Pod> pods = new ArrayList<>();
+        pods.addAll(k8sService
+                .getPodsByLabelKey("io.elastest.service", namespace).size() > 0
+                        ? k8sService.getPodsByLabelKey("io.elastest.service",
+                                namespace)
+                        : k8sService.getPodsByLabelKey("io.elastest.service",
+                                null));
+        return pods;
+        
     }
 
     @Override
@@ -169,8 +192,7 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public String getContainerIp(String containerId) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        return k8sService.getPodIpByPodName(containerId);
     }
 
     @Override
@@ -455,14 +477,20 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public ServiceBindedPort getBindedPort(String serviceName,
-            String containerSufix, String port, String namespace)
-            throws Exception {
-        logger.debug("Init binding port with k8s");
-        k8sService.createNamespace(namespace);
+            String containerSufix, String bindedPort, String port,
+            String namespace) throws Exception {
+        logger.debug("Biniding port for the service {}", serviceName);
+        if (namespace != null && !namespace.isEmpty()) {
+            k8sService.createNamespace(namespace);
+        }
         ServiceInfo serviceInfo = k8sService.createService(serviceName,
+                bindedPort != null ? Integer.valueOf(bindedPort) : null,
                 Integer.valueOf(port), "http", namespace,
-                k8sService.LABEL_TSS_NAME);
+                serviceName.equals("jenkins") || serviceName.equals("testlink")
+                        ? k8sService.LABEL_UNIQUE_PLUGIN_NAME
+                        : k8sService.LABEL_TSS_NAME);
         logger.debug("Getting binding port");
+        
         ServiceBindedPort bindedPortObj = new ServiceBindedPort(port,
                 serviceInfo.getServicePort(), serviceInfo.getServiceName());
         logger.debug("Port binded against: {}", serviceInfo.getServicePort());
@@ -493,6 +521,15 @@ public class K8ServiceImpl extends PlatformService {
 //        logger.debug("Service name: {}", name);
 //        return name;
         return params[1];
+    }
+
+    @Override
+    public String getPublicServiceIp(String serviceName, String port,
+            String namespace) {
+        logger.debug("Getting binded service ip for the service: {}",
+                serviceName);
+        return k8sService.getServiceIp(serviceName.toLowerCase(), port,
+                namespace);
     }
 
 }

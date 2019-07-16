@@ -139,8 +139,8 @@ public abstract class PlatformService {
             Map<String, String> envs, boolean withBindedExposedPortsToRandom,
             boolean withRemoveVolumes) throws Exception;
 
-    public abstract boolean deployService(String projectName, boolean withPull)
-            throws IOException, Exception;
+    public abstract boolean deployService(String projectName, boolean withPull,
+            String namespace) throws IOException, Exception;
 
     public abstract boolean undeployService(String projectName)
             throws IOException;
@@ -187,6 +187,9 @@ public abstract class PlatformService {
 
     public abstract void deployAndRunTJobExecution(Execution execution)
             throws Exception;
+    
+    public abstract String getPublicServiceIp(String serviceName, String port,
+            String namespace);
 
     public String generateContainerName(ContainerPrefix prefix,
             Execution execution) {
@@ -261,8 +264,8 @@ public abstract class PlatformService {
             String originPath, String targetPath);
 
     public abstract ServiceBindedPort getBindedPort(String serviceIdentifier,
-            String containerSufix, String port, String namespace)
-            throws Exception;
+            String containerSufix, String bindedPort, String port,
+            String namespace) throws Exception;
 
     public abstract String getBindedServiceIp(
             SupportServiceInstance serviceInstance, String port);

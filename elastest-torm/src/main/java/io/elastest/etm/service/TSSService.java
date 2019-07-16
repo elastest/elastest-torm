@@ -345,6 +345,7 @@ public class TSSService {
 
     @PreDestroy
     public void cleanTSSInstances() {
+        logger.debug("Deprovisioning TSSs before stopping the ETM");
         deprovisionServicesInstances();
     }
 
@@ -429,11 +430,12 @@ public class TSSService {
                 }
             }
         } else {
-            manifestToRegister = serviceDefJson.get("manifest");
-            logger.debug("Register manifest Id {} associated to service {}",
-                    serviceDefJson.get("register").get("id"),
-                    manifestToRegister.get("id"));
+            manifestToRegister = serviceDefJson.get("manifest");            
         }
+        
+        logger.debug("Register manifest Id {} associated to service {}",
+                manifestToRegister.get("id"),
+                serviceDefJson.get("register").get("id"));
 
         esmServiceClient.registerManifest(
                 "{ " + "\"id\": " + manifestToRegister.get("id").toString()
@@ -451,7 +453,7 @@ public class TSSService {
                         + " }",
                 manifestToRegister.get("id").toString().replaceAll("\"", ""));
     }
-
+ 
     public List<String> getRegisteredServicesName() {
         logger.info("Get registered services names.");
         List<String> registeredServices = new ArrayList<>();
@@ -1354,7 +1356,7 @@ public class TSSService {
                                     utilsService.isKubernetes()
                                             ? serviceInstance.getEndpointName()
                                             : serviceInstance.getContainerIp(),
-                                    null, node.get("port").toString(),
+                                    null, null, node.get("port").toString(),
                                     serviceInstance.getInstanceId());
                     serviceInstance.getPortBindingContainers()
                             .add(socatBindedPortObj.getContainerId());

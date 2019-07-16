@@ -43,6 +43,7 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
+import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.fabric8.kubernetes.api.model.Namespace;
@@ -55,6 +56,8 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceAccount;
 import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
+import io.fabric8.kubernetes.api.model.ServicePort;
+import io.fabric8.kubernetes.api.model.ServicePortBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.Job;
@@ -84,6 +87,7 @@ public class K8sService {
     private static final String BINDING_PORT_SUFIX = "-host-port";
     private static final String CLUSTER_DOMAIN = "svc.cluster.local";
     public static final String LABEL_TSS_NAME = "io.elastest.tjob.tss.id";
+    public static final String LABEL_UNIQUE_PLUGIN_NAME = "io.elastest.service";
 
     @Value("${et.data.in.host}")
     public String etDataInHost;
@@ -96,11 +100,8 @@ public class K8sService {
 
     public HostPathVolumeSource etToolsVolume;
     public static final String etToolsInternalPath = "et_tools";
-
     public KubernetesClient client;
-
     private FilesService filesService;
-
     private Map<String, List<String>> servicesAssociatedWithAPod;
     
     public K8sService(FilesService filesService) {
@@ -453,27 +454,33 @@ public class K8sService {
 //        return deployResourcesFromProject(projectName, DEFAULT_NAMESPACE);
 //    }
 
-    public List<PodInfo> deployResourcesFromProject(String projectName)
-            throws Exception {
+    public List<PodInfo> deployResourcesFromProject(String projectName,
+            String namespace) throws Exception {
         PodInfo podInfo = new PodInfo();
         List<PodInfo> podsInfoList = new ArrayList<>();
         DockerProject project = projects.get(projectName);
-
+        logger.debug("Project to deploy: {}", projectName);
         logger.debug("Resources as string: {}", project.getYml());
+        namespace = namespace == null || namespace.isEmpty() ? DEFAULT_NAMESPACE
+                : namespace;
 
         try (InputStream is = IOUtils.toInputStream(project.getYml(),
                 CharEncoding.UTF_8)) {
             List<HasMetadata> resourcesMetadata = client.load(is)
-                    .inNamespace(projectName).get();
+                    .inNamespace(namespace).get();
 
             logger.debug("Add these environment variables:");
             project.getEnv().forEach((key, value) -> {
                 logger.debug("Env var {} with value {}", key, value);
             });
 
+            logger.debug("Number of deployments loaded: {}",resourcesMetadata.size());
+            
             for (HasMetadata metadata : resourcesMetadata) {
                 String deploymentName = ((Deployment) metadata).getMetadata()
                         .getName();
+                logger.debug("Editing and deploying service {}:",
+                        deploymentName);
                 DeploymentBuilder dpB = new DeploymentBuilder(
                         ((Deployment) metadata));
                 Deployment dp = dpB.editSpec().editTemplate().editSpec()
@@ -481,10 +488,12 @@ public class K8sService {
                         .addAllToEnv(getEnvVarListFromMap(project.getEnv()))
                         .endContainer().endSpec().endTemplate().endSpec()
                         .build();
+                logger.debug("Deployment {} content: {}", deploymentName,
+                        dp.toString());
 
-                client.apps().deployments().inNamespace(projectName)
+                client.apps().deployments().inNamespace(namespace)
                         .createOrReplace(dp);
-                client.apps().deployments().inNamespace(projectName)
+                client.apps().deployments().inNamespace(namespace)
                         .withName(deploymentName)
                         .waitUntilReady(5, TimeUnit.MINUTES);
             }
@@ -540,11 +549,14 @@ public class K8sService {
 
     public DockerProject createk8sProject(String projectName,
             String serviceDescriptor, Map<String, String> envs) {
+        logger.debug(
+                "Store new project \"{}\" with this deployment manifest -> {}",
+                projectName, serviceDescriptor);
         DockerProject project = new DockerProject(projectName,
                 serviceDescriptor);
         if (envs != null) {
             project.getEnv().putAll(envs);
-        }
+        }        
         projects.put(projectName, project);
         return project;
     }
@@ -568,54 +580,91 @@ public class K8sService {
     }
 
     public ServiceInfo createService(String serviceName, Integer port,
-            String protocol, String namespace, String selector)
-            throws MalformedURLException {
+            Integer targetPort, String protocol, String namespace,
+            String selector) throws MalformedURLException {
         protocol = protocol.contains("http")
                 ? ServiceProtocolEnum.TCP.toString()
                 : protocol;
         serviceName = serviceName.toLowerCase();
-        String k8sServiceName = serviceName + "-" + port + "-service";
-        String hostPortName = serviceName + "-" + port + BINDING_PORT_SUFIX;
-        logger.debug("Creating a new service for the service {} with port {}",
-                serviceName, port);
-        Service service = new ServiceBuilder().withNewMetadata()
-                .withName(serviceName + "-" + port + "-service").endMetadata()
-                .withNewSpec()
-                .withSelector(
-                        Collections.singletonMap(selector, serviceName))
-                .addNewPort()
-                .withName(hostPortName)
-                .withProtocol(protocol).withPort(port).endPort()
-                .withType(ServicesType.NODE_PORT.toString()).endSpec().build();
+        String k8sServiceName = serviceName + "-" + targetPort + "-service";
+        String hostPortName = serviceName + "-" + targetPort
+                + BINDING_PORT_SUFIX;
+        Service service = null;
+        if (!checkIfServiceExistsInNamespace(k8sServiceName, namespace)) {
+            logger.debug(
+                    "Creating a new service for the service {} with port {}",
+                    serviceName, targetPort);
 
-        service = client.services()
-                .inNamespace(namespace == null ? DEFAULT_NAMESPACE : namespace)
-                .create(service);
-        
+            ServicePortBuilder servicePortBuilder = new ServicePortBuilder()
+                    .withName(hostPortName).withProtocol(protocol)
+//                    .withPort(port != null ? port : targetPort);
+                    .withPort(targetPort);
+            if (port != null) {
+//                servicePortBuilder.withTargetPort(new IntOrString(targetPort));
+                servicePortBuilder.withNodePort(port);
+            }
+            ServicePort servicePort = servicePortBuilder.build();
+
+            service = new ServiceBuilder().withNewMetadata()
+                    .withName(serviceName + "-" + targetPort + "-service")
+                    .endMetadata().withNewSpec()
+                    .withSelector(
+                            Collections.singletonMap(selector, serviceName))
+                    .addNewPortLike(servicePort).endPort()
+//                .addNewPort()
+//                .withName(hostPortName)
+//                .withProtocol(protocol).withPort(port).endPort()
+                    .withType(ServicesType.NODE_PORT.toString()).endSpec()
+                    .build();
+
+            service = client.services()
+                    .inNamespace(
+                            namespace == null ? DEFAULT_NAMESPACE : namespace)
+                    .create(service);
+        } else {
+            service = client.services()
+                    .inNamespace(
+                            namespace == null ? DEFAULT_NAMESPACE : namespace)
+                    .withName(k8sServiceName).get();
+        }
+
         if (servicesAssociatedWithAPod.get(serviceName) != null) {
-            servicesAssociatedWithAPod.get(serviceName).add(k8sServiceName);       
+            servicesAssociatedWithAPod.get(serviceName).add(k8sServiceName);
         } else {
             List<String> associatedServices = new ArrayList<>();
             associatedServices.add(k8sServiceName);
             servicesAssociatedWithAPod.put(serviceName, associatedServices);
         }
-        
-        String serviceURL = client.services().inNamespace(namespace)
-                .withName(service.getMetadata().getName())
-                .getURL(hostPortName);
+
+        String serviceURL = client.services()
+                .inNamespace(namespace == null ? DEFAULT_NAMESPACE : namespace)
+                .withName(service.getMetadata().getName()).getURL(hostPortName);
 
         logger.debug("Service url: {}", serviceURL);
 
         String[] urlParts = serviceURL.split(":");
 
-        return new ServiceInfo(urlParts[2], serviceName, //service.getMetadata().getName(),
+        return new ServiceInfo(urlParts[2], serviceName, // service.getMetadata().getName(),
                 new URL(serviceURL.replaceAll("tcp", "http")));
+    }
+    
+    private boolean checkIfServiceExistsInNamespace(String name,
+            String namespace) {
+        boolean result = false;
+        result = client.services()
+                .inNamespace(
+                        namespace != null && !namespace.isEmpty() ? namespace
+                                : DEFAULT_NAMESPACE)
+                .withName(name).get() != null ? true : result;
+        return result;
     }
 
     public String getServiceIp(String serviceName, String port,
             String namespace) {
         logger.debug("Getting the service ip for the service {}", serviceName);
-        String serviceURL = client.services().inNamespace(namespace)
+        String serviceURL = client.services().inNamespace(
+                namespace != null && !namespace.isEmpty() ? namespace
+                        : DEFAULT_NAMESPACE)
                 .withName(serviceName + "-" + port + "-service")
                 .getURL(serviceName + "-" + port + BINDING_PORT_SUFIX);
         logger.debug("Service ip {}",
@@ -624,6 +673,7 @@ public class K8sService {
     }
 
     public void createNamespace(String name) {
+        logger.debug("Checking if the namespace {} exists", name);
         if (client.namespaces().withName(name).get() == null) {
             logger.debug("Creating namespace -> {}", name);
             Namespace ns = new NamespaceBuilder().withNewMetadata()
@@ -867,7 +917,7 @@ public class K8sService {
             String namespace) {
         logger.debug("Get Ip by label {}-{}", label, value);
         Map<String, String> labels = new HashMap<>();
-        labels.put(label, value);
+        labels.put(label, value.replace("_", "-"));
         UtilTools.sleep(4);
         List<Pod> pods = getPodsByLabels(labels, namespace);
         while (!isReady(pods.get(0).getMetadata().getName(), namespace)) {
@@ -888,6 +938,17 @@ public class K8sService {
                         (namespace != null && !namespace.isEmpty()) ? namespace
                                 : DEFAULT_NAMESPACE)
                 .withLabels(labels).list().getItems();
+    }
+    
+    public List<Pod> getPodsByLabelKey(String key, String namespace) {
+        List<Pod> pods = client.pods()
+                .inNamespace(
+                        (namespace != null && !namespace.isEmpty()) ? namespace
+                                : DEFAULT_NAMESPACE)
+                .withLabel(key).list().getItems();
+        
+        logger.debug("Retrieved {} pods", pods.size());
+        return pods;
     }
 
     public Boolean existJobByName(String name) {

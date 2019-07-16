@@ -955,7 +955,7 @@ public class TJobExecOrchestratorService {
                     if (publicSut) {
                         ServiceBindedPort socatBindedPortObj = platformService
                                 .getBindedPort(sutExec.getIp(),
-                                        "sut_" + sutExec.getId(),
+                                        "sut_" + sutExec.getId(), null,
                                         execution.getSut().getPort(), null);
                         sutExec.setPublicPort(Long
                                 .parseLong(socatBindedPortObj.getBindedPort()));

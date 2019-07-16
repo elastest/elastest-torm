@@ -982,9 +982,9 @@ public class DockerServiceImpl extends PlatformService {
 
     @Override
     public ServiceBindedPort getBindedPort(String serviceIp,
-            String containerSufix, String port, String namespace)
-            throws Exception {
-        String bindedPort = "37000";
+            String containerSufix, String bindedPort, String port,
+            String namespace) throws Exception {
+        bindedPort = "37000";
         String socatContainerId = null;
         try {
             bindedPort = String.valueOf(UtilTools.findRandomOpenPort());
@@ -1085,10 +1085,12 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public boolean deployService(String projectName, boolean withPull)
-            throws Exception {
+    public boolean deployService(String projectName, boolean withPull,
+            String namespace) throws Exception {
         boolean result = dockerComposeService.startProject(projectName, false);
-        insertIntoETNetwork(projectName, elastestNetwork);
+        insertIntoETNetwork(projectName,
+                namespace != null && !namespace.isEmpty() ? namespace
+                        : elastestNetwork);
         return result;
     }
 
@@ -1429,6 +1431,12 @@ public class DockerServiceImpl extends PlatformService {
         logger.debug("Name of the container to retrieve {}",
                 params[0] + "_" + params[1] + "_1");
         return params[0] + "_" + params[1] + "_1";
+    }
+
+    @Override
+    public String getPublicServiceIp(String serviceName, String port,
+            String namespace) {
+        return utilsService.getEtPublicHostValue();
     }
 
 }

@@ -25,6 +25,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.Container.PortMapping;
 
+import io.elastest.epm.client.service.K8sService;
+import io.fabric8.kubernetes.api.model.Pod;
+
 /**
  * Utility class for deserialize container info from docker-compose-ui.
  *
@@ -123,6 +126,13 @@ public class DockerContainerInfo {
 
             // this.volumes = container.getVolumes TODO docker java has not
             // volumes
+        }
+        
+        public void initFromPod(Pod pod) {
+            this.is_running = pod.getStatus().getPhase()
+                    .equals(K8sService.PodsStatusEnum.RUNNING.toString());
+            this.labels = new Labels(pod.getMetadata().getLabels());
+            this.name = pod.getMetadata().getName();
         }
 
     }

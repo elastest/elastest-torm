@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    io.elastest.service: jenkins
+    io.elastest.service.type: external
+  name: etm-jenkins
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.elastest.service.type: external
+        io.elastest.service: jenkins
+    spec:
+      containers:
+      - env:
+        - name: INTEGRATED_JENKINS
+          value: "true"
+        - name: JAVA_OPTS
+          value: -Djenkins.install.runSetupWizard=false
+        image: elastest/etm-jenkins:1.0.3
+        name: etm-jenkins
+        ports:
+        - containerPort: 8080
+        resources: {}
+        volumeMounts:
+        - mountPath: /var/jenkins_home
+          name: elastest-data
+      restartPolicy: Always
+      volumes:
+      - name: elastest-data
+        persistentVolumeClaim:
+          claimName: elastest-data-claim
+status: {}

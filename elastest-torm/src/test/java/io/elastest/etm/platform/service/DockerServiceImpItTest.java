@@ -152,7 +152,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
     public void testDeployService() throws Exception {
         log.info("Start the test to check a TSS deployment");
         prepareTssEnvironment();
-        assertTrue(platformService.deployService(instanceId, true));
+        assertTrue(platformService.deployService(instanceId, true, null));
         platformService.undeployService(instanceId);
     }
 
@@ -162,7 +162,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
     public void testUndeployService() throws Exception {
         log.info("Start the test to check a TSS undeployment");
         prepareTssEnvironment();
-        platformService.deployService(instanceId, true);
+        platformService.deployService(instanceId, true, null);
         assertTrue(platformService.undeployService(instanceId));
     }
 
@@ -284,7 +284,7 @@ public class DockerServiceImpItTest extends EtmApiItTest {
 
     private void deployDummyTSS() throws Exception {
         prepareTssEnvironment();
-        platformService.deployService(instanceId, true);
+        platformService.deployService(instanceId, true, null);
     }
 
     private void prepareTssEnvironment() throws Exception {

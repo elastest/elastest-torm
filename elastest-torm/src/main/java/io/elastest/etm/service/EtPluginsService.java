@@ -32,10 +32,9 @@ import org.springframework.stereotype.Service;
 
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
-import io.elastest.epm.client.model.DockerServiceStatus;
 import io.elastest.epm.client.model.DockerServiceStatus.DockerServiceStatusEnum;
 import io.elastest.etm.model.EtPlugin;
-import io.elastest.etm.model.SupportService;
+import io.elastest.etm.model.ServiceBindedPort;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.utils.PasswordFactory;
@@ -365,7 +364,10 @@ public class EtPluginsService {
             this.updateStatus(projectName, DockerServiceStatusEnum.STARTING,
                     "Starting...");
             logger.debug("Starting {} plugin...", projectName);
-            platformService.deployService(projectName, false);
+            platformService.deployService(projectName, false,
+                    projectName.contains("jenkins")
+                            || projectName.contains("testlink") ? null
+                                    : projectName);
         } catch (Exception e) {
             logger.error("Cannot start {} plugin", projectName, e);
             logger.error("Stopping service {}", projectName);
@@ -405,11 +407,13 @@ public class EtPluginsService {
 
     public String getEtPluginUrl(String serviceName,
             String containerNameSuffix) {
+        logger.debug("Building url for the plugin: {}", serviceName);
         String url = "";
         if (serviceName != null && containerNameSuffix != null) {
             try {
                 // Check first if is Unique EtPlugin started on init
                 if (isUniqueEtPluginStartedOnInit(serviceName)) {
+                    logger.debug("{} started on init", serviceName);
                     return this.getUniqueEtPlugin(serviceName).getUrl();
                 }
 
@@ -417,29 +421,21 @@ public class EtPluginsService {
                         .getContainers(serviceName).getContainers()) {
                     String containerName = container.getName(); // example:
                                                                 // ece_ece_1
+                    logger.debug("Retrieved services containers");
                     if (containerName != null
-                            && containerName.endsWith(containerNameSuffix)) {
+                            && (containerName.endsWith(containerNameSuffix)
+                                    || utilsService.isKubernetes())) {
                         logger.debug("Container info: {}", container);
 
-                        String bindedIp = utilsService.getEtPublicHostValue();
                         String internalIp = "";
-                        String ip = bindedIp;
                         boolean useBindedPort = true;
 
                         if (platformService.isContainerIntoNetwork(network,
-                                containerName)) {
+                                containerName) || utilsService.isKubernetes()) {
                             internalIp = platformService
                                     .getContainerIp(containerName);
                         }
 
-                        // If not server-address, use internal ip
-                        if (utilsService.isDefaultEtPublicHost()) {
-                            useBindedPort = false;
-                            ip = internalIp;
-                            if ("".equals(internalIp)) {
-                                return "";
-                            }
-                        }
 
                         String port = "";
                         String internalPort = "";
@@ -468,7 +464,7 @@ public class EtPluginsService {
                             break;
                         case JENKINS_NAME:
                             internalPort = "8080";
-                            bindedPort = "37092";
+                            bindedPort = "37092";                            
                             break;
                         default:
                             // TSS
@@ -499,6 +495,32 @@ public class EtPluginsService {
                             }
 
                             break;
+                        }
+
+                        String serviceId = null;
+                        if (utilsService.isKubernetes()
+                                && serviceName.equals(JENKINS_NAME)) {
+                            logger.debug("Getting external ip for Jenkins" );
+                            ServiceBindedPort bp = platformService
+                                    .getBindedPort(serviceName,
+                                            containerNameSuffix, bindedPort, internalPort,
+                                            null);
+                            serviceId = bp.getContainerId();
+                        }
+                        
+                        String bindedIp = platformService.getPublicServiceIp(
+                                serviceId, internalPort, null);
+                        String ip = bindedIp;
+                        
+                        
+                        
+                        // If not server-address, use internal ip
+                        if (utilsService.isDefaultEtPublicHost()) {
+                            useBindedPort = false;
+                            ip = internalIp;
+                            if ("".equals(internalIp)) {
+                                return "";
+                            }
                         }
 
                         if (!useBindedPort) {
@@ -676,6 +698,8 @@ public class EtPluginsService {
     }
 
     public boolean isUniqueEtPluginStartedOnInit(String serviceName) {
+        logger.debug("Unique Plugin {} started on init: {}", serviceName,
+                etEtmJenkinsHost);
         switch (serviceName) {
         case JENKINS_NAME:
             return !etEtmJenkinsHost.equals("none");
@@ -688,6 +712,8 @@ public class EtPluginsService {
 
     public EtPlugin getUniqueEtPlugin(String serviceName) {
         // TODO refactor (common code with getUrl)
+        logger.debug("Building EtPlugin object and its urls for the service {}",
+                serviceName);
 
         String protocol = "http://";
         String host = "";
@@ -830,15 +856,24 @@ public class EtPluginsService {
 
     public String getDockerCompose(String engineFileName) {
         String content = "";
-        try (InputStream inputStream = getClass().getResourceAsStream(
-                "/" + ET_TEST_ENGINES_PATH + engineFileName + ".yml")) {
+        logger.debug("Load file : {}", "/" + ET_TEST_ENGINES_PATH
+                + (utilsService.isKubernetes() ? engineFileName + "-k8s"
+                        : engineFileName)
+                + ".yml");
+        try (InputStream inputStream = getClass()
+                .getResourceAsStream("/" + ET_TEST_ENGINES_PATH
+                        + (utilsService.isKubernetes() ? engineFileName + "-k8s"
+                                : engineFileName)
+                        + ".yml")) {
             content = IOUtils.toString(inputStream, "UTF-8");
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
+        logger.debug("Replacing project name in the file");
         content = this.replaceProjectNameMatchesByElastestProjectName(content);
-
+        logger.debug("Manifest from file: {}", content);
+        
         return content;
     }
 
