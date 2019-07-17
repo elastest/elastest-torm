@@ -127,6 +127,7 @@
       <ng-template #showCrossbrowser>
         <etm-eus-crossbrowser-component
           #crossbrowser
+          [withBrowserSync]="false"
           [logsAndMetrics]="logsAndMetrics"
           [showSpinner]="showBrowserMsgSpinner.bind(this)"
           fxLayout="column"

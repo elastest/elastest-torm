@@ -151,3 +151,9 @@ export function allArrayPairCombinations(list: any[]): any[][] {
 export function isStringIntoArray(str: string, arr: string[]): boolean {
   return arr.indexOf(str) > -1;
 }
+
+// Returns a random integer between min (include) and max (include)
+
+export function randomNum(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}

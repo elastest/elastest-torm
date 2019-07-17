@@ -21,6 +21,8 @@ export class BrowserCardComponentComponent implements OnInit {
   logsAndMetrics: EtmMonitoringViewComponent = undefined;
   @Input()
   showSpinner: Function;
+  @Input()
+  public mouseKeyboardEvents: Subject<MouseEvent>;
 
   // EUS info
   eusIp: string;
@@ -305,6 +307,12 @@ export class BrowserCardComponentComponent implements OnInit {
   resizeBrowser($event): void {
     if (this.browserVnc && this.browserVnc.vncUi) {
       this.browserVnc.vncUi.onResize();
+    }
+  }
+
+  emitMouseEvent(event: MouseEvent): void {
+    if (this.browserVnc && this.browserVnc.vncUi) {
+      this.browserVnc.emitMouseEvent(event);
     }
   }
 }

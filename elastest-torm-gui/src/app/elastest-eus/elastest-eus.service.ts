@@ -141,10 +141,19 @@ export class EusService {
     live: boolean = true,
     extraHosts: string[] = [],
     acceptInsecure: boolean = false,
+    withBrowserSync: boolean = true,
   ): Observable<EusBowserSyncModel> {
     let url: string = this.eusUrl + 'crossbrowser';
 
-    let data: any = this.getCrossbrowserSessionBody(browsers, sutUrl, extraCapabilities, live, extraHosts, acceptInsecure);
+    let data: any = this.getCrossbrowserSessionBody(
+      browsers,
+      sutUrl,
+      extraCapabilities,
+      live,
+      extraHosts,
+      acceptInsecure,
+      withBrowserSync,
+    );
     return this.http.post(url, data).map((json: any) => {
       let model: EusBowserSyncModel = new EusBowserSyncModel(json);
       return model;
@@ -218,9 +227,11 @@ export class EusService {
     live: boolean = true,
     extraHosts: string[] = [],
     acceptInsecure: boolean = false,
+    withBrowserSync: boolean = true,
   ): any {
     let data: any = this.getSessionBody(undefined, undefined, extraCapabilities, live, extraHosts, acceptInsecure);
     data['sutUrl'] = sutUrl;
+    data['withBrowserSync'] = withBrowserSync;
     let sessionsCapabilities: any[] = [];
 
     for (let browser of browsers) {

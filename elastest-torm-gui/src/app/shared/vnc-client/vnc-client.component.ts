@@ -1,8 +1,8 @@
 import { VncUI } from './ui';
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { fromEvent } from 'rxjs';
-import { getUrlObj } from '../utils';
+import { fromEvent, Subject } from 'rxjs';
+import { getUrlObj, randomNum } from '../utils';
 
 @Component({
   selector: 'vnc-client',
@@ -23,6 +23,7 @@ export class VncClientComponent implements OnInit, OnDestroy {
   @Input() public resize: 'scale' | 'downscale' | 'remote' = 'scale';
   @Input() public vncUrl: string;
   @Input() public bgColor: string = '#666666';
+  @Input() public mouseKeyboardEvents: Subject<MouseEvent>;
 
   htmlEl: HTMLHtmlElement = document.getElementsByTagName('html')[0];
 
@@ -35,6 +36,7 @@ export class VncClientComponent implements OnInit, OnDestroy {
 
   canvasFocused: boolean = false;
   canvasMouseDown: boolean = false;
+  aaa: number = randomNum(1, 800);
 
   constructor(private elementRef: ElementRef) {
     this.switchFocus = this.switchFocus.bind(this);
@@ -127,44 +129,59 @@ export class VncClientComponent implements OnInit, OnDestroy {
     const mouseUpObs: Observable<any> = fromEvent(canvasNE, 'mouseup');
 
     mouseOutObs.subscribe(
-      (mouseEvent: any) => {
+      (mouseEvent: MouseEvent) => {
         if (!this.canvasFocused || !this.canvasMouseDown) {
           this.switchHTMLClickEventListener(true);
-          mouseEvent.stopPropagation();
-          mouseEvent.preventDefault();
+          this.stopEventPropagationAndDefault(mouseEvent);
           this.canvasFocused = false;
+        }
+        if (this.mouseKeyboardEvents && !mouseEvent.metaKey) {
+          this.mouseKeyboardEvents.next(mouseEvent);
         }
       },
       (error: Error) => console.log(error),
     );
     mouseOverObs.subscribe(
-      (mouseEvent: any) => {
+      (mouseEvent: MouseEvent) => {
         this.switchHTMLClickEventListener(false);
-        mouseEvent.stopPropagation();
-        mouseEvent.preventDefault();
+        this.stopEventPropagationAndDefault(mouseEvent);
         this.canvasFocused = true;
+        if (this.mouseKeyboardEvents && !mouseEvent.metaKey) {
+          this.mouseKeyboardEvents.next(mouseEvent);
+        }
       },
       (error: Error) => console.log(error),
     );
 
     mouseDownObs.subscribe(
-      (mouseEvent: any) => {
+      (mouseEvent: MouseEvent) => {
         this.canvasMouseDown = true;
-        mouseEvent.stopPropagation();
-        mouseEvent.preventDefault();
+        this.stopEventPropagationAndDefault(mouseEvent);
         this.switchFocus();
+        if (this.mouseKeyboardEvents && !mouseEvent.metaKey) {
+          this.mouseKeyboardEvents.next(mouseEvent);
+        }
       },
       (error: Error) => console.log(error),
     );
     mouseUpObs.subscribe(
-      (mouseEvent: any) => {
+      (mouseEvent: MouseEvent) => {
         this.canvasMouseDown = false;
-        mouseEvent.stopPropagation();
-        mouseEvent.preventDefault();
+        this.stopEventPropagationAndDefault(mouseEvent);
+        if (this.mouseKeyboardEvents && !mouseEvent.metaKey) {
+          this.mouseKeyboardEvents.next(mouseEvent);
+        }
       },
       (error: Error) => console.log(error),
     );
     this.switchHTMLClickEventListener(true);
+  }
+
+  stopEventPropagationAndDefault(mouseEvent: MouseEvent): void {
+    if (mouseEvent) {
+      mouseEvent.stopPropagation();
+      mouseEvent.preventDefault();
+    }
   }
 
   switchHTMLClickEventListener(add: boolean = true): void {
@@ -184,6 +201,45 @@ export class VncClientComponent implements OnInit, OnDestroy {
         this.vncUi.rfb.get_keyboard().set_focused(false);
       }
     }
+  }
+
+  emitMouseEvent(mouseEvent: MouseEvent): void {
+    // Calculate position
+    let x: number = this.canvas.getBoundingClientRect().left + mouseEvent.offsetX;
+    let y: number = this.canvas.getBoundingClientRect().top + mouseEvent.offsetY;
+
+    let newMouseEvent: MouseEvent;
+    let mouseEventInit: any = {};
+    for (let key of Object.keys(mouseEvent)) {
+      mouseEventInit[key] = mouseEvent[key];
+    }
+    mouseEventInit.x = x;
+    mouseEventInit.clientX = x;
+
+    mouseEventInit.y = y;
+    mouseEventInit.clientY = y;
+
+    // HACK to know if event is propagated
+    mouseEventInit.metaKey = true;
+
+    switch (event.type) {
+      case 'mouseout':
+        newMouseEvent = new MouseEvent('mouseout', mouseEventInit);
+        break;
+      case 'mouseover':
+        newMouseEvent = new MouseEvent('mouseover', mouseEventInit);
+        break;
+      case 'mousedown':
+        newMouseEvent = new MouseEvent('mousedown', mouseEventInit);
+        break;
+      case 'mouseup':
+        newMouseEvent = new MouseEvent('mouseup', mouseEventInit);
+        break;
+      default:
+        return;
+    }
+
+    this.canvas.dispatchEvent(newMouseEvent);
   }
 
   suscribeToStatus(): void {

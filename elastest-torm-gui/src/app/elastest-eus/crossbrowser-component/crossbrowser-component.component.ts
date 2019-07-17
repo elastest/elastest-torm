@@ -1,7 +1,7 @@
-import { Component, OnInit, Input, ViewChildren, QueryList, OnDestroy, HostListener, ViewChild } from '@angular/core';
+import { Component, OnInit, Input, ViewChildren, QueryList, OnDestroy, ViewChild, HostListener } from '@angular/core';
 import { EusService, BrowserVersionModel } from '../elastest-eus.service';
 import { EusBowserSyncModel } from '../elastest-eus-browser-sync.model';
-import { Subject, Observable } from 'rxjs';
+import { Subject, Observable, Subscription } from 'rxjs';
 import { EtmMonitoringViewComponent } from '../../elastest-etm/etm-monitoring-view/etm-monitoring-view.component';
 import { EusSessionInfoModel } from '../elastest-eus-sessioninfo.model';
 import { BrowserCardComponentComponent } from '../browser-card-component/browser-card-component.component';
@@ -19,6 +19,9 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
   @ViewChildren('singleBrowser') browserCards: QueryList<BrowserCardComponentComponent>;
   @ViewChild('mainCard')
   mainCard: SelfAdjustableCardComponent;
+
+  @Input()
+  withBrowserSync: boolean;
 
   @Input()
   logsAndMetrics: EtmMonitoringViewComponent = undefined;
@@ -53,6 +56,10 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
   errorColor: string = getErrorColor();
   warnColor: string = getWarnColor();
 
+  mouseKeyboardEvents: Subject<MouseEvent> = new Subject<MouseEvent>();
+  mouseKeyboardEventsObs: Observable<MouseEvent>;
+  mouseKeyboardEventsSubscription: Subscription;
+
   constructor(private eusService: EusService, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
@@ -84,21 +91,21 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // this.clear();
+    this.clear();
   }
 
-  // @HostListener('window:beforeunload')
-  // beforeunloadHandler(): void {
-  //   // On window closed leave session
-  //   this.clear();
-  // }
+  @HostListener('window:beforeunload')
+  beforeunloadHandler(): void {
+    // On window closed leave session
+    this.clear();
+  }
 
-  // clear(): void {
-  //   // Only remove if comes from it's own page
-  //   if (this.browserSyncIdentifier) {
-  //     this.stopWebsocket();
-  //   }
-  // }
+  clear(): void {
+    // Only remove if comes from it's own page
+    if (this.browserSyncIdentifier) {
+      this.unsubscribeToMouseEvents();
+    }
+  }
 
   initEusData(eusIp: string, eusPort: string | number, eusUrl: string): void {
     this.eusIp = eusIp;
@@ -146,15 +153,17 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
     this.extraHosts = extraHosts;
 
     // Async/await to wait for initialization
-    this.eusService.startCrossbrowserSession(browserList, sutUrl, extraCapabilities, live, extraHosts, acceptInsecure).subscribe(
-      async (browserSync: EusBowserSyncModel) => {
-        await this.initByBrowserSync(browserSync);
-        _obs.next(browserSync);
-      },
-      (error: Error) => {
-        _obs.error(error);
-      },
-    );
+    this.eusService
+      .startCrossbrowserSession(browserList, sutUrl, extraCapabilities, live, extraHosts, acceptInsecure, this.withBrowserSync)
+      .subscribe(
+        async (browserSync: EusBowserSyncModel) => {
+          await this.initByBrowserSync(browserSync);
+          _obs.next(browserSync);
+        },
+        (error: Error) => {
+          _obs.error(error);
+        },
+      );
     return obs;
   }
 
@@ -181,6 +190,7 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
 
         position++;
       }
+      this.subscribeToMouseEvents();
     }
   }
 
@@ -357,4 +367,25 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
     }
     return hide;
   }
+
+  subscribeToMouseEvents(): void {
+    this.mouseKeyboardEventsObs = this.mouseKeyboardEvents.asObservable();
+    this.mouseKeyboardEventsSubscription = this.mouseKeyboardEventsObs.subscribe((mouseEvent: MouseEvent) => {
+      if (this.browserCards && this.browserCards.toArray().length > 0) {
+        for (let browserCard of this.browserCards.toArray()) {
+          browserCard.emitMouseEvent(mouseEvent);
+        }
+      }
+    });
+  }
+  unsubscribeToMouseEvents(): void {
+    if (this.mouseKeyboardEventsSubscription) {
+      this.mouseKeyboardEventsSubscription.unsubscribe();
+      this.mouseKeyboardEventsSubscription = undefined;
+    }
+  }
+
+  // navigateToUrl(urlToOpen: string): Observable<any> {
+  // return this.eusService.navigateToUrl(this.sessionId, urlToOpen);
+  // }
 }
