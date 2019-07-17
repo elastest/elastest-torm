@@ -37,6 +37,7 @@ export class SelectBuildModalComponent implements OnInit {
 
   // Crossbrowser
   crossbrowserEnabled: boolean = false;
+  propagateEvents: boolean = true;
   selectedCrossbrowsers: string[] = [];
 
   ready: boolean = false;
@@ -165,6 +166,7 @@ export class SelectBuildModalComponent implements OnInit {
 
       if (this.crossbrowserEnabled) {
         queryParams.browserList = this.selectedCrossbrowsers.join(',');
+        queryParams.propagateEvents = this.propagateEvents;
       } else {
         queryParams.browserName = this.selectedBrowser;
         queryParams.browserVersion = this.selectedVersion[this.selectedBrowser];
@@ -186,6 +188,7 @@ export class SelectBuildModalComponent implements OnInit {
 
       if (this.crossbrowserEnabled) {
         queryParams.browserList = savedConfig.browserList;
+        queryParams.propagateEvents = savedConfig.propagateEvents;
       } else {
         queryParams.browserName = savedConfig.browserName;
         queryParams.browserVersion = savedConfig.browserVersion;

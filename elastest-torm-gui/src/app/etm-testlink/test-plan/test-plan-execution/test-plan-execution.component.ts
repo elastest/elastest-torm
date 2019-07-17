@@ -85,6 +85,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   browserVersion: string = 'latest';
   browserList: BrowserVersionModel[];
   crossbrowserEnabled: boolean = false;
+  propagateEvents: boolean = true;
 
   platformId: number = 0;
   extraHosts: string[] = [];
@@ -147,6 +148,10 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
             this.browserList.push(newBrowser);
           }
           this.crossbrowserEnabled = true;
+
+          if (queryParams.propagateEvents !== undefined && queryParams.propagateEvents !== null) {
+            this.propagateEvents = queryParams.propagateEvents;
+          }
         }
 
         if (queryParams.extraHosts) {

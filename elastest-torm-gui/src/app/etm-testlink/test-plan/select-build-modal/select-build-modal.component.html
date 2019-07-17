@@ -58,17 +58,27 @@
             <mat-checkbox [(ngModel)]="crossbrowserEnabled" matTooltip="Enable Crossbrowser" name="enable-crossbrowser">
               Enable Cross browser
             </mat-checkbox>
-            <button
-              mat-raised-button
+
+            <mat-checkbox
               *ngIf="crossbrowserEnabled"
-              color="accent"
-              (click)="addBrowser()"
-              id="add_browser_btn"
-              class="push-left-sm"
+              class="push-left"
+              [(ngModel)]="propagateEvents"
+              matTooltip="Propagate mouse/keyboard events to the other browsers"
+              name="propagate-events"
             >
-              Add browser
-            </button>
+              Propagate events
+            </mat-checkbox>
           </div>
+          <button
+            mat-raised-button
+            *ngIf="crossbrowserEnabled"
+            color="accent"
+            (click)="addBrowser()"
+            id="add_browser_btn"
+            class="push-top-sm"
+          >
+            Add browser
+          </button>
           <td-chips
             *ngIf="crossbrowserEnabled"
             [chipAddition]="false"
