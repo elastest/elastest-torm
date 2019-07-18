@@ -1,3 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: elastest-jenkins-data-claim
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+  storageClassName: standard
+status: {}
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -35,5 +48,5 @@ spec:
       volumes:
       - name: elastest-data
         persistentVolumeClaim:
-          claimName: elastest-data-claim
+          claimName: elastest-jenkins-data-claim
 status: {}
