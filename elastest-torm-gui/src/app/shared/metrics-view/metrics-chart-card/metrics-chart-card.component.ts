@@ -1,9 +1,6 @@
 import { MetricsFieldModel } from './models/metrics-field-model';
 import { Observable } from 'rxjs/Rx';
-import { LineChartComponent } from '@swimlane/ngx-charts/release';
-import { ComboChartComponent } from './combo-chart/combo-chart.component';
 import { ESRabComplexMetricsModel } from './models/es-rab-complex-metrics-model';
-import { ComplexMetricsModel } from './models/complex-metrics-model';
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MetricsViewComponent } from '../metrics-view.component';
 import { ButtonModel } from '../../button-component/button.model';
@@ -34,7 +31,7 @@ export class MetricsChartCardComponent implements OnInit {
 
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit(): void {}
 
   getTimelineSubscription(): Observable<any> {
     return this.metricsView.getTimelineSubscription();

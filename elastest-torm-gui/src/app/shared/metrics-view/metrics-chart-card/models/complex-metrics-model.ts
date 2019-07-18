@@ -84,29 +84,29 @@ export class ComplexMetricsModel implements LoadPreviousModel {
     this.hidePrevBtn = false;
   }
 
-  loadPrevious() {}
+  loadPrevious(): void {}
 
-  onSelect(event) {}
+  onSelect(event): void {}
 
-  normalFormat(data) {
+  normalFormat(data): any {
     return `${data.toLocaleString()}`;
   }
 
-  percentFormat(data) {
+  percentFormat(data): any {
     return `${data}%`;
   }
 
-  compressNumberFormat(data) {
+  compressNumberFormat(data): any {
     let base = Math.floor(Math.log(Math.abs(data)) / Math.log(1000));
     let suffix = 'kmb'[base - 1];
     return suffix ? String(data / Math.pow(1000, base)).substring(0, 3) + suffix : '' + data;
   }
 
-  yLeftAxisScale(min, max) {
+  yLeftAxisScale(min, max): any {
     return { min: `${min}`, max: `${max}` };
   }
 
-  yRightAxisScale(min, max) {
+  yRightAxisScale(min, max): any {
     return { min: `${min}`, max: `${max}` };
   }
 }

@@ -6,6 +6,27 @@
 .color-white {
   color: #fff !important;
 }
+
+.color-black {
+  color: #000000 !important;
+}
+
+.color-elastest {
+  color: #ffac2f !important;
+}
+
+.color-gray-1 {
+  color: #333333 !important;
+}
+
+.color-gray-2 {
+  color: #666666 !important;
+}
+
+.color-gray-3 {
+  color: #999999 !important;
+}
+
 // Href line height wasn't right for mat-icon-button
 a[mat-icon-button] {
   line-height: 36px;

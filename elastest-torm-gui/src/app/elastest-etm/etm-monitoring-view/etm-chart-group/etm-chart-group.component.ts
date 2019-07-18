@@ -228,7 +228,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
   initAIO(): void {
     let ignoreComponent: string = this.getIgnoreComponent();
     this.allInOneMetrics = new ESRabComplexMetricsModel(this.monitoringService, ignoreComponent);
-    this.allInOneMetrics.name = 'All Metrics';
+    this.allInOneMetrics.name = 'All Default Metrics';
     this.allInOneMetrics.hidePrevBtn = !this.live;
     this.allInOneMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
     let defaultMetricName: string = 'test' + '_' + 'et_dockbeat' + '_' + 'cpu_totalUsage'; // Activate Test cpu usage as default in AIO

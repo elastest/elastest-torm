@@ -20,6 +20,10 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
   rightChartOneAllData: LineChartMetricModel[];
   rightChartTwoAllData: LineChartMetricModel[];
 
+  leftChartUnit: string;
+  rightChartOneChartUnit: string;
+  rightChartTwoChartUnit: string;
+
   startDate: Date;
   endDate: Date;
 
@@ -36,13 +40,17 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     this.showXAxisLabel = false;
     this.xAxisLabel = 'Time';
 
-    this.yAxisLabelLeft = 'Bytes';
-    this.yAxisLabelRightOne = 'Usage %';
-    this.yAxisLabelRightTwo = 'Amount / sec';
-
-    this.yLeftAxisTickFormatting = this.normalFormat;
-    this.yRightOneAxisTickFormatting = this.percentFormat;
-    this.yRightTwoAxisTickFormatting = this.normalFormat;
+    this.setUnits(
+      'bytes',
+      'percent',
+      'amount/sec',
+      'Bytes',
+      'Usage %',
+      'Amount / sec',
+      this.normalFormat,
+      this.percentFormat,
+      this.normalFormat,
+    );
 
     this.leftChartAllData = [];
     this.rightChartOneAllData = [];
@@ -81,23 +89,47 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     return defaultChartScheme;
   }
 
+  setUnits(
+    leftChartUnit: string,
+    rightChartOneChartUnit: string,
+    rightChartTwoChartUnit: string,
+    yAxisLabelLeft: string = leftChartUnit,
+    yAxisLabelRightOne: string = rightChartOneChartUnit,
+    yAxisLabelRightTwo: string = rightChartTwoChartUnit,
+    yLeftAxisTickFormatting: Function = this.normalFormat,
+    yRightOneAxisTickFormatting: Function = this.normalFormat,
+    yRightTwoAxisTickFormatting: Function = this.normalFormat,
+  ): void {
+    this.leftChartUnit = leftChartUnit;
+    this.rightChartOneChartUnit = rightChartOneChartUnit;
+    this.rightChartTwoChartUnit = rightChartTwoChartUnit;
+
+    this.yAxisLabelLeft = yAxisLabelLeft;
+    this.yAxisLabelRightOne = yAxisLabelRightOne;
+    this.yAxisLabelRightTwo = yAxisLabelRightTwo;
+
+    this.yLeftAxisTickFormatting = yLeftAxisTickFormatting;
+    this.yRightOneAxisTickFormatting = yRightOneAxisTickFormatting;
+    this.yRightTwoAxisTickFormatting = yRightTwoAxisTickFormatting;
+  }
+
   getAllMetrics(): void {
     for (let metric of this.allMetricsFields.fieldsList) {
       this.monitoringService.getAllMetrics(this.monitoringIndex, metric).subscribe((data: LineChartMetricModel[]) => {
         switch (metric.unit) {
-          case 'percent':
+          case this.rightChartOneChartUnit:
             this.rightChartOneAllData = this.rightChartOneAllData.concat(data);
             if (metric.activated) {
               this.rightChartOne = this.rightChartOne.concat(data);
             }
             break;
-          case 'bytes':
+          case this.leftChartUnit:
             this.leftChartAllData = this.leftChartAllData.concat(data);
             if (metric.activated) {
               this.leftChart = this.leftChart.concat(data);
             }
             break;
-          case 'amount/sec':
+          case this.rightChartTwoChartUnit:
             this.rightChartTwoAllData = this.rightChartTwoAllData.concat(data);
             if (metric.activated) {
               this.rightChartTwo = this.rightChartTwo.concat(data);
@@ -124,15 +156,15 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
 
   addData(metric: MetricsFieldModel, newData: SingleMetricModel[]): void {
     switch (metric.unit) {
-      case 'percent':
+      case this.rightChartOneChartUnit:
         this.rightChartOneAllData = this.addDataToGivenList(this.rightChartOneAllData, metric, newData);
         this.rightChartOne = this.filterDataByGivenList(this.rightChartOneAllData);
         break;
-      case 'bytes':
+      case this.leftChartUnit:
         this.leftChartAllData = this.addDataToGivenList(this.leftChartAllData, metric, newData);
         this.leftChart = this.filterDataByGivenList(this.leftChartAllData);
         break;
-      case 'amount/sec':
+      case this.rightChartTwoChartUnit:
         this.rightChartTwoAllData = this.addDataToGivenList(this.rightChartTwoAllData, metric, newData);
         this.rightChartTwo = this.filterDataByGivenList(this.rightChartTwoAllData);
         break;
