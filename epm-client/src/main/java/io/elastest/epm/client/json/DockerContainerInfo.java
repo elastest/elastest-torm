@@ -155,11 +155,14 @@ public class DockerContainerInfo {
 
         @JsonProperty("com.docker.compose.version")
         String version;
+        
+        Map<String,String> allLabels;
 
         public Labels() {
         }
 
         public Labels(Map<String, String> labelsMap) {
+            allLabels = new HashMap<>();
             this.initFromMap(labelsMap);
         }
 
@@ -187,6 +190,10 @@ public class DockerContainerInfo {
             return version;
         }
 
+        public Map<String, String> getAllLabels() {
+            return allLabels;
+        }
+
         @Override
         public String toString() {
             return "Labels [getConfigHash()=" + getConfigHash()
@@ -197,6 +204,7 @@ public class DockerContainerInfo {
         }
 
         public void initFromMap(Map<String, String> labelsMap) {
+            allLabels = labelsMap;
             if (!labelsMap.isEmpty()) {
                 if (labelsMap.containsKey("com.docker.compose.config-hash")) {
                     this.configHash = labelsMap
