@@ -1439,4 +1439,16 @@ public class DockerServiceImpl extends PlatformService {
         return utilsService.getEtPublicHostValue();
     }
 
+    @Override
+    public boolean isContainerByServiceName(String serviceName,
+            io.elastest.epm.client.json.DockerContainerInfo.DockerContainer container) {
+        String containerName = serviceName + "_" + serviceName + "_1";
+        if (container.getName().equals(containerName)
+                || container.getName().endsWith(serviceName + "_1")) { 
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

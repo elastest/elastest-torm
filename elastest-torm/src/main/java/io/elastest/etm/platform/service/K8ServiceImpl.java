@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
@@ -79,7 +80,9 @@ public class K8ServiceImpl extends PlatformService {
     @Override
     public boolean deployService(String projectName, boolean withPull,
             String namespace) throws Exception {
-        k8sService.createNamespace(projectName);
+        if (namespace != null && !namespace.isEmpty()) {
+            k8sService.createNamespace(projectName);
+        }
         return k8sService.deployResourcesFromProject(projectName,
                 namespace) != null ? true
                 : false;
@@ -87,7 +90,7 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public boolean undeployService(String projectName) throws IOException {
-        return k8sService.deleteResourcesFromYmlString(projectName);
+        return k8sService.deleteResources(projectName);
     }
 
     @Override
@@ -114,7 +117,7 @@ public class K8ServiceImpl extends PlatformService {
                     serviceInstance.getParameters()
                             .get("ET_FILES_PATH_IN_HOST"));
         } finally {
-            result = k8sService.deleteResourcesFromYmlString(projectName);
+            result = k8sService.deleteResources(projectName);
         }
         return result;
     }
@@ -366,7 +369,7 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     public void removeBindedPort(String serviceName, String namespace) {
-        k8sService.deleteService(serviceName, namespace);
+        k8sService.deleteServiceAssociatedWithAPOD(serviceName, namespace);
     }
 
     @Override
@@ -530,6 +533,19 @@ public class K8ServiceImpl extends PlatformService {
                 serviceName);
         return k8sService.getServiceIp(serviceName.toLowerCase(), port,
                 namespace);
+    }
+
+    @Override
+    public boolean isContainerByServiceName(String serviceName,
+            io.elastest.epm.client.json.DockerContainerInfo.DockerContainer container) {
+        for (Entry<String, String> label : container.getLabels().getAllLabels()
+                .entrySet()) {
+            if (label.getValue().equals(serviceName)
+                    || label.getValue().contains(serviceName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

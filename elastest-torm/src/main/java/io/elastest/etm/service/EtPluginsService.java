@@ -28,7 +28,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 
 import io.elastest.epm.client.json.DockerContainerInfo.DockerContainer;
 import io.elastest.epm.client.json.DockerContainerInfo.PortInfo;
@@ -41,7 +40,6 @@ import io.elastest.etm.utils.PasswordFactory;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
 
-@Service
 public class EtPluginsService {
     final Logger logger = getLogger(lookup().lookupClass());
 
@@ -170,6 +168,8 @@ public class EtPluginsService {
 
         // Set credentials for ET Plugin
         if (etUser.equals("none") && etPass.equals("none")) {
+            logger.debug(
+                    "Creating credentials for the integrated external services.");
             etUser = "elastest";
             etPass = PasswordFactory.generatePassword(8, PasswordFactory.ALPHA
                     + PasswordFactory.ALPHA_CAPS + PasswordFactory.NUMERIC);
@@ -192,6 +192,8 @@ public class EtPluginsService {
 
     @PreDestroy
     public void destroy() {
+        logger.debug(
+                "Removing services started by the ETM before ElaTest shutdown");
         for (String engine : this.enginesMap.keySet()) {
             stopAndRemoveProject(engine, null);
         }
@@ -313,6 +315,7 @@ public class EtPluginsService {
 
     public boolean stopAndRemoveProject(String projectName,
             SupportServiceInstance serviceInstance) {
+        logger.debug("Start service \"{}\" stop", projectName);
         boolean removed = platformService
                 .undeployAndCleanDeployment(projectName, serviceInstance);
 
@@ -383,11 +386,17 @@ public class EtPluginsService {
 
     public EtPlugin startEngineOrUniquePlugin(String projectName) {
         String url = "";
+        EtPlugin etPlugin = null;
         logger.debug("Checking if {} is not already running", projectName);
         if (!isRunning(projectName)) {
-            this.startEtPlugin(projectName);
+            etPlugin = this.startEtPlugin(projectName);
         }
-        url = getEtPluginUrl(projectName);
+        while (url.isEmpty()) {
+            url = getEtPluginUrl(projectName);
+        }
+        logger.debug("Plugin URL retrieved: {}", url);
+        etPlugin.setInternalUrl(url);
+        
         this.waitForReady(projectName, 2500);
         this.getEtPlugin(projectName).setUrl(url);
         return this.getEtPlugin(projectName);
@@ -592,7 +601,14 @@ public class EtPluginsService {
 
     public boolean checkIfEtPluginUrlIsUp(EtPlugin plugin) {
         String serviceName = plugin.getName();
-        String url = plugin != null ? plugin.getInternalUrl() : "";
+        logger.debug("Internal url {} stored in the plugin {}", serviceName,
+                plugin.getInternalUrl());
+        String url = plugin != null
+                ? (plugin.getInternalUrl() != null
+                        && !plugin.getInternalUrl().isEmpty()
+                                ? plugin.getInternalUrl()
+                                : getEtPluginUrl(serviceName))
+                : "";
 
         logger.debug("Service {} url: {} ", serviceName, url);
         if (!"".equals(url)) {
@@ -683,9 +699,8 @@ public class EtPluginsService {
 
             for (DockerContainer container : platformService
                     .getContainers(serviceName).getContainers()) {
-                String containerName = serviceName + "_" + serviceName + "_1";
-                if (container.getName().equals(containerName)
-                        || container.getName().endsWith(serviceName + "_1")) {
+                if (platformService.isContainerByServiceName(serviceName,
+                        container)) {
                     return container.isRunning();
                 }
             }

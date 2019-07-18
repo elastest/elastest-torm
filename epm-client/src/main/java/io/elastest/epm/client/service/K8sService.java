@@ -48,6 +48,8 @@ import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.fabric8.kubernetes.api.model.Namespace;
 import io.fabric8.kubernetes.api.model.NamespaceBuilder;
+import io.fabric8.kubernetes.api.model.PersistentVolumeClaim;
+import io.fabric8.kubernetes.api.model.PersistentVolumeClaimBuilder;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodList;
@@ -58,6 +60,8 @@ import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServicePortBuilder;
+import io.fabric8.kubernetes.api.model.admission.AdmissionRequestFluent.ResourceNested;
+import io.fabric8.kubernetes.api.model.admission.AdmissionRequestFluentImpl.ResourceNestedImpl;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.Job;
@@ -477,25 +481,43 @@ public class K8sService {
             logger.debug("Number of deployments loaded: {}",resourcesMetadata.size());
             
             for (HasMetadata metadata : resourcesMetadata) {
-                String deploymentName = ((Deployment) metadata).getMetadata()
-                        .getName();
-                logger.debug("Editing and deploying service {}:",
-                        deploymentName);
-                DeploymentBuilder dpB = new DeploymentBuilder(
-                        ((Deployment) metadata));
-                Deployment dp = dpB.editSpec().editTemplate().editSpec()
-                        .editContainer(0)
-                        .addAllToEnv(getEnvVarListFromMap(project.getEnv()))
-                        .endContainer().endSpec().endTemplate().endSpec()
-                        .build();
-                logger.debug("Deployment {} content: {}", deploymentName,
-                        dp.toString());
+                switch (metadata.getKind()) {
+                case "Deployment":
+                    String deploymentName = ((Deployment) metadata)
+                    .getMetadata().getName();
+                    logger.debug("Editing and deploying service {}:",
+                            deploymentName);
+                    DeploymentBuilder dpB = new DeploymentBuilder(
+                            ((Deployment) metadata));
+                    Deployment dp = dpB.editSpec().editTemplate().editSpec()
+                            .editContainer(0)
+                            .addAllToEnv(getEnvVarListFromMap(project.getEnv()))
+                            .endContainer().endSpec().endTemplate().endSpec()
+                            .build();
+                    logger.debug("Deployment {} content: {}", deploymentName,
+                            dp.toString());
+                    
+                    client.apps().deployments().inNamespace(namespace)
+                    .createOrReplace(dp);
+                    client.apps().deployments().inNamespace(namespace)
+                    .withName(deploymentName)
+                    .waitUntilReady(5, TimeUnit.MINUTES);
+                    
+                    break;
 
-                client.apps().deployments().inNamespace(namespace)
-                        .createOrReplace(dp);
-                client.apps().deployments().inNamespace(namespace)
-                        .withName(deploymentName)
-                        .waitUntilReady(5, TimeUnit.MINUTES);
+                case "PersistentVolumeClaim":
+                    PersistentVolumeClaimBuilder pVCBuilder = new PersistentVolumeClaimBuilder(
+                            (PersistentVolumeClaim) metadata);
+                    if (client.persistentVolumeClaims().inNamespace(namespace)
+                            .withName("elastest-" + projectName + "-data-claim")
+                            .get() == null) {
+                        client.persistentVolumeClaims().inNamespace(namespace)
+                                .create(pVCBuilder.build());
+                    }
+                    break;
+                default:
+                    break;
+                }
             }
 
         } catch (IOException | InterruptedException e) {
@@ -507,15 +529,18 @@ public class K8sService {
         return podsInfoList;
     }
 
-    public boolean deleteResourcesFromYmlString(String projectName) {
+    public boolean deleteResources(String projectName) {
         DockerProject project = projects.get(projectName);
         logger.debug("Remove resources described in this yml: {}",
                 project.getYml());
-        return deleteResourcesFromYmlString(project.getYml(), projectName);
+        if (checkIfExistNamespace(projectName)) {
+            return deleteNamespace(projectName);
+        } else {
+            return deleteResourcesFromYmlString(project.getYml(), null);
+        }
     }
 
-    public boolean deleteResourcesFromYmlString(String manifest,
-            String namespace) {
+    public boolean deleteResourcesFromYmlString(String manifest, String namespace) {
         boolean deleted = false;
         try (InputStream is = IOUtils.toInputStream(manifest,
                 CharEncoding.UTF_8)) {
@@ -523,15 +548,51 @@ public class K8sService {
             resourcesMetadata.forEach(metadata -> {
                 logger.debug("Resource '{}' of kind '{}' to remove",
                         metadata.getMetadata().getName(), metadata.getKind());
+                switch (metadata.getKind()) {
+                case "Deployment":
+                    deleteDeployment((Deployment) metadata, namespace);
+                    break;
+                case "PersistentVolumeClain":
+                    deletePVC((PersistentVolumeClaim) metadata, namespace);
+                    break;
+                case "Service":
+                    break;                
+                }
             });
 
-            deleteNamespace(namespace);
             deleted = true;
         } catch (Exception e) {
             logger.error("Error deleting resources from a yaml string");
             e.printStackTrace();
         }
         return deleted;
+    }
+    
+    public boolean deleteDeployment(Deployment deployment, String namespace) {
+        logger.debug("Delete deployment \"{}\"",
+                deployment.getMetadata().getName());
+        namespace = namespace != null && !namespace.isEmpty() ? namespace
+                : DEFAULT_NAMESPACE;
+        if (client.apps().deployments().inNamespace(namespace)
+                .withName(deployment.getMetadata().getName()).get() != null) {
+            return client.apps().deployments().inNamespace(namespace)
+                    .withName(deployment.getMetadata().getName()).delete();
+        } else {
+            return true;
+        }
+    }
+    
+    public boolean deletePVC(PersistentVolumeClaim pvc, String namespace) {
+        logger.debug("Delete PVC \"{}\"", pvc.getMetadata().getName());
+        namespace = namespace != null && !namespace.isEmpty() ? namespace
+                : DEFAULT_NAMESPACE;
+        if (client.persistentVolumeClaims().inNamespace(namespace)
+                .withName(pvc.getMetadata().getName()).get() != null) {
+            return client.persistentVolumeClaims().inNamespace(namespace)
+                    .withName(pvc.getMetadata().getName()).delete();
+        } else {
+            return true;
+        }
     }
 
     public void waitForResourcesToBeDeleted(HasMetadata deployment,
@@ -597,10 +658,8 @@ public class K8sService {
 
             ServicePortBuilder servicePortBuilder = new ServicePortBuilder()
                     .withName(hostPortName).withProtocol(protocol)
-//                    .withPort(port != null ? port : targetPort);
                     .withPort(targetPort);
             if (port != null) {
-//                servicePortBuilder.withTargetPort(new IntOrString(targetPort));
                 servicePortBuilder.withNodePort(port);
             }
             ServicePort servicePort = servicePortBuilder.build();
@@ -611,9 +670,6 @@ public class K8sService {
                     .withSelector(
                             Collections.singletonMap(selector, serviceName))
                     .addNewPortLike(servicePort).endPort()
-//                .addNewPort()
-//                .withName(hostPortName)
-//                .withProtocol(protocol).withPort(port).endPort()
                     .withType(ServicesType.NODE_PORT.toString()).endSpec()
                     .build();
 
@@ -688,26 +744,46 @@ public class K8sService {
     public boolean deleteNamespace(String name) {
         if (!name.equals(DEFAULT_NAMESPACE)
                 && client.namespaces().withName(name).get() != null) {
-            logger.debug("Deleting namespace -> {}", name);
+            logger.debug("Deleting the namespace \"{}\" and all its resources.",
+                    name);
             return client.namespaces().withName(name).delete();
         } else {
             logger.info("Namespace {} can not be deleted", name);
             return false;
         }
     }
+    
+    public boolean checkIfExistNamespace(String name) {
+        if (name != null && !name.equals(DEFAULT_NAMESPACE)
+                && client.namespaces().withName(name).get() != null) {
+            logger.debug("Deleting the namespace \"{}\" and all its resources.",
+                    name);
+            return true;
+        } else {
+            logger.info("Namespace {} can not be deleted", name);
+            return false;
+        }
+    }
 
-    public void deleteService(String serviceName, String namespace) {
+    public void deleteServiceAssociatedWithAPOD(String serviceName,
+            String namespace) {
         serviceName = serviceName.toLowerCase();
-        logger.debug("Removing kubernetes services associated with {}", serviceName);
-        
-        servicesAssociatedWithAPod.get(serviceName).forEach(k8sService -> {
-            logger.debug("Remove service {}", k8sService);
-            client.services()
-            .inNamespace(
-                    (namespace != null && !namespace.isEmpty()) ? namespace
-                            : DEFAULT_NAMESPACE)
-            .withName(k8sService).delete();            
+        logger.debug("Removing kubernetes services associated with {}",
+                serviceName);
+
+        servicesAssociatedWithAPod.get(serviceName).forEach(service -> {
+            deleteService(service, namespace);
         });
+    }
+    
+    public void deleteService(String name, String namespace) {
+        logger.debug("Remove service {}", name);
+        client.services()
+        .inNamespace((namespace != null && !namespace.isEmpty())
+                ? namespace
+                        : DEFAULT_NAMESPACE)
+        .withName(name).delete();
+        
     }
 
     public void deleteJob(String jobName) {

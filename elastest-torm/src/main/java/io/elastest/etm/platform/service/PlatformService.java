@@ -269,6 +269,9 @@ public abstract class PlatformService {
 
     public abstract String getBindedServiceIp(
             SupportServiceInstance serviceInstance, String port);
+    
+    public abstract boolean isContainerByServiceName(String serviceName,
+            DockerContainerInfo.DockerContainer container);
 
     protected String getSutPath(Execution execution) {
         String sutPath;
