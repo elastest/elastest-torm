@@ -1,7 +1,7 @@
 import { SingleMetricModel } from '../../models/single-metric-model';
 import { LineChartMetricModel } from '../../models/linechart-metric-model';
 import { MetricsFieldModel } from './metrics-field-model';
-import { AllMetricsFields } from './all-metrics-fields-model';
+import { AllMetricsFields, Units } from './all-metrics-fields-model';
 import { ColorSchemeModel } from '../../models/color-scheme-model';
 import { ComplexMetricsModel } from './complex-metrics-model';
 import { defaultStreamMap } from '../../../defaultESData-model';
@@ -89,10 +89,37 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     return defaultChartScheme;
   }
 
+  getFormatedKnownLabel(unit: Units | string, subtype?: string): string {
+    switch (unit) {
+      case 'percent':
+        return (subtype && subtype !== '' ? subtype + ' ' : '') + '%';
+      case 'bytes':
+        return 'Bytes';
+      case 'amount/sec':
+        return 'Amount / sec';
+      default:
+        return unit;
+    }
+  }
+
+  formatKnownLabels(): void {
+    if (this.leftChartUnit && this.yAxisLabelLeft && this.leftChartUnit === this.yAxisLabelLeft) {
+      this.yAxisLabelLeft = this.getFormatedKnownLabel(this.leftChartUnit);
+    }
+
+    if (this.rightChartOneChartUnit && this.yAxisLabelRightOne && this.rightChartOneChartUnit === this.yAxisLabelRightOne) {
+      this.yAxisLabelRightOne = this.getFormatedKnownLabel(this.rightChartOneChartUnit);
+    }
+
+    if (this.rightChartTwoChartUnit && this.yAxisLabelRightTwo && this.rightChartTwoChartUnit === this.yAxisLabelRightTwo) {
+      this.yAxisLabelRightTwo = this.getFormatedKnownLabel(this.rightChartTwoChartUnit);
+    }
+  }
+
   setUnits(
     leftChartUnit: string,
-    rightChartOneChartUnit: string,
-    rightChartTwoChartUnit: string,
+    rightChartOneChartUnit?: string,
+    rightChartTwoChartUnit?: string,
     yAxisLabelLeft: string = leftChartUnit,
     yAxisLabelRightOne: string = rightChartOneChartUnit,
     yAxisLabelRightTwo: string = rightChartTwoChartUnit,
@@ -107,6 +134,8 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     this.yAxisLabelLeft = yAxisLabelLeft;
     this.yAxisLabelRightOne = yAxisLabelRightOne;
     this.yAxisLabelRightTwo = yAxisLabelRightTwo;
+
+    this.formatKnownLabels();
 
     this.yLeftAxisTickFormatting = yLeftAxisTickFormatting;
     this.yRightOneAxisTickFormatting = yRightOneAxisTickFormatting;
@@ -173,16 +202,39 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     }
   }
 
-  addSimpleMetricTraces(data: LineChartMetricModel[]): void {
-    // Used for Custom metrics, which are single metrics
+  addSimpleMetricTracesToGivenList(list: LineChartMetricModel[], data: LineChartMetricModel[]): LineChartMetricModel[] {
     if (!data) {
       data = [];
     }
-    if (this.leftChart.length === 0) {
-      this.leftChart = this.leftChart.concat(data);
+    if (list.length === 0) {
+      list = list.concat(data);
     } else {
-      this.leftChart[0].series = this.leftChart[0].series.concat(data[0].series);
-      this.leftChart = [...this.leftChart];
+      list[0].series = list[0].series.concat(data[0].series);
+      list = [...list];
+    }
+    return list;
+  }
+
+  addSimpleMetricTraces(data: LineChartMetricModel[]): void {
+    // Used for Custom metrics, which are single metrics
+    this.leftChart = this.addSimpleMetricTracesToGivenList(this.leftChart, data);
+  }
+
+  addComplexMetricTraces(
+    leftData: LineChartMetricModel[],
+    rightOneData?: LineChartMetricModel[],
+    rightTwoData?: LineChartMetricModel[],
+  ): void {
+    if (leftData) {
+      this.addSimpleMetricTraces(leftData);
+    }
+
+    if (rightOneData) {
+      this.rightChartOne = this.addSimpleMetricTracesToGivenList(this.rightChartOne, rightOneData);
+    }
+
+    if (rightTwoData) {
+      this.rightChartTwo = this.addSimpleMetricTracesToGivenList(this.rightChartTwo, rightTwoData);
     }
   }
 
@@ -220,7 +272,26 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
   }
 
   addDataToSimpleMetric(metric: MetricsFieldModel, newData: SingleMetricModel[]): void {
-    this.leftChart = this.addDataToGivenList(this.leftChart, metric, newData);
+    this.addDataToSimpleMetricByGivenList('left', metric, newData);
+  }
+
+  addDataToSimpleMetricByGivenList(
+    listName: 'left' | 'rightOne' | 'rightTwo',
+    metric: MetricsFieldModel,
+    newData: SingleMetricModel[],
+  ): void {
+    switch (listName) {
+      case 'left':
+        this.leftChart = this.addDataToGivenList(this.leftChart, metric, newData);
+        break;
+      case 'rightOne':
+        this.rightChartOne = this.addDataToGivenList(this.rightChartOne, metric, newData);
+        break;
+      case 'rightTwo':
+        this.rightChartTwo = this.addDataToGivenList(this.rightChartTwo, metric, newData);
+        break;
+      default:
+    }
   }
 
   addDataToGivenList(

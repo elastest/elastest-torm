@@ -23,6 +23,9 @@ import { ExternalTJobExecModel } from '../../external/external-tjob-execution/ex
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { MonitoringService } from '../../../shared/services/monitoring.service';
 import { ButtonModel } from '../../../shared/button-component/button.model';
+import { LineChartMetricModel } from '../../../shared/metrics-view/models/linechart-metric-model';
+import { allArrayPairCombinations } from '../../../shared/utils';
+import { Units } from '../../../shared/metrics-view/metrics-chart-card/models/all-metrics-fields-model';
 
 @Component({
   selector: 'etm-chart-group',
@@ -178,8 +181,11 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
       this.initAIO();
     }
 
+    let activatedMetrics: MetricsFieldModel[] = [];
+
     for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
+        activatedMetrics.push(metric);
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
         individualMetrics.monitoringIndex = monitoringIndex;
         individualMetrics.startDate = customStartDate;
@@ -216,13 +222,26 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
                 true,
                 'metric',
               )
-              .subscribe((obj) => this.metricsList[pos].addSimpleMetricTraces(obj.data), (error: Error) => console.log(error));
+              .subscribe(
+                (obj) => {
+                  if (!metric.unit && obj.unit) {
+                    metric.unit = obj.unit;
+                    this.metricsList[pos].setUnits(obj.unit);
+                  }
+                  this.metricsList[pos].addSimpleMetricTraces(obj.data);
+                },
+                (error: Error) => console.log(error),
+              );
           }
         }
       }
     }
     this.createGroupedMetricList();
     this.firstTimeInitialized = true;
+
+    if (this.tJob.execDashboardConfigModel.combineMetricsInPairs) {
+      this.initMetricsPairs(activatedMetrics);
+    }
   }
 
   initAIO(): void {
@@ -240,7 +259,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
 
   initCustomMetric(metric: MetricsFieldModel, individualMetrics: ESRabComplexMetricsModel): number {
     if (metric.unit) {
-      individualMetrics.yAxisLabelLeft = metric.unit;
+      individualMetrics.setUnits(metric.unit);
     }
     this.metricsList.push(individualMetrics);
     this.createGroupedMetricList();
@@ -308,6 +327,127 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     individualMetrics.stream = metric.stream;
     individualMetrics.hidePrevBtn = !this.live;
     return individualMetrics;
+  }
+
+  initMetricsPairs(metricsList: any[]): void {
+    let metricsPairsList: any[][] = allArrayPairCombinations(metricsList);
+    if (metricsPairsList) {
+      for (let metricPair of metricsPairsList) {
+        this.addMoreMetricsFromMetricPair(metricPair);
+      }
+    }
+  }
+
+  // Added manually
+  addMoreMetricsFromMetricPair(metricsPairForCombo: MetricsFieldModel[]): boolean {
+    if (metricsPairForCombo) {
+      let ignoreComponent: string = this.getIgnoreComponent();
+      let comboPairChart: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.monitoringService, ignoreComponent);
+
+      let firstMetric: MetricsFieldModel = metricsPairForCombo[0];
+      let secondMetric: MetricsFieldModel = metricsPairForCombo[1];
+
+      if (firstMetric && secondMetric) {
+        let firstMetricName: string = this.createName(
+          firstMetric.component,
+          firstMetric.stream,
+          firstMetric.etType,
+          firstMetric.subtype,
+        );
+        let secondMetricName: string = this.createName(
+          secondMetric.component,
+          secondMetric.stream,
+          secondMetric.etType,
+          secondMetric.subtype,
+        );
+
+        comboPairChart.name = firstMetricName + ' / ' + secondMetricName;
+        comboPairChart.hidePrevBtn = !this.live;
+
+        let monitoringIndex: string = this.tJobExec.monitoringIndex;
+
+        // If Multi Parent
+        if (this.tJobExec instanceof TJobExecModel && this.tJobExec.isParent()) {
+          monitoringIndex = this.tJobExec.getChildsMonitoringIndices();
+        }
+
+        comboPairChart.monitoringIndex = monitoringIndex;
+
+        // Get data of first metric
+        this.monitoringService.getMetricUnit(monitoringIndex, firstMetric).subscribe(
+          (firstMetricUnit: Units | string) => {
+            // Get data of second metric
+            this.monitoringService.getMetricUnit(monitoringIndex, secondMetric).subscribe(
+              (secondMetricUnit: Units | string) => {
+                firstMetric.unit = firstMetricUnit;
+                secondMetric.unit = secondMetricUnit;
+
+                comboPairChart.allMetricsFields.addMetricsFieldToList(
+                  firstMetric,
+                  comboPairChart.component,
+                  comboPairChart.stream,
+                  firstMetric.streamType,
+                  firstMetric.activated,
+                );
+
+                comboPairChart.allMetricsFields.addMetricsFieldToList(
+                  secondMetric,
+                  comboPairChart.component,
+                  comboPairChart.stream,
+                  secondMetric.streamType,
+                  secondMetric.activated,
+                );
+
+                if (firstMetricUnit === secondMetricUnit) {
+                  comboPairChart.setUnits(firstMetricUnit);
+                } else {
+                  comboPairChart.setUnits(firstMetricUnit, secondMetricUnit);
+                }
+
+                comboPairChart.getAllMetrics();
+                this.metricsList.push(comboPairChart);
+                this.createGroupedMetricList();
+
+                if (this.live) {
+                  this.subscribeToMetric(firstMetric, 'left');
+
+                  if (firstMetricUnit === secondMetricUnit) {
+                    this.subscribeToMetric(secondMetric, 'left');
+                  } else {
+                    this.subscribeToMetric(secondMetric, 'rightOne');
+                  }
+                }
+              },
+              (error: Error) => console.error('Could not load more metric pair: ' + error),
+            );
+          },
+          (error: Error) => console.error('Could not load more metric pair: ' + error),
+        );
+      }
+    }
+    return true;
+  }
+
+  subscribeToMetric(metric: MetricsFieldModel, listName: 'left' | 'rightOne' | 'rightTwo'): void {
+    this.elastestRabbitmqService.createSubject(metric.streamType, metric.component, metric.stream);
+    let index: string = this.getAbstractTJobExecIndex(metric.component);
+
+    let pos: number = this.metricsList.length - 1;
+    this.elastestRabbitmqService.createAndSubscribeToTopic(index, metric.streamType, metric.component, metric.stream).subscribe(
+      (data: any) => {
+        if (data['et_type'] === metric.etType && data.component === metric.component) {
+          let parsedData: SingleMetricModel = this.monitoringService.convertToMetricTrace(data, metric);
+          if (parsedData === undefined) {
+            console.error('Undefined data received, not added to ' + metric.name);
+          } else {
+            if (this.metricsList[pos]) {
+              this.metricsList[pos].addDataToSimpleMetricByGivenList(listName, metric, [parsedData]);
+            }
+          }
+        }
+      },
+      (error: Error) => console.log(error),
+    );
   }
 
   createSubjectAndSubscribe(component: string, stream: string, streamType: string): void {

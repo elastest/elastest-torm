@@ -37,7 +37,7 @@ export class MonitoringConfigurationComponent implements OnInit {
 
   noLogs: boolean = false;
   noMetrics: boolean = false;
-
+  combineMetrics: boolean = false;
   metricbeatFieldGroupList: MetricFieldGroupModel[];
 
   logsToCompare: any[] = [];
@@ -52,6 +52,7 @@ export class MonitoringConfigurationComponent implements OnInit {
     this.tJobExec = inputObj.exec;
     this.logCards = inputObj.logCards;
     this.metricCards = inputObj.metricCards;
+    this.combineMetrics = inputObj.combineMetricsInPairs;
     this.metricbeatFieldGroupList = getMetricBeatFieldGroupList();
 
     this.allInOneMetricsActivated = this.metricCards.isAllInOneMetricsCardShowing();
@@ -284,12 +285,20 @@ export class MonitoringConfigurationComponent implements OnInit {
 
           if (streamTypes && streamTypes.length > 0) {
             for (let streamType of streamTypes) {
-              metricsList.push(
-                this.getMetric(component, stream, etType, ettypeSubtype.checked, ettypeSubtype.children, streamType),
+              let theMetric: any = this.getMetric(
+                component,
+                stream,
+                etType,
+                ettypeSubtype.checked,
+                ettypeSubtype.children,
+                streamType,
               );
+
+              metricsList.push(theMetric);
             }
           } else {
-            metricsList.push(this.getMetric(component, stream, etType, ettypeSubtype.checked, ettypeSubtype.children));
+            let theMetric: any = this.getMetric(component, stream, etType, ettypeSubtype.checked, ettypeSubtype.children);
+            metricsList.push(theMetric);
           }
         }
       }
@@ -344,6 +353,7 @@ export class MonitoringConfigurationComponent implements OnInit {
       logsToCompare: this.logsToCompare,
       withSave: withSave,
       allInOneMetricsActivated: this.allInOneMetricsActivated,
+      combineMetricsPairs: this.combineMetrics,
     };
 
     this.dialogRef.close(response);

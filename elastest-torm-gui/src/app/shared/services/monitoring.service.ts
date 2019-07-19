@@ -14,6 +14,7 @@ import {
   MetricFieldGroupModel,
   metricFieldGroupList,
   AllMetricsFields,
+  Units,
 } from '../metrics-view/metrics-chart-card/models/all-metrics-fields-model';
 import { defaultStreamMap } from '../defaultESData-model';
 import { ESRabComplexMetricsModel } from '../metrics-view/metrics-chart-card/models/es-rab-complex-metrics-model';
@@ -24,7 +25,6 @@ import { LogAnalyzerQueryModel } from '../loganalyzer-query.model';
 import { AbstractTJobExecModel } from '../../elastest-etm/models/abstract-tjob-exec-model';
 import { MonitorMarkModel } from '../../elastest-etm/etm-monitoring-view/monitor-mark.model';
 import { comparisonMode, viewMode } from '../../elastest-log-comparator/model/log-comparison.model';
-import { timeout } from 'rxjs/operators/timeout';
 
 @Injectable()
 export class MonitoringService {
@@ -171,11 +171,11 @@ export class MonitoringService {
       .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
-  public searchLastMetrics(query: MonitoringQueryModel, size: number): Observable<any> {
+  public searchLastMetrics(query: MonitoringQueryModel, size: number): Observable<any[]> {
     let url: string = this.etmApiUrl + '/monitoring/metric/last/' + size;
     return this.http
       .post(url, query, { observe: 'response' })
-      .map((response: HttpResponse<any>) => this.parseETMiniTracesIfNecessary(response.body));
+      .map((response: HttpResponse<any[]>) => this.parseETMiniTracesIfNecessary(response.body));
   }
 
   public searchMetricsTree(query: MonitoringQueryModel): Observable<any> {
@@ -452,7 +452,7 @@ export class MonitoringService {
 
     let query: MonitoringQueryModel = this.getMetricsMonitoringQuery(index, metricsField.etType, metricsField.component);
 
-    this.searchLastMetrics(query, size).subscribe((data) => {
+    this.searchLastMetrics(query, size).subscribe((data: any[]) => {
       _metrics.next(this.convertToMetricTraces(data, metricsField));
     });
     return metrics;
@@ -845,6 +845,37 @@ export class MonitoringService {
     return tracesList;
   }
 
+  getMetricUnitByTrace(dataSource: any, metricName: string, etType: string): Units | string {
+    let unit: Units | string;
+    if (dataSource.units && dataSource.units[metricName]) {
+      unit = dataSource.units[metricName];
+    } else if (dataSource.unit) {
+      unit = dataSource.unit;
+    } else {
+      unit = this.allMetricsFields.getDefaultUnitByTypeAndSubtype(etType, metricName);
+    }
+    return unit;
+  }
+
+  getMetricUnit(index: string, metricsField: MetricsFieldModel): Observable<Units | string> {
+    let _metricsObs: Subject<Units | string> = new Subject<Units | string>();
+    let metricsObs: Observable<Units | string> = _metricsObs.asObservable();
+    let query: MonitoringQueryModel = this.getMetricsMonitoringQuery(index, metricsField.etType, metricsField.component);
+
+    this.searchLastMetrics(query, 1).subscribe(
+      (dataSource: any[]) => {
+        if (dataSource && dataSource.length === 1) {
+          let unit: Units | string = this.getMetricUnitByTrace(dataSource[0], metricsField.subtype, metricsField.etType);
+          _metricsObs.next(unit);
+        } else {
+          _metricsObs.error(new Error('Error on get metric Unit: No traces found'));
+        }
+      },
+      (error: Error) => _metricsObs.error(error),
+    );
+    return metricsObs;
+  }
+
   initTestLog(log: ESRabLogModel): void {
     log.name = 'Test Logs';
     log.etType = 'et_logs';
@@ -974,14 +1005,7 @@ export class MonitoringService {
   }
 
   addDynamicMetric(_obs: Subject<any>, obj: any, data: any[], firstSource: any, metricName: string, streamType: string): void {
-    let unit: string;
-    if (firstSource.units && firstSource.units[metricName]) {
-      unit = firstSource.units[metricName];
-    } else if (firstSource.unit) {
-      unit = firstSource.unit;
-    } else {
-      unit = this.allMetricsFields.getDefaultUnitByTypeAndSubtype(obj.etType, metricName);
-    }
+    let unit: Units | string = this.getMetricUnitByTrace(firstSource, metricName, obj.etType);
 
     let metricsTraces: LineChartMetricModel[] = [];
     obj['metricFieldModels'] = [];

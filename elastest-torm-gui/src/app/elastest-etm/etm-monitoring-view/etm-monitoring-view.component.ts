@@ -15,7 +15,7 @@ import { MonitoringService } from '../../shared/services/monitoring.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { LogAnalyzerService } from '../../elastest-log-analyzer/log-analyzer.service';
 import { MonitorMarkModel } from './monitor-mark.model';
-import { sleep, allArrayPairCombinations } from '../../shared/utils';
+import { sleep } from '../../shared/utils';
 import { LogFieldModel } from '../../shared/logs-view/models/log-field-model';
 import { MetricsFieldModel } from '../../shared/metrics-view/metrics-chart-card/models/metrics-field-model';
 
@@ -50,6 +50,9 @@ export class EtmMonitoringViewComponent implements OnInit {
   component: string = '';
   stream: string = '';
   metricName: string = '';
+
+  activatedMetrics: MetricsFieldModel[] = [];
+
   etMonitorMarkPrefix: string = '##elastest-monitor-mark: ';
   lockForMarkPrefix: boolean = false;
 
@@ -251,8 +254,14 @@ export class EtmMonitoringViewComponent implements OnInit {
   }
 
   public openMonitoringConfig(): void {
+    let combineMetricsInPairs: boolean = this.tJob.execDashboardConfigModel.combineMetricsInPairs;
     let dialogRef: MatDialogRef<MonitoringConfigurationComponent> = this.dialog.open(MonitoringConfigurationComponent, {
-      data: { exec: this.tJobExec, logCards: this.logsGroup, metricCards: this.metricsGroup },
+      data: {
+        exec: this.tJobExec,
+        logCards: this.logsGroup,
+        metricCards: this.metricsGroup,
+        combineMetricsInPairs: combineMetricsInPairs !== undefined ? combineMetricsInPairs : false,
+      },
       height: '80%',
       width: '90%',
     });
@@ -272,6 +281,11 @@ export class EtmMonitoringViewComponent implements OnInit {
         }
         if (data.metricsList) {
           this.updateMetricsFromList(data.metricsList);
+          this.tJob.execDashboardConfigModel.combineMetricsInPairs = data.combineMetricsPairs;
+
+          if (data.combineMetricsPairs && this.activatedMetrics) {
+            this.metricsGroup.initMetricsPairs(this.activatedMetrics);
+          }
         }
 
         if (data.allInOneMetricsActivated !== undefined && data.allInOneMetricsActivated !== null) {
@@ -362,6 +376,7 @@ export class EtmMonitoringViewComponent implements OnInit {
   }
 
   updateMetricsFromList(metricsList: any[]): void {
+    this.activatedMetrics = [];
     for (let metric of metricsList) {
       if (metric.activated) {
         this.updateMetric(metric);
@@ -398,6 +413,8 @@ export class EtmMonitoringViewComponent implements OnInit {
       metric.stream,
       metric.streamType,
     );
+    metricField.metricName = this.metricName;
+    this.activatedMetrics.push(metricField);
 
     this.tJob.execDashboardConfigModel.allMetricsFields.addMetricsFieldToList(
       metricField,

@@ -51,7 +51,11 @@
                 >All-in-one chart (default metrics)</mat-checkbox
               >
             </div>
-
+            <div fxFlex *ngIf="!loadingMetrics">
+              <mat-checkbox [(ngModel)]="combineMetrics" name="combineMetricsInPairs"
+                >Combine selected metrics in pairs</mat-checkbox
+              >
+            </div>
             <div fxFlex class="push-bottom-sm push-top-sm">
               <mat-divider></mat-divider>
             </div>

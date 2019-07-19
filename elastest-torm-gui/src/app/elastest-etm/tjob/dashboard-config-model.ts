@@ -5,6 +5,7 @@ import { MetricsFieldModel } from '../../shared/metrics-view/metrics-chart-card/
 import { AllMetricsFields } from '../../shared/metrics-view/metrics-chart-card/models/all-metrics-fields-model';
 export class DashboardConfigModel {
   showAllInOne: boolean;
+  combineMetricsInPairs: boolean;
   allMetricsFields: AllMetricsFields;
   allLogsTypes: AllLogsTypesModel;
 
@@ -17,6 +18,7 @@ export class DashboardConfigModel {
     this.showAllInOne = showAllInOne;
     this.allMetricsFields = new AllMetricsFields(false, '', activateAllMetrics);
     this.allLogsTypes = new AllLogsTypesModel('', activateAllLogs);
+    this.combineMetricsInPairs = false;
     if (jsonString !== undefined && jsonString !== null) {
       this.initFromJson(jsonString);
     }
@@ -58,6 +60,9 @@ export class DashboardConfigModel {
         let position: number = this.allLogsTypes.getPositionByName(log.name);
         this.allLogsTypes.logsList[position] = logModel;
       }
+
+      this.combineMetricsInPairs =
+        json.combineMetricsInPairs !== undefined && json.combineMetricsInPairs !== null ? json.combineMetricsInPairs : false;
     }
   }
 }

@@ -197,6 +197,7 @@ public abstract class AbstractMonitoringService {
         return tcLogs;
     }
 
+    @SuppressWarnings("unchecked")
     public String compareLogsPair(MonitoringQuery body, String comparison,
             String view, String timeout) throws Exception {
         if (body != null && body.getIndices() != null

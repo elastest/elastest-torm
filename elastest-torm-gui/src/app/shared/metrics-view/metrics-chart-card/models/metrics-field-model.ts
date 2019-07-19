@@ -3,9 +3,13 @@ import { Units } from './all-metrics-fields-model';
 import { TJobExecModel } from '../../../../elastest-etm/tjob-exec/tjobExec-model';
 
 export class MetricsFieldModel extends DefaultESFieldModel {
+  // like cpu
   etType: string;
+  // like totalUsage (default)
   subtype: string;
   unit: Units | string;
+  // like totalUsage (default)
+  metricName: string;
 
   constructor(
     etType: string,
@@ -16,6 +20,7 @@ export class MetricsFieldModel extends DefaultESFieldModel {
     streamType?: string,
     activated: boolean = false,
     tJobExec?: TJobExecModel,
+    metricName?: string,
   ) {
     if (streamType === undefined) {
       streamType = 'composed_metrics';
@@ -38,6 +43,7 @@ export class MetricsFieldModel extends DefaultESFieldModel {
     this.name = namePrefix + namePrefixSeparator + etType + '_' + subtype;
 
     this.activated = activated;
+    this.metricName = metricName;
   }
 
   componentIsEmpty(): boolean {
