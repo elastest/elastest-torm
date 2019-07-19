@@ -391,9 +391,9 @@ public class EtPluginsService {
         if (!isRunning(projectName)) {
             etPlugin = this.startEtPlugin(projectName);
         }
-        while (url.isEmpty()) {
-            url = getEtPluginUrl(projectName);
-        }
+//        while (url.isEmpty()) {
+//            url = getEtPluginUrl(projectName);
+//        }
         logger.debug("Plugin URL retrieved: {}", url);
         etPlugin.setInternalUrl(url);
         
