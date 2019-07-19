@@ -2,7 +2,6 @@ package io.elastest.epm.client.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -36,14 +35,12 @@ import io.elastest.epm.client.json.DockerProject;
 import io.elastest.epm.client.utils.UtilTools;
 import io.fabric8.kubernetes.api.model.Capabilities;
 import io.fabric8.kubernetes.api.model.CapabilitiesBuilder;
-import io.fabric8.kubernetes.api.model.Container;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerPort;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSourceBuilder;
-import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.LabelSelector;
 import io.fabric8.kubernetes.api.model.LabelSelectorBuilder;
 import io.fabric8.kubernetes.api.model.Namespace;
@@ -55,13 +52,9 @@ import io.fabric8.kubernetes.api.model.PodBuilder;
 import io.fabric8.kubernetes.api.model.PodList;
 import io.fabric8.kubernetes.api.model.SecurityContextBuilder;
 import io.fabric8.kubernetes.api.model.Service;
-import io.fabric8.kubernetes.api.model.ServiceAccount;
-import io.fabric8.kubernetes.api.model.ServiceAccountBuilder;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServicePortBuilder;
-import io.fabric8.kubernetes.api.model.admission.AdmissionRequestFluent.ResourceNested;
-import io.fabric8.kubernetes.api.model.admission.AdmissionRequestFluentImpl.ResourceNestedImpl;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.Job;
@@ -129,9 +122,6 @@ public class K8sService {
         if (enableCloudMode) {
             logger.debug("Default K8s");
             client = new DefaultKubernetesClient();
-
-            // TODO use volume into tjob to get testresults
-            // etToolsVolume = createEtToolsVolume();
         }
     }
     
@@ -220,31 +210,6 @@ public class K8sService {
             return null;
         }
 
-    }
-
-    // TODO
-    public void startFromYml(String ymlPath) {
-        try {
-            File file = new File(ymlPath);
-
-            InputStream initialStream = new FileInputStream(file);
-            List<HasMetadata> resourcesList = client.load(initialStream).get();
-
-            // KubernetesList itemList = new KubernetesList();
-            for (HasMetadata resource : resourcesList) {
-                // itemList.getItems().add(resource);
-
-                // TODO resource instance of (Pod, ConfigMap, Service...)
-                // and create each like:
-                // client.pods().create(resource);
-            }
-
-            // client.lists().create(itemList); Not working...
-
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
     }
 
     public JobResult deployJob(DockerContainer container) throws Exception {
@@ -447,16 +412,6 @@ public class K8sService {
 
         return podInfo;
     }
-//    
-//    public PodInfo deployPod(String manifest) throws Exception {
-//        return deployResourcesFromProject(manifest, DEFAULT_NAMESPACE,
-//                getEnvVarListFromStringList(new ArrayList<String>()));
-//    }
-
-//    public List<PodInfo> deployResourcesFromProject(String projectName)
-//            throws IOException {
-//        return deployResourcesFromProject(projectName, DEFAULT_NAMESPACE);
-//    }
 
     public List<PodInfo> deployResourcesFromProject(String projectName,
             String namespace) throws Exception {
@@ -556,6 +511,8 @@ public class K8sService {
                     deletePVC((PersistentVolumeClaim) metadata, namespace);
                     break;
                 case "Service":
+                    deleteService(((Service) metadata).getMetadata().getName(),
+                            namespace);
                     break;                
                 }
             });
@@ -943,20 +900,6 @@ public class K8sService {
                     e.getMessage());
         }
     }
-
-//    public MixedOperation<Service, ServiceList, DoneableService, ServiceResource<Service, DoneableService>> getAllServicesToOperate() {
-//        return client.services();
-//    }
-//
-//    public Service getServiceByName(String serviceName)
-//            throws NullPointerException {
-//        return getAllServicesToOperate().withName(serviceName).get();
-//    }
-//
-//    public String getServiceIpByName(String serviceName)
-//            throws NullPointerException {
-//        return getServiceByName(serviceName).getSpec().getClusterIP();
-//    }
 
     public Service getServiceByName(String serviceName, String namespace) {
         logger.debug("Get service by name-namespace: {}-{}", serviceName,
