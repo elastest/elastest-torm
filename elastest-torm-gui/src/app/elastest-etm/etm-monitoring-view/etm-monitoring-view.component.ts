@@ -377,6 +377,10 @@ export class EtmMonitoringViewComponent implements OnInit {
 
   updateMetricsFromList(metricsList: any[]): void {
     this.activatedMetrics = [];
+
+    // First, remove all metrics pairs cards
+    this.metricsGroup.removeAllMetricsPairs();
+
     for (let metric of metricsList) {
       if (metric.activated) {
         this.updateMetric(metric);
@@ -412,6 +416,7 @@ export class EtmMonitoringViewComponent implements OnInit {
       metric.component,
       metric.stream,
       metric.streamType,
+      true,
     );
     metricField.metricName = this.metricName;
     this.activatedMetrics.push(metricField);

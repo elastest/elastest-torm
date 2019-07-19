@@ -23,7 +23,6 @@ import { ExternalTJobExecModel } from '../../external/external-tjob-execution/ex
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { MonitoringService } from '../../../shared/services/monitoring.service';
 import { ButtonModel } from '../../../shared/button-component/button.model';
-import { LineChartMetricModel } from '../../../shared/metrics-view/models/linechart-metric-model';
 import { allArrayPairCombinations } from '../../../shared/utils';
 import { Units } from '../../../shared/metrics-view/metrics-chart-card/models/all-metrics-fields-model';
 
@@ -67,6 +66,8 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
   leaveObs = new EventEmitter<any>();
 
   chartsEventsSubscriptionsObs: Subscription[] = [];
+
+  metricsPairsCardsNames: string[] = [];
 
   constructor(private monitoringService: MonitoringService, private elastestRabbitmqService: ElastestRabbitmqService) {}
 
@@ -261,7 +262,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     if (metric.unit) {
       individualMetrics.setUnits(metric.unit);
     }
-    this.metricsList.push(individualMetrics);
+    let pos: number = this.metricsList.push(individualMetrics) - 1;
     this.createGroupedMetricList();
 
     individualMetrics.allMetricsFields.addMetricsFieldToList(
@@ -271,8 +272,6 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
       metric.streamType,
       metric.activated,
     );
-
-    let pos: number = this.metricsList.length - 1;
 
     if (this.live) {
       this.elastestRabbitmqService.createSubject(metric.streamType, individualMetrics.component, metric.stream);
@@ -329,7 +328,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     return individualMetrics;
   }
 
-  initMetricsPairs(metricsList: any[]): void {
+  initMetricsPairs(metricsList: MetricsFieldModel[]): void {
     let metricsPairsList: any[][] = allArrayPairCombinations(metricsList);
     if (metricsPairsList) {
       for (let metricPair of metricsPairsList) {
@@ -373,66 +372,93 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
 
         comboPairChart.monitoringIndex = monitoringIndex;
 
-        // Get data of first metric
-        this.monitoringService.getMetricUnit(monitoringIndex, firstMetric).subscribe(
-          (firstMetricUnit: Units | string) => {
-            // Get data of second metric
-            this.monitoringService.getMetricUnit(monitoringIndex, secondMetric).subscribe(
-              (secondMetricUnit: Units | string) => {
-                firstMetric.unit = firstMetricUnit;
-                secondMetric.unit = secondMetricUnit;
-
-                comboPairChart.allMetricsFields.addMetricsFieldToList(
-                  firstMetric,
-                  comboPairChart.component,
-                  comboPairChart.stream,
-                  firstMetric.streamType,
-                  firstMetric.activated,
-                );
-
-                comboPairChart.allMetricsFields.addMetricsFieldToList(
-                  secondMetric,
-                  comboPairChart.component,
-                  comboPairChart.stream,
-                  secondMetric.streamType,
-                  secondMetric.activated,
-                );
-
-                if (firstMetricUnit === secondMetricUnit) {
-                  comboPairChart.setUnits(firstMetricUnit);
-                } else {
-                  comboPairChart.setUnits(firstMetricUnit, secondMetricUnit);
-                }
-
-                comboPairChart.getAllMetrics();
-                this.metricsList.push(comboPairChart);
-                this.createGroupedMetricList();
-
-                if (this.live) {
-                  this.subscribeToMetric(firstMetric, 'left');
-
-                  if (firstMetricUnit === secondMetricUnit) {
-                    this.subscribeToMetric(secondMetric, 'left');
-                  } else {
-                    this.subscribeToMetric(secondMetric, 'rightOne');
-                  }
-                }
-              },
-              (error: Error) => console.error('Could not load more metric pair: ' + error),
-            );
-          },
-          (error: Error) => console.error('Could not load more metric pair: ' + error),
+        // Check first if has unit
+        let firstMetricUnit: Units | string = this.monitoringService.getMetricUnitByTrace(
+          firstMetric,
+          firstMetric.subtype,
+          firstMetric.etType,
         );
+
+        let secondMetricUnit: Units | string = this.monitoringService.getMetricUnitByTrace(
+          secondMetric,
+          secondMetric.subtype,
+          secondMetric.etType,
+        );
+
+        if (firstMetricUnit && secondMetricUnit) {
+          this.initMetricPairChart(firstMetric, secondMetric, firstMetricUnit, secondMetricUnit, comboPairChart);
+        } else {
+          // Get data of first metric
+          this.monitoringService.getMetricUnit(monitoringIndex, firstMetric).subscribe(
+            (firstMetricUnit2: Units | string) => {
+              // Get data of second metric
+              this.monitoringService.getMetricUnit(monitoringIndex, secondMetric).subscribe(
+                (secondMetricUnit2: Units | string) => {
+                  this.initMetricPairChart(firstMetric, secondMetric, firstMetricUnit2, secondMetricUnit2, comboPairChart);
+                },
+                (error: Error) => console.error('Could not load more metric pair: ' + error),
+              );
+            },
+            (error: Error) => console.error('Could not load more metric pair: ' + error),
+          );
+        }
       }
     }
     return true;
   }
 
-  subscribeToMetric(metric: MetricsFieldModel, listName: 'left' | 'rightOne' | 'rightTwo'): void {
+  initMetricPairChart(
+    firstMetric: MetricsFieldModel,
+    secondMetric: MetricsFieldModel,
+    firstMetricUnit: Units | string,
+    secondMetricUnit: Units | string,
+    comboPairChart: ESRabComplexMetricsModel,
+  ): void {
+    firstMetric.unit = firstMetricUnit;
+    secondMetric.unit = secondMetricUnit;
+
+    comboPairChart.allMetricsFields.addMetricsFieldToList(
+      firstMetric,
+      comboPairChart.component,
+      comboPairChart.stream,
+      firstMetric.streamType,
+      firstMetric.activated,
+    );
+
+    comboPairChart.allMetricsFields.addMetricsFieldToList(
+      secondMetric,
+      comboPairChart.component,
+      comboPairChart.stream,
+      secondMetric.streamType,
+      secondMetric.activated,
+    );
+
+    if (firstMetricUnit === secondMetricUnit) {
+      comboPairChart.setUnits(firstMetricUnit);
+    } else {
+      comboPairChart.setUnits(firstMetricUnit, secondMetricUnit);
+    }
+
+    comboPairChart.getAllMetrics();
+    let pos: number = this.metricsList.push(comboPairChart) - 1;
+    this.metricsPairsCardsNames.push(comboPairChart.name);
+    this.createGroupedMetricList();
+
+    if (this.live) {
+      this.subscribeToMetric(firstMetric, 'left', pos);
+
+      if (firstMetricUnit === secondMetricUnit) {
+        this.subscribeToMetric(secondMetric, 'left', pos);
+      } else {
+        this.subscribeToMetric(secondMetric, 'rightOne', pos);
+      }
+    }
+  }
+
+  subscribeToMetric(metric: MetricsFieldModel, listName: 'left' | 'rightOne' | 'rightTwo', pos: number): void {
     this.elastestRabbitmqService.createSubject(metric.streamType, metric.component, metric.stream);
     let index: string = this.getAbstractTJobExecIndex(metric.component);
 
-    let pos: number = this.metricsList.length - 1;
     this.elastestRabbitmqService.createAndSubscribeToTopic(index, metric.streamType, metric.component, metric.stream).subscribe(
       (data: any) => {
         if (data['et_type'] === metric.etType && data.component === metric.component) {
@@ -598,6 +624,16 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     this.createGroupedMetricList();
   }
 
+  removeAndUnsubscribeByName(name: string): void {
+    let pos: number = 0;
+    for (let metricCard of this.metricsList) {
+      if (metricCard.name === name) {
+        this.removeAndUnsubscribe(pos);
+      }
+      pos++;
+    }
+  }
+
   removeAndUnsubscribeAIO(): void {
     if (this.live && this.metricsList.length === 0) {
       this.unsubscribe(this.allInOneMetrics.component, this.allInOneMetrics.stream);
@@ -662,5 +698,12 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     // if markId = undefined, normal view (time)
     this.initMetricsView(this.tJob, this.tJobExec, markId);
     return true;
+  }
+
+  removeAllMetricsPairs(): void {
+    for (let name of this.metricsPairsCardsNames) {
+      this.removeAndUnsubscribeByName(name);
+    }
+    this.metricsPairsCardsNames = [];
   }
 }

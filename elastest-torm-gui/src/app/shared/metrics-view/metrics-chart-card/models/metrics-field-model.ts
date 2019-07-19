@@ -8,7 +8,7 @@ export class MetricsFieldModel extends DefaultESFieldModel {
   // like totalUsage (default)
   subtype: string;
   unit: Units | string;
-  // like totalUsage (default)
+  // like totalUsage (default) or blkio.read_ps
   metricName: string;
 
   constructor(

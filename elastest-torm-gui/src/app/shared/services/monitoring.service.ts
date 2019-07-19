@@ -847,9 +847,9 @@ export class MonitoringService {
 
   getMetricUnitByTrace(dataSource: any, metricName: string, etType: string): Units | string {
     let unit: Units | string;
-    if (dataSource.units && dataSource.units[metricName]) {
+    if (dataSource && dataSource.units && dataSource.units[metricName]) {
       unit = dataSource.units[metricName];
-    } else if (dataSource.unit) {
+    } else if (dataSource && dataSource.unit) {
       unit = dataSource.unit;
     } else {
       unit = this.allMetricsFields.getDefaultUnitByTypeAndSubtype(etType, metricName);
