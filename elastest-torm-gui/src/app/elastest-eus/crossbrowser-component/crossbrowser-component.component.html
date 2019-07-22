@@ -17,7 +17,7 @@
             </a>
           </div>
         </div>
-        <div fxLayout="row" class="mat-small push-top-sm" *ngIf="logsAndMetrics">
+        <div fxLayout="row" class="mat-small push-top-xs" *ngIf="logsAndMetrics">
           <span>Logs status =></span>
           <span style.color="{{ logErrors > 0 ? errorColor : 'initial' }}" class="push-left-xs"
             >Errors: {{ getLogsErrors() }}</span
@@ -27,32 +27,33 @@
             >Warnings: {{ getLogsWarnings() }}</span
           >
         </div>
+        <div fxLayout="row" *ngIf="fullscreenMode" class="push-top-xs">
+          <input
+            matInput
+            #navigateUrl
+            #nameControl="ngModel"
+            type="text"
+            placeholder="Url To Navigate"
+            [(ngModel)]="urlToNavigate"
+            name="urlToNavigate"
+            class="pad-left-sm"
+            style="background-color: #eee;"
+          />
+          <button
+            mat-raised-button
+            color="accent"
+            [disabled]="groupedSessions.length === 0"
+            (click)="navigateToUrl(urlToNavigate)"
+            id="navigateToUrlBtn"
+            class="push-left-sm"
+          >
+            Navigate
+          </button>
+        </div>
       </sa-card-title>
       <sa-card-content>
         <ng-container *ngIf="groupedSessions.length > 0 && !stoppingOrStopped; else showMsg">
-          <div fxLayout="row" *ngIf="fullscreenMode" class="pad-sm pad-bottom-none push-bottom-xs">
-            <input
-              matInput
-              #navigateUrl
-              #nameControl="ngModel"
-              type="text"
-              placeholder="Url To Navigate"
-              [(ngModel)]="urlToNavigate"
-              name="urlToNavigate"
-              class="pad-left-sm"
-              style="background-color: #eee;"
-            />
-            <button
-              mat-raised-button
-              color="accent"
-              (click)="navigateToUrl(urlToNavigate)"
-              id="navigateToUrlBtn"
-              class="push-left-sm"
-            >
-              Navigate
-            </button>
-          </div>
-          <as-split unit="percent" direction="vertical" gutterSize="6" (dragEnd)="resizeBrowsers($event)">
+          <as-split [disabled]="true" unit="percent" direction="vertical" gutterSize="6" (dragEnd)="resizeBrowsers($event)">
             <as-split-area
               minSize="15"
               *ngFor="let group of groupedSessions; let i = index; let f = first; let l = last"
@@ -60,7 +61,7 @@
               fxLayout.gt-xs="column"
               fxLayout.gt-md="row"
             >
-              <as-split unit="percent" direction="horizontal" gutterSize="6" (dragEnd)="resizeBrowsers($event)">
+              <as-split [disabled]="true" unit="percent" direction="horizontal" gutterSize="6" (dragEnd)="resizeBrowsers($event)">
                 <as-split-area
                   minSize="15"
                   *ngFor="let session of group; let i2 = index; let f2 = first; let l2 = last"

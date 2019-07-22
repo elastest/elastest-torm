@@ -3,8 +3,11 @@
     <mat-card-title>
       <div fxLayout="column" fxLayoutAlign="none">
         <div fxLayout="row" fxLayoutAlign="start center">
-          <span>Browser</span>
-          <span class="mat-subheading-2 push-left-sm push-bottom-none">({{ browserName }} {{ browserVersion }})</span>
+          <div fxLayout="row" fxLayout.lt-lg="column" fxLayoutAlign="start center">
+            <span>Browser</span>
+            <span fxFlex class="push-left-sm"></span>
+            <span class="mat-subheading-2 push-bottom-none">({{ browserName }} {{ browserVersion }})</span>
+          </div>
           <span fxFlex></span>
           <ng-container *ngIf="!browserAndEusLoading && vncBrowserUrl !== undefined">
             <button
