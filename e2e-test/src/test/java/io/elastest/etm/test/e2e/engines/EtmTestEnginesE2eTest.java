@@ -64,7 +64,7 @@ public class EtmTestEnginesE2eTest extends EtmBaseTest {
 
         log.debug("Waiting for the Test Engine (ECE) to be ready");
         getElementByXpath(driver, statusXpath + "[contains(string(),'Ready')]",
-                180).getText();
+                300).getText();
 
 //        log.debug("Navigate to view of Test Engine (ECE)");
         getElementByXpath(driver,
