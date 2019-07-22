@@ -66,9 +66,13 @@ export class TJobService {
     return this.createTJob(newTJob);
   }
 
-  public deleteTJob(tJob: TJobModel): Observable<any> {
-    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id;
+  public deleteTJobById(tJobId: number | string): Observable<any> {
+    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId;
     return this.http.delete(url);
+  }
+
+  public deleteTJob(tJob: TJobModel): Observable<any> {
+    return this.deleteTJobById(tJob.id);
   }
 
   /***** Others *****/

@@ -113,6 +113,8 @@ export class SutsManagerComponent implements OnInit {
       this.project = project;
       this.initDataFromProject();
       this.duplicateInProgress = false;
+      this.selectedSutsIds = [];
+      this.sutIdsWithErrorOnDelete = [];
     });
   }
 

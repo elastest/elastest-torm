@@ -10,6 +10,8 @@ import {
   ITdDataTableSortChangeEvent,
   TdDataTableService,
   ITdDataTableColumn,
+  ITdDataTableSelectAllEvent,
+  ITdDataTableSelectEvent,
 } from '@covalent/core';
 import { MatDialog } from '@angular/material';
 import { Router, ActivatedRoute, Params } from '@angular/router';
@@ -18,6 +20,8 @@ import { ProjectModel } from '../../project/project-model';
 import { ProjectService } from '../../project/project.service';
 import { RunTJobModalComponent } from '../run-tjob-modal/run-tjob-modal.component';
 import { ETModelsTransformServices } from '../../../shared/services/et-models-transform.service';
+import { Subject, Observable } from 'rxjs';
+import { PopupService } from '../../../shared/services/popup.service';
 
 @Component({
   selector: 'etm-tjobs-manager',
@@ -52,6 +56,9 @@ export class TJobsManagerComponent implements OnInit {
   sortBy: string = 'id';
   sortOrder: TdDataTableSortingOrder = TdDataTableSortingOrder.Ascending;
 
+  selectedTJobsIds: number[] = [];
+  tJobIdsWithErrorOnDelete: number[] = [];
+
   constructor(
     private titlesService: TitlesService,
     private tJobService: TJobService,
@@ -64,6 +71,7 @@ export class TJobsManagerComponent implements OnInit {
     private projectService: ProjectService,
     private eTModelsTransformServices: ETModelsTransformServices,
     private dataTableService: TdDataTableService,
+    private popupService: PopupService,
   ) {}
 
   ngOnInit(): void {
@@ -96,6 +104,8 @@ export class TJobsManagerComponent implements OnInit {
       this.project = project;
       this.initDataFromProject();
       this.duplicateInProgress = false;
+      this.selectedTJobsIds = [];
+      this.tJobIdsWithErrorOnDelete = [];
     });
   }
 
@@ -228,5 +238,98 @@ export class TJobsManagerComponent implements OnInit {
     this.sortBy = sortEvent.name;
     this.sortOrder = sortEvent.order;
     this.tJobs = this.dataTableService.sortData(this.tJobs, this.sortBy, this.sortOrder);
+  }
+
+  removeSelectedTJobs(): void {
+    if (this.selectedTJobsIds.length > 0) {
+      let iConfirmConfig: IConfirmConfig = {
+        message: 'Selected TJobs will be deleted, do you want to continue?',
+        disableClose: false, // defaults to false
+        viewContainerRef: this._viewContainerRef,
+        title: 'Confirm',
+        cancelButton: 'Cancel',
+        acceptButton: 'Yes, delete',
+      };
+      this._dialogService
+        .openConfirm(iConfirmConfig)
+        .afterClosed()
+        .subscribe((accept: boolean) => {
+          if (accept) {
+            this.deletingInProgress = true;
+
+            this.tJobIdsWithErrorOnDelete = [];
+            this.removeMultipleTJobsRecursively([...this.selectedTJobsIds]).subscribe(
+              (end: boolean) => {
+                if (this.tJobIdsWithErrorOnDelete.length > 0) {
+                  let errorMsg: string = 'Error on delete tJobs with ids: ' + this.tJobIdsWithErrorOnDelete;
+                  this.popupService.openSnackBar(errorMsg);
+                } else {
+                  this.popupService.openSnackBar('TJobs ' + this.selectedTJobsIds + ' has been removed!');
+                }
+
+                this.deletingInProgress = false;
+                this.init(true);
+                this.tJobIdsWithErrorOnDelete = [];
+                this.selectedTJobsIds = [];
+              },
+              (error: Error) => {
+                console.log(error);
+                this.deletingInProgress = false;
+                this.init();
+                this.tJobIdsWithErrorOnDelete = [];
+                this.selectedTJobsIds = [];
+              },
+            );
+          }
+        });
+    }
+  }
+
+  switchTJobsSelectionByData(tJob: TJobModel, selected: boolean): void {
+    if (selected) {
+      this.selectedTJobsIds.push(tJob.id);
+    } else {
+      const index: number = this.selectedTJobsIds.indexOf(tJob.id, 0);
+      if (index > -1) {
+        this.selectedTJobsIds.splice(index, 1);
+      }
+    }
+  }
+
+  switchTJobSelection(event: ITdDataTableSelectEvent): void {
+    if (event && event.row) {
+      let tJob: TJobModel = event.row;
+      this.switchTJobsSelectionByData(tJob, event.selected);
+    }
+  }
+
+  switchAllTJobsSelection(event: ITdDataTableSelectAllEvent): void {
+    if (event && event.rows) {
+      for (let tJob of event.rows) {
+        this.switchTJobsSelectionByData(tJob, event.selected);
+      }
+    }
+  }
+
+  removeMultipleTJobsRecursively(selectedTJobsIds: number[], _obs: Subject<any> = new Subject<any>()): Observable<boolean> {
+    let obs: Observable<any> = _obs.asObservable();
+
+    if (selectedTJobsIds.length > 0) {
+      let tJobId: number = selectedTJobsIds.shift();
+      this.tJobService.deleteTJobById(tJobId).subscribe(
+        (tJob: TJobModel) => {
+          this.removeMultipleTJobsRecursively(selectedTJobsIds, _obs);
+        },
+        (error: Error) => {
+          console.log(error);
+          this.tJobIdsWithErrorOnDelete.push(tJobId);
+          this.removeMultipleTJobsRecursively(selectedTJobsIds, _obs);
+        },
+      );
+    } else {
+      _obs.next(true);
+    }
+
+    return obs;
   }
 }

@@ -2,6 +2,15 @@
   <sa-card-title>
     <div fxLayout="row">
       <span>TJobs</span> <span fxFlex></span>
+      <button
+        mat-button
+        (click)="removeSelectedTJobs()"
+        [disabled]="selectedTJobsIds.length === 0 || deletingInProgress"
+        class="iconBtn-md"
+        title="Delete Selected TJobs"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
       <button mat-raised-button color="accent" (click)="newTJob()" id="newTJobBtn" matTooltip="Create New TJob">New TJob</button>
     </div>
   </sa-card-title>
@@ -23,6 +32,9 @@
       [sortBy]="sortBy"
       [sortOrder]="sortOrder"
       (sortChange)="sort($event)"
+      [selectable]="true"
+      (rowSelect)="switchTJobSelection($event)"
+      (selectAll)="switchAllTJobsSelection($event)"
     >
       <ng-template *ngFor="let column of tjobColumns" tdDataTableTemplate="{{ column.name }}" let-value="value" let-row="row">
         <ng-container *ngIf="column.name === 'name' || column.name === 'imageName'">

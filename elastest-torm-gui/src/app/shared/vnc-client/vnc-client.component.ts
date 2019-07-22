@@ -36,7 +36,6 @@ export class VncClientComponent implements OnInit, OnDestroy {
 
   canvasFocused: boolean = false;
   canvasMouseDown: boolean = false;
-  aaa: number = randomNum(1, 800);
 
   constructor(private elementRef: ElementRef) {
     this.switchFocus = this.switchFocus.bind(this);
