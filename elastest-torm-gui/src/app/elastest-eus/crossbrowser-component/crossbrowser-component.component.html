@@ -30,6 +30,28 @@
       </sa-card-title>
       <sa-card-content>
         <ng-container *ngIf="groupedSessions.length > 0 && !stoppingOrStopped; else showMsg">
+          <div fxLayout="row" *ngIf="fullscreenMode" class="pad-sm pad-bottom-none push-bottom-xs">
+            <input
+              matInput
+              #navigateUrl
+              #nameControl="ngModel"
+              type="text"
+              placeholder="Url To Navigate"
+              [(ngModel)]="urlToNavigate"
+              name="urlToNavigate"
+              class="pad-left-sm"
+              style="background-color: #eee;"
+            />
+            <button
+              mat-raised-button
+              color="accent"
+              (click)="navigateToUrl(urlToNavigate)"
+              id="navigateToUrlBtn"
+              class="push-left-sm"
+            >
+              Navigate
+            </button>
+          </div>
           <as-split unit="percent" direction="vertical" gutterSize="6" (dragEnd)="resizeBrowsers($event)">
             <as-split-area
               minSize="15"

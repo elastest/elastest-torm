@@ -315,4 +315,8 @@ export class BrowserCardComponentComponent implements OnInit {
       this.browserVnc.emitMouseEvent(event);
     }
   }
+
+  dispatchEvent(e: Event): void {
+    this.browserVnc.dispatchEvent(e);
+  }
 }

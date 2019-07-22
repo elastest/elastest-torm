@@ -32,6 +32,9 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
   @Input()
   showSpinner: Function = this.showSpinnerDefault;
 
+  @Input()
+  fullscreenMode: boolean = false;
+
   isNested: boolean = true;
 
   browserCardMsg: string = 'Loading...';
@@ -59,6 +62,8 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
   mouseKeyboardEvents: Subject<MouseEvent> = new Subject<MouseEvent>();
   mouseKeyboardEventsObs: Observable<MouseEvent>;
   mouseKeyboardEventsSubscription: Subscription;
+
+  urlToNavigate: string = '';
 
   constructor(private eusService: EusService, private route: ActivatedRoute) {}
 
@@ -149,12 +154,22 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
     this.browserList = browserList;
     this.extraCapabilities = extraCapabilities;
     this.sutUrl = sutUrl;
+    this.urlToNavigate = sutUrl;
     this.live = live;
     this.extraHosts = extraHosts;
 
     // Async/await to wait for initialization
     this.eusService
-      .startCrossbrowserSession(browserList, sutUrl, extraCapabilities, live, extraHosts, acceptInsecure, this.withBrowserSync)
+      .startCrossbrowserSession(
+        browserList,
+        sutUrl,
+        extraCapabilities,
+        live,
+        extraHosts,
+        acceptInsecure,
+        this.withBrowserSync,
+        this.fullscreenMode,
+      )
       .subscribe(
         async (browserSync: EusBowserSyncModel) => {
           await this.initByBrowserSync(browserSync);
@@ -187,7 +202,6 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
         browserCard.initBrowserInstanceInfo(eusTestModel);
         browserCard.getAndInitVncUrl();
         // Navigation is not necessary because is loaded in backend
-
         position++;
       }
       this.subscribeToMouseEvents();
@@ -385,7 +399,19 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
     }
   }
 
-  // navigateToUrl(urlToOpen: string): Observable<any> {
-  // return this.eusService.navigateToUrl(this.sessionId, urlToOpen);
-  // }
+  navigateToUrl(urlToOpen: string): void {
+    if (this.browserCards && this.browserCards.toArray().length > 0) {
+      for (let browserCard of this.browserCards.toArray()) {
+        browserCard.navigateToUrl(urlToOpen).subscribe();
+      }
+    }
+  }
+
+  dispatchEvent(e: Event): void {
+    if (this.browserCards) {
+      for (let browserCard of this.browserCards.toArray()) {
+        browserCard.dispatchEvent(e);
+      }
+    }
+  }
 }

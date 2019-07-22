@@ -267,4 +267,8 @@ export class VncClientComponent implements OnInit, OnDestroy {
   errorStatus(): boolean {
     return this.statusInfo && this.statusInfo.startsWith('Error');
   }
+
+  dispatchEvent(e: Event): void {
+    this.canvas.dispatchEvent(e);
+  }
 }
