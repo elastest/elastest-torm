@@ -38,11 +38,14 @@
     >
       <ng-template *ngFor="let column of sutColumns" tdDataTableTemplate="{{ column.name }}" let-value="value" let-row="row">
         <ng-container *ngIf="column.name !== 'options'">
-          <ng-container *ngIf="column.name === 'name'; else normalColumn">
-            <span class="wrapColumn">{{ value }}</span>
-          </ng-container>
-          <ng-template #normalColumn>
+          <ng-container *ngIf="column.name !== 'name' && column.name !== 'sutType'; else specialColumn">
             <span class="ellipsisNoWrapColumn">{{ value }}</span>
+          </ng-container>
+          <ng-template #specialColumn>
+            <!-- Name -->
+            <span *ngIf="column.name === 'name'" class="wrapColumn">{{ value }}</span>
+            <!-- Sut Type -->
+            <span *ngIf="column.name === 'sutType'" class="wrapColumn">{{ value === 'DEPLOYED' ? 'OUTSIDE' : 'ELASTEST' }}</span>
           </ng-template>
         </ng-container>
       </ng-template>

@@ -24,7 +24,17 @@
             />
           </mat-form-field>
           <mat-form-field fxFlex.gt-md="47" fxFlex.md="47" fxFlexOffset.md="2" fxFlexOffset.gt-md="2">
-            <input matInput trim="blur" type="text" placeholder="SuT Description" [(ngModel)]="sut.description" name="sutDesc" />
+            <input
+              #sutDesc
+              matInput
+              trim="blur"
+              type="text"
+              placeholder="SuT Description"
+              [(ngModel)]="sut.description"
+              name="sutDesc"
+              maxlength="255"
+            />
+            <mat-hint align="end">{{ sutDesc.value?.length || 0 }}/255</mat-hint>
           </mat-form-field>
         </div>
 

@@ -69,6 +69,9 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
 
   metricsPairsCardsNames: string[] = [];
 
+  startDate: Date;
+  endDate: Date;
+
   constructor(private monitoringService: MonitoringService, private elastestRabbitmqService: ElastestRabbitmqService) {}
 
   ngOnInit(): void {}
@@ -154,8 +157,8 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
   ): void {
     tJobExec.activeView = activeView;
 
-    customStartDate = customStartDate ? customStartDate : tJobExec.startDate;
-    customEndDate = customEndDate ? customEndDate : tJobExec.endDate;
+    this.startDate = customStartDate ? customStartDate : tJobExec.startDate;
+    this.endDate = customEndDate ? customEndDate : tJobExec.endDate;
 
     this.allInOneMetrics = undefined;
     this.metricsList = [];
@@ -189,8 +192,8 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
         activatedMetrics.push(metric);
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
         individualMetrics.monitoringIndex = monitoringIndex;
-        individualMetrics.startDate = customStartDate;
-        individualMetrics.endDate = customEndDate;
+        individualMetrics.startDate = this.startDate;
+        individualMetrics.endDate = this.endDate;
         if (metric.component === '') {
           // If no component, is a default metric (dockbeat whit more than 1 component)
           if (ignoreDefaultDockbeatMetrics) {
@@ -217,8 +220,8 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
                 metric.component,
                 metricName,
                 passTJobExec ? tJobExec : undefined,
-                customStartDate,
-                customEndDate,
+                this.startDate,
+                this.endDate,
                 true,
                 true,
                 'metric',
@@ -342,6 +345,8 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     if (metricsPairForCombo) {
       let ignoreComponent: string = this.getIgnoreComponent();
       let comboPairChart: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.monitoringService, ignoreComponent);
+      comboPairChart.startDate = this.startDate;
+      comboPairChart.endDate = this.endDate;
 
       let firstMetric: MetricsFieldModel = metricsPairForCombo[0];
       let secondMetric: MetricsFieldModel = metricsPairForCombo[1];
@@ -440,6 +445,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     }
 
     comboPairChart.getAllMetrics();
+
     let pos: number = this.metricsList.push(comboPairChart) - 1;
     this.metricsPairsCardsNames.push(comboPairChart.name);
     this.createGroupedMetricList();
