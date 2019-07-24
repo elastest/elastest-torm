@@ -1,0 +1,43 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    io.elastest.type: te
+  creationTimestamp: null
+  labels:
+    io.elastest: true
+    io.elastest.service: ece
+  name: ece
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.elastest: true
+        io.elastest.service: ece
+    spec:
+      containers:
+      - env:
+        - name: ET_EMP_API
+          value: http://emp:9100/v1/extension/elastest/tjobstat/
+        - name: ET_EMP_APIKEY
+          value: 480f410f-f506-4b7d-ac2b-dc51758d8d15
+        - name: ET_EMP_SERIES
+          value: docker-stats
+        - name: ET_EMP_TOPIC
+          value: user-1-elastest_core
+        - name: ET_EMP_USER
+          value: elastest
+        - name: ET_ESM_API
+          value: http://esm:37005/
+        - name: ET_ETM_API
+          value: http://etm:8091/
+        image: elastest/ece:latest
+        name: ece
+        ports:
+        - containerPort: 8888
+        resources: {}
+      restartPolicy: Always
+status: {}
