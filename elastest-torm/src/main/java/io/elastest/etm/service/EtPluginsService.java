@@ -368,8 +368,10 @@ public class EtPluginsService {
                     "Starting...");
             logger.debug("Starting {} plugin...", projectName);
             platformService.deployService(projectName, false,
-                    projectName.contains("jenkins")
-                            || projectName.contains("testlink") ? null
+                    (projectName.contains("jenkins")
+                            || projectName.contains("testlink")
+                            || projectName.contains("ece")
+                            || projectName.contains("ere")) ? null
                                     : projectName);
         } catch (Exception e) {
             logger.error("Cannot start {} plugin", projectName, e);
@@ -391,9 +393,9 @@ public class EtPluginsService {
         if (!isRunning(projectName)) {
             etPlugin = this.startEtPlugin(projectName);
         }
-//        while (url.isEmpty()) {
-//            url = getEtPluginUrl(projectName);
-//        }
+        while (url.isEmpty()) {
+            url = getEtPluginUrl(projectName);
+        }
         logger.debug("Plugin URL retrieved: {}", url);
         etPlugin.setInternalUrl(url);
         
@@ -441,39 +443,45 @@ public class EtPluginsService {
 
                         if (platformService.isContainerIntoNetwork(network,
                                 containerName) || utilsService.isKubernetes()) {
-                            internalIp = platformService
-                                    .getContainerIp(containerName);
+                            internalIp = platformService.getContainerIp(
+                                    containerName, null);
                         }
 
 
                         String port = "";
                         String internalPort = "";
                         String bindedPort = "";
+                        boolean bindPort = false;
 
                         switch (serviceName) {
                         case TESTLINK_NAME:
                             internalPort = "80";
                             bindedPort = "37071";
+                            bindPort = true;
                             break;
 
                         case ERE_NAME:
                         case ERE_TRIAL_NAME:
                             internalPort = "9080";
                             bindedPort = "37007";
+                            bindPort = true;
                             break;
 
                         case ECE_NAME:
                             internalPort = "8888";
                             bindedPort = "37008";
+                            bindPort = true;
                             break;
 
                         case EIM_NAME:
                             internalPort = "8080";
                             bindedPort = "37004";
+                            bindPort = true;
                             break;
                         case JENKINS_NAME:
                             internalPort = "8080";
-                            bindedPort = "37092";                            
+                            bindedPort = "37092";
+                            bindPort = true;
                             break;
                         default:
                             // TSS
@@ -508,7 +516,7 @@ public class EtPluginsService {
 
                         String serviceId = null;
                         if (utilsService.isKubernetes()
-                                && serviceName.equals(JENKINS_NAME)) {
+                                && bindPort) {//serviceName.equals(JENKINS_NAME)) {
                             logger.debug("Getting external ip for Jenkins" );
                             ServiceBindedPort bp = platformService
                                     .getBindedPort(serviceName,
@@ -600,40 +608,48 @@ public class EtPluginsService {
     }
 
     public boolean checkIfEtPluginUrlIsUp(EtPlugin plugin) {
-        String serviceName = plugin.getName();
-        logger.debug("Internal url {} stored in the plugin {}", serviceName,
-                plugin.getInternalUrl());
-        String url = plugin != null
-                ? (plugin.getInternalUrl() != null
+        if (plugin != null) {
+            String serviceName = plugin.getName();
+            logger.debug("Internal url {} stored in the plugin {}", serviceName,
+                    plugin.getInternalUrl());
+            String url = "";
+            
+            if (platformService.getUniqPluginContainerName(serviceName,
+                    serviceName) == null) {
+                url = plugin.getBindedUrl();
+            } else {
+                url = plugin.getInternalUrl() != null
                         && !plugin.getInternalUrl().isEmpty()
                                 ? plugin.getInternalUrl()
-                                : getEtPluginUrl(serviceName))
-                : "";
-
-        logger.debug("Service {} url: {} ", serviceName, url);
-        if (!"".equals(url)) {
-            logger.debug("Service {} internal url: {} ", serviceName,
-                    plugin.getInternalUrl());
-            logger.debug("Service {} binded url: {} ", serviceName,
-                    plugin.getBindedUrl());
-        }
-
-        boolean isUp = false;
-
-        if (isTssInstance(plugin.getName())) {
-            try {
-                isUp = UtilTools.checkIfUrlIsUp(url);
-            } catch (Exception e) {
+                                : getEtPluginUrl(serviceName);
             }
-        } else {
-            isUp = checkIfUrlIsUp(url);
-        }
 
-        if (isUp) {
-            this.updateStatus(serviceName, DockerServiceStatusEnum.READY,
-                    "Ready");
+            logger.debug("Service {} url: {} ", serviceName, url);
+            if (!"".equals(url)) {
+                logger.debug("Service {} internal url: {} ", serviceName,
+                        plugin.getInternalUrl());
+                logger.debug("Service {} binded url: {} ", serviceName,
+                        plugin.getBindedUrl());
+            }
+
+            boolean isUp = false;
+
+            if (isTssInstance(plugin.getName())) {
+                try {
+                    isUp = UtilTools.checkIfUrlIsUp(url);
+                } catch (Exception e) {
+                }
+            } else {
+                isUp = checkIfUrlIsUp(url);
+            }
+
+            if (isUp) {
+                this.updateStatus(serviceName, DockerServiceStatusEnum.READY,
+                        "Ready");
+            }
+            return isUp;
         }
-        return isUp;
+        return false;
     }
 
     public boolean checkIfUrlIsUp(String etPluginUrl) {

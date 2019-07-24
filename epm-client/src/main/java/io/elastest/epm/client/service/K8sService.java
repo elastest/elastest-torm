@@ -923,13 +923,22 @@ public class K8sService {
                 .get() != null ? Boolean.TRUE : Boolean.FALSE;
     }
 
-    public Pod getPodByName(String name) {
-        return client.pods().inNamespace(DEFAULT_NAMESPACE).withName(name)
-                .get();
+    public Pod getPodByName(String name, String namespace) {
+        return client.pods()
+                .inNamespace(
+                        (namespace != null && !namespace.isEmpty()) ? namespace
+                                : DEFAULT_NAMESPACE)
+                .withName(name).get();
     }
 
     public String getPodIpByPodName(String name) {
-        return getPodByName(name).getStatus().getPodIP();
+        logger.debug("Get pod IP by pod name -> {}",name);
+        return  getPodIpByPodName(name, null);
+    }
+        
+    public String getPodIpByPodName(String name, String namespace) {
+        logger.debug("Get pod IP by pod name -> {}",name);
+        return getPodByName(name, namespace).getStatus().getPodIP();
     }
     
     public String getPodIpByLabel(String label, String value,

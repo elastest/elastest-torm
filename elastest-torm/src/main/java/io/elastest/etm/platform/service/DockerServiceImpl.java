@@ -1176,7 +1176,7 @@ public class DockerServiceImpl extends PlatformService {
 
     @Override
     public String getContainerIp(String containerId,
-            SupportServiceInstance serviceInstance) throws Exception {
+            EtPlugin serviceInstance) throws Exception {
         logger.debug("Getting container ip: {}", containerId); 
         return getContainerIp(containerId);
     }

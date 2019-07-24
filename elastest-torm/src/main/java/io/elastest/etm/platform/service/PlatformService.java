@@ -172,7 +172,7 @@ public abstract class PlatformService {
     public abstract String getContainerIp(String containerId) throws Exception;
 
     public abstract String getContainerIp(String serviceId,
-            SupportServiceInstance serviceInstance) throws Exception;
+            EtPlugin serviceInstance) throws Exception;
 
     public abstract String getUniqPluginContainerName(String serviceName,
             String network);

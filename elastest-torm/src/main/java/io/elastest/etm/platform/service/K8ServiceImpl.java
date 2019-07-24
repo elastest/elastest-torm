@@ -195,27 +195,35 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public String getContainerIp(String containerId) throws Exception {
-        return k8sService.getPodIpByPodName(containerId);
+        return k8sService.getPodIpByPodName(containerId, null);
     }
 
     @Override
-    public String getContainerIp(String serviceName,
-            SupportServiceInstance serviceInstance) throws Exception {
-        logger.debug(
-                "Get Container ip for the service {}-{} in the namespace {}",
-                serviceName, serviceInstance.getInstanceId());
-        return k8sService.getPodIpByLabel("io.elastest.tjob.tss.id",
-                serviceName, serviceInstance.getInstanceId());
-//        return serviceName;
-//                k8sService.getServiceIpByName(serviceName,
-//                serviceInstance.getInstanceId());
+    public String getContainerIp(String serviceName, EtPlugin serviceInstance)
+            throws Exception {
+
+        if (serviceInstance != null) {
+            if (serviceInstance instanceof SupportServiceInstance) {
+                logger.debug(
+                        "Get Container ip for the service {}-{} in the namespace {}",
+                        serviceName, ((SupportServiceInstance) serviceInstance)
+                                .getInstanceId());
+                return k8sService.getPodIpByLabel("io.elastest.tjob.tss.id",
+                        serviceName, ((SupportServiceInstance) serviceInstance)
+                                .getInstanceId());
+            } else {
+                return k8sService.getPodIpByPodName(serviceName,
+                        serviceInstance.getName());
+            }
+        } else {
+            return k8sService.getPodIpByPodName(serviceName);
+        }
     }
 
     @Override
     public String getUniqPluginContainerName(String serviceName,
             String network) {
-        // TODO Auto-generated method stub
-        return null;
+        return System.getenv("HOSTNAME");
     }
 
     @Override
@@ -489,9 +497,11 @@ public class K8ServiceImpl extends PlatformService {
         ServiceInfo serviceInfo = k8sService.createService(serviceName,
                 bindedPort != null ? Integer.valueOf(bindedPort) : null,
                 Integer.valueOf(port), "http", namespace,
-                serviceName.equals("jenkins") || serviceName.equals("testlink")
-                        ? k8sService.LABEL_UNIQUE_PLUGIN_NAME
-                        : k8sService.LABEL_TSS_NAME);
+                (serviceName.equals("jenkins") || serviceName.equals("testlink")
+                        || serviceName.equals("ece")
+                        || serviceName.equals("ere"))
+                                ? k8sService.LABEL_UNIQUE_PLUGIN_NAME
+                                : k8sService.LABEL_TSS_NAME);
         logger.debug("Getting binding port");
         
         ServiceBindedPort bindedPortObj = new ServiceBindedPort(port,

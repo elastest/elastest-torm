@@ -2,6 +2,9 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: elastest-jenkins-data-claim
+  labels:
+    io.elastest: true
+    io.elastest.pvc: elastest-jenkins-data-claim 
 spec:
   accessModes:
   - ReadWriteOnce
@@ -16,6 +19,7 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
+    io.elastest: true
     io.elastest.service: jenkins
     io.elastest.service.type: external
   name: etm-jenkins
