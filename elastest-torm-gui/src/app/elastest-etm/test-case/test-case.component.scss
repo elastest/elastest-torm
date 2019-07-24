@@ -35,17 +35,17 @@
   // max-width: 85px;
   text-overflow: ellipsis;
 }
-#miniLogAnalyzerTab {
+#testCaseTabGroup {
   height: 100%;
 }
-#miniLogAnalyzerCard {
+#testCaseTabsCard {
   height: 100%;
 }
-#miniLogAnalyzerCard mat-card-content {
+#testCaseTabsCard mat-card-content {
   padding: 4px;
 }
 
-#fileInfo p{
+#fileInfo p {
   font-size: 16px;
   font-weight: bold;
 }
@@ -54,16 +54,20 @@
   vertical-align: middle;
 }
 #video {
-  padding-top: 10px;
-  max-width: 90%;
-  height: auto;
-  margin: auto;
+  max-width: 100% !important;
+  max-height: 100%;
 }
-#videoContent, #filesContent{
+#videoContent,
+#filesContent {
   margin: auto;
   text-align: center;
+  max-height: 100%;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }
-#filesContent{
+#filesContent {
   padding-bottom: 20px;
   border-bottom: 0.15px solid;
 }

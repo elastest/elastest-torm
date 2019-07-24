@@ -39,3 +39,8 @@
 :host /deep/ #nav_jenkins fa-icon {
   color: #252525;
 }
+
+:host /deep/ .td-layout-manage-list-sidenav {
+  max-width: 100%;
+  overflow-x: hidden !important;
+}

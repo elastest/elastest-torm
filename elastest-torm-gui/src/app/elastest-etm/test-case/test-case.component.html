@@ -13,7 +13,7 @@
               <button
                 mat-button
                 (click)="viewInLogAnalyzer()"
-                [disabled]="!params"
+                [disabled]="!tJobExec"
                 class="onlyIconBtn"
                 matTooltip="View Case in Log Analyzer"
               >
@@ -68,16 +68,16 @@
       </as-split-area>
 
       <as-split-area size="70" minSize="10">
-        <self-adjustable-card id="miniLogAnalyzerCard" [hideTitle]="true">
+        <self-adjustable-card id="testCaseTabsCard" [hideTitle]="true">
           <sa-card-content fxFlexFill fxLayout="column">
-            <mat-tab-group id="miniLogAnalyzerTab" [(selectedIndex)]="selectedTab">
+            <mat-tab-group #testCaseTabGroup id="testCaseTabGroup" [(selectedIndex)]="selectedTab">
               <mat-tab label="All Logs">
                 <elastest-log-analyzer
                   #miniLogAnalyzer
-                  *ngIf="params && testCase"
+                  *ngIf="testCase"
                   [isEmbed]="true"
-                  [tJobId]="params.tJobId"
-                  [tJobExecId]="params.tJobExecId"
+                  [tJobId]="tJobId"
+                  [tJobExecId]="tJobExecId"
                   [testCase]="testCase.name"
                 ></elastest-log-analyzer>
               </mat-tab>
@@ -88,11 +88,11 @@
                   </ng-template>
                   <ng-template matTabContent>
                     <elastest-log-analyzer
-                      *ngIf="params && testCase"
+                      *ngIf="testCase"
                       [isEmbed]="true"
                       [componentStreams]="[component]"
-                      [tJobId]="params.tJobId"
-                      [tJobExecId]="params.tJobExecId"
+                      [tJobId]="tJobId"
+                      [tJobExecId]="tJobExecId"
                       [testCase]="testCase.name"
                     ></elastest-log-analyzer>
                   </ng-template>
@@ -101,17 +101,46 @@
 
               <mat-tab label="Files">
                 <ng-template matTabContent>
-                  <div fxLayout="row" *ngFor="let file of testCase.files">
-                    <div fxFlex id="filesContent">
-                      <div>
-                        <p>Title</p>
-                        <span>{{ file.name }}</span>
-                      </div>
-                      <a mat-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
-                        Open Video
-                        <mat-icon>open_in_new</mat-icon>
-                      </a>
-                    </div>
+                  <div fxLayout="row" fxFlexFill>
+                    <td-data-table
+                      #filesTable
+                      fxFlex
+                      *ngIf="testCase.files.length > 0"
+                      id="filesTable"
+                      class="useMaxHeight"
+                      [data]="testCase.files"
+                      [columns]="filesColumns"
+                      [resizableColumns]="true"
+                    >
+                      <ng-template
+                        *ngFor="let column of sutColumns"
+                        tdDataTableTemplate="{{ column.name }}"
+                        let-value="value"
+                        let-row="row"
+                      >
+                        <ng-container *ngIf="column.name !== 'options'">
+                          {{ value }}
+                        </ng-container>
+                      </ng-template>
+
+                      <!-- OPTIONS -->
+                      <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
+                        <div fxLayout="row" class="sutOptions optionsColumn">
+                          <ng-container *ngIf="isMP4(row)">
+                            <i
+                              class="material-icons"
+                              (click)="openUrlInNewTab(row)"
+                              id="view_recording_new_tab"
+                              matTooltip="Open in new tab"
+                              >open_in_new</i
+                            >
+                            <i class="material-icons" (click)="goToVideoTab(row)" id="view_recording" matTooltip="Open"
+                              >open_in_browser</i
+                            >
+                          </ng-container>
+                        </div>
+                      </ng-template>
+                    </td-data-table>
                   </div>
                   <centered-element *ngIf="testCase && testCase.files.length === 0" class="push-top-important messageEmptyCard">
                     <mat-icon>assignment</mat-icon>
@@ -126,9 +155,7 @@
                 </ng-template>
                 <ng-template matTabContent>
                   <div id="videoContent">
-                    <video controls id="video">
-                      <source src="{{ filesUrlPrefix }}{{ file.encodedUrl }}" type="video/mp4" />
-                    </video>
+                    <video controls id="video" [src]="this.getVideoFileUrl(file)" type="video/mp4"></video>
                   </div>
                 </ng-template>
               </mat-tab>
