@@ -421,4 +421,12 @@ public class UtilTools {
         String regex = "([\\[\\]^*\\.]|[&\\|]{2})";
         return text.replaceAll(regex, "\\\\$1");
     }
+    
+    public static void sleep(Integer timeout) {
+        try {
+            Thread.sleep(timeout * 1000);
+        } catch (InterruptedException e) {
+            logger.warn("Thread waiting interrupted: {}", e.getMessage());
+        }
+    }
 }
