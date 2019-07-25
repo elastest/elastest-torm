@@ -431,8 +431,8 @@ public class SupportServiceInstance extends EtPlugin {
             if (!urlHash.getKey().equals(API_STATUS_KEY)) {
                 String apiUrl = external ? url.getExternal()
                         : url.getInternal();
-                if (apiUrl != null && apiUrl.contains("http")
-                        || apiUrl.contains("https")) {
+                if (apiUrl != null && (apiUrl.contains("http")
+                        || apiUrl.contains("https"))) {
                     return apiUrl;
                 }
             }
