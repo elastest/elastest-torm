@@ -42,16 +42,19 @@
           </ng-template>
 
           <div fxLayout="column" class="pad-top-sm pad-left-sm">
-            <mat-card-subtitle class="pad-left-none">Test Cases</mat-card-subtitle>
-
             <mat-tab-group
               id="suite{{ suite.id }}TestCasesTabGroup"
               class="testCasesGroup"
               [(selectedIndex)]="selectedTestCaseTab"
             >
-              <mat-tab *ngFor="let testCase of suite.testCases">
+              <mat-tab *ngFor="let testCase of suite.testCases" class="testCaseTab" fxFlex>
                 <ng-template mat-tab-label>
-                  <span matTooltip="{{ testCase.name }}">{{ testCase.name }}</span>
+                  <div matTooltip="{{ testCase.name }}" fxLayout="row" fxLayoutAlign="start center">
+                    <mat-icon [style.color]="testCase.getResultIcon().color" matTooltip="{{ testCase.getResultIcon().result }}">
+                      {{ testCase.getResultIcon().name }}
+                    </mat-icon>
+                    <span>{{ testCase.name }}</span>
+                  </div>
                 </ng-template>
                 <ng-template matTabContent>
                   <etm-test-case [tJobExec]="tJobExec" [testCase]="testCase"></etm-test-case>

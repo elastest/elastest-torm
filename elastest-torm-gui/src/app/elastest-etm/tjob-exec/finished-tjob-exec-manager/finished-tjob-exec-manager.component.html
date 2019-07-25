@@ -13,7 +13,7 @@
             >
           </span>
           <a *ngIf="tJob" (click)="viewTJob()" class="hover-pointer">
-            <span *ngIf="tJobExec.isParent() || tJobExec.isChild()">Multi-Configuration</span> <span>TJob</span>
+            <span *ngIf="tJobExec.isMultiConfig()">Multi-Configuration</span> <span>TJob</span>
             <span> "{{ tJob.name }}": </span>
           </a>
           <span *ngIf="tJobExec.isChild()">&nbsp;Configuration</span>
@@ -168,6 +168,8 @@
   </div>
 </div>
 
+<!-- Multi-Config Parent -->
+
 <ng-container *ngIf="tJobExec && tJobExec.isParent(); else showNormalExecutionView">
   <etm-child-tjob-execs-view id="childView" [model]="tJobExec"></etm-child-tjob-execs-view>
   <etm-parent-tjob-exec-report-view id="parentReportView" [model]="tJobExec"></etm-parent-tjob-exec-report-view>
@@ -175,6 +177,7 @@
   <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
 </ng-container>
 
+<!-- Single Execution -->
 <ng-template #showNormalExecutionView>
   <!-- Test Suite / Cases -->
   <div

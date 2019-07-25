@@ -1,6 +1,6 @@
 <ng-container *ngIf="!loading; else showSpinner">
   <ng-container *ngIf="tJobExec && tJobExec.id !== undefined && tJobExec.id !== null && tJobExec.id > 0">
-    <etm-tjob-exec-manager *ngIf="finished"></etm-tjob-exec-manager>
+    <etm-finished-tjob-exec-manager *ngIf="finished"></etm-finished-tjob-exec-manager>
 
     <etm-live-tjob-exec-manager *ngIf="!finished"></etm-live-tjob-exec-manager>
   </ng-container>

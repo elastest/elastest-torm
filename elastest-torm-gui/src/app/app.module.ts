@@ -55,7 +55,7 @@ import { ConfigurationService } from './config/configuration-service.service';
 import { configServiceFactory } from './config/configServiceFactory';
 import { TjobManagerComponent } from './elastest-etm/tjob/tjob-manager/tjob-manager.component';
 import { SutManagerComponent } from './elastest-etm/sut/sut-manager/sut-manager.component';
-import { TjobExecManagerComponent } from './elastest-etm/tjob-exec/tjob-exec-manager/tjob-exec-manager.component';
+import { FinishedTjobExecManagerComponent } from './elastest-etm/tjob-exec/finished-tjob-exec-manager/finished-tjob-exec-manager.component';
 import { SutExecManagerComponent } from './elastest-etm/sut-exec/sut-exec-manager/sut-exec-manager.component';
 import { ElastestRabbitmqService } from './shared/services/elastest-rabbitmq.service';
 import { PopupService } from './shared/services/popup.service';
@@ -166,7 +166,7 @@ library.add(fas);
     routedComponents,
     TjobManagerComponent,
     SutManagerComponent,
-    TjobExecManagerComponent,
+    FinishedTjobExecManagerComponent,
     SutExecManagerComponent,
     SafePipe,
     CapitalizePipe,

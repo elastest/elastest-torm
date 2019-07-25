@@ -16,11 +16,11 @@ import { MetricTraces, LogTraces, MonitoringService } from '../../../shared/serv
 import { ParameterModel } from '../../parameter/parameter-model';
 
 @Component({
-  selector: 'etm-tjob-exec-manager',
-  templateUrl: './tjob-exec-manager.component.html',
-  styleUrls: ['./tjob-exec-manager.component.scss'],
+  selector: 'etm-finished-tjob-exec-manager',
+  templateUrl: './finished-tjob-exec-manager.component.html',
+  styleUrls: ['./finished-tjob-exec-manager.component.scss'],
 })
-export class TjobExecManagerComponent implements OnInit {
+export class FinishedTjobExecManagerComponent implements OnInit {
   @ViewChild('logsAndMetrics')
   logsAndMetrics: EtmMonitoringViewComponent;
   showLogsAndMetrics: boolean = false;

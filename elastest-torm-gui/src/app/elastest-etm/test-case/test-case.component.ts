@@ -167,8 +167,8 @@ export class TestCaseComponent implements OnInit {
   }
 
   goToVideoTab(file: FileModel): void {
-    // video position, components Logs, ALL logs + Files tabs);
-    this.goToTab(file['order'] + this.miniLogAnalyzer.componentsTree.treeModel.nodes.length + 2);
+    // video position, ALL logs + Files tabs);
+    this.goToTab(file['order'] + 2);
   }
 
   viewInLogAnalyzer(): void {

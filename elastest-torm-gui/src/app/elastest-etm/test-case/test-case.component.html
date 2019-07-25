@@ -81,23 +81,6 @@
                   [testCase]="testCase.name"
                 ></elastest-log-analyzer>
               </mat-tab>
-              <div *ngIf="miniLogAnalyzer">
-                <mat-tab *ngFor="let component of miniLogAnalyzer.componentsTree.treeModel.nodes">
-                  <ng-template mat-tab-label>
-                    <span matTooltip="{{ component.name }}">{{ component.name }}</span>
-                  </ng-template>
-                  <ng-template matTabContent>
-                    <elastest-log-analyzer
-                      *ngIf="testCase"
-                      [isEmbed]="true"
-                      [componentStreams]="[component]"
-                      [tJobId]="tJobId"
-                      [tJobExecId]="tJobExecId"
-                      [testCase]="testCase.name"
-                    ></elastest-log-analyzer>
-                  </ng-template>
-                </mat-tab>
-              </div>
 
               <mat-tab label="Files">
                 <ng-template matTabContent>

@@ -25,7 +25,7 @@ import { TJobFormComponent } from './elastest-etm/tjob/tjob-form/tjob-form.compo
 import { SutFormComponent } from './elastest-etm/sut/sut-form/sut-form.component';
 import { TJobsManagerComponent } from './elastest-etm/tjob/tjobs-manager/tjobs-manager.component';
 import { TjobManagerComponent } from './elastest-etm/tjob/tjob-manager/tjob-manager.component';
-import { TjobExecManagerComponent } from './elastest-etm/tjob-exec/tjob-exec-manager/tjob-exec-manager.component';
+import { FinishedTjobExecManagerComponent } from './elastest-etm/tjob-exec/finished-tjob-exec-manager/finished-tjob-exec-manager.component';
 import { ElastestEusComponent } from './elastest-eus/elastest-eus.component';
 import { LoginComponent } from './login/login.component';
 import { RedirectComponent } from './shared/redirect/redirect.component';
@@ -650,7 +650,7 @@ export const routedComponents: any[] = [
   ProjectFormComponent,
   TjobManagerComponent,
   TJobFormComponent,
-  TjobExecManagerComponent,
+  FinishedTjobExecManagerComponent,
   TjobExecViewComponent,
   SutFormComponent,
   ElastestEusComponent,
