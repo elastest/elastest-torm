@@ -430,9 +430,9 @@ public class TSSService {
                 }
             }
         } else {
-            manifestToRegister = serviceDefJson.get("manifest");            
+            manifestToRegister = serviceDefJson.get("manifest");
         }
-        
+
         logger.debug("Register manifest Id {} associated to service {}",
                 manifestToRegister.get("id"),
                 serviceDefJson.get("register").get("id"));
@@ -453,7 +453,7 @@ public class TSSService {
                         + " }",
                 manifestToRegister.get("id").toString().replaceAll("\"", ""));
     }
- 
+
     public List<String> getRegisteredServicesName() {
         logger.info("Get registered services names.");
         List<String> registeredServices = new ArrayList<>();
@@ -469,8 +469,7 @@ public class TSSService {
     public List<SupportService> getRegisteredServices() {
         logger.info("Get registered services.");
         List<SupportService> services = new ArrayList<>();
-        SupportService[] servicesObj = esmServiceClient
-                .getRegisteredServices();
+        SupportService[] servicesObj = esmServiceClient.getRegisteredServices();
 
         for (SupportService esmService : servicesObj) {
             services.add(esmService);
@@ -1042,6 +1041,7 @@ public class TSSService {
     }
 
     /* *** Provision With ExternalTJobExec *** */
+    @SuppressWarnings("unchecked")
     public void provisionExternalTJobExecServiceInstance(String serviceId,
             ExternalTJobExecution exTJobExec, String instanceId) {
         logger.info("Service id to provision: " + serviceId);
@@ -1053,6 +1053,29 @@ public class TSSService {
                     : null;
             newServiceInstance = this.createNewServiceInstance(serviceId,
                     execId, instanceId);
+
+            // Add extra_hosts
+            if (exTJobExec.getExecutionConfig() != null) {
+                Map<String, Object> executionConfig = UtilTools
+                        .convertJsonStringToObj(exTJobExec.getExecutionConfig(),
+                                Map.class);
+                if (executionConfig != null
+                        && executionConfig.containsKey("extraHosts")) {
+                    List<String> extraHosts = null;
+                    try {
+                        extraHosts = (List<String>) executionConfig
+                                .get("extraHosts");
+                    } catch (Exception e) {
+                        // Single extraHost
+                        extraHosts = Arrays.asList(
+                                (String) executionConfig.get("extraHosts"));
+                    }
+                    if (extraHosts != null) {
+                        newServiceInstance.setExtraHosts(extraHosts);
+
+                    }
+                }
+            }
 
             this.setExecutionTSSFilesConfig(newServiceInstance,
                     new Execution(exTJobExec));
@@ -1186,11 +1209,11 @@ public class TSSService {
                 serviceInstance.getEndpointName());
         TssManifest manifest = esmServiceClient
                 .getManifestById(serviceInstance.getManifestId());
-        
-        // Build the URL for the service checked as main 
+
+        // Build the URL for the service checked as main
         serviceInstance = buildSubserviceUrls(serviceInstance, manifest);
-        
-        // Build URLs for the Subservices 
+
+        // Build URLs for the Subservices
         for (SupportServiceInstance subService : serviceInstance
                 .getSubServices()) {
             logger.debug("Sub-services names: {}",
@@ -1228,11 +1251,12 @@ public class TSSService {
             if (manifestEndpointServiceApi != null) {
                 if (!manifestEndpointServiceApi.isArray()) {
                     buildEndpointUrl(serviceInstance,
-                            manifestEndpointServiceApi, tssContainerName, "api");
+                            manifestEndpointServiceApi, tssContainerName,
+                            "api");
                 } else {
                     for (final JsonNode apiNode : manifestEndpointServiceApi) {
-                        buildEndpointUrl(serviceInstance,
-                                apiNode, tssContainerName,
+                        buildEndpointUrl(serviceInstance, apiNode,
+                                tssContainerName,
                                 apiNode.get("name") != null
                                         ? apiNode.get("name").toString()
                                                 .replaceAll("\"", "") + "api"
@@ -1244,11 +1268,12 @@ public class TSSService {
             if (manifestEndpointServiceGui != null) {
                 if (!manifestEndpointServiceGui.isArray()) {
                     buildEndpointUrl(serviceInstance,
-                            manifestEndpointServiceGui, tssContainerName, "gui");
+                            manifestEndpointServiceGui, tssContainerName,
+                            "gui");
                 } else {
                     for (final JsonNode guiNode : manifestEndpointServiceGui) {
-                        buildEndpointUrl(serviceInstance,
-                                guiNode, tssContainerName, 
+                        buildEndpointUrl(serviceInstance, guiNode,
+                                tssContainerName,
                                 guiNode.get("name") != null
                                         ? guiNode.get("name").toString()
                                                 .replaceAll("\"", "") + "gui"
@@ -1281,17 +1306,17 @@ public class TSSService {
             // If ElasTest works locally, a binded port is not required.
             if (!utilsService.isDefaultEtPublicHost()) {
                 logger.debug("It's necessary to bind ports");
-                auxPort = bindingPort(serviceInstance, nodePort,
-                        node, isIntegratedEUS(serviceInstance));
+                auxPort = bindingPort(serviceInstance, nodePort, node,
+                        isIntegratedEUS(serviceInstance));
             } else {
                 logger.debug("It is not necessary to bind ports");
                 auxPort = internalPort;
             }
-//            
-//            if (utilsService.isKubernetes()) {
-//                serviceInstance.setContainerIp(platformService.getContainerIp(
-//                        serviceInstance.getEndpointName(), serviceInstance));
-//            }
+            //
+            // if (utilsService.isKubernetes()) {
+            // serviceInstance.setContainerIp(platformService.getContainerIp(
+            // serviceInstance.getEndpointName(), serviceInstance));
+            // }
 
             if (node.get("protocol") != null && (node.get("protocol").toString()
                     .contains("http")
@@ -1305,11 +1330,13 @@ public class TSSService {
                 serviceInstance.setUrlValue(nodeName, internalUrl, false);
 
                 if (withServerAddress) {
-                    String serviceIp = platformService.getBindedServiceIp(serviceInstance, nodePort);
+                    String serviceIp = platformService
+                            .getBindedServiceIp(serviceInstance, nodePort);
                     serviceInstance.setServiceIp(serviceIp);
                     serviceInstance.setBindedServiceIp(serviceIp);
                     String externalUrl = buildEndpointUrlAsString(node,
-                            platformService.getBindedServiceIp(serviceInstance, nodePort),
+                            platformService.getBindedServiceIp(serviceInstance,
+                                    nodePort),
                             serviceInstance.getBindedServicePort());
                     serviceInstance.setUrlValue(nodeName, externalUrl, true);
                 }
@@ -1331,7 +1358,7 @@ public class TSSService {
         logger.info("New url: " + url);
         return url;
     }
-    
+
     public int bindingPort(SupportServiceInstance serviceInstance,
             String nodePort, JsonNode node, Boolean integratedService)
             throws Exception {

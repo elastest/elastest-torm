@@ -139,6 +139,12 @@ public abstract class PlatformService {
             Map<String, String> envs, boolean withBindedExposedPortsToRandom,
             boolean withRemoveVolumes) throws Exception;
 
+    public abstract boolean createServiceDeploymentProject(String projectName,
+            String serviceDescriptor, String targetPath, boolean override,
+            Map<String, String> envs, boolean withBindedExposedPortsToRandom,
+            boolean withRemoveVolumes, List<String> extraHosts)
+            throws Exception;
+
     public abstract boolean deployService(String projectName, boolean withPull,
             String namespace) throws IOException, Exception;
 
@@ -187,7 +193,7 @@ public abstract class PlatformService {
 
     public abstract void deployAndRunTJobExecution(Execution execution)
             throws Exception;
-    
+
     public abstract String getPublicServiceIp(String serviceName, String port,
             String namespace);
 
@@ -269,7 +275,7 @@ public abstract class PlatformService {
 
     public abstract String getBindedServiceIp(
             SupportServiceInstance serviceInstance, String port);
-    
+
     public abstract boolean isContainerByServiceName(String serviceName,
             DockerContainerInfo.DockerContainer container);
 

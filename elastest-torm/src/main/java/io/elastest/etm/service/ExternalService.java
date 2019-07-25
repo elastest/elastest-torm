@@ -26,6 +26,7 @@ import io.elastest.etm.dao.external.ExternalTJobExecutionRepository;
 import io.elastest.etm.dao.external.ExternalTJobRepository;
 import io.elastest.etm.dao.external.ExternalTestCaseRepository;
 import io.elastest.etm.dao.external.ExternalTestExecutionRepository;
+import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.model.EusExecutionData;
 import io.elastest.etm.model.Execution;
@@ -37,7 +38,6 @@ import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.ResultEnum;
-import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalProject.TypeEnum;
@@ -518,11 +518,16 @@ public class ExternalService {
     }
 
     public ExternalTJobExecution createExternalTJobExecutionByExternalTJobId(
-            Long exTJobId) {
+            Long exTJobId, ExternalTJobExecution baseExtTJobExec) {
         ExternalTJob exTJob = this.externalTJobRepository.findById(exTJobId)
                 .get();
         ExternalTJobExecution exec = new ExternalTJobExecution();
         exec.setExTJob(exTJob);
+
+        if (baseExtTJobExec != null
+                && baseExtTJobExec.getExecutionConfig() != null) {
+            exec.setExecutionConfig(baseExtTJobExec.getExecutionConfig());
+        }
 
         return createExternalTJobExecution(exec);
     }
@@ -568,7 +573,7 @@ public class ExternalService {
         String index = exTJobExec.getExternalTJobExecMonitoringIndex();
         monitoringService
                 .deleteMonitoringDataByIndicesAsync(Arrays.asList(index));
-        // TODO remove video folders 
+        // TODO remove video folders
         externalTJobExecutionRepository.delete(exTJobExec);
     }
 

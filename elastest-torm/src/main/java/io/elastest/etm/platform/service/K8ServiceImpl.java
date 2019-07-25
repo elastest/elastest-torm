@@ -78,14 +78,23 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
+    public boolean createServiceDeploymentProject(String projectName,
+            String serviceDescriptor, String targetPath, boolean override,
+            Map<String, String> envs, boolean withBindedExposedPortsToRandom,
+            boolean withRemoveVolumes, List<String> extraHosts)
+            throws Exception {
+        return k8sService.createk8sProject(projectName, serviceDescriptor, envs,
+                extraHosts) != null ? true : false;
+    }
+
+    @Override
     public boolean deployService(String projectName, boolean withPull,
             String namespace) throws Exception {
         if (namespace != null && !namespace.isEmpty()) {
             k8sService.createNamespace(projectName);
         }
         return k8sService.deployResourcesFromProject(projectName,
-                namespace) != null ? true
-                : false;
+                namespace) != null ? true : false;
     }
 
     @Override
@@ -173,8 +182,8 @@ public class K8ServiceImpl extends PlatformService {
 
         return containersInfo;
     }
-    
-    private List<Pod> getServicesPods(String namespace){
+
+    private List<Pod> getServicesPods(String namespace) {
         List<Pod> pods = new ArrayList<>();
         pods.addAll(k8sService
                 .getPodsByLabelKey("io.elastest.service", namespace).size() > 0
@@ -183,7 +192,7 @@ public class K8ServiceImpl extends PlatformService {
                         : k8sService.getPodsByLabelKey("io.elastest.service",
                                 null));
         return pods;
-        
+
     }
 
     @Override
@@ -353,8 +362,8 @@ public class K8ServiceImpl extends PlatformService {
             throws Exception {
         DockerContainer testContainer = createContainer(execution,
                 ContainerType.TJOB);
-        k8sService.deleteJob(testContainer.getContainerName()
-                .get().replace("_", "-"));
+        k8sService.deleteJob(
+                testContainer.getContainerName().get().replace("_", "-"));
     }
 
     @Override
@@ -503,7 +512,7 @@ public class K8ServiceImpl extends PlatformService {
                                 ? k8sService.LABEL_UNIQUE_PLUGIN_NAME
                                 : k8sService.LABEL_TSS_NAME);
         logger.debug("Getting binding port");
-        
+
         ServiceBindedPort bindedPortObj = new ServiceBindedPort(port,
                 serviceInfo.getServicePort(), serviceInfo.getServiceName());
         logger.debug("Port binded against: {}", serviceInfo.getServicePort());
@@ -525,14 +534,14 @@ public class K8ServiceImpl extends PlatformService {
     public String getTSSInstanceContainerName(String... params) {
         logger.debug("Check if the TSS {} exist as a pod in the namespace {}",
                 params[1], params[0]);
-//        String name = "";
-//        Map<String, String> labels = new HashMap<>();
-//        labels.put("io.elastest.tjob.tss.id", params[1]);
-//        if (k8sService.getPodsByLabels(labels, params[0]).size() > 0) {
-//            name = params[1];
-//        }
-//        logger.debug("Service name: {}", name);
-//        return name;
+        // String name = "";
+        // Map<String, String> labels = new HashMap<>();
+        // labels.put("io.elastest.tjob.tss.id", params[1]);
+        // if (k8sService.getPodsByLabels(labels, params[0]).size() > 0) {
+        // name = params[1];
+        // }
+        // logger.debug("Service name: {}", name);
+        // return name;
         return params[1];
     }
 

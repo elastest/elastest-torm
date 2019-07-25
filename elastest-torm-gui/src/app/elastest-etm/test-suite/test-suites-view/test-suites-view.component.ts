@@ -23,18 +23,7 @@ export class TestSuitesViewComponent implements OnInit {
   tJobExec: TJobExecModel;
 
   filesUrlPrefix: string;
-
-  testCaseColumns: ITdDataTableColumn[] = [
-    { name: 'result', label: 'Result', width: 68 },
-    { name: 'logAnalyzer', label: 'Log', width: 60 },
-    { name: 'name', label: 'Name', width: { min: 150, max: 750 } },
-    { name: 'files', label: 'Files', width: { min: 260, max: 750 } },
-    { name: 'time', label: 'Time (s)' },
-    { name: 'failureMessage', label: 'Failure Msg', width: { min: 170, max: 750 } },
-    { name: 'failureType', label: 'Failure Type' },
-    { name: 'failureErrorLine', label: 'Error Line', width: 96 },
-    { name: 'failureDetail', label: 'Failure Detail' },
-  ];
+  selectedTestCaseTab: number;
 
   constructor(
     private router: Router,
@@ -42,37 +31,10 @@ export class TestSuitesViewComponent implements OnInit {
     private configurationService: ConfigurationService,
     private eusDialog: ElastestEusDialogService,
   ) {
-    this.filesUrlPrefix = configurationService.configModel.proxyHost;
+    this.filesUrlPrefix = this.configurationService.configModel.proxyHost;
   }
 
-  ngOnInit(): void {
-    if (this.tJobExec) {
-      this.getExecutionFiles();
-    }
-  }
-
-  viewInLogAnalyzer(suite: TestSuiteModel, testCase: TestCaseModel): void {
-    if (this.tJobExec && suite) {
-      this.router.navigate(
-        [
-          '/projects',
-          this.tJobExec.tJob.project.id,
-          'tjob',
-          this.tJobExec.tJob.id,
-          'tjob-exec',
-          this.tJobExec.id,
-          'testSuite',
-          suite.id,
-          'testCase',
-          testCase.id,
-          'loganalyzer',
-        ],
-        {
-          queryParams: { tjob: this.tJobExec.tJob.id, exec: this.tJobExec.id, testCase: testCase.name },
-        },
-      );
-    }
-  }
+  ngOnInit(): void {}
 
   viewTestCaseDetails(suite: TestSuiteModel, testCase: TestCaseModel): void {
     if (this.tJobExec) {
@@ -91,24 +53,7 @@ export class TestSuitesViewComponent implements OnInit {
     }
   }
 
-  getExecutionFiles(): void {
-    this.tJobExecService.getTJobExecutionFiles(this.tJobExec.tJob.id, this.tJobExec.id).subscribe(
-      (tJobsExecFiles: FileModel[]) => {
-        for (let testSuite of this.testSuites) {
-          for (let testCase of testSuite.testCases) {
-            tJobsExecFiles = testCase.setTestCaseFiles(tJobsExecFiles);
-          }
-        }
-      },
-      (error: Error) => console.log(error),
-    );
-  }
-  viewSession(file: FileModel, title: string = 'Recorded Video'): void {
-    let url: string = this.filesUrlPrefix + file.encodedUrl;
-    let dialog: MatDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
-    dialog.componentInstance.title = title;
-    dialog.componentInstance.iframeUrl = url;
-    dialog.componentInstance.sessionType = 'video';
-    dialog.componentInstance.closeButton = true;
+  goToTestCaseTab(num: number): void {
+    this.selectedTestCaseTab = num;
   }
 }

@@ -36,11 +36,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
  */
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class DockerComposeCreateProject extends DockerProject{
+public class DockerComposeCreateProject extends DockerProject {
 
     public DockerComposeCreateProject(String name, String yml) {
         super(name, yml);
-        }
+    }
 
     public DockerComposeCreateProject(String name, String yml,
             List<String> envList) {
@@ -220,6 +220,41 @@ public class DockerComposeCreateProject extends DockerProject{
         try (ServerSocket socket = new ServerSocket(0)) {
             return socket.getLocalPort();
         }
+    }
+
+    public void setExtraHostsToYmlServices(List<String> extraHosts)
+            throws Exception {
+        HashMap<String, HashMap> servicesMap = getYmlServices();
+        for (HashMap.Entry<String, HashMap> service : servicesMap.entrySet()) {
+            service = this.setExtraHostsToYmlService(service, extraHosts);
+        }
+        setYmlServices(servicesMap);
+    }
+
+    public HashMap.Entry<String, HashMap> setExtraHostsToYmlService(
+            Entry<String, HashMap> service, List<String> extraHosts) {
+        if (this.extraHosts.size() > 0) {
+            HashMap serviceContent = service.getValue();
+            String extraHostsKey = "extra_hosts";
+            List<String> existentExtraHosts = null;
+            if (serviceContent.containsKey(extraHostsKey)) {
+                existentExtraHosts = (List<String>) serviceContent
+                        .get(extraHostsKey);
+                serviceContent.remove(extraHostsKey);
+            }
+
+            if (existentExtraHosts == null) {
+                existentExtraHosts = new ArrayList();
+            }
+            for (String extraHost : this.extraHosts) {
+                existentExtraHosts.add(extraHost);
+            }
+            // Add to service
+            serviceContent.put(extraHostsKey, existentExtraHosts);
+        }
+
+        return service;
+
     }
 
 }

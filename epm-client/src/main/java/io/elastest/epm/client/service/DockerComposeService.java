@@ -173,12 +173,18 @@ public class DockerComposeService {
     public boolean createProjectWithEnv(String projectName,
             String dockerComposeYml, String targetPath, boolean override,
             Map<String, String> envs, boolean withBindedExposedPortsToRandom,
-            boolean withRemoveVolumes) throws Exception {
+            boolean withRemoveVolumes, List<String> extraHosts)
+            throws Exception {
         DockerComposeCreateProject createProject = new DockerComposeCreateProject(
                 projectName, dockerComposeYml.replaceAll("'", "\""));
-        if (envs != null) {
+        if (envs != null && envs.size() > 0) {
             createProject.getEnv().putAll(envs);
             createProject.setEnvVarsToYmlServices();
+        }
+
+        if (extraHosts != null && extraHosts.size() > 0) {
+            createProject.getExtraHosts().addAll(extraHosts);
+            createProject.setExtraHostsToYmlServices(extraHosts);
         }
 
         return createProject(createProject, targetPath, override,
@@ -192,7 +198,7 @@ public class DockerComposeService {
 
         return createProjectWithEnv(projectName, dockerComposeYml, targetPath,
                 override, null, withBindedExposedPortsToRandom,
-                withRemoveVolumes);
+                withRemoveVolumes, null);
     }
 
     public boolean createProject(String projectName, String dockerComposeYml,

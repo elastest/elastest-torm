@@ -19,6 +19,8 @@ public class EtPlugin extends DockerServiceStatus {
     protected String displayName;
     protected String fileName;
 
+    protected List<String> extraHosts = new ArrayList<>();
+
     public EtPlugin() {
     }
 
@@ -52,6 +54,7 @@ public class EtPlugin extends DockerServiceStatus {
         this.pass = plugin.pass;
         this.displayName = plugin.displayName;
         this.fileName = plugin.fileName;
+        this.extraHosts = plugin.extraHosts;
     }
 
     public String getName() {
@@ -134,14 +137,22 @@ public class EtPlugin extends DockerServiceStatus {
         this.fileName = fileName;
     }
 
+    public List<String> getExtraHosts() {
+        return extraHosts;
+    }
+
+    public void setExtraHosts(List<String> extraHosts) {
+        this.extraHosts = extraHosts;
+    }
+
     @Override
     public String toString() {
         return "EtPlugin [name=" + name + ", internalUrl=" + internalUrl
                 + ", bindedUrl=" + bindedUrl + ", url=" + url + ", imagesList="
                 + imagesList + ", parameters=" + parameters + ", user=" + user
                 + ", pass=" + pass + ", displayName=" + displayName
-                + ", fileName=" + fileName + ", toString()=" + super.toString()
-                + "]";
+                + ", fileName=" + fileName + ", extraHosts=" + extraHosts
+                + ", toString()=" + super.toString() + "]";
     }
 
     public void initToDefault() {

@@ -128,10 +128,13 @@ export class ExternalService {
       .map((response: HttpResponse<any>) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.body));
   }
 
-  public createExternalTJobExecutionByExTJobId(exTJobId: number | string): Observable<ExternalTJobExecModel> {
+  public createExternalTJobExecutionByExTJobId(
+    exTJobId: number | string,
+    extTJobExec?: ExternalTJobExecModel,
+  ): Observable<ExternalTJobExecModel> {
     let url: string = this.configurationService.configModel.hostApi + '/external/extjob/' + exTJobId + '/tjobexec';
     return this.http
-      .post(url, {}, { observe: 'response' })
+      .post(url, extTJobExec, { observe: 'response' })
       .map((response: HttpResponse<any>) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(response.body));
   }
 

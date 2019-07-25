@@ -44,102 +44,20 @@
           <div fxLayout="column" class="pad-top-sm pad-left-sm">
             <mat-card-subtitle class="pad-left-none">Test Cases</mat-card-subtitle>
 
-            <td-data-table
-              #testCasesTable
-              *ngIf="suite.testCases.length > 0"
-              class="scroll_table"
-              [data]="suite.testCases"
-              [columns]="testCaseColumns"
-              [selectable]="false"
-              [clickable]="false"
-              [sortable]="false"
-              [resizableColumns]="true"
+            <mat-tab-group
+              id="suite{{ suite.id }}TestCasesTabGroup"
+              class="testCasesGroup"
+              [(selectedIndex)]="selectedTestCaseTab"
             >
-              <ng-template
-                *ngFor="let column of testCaseColumns"
-                tdDataTableTemplate="{{ column.name }}"
-                let-value="value"
-                let-row="row"
-              >
-                <div
-                  *ngIf="column.name !== 'logAnalyzer' && column.name !== 'files' && column.name !== 'result' && column.name !== 'time'"
-                  class="hover-pointer lineHeightNormal textCell"
-                  matTooltip="{{ value }}"
-                  (click)="viewTestCaseDetails(suite, row)"
-                >
-                  {{ value }}
-                </div>
-              </ng-template>
-
-
-              <!-- Time -->
-              <ng-template tdDataTableTemplate="time" let-value="value" let-row="row" let-column="column">
-                  <div fxLayout="row" class="timeColumn" matTooltip="{{value}}">
-                   {{ value | number : '1.2-3'}}
-                  </div>
+              <mat-tab *ngFor="let testCase of suite.testCases">
+                <ng-template mat-tab-label>
+                  <span matTooltip="{{ testCase.name }}">{{ testCase.name }}</span>
                 </ng-template>
-
-              <!-- Result -->
-              <ng-template tdDataTableTemplate="result" let-value="value" let-row="row" let-column="column">
-                <div fxLayout="row" class="resultColumn">
-                  <mat-icon [style.color]="row.getResultIcon().color" matTooltip="{{ row.getResultIcon().result }}">{{
-                    row.getResultIcon().name
-                  }}</mat-icon>
-                </div>
-              </ng-template>
-
-              <!-- Files -->
-              <ng-template tdDataTableTemplate="files" let-value="value" let-row="row" let-column="column">
-                <div fxLayout="column" class="filesColumn textCell">
-                  <ol type="1" class="pad-left-md">
-                    <li
-                      *ngFor="let file of row.files; let i = index; let f = first; let l = last"
-                      [ngClass]="!l ? 'push-bottom' : ''"
-                    >
-                      <div fxLayout="row" class="optionsColumn" fxLayoutAlign="start center">
-                        <span style="overflow: auto;">{{ file.name }}</span>
-                        <div fxLayout="column" fxLayout.gt-lg="row">
-                          <a
-                            mat-button
-                            [attr.href]="filesUrlPrefix + file.encodedUrl"
-                            class="iconBtn-xs"
-                            target="_blank"
-                            matTooltip="Open in new tab"
-                          >
-                            <mat-icon>open_in_new</mat-icon>
-                          </a>
-                          <a
-                            mat-button
-                            *ngIf="file.name.includes('.mp4')"
-                            (click)="viewSession(file, file.name)"
-                            class="iconBtn-xs"
-                            target="_blank"
-                            matTooltip="Open as dialog"
-                          >
-                            <mat-icon>open_in_browser</mat-icon>
-                          </a>
-                        </div>
-                      </div>
-                    </li>
-                  </ol>
-                </div>
-              </ng-template>
-
-              <!-- Log Analyzer -->
-              <ng-template tdDataTableTemplate="logAnalyzer" let-value="value" let-row="row" let-column="column">
-                <div fxLayout="row" class="logAnalyzerColumn">
-                  <button
-                    mat-button
-                    (click)="viewInLogAnalyzer(suite, row)"
-                    [disabled]="!tJobExec || row.getResultIcon().result === 'SKIPPED'"
-                    class="onlyIconBtn"
-                    matTooltip="View Case in Log Analyzer"
-                  >
-                    <mat-icon>library_books</mat-icon>
-                  </button>
-                </div>
-              </ng-template>
-            </td-data-table>
+                <ng-template matTabContent>
+                  <etm-test-case [tJobExec]="tJobExec" [testCase]="testCase"></etm-test-case>
+                </ng-template>
+              </mat-tab>
+            </mat-tab-group>
           </div>
         </td-expansion-panel>
       </div>

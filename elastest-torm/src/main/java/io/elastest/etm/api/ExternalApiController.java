@@ -172,9 +172,9 @@ public class ExternalApiController implements ExternalApi {
     @JsonView({ ExternalTJobExecutionView.class })
     public ResponseEntity<ExternalTJobExecution> createExternalTJobExecutionByExternalTJobId(
             @ApiParam(value = "Id of an External TJob.", required = true) @PathVariable("tJobId") Long tJobId,
-            @ApiParam(value = "", required = true) @Valid @RequestBody String body) {
+            @ApiParam(value = "", required = true) @Valid @RequestBody ExternalTJobExecution body) {
         return new ResponseEntity<ExternalTJobExecution>(externalService
-                .createExternalTJobExecutionByExternalTJobId(tJobId),
+                .createExternalTJobExecutionByExternalTJobId(tJobId, body),
                 HttpStatus.OK);
     }
 

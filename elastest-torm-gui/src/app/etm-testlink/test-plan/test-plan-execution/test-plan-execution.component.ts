@@ -241,6 +241,19 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   initExternalTJobExecution(): void {
     this.exTJobExec = new ExternalTJobExecModel();
 
+    let executionConfig: any = {
+      testProjectId: this.params['projectId'],
+      buildId: this.selectedBuild.id,
+      planId: this.testPlan.id,
+      platformId: this.platformId,
+      extraHosts: this.extraHosts,
+      browserName: this.browserName,
+      browserVersion: this.browserVersion,
+    };
+
+    this.exTJobExec.executionConfigObj = executionConfig;
+    this.exTJobExec.executionConfig = JSON.stringify(executionConfig);
+
     let initExtTJobExecMethod: Observable<ExternalTJobExecModel>;
 
     // Resume paused Execution
@@ -248,24 +261,11 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
       initExtTJobExecMethod = this.externalService.resumeExternalTJobExecution(this.exTJobExecId);
     } else {
       // Create new Execution
-      initExtTJobExecMethod = this.externalService.createExternalTJobExecutionByExTJobId(this.exTJob.id);
+      initExtTJobExecMethod = this.externalService.createExternalTJobExecutionByExTJobId(this.exTJob.id, this.exTJobExec);
     }
 
     initExtTJobExecMethod.subscribe((exTJobExec: ExternalTJobExecModel) => {
       this.exTJobExec = exTJobExec;
-
-      let executionConfig: any = {
-        testProjectId: this.params['projectId'],
-        buildId: this.selectedBuild.id,
-        planId: this.testPlan.id,
-        platformId: this.platformId,
-        extraHosts: this.extraHosts,
-        browserName: this.browserName,
-        browserVersion: this.browserVersion,
-      };
-
-      this.exTJobExec.executionConfigObj = executionConfig;
-      this.exTJobExec.executionConfig = JSON.stringify(executionConfig);
 
       // +1 because EUS
       this.checkFinished();

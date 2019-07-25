@@ -211,7 +211,7 @@ public interface ExternalApi extends EtmApiExternalRoot {
                     "application/json" }, method = RequestMethod.POST)
     ResponseEntity<ExternalTJobExecution> createExternalTJobExecutionByExternalTJobId(
             @ApiParam(value = "Id of an External TJob.", required = true) @PathVariable("tJobId") Long tJobId,
-            @ApiParam(value = "", required = true) @Valid @RequestBody String body);
+            @ApiParam(value = "Base External TJob Exec", required = true) @Valid @RequestBody ExternalTJobExecution body);
 
     @ApiOperation(value = "Resumes paused External TJob Execution", notes = "Resumes paused External TJob Execution", response = ExternalTJobExecution.class, tags = {
             "External", })

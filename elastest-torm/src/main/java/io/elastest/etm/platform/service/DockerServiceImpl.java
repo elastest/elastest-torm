@@ -1062,7 +1062,20 @@ public class DockerServiceImpl extends PlatformService {
             boolean withRemoveVolumes) throws Exception {
         return dockerComposeService.createProjectWithEnv(projectName,
                 serviceDescriptor, targetPath, true, envs,
-                withBindedExposedPortsToRandom, withBindedExposedPortsToRandom);
+                withBindedExposedPortsToRandom, withBindedExposedPortsToRandom,
+                null);
+    }
+
+    @Override
+    public boolean createServiceDeploymentProject(String projectName,
+            String serviceDescriptor, String targetPath, boolean override,
+            Map<String, String> envs, boolean withBindedExposedPortsToRandom,
+            boolean withRemoveVolumes, List<String> extraHosts)
+            throws Exception {
+        return dockerComposeService.createProjectWithEnv(projectName,
+                serviceDescriptor, targetPath, true, envs,
+                withBindedExposedPortsToRandom, withBindedExposedPortsToRandom,
+                extraHosts);
     }
 
     @Override
@@ -1175,9 +1188,9 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getContainerIp(String containerId,
-            EtPlugin serviceInstance) throws Exception {
-        logger.debug("Getting container ip: {}", containerId); 
+    public String getContainerIp(String containerId, EtPlugin serviceInstance)
+            throws Exception {
+        logger.debug("Getting container ip: {}", containerId);
         return getContainerIp(containerId);
     }
 
@@ -1444,7 +1457,7 @@ public class DockerServiceImpl extends PlatformService {
             io.elastest.epm.client.json.DockerContainerInfo.DockerContainer container) {
         String containerName = serviceName + "_" + serviceName + "_1";
         if (container.getName().equals(containerName)
-                || container.getName().endsWith(serviceName + "_1")) { 
+                || container.getName().endsWith(serviceName + "_1")) {
             return true;
         } else {
             return false;
