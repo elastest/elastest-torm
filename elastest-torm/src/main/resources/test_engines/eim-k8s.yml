@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    io.elastest: true
+    io.elastest.service.type: core 
+  creationTimestamp: null
+  labels:
+    io.elastest.service: eim
+  name: eim-8080-service
+spec:
+  ports:
+  - name: "eim-8080-host-port"
+    port: 8080
+    targetPort: 8080
+    nodePort: 37004
+  selector:
+    io.elastest.service: eim
+  type: NodePort
+status:
+  loadBalancer: {}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    io.elastest.type: core
+  creationTimestamp: null
+  labels:
+    io.elastest: true
+    io.elastest.service: eim
+  name: eim
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.elastest.service: eim
+    spec:
+      containers:
+      - env:
+        - name: ET_EDM_MYSQL_HOST
+          value: edm-mysql
+        - name: ET_EDM_MYSQL_PORT
+          value: "3306"
+        image: elastest/eim:latest
+        name: eim
+        ports:
+        - containerPort: 8080
+        resources: {}
+        stdin: true
+        tty: true
+      restartPolicy: Always
+status: {}

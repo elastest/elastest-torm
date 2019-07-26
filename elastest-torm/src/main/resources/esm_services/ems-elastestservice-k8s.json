@@ -1,0 +1,151 @@
+{
+	"register": {
+		"name": "EMS",
+		"short_name": "EMS",
+		"id": "bab3ae67-8c1d-46ec-a940-94183a443825",
+		"description": "The Elastest Monitoring Service",
+		"bindable": false,
+		"plans": [
+			{
+				"id": "9b7dd476-462f-4a56-81b0-eccee8917cf7",
+				"name": "basic",
+				"description": "Basic plan for EMS usage",
+				"metadata": {
+					"costs": {
+						"description": "cost model for ems",
+						"currency": "eur",
+						"model": "pay-as-you-go",
+						"model_param": {
+							"setup_cost": 4.2
+						},
+						"meter_list": [
+							{
+								"meter_name": "disk_storage",
+								"meter_type": "gauge",
+								"unit_cost": 0.125,
+								"unit": "gb-hour"
+							}
+						]
+					}
+				}
+			}
+		]
+	},
+	"manifests": [
+		{
+			"id": "bd0dc71f-60ea-47d4-8aaa-e75944692e32",
+			"manifest_content": "version: '2.1'\nservices:\n    ems:\n        image: elastest/ems:latest\n        expose:\n            - \"5044\"\n            - \"8888\"\n            - \"8181\"\n            - \"3232\"\n            - \"5000\"\n            - \"5001\"\n        networks:\n            - elastest_elastest\n        labels:\n            - io.elastest.type=tss\n            - io.elastest.tjob.tss.id=ems\n            - io.elastest.tjob.tss.type=main\n      \nnetworks:\n  elastest_elastest:\n    external: true",
+			"manifest_type": "docker-compose",
+			"plan_id": "9b7dd476-462f-4a56-81b0-eccee8917cf7",
+			"service_id": "bab3ae67-8c1d-46ec-a940-94183a443825",
+			"endpoints": {
+				"ems": {
+					"description": "Service for managing monitoring machines and subscribers",
+					"main": true,
+					"api": [
+						{
+							"protocol": "http",
+							"port": 8888,
+							"path": "/",
+							"definition": {
+								"type": "openapi",
+								"path": "/api.yaml"
+							}
+						},
+						{
+							"name": "lsbeats",
+							"protocol": "beats",
+							"port": 5044
+						},
+						{
+							"name": "httpinevents",
+							"protocol": "http",
+							"port": 8181,
+							"path": "/"
+						},
+						{
+							"name": "httpsinevents",
+							"protocol": "https",
+							"port": 8182,
+							"path": "/"
+						},
+						{
+							"name": "tcp_testlogs",
+							"protocol": "tcp",
+							"port": 5000
+						},
+						{
+							"name": "tcp_sutlogs",
+							"protocol": "tcp",
+							"port": 5001
+						},
+						{
+							"name": "websocket_out",
+							"protocol": "http",
+							"port": 3232,
+							"path": "/"
+						}
+					]
+				}
+			}
+		},
+		{
+			"id": "bd0dc71f-60ea-47d4-8aaa-e75944692e32",
+			"manifest_content": "apiVersion: v1\nkind: Service\nmetadata:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service: ems-service\n  name: ems-service\nspec:\n  ports:\n  - name: \"ems-5044-host-port\"\n    port: 5044\n    targetPort: 5044\n  - name: \"ems-8888-host-port\"\n    port: 8888\n    targetPort: 8888\n  - name: \"ems-8181-host-port\"\n    port: 8181\n    targetPort: 8181\n  - name: \"ems-3232-host-port\"\n    port: 3232\n    targetPort: 3232\n  - name: \"ems-5000-host-port\"\n    port: 5000\n    targetPort: 5000\n  - name: \"ems-5001-host-port\"\n    port: 5001\n    targetPort: 5001\n  selector:\n    io.elastest.tjob.tss.id: ems\n  type: NodePort\nstatus:\n  loadBalancer: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n  annotations:\n    io.elastest.type: tss\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.deployment: ems\n  name: ems\nspec:\n  replicas: 1\n  strategy: {}\n  template:\n    metadata:\n      creationTimestamp: null\n      labels:\n        io.elastest.tjob.tss.id: ems\n        io.elastest.tjob.tss.type: main\n        io.elastest.type: tss\n    spec:\n      containers:\n      - image: elastest/ems:latest\n        name: ems\n        resources: {}\n      restartPolicy: Always\nstatus: {}",
+			"manifest_type": "kubernetes",
+			"plan_id": "9b7dd476-462f-4a56-81b0-eccee8917cf7",
+			"service_id": "bab3ae67-8c1d-46ec-a940-94183a443825",
+			"endpoints": {
+				"ems": {
+					"description": "Service for managing monitoring machines and subscribers",
+					"main": true,
+					"api": [
+						{
+							"protocol": "http",
+							"port": 8888,
+							"path": "/",
+							"definition": {
+								"type": "openapi",
+								"path": "/api.yaml"
+							}
+						},
+						{
+							"name": "lsbeats",
+							"protocol": "beats",
+							"port": 5044
+						},
+						{
+							"name": "httpinevents",
+							"protocol": "http",
+							"port": 8181,
+							"path": "/"
+						},
+						{
+							"name": "httpsinevents",
+							"protocol": "https",
+							"port": 8182,
+							"path": "/"
+						},
+						{
+							"name": "tcp_testlogs",
+							"protocol": "tcp",
+							"port": 5000
+						},
+						{
+							"name": "tcp_sutlogs",
+							"protocol": "tcp",
+							"port": 5001
+						},
+						{
+							"name": "websocket_out",
+							"protocol": "http",
+							"port": 3232,
+							"path": "/"
+						}
+					]
+				}
+			}
+		}
+	]
+}
+

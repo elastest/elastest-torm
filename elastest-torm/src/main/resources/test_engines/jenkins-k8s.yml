@@ -47,10 +47,10 @@ spec:
         resources: {}
         volumeMounts:
         - mountPath: /var/jenkins_home
-          name: elastest-data
+          name: elastest-jenkins-data
       restartPolicy: Always
       volumes:
-      - name: elastest-data
+      - name: elastest-jenkins-data
         persistentVolumeClaim:
           claimName: elastest-jenkins-data-claim
 status: {}

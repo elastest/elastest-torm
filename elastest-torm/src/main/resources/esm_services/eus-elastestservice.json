@@ -1,98 +1,141 @@
 {
-   "register": {
-      "description": "ElasTest service that provides user impersonation as a service",
-      "id": "29216b91-497c-43b7-a5c4-6613f13fa0e9",
-      "name": "EUS",
-      "short_name": "EUS",
-      "bindable": false,
-      "plan_updateable": false,
-      "plans": [
-         {
-            "bindable": false,
-            "description": "Basic plan for EUS",
-            "free": true,
-            "id": "b4cfc681-0e28-41f0-b88c-dde69169a256",
-            "metadata": {
-               "bullets": "basic plan",
-               "costs": {
-                  "description": "cost model for eus",
-                  "currency": "eur",
-                  "model": "pay-as-you-go",
-                  "model_param": {
-                    "setup_cost": 3.5
-                  },
-                  "meter_list": [
-                    {
-                      "meter_name": "chrome_browser",
-                      "meter_type": "counter",
-                      "unit_cost": 5,
-                      "unit": "instance-hour"
-                    },
-                    {
-                      "meter_name": "firefox_browser",
-                      "meter_type": "counter",
-                      "unit_cost": 2.5,
-                      "unit": "instance-hour"
-                    },
-                    {
-                      "meter_name": "edge_browser",
-                      "meter_type": "counter",
-                      "unit_cost": 2,
-                      "unit": "instance-hour"
-                    }
-                  ]
-               }
-            },
-            "name": "EUS plan"
-         }
-      ],
-      "requires": [],
-      "tags": [
-         "browser",
-         "selenium",
-         "webdriver",
-         "gui automation"
-      ]
-   },
-   "manifest": {
-      "id": "2bd62bc2-f768-42d0-8194-562924b494ff",
-      "manifest_content": "version: '2.1'\nservices:\n   elastest-eus:\n      image: elastest/eus\n      environment:\n         - USE_TORM=true\n      expose:\n         - 8040\n      networks:\n         - elastest_elastest\n      volumes:\n         - /var/run/docker.sock:/var/run/docker.sock\n         - ${ET_DATA_IN_HOST}:${ET_SHARED_FOLDER}\n      labels:\n         - io.elastest.type=tss\n         - io.elastest.tjob.tss.id=eus\n         - io.elastest.tjob.tss.type=main\nnetworks:\n  elastest_elastest:\n    external: true",
-      "manifest_type": "docker-compose",
-      "plan_id": "b4cfc681-0e28-41f0-b88c-dde69169a256",
-      "service_id": "29216b91-497c-43b7-a5c4-6613f13fa0e9",
-      "config": {
-         "webRtcStats": {
-           "type": "boolean",
-           "label": "Gather WebRTC Statistics",
-           "default": false
-         }
-      },
-      "endpoints": {
-         "elastest-eus": {
-            "description": "W3C WebDriver standard sessions operations",
-            "main": true,
-            "api": [
-               {
-                  "protocol": "http",
-                  "port": 8040,
-                  "path": "/eus/v1/",
-                  "definition": {
-                  "type": "openapi",
-                  "path": "/eus/v1/api.yaml"
-                  }
-               },
-               {
-                  "name": "eusWS",
-                  "protocol": "ws",
-                  "port": 8040,
-                  "path": "/eus/v1/eus-ws"
-               }
-            ],
-            "gui": {
-               "protocol": "angular",
-               "path": "app-elastest-eus"
-            }
-         }
-      }
-   }
+	"register": {
+		"description": "ElasTest service that provides user impersonation as a service",
+		"id": "29216b91-497c-43b7-a5c4-6613f13fa0e9",
+		"name": "EUS",
+		"short_name": "EUS",
+		"bindable": false,
+		"plan_updateable": false,
+		"plans": [
+			{
+				"bindable": false,
+				"description": "Basic plan for EUS",
+				"free": true,
+				"id": "b4cfc681-0e28-41f0-b88c-dde69169a256",
+				"metadata": {
+					"bullets": "basic plan",
+					"costs": {
+						"description": "cost model for eus",
+						"currency": "eur",
+						"model": "pay-as-you-go",
+						"model_param": {
+							"setup_cost": 3.5
+						},
+						"meter_list": [
+							{
+								"meter_name": "chrome_browser",
+								"meter_type": "counter",
+								"unit_cost": 5,
+								"unit": "instance-hour"
+							},
+							{
+								"meter_name": "firefox_browser",
+								"meter_type": "counter",
+								"unit_cost": 2.5,
+								"unit": "instance-hour"
+							},
+							{
+								"meter_name": "edge_browser",
+								"meter_type": "counter",
+								"unit_cost": 2,
+								"unit": "instance-hour"
+							}
+						]
+					}
+				},
+				"name": "EUS plan"
+			}
+		],
+		"requires": [],
+		"tags": [
+			"browser",
+			"selenium",
+			"webdriver",
+			"gui automation"
+		]
+	},
+	"manifests": [
+		{
+			"id": "2bd62bc2-f768-42d0-8194-562924b494ff",
+			"manifest_content": "version: '2.1'\nservices:\n   elastest-eus:\n      image: elastest/eus\n      environment:\n         - USE_TORM=true\n      expose:\n         - 8040\n      networks:\n         - elastest_elastest\n      volumes:\n         - /var/run/docker.sock:/var/run/docker.sock\n         - ${ET_DATA_IN_HOST}:${ET_SHARED_FOLDER}\n      labels:\n         - io.elastest.type=tss\n         - io.elastest.tjob.tss.id=eus\n         - io.elastest.tjob.tss.type=main\nnetworks:\n  elastest_elastest:\n    external: true",
+			"manifest_type": "docker-compose",
+			"plan_id": "b4cfc681-0e28-41f0-b88c-dde69169a256",
+			"service_id": "29216b91-497c-43b7-a5c4-6613f13fa0e9",
+			"config": {
+				"webRtcStats": {
+					"type": "boolean",
+					"label": "Gather WebRTC Statistics",
+					"default": false
+				}
+			},
+			"endpoints": {
+				"elastest-eus": {
+					"description": "W3C WebDriver standard sessions operations",
+					"main": true,
+					"api": [
+						{
+							"protocol": "http",
+							"port": 8040,
+							"path": "/eus/v1/",
+							"definition": {
+								"type": "openapi",
+								"path": "/eus/v1/api.yaml"
+							}
+						},
+						{
+							"name": "eusWS",
+							"protocol": "ws",
+							"port": 8040,
+							"path": "/eus/v1/eus-ws"
+						}
+					],
+					"gui": {
+						"protocol": "angular",
+						"path": "app-elastest-eus"
+					}
+				}
+			}
+		},
+		{
+			"id": "2bd62bc2-f768-42d0-8194-562924b494ff",
+			"manifest_content": "apiVersion: v1\nkind: Service\nmetadata:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service: eus-service\n  name: eus-service\nspec:\n  ports:\n  - name: \!eus-8040-host-port\!\n    port: 8040\n    targetPort: 8040\n  selector:\n    io.elastest.tjob.tss.id: eus\n  type: NodePort\nstatus:\n  loadBalancer: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n  annotations:\n    io.elastest.type: tss\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.deployment: eus\n  name: eus\nspec:\n  replicas: 1\n  strategy: {}\n  template:\n    metadata:\n      creationTimestamp: null\n      labels:\n        io.elastest.tjob.tss.id: eus\n        io.elastest.tjob.tss.type: main\n        io.elastest.type: tss\n    spec:\n      containers:\n      - env:\n        - name: USE_TORM\n          value: \"true\"\n        image: elastest/eus\n        name: elastest-eus\n        resources: {}\n      restartPolicy: Always\nstatus: {}\n",
+			"manifest_type": "kubernetes",
+			"plan_id": "b4cfc681-0e28-41f0-b88c-dde69169a256",
+			"service_id": "29216b91-497c-43b7-a5c4-6613f13fa0e9",
+			"config": {
+				"webRtcStats": {
+					"type": "boolean",
+					"label": "Gather WebRTC Statistics",
+					"default": false
+				}
+			},
+			"endpoints": {
+				"elastest-eus": {
+					"description": "W3C WebDriver standard sessions operations",
+					"main": true,
+					"api": [
+						{
+							"protocol": "http",
+							"port": 8040,
+							"path": "/eus/v1/",
+							"definition": {
+								"type": "openapi",
+								"path": "/eus/v1/api.yaml"
+							}
+						},
+						{
+							"name": "eusWS",
+							"protocol": "ws",
+							"port": 8040,
+							"path": "/eus/v1/eus-ws"
+						}
+					],
+					"gui": {
+						"protocol": "angular",
+						"path": "app-elastest-eus"
+					}
+				}
+			}
+		}
+	]
 }

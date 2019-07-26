@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    io.elastest.service: etm-jenkins-service
+  name: etm-jenkins
+spec:
+  ports:
+  - name: "jenkins"
+    port: 37092
+    targetPort: 8080
+  selector:
+    io.elastest.service: etm-jenkins
+status:
+  loadBalancer: {}
