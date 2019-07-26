@@ -1,12 +1,5 @@
 <ng-container *ngIf="logsList.length > 0">
-  <div
-    #logsContainer
-    *ngFor="let group of groupedLogsList"
-    fxLayout.xs="column"
-    fxLayout.gt-xs="column"
-    fxLayout.gt-md="row"
-    tdMediaToggle="gt-xs"
-  >
+  <div #logsContainer *ngFor="let group of groupedLogsList" fxLayout.xs="column" fxLayout.gt-xs="column" fxLayout.gt-md="row">
     <div
       *ngFor="let log of group; let i = index; let f = first; let l = last"
       fxShrink="0"
@@ -18,12 +11,11 @@
   </div>
 </ng-container>
 
-<ng-container *ngIf="logsComparisonMap && logsComparisonMap.size > 0">
-  <div #logsDiffContainer fxLayout="column" tdMediaToggle="gt-xs">
+<ng-container>
+  <div #logsDiffContainer fxLayout="column">
     <elastest-log-comparator
-      #individualLogDiff{{i}}
-      [keys]="logsComparisonKeys"
-      [model]="logsComparisonMap"
+      #logComparator
+      [hide]="true"
       [remove]="removeLogComparatorCard.bind(this)"
       [live]="live"
       fxFlex

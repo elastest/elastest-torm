@@ -20,7 +20,7 @@
     <div fxFlex>
       <div fxLayout="column" fxLayout.gt-sm="row" fxFlexFill>
         <!-- Logs Tree -->
-        <div id="logsTree" fxFlex.gt-sm="35">
+        <div id="logsTree" *ngIf="!hideLogs" fxFlex.gt-sm="35">
           <div fxLayout="column" fxFlexFill>
             <div class="mat-h3 color-gray-2">Logs</div>
             <mat-spinner strokeWidth="6" *ngIf="loadingLogs" color="accent" class="push-top-sm"></mat-spinner>
@@ -43,7 +43,7 @@
         </div>
 
         <!-- Metrics Tree -->
-        <div id="metricsTree" fxFlex fxFlexOffset.gt-sm="1">
+        <div id="metricsTree" *ngIf="!hideMetrics" fxFlex fxFlexOffset.gt-sm="1">
           <div class="mat-h3 color-gray-2">Metrics</div>
           <div class="treeContainer" fxLayout="column">
             <div fxFlex>

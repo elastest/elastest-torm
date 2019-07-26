@@ -1,69 +1,24 @@
-<div fxFlex.gt-sm="100" *ngIf="testSuites">
-  <mat-card tdMediaToggle="gt-xs">
-    <mat-card-title> Test Results </mat-card-title>
-    <mat-divider></mat-divider>
-    <mat-card-content>
-      <div *ngFor="let suite of testSuites" class="push-bottom-sm">
-        <td-expansion-panel expand="false">
-          <ng-template td-expansion-panel-header>
-            <div fxLayout="row" class="pad-top-sm pad-left-sm">
-              <span class="centeredStatusIconSpan pad-right-sm">
-                <mat-icon [style.color]="suite.getResultIcon().color">{{ suite.getResultIcon().name }}</mat-icon>
-              </span>
-              <span fxFlex.gt-xs="20">
-                <mat-card-subtitle class="pad-left-none"> <strong>Test Suite</strong> </mat-card-subtitle>
-                <h4 class="wordBreakAll">{{ suite.name }}</h4>
-              </span>
-              <span fxFlex.gt-xs="10" fxFlexOffset="2">
-                <mat-card-subtitle class="pad-left-none">Nº Test</mat-card-subtitle>
-                <h4>{{ suite.numTests }}</h4>
-              </span>
-              <span fxFlex.gt-xs="10" fxFlexOffset="2">
-                <mat-card-subtitle class="pad-left-none">Errors</mat-card-subtitle>
-                <h4>{{ suite.errors }}</h4>
-              </span>
-              <span fxFlex.gt-xs="10" fxFlexOffset="2">
-                <mat-card-subtitle class="pad-left-none">Failures</mat-card-subtitle>
-                <h4>{{ suite.failures }}</h4>
-              </span>
-              <span fxFlex.gt-xs="10" fxFlexOffset="2">
-                <mat-card-subtitle class="pad-left-none">Skipped</mat-card-subtitle>
-                <h4>{{ suite.skipped }}</h4>
-              </span>
-              <span fxFlex.gt-xs="10" fxFlexOffset="2">
-                <mat-card-subtitle class="pad-left-none">Flakes</mat-card-subtitle>
-                <h4>{{ suite.flakes }}</h4>
-              </span>
-              <span fxFlex.gt-xs="15" fxFlexOffset="2">
-                <mat-card-subtitle class="pad-left-none">Time Elapsed (s)</mat-card-subtitle>
-                <h4>{{ suite.timeElapsed }}</h4>
-              </span>
-            </div>
-          </ng-template>
-
-          <div fxLayout="column" class="pad-top-sm pad-left-sm">
-            <mat-tab-group
-              id="suite{{ suite.id }}TestCasesTabGroup"
-              class="testCasesGroup"
-              [(selectedIndex)]="selectedTestCaseTab"
-            >
-              <mat-tab *ngFor="let testCase of suite.testCases" class="testCaseTab" fxFlex>
-                <ng-template mat-tab-label>
-                  <div matTooltip="{{ testCase.name }}" fxLayout="row" fxLayoutAlign="start center">
-                    <mat-icon [style.color]="testCase.getResultIcon().color" matTooltip="{{ testCase.getResultIcon().result }}">
-                      {{ testCase.getResultIcon().name }}
-                    </mat-icon>
-                    <span>{{ testCase.name }}</span>
-                  </div>
-                </ng-template>
-                <ng-template matTabContent>
-                  <etm-test-case [tJobExec]="tJobExec" [testCase]="testCase"></etm-test-case>
-                </ng-template>
-              </mat-tab>
-            </mat-tab-group>
-          </div>
-        </td-expansion-panel>
-      </div>
-    </mat-card-content>
-  </mat-card>
-</div>
+<auto-height-grid fxLayout="column">
+  <auto-height-row>
+    <self-adjustable-card *ngIf="testSuites && tJobExec">
+      <sa-card-title> Test Results </sa-card-title>
+      <sa-card-content fxFlexFill fxLayout="column">
+        <mat-tab-group id="testSuitesTabGroup" class="testSuitesTabGroup" [(selectedIndex)]="selectedTestSuiteTab" fxFlex>
+          <mat-tab *ngFor="let suite of testSuites" class="testSuiteTab" fxFlex>
+            <ng-template mat-tab-label>
+              <div matTooltip="{{ suite.name }}" fxLayout="row" fxLayoutAlign="start center">
+                <mat-icon [style.color]="suite.getResultIcon().color" matTooltip="{{ suite.getResultIcon().result }}">
+                  {{ suite.getResultIcon().name }}
+                </mat-icon>
+                <span>{{ suite.name }}</span>
+              </div>
+            </ng-template>
+            <ng-template matTabContent>
+              <etm-test-suite fxFlex [tJobExec]="tJobExec" [testSuite]="suite"></etm-test-suite>
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
+      </sa-card-content>
+    </self-adjustable-card>
+  </auto-height-row>
+</auto-height-grid>

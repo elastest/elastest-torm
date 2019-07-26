@@ -19,16 +19,16 @@
               >
                 <mat-icon>library_books</mat-icon>
               </button>
-              <!-- <button
-            id="openMonitoringConfigBtn"
-            mat-button
-            *ngIf="showLogsAndMetrics"
-            (click)="logsAndMetrics.openMonitoringConfig()"
-            class="onlyIconBtn iconBtn-lg"
-            matTooltip="Open Monitoring Config"
-          >
-            <mat-icon>settings</mat-icon>
-          </button> -->
+              <button
+                id="openMonitoringConfigBtn"
+                mat-button
+                *ngIf="showLogsAndMetrics"
+                (click)="logsAndMetrics.openMonitoringConfig()"
+                class="onlyIconBtn iconBtn-lg"
+                matTooltip="Open Monitoring Config"
+              >
+                <mat-icon>settings</mat-icon>
+              </button>
             </div>
           </sa-card-title>
           <sa-card-content fxFlex id="cardContent">
@@ -71,7 +71,7 @@
         <self-adjustable-card id="testCaseTabsCard" [hideTitle]="true">
           <sa-card-content fxFlexFill fxLayout="column">
             <mat-tab-group #testCaseTabGroup id="testCaseTabGroup" [(selectedIndex)]="selectedTab">
-              <mat-tab label="All Logs">
+              <mat-tab label="Log Analyzer">
                 <elastest-log-analyzer
                   #miniLogAnalyzer
                   *ngIf="testCase"

@@ -3,7 +3,6 @@ import { TestSuiteModel } from '../test-suite-model';
 import { Router } from '@angular/router';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
 import { TestCaseModel } from '../../test-case/test-case-model';
-import { ConfigurationService } from '../../../config/configuration-service.service';
 
 @Component({
   selector: 'etm-test-suites-view',
@@ -16,12 +15,9 @@ export class TestSuitesViewComponent implements OnInit {
   @Input()
   tJobExec: TJobExecModel;
 
-  filesUrlPrefix: string;
-  selectedTestCaseTab: number;
+  selectedTestSuiteTab: number = 0;
 
-  constructor(private router: Router, private configurationService: ConfigurationService) {
-    this.filesUrlPrefix = this.configurationService.configModel.proxyHost;
-  }
+  constructor(private router: Router) {}
 
   ngOnInit(): void {}
 
@@ -40,9 +36,5 @@ export class TestSuitesViewComponent implements OnInit {
         testCase.id,
       ]);
     }
-  }
-
-  goToTestCaseTab(num: number): void {
-    this.selectedTestCaseTab = num;
   }
 }

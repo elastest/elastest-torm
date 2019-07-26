@@ -1,4 +1,4 @@
-<mat-card id="logComparator">
+<mat-card id="logComparator" *ngIf="!hide">
   <mat-card-title>
     <div fxLayout="column" fxLayout.gt-md="row">
       <div
@@ -24,7 +24,10 @@
   </mat-card-title>
   <mat-divider></mat-divider>
   <mat-card-content>
-    <mat-tab-group *ngIf="!live && model && keys; else showMsg" [(selectedIndex)]="selectedLogTab">
+    <mat-tab-group
+      *ngIf="!live && model && model.size > 0 && keys && keys.length > 0; else showMsg"
+      [(selectedIndex)]="selectedLogTab"
+    >
       <mat-tab
         fxLayout="column"
         *ngFor="let key of keys; let i = index; let firstKey = first; let lastKey = last"
@@ -45,7 +48,7 @@
       </mat-tab>
     </mat-tab-group>
     <ng-template #showMsg>
-      Execution has not finished yet.
+      No logs to compare.
     </ng-template>
   </mat-card-content>
 </mat-card>

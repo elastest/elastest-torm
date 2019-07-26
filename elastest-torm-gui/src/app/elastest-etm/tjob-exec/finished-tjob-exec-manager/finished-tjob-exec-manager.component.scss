@@ -1,9 +1,16 @@
-.mat-card-subtitle{
-    padding-left: 0 !important;
+.mat-card-subtitle {
+  padding-left: 0 !important;
 }
 
+:host /deep/ .logsViewContent {
+  height: 60vh !important;
+}
 
+#testSuitesView {
+  height: 1300px;
+  max-height: 2800px;
+}
 
-:host /deep/ .logsViewContent{
-    height: 60vh !important;
+:host /deep/ #testSuitesView > etm-test-suites-view {
+  height: 100%;
 }

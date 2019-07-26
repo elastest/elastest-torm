@@ -109,19 +109,25 @@ export class EtmMonitoringViewComponent implements OnInit {
   }
 
   timelineEvent($event): void {
-    if (!$event.unselect) {
-      this.logsGroup.selectTimeRange($event.domain);
-    } else {
-      this.logsGroup.unselectTimeRange();
+    if (this.logsGroup) {
+      if (!$event.unselect) {
+        this.logsGroup.selectTimeRange($event.domain);
+      } else {
+        this.logsGroup.unselectTimeRange();
+      }
     }
   }
 
   hoverEvent(time): void {
-    this.logsGroup.selectTracesByTime(time);
+    if (this.logsGroup) {
+      this.logsGroup.selectTracesByTime(time);
+    }
   }
 
   leaveEvent(): void {
-    this.logsGroup.unselectTraces();
+    if (this.logsGroup) {
+      this.logsGroup.unselectTraces();
+    }
   }
 
   // Adds new monitoring card
@@ -260,6 +266,8 @@ export class EtmMonitoringViewComponent implements OnInit {
         exec: this.tJobExec,
         logCards: this.logsGroup,
         metricCards: this.metricsGroup,
+        hideLogs: this.hideLogs,
+        hideMetrics: this.hideMetrics,
         combineMetricsInPairs: combineMetricsInPairs !== undefined ? combineMetricsInPairs : false,
       },
       height: '80%',

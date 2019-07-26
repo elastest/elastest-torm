@@ -73,7 +73,6 @@ export class TestCaseComponent implements OnInit {
       // Complete Section
       if (this.route.params !== null || this.route.params !== undefined) {
         this.route.params.subscribe((params: Params) => {
-          params = params;
           if (params) {
             this.tJobId = params.tJobId;
             this.tJobExecId = params.tJobExecId;
@@ -167,7 +166,7 @@ export class TestCaseComponent implements OnInit {
   }
 
   goToVideoTab(file: FileModel): void {
-    // video position, ALL logs + Files tabs);
+    // video position, LogAnalyzer + Files tabs);
     this.goToTab(file['order'] + 2);
   }
 

@@ -1,6 +1,6 @@
-<div fxLayout.gt-sm="row" tdMediaToggle="gt-xs">
+<div fxLayout.gt-sm="row">
   <div fxFlex.gt-sm="100">
-    <mat-card tdMediaToggle="gt-xs">
+    <mat-card>
       <mat-card-title>
         <div fxLayout="row">
           <span>
@@ -168,8 +168,7 @@
   </div>
 </div>
 
-<!-- Multi-Config Parent -->
-
+<!-- Multi-Config Parent Execution -->
 <ng-container *ngIf="tJobExec && tJobExec.isParent(); else showNormalExecutionView">
   <etm-child-tjob-execs-view id="childView" [model]="tJobExec"></etm-child-tjob-execs-view>
   <etm-parent-tjob-exec-report-view id="parentReportView" [model]="tJobExec"></etm-parent-tjob-exec-report-view>
@@ -180,16 +179,15 @@
 <!-- Single Execution -->
 <ng-template #showNormalExecutionView>
   <!-- Test Suite / Cases -->
-  <div
-    id="testSuitesView"
-    fxLayout.gt-sm="row"
-    tdMediaToggle="gt-xs"
-    *ngIf="tJobExec.testSuites !== undefined && tJobExec.testSuites !== null && tJobExec.testSuites.length > 0"
-  >
+  <div id="testSuitesView" fxLayout="column" *ngIf="tJobExec.hasTestSuites(); else showLogsAndFiles">
     <etm-test-suites-view fxFlex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
   </div>
-  <!-- logs & Metrics -->
-  <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
-  <!-- Execution files -->
-  <etm-files-manager *ngIf="tJob && tJobExec" [tJob]="tJob" [tJobExec]="tJobExec"></etm-files-manager>
+
+  <ng-template #showLogsAndFiles>
+    <!-- logs & Metrics -->
+    <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
+
+    <!-- Execution files -->
+    <etm-files-manager *ngIf="tJob && tJobExec" [tJob]="tJob" [tJobExec]="tJobExec"></etm-files-manager>
+  </ng-template>
 </ng-template>

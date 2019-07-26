@@ -171,6 +171,10 @@ export class TJobExecModel extends AbstractTJobExecModel {
   getIdAsString(): string {
     return '' + this.id;
   }
+
+  hasTestSuites(): boolean {
+    return this.testSuites !== undefined && this.testSuites !== null && this.testSuites.length > 0;
+  }
 }
 
 export type TJobExecTypeEnum = 'SIMPLE' | 'PARENT' | 'CHILD' | '';

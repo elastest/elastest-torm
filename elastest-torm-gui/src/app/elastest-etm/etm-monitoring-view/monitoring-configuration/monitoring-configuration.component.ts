@@ -40,6 +40,9 @@ export class MonitoringConfigurationComponent implements OnInit {
   combineMetrics: boolean = false;
   metricbeatFieldGroupList: MetricFieldGroupModel[];
 
+  hideLogs: boolean = false;
+  hideMetrics: boolean = false;
+
   logsToCompare: any[] = [];
 
   constructor(
@@ -54,6 +57,8 @@ export class MonitoringConfigurationComponent implements OnInit {
     this.metricCards = inputObj.metricCards;
     this.combineMetrics = inputObj.combineMetricsInPairs;
     this.metricbeatFieldGroupList = getMetricBeatFieldGroupList();
+    this.hideLogs = inputObj.hideLogs !== undefined ? inputObj.hideLogs : false;
+    this.hideMetrics = inputObj.hideMetrics !== undefined ? inputObj.hideMetrics : false;
 
     this.allInOneMetricsActivated = this.metricCards.isAllInOneMetricsCardShowing();
   }
@@ -77,34 +82,20 @@ export class MonitoringConfigurationComponent implements OnInit {
   }
 
   loadLogsTree(): void {
-    this.monitoringService.getLogsTree(this.tJobExec).subscribe(
-      (logTree: any[]) => {
-        this.logTree.setByObjArray(logTree);
-        if (this.logTree.tree.length === 0) {
-          this.noLogs = true;
-          this.loadingLogs = false;
-        } else {
-          // If exist card in logsList , init checks
-          for (let logCard of this.logCards.logsList) {
-            for (let componentStream of this.logTree.tree) {
-              if (logCard.component === componentStream.name) {
-                for (let stream of componentStream.children) {
-                  if (logCard.stream === stream.name) {
-                    stream.checked = true;
-                  }
-                }
-                break;
-              }
-            }
-          }
-
-          // If exist card in logsComparisonMap , init checks
-          for (let key of Array.from(this.logCards.logsComparisonMap.keys())) {
-            for (let logComparison of this.logCards.logsComparisonMap.get(key)) {
+    if (!this.hideLogs && this.logCards) {
+      this.monitoringService.getLogsTree(this.tJobExec).subscribe(
+        (logTree: any[]) => {
+          this.logTree.setByObjArray(logTree);
+          if (this.logTree.tree.length === 0) {
+            this.noLogs = true;
+            this.loadingLogs = false;
+          } else {
+            // If exist card in logsList , init checks
+            for (let logCard of this.logCards.logsList) {
               for (let componentStream of this.logTree.tree) {
-                if (logComparison.component === componentStream.name) {
+                if (logCard.component === componentStream.name) {
                   for (let stream of componentStream.children) {
-                    if (logComparison.stream === stream.name) {
+                    if (logCard.stream === stream.name) {
                       stream.checked = true;
                     }
                   }
@@ -112,20 +103,36 @@ export class MonitoringConfigurationComponent implements OnInit {
                 }
               }
             }
+
+            // If exist card in logsComparisonMap , init checks
+            for (let key of Array.from(this.logCards.getLogComparatorKeys())) {
+              for (let logComparison of this.logCards.getLogComparatorModel().get(key)) {
+                for (let componentStream of this.logTree.tree) {
+                  if (logComparison.component === componentStream.name) {
+                    for (let stream of componentStream.children) {
+                      if (logComparison.stream === stream.name) {
+                        stream.checked = true;
+                      }
+                    }
+                    break;
+                  }
+                }
+              }
+            }
+
+            this.loadingLogs = false;
+
+            this.logsTreeComponent.treeModel.update();
+            this.logsTreeComponent.treeModel.expandAll();
+            this.logTree.updateCheckboxes(this.logsTreeComponent.treeModel.roots);
           }
-
+        },
+        (error: Error) => {
           this.loadingLogs = false;
-
-          this.logsTreeComponent.treeModel.update();
-          this.logsTreeComponent.treeModel.expandAll();
-          this.logTree.updateCheckboxes(this.logsTreeComponent.treeModel.roots);
-        }
-      },
-      (error: Error) => {
-        this.loadingLogs = false;
-        this.noLogs = true;
-      },
-    );
+          this.noLogs = true;
+        },
+      );
+    }
   }
 
   cleanMetricTree(metricTree: any[]): any[] {
