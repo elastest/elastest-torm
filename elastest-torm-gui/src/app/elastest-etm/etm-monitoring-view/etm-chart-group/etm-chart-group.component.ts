@@ -521,7 +521,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   createGroupedMetricList(): void {
-    let defaultGroupNum: number = 2;
+    let defaultGroupNum: number = 3;
     this.groupedMetricsList = this.createGroupedArray(this.metricsList, defaultGroupNum);
   }
 

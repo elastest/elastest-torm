@@ -2,12 +2,16 @@
   height: 300px;
 }
 
-mat-card-title{
+mat-card-title {
   font-size: 21px;
 }
-/* sm */ 
-@media (min-width : 961px) {
-  mat-card-title{
+/* sm */
+@media (min-width: 961px) {
+  mat-card-title {
     font-size: 23px;
   }
+}
+
+:host /deep/ .metricsChartCardContent {
+  padding: 2px !important;
 }
