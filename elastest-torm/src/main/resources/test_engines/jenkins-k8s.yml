@@ -48,9 +48,14 @@ spec:
         volumeMounts:
         - mountPath: /var/jenkins_home
           name: elastest-jenkins-data
+        - name: dockersock
+          mountPath: "/var/run/docker.sock"
       restartPolicy: Always
       volumes:
       - name: elastest-jenkins-data
         persistentVolumeClaim:
           claimName: elastest-jenkins-data-claim
+      - name: dockersock
+        hostPath:
+          path: /var/run/docker.sock
 status: {}
