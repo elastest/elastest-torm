@@ -144,6 +144,12 @@ RUN apt-get install docker-ce -y
 RUN curl -L https://github.com/docker/compose/releases/download/1.21.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose
 
+#Install kubectl
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+RUN chmod +x ./kubectl
+RUN sudo mv ./kubectl /usr/local/bin/kubectl
+
+
 # Add the Jenkins user to the docker group
 #RUN usermod -aG docker ${user}
 
