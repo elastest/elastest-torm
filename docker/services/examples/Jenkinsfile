@@ -26,6 +26,25 @@ node('docker'){
                         testetmalpinegitjavaimage.push()
                     }
 
+
+                stage "Test-etm-alpinegitjavaaws image build"
+        
+                "Create test-etm-alpinegitjavaaws docker image"
+                
+                    echo ("Creating elastest/test-etm-alpinegitjavaaws image..")                
+                    sh 'cd ./docker/services/examples/test-etm-alpinegitjavaaws; docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) -t elastest/test-etm-alpinegitjavaaws:latest .'
+        
+                stage "Publish Test-etm-alpinegitjavaaws docker image"
+        
+                    echo ("Publish elastest/test-etm-alpinegitjavaaws image")
+                    def testetmalpinegitjavaawsimage = docker.image('elastest/test-etm-alpinegitjavaaws:latest')
+                    //this is work arround as withDockerRegistry is not working properly 
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'elastestci-dockerhub',
+                        usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                        sh 'docker login -u "$USERNAME" -p "$PASSWORD"'
+                        testetmalpinegitjavaawsimage.push()
+                    }
+
                 stage "Test-etm-alpinegitjavagauge image build"
         
                 "Create test-etm-alpinegitjavagauge docker image"
