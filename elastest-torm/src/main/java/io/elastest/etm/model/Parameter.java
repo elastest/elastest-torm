@@ -33,7 +33,7 @@ public class Parameter {
     @JsonView({ ParameterView.class, TJobMediumView.class,
             ProjectMediumView.class, TJobExecCompleteView.class, SutView.class,
             SutExecView.class })
-    @Column(name = "value")
+    @Column(name = "value", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("value")
     private String value = null;
 
