@@ -641,7 +641,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   removeAndUnsubscribeAIO(): void {
-    if (this.live && this.metricsList.length === 0) {
+    if (this.live && this.metricsList.length === 0 && this.allInOneMetrics) {
       this.unsubscribe(this.allInOneMetrics.component, this.allInOneMetrics.stream);
     }
     this.allInOneMetrics = undefined;
