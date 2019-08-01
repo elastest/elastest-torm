@@ -1,0 +1,63 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.33">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.72">
+    <script>node {
+    elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, project: &apos;Jenkins Examples&apos;) {
+        withKubeConfig([credentialsId: &apos;k8s-api-token&apos;, serverUrl: env.K8S_URL]) {
+            try {
+                stage(&quot;Start SUT&quot;) {
+                    git(
+                        url: &apos;https://github.com/elastest/demo-projects&apos;
+                        ) 
+                    sh &quot;cd ./webapp/junit5-web-multiple-browsers-test/k8s;./addSutPrefix.sh;kubectl create -f .&quot;
+                }
+                
+                stage(&quot;Run tests&quot;) {
+                    mvnHome = tool &apos;M3.3.9&apos;
+                    def sutIp = getPodIp(&apos;demo-web-java-sut&apos;)
+                    waitForService(5, &quot;http://&quot; + sutIp + &quot;:8080&quot;)
+                    withEnv([&apos;ET_SUT_HOST=&apos; + sutIp]) {
+                        echo &quot;Running test&quot;
+                        sh &quot;cd ./webapp/junit5-web-multiple-browsers-test/;&apos;${mvnHome}/bin/mvn&apos; -Dbrowser=chrome -DforkCount=0 test&quot; 
+                    }
+                }
+            
+            } finally {
+                sh &quot;cd ./webapp/junit5-web-multiple-browsers-test/;kubectl delete -f k8s/&quot;
+                junit &quot;target/*-reports/TEST-*.xml&quot;
+            }
+        }
+    }
+}
+
+def getPodIp(podName) {
+    echo &quot;Retrive pod ip&quot;
+    def podIp = sh (
+        script: &quot;kubectl get pod -o wide | grep &quot; + podName + &quot; | awk &apos;{print \$6}&apos;&quot;,
+        returnStdout: true
+    ).split( &apos;\n&apos; ).first()
+
+    echo podName+&quot; IP = &quot; + podIp;
+    return podIp;
+}
+
+def waitForService(time, serviceUrl) {
+    timeout(time) {
+        waitUntil {
+            echo &quot;Waiting for the service &quot; + serviceUrl + &quot; is ready&quot;
+            script {
+                def r = sh script: &apos;wget -q &apos; + serviceUrl + &apos; -O /dev/null&apos;, returnStatus: true
+                return (r == 0);
+           }
+        }
+    }
+}
+</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>

@@ -36,6 +36,10 @@ ARG job_name_2="jenkins-junit5-multi-browser-test"
 ARG job_name_3="jenkins-junit5-rest-test"
 ARG job_name_4="jenkins-openvidu-example"
 ARG job_name_5="jenkins-fullteaching-example"
+ARG job_name_6="jenkins-junit5-rest-test-on-k8s"
+ARG job_name_7="jenkins-junit5-multi-browser-test-on-k8s"
+ARG job_name_8="jenkins-openvidu-example-on-k8s"
+ARG job_name_9="jenkins-fullteaching-example-on-k8s"
 
 RUN mkdir -p "$TMP"/workspace/
 
@@ -45,6 +49,10 @@ RUN mkdir -p "$TMP"/workspace/${job_name_2}
 RUN mkdir -p "$TMP"/workspace/${job_name_3}
 RUN mkdir -p "$TMP"/workspace/${job_name_4}
 RUN mkdir -p "$TMP"/workspace/${job_name_5}
+RUN mkdir -p "$TMP"/workspace/${job_name_6}
+RUN mkdir -p "$TMP"/workspace/${job_name_7}
+RUN mkdir -p "$TMP"/workspace/${job_name_8}
+RUN mkdir -p "$TMP"/workspace/${job_name_9}
 
 # Create the jobs folder recursively  
 RUN mkdir -p "$TMP"/jobs/${job_name_1}  
@@ -52,6 +60,10 @@ RUN mkdir -p "$TMP"/jobs/${job_name_2}
 RUN mkdir -p "$TMP"/jobs/${job_name_3}  
 RUN mkdir -p "$TMP"/jobs/${job_name_4}  
 RUN mkdir -p "$TMP"/jobs/${job_name_5}
+RUN mkdir -p "$TMP"/jobs/${job_name_6}
+RUN mkdir -p "$TMP"/jobs/${job_name_7}  
+RUN mkdir -p "$TMP"/jobs/${job_name_8}
+RUN mkdir -p "$TMP"/jobs/${job_name_9}
 
 # Add the custom configs to the container  
 COPY /config/${job_name_1}_config.xml "$TMP"/jobs/${job_name_1}/config.xml
@@ -59,6 +71,10 @@ COPY /config/${job_name_2}_config.xml "$TMP"/jobs/${job_name_2}/config.xml
 COPY /config/${job_name_3}_config.xml "$TMP"/jobs/${job_name_3}/config.xml
 COPY /config/${job_name_4}_config.xml "$TMP"/jobs/${job_name_4}/config.xml
 COPY /config/${job_name_5}_config.xml "$TMP"/jobs/${job_name_5}/config.xml
+COPY /config/${job_name_6}_config.xml "$TMP"/jobs/${job_name_6}/config.xml
+COPY /config/${job_name_7}_config.xml "$TMP"/jobs/${job_name_7}/config.xml
+COPY /config/${job_name_8}_config.xml "$TMP"/jobs/${job_name_8}/config.xml
+COPY /config/${job_name_9}_config.xml "$TMP"/jobs/${job_name_9}/config.xml
 
 # Create build file structure  
 RUN mkdir -p "$TMP"/jobs/${job_name_1}/latest/  
@@ -71,6 +87,14 @@ RUN mkdir -p "$TMP"/jobs/${job_name_4}/latest/
 RUN mkdir -p "$TMP"/jobs/${job_name_4}/builds/1/
 RUN mkdir -p "$TMP"/jobs/${job_name_5}/latest/  
 RUN mkdir -p "$TMP"/jobs/${job_name_5}/builds/1/
+RUN mkdir -p "$TMP"/jobs/${job_name_6}/latest/  
+RUN mkdir -p "$TMP"/jobs/${job_name_6}/builds/1/
+RUN mkdir -p "$TMP"/jobs/${job_name_7}/latest/  
+RUN mkdir -p "$TMP"/jobs/${job_name_7}/builds/1/
+RUN mkdir -p "$TMP"/jobs/${job_name_8}/latest/  
+RUN mkdir -p "$TMP"/jobs/${job_name_8}/builds/1/
+RUN mkdir -p "$TMP"/jobs/${job_name_9}/latest/  
+RUN mkdir -p "$TMP"/jobs/${job_name_9}/builds/1/
 
 # `/usr/share/jenkins/ref/` contains all reference configuration we want
 # to set on a fresh new installation. Use it to bundle additional plugins
