@@ -3,7 +3,7 @@ kind: Service
 metadata:
   annotations:
     io.elastest: true
-    io.elastest.service: te
+    io.elastest.service.type: te
   creationTimestamp: null
   labels:
     io.elastest.service: ere

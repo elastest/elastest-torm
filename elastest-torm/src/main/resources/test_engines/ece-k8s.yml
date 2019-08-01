@@ -24,7 +24,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   annotations:
-    io.elastest.type: te
+    io.elastest.service.type: te
   creationTimestamp: null
   labels:
     io.elastest: true

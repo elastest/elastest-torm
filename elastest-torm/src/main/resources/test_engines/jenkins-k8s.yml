@@ -1,4 +1,25 @@
 apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    io.elastest: true
+    io.elastest.service: jenkins
+    io.elastest.service.type: external
+  name: jenkins-8080-service
+spec:
+  ports:
+  - name: "jenkins-8080-host-port"
+    port: 8080
+    targetPort: 8080
+    nodePort: 37092
+  selector:
+    io.elastest.service: jenkins
+  type: NodePort
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: elastest-jenkins-data-claim
