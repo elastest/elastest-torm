@@ -181,6 +181,10 @@
   <!-- Test Suite / Cases -->
   <div id="testSuitesView" fxLayout="column" *ngIf="tJobExec.hasTestSuites(); else showLogsAndFiles">
     <etm-test-suites-view fxFlex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
+    <!-- logs & Metrics -->
+    <td-expansion-panel label="TJob Monitoring" expand="false" class="push-sm">
+      <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
+    </td-expansion-panel>
   </div>
 
   <ng-template #showLogsAndFiles>
