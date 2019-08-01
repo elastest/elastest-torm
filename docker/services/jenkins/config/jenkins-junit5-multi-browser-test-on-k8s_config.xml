@@ -11,24 +11,24 @@
             try {
                 stage(&quot;Start SUT&quot;) {
                     git(
-                        url: &apos;https://github.com/elastest/full-teaching-experiment.git&apos;
+                        url: &apos;https://github.com/elastest/demo-projects&apos;
                         ) 
-                    sh &quot;cd ./k8s; export BUG_TAG=demo;./addSutPrefix.sh;kubectl create -f .&quot;
-                    checkPodStatus(5, &quot;${ET_SUT_CONTAINER_NAME}-full-teaching&quot;)
+                    sh &quot;cd ./webapp/junit5-web-multiple-browsers-test/k8s;./addSutPrefix.sh;kubectl create -f .&quot;
                 }
                 
                 stage(&quot;Run tests&quot;) {
                     mvnHome = tool &apos;M3.3.9&apos;
-                    def sutIp = getPodIp(&apos;full-teaching&apos;)
-                    waitForService(5, &quot;https://&quot; + sutIp + &quot;:5001&quot;)
+                    def sutIp = getPodIp(&apos;demo-web-java-sut&apos;)
+                    waitForService(5, &quot;http://&quot; + sutIp + &quot;:8080&quot;)
                     withEnv([&apos;ET_SUT_HOST=&apos; + sutIp]) {
                         echo &quot;Running test&quot;
-                        sh &quot;&apos;${mvnHome}/bin/mvn&apos; -Dapp.url=https://&quot; + sutIp +&quot;:5001/ -Dtest=FullTeachingTestE2EREST,FullTeachingTestE2EVideoSession,FullTeachingTestE2EChat -B -DforkCount=0 test&quot;
+                        sh &quot;cd ./webapp/junit5-web-multiple-browsers-test/;&apos;${mvnHome}/bin/mvn&apos; -Dbrowser=chrome -DforkCount=0 test&quot; 
                     }
                 }
             
             } finally {
-                sh &quot;kubectl delete -f k8s/&quot;
+                sh &quot;cd ./webapp/junit5-web-multiple-browsers-test/;kubectl delete -f k8s/&quot;
+                junit &quot;target/*-reports/TEST-*.xml&quot;
             }
         }
     }
@@ -50,22 +50,8 @@ def waitForService(time, serviceUrl) {
         waitUntil {
             echo &quot;Waiting for the service &quot; + serviceUrl + &quot; is ready&quot;
             script {
-                def r = sh script: &apos;wget -q --no-check-certificate &apos; + serviceUrl + &apos; -O /dev/null&apos;, returnStatus: true
+                def r = sh script: &apos;wget -q &apos; + serviceUrl + &apos; -O /dev/null&apos;, returnStatus: true
                 return (r == 0);
-           }
-        }
-    }
-}
-
-def checkPodStatus(time, podName) {
-    timeout(time) {
-        waitUntil {
-            echo &quot;Waiting for the pod &quot; + podName + &quot; is created&quot;
-            script {
-                def r = sh script: &apos;kubectl get pods -l io.elastest.service=&apos; + podName.replace(&apos;_&apos;,&apos;-&apos;) + &quot; | awk &apos;{print \$3}&apos;&quot;, returnStdout: true
-                def status = r.split(&quot;\n&quot;).last()
-                echo &quot;Pod ${podName} current status: &quot; + status
-                return ( status == &apos;Running&apos;);
            }
         }
     }
@@ -75,4 +61,4 @@ def checkPodStatus(time, podName) {
   </definition>
   <triggers/>
   <disabled>false</disabled>
-</flow-definition>
+  </flow-definition>
