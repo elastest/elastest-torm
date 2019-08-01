@@ -11,9 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import io.elastest.etm.dao.EimBeatConfigRepository;
@@ -184,16 +186,26 @@ public class EimService {
                 + "/monitor";
         logger.debug("Activating beats: {} {}", url, request);
 
-        Map<String, Object> response = restTemplate.postForObject(url, request,
-                Map.class);
-        if (response.get("monitored").toString().equals("true")) {
-            eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
-                    eimMonitoringConfig, BeatsStatusEnum.ACTIVATED);
-            logger.debug("Beats activated successfully!");
-        } else {
-            eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
-                    eimMonitoringConfig, BeatsStatusEnum.DEACTIVATED);
-            throw new Exception("Beats not activated");
+        try {
+            Map<String, Object> response = restTemplate.postForObject(url,
+                    request, Map.class);
+            if (response.get("monitored").toString().equals("true")) {
+                eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                        eimMonitoringConfig, BeatsStatusEnum.ACTIVATED);
+                logger.debug("Beats activated successfully!");
+            } else {
+                eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
+                        eimMonitoringConfig, BeatsStatusEnum.DEACTIVATED);
+                throw new Exception("Beats not activated");
+            }
+        } catch (HttpClientErrorException e) {
+            // EIM returns 406 (Non Acceptable) when agent is already
+            // monitorized.
+            // If is not 406, throw error
+            logger.warn("{} | {}", e.getMessage(), e.getResponseBodyAsString());
+            if (!e.getStatusCode().equals(HttpStatus.NOT_ACCEPTABLE)) {
+                throw e;
+            }
         }
 
     }
