@@ -72,7 +72,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(6);
+        executor.setMaxPoolSize(8);
         executor.setQueueCapacity(500);
         executor.setThreadNamePrefix("ET-");
         executor.initialize();

@@ -9,4 +9,5 @@
 		level="DEBUG" />
 	<logger name="com.zaxxer.hikari" level="OFF" />
 	<logger name="io.elastest.etm.beats" level="OFF" />
+	<logger name="s.a.a.h.a.internal.utils.ApacheUtils" level="OFF" />
 </configuration>
