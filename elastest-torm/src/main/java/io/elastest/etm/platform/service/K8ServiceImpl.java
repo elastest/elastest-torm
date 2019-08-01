@@ -374,6 +374,11 @@ public class K8ServiceImpl extends PlatformService {
             return k8sService.getPodIpByPodName(hostname);
         }
     }
+    
+    @Override
+    public String getETPublicHost() {
+        return k8sService.getServiceIp(etEtmInternalHost, null);
+    }
 
     @Override
     public void removeBindedPorts(SupportServiceInstance serviceInstance) {

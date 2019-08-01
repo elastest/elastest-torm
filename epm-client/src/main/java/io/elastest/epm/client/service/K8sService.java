@@ -37,6 +37,7 @@ import io.fabric8.kubernetes.api.model.Capabilities;
 import io.fabric8.kubernetes.api.model.CapabilitiesBuilder;
 import io.fabric8.kubernetes.api.model.ContainerBuilder;
 import io.fabric8.kubernetes.api.model.ContainerPort;
+import io.fabric8.kubernetes.api.model.DoneableService;
 import io.fabric8.kubernetes.api.model.EnvVar;
 import io.fabric8.kubernetes.api.model.HasMetadata;
 import io.fabric8.kubernetes.api.model.HostPathVolumeSource;
@@ -66,6 +67,7 @@ import io.fabric8.kubernetes.client.Watch;
 import io.fabric8.kubernetes.client.Watcher;
 import io.fabric8.kubernetes.client.dsl.ExecListener;
 import io.fabric8.kubernetes.client.dsl.ExecWatch;
+import io.fabric8.kubernetes.client.dsl.ServiceResource;
 import okhttp3.Response;
 
 @org.springframework.stereotype.Service
@@ -734,6 +736,22 @@ public class K8sService {
         logger.debug("Service ip {}",
                 serviceURL.split(":")[1].replace("//", ""));
         return serviceURL.split(":")[1].replace("//", "");
+    }
+    
+    public String getServiceIp(String serviceName, String namespace) {
+        logger.debug("Getting the service ip for the service {}", serviceName);
+        ServiceResource<Service, DoneableService> service = client.services()
+                .inNamespace(
+                        namespace != null && !namespace.isEmpty() ? namespace
+                                : DEFAULT_NAMESPACE)
+                .withName(serviceName);
+
+        String externalServiceIp = service
+                .getURL(service.get().getSpec().getPorts().get(0).getName())
+                .split(":")[1].replace("//", "");
+
+        logger.debug("External service ip {}", externalServiceIp);
+        return externalServiceIp;
     }
 
     public void createNamespace(String name) {

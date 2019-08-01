@@ -45,6 +45,7 @@ import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.model.external.ExternalTestCase;
 import io.elastest.etm.model.external.ExternalTestExecution;
+import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
@@ -107,6 +108,7 @@ public class ExternalService {
     private UtilsService utilsService;
     private SutService sutService;
     private EtmFilesService etmFilesService;
+    private PlatformService platformService;
 
     public ExternalService(ProjectService projectService,
             TJobService tJobService,
@@ -119,7 +121,8 @@ public class ExternalService {
             EtmContextService etmContextService,
             LogstashService logstashService, UtilsService utilsService,
             TJobExecOrchestratorService tJobExecOrchestratorService,
-            SutService sutService, EtmFilesService etmFilesService) {
+            SutService sutService, EtmFilesService etmFilesService,
+            PlatformService platformService) {
         super();
         this.projectService = projectService;
         this.tJobService = tJobService;
@@ -137,6 +140,7 @@ public class ExternalService {
         this.tJobExecOrchestratorService = tJobExecOrchestratorService;
         this.sutService = sutService;
         this.etmFilesService = etmFilesService;
+        this.platformService = platformService;
     }
 
     public ExternalJob executeExternalTJob(ExternalJob externalJob) {
@@ -157,10 +161,10 @@ public class ExternalService {
                     externalLinks);
             tJobService.removeOldTJobExecsAsync(tJob.getId());
 
-            String etPublicHost = utilsService.getEtPublicHostValue();
+            String etPublicHost = platformService.getETPublicHost();
 
-            externalJob.setExecutionUrl(
-                    (etInProd ? "http://" + etPublicHost + ":" + etProxyPort
+                    externalJob.setExecutionUrl((etInProd
+                            ? "http://" + etPublicHost + ":" + etProxyPort
                             : "http://localhost" + ":" + etEtmDevGuiPort)
                             + "/#/projects/" + tJob.getProject().getId()
                             + "/tjob/" + tJob.getId() + "/tjob-exec/"

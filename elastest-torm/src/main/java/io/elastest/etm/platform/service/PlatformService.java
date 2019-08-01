@@ -81,6 +81,8 @@ public abstract class PlatformService {
     public boolean etEnableCloudMode;
     @Value("${et.proxy.port}")
     String etProxyPort;
+    @Value("${et.etm.internal.host}")
+    String etEtmInternalHost;
 
     public enum ContainerPrefix {
         TEST("test_"), SUT("sut_"), CHECK("check_"), SUT_EXT("sut_ext_");
@@ -235,6 +237,8 @@ public abstract class PlatformService {
             throws Exception;
 
     public abstract String getEtmHost() throws Exception;
+    
+    public abstract String getETPublicHost();
 
     public abstract String getLogstashHost() throws Exception;
 

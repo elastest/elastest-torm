@@ -104,6 +104,8 @@ public class DockerServiceImpl extends PlatformService {
     public String etTypeToolLabelValue;
     @Value("${et.docker.img.socat}")
     public String etSocatImage;
+    @Value("${et.public.host}")
+    public String etPublicHost;
 
     private DockerComposeService dockerComposeService;
     private DockerService dockerService;
@@ -1370,6 +1372,11 @@ public class DockerServiceImpl extends PlatformService {
         } else {
             return dockerService.getHostIpByNetwork(elastestNetwork);
         }
+    }
+    
+    @Override
+    public String getETPublicHost() {
+        return etPublicHost;
     }
 
     @Override
