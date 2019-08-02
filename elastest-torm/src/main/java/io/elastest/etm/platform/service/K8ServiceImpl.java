@@ -232,7 +232,14 @@ public class K8ServiceImpl extends PlatformService {
     @Override
     public String getUniqPluginContainerName(String serviceName,
             String network) {
-        return System.getenv("HOSTNAME");
+        Map<String, String> labels = new HashMap<>();
+        labels.put("io.elastest.service", serviceName);
+        if (!k8sService.getPodsByLabels(labels, null).isEmpty()) {
+            return k8sService.getPodsByLabels(labels, null).get(0).getMetadata()
+                    .getName();
+        } else {
+            return "";
+        }
     }
 
     @Override

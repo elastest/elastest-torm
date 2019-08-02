@@ -807,7 +807,7 @@ public class K8sService {
                 .inNamespace(
                         (namespace != null && !namespace.isEmpty()) ? namespace
                                 : DEFAULT_NAMESPACE)
-                .withName(name).delete();
+                .withName(name).cascading(true).delete();
 
     }
 
@@ -1007,7 +1007,9 @@ public class K8sService {
 
     public String getPodIpByPodName(String name, String namespace) {
         logger.debug("Get pod IP by pod name -> {}", name);
-        return getPodByName(name, namespace).getStatus().getPodIP();
+        String ip = getPodByName(name, namespace).getStatus().getPodIP();
+        logger.debug("Pod {} has the ip {}", name, ip);
+        return ip;
     }
 
     public String getPodIpByLabel(String label, String value,
