@@ -372,7 +372,8 @@ public class EtPluginsService {
                     (projectName.contains("jenkins")
                             || projectName.contains("testlink")
                             || projectName.contains("ece")
-                            || projectName.contains("ere"))
+                            || projectName.contains("ere")
+                            || projectName.contains("eim"))
                                     ? null
                                     : (utilsService.isElastestMini()
                                             && !utilsService.isKubernetes()
@@ -577,6 +578,8 @@ public class EtPluginsService {
                                     && !"".equals(internalPort)) {
                                 internalUrl = protocol + "://" + internalIp
                                         + ":" + internalPort;
+                                logger.debug("Plugin Service URL -> {}",
+                                        internalUrl);
                             }
 
                             map.get(serviceName).setInternalUrl(internalUrl);
@@ -730,8 +733,7 @@ public class EtPluginsService {
     }
 
     public boolean isUniqueEtPluginStartedOnInit(String serviceName) {
-        logger.debug("Unique Plugin {} started on init: {}", serviceName,
-                etEtmJenkinsHost);
+        logger.debug("Check if the Unique Plugin {} is started on init.", serviceName);
         switch (serviceName) {
         case JENKINS_NAME:
             return !etEtmJenkinsHost.equals("none");
@@ -861,6 +863,14 @@ public class EtPluginsService {
             return this.getUniqueEtPlugin(name);
         } else {
             return tssInstancesMap.get(name);
+        }
+    }
+    
+    public boolean isUniquePlugin(String name) {
+        if (enginesMap.containsKey(name) || uniqueEtPluginsMap.containsKey(name)) {
+            return true;
+        } else { 
+            return false;
         }
     }
 
