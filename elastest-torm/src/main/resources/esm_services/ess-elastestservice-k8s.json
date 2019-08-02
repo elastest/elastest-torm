@@ -1,106 +1,105 @@
 {
-	"register": {
-		"name": "ESS",
-		"short_name": "ESS",
-		"id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
-		"description": "The Elastest Security Service",
-		"bindable": false,
-		"plans": [
-			{
-				"id": "cfd3ebd1-5afa-420d-8313-43d681168cf7",
-				"name": "basic",
-				"description": "Plan for ESS",
-				"metadata": {
-					"costs": {
-						"name": "On Demand 5 + Charges",
-						"type": "ONDEMAND",
-						"fix_cost": {
-							"deployment": 5
-						},
-						"var_rate": {
-							"disk": 1,
-							"memory": 10,
-							"cpus": 50
-						},
-						"components": {
-							
-						},
-						"description": "On Demand 5 per deployment, 50 per core, 10 per GB ram and 1 per GB disk"
-					}
-				}
-			}
-		]
-	},
-	"manifests": [
-		{
-			"id": "862c9c92-c875-40a6-ad7a-afe3f526bc5d",
-			"manifest_content": "version: '2.1'\nservices:\n   ess:\n      image: elastest/ess:latest\n      networks:\n         - elastest_elastest\n      volumes:\n         - /var/run/docker.sock:/var/run/docker.sock\n         - ${ET_DATA_IN_HOST}:${ET_SHARED_FOLDER}\n      labels:\n         - io.elastest.type=tss\n         - io.elastest.tjob.tss.id=ess\n         - io.elastest.tjob.tss.type=main\nnetworks:\n  elastest_elastest:\n    external: true", 
-			"manifest_type": "docker-compose",
-			"plan_id": "cfd3ebd1-5afa-420d-8313-43d681168cf7",
-			"service_id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
-			"endpoints": {
-				"ess": {
-					"description": "The ESS API",
-					"main": true,
-					"api": [
-						{
-							"protocol": "http",
-							"port": 80,
-							"path": "/ess/api/r4"
-						},
-						{
-							"name": "httpproxy",
-							"protocol": "http",
-							"port": 8080,
-							"path": ""
-						}
-					],
-					"gui": {
-						"protocol": "http",
-						"path": "/gui/",
-						"port": 80
-					}
-				}
-			}
-		},
-		{
-			"id": "862c9c92-c875-40a6-ad7a-afe3f526bc5d",
-			"manifest_content": "apiVersion: v1\nkind: Service\nmetadata:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service: eds-frontend-service\n  name: eds-frontend-service\nspec:\n  ports:\n  - name: \"frontend-8000-host-port\"\n    port: 8000\n    targetPort: 8000  \n  selector:\n    io.elastest.tjob.tss.id: frontend\n  type: NodePort\nstatus:\n  loadBalancer: {}\n---\napiVersion: v1\nkind: Service\nmetadata:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service: eds-rest-app-service\n  name: eds-rest-app-service\nspec:\n  ports:\n  - name: \"rest-app-9090-host-port\"\n    port: 9090\n    targetPort: 9090  \n  selector:\n    io.elastest.tjob.tss.id: rest-app\n  type: NodePort\nstatus:\n  loadBalancer: {}\n---\napiVersion: v1\nkind: Service\nmetadata:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service: eds-eds-base-service\n  name: eds-eds-base-service\nspec:\n  ports:\n  - name: \"eds-base-8000-host-port\"\n    port: 8000\n    targetPort: 8000  \n  selector:\n    io.elastest.tjob.tss.id: eds-base\n  type: NodePort\nstatus:\n  loadBalancer: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service.type: tss\n  name: frontend\nspec:\n  replicas: 1\n  strategy: {}\n  template:\n    metadata:\n      creationTimestamp: null\n      labels:\n        io.elastest.type: tss\n        io.elastest.tjob.tss.id: frontend\n        io.elastest.tjob.tss.type: main\n    spec:\n      containers:\n      - env:\n        - name: ci_env\n          value: '`bash <(curl -s https://codecov.io/env)`'\n        image: elastest/eds-frontend:latest\n        name: frontend\n        resources: {}\n      restartPolicy: Always\nstatus: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n creationTimestamp: null\n labels:\n   io.elastest: true\n   io.elastest.service.type: tss\n name: memsipe\nspec:\n replicas: 1\n strategy: {}\n template:\n   metadata:\n     creationTimestamp: null\n     labels:\n       io.elastest.type: tss\n       io.elastest.tjob.tss.id: memsipe\n       io.elastest.tjob.tss.type: false\n   spec:\n     containers:\n     - env:\n       - name: ci_env\n         value: '`bash <(curl -s https://codecov.io/env)`'\n       image: elastest/eds-memsipe:latest\n       name: memsipe\n       resources: {}\n     restartPolicy: Always\nstatus: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n creationTimestamp: null\n labels:\n   io.elastest: true\n   io.kompose.service: rest-app\n name: rest-app\nspec:\n replicas: 1\n strategy: {}\n template:\n   metadata:\n     creationTimestamp: null\n     labels:\n       io.elastest.type: tss\n       io.elastest.tjob.tss.id: rest-app\n       io.elastest.tjob.tss.type: false\n   spec:\n     containers:\n     - env:\n       - name: ci_env\n         value: '`bash <(curl -s https://codecov.io/env)`'\n       image: elastest/eds-api:latest\n       name: rest-app\n       resources: {}\n     restartPolicy: Always\nstatus: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n creationTimestamp: null\n labels:\n   io.elastest: true\n   io.elastest.service.type: tss\n name: eds-base\nspec:\n replicas: 1\n strategy: {}\n template:\n   metadata:\n     creationTimestamp: null\n     labels:\n       io.elastest.type: tss\n       io.elastest.tjob.tss.id: eds-base\n       io.elastest.tjob.tss.type: false\n   spec:\n     containers:\n     - image: elastest/eds-base:latest\n       name: eds-base\n       resources: {}\n     restartPolicy: Always\nstatus: {}\n",
-			"manifest_type": "kubernetes",
-			"plan_id": "cfd3ebd1-5afa-420d-8313-43d681168cf7",
-			"service_id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
-			"config": {
-				"webRtcStats": {
-					"type": "boolean",
-					"label": "Gather WebRTC Statistics",
-					"default": false
-				}
-			},
-			"endpoints": {
-				"ess": {
-					"description": "The ESS API",
-					"main": true,
-					"api": [
-						{
-							"protocol": "http",
-							"port": 80,
-							"path": "/ess/api/r4"
-						},
-						{
-							"name": "httpproxy",
-							"protocol": "http",
-							"port": 8080,
-							"path": ""
-						}
-					],
-					"gui": {
-						"protocol": "http",
-						"path": "/gui/",
-						"port": 80
-					}
-				}
-			}
-		}
-		
-	]
+    "register": {
+        "name": "ESS",
+        "short_name": "ESS",
+        "id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
+        "description": "The Elastest Security Service",
+        "bindable": false,
+        "plans": [
+            {
+                "id": "cfd3ebd1-5afa-420d-8313-43d681168cf7",
+                "name": "basic",
+                "description": "Plan for ESS",
+                "metadata": {
+                    "costs": {
+                        "name": "On Demand 5 + Charges",
+                        "type": "ONDEMAND",
+                        "fix_cost": {
+                            "deployment": 5
+                        },
+                        "var_rate": {
+                            "disk": 1,
+                            "memory": 10,
+                            "cpus": 50
+                        },
+                        "components": {
+                            
+                        },
+                        "description": "On Demand 5 per deployment, 50 per core, 10 per GB ram and 1 per GB disk"
+                    }
+                }
+            }
+        ]
+    },
+    "manifests": [
+        {
+            "id": "862c9c92-c875-40a6-ad7a-afe3f526bc5d",
+            "manifest_content": "version: '2.1'\nservices:\n   ess:\n      image: elastest/ess:latest\n      networks:\n         - elastest_elastest\n      volumes:\n         - /var/run/docker.sock:/var/run/docker.sock\n         - ${ET_DATA_IN_HOST}:${ET_SHARED_FOLDER}\n      labels:\n         - io.elastest.type=tss\n         - io.elastest.tjob.tss.id=ess\n         - io.elastest.tjob.tss.type=main\nnetworks:\n  elastest_elastest:\n    external: true",
+            "manifest_type": "docker-compose",
+            "plan_id": "cfd3ebd1-5afa-420d-8313-43d681168cf7",
+            "service_id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
+            "endpoints": {
+                "ess": {
+                    "description": "The ESS API",
+                    "main": true,
+                    "api": [
+                        {
+                            "protocol": "http",
+                            "port": 80,
+                            "path": "/ess/api/r4"
+                        },
+                        {
+                            "name": "httpproxy",
+                            "protocol": "http",
+                            "port": 8080,
+                            "path": ""
+                        }
+                    ],
+                    "gui": {
+                        "protocol": "http",
+                        "path": "/gui/",
+                        "port": 80
+                    }
+                }
+            }
+        },
+        {
+            "id": "862c9c92-c875-40a6-ad7a-afe3f526bc5d",
+            "manifest_content": "apiVersion: v1\nkind: Service\nmetadata:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service: eds-frontend-service\n  name: eds-frontend-service\nspec:\n  ports:\n  - name: \"frontend-8000-host-port\"\n    port: 8000\n    targetPort: 8000  \n  selector:\n    io.elastest.tjob.tss.id: frontend\n  type: NodePort\nstatus:\n  loadBalancer: {}\n---\napiVersion: v1\nkind: Service\nmetadata:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service: eds-rest-app-service\n  name: eds-rest-app-service\nspec:\n  ports:\n  - name: \"rest-app-9090-host-port\"\n    port: 9090\n    targetPort: 9090  \n  selector:\n    io.elastest.tjob.tss.id: rest-app\n  type: NodePort\nstatus:\n  loadBalancer: {}\n---\napiVersion: v1\nkind: Service\nmetadata:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service: eds-eds-base-service\n  name: eds-eds-base-service\nspec:\n  ports:\n  - name: \"eds-base-8000-host-port\"\n    port: 8000\n    targetPort: 8000  \n  selector:\n    io.elastest.tjob.tss.id: eds-base\n  type: NodePort\nstatus:\n  loadBalancer: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service.type: tss\n  name: frontend\nspec:\n  replicas: 1\n  strategy: {}\n  template:\n    metadata:\n      creationTimestamp: null\n      labels:\n        io.elastest.type: tss\n        io.elastest.tjob.tss.id: frontend\n        io.elastest.tjob.tss.type: main\n    spec:\n      containers:\n      - env:\n        - name: ci_env\n          value: '`bash <(curl -s https://codecov.io/env)`'\n        image: elastest/eds-frontend:latest\n        name: frontend\n        resources: {}\n      restartPolicy: Always\nstatus: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n creationTimestamp: null\n labels:\n   io.elastest: true\n   io.elastest.service.type: tss\n name: memsipe\nspec:\n replicas: 1\n strategy: {}\n template:\n   metadata:\n     creationTimestamp: null\n     labels:\n       io.elastest.type: tss\n       io.elastest.tjob.tss.id: memsipe\n       io.elastest.tjob.tss.type: false\n   spec:\n     containers:\n     - env:\n       - name: ci_env\n         value: '`bash <(curl -s https://codecov.io/env)`'\n       image: elastest/eds-memsipe:latest\n       name: memsipe\n       resources: {}\n     restartPolicy: Always\nstatus: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n creationTimestamp: null\n labels:\n   io.elastest: true\n   io.kompose.service: rest-app\n name: rest-app\nspec:\n replicas: 1\n strategy: {}\n template:\n   metadata:\n     creationTimestamp: null\n     labels:\n       io.elastest.type: tss\n       io.elastest.tjob.tss.id: rest-app\n       io.elastest.tjob.tss.type: false\n   spec:\n     containers:\n     - env:\n       - name: ci_env\n         value: '`bash <(curl -s https://codecov.io/env)`'\n       image: elastest/eds-api:latest\n       name: rest-app\n       resources: {}\n     restartPolicy: Always\nstatus: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n creationTimestamp: null\n labels:\n   io.elastest: true\n   io.elastest.service.type: tss\n name: eds-base\nspec:\n replicas: 1\n strategy: {}\n template:\n   metadata:\n     creationTimestamp: null\n     labels:\n       io.elastest.type: tss\n       io.elastest.tjob.tss.id: eds-base\n       io.elastest.tjob.tss.type: false\n   spec:\n     containers:\n     - image: elastest/eds-base:latest\n       name: eds-base\n       resources: {}\n     restartPolicy: Always\nstatus: {}\n",
+            "manifest_type": "kubernetes",
+            "plan_id": "cfd3ebd1-5afa-420d-8313-43d681168cf7",
+            "service_id": "af7947d9-258b-4dd1-b1ca-17450db25ef7",
+            "config": {
+                "webRtcStats": {
+                    "type": "boolean",
+                    "label": "Gather WebRTC Statistics",
+                    "default": false
+                }
+            },
+            "endpoints": {
+                "ess": {
+                    "description": "The ESS API",
+                    "main": true,
+                    "api": [
+                        {
+                            "protocol": "http",
+                            "port": 80,
+                            "path": "/ess/api/r4"
+                        },
+                        {
+                            "name": "httpproxy",
+                            "protocol": "http",
+                            "port": 8080,
+                            "path": ""
+                        }
+                    ],
+                    "gui": {
+                        "protocol": "http",
+                        "path": "/gui/",
+                        "port": 80
+                    }
+                }
+            }
+        }
+    ]
 }
