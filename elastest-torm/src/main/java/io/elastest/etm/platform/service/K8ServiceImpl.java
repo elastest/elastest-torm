@@ -171,10 +171,9 @@ public class K8ServiceImpl extends PlatformService {
     public DockerContainerInfo getContainers(String projectName) {
         logger.debug("Retriving containers for the service {}", projectName);
         DockerContainerInfo containersInfo = new DockerContainerInfo();
-        getServicesPods(projectName).forEach(pod -> {
+        getServicesPods(projectName, null).forEach(pod -> {
             logger.debug("Pod {} retrived", pod.getMetadata().getName());
             logger.debug("Pod status {}", pod.getStatus().getPhase());
-            logger.debug("Pod status_1 {}", pod.getStatus().getMessage());
             DockerContainerInfo.DockerContainer containerInfo = new DockerContainerInfo.DockerContainer();
             containerInfo.initFromPod(pod);
             containersInfo.getContainers().add(containerInfo);
@@ -183,14 +182,13 @@ public class K8ServiceImpl extends PlatformService {
         return containersInfo;
     }
 
-    private List<Pod> getServicesPods(String namespace) {
+    private List<Pod> getServicesPods(String projectName, String namespace) {
+        logger.debug("Retriving pods for the service {}", projectName);
         List<Pod> pods = new ArrayList<>();
-        pods.addAll(k8sService
-                .getPodsByLabelKey("io.elastest.service", namespace).size() > 0
-                        ? k8sService.getPodsByLabelKey("io.elastest.service",
-                                namespace)
-                        : k8sService.getPodsByLabelKey("io.elastest.service",
-                                null));
+        Map<String, String> labels = new HashMap<>();
+        labels.put("io.elastest.service", projectName);
+        pods.addAll(
+                k8sService.getPodsByLabels(labels, namespace));
         return pods;
 
     }
