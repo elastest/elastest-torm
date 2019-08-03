@@ -14,6 +14,7 @@
                         url: &apos;https://github.com/elastest/demo-projects&apos;
                         ) 
                     sh &quot;cd ./webapp/junit5-web-multiple-browsers-test/k8s;./addSutPrefix.sh;kubectl create -f .&quot;
+                    checkPodStatus(1, &quot;${ET_SUT_CONTAINER_NAME}-demo-web-java-sut&quot;)
                 }
                 
                 stage(&quot;Run tests&quot;) {
@@ -56,9 +57,23 @@ def waitForService(time, serviceUrl) {
         }
     }
 }
+
+def checkPodStatus(time, podName) {
+    timeout(time) {
+        waitUntil {
+            echo &quot;Waiting for the pod &quot; + podName + &quot; is created&quot;
+            script {
+                def r = sh script: &apos;kubectl get pods -l io.elastest.service=&apos; + podName.replace(&apos;_&apos;,&apos;-&apos;) + &quot; | awk &apos;{print \$3}&apos;&quot;, returnStdout: true
+                def status = r.split(&quot;\n&quot;).last()
+                echo &quot;Pod ${podName} current status: &quot; + status
+                return ( status == &apos;Running&apos;);
+           }
+        }
+    }
+}
 </script>
     <sandbox>true</sandbox>
   </definition>
   <triggers/>
   <disabled>false</disabled>
-  </flow-definition>
+</flow-definition>
