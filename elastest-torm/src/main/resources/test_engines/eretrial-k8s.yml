@@ -6,6 +6,7 @@ metadata:
     io.elastest.service: te
   creationTimestamp: null
   labels:
+    io.elastest: true
     io.elastest.service: ere
   name: ere-9080-service
 spec:

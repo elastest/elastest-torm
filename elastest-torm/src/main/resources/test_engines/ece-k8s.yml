@@ -6,6 +6,7 @@ metadata:
     io.elastest.service.type: te
   creationTimestamp: null
   labels:
+    io.elastest: true
     io.elastest.service: ece
   name: ece-8888-service
 spec:

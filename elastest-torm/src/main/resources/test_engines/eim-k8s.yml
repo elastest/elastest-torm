@@ -6,6 +6,7 @@ metadata:
     io.elastest.service.type: core 
   creationTimestamp: null
   labels:
+    io.elastest: true
     io.elastest.service: eim
   name: eim-8080-service
 spec:
