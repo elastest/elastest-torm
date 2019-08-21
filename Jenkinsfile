@@ -10,7 +10,6 @@
                 mycontainer.inside("-u jenkins -p 37500:37500 -p 37501:37501 -p 37502:37502 -p 37503:37503 -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2 -v /home/ubuntu/.gnupg:/home/jenkins/.gnupg") {
                     def epmClientJavaDirectory = 'epm-client-java'
                     def eusJavaDirectory = 'eus-java'
-		    def k8sClientJavaDirectory = 'k8s-client-java'
 
                     git 'https://github.com/elastest/elastest-torm.git'
                     
