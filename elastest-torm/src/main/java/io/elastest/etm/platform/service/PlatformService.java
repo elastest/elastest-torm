@@ -75,6 +75,8 @@ public abstract class PlatformService {
     public String dockerSock;
     @Value("${et.shared.folder}")
     public String sharedFolder;
+    @Value("${et.data.in.host}")
+    public String etDataInHost;
     @Value("${logstash.host:#{null}}")
     public String logstashOrMiniHost;
     @Value("${et.enable.cloud.mode}")
@@ -237,7 +239,7 @@ public abstract class PlatformService {
             throws Exception;
 
     public abstract String getEtmHost() throws Exception;
-    
+
     public abstract String getETPublicHost();
 
     public abstract String getLogstashHost() throws Exception;
@@ -592,22 +594,19 @@ public abstract class PlatformService {
                 .entryPoint(entrypointList).network(elastestNetwork)
                 .labels(labels);
 
-        boolean sharedDataVolume = false;
-        if (sut != null && sut.isSutInNewContainer()) {
-            sharedDataVolume = true;
-        }
-
         List<Bind> volumes = new ArrayList<>();
 
+        // Docker Sock
         logger.info("Docker sock volume: {}", dockerSock);
         Builder dockerSockVolumeBuilder = Bind.builder();
         dockerSockVolumeBuilder.from(dockerSock);
         dockerSockVolumeBuilder.to(dockerSock);
-
         volumes.add(dockerSockVolumeBuilder.build());
-        if (sharedDataVolume) {
+
+        // Shared data in sutInNewContainer
+        if (sut != null && sut.isSutInNewContainer()) {
             Builder sharedDataVolumeBuilder = Bind.builder();
-            sharedDataVolumeBuilder.from(sharedFolder);
+            sharedDataVolumeBuilder.from(etDataInHost);
             sharedDataVolumeBuilder.to(sharedFolder);
 
             volumes.add(sharedDataVolumeBuilder.build());

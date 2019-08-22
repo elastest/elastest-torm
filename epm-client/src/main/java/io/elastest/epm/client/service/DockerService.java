@@ -582,10 +582,10 @@ public class DockerService {
         return containerIp;
     }
 
-    public boolean waitForContainerCreated(String containerId, long timeout)
+    public boolean waitForContainerCreated(String containerId, long timeoutMillis)
             throws Exception {
         long start_time = System.currentTimeMillis();
-        long end_time = start_time + timeout;
+        long end_time = start_time + timeoutMillis;
 
         boolean created = false;
 

@@ -9,7 +9,6 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +23,7 @@ import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.spotify.docker.client.ProgressHandler;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
@@ -754,12 +751,13 @@ public class DockerServiceImpl extends PlatformService {
         return container;
     }
 
-    private String waitForSutInContainer(Execution execution, long timeout)
-            throws Exception {
+    private String waitForSutInContainer(Execution execution,
+            long timeoutMillis) throws Exception {
         SutSpecification sut = execution.getSut();
         String containerName = null;
         String sutPrefix = null;
         boolean isDockerCompose = false;
+
         // If is Docker compose Sut
         if (sut.getCommandsOption() == CommandsOptionEnum.IN_DOCKER_COMPOSE) {
             containerName = this.getCurrentExecSutMainServiceName(sut,
@@ -770,7 +768,7 @@ public class DockerServiceImpl extends PlatformService {
                     "Is SuT in new container With Docker Compose. Main Service Container Name: {}",
                     containerName);
         }
-        // If is unique Docker image Sut
+        // If is unique Docker image Sut In New container
         else if (sut
                 .getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
             containerName = generateContainerName(ContainerPrefix.SUT,
@@ -780,17 +778,20 @@ public class DockerServiceImpl extends PlatformService {
                     "Is SuT in new container With Docker Image. Container Name: {}",
                     containerName);
         }
+
         // Wait for created
-        this.dockerService.waitForContainerCreated(containerName, timeout);
+        this.dockerService.waitForContainerCreated(containerName,
+                timeoutMillis);
 
         String containerId = this.dockerService
                 .getContainerIdByName(containerName);
+
         // Insert main sut/service into ET network if it's necessary
         this.dockerService.insertIntoNetwork(getElastestNetwork(), containerId);
 
         // Get Main sut/service ip from ET network
         String sutIp = waitForContainerIpWithDockerExecution(containerName,
-                execution, timeout);
+                execution, timeoutMillis);
 
         // Add containers to the containers list
         if (isDockerCompose) {
@@ -1306,6 +1307,19 @@ public class DockerServiceImpl extends PlatformService {
             logger.debug(resultMsg);
             checkSut(execution, sutIp, sutPort);
             endContainer(getCheckName(execution));
+        } else {
+            // Wait for sut IP without port
+            if (sut.isSutInNewContainer()) {
+                try {
+                    // TODO give the user a choice of whether or not to wait in
+                    // the GUI
+                    sutIp = this.waitForSutInContainer(execution, 120000); // 2min
+                } catch (Exception e) {
+                    logger.error(
+                            "Execution {} => Sut in new container not started after 30 secs. Using Sut Aux ip into ET_SUT_HOST",
+                            execution.getExecutionId());
+                }
+            }
         }
 
         // Save SuT Url and Ip into sutexec
@@ -1373,7 +1387,7 @@ public class DockerServiceImpl extends PlatformService {
             return dockerService.getHostIpByNetwork(elastestNetwork);
         }
     }
-    
+
     @Override
     public String getETPublicHost() {
         return etPublicHost;
