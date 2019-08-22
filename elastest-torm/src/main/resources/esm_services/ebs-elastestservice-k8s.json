@@ -1,0 +1,84 @@
+{
+    "register": {
+        "description": "elastest big data service",
+        "id": "a1920b13-7d11-4ebc-a732-f86a108ea49c",
+        "name": "EBS",
+        "short_name": "EBS",
+        "bindable": false,
+        "plan_updateable": false,
+        "plans": [
+            {
+                "bindable": false,
+                "description": "plan for ebs",
+                "free": true,
+                "id": "f6ed4b3e-e132-47b6-af71-26dbb76e59cb",
+                "metadata": {
+                    "bullets": "basic plan",
+                    "costs": {
+                        "components": {
+                            
+                        },
+                        "description": "On Demand 5 per deployment, 50 per core, 10 per GB ram and 1 per GB disk",
+                        "fix_cost": {
+                            "deployment": 5
+                        },
+                        "name": "On Demand 5 + Charges",
+                        "type": "ONDEMAND",
+                        "var_rate": {
+                            "cpus": 50,
+                            "disk": 1,
+                            "memory": 10
+                        }
+                    }
+                },
+                "name": "ebs_plan"
+            }
+        ]
+    },
+    "manifests": [
+        {
+            "id": "1cc39d82-c085-4096-8018-750e7eb31cc8",
+            "manifest_content": "version: '2.1'\n\nservices:\n  sparkmaster:\n    image: elastest/ebs-spark:latest    \n    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/master.conf\"]\n    hostname: sparkmaster\n    networks:\n      - elastest_elastest\n\n  sparkworker:\n    image: elastest/ebs-spark:latest\n    depends_on:\n      - sparkmaster    \n    command: [\"/usr/bin/supervisord\", \"--configuration=/opt/conf/slave.conf\"]\n    networks:\n      - elastest_elastest\n\n  rest-api:\n    image: elastest/ebs:latest\n    depends_on:\n      - sparkmaster\n    container_name: restapi\n    environment:\n      - EBS_PORT=5000\n      - EBS_SPARK_MASTER_URL=http://sparkmaster:8080/\n    links:\n      - sparkmaster\n    networks:\n        - elastest_elastest\n  \nnetworks:\n  elastest_elastest:\n    external: true",
+            "manifest_type": "docker-compose",
+            "plan_id": "f6ed4b3e-e132-47b6-af71-26dbb76e59cb",
+            "service_id": "a1920b13-7d11-4ebc-a732-f86a108ea49c",
+            "endpoints": {
+                "sparkmaster": {
+                    "description": "Apache Spark",
+                    "main": true,
+                    "api": {
+                        "protocol": "spark",
+                        "port": 7077
+                    },
+                    "gui": {
+                        "protocol": "http",
+                        "port": 8080,
+                        "path": "/"
+                    }
+                }
+            }
+        },
+        {
+            "id": "1cc39d82-c085-4096-8018-750e7eb31cc8",
+            "manifest_content": "apiVersion: v1\nkind: Service\nmetadata:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service: ebs-sparkmaster-service\n  name: ebs-sparkmaster-service\nspec:\n  ports:\n  - name: \"sparkmaster-7077-host-port\"\n    port: 7077\n    targetPort: 7077\n  - name: \"sparkworker-8080-host-port\"\n    port: 8080\n    targetPort: 8080\n  selector:\n    io.elastest.tjob.tss.id: sparkmaster\n  type: NodePort\nstatus:\n  loadBalancer: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n  annotations:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service.type: tss\n  name: sparkmaster\nspec:\n  replicas: 1\n  strategy: {}\n  template:\n    metadata:\n      creationTimestamp: null\n      labels:\n        io.elastest.tjob.tss.id: sparkmaster\n        io.elastest.tjob.tss.type: main\n        io.elastest.type: tss\n    spec:\n      containers:\n      - args:\n        - \"/usr/bin/supervisord\"\n        - \"--configuration=/opt/conf/master.conf\"\n        image: elastest/ebs-spark:latest\n        name: sparkmaster\n        resources: {}\n      hostname: sparkmaster\n      restartPolicy: Always\nstatus: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n  annotations:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service.type: tss\n  name: sparkworker\nspec:\n  replicas: 1\n  strategy: {}\n  template:\n    metadata:\n      creationTimestamp: null\n      labels:\n        io.elastest.tjob.tss.id: sparkworker\n        io.elastest.tjob.tss.type: aux\n        io.elastest.type: tss\n    spec:\n      containers:\n      - args:\n        - \"/usr/bin/supervisord\"\n        - \"--configuration=/opt/conf/slave.conf\"\n        image: elastest/ebs-spark:latest\n        name: sparkworker\n        resources: {}\n      restartPolicy: Always\nstatus: {}\n---\napiVersion: extensions/v1beta1\nkind: Deployment\nmetadata:\n  annotations:\n  creationTimestamp: null\n  labels:\n    io.elastest: true\n    io.elastest.service.type: tss\n  name: rest-api\nspec:\n  replicas: 1\n  strategy: {}\n  template:\n    metadata:\n      creationTimestamp: null\n      labels:\n        io.elastest.tjob.tss.id: rest-api\n        io.elastest.tjob.tss.type: aux\n        io.elastest.type: tss\n    spec:\n      containers:\n      - env:\n        - name: EBS_PORT\n          value: 5000\n        - name: EBS_SPARK_MASTER_URL\n          value: http://sparkmaster:8080/\n        image: elastest/ebs:latest\n        name: restapi\n        resources: {}\n      restartPolicy: Always\nstatus: {}\n",
+            "manifest_type": "kubernetes",
+            "plan_id": "f6ed4b3e-e132-47b6-af71-26dbb76e59cb",
+            "service_id": "a1920b13-7d11-4ebc-a732-f86a108ea49c",
+            "endpoints": {
+                "sparkmaster": {
+                    "description": "Apache Spark",
+                    "main": true,
+                    "api": {
+                        "protocol": "spark",
+                        "port": 7077
+                    },
+                    "gui": {
+                        "protocol": "http",
+                        "port": 8080,
+                        "path": "/"
+                    }
+                }
+            }
+        }
+    ]
+}
