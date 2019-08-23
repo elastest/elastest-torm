@@ -738,7 +738,7 @@ public class TJobService {
         return result;
     }
 
-    public Integer copyFilesFromPod(String podName) {
+    public Integer copyFilesFromContainer(String podName) {
         logger.info("TJobService: Copying files from a container");
         Integer result = 0;
         String[] splitPodName = podName.split("-");

@@ -484,7 +484,7 @@ public class K8sService {
                     ServiceBuilder serviceBuilder = new ServiceBuilder(
                             (Service) metadata);
                     if (client.services().inNamespace(namespace)
-                            .withName("elastest-" + projectName + "-service")
+                            .withName(projectName)
                             .get() == null) {
                         client.services().inNamespace(namespace)
                                 .create(serviceBuilder.build());
@@ -633,7 +633,7 @@ public class K8sService {
     public String createServiceSUT(String serviceName, Integer port,
             String protocol) {
         Service service = new ServiceBuilder().withNewMetadata()
-                .withName(serviceName + "-service").endMetadata().withNewSpec()
+                .withName(serviceName).endMetadata().withNewSpec()
                 .withSelector(
                         Collections.singletonMap(LABEL_APP_NAME, serviceName))
                 .addNewPort().withName(SUT_PORT_NAME).withProtocol(protocol)
@@ -655,7 +655,7 @@ public class K8sService {
                 ? ServiceProtocolEnum.TCP.toString()
                 : protocol;
         serviceName = serviceName.toLowerCase();
-        String k8sServiceName = serviceName + "-" + targetPort + "-service";
+        String k8sServiceName = serviceName;
         String hostPortName = serviceName + "-" + targetPort
                 + BINDING_PORT_SUFIX;
         Service service = null;
@@ -673,7 +673,7 @@ public class K8sService {
             ServicePort servicePort = servicePortBuilder.build();
 
             service = new ServiceBuilder().withNewMetadata()
-                    .withName(serviceName + "-" + targetPort + "-service")
+                    .withName(serviceName)
                     .endMetadata().withNewSpec()
                     .withSelector(
                             Collections.singletonMap(selector, serviceName))
@@ -731,7 +731,7 @@ public class K8sService {
                 .inNamespace(
                         namespace != null && !namespace.isEmpty() ? namespace
                                 : DEFAULT_NAMESPACE)
-                .withName(serviceName + "-" + port + "-service")
+                .withName(serviceName)
                 .getURL(serviceName + "-" + port + BINDING_PORT_SUFIX);
         logger.debug("Service ip {}",
                 serviceURL.split(":")[1].replace("//", ""));
