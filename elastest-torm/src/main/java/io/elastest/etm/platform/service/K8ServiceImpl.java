@@ -514,6 +514,7 @@ public class K8ServiceImpl extends PlatformService {
             k8sService.createNamespace(namespace);
         }
         ServiceInfo serviceInfo = k8sService.createService(serviceName,
+                serviceName,
                 bindedPort != null ? Integer.valueOf(bindedPort) : null,
                 Integer.valueOf(port), "http", namespace,
                 (serviceName.equals("jenkins") || serviceName.equals("testlink")

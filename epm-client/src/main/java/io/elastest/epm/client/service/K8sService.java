@@ -648,16 +648,17 @@ public class K8sService {
         return serviceURL;
     }
 
-    public ServiceInfo createService(String serviceName, Integer port,
-            Integer targetPort, String protocol, String namespace,
-            String selector) throws MalformedURLException {
+    public ServiceInfo createService(String serviceName,
+            String namesPrefix, Integer port, Integer targetPort,
+            String protocol, String namespace, String selector)
+            throws MalformedURLException {
         protocol = protocol.contains("http")
                 ? ServiceProtocolEnum.TCP.toString()
                 : protocol;
         serviceName = serviceName.toLowerCase();
         String k8sServiceName = serviceName;
-        String hostPortName = serviceName + "-" + targetPort
-                + BINDING_PORT_SUFIX;
+        String hostPortName = (namesPrefix + "-" + targetPort
+                + BINDING_PORT_SUFIX).replace("_", "-");
         Service service = null;
         if (!checkIfServiceExistsInNamespace(k8sServiceName, namespace)) {
             logger.debug(
@@ -676,7 +677,7 @@ public class K8sService {
                     .withName(serviceName)
                     .endMetadata().withNewSpec()
                     .withSelector(
-                            Collections.singletonMap(selector, serviceName))
+                            Collections.singletonMap(selector, namesPrefix))
                     .addNewPortLike(servicePort).endPort()
                     .withType(ServicesType.NODE_PORT.toString()).endSpec()
                     .build();
