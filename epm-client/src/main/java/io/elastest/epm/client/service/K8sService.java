@@ -649,7 +649,7 @@ public class K8sService {
     }
 
     public ServiceInfo createService(String serviceName,
-            String namesPrefix, Integer port, Integer targetPort,
+            String podName, Integer port, Integer targetPort,
             String protocol, String namespace, String selector)
             throws MalformedURLException {
         protocol = protocol.contains("http")
@@ -657,7 +657,7 @@ public class K8sService {
                 : protocol;
         serviceName = serviceName.toLowerCase();
         String k8sServiceName = serviceName;
-        String hostPortName = (namesPrefix + "-" + targetPort
+        String hostPortName = (podName + "-" + targetPort
                 + BINDING_PORT_SUFIX).replace("_", "-");
         Service service = null;
         if (!checkIfServiceExistsInNamespace(k8sServiceName, namespace)) {
@@ -677,7 +677,7 @@ public class K8sService {
                     .withName(serviceName)
                     .endMetadata().withNewSpec()
                     .withSelector(
-                            Collections.singletonMap(selector, namesPrefix))
+                            Collections.singletonMap(selector, podName))
                     .addNewPortLike(servicePort).endPort()
                     .withType(ServicesType.NODE_PORT.toString()).endSpec()
                     .build();
@@ -693,12 +693,12 @@ public class K8sService {
                     .withName(k8sServiceName).get();
         }
 
-        if (servicesAssociatedWithAPod.get(serviceName) != null) {
-            servicesAssociatedWithAPod.get(serviceName).add(k8sServiceName);
+        if (servicesAssociatedWithAPod.get(podName) != null) {
+            servicesAssociatedWithAPod.get(podName).add(k8sServiceName);
         } else {
             List<String> associatedServices = new ArrayList<>();
             associatedServices.add(k8sServiceName);
-            servicesAssociatedWithAPod.put(serviceName, associatedServices);
+            servicesAssociatedWithAPod.put(podName, associatedServices);
         }
 
         String serviceURL = client.services()
