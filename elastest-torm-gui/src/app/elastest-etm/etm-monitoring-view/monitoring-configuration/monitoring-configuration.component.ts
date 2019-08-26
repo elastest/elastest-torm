@@ -290,9 +290,10 @@ export class MonitoringConfigurationComponent implements OnInit {
             streamTypes = ettypeSubtype.additionalData['streamTypes'];
           }
 
+          let metricsToAdd: any[] = [];
           if (streamTypes && streamTypes.length > 0) {
             for (let streamType of streamTypes) {
-              let theMetric: any = this.getMetric(
+              metricsToAdd = this.getMetrics(
                 component,
                 stream,
                 etType,
@@ -300,12 +301,13 @@ export class MonitoringConfigurationComponent implements OnInit {
                 ettypeSubtype.children,
                 streamType,
               );
-
-              metricsList.push(theMetric);
             }
           } else {
-            let theMetric: any = this.getMetric(component, stream, etType, ettypeSubtype.checked, ettypeSubtype.children);
-            metricsList.push(theMetric);
+            metricsToAdd = this.getMetrics(component, stream, etType, ettypeSubtype.checked, ettypeSubtype.children);
+          }
+
+          if (metricsToAdd) {
+            metricsList = metricsList.concat(metricsToAdd);
           }
         }
       }
@@ -313,26 +315,30 @@ export class MonitoringConfigurationComponent implements OnInit {
     return metricsList;
   }
 
-  getMetric(
+  getMetrics(
     component: string,
     stream: string,
     etType: string,
     checked: boolean,
     subtypes: TreeCheckElementModel[] = [],
     streamType?: string,
-  ): any {
+  ): any[] {
+    let metrics: any[] = [];
+    // Can be multiple subtipes (metricbeat, for example has: system_cpu[total, user...])
     if (subtypes && subtypes.length > 0) {
       for (let subtype of subtypes) {
-        let metric: any = {
-          component: component,
-          stream: stream,
-          etType: etType,
-          metricName: etType + '.' + subtype.name,
-          subtype: subtype.name,
-          activated: subtype.checked,
-          streamType: streamType,
-        };
-        return metric;
+        if (subtype && subtype.checked) {
+          let metric: any = {
+            component: component,
+            stream: stream,
+            etType: etType,
+            metricName: etType + '.' + subtype.name,
+            subtype: subtype.name,
+            activated: subtype.checked,
+            streamType: streamType,
+          };
+          metrics.push(metric);
+        }
       }
     } else {
       let metric: any = {
@@ -343,8 +349,10 @@ export class MonitoringConfigurationComponent implements OnInit {
         activated: checked,
         streamType: streamType,
       };
-      return metric;
+      metrics.push(metric);
     }
+
+    return metrics;
   }
 
   applyAndSave(): void {
