@@ -8,7 +8,7 @@ metadata:
   labels:
     io.elastest: true
     io.elastest.service: ece
-  name: ece-8888-service
+  name: ece
 spec:
   ports:
   - name: "ece-8888-host-port"

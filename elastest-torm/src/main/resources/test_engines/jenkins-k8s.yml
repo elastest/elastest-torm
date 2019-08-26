@@ -6,7 +6,7 @@ metadata:
     io.elastest: true
     io.elastest.service: jenkins
     io.elastest.service.type: external
-  name: jenkins-8080-service
+  name: jenkins
 spec:
   ports:
   - name: "jenkins-8080-host-port"

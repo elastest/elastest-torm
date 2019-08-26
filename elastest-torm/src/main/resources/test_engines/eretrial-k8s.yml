@@ -8,7 +8,7 @@ metadata:
   labels:
     io.elastest: true
     io.elastest.service: ere
-  name: ere-9080-service
+  name: ere
 spec:
   ports:
   - name: "ere-9080-host-port"

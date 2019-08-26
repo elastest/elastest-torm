@@ -8,7 +8,7 @@ metadata:
   labels:
     io.elastest: true
     io.elastest.service: eim
-  name: eim-8080-service
+  name: eim
 spec:
   ports:
   - name: "eim-8080-host-port"
