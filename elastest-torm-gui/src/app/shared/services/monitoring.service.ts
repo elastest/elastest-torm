@@ -25,6 +25,8 @@ import { LogAnalyzerQueryModel } from '../loganalyzer-query.model';
 import { AbstractTJobExecModel } from '../../elastest-etm/models/abstract-tjob-exec-model';
 import { MonitorMarkModel } from '../../elastest-etm/etm-monitoring-view/monitor-mark.model';
 import { comparisonMode, viewMode } from '../../elastest-log-comparator/model/log-comparison.model';
+import { isString } from '../utils';
+import { isNumber } from 'util';
 
 @Injectable()
 export class MonitoringService {
@@ -747,14 +749,15 @@ export class MonitoringService {
           case 'cpu':
             if (subtypeValueObj && subtypeValueObj.pct !== undefined) {
               parsedData = this.getBasicSingleMetric(trace, metricsField);
-              parsedData.value = subtypeValueObj.pct;
+              // pct is 0-1 based percentage
+              parsedData.value = this.convertMetricbeatPctTrace(subtypeValueObj.pct);
             }
             break;
           case 'memory':
             // case 'network':
             if (subtypeValueObj && subtypeValueObj.pct !== undefined) {
               parsedData = this.getBasicSingleMetric(trace, metricsField);
-              parsedData.value = subtypeValueObj.pct;
+              parsedData.value = this.convertMetricbeatPctTrace(subtypeValueObj.pct);
             } else {
               let nestedSubtype: string[] = metricsField.subtype.split('_');
               if (nestedSubtype.length === 2) {
@@ -773,6 +776,18 @@ export class MonitoringService {
       }
     }
     return parsedData;
+  }
+
+  convertMetricbeatPctTrace(pctValue: any): number {
+    let percentage: number;
+    if (pctValue !== undefined && pctValue !== null) {
+      if (isString(pctValue)) {
+        percentage = Number(pctValue) * 100;
+      } else if (isNumber) {
+        percentage = pctValue * 100;
+      }
+    }
+    return percentage;
   }
 
   // convertMetricbeatCpuTrace(trace: any, metricsField: MetricsFieldModel): SingleMetricModel {

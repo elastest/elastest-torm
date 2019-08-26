@@ -107,8 +107,12 @@ export function getDateIso8601Pattern(): string {
   return 'yyyy-MM-ddTHH:mm:sssZ';
 }
 
-export function isString(s): boolean {
+export function isString(s: any): boolean {
   return typeof s === 'string' || s instanceof String;
+}
+
+export function isNumber(n: any): boolean {
+  return typeof n === 'number' || n instanceof Number;
 }
 
 export function removeDuplicates(arr: any[]): any[] {
