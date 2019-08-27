@@ -31,6 +31,8 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   projectColumns: ITdDataTableColumn[] = [
     { name: 'id', label: 'Id', width: 80 },
     { name: 'name', label: 'Project' },
+    { name: 'nTJobs', label: 'Nº TJobs', width: 87 },
+    { name: 'nSuts', label: 'Nº Suts', width: 87 },
     { name: 'options', label: 'Options', sortable: false },
   ];
 
@@ -71,7 +73,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
 
   loadProjects(): void {
     this.loading = true;
-    this.projectService.getProjects('minimal').subscribe((projects: ProjectModel[]) => {
+    this.projectService.getProjects('medium').subscribe((projects: ProjectModel[]) => {
       this.projectData = projects;
       this.loading = false;
     });
