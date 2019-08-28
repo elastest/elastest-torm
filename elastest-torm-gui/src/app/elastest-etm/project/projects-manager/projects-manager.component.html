@@ -72,9 +72,9 @@
               let-row="row"
             >
               <div *ngIf="column.name !== 'options'" (click)="viewProject(row)" class="hover-pointer">
-                <ng-container *ngIf="column.name !== 'nTJobs' && column.name !== 'nSuts'; else showNTJobsSuts">
-                  {{ value }}
-                </ng-container>
+                <ng-container *ngIf="column.name !== 'nTJobs' && column.name !== 'nSuts'; else showNTJobsSuts">{{
+                  value
+                }}</ng-container>
 
                 <ng-template #showNTJobsSuts>
                   <ng-container *ngIf="column.name === 'nTJobs'; else showNSuts">
