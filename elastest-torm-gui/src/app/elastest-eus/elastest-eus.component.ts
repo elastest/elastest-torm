@@ -158,7 +158,7 @@ export class ElastestEusComponent implements OnInit, OnDestroy {
         if (this.standalone) {
           this.websocket.send('getLiveSessions');
         } else {
-          // this.websocket.send('getSessions');
+          this.websocket.send('getSessions');
         }
         this.websocket.send('getRecordings');
       };
