@@ -919,7 +919,7 @@ public class EtmBaseTest {
             boolean imageCommands, String commands,
             Map<String, String> parameters, Map<String, List<String>> tssMap,
             Map<String, List<String>> multiConfigurations,
-            Integer maxExecutions) {
+            Integer maxExecutions, boolean disableAllInOne) {
         log.info("Wait for the \"New TJob\" button");
         getElementById(driver, "newTJobBtn").click();
 
@@ -1027,9 +1027,26 @@ public class EtmBaseTest {
             }
         }
 
+        if (disableAllInOne) {
+            getElementsByXpath(driver,
+                    "//input[@name=\"showAllInOneCheckbox\"]").get(0)
+                            .sendKeys(Keys.SPACE);
+        }
+
         // Save
         driver.findElement(By.xpath("//button[contains(string(), 'SAVE')]"))
                 .click();
+    }
+
+    protected void createNewTJob(WebDriver driver, String tJobName,
+            String testResultPath, String sutName, String dockerImage,
+            boolean imageCommands, String commands,
+            Map<String, String> parameters, Map<String, List<String>> tssMap,
+            Map<String, List<String>> multiConfigurations,
+            Integer maxExecutions) {
+        createNewTJob(driver, tJobName, testResultPath, sutName, dockerImage,
+                imageCommands, commands, parameters, tssMap,
+                multiConfigurations, maxExecutions, false);
     }
 
     protected void addParameters(WebDriver driver,
@@ -1290,6 +1307,32 @@ public class EtmBaseTest {
         } else {
             this.driver = driver;
         }
+    }
+
+    public void selectOptionFromSelect(String option) {
+        WebDriverWait waitElement = new WebDriverWait(driver, 3);
+        By select;
+        int numRetries = 1;
+        do {
+            driver.findElement(By.className("mat-select-trigger")).click();
+            select = By.xpath(
+                    "//mat-option/span[contains(string(), '" + option + "')]");
+            try {
+                waitElement.until(visibilityOfElementLocated(select));
+                log.info("Element {} already available", select);
+                break;
+
+            } catch (Exception e) {
+                numRetries++;
+                if (numRetries > 6) {
+                    log.warn("Max retries ({}) reached ... leaving",
+                            numRetries);
+                    break;
+                }
+                log.warn("Element {} not available ... retrying", select);
+            }
+        } while (true);
+        driver.findElement(select).click();
     }
 
     protected void startTestSupportService(WebDriver driver,
