@@ -729,6 +729,14 @@ export class MonitoringService {
           parsedData = this.getBasicSingleMetric(trace, metricsField);
           parsedData.value = trace.net.txPackets_ps;
           break;
+        case 'txDropped_ps':
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
+          parsedData.value = trace.net.txDropped_ps;
+          break;
+        case 'rxDropped_ps':
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
+          parsedData.value = trace.net.rxDropped_ps;
+          break;
         default:
           break;
       }
