@@ -60,6 +60,9 @@ public class EtPluginsService {
 
     private static final String JENKINS_NAME = "jenkins";
     private static final String JENKINS_DISPLAY_NAME = "Jenkins";
+    
+    private static final String QA_NAME = "qa";
+    private static final String QA_DISPLAY_NAME = "QA Engine";
 
     private UtilsService utilsService;
 
@@ -149,6 +152,9 @@ public class EtPluginsService {
             this.enginesMap.put(ERE_NAME, new EtPlugin(ERE_NAME,
                     ERE_TRIAL_DISPLAY_NAME, ERE_TRIAL_NAME));
         }
+
+        this.enginesMap.put(QA_NAME,
+                new EtPlugin(QA_NAME, QA_DISPLAY_NAME));
 
         this.uniqueEtPluginsMap.put(EIM_NAME,
                 new EtPlugin(EIM_NAME, EIM_DISPLAY_NAME));
@@ -476,6 +482,12 @@ public class EtPluginsService {
                             bindedPort = "37008";
                             bindPort = true;
                             break;
+                            
+                        case QA_NAME:
+                            internalPort = "8888";
+                            bindedPort = "37009";
+                            bindPort = true;
+                            break;                            
 
                         case EIM_NAME:
                             internalPort = "8080";

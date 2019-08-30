@@ -74,6 +74,7 @@ import { SafeUrlPipe } from './sanitizer.pipe';
 import { ElastestTestEnginesComponent } from './elastest-test-engines/elastest-test-engines.component';
 import { ElastestEreComponent } from './elastest-test-engines/elastest-ere/elastest-ere.component';
 import { ElastestEceComponent } from './elastest-test-engines/elastest-ece/elastest-ece.component';
+import { ElastestQaComponent } from './elastest-test-engines/elastest-qa/elastest-qa.component';
 import { TestEngineViewComponent } from './elastest-test-engines/test-engine-view/test-engine-view.component';
 import { FilesManagerComponent } from './elastest-etm/files-manager/files-manager.component';
 import { ProjectManagerComponent } from './elastest-etm/project/project-manager/project-manager.component';
@@ -180,6 +181,7 @@ library.add(fas);
     ElastestTestEnginesComponent,
     ElastestEreComponent,
     ElastestEceComponent,
+    ElastestQaComponent,
     TestEngineViewComponent,
     FilesManagerComponent,
     ProjectManagerComponent,
