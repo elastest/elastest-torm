@@ -1,15 +1,13 @@
 version: '3'
 services:
   ere:
-    image: 842800759158.dkr.ecr.eu-west-1.amazonaws.com/elastest/elastest-recommendation-engine:latest
+    image: 842800759158.dkr.ecr.eu-west-1.amazonaws.com/elastest/elastest-qa-engine:latest
     ports:
-      - 37007:9080
+      - 37009:9080
     expose:
       - 9443
     networks:
       - elastest
-    volumes:
-      - ${ET_DATA_IN_HOST}/ere-data:/ere-data:rw
     labels:
       - io.elastest.type=te
 networks:
