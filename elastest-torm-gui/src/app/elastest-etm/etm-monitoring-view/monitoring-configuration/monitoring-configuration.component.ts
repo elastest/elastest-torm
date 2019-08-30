@@ -212,13 +212,14 @@ export class MonitoringConfigurationComponent implements OnInit {
           // If has streamType (since after 1.5.0v)
           // Add streamType to additionalData field and remove from children
           // Because children is used after to add subtypes
+          let streamTypesList: string[] = [];
           if (ettypeStreamTypeTree.children.length > 0) {
-            ettypeStreamTypeTree.additionalData['streamTypes'] = [];
             for (let streamTypeTree of ettypeStreamTypeTree.children) {
               if (streamTypeTree.name) {
-                ettypeStreamTypeTree.additionalData['streamTypes'].push(streamTypeTree.name);
+                streamTypesList.push(streamTypeTree.name);
               }
             }
+            ettypeStreamTypeTree.additionalData['streamTypes'] = streamTypesList;
             ettypeStreamTypeTree.children = [];
           }
 
@@ -229,7 +230,12 @@ export class MonitoringConfigurationComponent implements OnInit {
           } else if (isMetricFieldGroup(etType, metricFieldGroupList)) {
             // If it's Dockbeat etType
             currentMetricFieldGroupList = metricFieldGroupList;
+          } else {
+            if (streamTypesList.indexOf('composed_metrics') > -1) {
+              // TODO add as subtype
+            }
           }
+
           // Add subtype manually for default metrics (dockbeat and metricbeat)
           for (let metricFieldGroup of currentMetricFieldGroupList) {
             if (metricFieldGroup.etType === etType) {

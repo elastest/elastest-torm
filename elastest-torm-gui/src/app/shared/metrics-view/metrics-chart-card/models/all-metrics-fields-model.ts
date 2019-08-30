@@ -56,6 +56,8 @@ export let netSubtypes: SubtypesObjectModel[] = [
   new SubtypesObjectModel('txBytes_ps', 'amount/sec'),
   new SubtypesObjectModel('txErrors_ps', 'amount/sec'),
   new SubtypesObjectModel('txPackets_ps', 'amount/sec'),
+  new SubtypesObjectModel('txDropped_ps', 'amount/sec'),
+  new SubtypesObjectModel('rxDropped_ps', 'amount/sec'),
 ];
 
 export let metricFieldGroupList: MetricFieldGroupModel[] = [

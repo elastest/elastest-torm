@@ -1005,6 +1005,23 @@ export class MonitoringService {
       this.addDynamicMetric(_obs, obj, data, firstSource, subtype, 'composed_metrics');
     } else {
       // Add all subtypes of metric
+      /* Like: @timestamp: "2019-08-27T13:18:40.295Z"
+              component: "tss_eus_browser_0bd778a709b156f16ffab5b6404898ed"
+              et_type: "webrtc_inbound_video_4023135614"
+              exec: "31159"
+              stream: "webRtc"
+              stream_type: "composed_metrics"
+              type: "_doc"
+              units: {bytesReceived: "bytes", jitter: "ms", packetsReceived: "packets", packetsLost: "packets",…}
+              webrtc_inbound_video_4023135614: {
+                bytesReceived: 215969
+                framesDecoded: 30
+                jitter: "46"
+                nackCount: 0
+                packetsLost: 0
+                packetsReceived: 167
+              }
+      */
       let metricObj: any = firstSource[firstSource['et_type']];
       for (let metricName in metricObj) {
         this.addDynamicMetric(_obs, obj, data, firstSource, metricName, 'composed_metrics');
