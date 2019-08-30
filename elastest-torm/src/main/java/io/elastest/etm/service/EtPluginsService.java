@@ -147,14 +147,14 @@ public class EtPluginsService {
             logger.debug("Private ERE is enabled");
             this.enginesMap.put(ERE_NAME,
                     new EtPlugin(ERE_NAME, ERE_DISPLAY_NAME));
+            this.enginesMap.put(QA_NAME,
+                    new EtPlugin(QA_NAME, QA_DISPLAY_NAME));
         } else { // TRIAL
             logger.debug("Trial ERE is enabled");
             this.enginesMap.put(ERE_NAME, new EtPlugin(ERE_NAME,
                     ERE_TRIAL_DISPLAY_NAME, ERE_TRIAL_NAME));
         }
 
-        this.enginesMap.put(QA_NAME,
-                new EtPlugin(QA_NAME, QA_DISPLAY_NAME));
 
         this.uniqueEtPluginsMap.put(EIM_NAME,
                 new EtPlugin(EIM_NAME, EIM_DISPLAY_NAME));
