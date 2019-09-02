@@ -58,7 +58,7 @@ public interface TestLinkApi extends EtmApiRoot {
             @ApiResponse(code = 404, message = "Resources not found") })
     @RequestMapping(value = "/testlink/start", produces = {
             "application/json" }, method = RequestMethod.POST)
-    ResponseEntity<EtPlugin> startTestLink();
+    ResponseEntity<EtPlugin> startTestLink() throws Exception;
 
     /* ************************************************************************/
     /* **************************** Test Projects *****************************/

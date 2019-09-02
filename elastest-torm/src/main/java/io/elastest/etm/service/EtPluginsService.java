@@ -344,11 +344,11 @@ public class EtPluginsService {
     /* ************************** */
 
     @Async
-    public void startEtPluginAsync(String projectName) {
+    public void startEtPluginAsync(String projectName) throws Exception {
         this.startEtPlugin(projectName);
     }
 
-    public EtPlugin startEtPlugin(String projectName) {
+    public EtPlugin startEtPlugin(String projectName) throws Exception {
         try {
             // Initialize
             this.updateStatus(projectName, DockerServiceStatusEnum.INITIALIZING,
@@ -373,40 +373,63 @@ public class EtPluginsService {
             this.updateStatus(projectName, DockerServiceStatusEnum.STARTING,
                     "Starting...");
             logger.debug("Starting {} plugin...", projectName);
+
             platformService.deployService(projectName, false,
-                    (projectName.contains("jenkins")
-                            || projectName.contains("testlink")
-                            || projectName.contains("ece")
-                            || projectName.contains("ere")
-                            || projectName.contains("eim"))
+                    (projectName.contains(JENKINS_NAME)
+                            || projectName.contains(TESTLINK_NAME)
+                            || projectName.contains(ECE_NAME)
+                            || projectName.contains(ERE_NAME)
+                            || projectName.contains(QA_NAME)
+                            || projectName.contains(EIM_NAME))
                                     ? null
                                     : (utilsService.isElastestMini()
                                             && !utilsService.isKubernetes()
                                                     ? null
                                                     : projectName));
         } catch (Exception e) {
-            logger.error("Cannot start {} plugin", projectName, e);
+            logger.error("Cannot start {} ETPlugin", projectName, e);
             logger.error("Stopping service {}", projectName);
             this.stopEtPlugin(projectName);
+            this.getEtPlugin(projectName)
+                    .setStatus(DockerServiceStatusEnum.NOT_INITIALIZED);
+            throw e;
         }
+
         return this.getEtPlugin(projectName);
     }
 
     @Async
-    public void startEngineOrUniquePluginAsync(String projectName) {
+    public void startEngineOrUniquePluginAsync(String projectName)
+            throws Exception {
         this.startEngineOrUniquePlugin(projectName);
     }
 
-    public EtPlugin startEngineOrUniquePlugin(String projectName) {
+    public EtPlugin startEngineOrUniquePlugin(String projectName)
+            throws Exception {
+        int timeoutSeconds = 1800;
+        long endWaitTime = System.currentTimeMillis() + timeoutSeconds * 1000;
+
         String url = "";
         EtPlugin etPlugin = null;
         logger.debug("Checking if {} is not already running", projectName);
         if (!isRunning(projectName)) {
             etPlugin = this.startEtPlugin(projectName);
         }
-        while (url.isEmpty()) {
+
+        boolean timeout = true;
+        while (System.currentTimeMillis() < endWaitTime && url.isEmpty()) {
             url = getEtPluginUrl(projectName);
+            if (!url.isEmpty()) {
+                timeout = false;
+            }
         }
+
+        if (timeout) {
+            logger.error("Timeout({}s) waiting for {} EtPlugin url",
+                    timeoutSeconds, projectName);
+            return this.getEtPlugin(projectName);
+        }
+
         logger.debug("Plugin URL retrieved: {}", url);
         etPlugin.setInternalUrl(url);
 

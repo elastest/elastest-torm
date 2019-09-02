@@ -139,10 +139,16 @@ public class TestLinkService {
     }
 
     @Async
-    public void startTLOnDemand() {
+    public void startTLOnDemand() throws Exception {
         if (!etPluginsService.isRunning(testlinkName)) {
             startingOnDemand = true;
-            etPluginsService.startEngineOrUniquePlugin(testlinkName);
+            try {
+                etPluginsService.startEngineOrUniquePlugin(testlinkName);
+            } catch (Exception e) {
+                logger.error("Error starting TestLink");
+                startingOnDemand = false;
+                throw e;
+            }
             startedOnDemand = true;
             startingOnDemand = false;
             this.testLinkDBService.init();

@@ -28,7 +28,8 @@ public interface EtPluginsApi extends EtmApiRoot {
     @RequestMapping(value = "/etplugins/{name}/start", produces = {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<EtPlugin> startEtPlugin(
-            @ApiParam(value = "EtPlugin Name.", required = true) @PathVariable("name") String name);
+            @ApiParam(value = "EtPlugin Name.", required = true) @PathVariable("name") String name)
+            throws Exception;
 
     @ApiOperation(value = "Starts a new instance of a passed ETPlugin asynchronously", notes = "Starts a new instance of a passed ETPlugin"
             + " at least must receive as input a JSON with the following fields: String etpluginName", response = EtPlugin.class, tags = {
@@ -39,7 +40,8 @@ public interface EtPluginsApi extends EtmApiRoot {
     @RequestMapping(value = "/etplugins/{name}/start/async", produces = {
             "application/json" }, method = RequestMethod.POST)
     ResponseEntity<EtPlugin> startEtPluginAsync(
-            @ApiParam(value = "EtPlugin Name.", required = true) @PathVariable("name") String name);
+            @ApiParam(value = "EtPlugin Name.", required = true) @PathVariable("name") String name)
+            throws Exception;
 
     @ApiOperation(value = "Returns ETPlugins list", notes = "Returns ETPlugins list", response = EtPlugin.class, responseContainer = "List", tags = {
             "ETPlugins", })

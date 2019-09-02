@@ -57,7 +57,7 @@ public class TestLinkApiController implements TestLinkApi {
     }
 
     @Override
-    public ResponseEntity<EtPlugin> startTestLink() {
+    public ResponseEntity<EtPlugin> startTestLink() throws Exception {
         EtPlugin engine = etPluginsService.getUniqueEtPlugin("testlink");
 
         if (engine.getStatus()

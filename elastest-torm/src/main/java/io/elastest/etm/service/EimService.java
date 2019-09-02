@@ -80,7 +80,7 @@ public class EimService {
         return this.eimApiUrl;
     }
 
-    private void startEimIfNotStarted() {
+    private void startEimIfNotStarted() throws Exception {
         // Only in mini mode
         if (!isStarted()) {
             etPluginsService
@@ -152,7 +152,7 @@ public class EimService {
         return this.eimConfigRepository.save(eimConfig);
     }
 
-    public EimConfig deinstrumentalize(EimConfig eimConfig) {
+    public EimConfig deinstrumentalize(EimConfig eimConfig) throws Exception {
         this.startEimIfNotStarted();
 
         RestTemplate restTemplate = new RestTemplate();
@@ -211,7 +211,7 @@ public class EimService {
     }
 
     public void unDeployBeats(EimConfig eimConfig,
-            EimMonitoringConfig eimMonitoringConfig) {
+            EimMonitoringConfig eimMonitoringConfig) throws Exception {
         eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
                 eimMonitoringConfig, BeatsStatusEnum.DEACTIVATING);
         this.startEimIfNotStarted();
@@ -334,7 +334,7 @@ public class EimService {
     }
 
     @Async
-    public void deinstrumentalizeAsync(EimConfig eimConfig) {
+    public void deinstrumentalizeAsync(EimConfig eimConfig) throws Exception {
         dbmanager.bindSession();
         this.deinstrumentalize(eimConfig);
         dbmanager.unbindSession();
@@ -342,7 +342,7 @@ public class EimService {
 
     @Async
     public void undeployBeatsAsync(EimConfig eimConfig,
-            EimMonitoringConfig eimMonitoringConfig) {
+            EimMonitoringConfig eimMonitoringConfig) throws Exception {
         dbmanager.bindSession();
         eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
                 eimMonitoringConfig, BeatsStatusEnum.DEACTIVATING);
@@ -352,7 +352,7 @@ public class EimService {
 
     @Async
     public void deInstrumentalizeAndUnDeployBeats(EimConfig eimConfig,
-            EimMonitoringConfig eimMonitoringConfig) {
+            EimMonitoringConfig eimMonitoringConfig) throws Exception {
         dbmanager.bindSession();
         eimMonitoringConfig = this.updateEimMonitoringConfigBeatsStatus(
                 eimMonitoringConfig, BeatsStatusEnum.DEACTIVATING);

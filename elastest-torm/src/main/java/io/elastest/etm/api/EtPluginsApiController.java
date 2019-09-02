@@ -20,13 +20,14 @@ public class EtPluginsApiController implements EtPluginsApi {
     EtPluginsService etPluginsService;
 
     public ResponseEntity<EtPlugin> startEtPlugin(
-            @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
+            @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) throws Exception {
         EtPlugin engine = etPluginsService.startEngineOrUniquePlugin(name);
         return new ResponseEntity<EtPlugin>(engine, HttpStatus.OK);
     }
 
     public ResponseEntity<EtPlugin> startEtPluginAsync(
-            @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name) {
+            @ApiParam(value = "Engine Name.", required = true) @PathVariable("name") String name)
+            throws Exception {
         EtPlugin engine = etPluginsService.getEtPlugin(name);
         if (engine.getStatus()
                 .equals(DockerServiceStatusEnum.NOT_INITIALIZED)) {

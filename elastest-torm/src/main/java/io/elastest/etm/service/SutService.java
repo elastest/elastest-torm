@@ -263,8 +263,13 @@ public class SutService {
     public void deleteSut(Long sutId) {
         SutSpecification sut = sutRepository.findById(sutId).get();
         if (sut.isInstrumentalize() && sut.isInstrumentalized()) {
-            this.eimService.deInstrumentalizeAndUnDeployBeats(
-                    sut.getEimConfig(), sut.getEimMonitoringConfig());
+            try {
+                this.eimService.deInstrumentalizeAndUnDeployBeats(
+                        sut.getEimConfig(), sut.getEimMonitoringConfig());
+            } catch (Exception e) {
+                logger.warn("Error during deinstrumentalize sut: {}",
+                        e.getMessage());
+            }
         }
 
         monitoringService
