@@ -30,9 +30,9 @@ import io.elastest.etm.service.EtPluginsService;
 import io.elastest.etm.service.EtmTestResultService;
 import io.elastest.etm.service.TestSuiteService;
 import io.elastest.etm.service.TracesSearchService;
+import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.service.client.EsmServiceClientImpl;
 import io.elastest.etm.service.client.MiniEsmServiceClient;
-import io.elastest.etm.service.client.EsmServiceClient;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
@@ -121,8 +121,8 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     // TODO Change dockerComposeService for the right platform implementation
     public EsmServiceClient getSupportServiceClientInterface() {
         if (utilsService.isElastestMini()) {
-            return new MiniEsmServiceClient(getEtPluginsService(),
-                    utilsService, platformService());
+            return new MiniEsmServiceClient(getEtPluginsService(), utilsService,
+                    platformService());
         } else {
             return new EsmServiceClientImpl(utilsService);
         }
