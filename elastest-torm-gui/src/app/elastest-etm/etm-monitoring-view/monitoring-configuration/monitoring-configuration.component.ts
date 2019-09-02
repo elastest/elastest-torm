@@ -150,14 +150,20 @@ export class MonitoringConfigurationComponent implements OnInit {
               for (let etType of streamEtType.children) {
                 let ettypeName: string = etType.name;
                 let deleted: boolean = false;
-                for (let metricbeatType in MetricbeatType) {
-                  if (isNaN(parseInt(metricbeatType))) {
-                    if (
-                      ettypeName.startsWith(metricbeatType + '_') &&
-                      !isMetricFieldGroup(etType.name, this.metricbeatFieldGroupList)
-                    ) {
-                      deleted = true;
-                      break;
+
+                if (ettypeName === undefined || ettypeName === null) {
+                  deleted = true;
+                } else {
+                  for (let metricbeatType in MetricbeatType) {
+                    if (isNaN(parseInt(metricbeatType))) {
+                      if (
+                        ettypeName &&
+                        ettypeName.startsWith(metricbeatType + '_') &&
+                        !isMetricFieldGroup(etType.name, this.metricbeatFieldGroupList)
+                      ) {
+                        deleted = true;
+                        break;
+                      }
                     }
                   }
                 }

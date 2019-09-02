@@ -60,7 +60,7 @@ public class EtPluginsService {
 
     private static final String JENKINS_NAME = "jenkins";
     private static final String JENKINS_DISPLAY_NAME = "Jenkins";
-    
+
     private static final String QA_NAME = "qa";
     private static final String QA_DISPLAY_NAME = "QA Engine";
 
@@ -154,7 +154,6 @@ public class EtPluginsService {
             this.enginesMap.put(ERE_NAME, new EtPlugin(ERE_NAME,
                     ERE_TRIAL_DISPLAY_NAME, ERE_TRIAL_NAME));
         }
-
 
         this.uniqueEtPluginsMap.put(EIM_NAME,
                 new EtPlugin(EIM_NAME, EIM_DISPLAY_NAME));
@@ -482,12 +481,12 @@ public class EtPluginsService {
                             bindedPort = "37008";
                             bindPort = true;
                             break;
-                            
+
                         case QA_NAME:
                             internalPort = "8888";
                             bindedPort = "37009";
                             bindPort = true;
-                            break;                            
+                            break;
 
                         case EIM_NAME:
                             internalPort = "8080";
@@ -675,10 +674,12 @@ public class EtPluginsService {
             url = new URL(etPluginUrl);
             logger.info("Service url to check: " + etPluginUrl);
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+
             int responseCode = huc.getResponseCode();
             logger.info("Code returned: {}", responseCode);
             up = ((responseCode >= 200 && responseCode <= 299)
-                    || responseCode == 403);
+                    || responseCode == 301 || responseCode == 302
+                    || responseCode == 308 || responseCode == 403);
             if (!up) {
                 logger.info("Service not ready at url: " + etPluginUrl);
                 return up;
@@ -745,7 +746,8 @@ public class EtPluginsService {
     }
 
     public boolean isUniqueEtPluginStartedOnInit(String serviceName) {
-        logger.debug("Check if the Unique Plugin {} is started on init.", serviceName);
+        logger.debug("Check if the Unique Plugin {} is started on init.",
+                serviceName);
         switch (serviceName) {
         case JENKINS_NAME:
             return !etEtmJenkinsHost.equals("none");
@@ -877,11 +879,12 @@ public class EtPluginsService {
             return tssInstancesMap.get(name);
         }
     }
-    
+
     public boolean isUniquePlugin(String name) {
-        if (enginesMap.containsKey(name) || uniqueEtPluginsMap.containsKey(name)) {
+        if (enginesMap.containsKey(name)
+                || uniqueEtPluginsMap.containsKey(name)) {
             return true;
-        } else { 
+        } else {
             return false;
         }
     }
