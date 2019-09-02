@@ -732,12 +732,14 @@ public class EtPluginsService {
                 return "OK";
             }
         });
+
         try {
-            System.out.println(future.get(2, TimeUnit.MINUTES)); // timeout is
-                                                                 // in 2 seconds
+            logger.debug(future.get(2, TimeUnit.MINUTES)); // timeout is
+                                                           // in 2 seconds
         } catch (TimeoutException | InterruptedException
                 | ExecutionException e) {
-            System.err.println("Timeout waiting for a service to be ready");
+            logger.error("Timeout waiting for the EtPlugin {} to be ready",
+                    projectName);
             return false;
         } finally {
             executor.shutdownNow();
@@ -769,16 +771,28 @@ public class EtPluginsService {
     }
 
     public boolean isUniqueEtPluginStartedOnInit(String serviceName) {
-        logger.debug("Check if the Unique Plugin {} is started on init.",
+        logger.debug("Checking if {} is Unique Plugin Started on init...",
                 serviceName);
+        boolean isUniqueEtPluginStartedOnInit = false;
         switch (serviceName) {
         case JENKINS_NAME:
-            return !etEtmJenkinsHost.equals("none");
+            isUniqueEtPluginStartedOnInit = !etEtmJenkinsHost.equals("none");
+            break;
         case TESTLINK_NAME:
-            return !etEtmTestLinkHost.equals("none");
+            isUniqueEtPluginStartedOnInit = !etEtmTestLinkHost.equals("none");
+            break;
         default:
-            return false;
+            isUniqueEtPluginStartedOnInit = false;
+            break;
         }
+
+        if (isUniqueEtPluginStartedOnInit) {
+            logger.debug("{} is Unique Plugin started on init", serviceName);
+        } else {
+            logger.debug("{} is not Unique Plugin or is not started on init",
+                    serviceName);
+        }
+        return isUniqueEtPluginStartedOnInit;
     }
 
     public EtPlugin getUniqueEtPlugin(String serviceName) {
