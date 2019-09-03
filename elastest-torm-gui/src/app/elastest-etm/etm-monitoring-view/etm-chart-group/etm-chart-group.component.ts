@@ -48,7 +48,8 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
 
   // Metrics Chart
   allInOneMetrics: ESRabComplexMetricsModel;
-  metricsList: ESRabComplexMetricsModel[] = [];
+  chartsList: ESRabComplexMetricsModel[] = [];
+  combinedPairChartsList: ESRabComplexMetricsModel[] = [];
   groupedMetricsList: ESRabComplexMetricsModel[][] = [];
 
   customButtons: ButtonModel[] = [];
@@ -161,7 +162,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     this.endDate = customEndDate ? customEndDate : tJobExec.endDate;
 
     this.allInOneMetrics = undefined;
-    this.metricsList = [];
+    this.chartsList = [];
     this.groupedMetricsList = [];
 
     if (!this.firstTimeInitialized) {
@@ -185,12 +186,10 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
       this.initAIO();
     }
 
-    let activatedMetrics: MetricsFieldModel[] = [];
-
     for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
-        activatedMetrics.push(metric);
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
+        individualMetrics.metric = metric;
         individualMetrics.monitoringIndex = monitoringIndex;
         individualMetrics.startDate = this.startDate;
         individualMetrics.endDate = this.endDate;
@@ -206,7 +205,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
               this.createSubjectAndSubscribe(individualMetrics.component, metric.stream, metric.streamType);
             }
 
-            this.metricsList.push(individualMetrics);
+            this.addChartToList(individualMetrics);
           }
         } else {
           // Else, is a custom metric
@@ -227,12 +226,12 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
                 'metric',
               )
               .subscribe(
-                (obj) => {
+                (obj: any) => {
                   if (!metric.unit && obj.unit) {
                     metric.unit = obj.unit;
-                    this.metricsList[pos].setUnits(obj.unit);
+                    this.chartsList[pos].setUnits(obj.unit);
                   }
-                  this.metricsList[pos].addSimpleMetricTraces(obj.data);
+                  this.chartsList[pos].addSimpleMetricTraces(obj.data);
                 },
                 (error: Error) => console.log(error),
               );
@@ -244,7 +243,18 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     this.firstTimeInitialized = true;
 
     if (this.tJob.execDashboardConfigModel.combineMetricsInPairs) {
-      this.initMetricsPairs(activatedMetrics);
+      this.initMetricsPairs();
+    }
+  }
+
+  addChartToList(individualMetrics: ESRabComplexMetricsModel, isCombinedPair: boolean = false): number {
+    if (isCombinedPair) {
+      return this.combinedPairChartsList.push(individualMetrics) - 1;
+    } else {
+      // returns position
+      let pos: number = this.chartsList.push(individualMetrics) - 1;
+      this.initMetricsPairs();
+      return pos;
     }
   }
 
@@ -265,7 +275,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     if (metric.unit) {
       individualMetrics.setUnits(metric.unit);
     }
-    let pos: number = this.metricsList.push(individualMetrics) - 1;
+    let pos: number = this.addChartToList(individualMetrics);
     this.createGroupedMetricList();
 
     individualMetrics.allMetricsFields.addMetricsFieldToList(
@@ -289,8 +299,8 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
               if (parsedData === undefined) {
                 console.error('Undefined data received, not added to ' + metric.name);
               } else {
-                if (this.metricsList[pos]) {
-                  this.metricsList[pos].addDataToSimpleMetric(metric, [parsedData]);
+                if (this.chartsList[pos]) {
+                  this.chartsList[pos].addDataToSimpleMetric(metric, [parsedData]);
                 }
               }
             }
@@ -306,7 +316,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     let added: boolean = false;
     for (let metric of obj.metricFieldModels) {
       let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
-
+      individualMetrics.metric = metric;
       if (!this.alreadyExist(individualMetrics.name)) {
         individualMetrics.addSimpleMetricTraces(obj.data);
         individualMetrics.monitoringIndex = this.tJobExec.monitoringIndex;
@@ -324,6 +334,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
   initializeBasicAttrByMetric(metric: MetricsFieldModel): ESRabComplexMetricsModel {
     let ignoreComponent: string = this.getIgnoreComponent();
     let individualMetrics: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.monitoringService, ignoreComponent);
+    individualMetrics.metric = metric;
     individualMetrics.name = this.createName(metric.component, metric.stream, metric.etType, metric.subtype);
     individualMetrics.component = metric.component;
     individualMetrics.stream = metric.stream;
@@ -331,8 +342,9 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     return individualMetrics;
   }
 
-  initMetricsPairs(metricsList: MetricsFieldModel[]): void {
-    let metricsPairsList: any[][] = allArrayPairCombinations(metricsList);
+  initMetricsPairs(): void {
+    this.combinedPairChartsList = [];
+    let metricsPairsList: MetricsFieldModel[][] = allArrayPairCombinations(this.getChartsListMetricFieldModels());
     if (metricsPairsList) {
       for (let metricPair of metricsPairsList) {
         this.addMoreMetricsFromMetricPair(metricPair);
@@ -345,6 +357,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     if (metricsPairForCombo) {
       let ignoreComponent: string = this.getIgnoreComponent();
       let comboPairChart: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.monitoringService, ignoreComponent);
+      comboPairChart.isCombinedPair = true;
       comboPairChart.startDate = this.startDate;
       comboPairChart.endDate = this.endDate;
 
@@ -401,10 +414,10 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
                 (secondMetricUnit2: Units | string) => {
                   this.initMetricPairChart(firstMetric, secondMetric, firstMetricUnit2, secondMetricUnit2, comboPairChart);
                 },
-                (error: Error) => console.error('Could not load more metric pair: ' + error),
+                (error: Error) => console.error('Could not load more metric pair (second metric): ' + error),
               );
             },
-            (error: Error) => console.error('Could not load more metric pair: ' + error),
+            (error: Error) => console.error('Could not load more metric pair (first metric): ' + error),
           );
         }
       }
@@ -446,7 +459,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
 
     comboPairChart.getAllMetrics();
 
-    let pos: number = this.metricsList.push(comboPairChart) - 1;
+    let pos: number = this.addChartToList(comboPairChart, true);
     this.metricsPairsCardsNames.push(comboPairChart.name);
     this.createGroupedMetricList();
 
@@ -472,8 +485,8 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
           if (parsedData === undefined) {
             console.error('Undefined data received, not added to ' + metric.name);
           } else {
-            if (this.metricsList[pos]) {
-              this.metricsList[pos].addDataToSimpleMetricByGivenList(listName, metric, [parsedData]);
+            if (this.chartsList[pos]) {
+              this.chartsList[pos].addDataToSimpleMetricByGivenList(listName, metric, [parsedData]);
             }
           }
         }
@@ -493,7 +506,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
           this.elastestRabbitmqService.createSubject(streamType, component, stream);
           let subscription: Subscription = this.elastestRabbitmqService
             .createAndSubscribeToTopic(index, streamType, component, stream)
-            .subscribe((data) => this.updateDefaultChartsData(data));
+            .subscribe((data: any) => this.updateDefaultChartsData(data));
 
           this.subscriptions.set(key, subscription);
         }
@@ -512,7 +525,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   alreadyExist(name: string): boolean {
-    for (let metric of this.metricsList) {
+    for (let metric of this.chartsList) {
       if (metric.name === name) {
         return true;
       }
@@ -522,10 +535,10 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
 
   createGroupedMetricList(): void {
     let defaultGroupNum: number = 3;
-    this.groupedMetricsList = this.createGroupedArray(this.metricsList, defaultGroupNum);
+    this.groupedMetricsList = this.createGroupedArray(this.chartsList.concat(this.combinedPairChartsList), defaultGroupNum);
   }
 
-  createGroupedArray(arr, chunkSize): any[] {
+  createGroupedArray(arr: any[], chunkSize: number): any[] {
     let groups: any[] = [];
     let i: number;
     for (i = 0; i < arr.length; i += chunkSize) {
@@ -554,7 +567,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
       // If not is live, subscribe to events
       this.unsubscribeAllEvents();
       this.loaded =
-        this.metricsChartCardComponents.toArray() && this.metricsChartCardComponents.toArray().length === this.metricsList.length;
+        this.metricsChartCardComponents.toArray() && this.metricsChartCardComponents.toArray().length === this.chartsList.length;
       if (this.loaded) {
         this.metricsChartCardComponents.forEach((element: MetricsChartCardComponent) => {
           this.subscribeToEvents(element);
@@ -572,21 +585,21 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
 
   subscribeToEvents(element: MetricsChartCardComponent): void {
     let eventSubscription: Subscription;
-    eventSubscription = element.getTimelineSubscription().subscribe((data) => {
+    eventSubscription = element.getTimelineSubscription().subscribe((data: any) => {
       this.updateTimeline(data);
       this.timelineObs.next(data);
     });
 
     this.chartsEventsSubscriptionsObs.push(eventSubscription);
 
-    eventSubscription = element.getHoverSubscription().subscribe((data) => {
+    eventSubscription = element.getHoverSubscription().subscribe((data: any) => {
       this.hoverCharts(data);
       this.hoverObs.next(data.value);
     });
 
     this.chartsEventsSubscriptionsObs.push(eventSubscription);
 
-    eventSubscription = element.getLeaveSubscription().subscribe((data) => {
+    eventSubscription = element.getLeaveSubscription().subscribe((data: any) => {
       this.leaveCharts();
       this.leaveObs.next();
     });
@@ -594,57 +607,100 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     this.chartsEventsSubscriptionsObs.push(eventSubscription);
   }
 
-  updateTimeline(domain): void {
-    this.metricsChartCardComponents.forEach((element) => {
+  updateTimeline(domain: any): void {
+    this.metricsChartCardComponents.forEach((element: any) => {
       element.updateDomain(domain);
     });
   }
 
-  hoverCharts(item): void {
-    this.metricsChartCardComponents.forEach((element) => {
+  hoverCharts(item: any): void {
+    this.metricsChartCardComponents.forEach((element: any) => {
       element.hoverCharts(item);
     });
   }
 
   leaveCharts(): void {
-    this.metricsChartCardComponents.forEach((element) => {
+    this.metricsChartCardComponents.forEach((element: any) => {
       element.leaveCharts();
     });
   }
 
-  removeAndUnsubscribe(pos: number): void {
+  removeAndUnsubscribeByListAndPos(pos: number, list: ESRabComplexMetricsModel[] = this.chartsList): void {
     let lastMetric: boolean = false;
-    if (this.metricsList.length === 1) {
+    if (list.length === 1) {
       lastMetric = true;
     }
 
-    let component: string = this.metricsList[pos].component;
-    let stream: string = this.metricsList[pos].stream;
-    let name: string = this.metricsList[pos].name;
+    if (list[pos]) {
+      let component: string = list[pos].component;
+      let stream: string = list[pos].stream;
+      let name: string = list[pos].name;
 
-    // If is live and is the last metric card, unsubscribe
-    if (this.live && lastMetric && !this.allInOneMetrics) {
-      this.unsubscribe(component, stream);
+      // If is live and is the last metric card, unsubscribe
+      if (this.live && lastMetric && !this.allInOneMetrics) {
+        this.unsubscribe(component, stream);
+      }
+      list.splice(pos, 1);
+      this.createGroupedMetricList();
     }
-    this.metricsList.splice(pos, 1);
-    this.createGroupedMetricList();
   }
 
-  removeAndUnsubscribeByName(name: string): void {
+  removeAndUnsubscribeByNameAndList(name: string, list: ESRabComplexMetricsModel[] = this.chartsList): void {
     let pos: number = 0;
-    for (let metricCard of this.metricsList) {
+    for (let metricCard of list) {
       if (metricCard.name === name) {
-        this.removeAndUnsubscribe(pos);
+        this.removeAndUnsubscribeByListAndPos(pos, list);
       }
       pos++;
     }
   }
 
+  removeAndUnsubscribe(metric: ESRabComplexMetricsModel): void {
+    if (metric) {
+      console.log(metric);
+      this.removeAndUnsubscribeByNameAndList(metric.name, metric.isCombinedPair ? this.combinedPairChartsList : this.chartsList);
+    }
+  }
+
+  removeAndUnsubscribeByName(name: string, isCombinedPair: boolean = false): void {
+    this.removeAndUnsubscribeByNameAndList(name, isCombinedPair ? this.combinedPairChartsList : this.chartsList);
+  }
+
+  removeAndUnsubscribeByComponentAndStreamAndList(
+    component: string,
+    stream: string,
+    list: ESRabComplexMetricsModel[] = this.chartsList,
+  ): void {
+    let position: number = 0;
+    for (let metricCard of list) {
+      if (metricCard.component === component && metricCard.stream === stream) {
+        this.removeAndUnsubscribeByListAndPos(position, list);
+        break;
+      }
+      position++;
+    }
+  }
+
+  removeAndUnsubscribeByComponentAndStream(component: string, stream: string, isCombinedPair: boolean = false): void {
+    this.removeAndUnsubscribeByComponentAndStreamAndList(
+      component,
+      stream,
+      isCombinedPair ? this.combinedPairChartsList : this.chartsList,
+    );
+  }
+
   removeAndUnsubscribeAIO(): void {
-    if (this.live && this.metricsList.length === 0 && this.allInOneMetrics) {
+    if (this.live && this.chartsList.length === 0 && this.allInOneMetrics) {
       this.unsubscribe(this.allInOneMetrics.component, this.allInOneMetrics.stream);
     }
     this.allInOneMetrics = undefined;
+  }
+
+  removeAllMetricsPairs(): void {
+    for (let name of this.metricsPairsCardsNames) {
+      this.removeAndUnsubscribeByName(name, true);
+    }
+    this.metricsPairsCardsNames = [];
   }
 
   isAllInOneMetricsCardShowing(): boolean {
@@ -677,7 +733,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
   }
 
   loadLastTraces(): void {
-    for (let chart of this.metricsList) {
+    for (let chart of this.chartsList) {
       chart.loadLastTraces();
     }
   }
@@ -706,10 +762,15 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     return true;
   }
 
-  removeAllMetricsPairs(): void {
-    for (let name of this.metricsPairsCardsNames) {
-      this.removeAndUnsubscribeByName(name);
+  getChartsListMetricFieldModels(): MetricsFieldModel[] {
+    let list: MetricsFieldModel[] = [];
+    if (this.chartsList) {
+      for (let chart of this.chartsList) {
+        if (chart.metric) {
+          list.push(chart.metric);
+        }
+      }
     }
-    this.metricsPairsCardsNames = [];
+    return list;
   }
 }

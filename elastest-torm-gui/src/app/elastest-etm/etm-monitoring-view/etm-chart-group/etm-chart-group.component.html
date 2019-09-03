@@ -10,7 +10,7 @@
     ></metrics-chart-card>
   </div>
 </div>
-<ng-container *ngIf="metricsList.length > 0 && groupedMetricsList.length > 0">
+<ng-container *ngIf="chartsList.length > 0 && groupedMetricsList.length > 0">
   <div
     *ngFor="let group of groupedMetricsList"
     fxLayout.xs="column"
@@ -25,11 +25,12 @@
       [fxFlex.gt-md]="f && l ? 100 : group.length === 2 ? 50 : 33"
     >
       <metrics-chart-card
-        #individual{{i}}
+        #individualChart{{i}}
+        id="individualChart{{ i }}"
         [model]="metric"
         [showConfig]="false"
         [customButtons]="customButtons"
-        [remove]="removeAndUnsubscribe.bind(this, i)"
+        [remove]="removeAndUnsubscribe.bind(this, metric)"
       ></metrics-chart-card>
     </div>
   </div>

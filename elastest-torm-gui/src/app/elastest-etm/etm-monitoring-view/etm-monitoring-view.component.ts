@@ -292,7 +292,7 @@ export class EtmMonitoringViewComponent implements OnInit {
           this.tJob.execDashboardConfigModel.combineMetricsInPairs = data.combineMetricsPairs;
 
           if (data.combineMetricsPairs && this.activatedMetrics) {
-            this.metricsGroup.initMetricsPairs(this.activatedMetrics);
+            this.metricsGroup.initMetricsPairs();
           }
         }
 
@@ -441,14 +441,7 @@ export class EtmMonitoringViewComponent implements OnInit {
   }
 
   removeMetricCard(metric: any): void {
-    let position: number = 0;
-    for (let metricCard of this.metricsGroup.metricsList) {
-      if (metricCard.component === metric.component && metricCard.stream === metric.stream) {
-        this.metricsGroup.removeAndUnsubscribe(position);
-        break;
-      }
-      position++;
-    }
+    this.metricsGroup.removeAndUnsubscribeByComponentAndStream(metric.component, metric.stream, false);
   }
 
   updateAIOMetrics(activate: boolean): void {

@@ -27,6 +27,9 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
   startDate: Date;
   endDate: Date;
 
+  isCombinedPair: boolean;
+  metric: MetricsFieldModel;
+
   constructor(monitoringService: MonitoringService, ignoreComponent: string = '') {
     super();
     this.monitoringService = monitoringService;
@@ -55,6 +58,8 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     this.leftChartAllData = [];
     this.rightChartOneAllData = [];
     this.rightChartTwoAllData = [];
+
+    this.isCombinedPair = false;
 
     this.scheme = this.getDefaultChartScheme();
   }
