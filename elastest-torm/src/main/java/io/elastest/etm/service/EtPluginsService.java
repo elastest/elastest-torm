@@ -595,6 +595,9 @@ public class EtPluginsService {
                         if (ERE_NAME.equals(serviceName)
                                 || ERE_TRIAL_NAME.equals(serviceName)) {
                             url += "/ere-app";
+                        } else if (QA_NAME.equals(serviceName)
+                                ) {
+                            url += "/eqe-app";
                         }
                         logger.debug("Url: " + url);
 
