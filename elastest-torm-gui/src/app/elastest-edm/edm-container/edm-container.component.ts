@@ -4,16 +4,14 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'app-edm-container',
   templateUrl: './edm-container.component.html',
-  styleUrls: ['./edm-container.component.scss']
+  styleUrls: ['./edm-container.component.scss'],
 })
 export class EdmContainerComponent implements OnInit {
+  serviceUrl: string = '';
 
-  serviceUrl: string = "";
+  constructor(private configService: ConfigurationService) {}
 
-  constructor(private configService: ConfigurationService) { }
-
-  ngOnInit() {
-    this.serviceUrl = this.configService.configModel.edmCommandUrl;    
+  ngOnInit(): void {
+    this.serviceUrl = this.configService.configModel.edmCommandUrl;
   }
-
 }

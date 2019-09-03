@@ -44,3 +44,14 @@
   max-width: 100%;
   overflow-x: hidden !important;
 }
+
+:host /deep/ #viewOnlyMsg {
+  margin: 0px 6px !important;
+  color: #ffffff !important;
+  background-color: #ffac2f !important;
+}
+
+:host /deep/ #viewOnlyMsg .td-message-wrapper {
+  min-height: 38px !important;
+  padding: 1px 16px !important;
+}

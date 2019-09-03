@@ -68,6 +68,7 @@ export class ConfigurationService {
           empGrafanaUrl: servicesInfo.empGrafanaUrl,
           edmCommandUrl: servicesInfo.edmCommandUrl,
           isKubernetes: servicesInfo.isKubernetes,
+          etmViewOnly: servicesInfo.etmViewOnly,
         };
 
         resolve();

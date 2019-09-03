@@ -16,4 +16,5 @@ export interface ConfigModel {
   empGrafanaUrl: string;
   edmCommandUrl: string;
   isKubernetes: boolean;
+  etmViewOnly: boolean;
 }

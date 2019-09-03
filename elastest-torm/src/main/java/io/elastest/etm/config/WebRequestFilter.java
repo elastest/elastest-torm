@@ -33,7 +33,7 @@ public class WebRequestFilter implements Filter {
         if (etEtmViewOnly != null && etEtmViewOnly) {
             allowedMethodsList = Arrays.asList("GET");
         }
-        logger.info("Allowed Methods: {}", Arrays.asList(allowedMethodsList));
+        logger.info("Allowed Methods: {}", allowedMethodsList);
     }
 
     @Override
