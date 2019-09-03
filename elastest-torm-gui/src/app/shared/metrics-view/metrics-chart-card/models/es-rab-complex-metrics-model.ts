@@ -147,35 +147,37 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     this.yRightTwoAxisTickFormatting = yRightTwoAxisTickFormatting;
   }
 
-  getAllMetrics(): void {
+  getAllMetrics(onlyActivated: boolean = true): void {
     for (let metric of this.allMetricsFields.fieldsList) {
-      this.monitoringService
-        .getAllMetrics(this.monitoringIndex, metric, undefined, this.startDate, this.endDate)
-        .subscribe((data: LineChartMetricModel[]) => {
-          switch (metric.unit) {
-            case this.rightChartOneChartUnit:
-              this.rightChartOneAllData = this.rightChartOneAllData.concat(data);
-              if (metric.activated) {
-                this.rightChartOne = this.rightChartOne.concat(data);
-              }
-              break;
-            case this.leftChartUnit:
-              this.leftChartAllData = this.leftChartAllData.concat(data);
-              if (metric.activated) {
-                this.leftChart = this.leftChart.concat(data);
-              }
-              break;
-            case this.rightChartTwoChartUnit:
-              this.rightChartTwoAllData = this.rightChartTwoAllData.concat(data);
-              if (metric.activated) {
-                this.rightChartTwo = this.rightChartTwo.concat(data);
-              }
-              break;
-            default:
-              break;
-          }
-        });
-      // }
+      if (!onlyActivated || (onlyActivated && metric.activated)) {
+        this.monitoringService
+          .getAllMetrics(this.monitoringIndex, metric, undefined, this.startDate, this.endDate)
+          .subscribe((data: LineChartMetricModel[]) => {
+            switch (metric.unit) {
+              case this.rightChartOneChartUnit:
+                this.rightChartOneAllData = this.rightChartOneAllData.concat(data);
+                if (metric.activated) {
+                  this.rightChartOne = this.rightChartOne.concat(data);
+                }
+                break;
+              case this.leftChartUnit:
+                this.leftChartAllData = this.leftChartAllData.concat(data);
+                if (metric.activated) {
+                  this.leftChart = this.leftChart.concat(data);
+                }
+                break;
+              case this.rightChartTwoChartUnit:
+                this.rightChartTwoAllData = this.rightChartTwoAllData.concat(data);
+                if (metric.activated) {
+                  this.rightChartTwo = this.rightChartTwo.concat(data);
+                }
+                break;
+              default:
+                break;
+            }
+          });
+        // }
+      }
     }
   }
 

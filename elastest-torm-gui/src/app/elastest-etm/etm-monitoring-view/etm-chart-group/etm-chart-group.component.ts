@@ -267,7 +267,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     let defaultMetricName: string = 'test' + '_' + 'et_dockbeat' + '_' + 'cpu_totalUsage'; // Activate Test cpu usage as default in AIO
     this.allInOneMetrics.activateAndApplyByName(defaultMetricName);
     if (!this.live) {
-      this.allInOneMetrics.getAllMetrics();
+      this.allInOneMetrics.getAllMetrics(false);
     }
   }
 
