@@ -23,15 +23,15 @@ import org.springframework.stereotype.Component;
 public class WebRequestFilter implements Filter {
     final Logger logger = getLogger(lookup().lookupClass());
 
-    @Value("${et.etm.allowed.methods}")
-    public String allowedMethods;
+    @Value("${et.etm.view.only}")
+    public Boolean etEtmViewOnly;
 
     List<String> allowedMethodsList = Arrays.asList("*");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        if (allowedMethods != null && !"".equals(allowedMethods)) {
-            allowedMethodsList = Arrays.asList(allowedMethods.split(","));
+        if (etEtmViewOnly != null && etEtmViewOnly) {
+            allowedMethodsList = Arrays.asList("GET");
         }
         logger.info("Allowed Methods: {}", Arrays.asList(allowedMethodsList));
     }

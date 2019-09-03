@@ -66,7 +66,7 @@ services:
             - ET_ENABLE_CLOUD_MODE=false
             - ET_EPM_K8S_MASTER=localhost
             - ET_EPM_K8S_TOKEN=none
-            - ET_ETM_ALLOWED_METHODS=*
+            - ET_ETM_VIEW_ONLY=false
         entrypoint: /run.sh
         expose:
             - 8091

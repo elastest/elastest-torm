@@ -657,7 +657,6 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
 
   removeAndUnsubscribe(metric: ESRabComplexMetricsModel): void {
     if (metric) {
-      console.log(metric);
       this.removeAndUnsubscribeByNameAndList(metric.name, metric.isCombinedPair ? this.combinedPairChartsList : this.chartsList);
     }
   }

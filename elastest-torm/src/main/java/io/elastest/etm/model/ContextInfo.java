@@ -91,6 +91,9 @@ public class ContextInfo {
     @JsonProperty("isKubernetes")
     private boolean isKubernetes;
 
+    @JsonProperty("etmViewOnly")
+    private boolean etmViewOnly;
+
     public ContextInfo() {
     }
 
@@ -322,6 +325,14 @@ public class ContextInfo {
         this.isKubernetes = isKubernetes;
     }
 
+    public boolean isEtmViewOnly() {
+        return etmViewOnly;
+    }
+
+    public void setEtmViewOnly(boolean etmViewOnly) {
+        this.etmViewOnly = etmViewOnly;
+    }
+
     @Override
     public String toString() {
         return "ContextInfo [elasticSearchUrl=" + elasticSearchUrl
@@ -347,7 +358,8 @@ public class ContextInfo {
                 + ", eusSSInstance=" + eusSSInstance + ", testLinkStarted="
                 + testLinkStarted + ", empGrafanaUrl=" + empGrafanaUrl
                 + ", edmCommandUrl=" + edmCommandUrl + ", etmApiUrl="
-                + etmApiUrl + ", isKubernetes=" + isKubernetes + "]";
+                + etmApiUrl + ", isKubernetes=" + isKubernetes
+                + ", etmViewOnly=" + etmViewOnly + "]";
     }
 
 }

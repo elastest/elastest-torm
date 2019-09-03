@@ -100,6 +100,9 @@ public class EtmContextAuxService {
     @Value("${et.edm.command.context-path}")
     private String etEdmCommandContextPath;
 
+    @Value("${et.etm.view.only}")
+    public Boolean etEtmViewOnly;
+
     private UtilsService utilsService;
     private ContextInfo contextInfo;
     private PlatformService platformService;
@@ -203,6 +206,9 @@ public class EtmContextAuxService {
         contextInfo
                 .setEtmApiUrl("http://" + proxyIp + ":" + proxyPort + "/api/");
         contextInfo.setIsKubernetes(utilsService.isKubernetes());
+
+        contextInfo
+                .setEtmViewOnly(etEtmViewOnly != null ? etEtmViewOnly : false);
         return contextInfo;
     }
 
