@@ -84,11 +84,14 @@
 
               <mat-tab label="Files">
                 <ng-template matTabContent>
-                  <div fxLayout="row" fxFlexFill>
+                  <div
+                    fxLayout="row"
+                    fxFlexFill
+                    *ngIf="testCase && testCase.files && testCase.files.length > 0; else showEmptyMsg"
+                  >
                     <td-data-table
                       #filesTable
                       fxFlex
-                      *ngIf="testCase.files.length > 0"
                       id="filesTable"
                       class="useMaxHeight"
                       [data]="testCase.files"
@@ -125,10 +128,12 @@
                       </ng-template>
                     </td-data-table>
                   </div>
-                  <centered-element *ngIf="testCase && testCase.files.length === 0" class="push-top-important messageEmptyCard">
-                    <mat-icon>assignment</mat-icon>
-                    <p>No Files found</p>
-                  </centered-element>
+                  <ng-template #showEmptyMsg>
+                    <centered-element class="push-top-important messageEmptyCard">
+                      <mat-icon>assignment</mat-icon>
+                      <p>No Files found</p>
+                    </centered-element>
+                  </ng-template>
                 </ng-template>
               </mat-tab>
 

@@ -253,7 +253,9 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     } else {
       // returns position
       let pos: number = this.chartsList.push(individualMetrics) - 1;
-      this.initMetricsPairs();
+      if (this.tJob.execDashboardConfigModel.combineMetricsInPairs) {
+        this.initMetricsPairs();
+      }
       return pos;
     }
   }
