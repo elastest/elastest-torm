@@ -47,6 +47,7 @@ export class ManageMainServicesComponent implements OnInit, OnDestroy {
     private configurationService: ConfigurationService,
     private popupService: PopupService,
     private dataTableService: TdDataTableService,
+    public configService: ConfigurationService,
   ) {}
 
   ngOnInit(): void {

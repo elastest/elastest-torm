@@ -106,7 +106,12 @@
                     {{ value | date: 'yyyy/MM/dd HH:mm:ss' || 'unespecified' }}
                   </ng-container>
 
-                  <ng-container *ngIf="column.name === 'options'">
+                  <ng-container
+                    *ngIf="
+                      column.name === 'options' &&
+                      (!configService || !configService.configModel || !configService.configModel.etmViewOnly)
+                    "
+                  >
                     <div fxLayout="row" class="optionsColumn">
                       <button
                         mat-button
