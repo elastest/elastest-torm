@@ -116,6 +116,27 @@ export function getMetricbeatNetworkSubtypes(forDocker: boolean = false): Subtyp
   return networkSubtypes;
 }
 
+export function getMetricbeatDiskIOSubtypes(forDocker: boolean = false): SubtypesObjectModel[] {
+  let subtypeList: string[] = ['write', 'read'];
+  let diskioSubtypes: SubtypesObjectModel[] = [];
+  if (forDocker) {
+    subtypeList.push('summary');
+
+    for (let subtype of subtypeList) {
+      diskioSubtypes.push(new SubtypesObjectModel(subtype + '_bytes', 'bytes'));
+      diskioSubtypes.push(new SubtypesObjectModel(subtype + '_ops', 'amount'));
+      diskioSubtypes.push(new SubtypesObjectModel(subtype + '_rate', 'amount/sec'));
+    }
+  } else {
+    for (let subtype of subtypeList) {
+      diskioSubtypes.push(new SubtypesObjectModel(subtype + '_bytes', 'bytes'));
+      diskioSubtypes.push(new SubtypesObjectModel(subtype + '_count', 'amount'));
+      diskioSubtypes.push(new SubtypesObjectModel(subtype + '_time', 'millis'));
+    }
+  }
+  return diskioSubtypes;
+}
+
 export enum MetricbeatType {
   system,
   docker,
@@ -130,10 +151,12 @@ export function getMetricBeatFieldGroupList(): MetricFieldGroupModel[] {
         list.push(new MetricFieldGroupModel(etType + '_cpu', metricbeatCpuForDockerSubtypes));
         list.push(new MetricFieldGroupModel(etType + '_memory', metricbeatMemoryForDockerSubtypes));
         list.push(new MetricFieldGroupModel(etType + '_network', getMetricbeatNetworkSubtypes(true)));
+        list.push(new MetricFieldGroupModel(etType + '_diskio', getMetricbeatDiskIOSubtypes(true)));
       } else {
         list.push(new MetricFieldGroupModel(etType + '_cpu', metricbeatCpuSubtypes));
         list.push(new MetricFieldGroupModel(etType + '_memory', metricbeatMemorySubtypes));
         list.push(new MetricFieldGroupModel(etType + '_network', getMetricbeatNetworkSubtypes(false)));
+        list.push(new MetricFieldGroupModel(etType + '_diskio', getMetricbeatDiskIOSubtypes(false)));
       }
     }
   }

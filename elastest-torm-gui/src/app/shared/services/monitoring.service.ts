@@ -751,36 +751,69 @@ export class MonitoringService {
     let parsedData: SingleMetricModel = undefined;
     let typeArr: string = trace['et_type'].split('_');
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
-      if (typeArr[0] in MetricbeatType && trace[trace['et_type']]) {
-        let subtypeValueObj: any = trace[trace['et_type']][metricsField.subtype];
-        switch (typeArr[1]) {
-          case 'cpu':
-            if (subtypeValueObj && subtypeValueObj.pct !== undefined) {
-              parsedData = this.getBasicSingleMetric(trace, metricsField);
-              // pct is 0-1 based percentage
-              parsedData.value = this.convertMetricbeatPctTrace(subtypeValueObj.pct);
+      let metricContent: any[] = trace[trace['et_type']];
+      if (typeArr[0] in MetricbeatType && metricContent) {
+        let subtypeValueObj: any = metricContent[metricsField.subtype];
+
+        if (!subtypeValueObj && metricContent && metricsField.subtype) {
+          let splittedMetricsFieldSubtype: string[] = metricsField.subtype.split('_');
+          if (splittedMetricsFieldSubtype && splittedMetricsFieldSubtype[0]) {
+            if (
+              metricContent[splittedMetricsFieldSubtype[0]] !== undefined &&
+              metricContent[splittedMetricsFieldSubtype[0]] !== null
+            ) {
+              subtypeValueObj = metricContent[splittedMetricsFieldSubtype[0]];
             }
-            break;
-          case 'memory':
-            // case 'network':
-            if (subtypeValueObj && subtypeValueObj.pct !== undefined) {
-              parsedData = this.getBasicSingleMetric(trace, metricsField);
-              parsedData.value = this.convertMetricbeatPctTrace(subtypeValueObj.pct);
-            } else {
-              let nestedSubtype: string[] = metricsField.subtype.split('_');
-              if (nestedSubtype.length === 2) {
-                let nestedSubtypeObj: any = trace[trace['et_type']][nestedSubtype[0]]; // system_memory :{ USED: { pct: xxxx, bytes: xxxx }}
-                let nestedSubtypeValueObj: any = nestedSubtypeObj[nestedSubtype[1]]; // system_memory :{ used: { PCT: xxxx }}
-                if (nestedSubtypeObj && nestedSubtypeValueObj !== undefined) {
-                  parsedData = this.getBasicSingleMetric(trace, metricsField);
-                  parsedData.value = nestedSubtypeValueObj;
+          }
+        }
+        if (subtypeValueObj) {
+          switch (typeArr[1]) {
+            case 'cpu':
+              if (subtypeValueObj.pct !== undefined) {
+                parsedData = this.getBasicSingleMetric(trace, metricsField);
+                // pct is 0-1 based percentage
+                parsedData.value = this.convertMetricbeatPctTrace(subtypeValueObj.pct);
+              }
+              break;
+            case 'memory':
+              if (subtypeValueObj.pct !== undefined) {
+                parsedData = this.getBasicSingleMetric(trace, metricsField);
+                parsedData.value = this.convertMetricbeatPctTrace(subtypeValueObj.pct);
+              } else {
+                let nestedSubtype: string[] = metricsField.subtype.split('_');
+                if (nestedSubtype.length === 2) {
+                  let nestedSubtypeObj: any = metricContent[nestedSubtype[0]]; // system_memory :{ USED: { pct: xxxx, bytes: xxxx }}
+                  let nestedSubtypeValueObj: any = nestedSubtypeObj[nestedSubtype[1]]; // system_memory :{ used: { PCT: xxxx }}
+                  if (nestedSubtypeObj && nestedSubtypeValueObj !== undefined) {
+                    parsedData = this.getBasicSingleMetric(trace, metricsField);
+                    parsedData.value = nestedSubtypeValueObj;
+                  }
                 }
               }
-            }
-            break;
-          default:
-            break;
+              break;
+            case 'network':
+            case 'diskio':
+              parsedData = this.convertMetricbeatWithNestedSubtypeTrace(trace, metricsField, metricContent);
+              break;
+            default:
+              break;
+          }
         }
+      }
+    }
+    return parsedData;
+  }
+
+  convertMetricbeatWithNestedSubtypeTrace(trace: any, metricsField: MetricsFieldModel, metricContent: any[]): SingleMetricModel {
+    let parsedData: SingleMetricModel = undefined;
+
+    let nestedSubtype: string[] = metricsField.subtype.split('_');
+    if (nestedSubtype.length === 2) {
+      let nestedSubtypeObj: any = metricContent[nestedSubtype[0]]; // ej system_memory :{ USED: { pct: xxxx, bytes: xxxx }}
+      let nestedSubtypeValueObj: any = nestedSubtypeObj[nestedSubtype[1]]; // ej system_memory :{ used: { PCT: xxxx }}
+      if (nestedSubtypeObj && nestedSubtypeValueObj !== undefined) {
+        parsedData = this.getBasicSingleMetric(trace, metricsField);
+        parsedData.value = nestedSubtypeValueObj;
       }
     }
     return parsedData;
