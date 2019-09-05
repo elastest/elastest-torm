@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -34,6 +35,9 @@ public class EtmContextApiController implements EtmContextApi {
     EtmContextService etmContextService;
     @Autowired
     UtilsService utilsService;
+
+    @Value("${et.etm.view.only}")
+    public Boolean etEtmViewOnly;
 
     @Override
     public ResponseEntity<Map<String, String>> getTSSInstanceContext(
@@ -123,6 +127,11 @@ public class EtmContextApiController implements EtmContextApi {
     @Override
     public ResponseEntity<String> getAllCoreServiceLogs(
             @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName) {
+        if (etEtmViewOnly != null && etEtmViewOnly) {
+            return new ResponseEntity<String>(
+                    "Forbidden in ElasTest View Only mode",
+                    HttpStatus.FORBIDDEN);
+        }
         String logs = null;
         try {
             logs = etmContextService.getAllCoreServiceLogs(coreServiceName,
@@ -136,6 +145,12 @@ public class EtmContextApiController implements EtmContextApi {
     @Override
     public ResponseEntity<String> getAllCoreServiceLogsAndFollow(
             @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName) {
+        if (etEtmViewOnly != null && etEtmViewOnly) {
+            return new ResponseEntity<String>(
+                    "Forbidden in ElasTest View Only mode",
+                    HttpStatus.FORBIDDEN);
+        }
+
         String logs = null;
         try {
             logs = etmContextService.getAllCoreServiceLogs(coreServiceName,
@@ -166,6 +181,12 @@ public class EtmContextApiController implements EtmContextApi {
     public ResponseEntity<String> getSomeCoreServiceLogsAndFollow(
             @ApiParam(value = "Name of Core Service.", required = true) @PathVariable("coreServiceName") String coreServiceName,
             @ApiParam(value = "Number of logs to get.", required = true) @PathVariable("amount") int amount) {
+        if (etEtmViewOnly != null && etEtmViewOnly) {
+            return new ResponseEntity<String>(
+                    "Forbidden in ElasTest View Only mode",
+                    HttpStatus.FORBIDDEN);
+        }
+        
         String logs = null;
         try {
             logs = etmContextService.getSomeCoreServiceLogs(coreServiceName,
