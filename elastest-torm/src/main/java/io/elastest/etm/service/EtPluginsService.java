@@ -127,6 +127,9 @@ public class EtPluginsService {
     @Value("${et.test.engines.private.ere.enabled}")
     private String privateEreEnabledString;
 
+    @Value("${et.etm.view.only}")
+    public Boolean etEtmViewOnly;
+
     private String tmpEnginesYmlFolder;
     private String uniqueEtPluginsYmlFolder;
     private String tmpTssInstancesYmlFolder;
@@ -178,6 +181,12 @@ public class EtPluginsService {
             etUser = "elastest";
             etPass = PasswordFactory.generatePassword(8, PasswordFactory.ALPHA
                     + PasswordFactory.ALPHA_CAPS + PasswordFactory.NUMERIC);
+        }
+
+        // If ElasTest View only mode activated, change credentials
+        if (etEtmViewOnly != null && etEtmViewOnly) {
+            etUser = "guess";
+            etPass = "guess";
         }
 
         registerEngines();
@@ -595,8 +604,7 @@ public class EtPluginsService {
                         if (ERE_NAME.equals(serviceName)
                                 || ERE_TRIAL_NAME.equals(serviceName)) {
                             url += "/ere-app";
-                        } else if (QA_NAME.equals(serviceName)
-                                ) {
+                        } else if (QA_NAME.equals(serviceName)) {
                             url += "/eqe-app";
                         }
                         logger.debug("Url: " + url);

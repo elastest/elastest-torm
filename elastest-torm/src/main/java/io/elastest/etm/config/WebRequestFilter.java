@@ -5,7 +5,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -23,6 +25,8 @@ import org.springframework.stereotype.Component;
 public class WebRequestFilter implements Filter {
     final Logger logger = getLogger(lookup().lookupClass());
 
+    Map<String, Boolean> allowedPostUris = new HashMap<>();
+
     @Value("${et.etm.view.only}")
     public Boolean etEtmViewOnly;
 
@@ -34,6 +38,11 @@ public class WebRequestFilter implements Filter {
             allowedMethodsList = Arrays.asList("GET");
         }
         logger.info("Allowed Methods: {}", allowedMethodsList);
+
+        // LogAnalyzer
+        allowedPostUris.put("/api/monitoring/log/tree", true);
+        allowedPostUris.put("/api/monitoring/log/tree/levels", true);
+        allowedPostUris.put("/api/monitoring/loganalyzer", true);
     }
 
     @Override
@@ -47,11 +56,15 @@ public class WebRequestFilter implements Filter {
                 || allowedMethodsList.contains(method)) {
             chain.doFilter(request, response);
         } else {
-            final String message = "Method " + method + " not allowed";
-            logger.error(message);
-            throw new ElasTestViewModeException(message);
+            Boolean allowedUri = allowedPostUris.get(req.getRequestURI());
+            if (allowedUri) {
+                chain.doFilter(request, response);
+            } else {
+                final String message = "Method " + method + " not allowed";
+                logger.error(message);
+                throw new ElasTestViewModeException(message);
+            }
         }
-
     }
 
     @Override

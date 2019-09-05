@@ -110,17 +110,17 @@ public interface EtPluginsApi extends EtmApiRoot {
     @ApiOperation(value = "Returns Unique ETPlugins list", notes = "Returns Unique ETPlugins list", response = EtPlugin.class, responseContainer = "List", tags = {
             "ETPlugins", })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = EtPlugin.class),
+            @ApiResponse(code = 200, message = "Successful operation", response = EtPlugin.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Not found.", response = EtPlugin.class) })
     @RequestMapping(value = "/etplugins/unique", produces = {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<List<EtPlugin>> getUniqueEtPlugins();
 
-    @ApiOperation(value = "Returns an Unique ETPlugin by given name", notes = "Returns an Unique ETPlugin by given name", response = String.class, responseContainer = "List", tags = {
+    @ApiOperation(value = "Returns an Unique ETPlugin by given name", notes = "Returns an Unique ETPlugin by given name", response = EtPlugin.class, tags = {
             "ETPlugins", })
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
-            @ApiResponse(code = 400, message = "Not found.", response = String.class) })
+            @ApiResponse(code = 200, message = "Successful operation", response = EtPlugin.class),
+            @ApiResponse(code = 400, message = "Not found.") })
     @RequestMapping(value = "/etplugins/unique/{name}", produces = {
             "application/json" }, method = RequestMethod.GET)
     ResponseEntity<EtPlugin> getUniqueEtPlugin(
