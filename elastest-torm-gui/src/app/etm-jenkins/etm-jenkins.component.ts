@@ -24,7 +24,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
 
   constructor(private titlesService: TitlesService, private etPluginsService: EtPluginsService, public dialog: MatDialog) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (!this.isNested) {
       this.titlesService.setHeadTitle('Jenkins');
     }
@@ -48,7 +48,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
   }
 
   @HostListener('window:beforeunload')
-  beforeunloadHandler() {
+  beforeunloadHandler(): void {
     // On window closed leave session
     this.unsubscribe();
   }
@@ -119,7 +119,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
       width: '40%',
       data: this.jenkinsModel,
     });
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: any) => {
       console.log(`Dialog closed: ${result}`);
     });
   }

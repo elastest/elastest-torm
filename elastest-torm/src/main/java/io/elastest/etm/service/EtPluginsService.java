@@ -185,8 +185,8 @@ public class EtPluginsService {
 
         // If ElasTest View only mode activated, change credentials
         if (etEtmViewOnly != null && etEtmViewOnly) {
-            etUser = "guess";
-            etPass = "guess";
+            etUser = "guest";
+            etPass = "guest";
         }
 
         registerEngines();
