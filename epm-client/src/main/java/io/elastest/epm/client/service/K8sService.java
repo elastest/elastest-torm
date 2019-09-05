@@ -485,8 +485,7 @@ public class K8sService {
                     ServiceBuilder serviceBuilder = new ServiceBuilder(
                             (Service) metadata);
                     if (client.services().inNamespace(namespace)
-                            .withName(projectName)
-                            .get() == null) {
+                            .withName(projectName).get() == null) {
                         client.services().inNamespace(namespace)
                                 .create(serviceBuilder.build());
                     }
@@ -646,7 +645,7 @@ public class K8sService {
         String serviceURL = client.services().inNamespace(client.getNamespace())
                 .withName(service.getMetadata().getName())
                 .getURL(SUT_PORT_NAME);
-        
+
         if (client.nodes().list().getItems().size() == 1) {
             try {
                 for (NodeAddress address : client.nodes().list().getItems()
@@ -664,21 +663,20 @@ public class K8sService {
                 e.printStackTrace();
             }
         }
-        
+
         return serviceURL;
     }
 
-    public ServiceInfo createService(String serviceName,
-            String podName, Integer port, Integer targetPort,
-            String protocol, String namespace, String selector)
-            throws MalformedURLException {
+    public ServiceInfo createService(String serviceName, String podName,
+            Integer port, Integer targetPort, String protocol, String namespace,
+            String selector) throws MalformedURLException {
         protocol = protocol.contains("http")
                 ? ServiceProtocolEnum.TCP.toString()
                 : protocol;
         serviceName = serviceName.toLowerCase();
         String k8sServiceName = serviceName;
-        String hostPortName = (podName + "-" + targetPort
-                + BINDING_PORT_SUFIX).replace("_", "-");
+        String hostPortName = (podName + "-" + targetPort + BINDING_PORT_SUFIX)
+                .replace("_", "-");
         Service service = null;
         if (!checkIfServiceExistsInNamespace(k8sServiceName, namespace)) {
             logger.debug(
@@ -694,10 +692,8 @@ public class K8sService {
             ServicePort servicePort = servicePortBuilder.build();
 
             service = new ServiceBuilder().withNewMetadata()
-                    .withName(serviceName)
-                    .endMetadata().withNewSpec()
-                    .withSelector(
-                            Collections.singletonMap(selector, podName))
+                    .withName(serviceName).endMetadata().withNewSpec()
+                    .withSelector(Collections.singletonMap(selector, podName))
                     .addNewPortLike(servicePort).endPort()
                     .withType(ServicesType.NODE_PORT.toString()).endSpec()
                     .build();
@@ -725,25 +721,23 @@ public class K8sService {
                 .inNamespace(namespace == null ? DEFAULT_NAMESPACE : namespace)
                 .withName(service.getMetadata().getName()).getURL(hostPortName);
 
-        if (client.nodes().list().getItems().size() == 1) {
-            logger.debug("Nodes in the cluster: {}",
-                    client.nodes().list().getItems().size());
-            for (NodeAddress address : client.nodes().list().getItems().get(0)
-                    .getStatus().getAddresses()) {
-                logger.debug("Check ip for the cluster 1. Ip type: {}",
-                        address.getType());
-                if (address.getType().equals("ExternalIP")) {
-                    logger.debug("Replace old ip with the node external ip: {}",
-                            address.getAddress());
-                    URL nodeURL = new URL(serviceURL.replaceAll("tcp", "http"));
-                    try {
-                        URL newServiceURL = new URL(nodeURL.getProtocol(),
-                                address.getAddress(), nodeURL.getPort(), "");
-                        serviceURL = newServiceURL.toString();
-                    } catch (Exception e) {
-                        logger.error("Error message: {}", e.getMessage());
-                        e.printStackTrace();
-                    }
+        logger.debug("Nodes in the cluster: {}",
+                client.nodes().list().getItems().size());
+        for (NodeAddress address : client.nodes().list().getItems().get(0)
+                .getStatus().getAddresses()) {
+            logger.debug("Check ip for the cluster 1. Ip type: {}",
+                    address.getType());
+            if (address.getType().equals("ExternalIP")) {
+                logger.debug("Replace old ip with the node external ip: {}",
+                        address.getAddress());
+                URL nodeURL = new URL(serviceURL.replaceAll("tcp", "http"));
+                try {
+                    URL newServiceURL = new URL(nodeURL.getProtocol(),
+                            address.getAddress(), nodeURL.getPort(), "");
+                    serviceURL = newServiceURL.toString();
+                } catch (Exception e) {
+                    logger.error("Error message: {}", e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }
@@ -770,65 +764,38 @@ public class K8sService {
             String namespace) {
 
         String serviceIP = "";
-        if (client.nodes().list().getItems().size() == 1) {
-            logger.debug("Nodes in the cluster: {}",
-                    client.nodes().list().getItems().size());
-            for (NodeAddress address : client.nodes().list().getItems().get(0)
-                    .getStatus().getAddresses()) {
-                logger.debug("Check ip for the cluster 1. Ip type: {}",
-                        address.getType());
-                if (address.getType().equals("ExternalIP")) {
-                    serviceIP = address.getAddress();
-                }
+
+        logger.debug("Nodes in the cluster: {}",
+                client.nodes().list().getItems().size());
+        for (NodeAddress address : client.nodes().list().getItems().get(0)
+                .getStatus().getAddresses()) {
+            logger.debug("Check ip for the cluster 1. Ip type: {}",
+                    address.getType());
+            if (address.getType().equals("ExternalIP")) {
+                serviceIP = address.getAddress();
             }
-        } 
-        if (serviceIP.isEmpty()) {
-            logger.debug("Getting the service ip for the service {}",
-                    serviceName);
-            String serviceURL = client.services()
-                    .inNamespace(namespace != null && !namespace.isEmpty()
-                            ? namespace
-                            : DEFAULT_NAMESPACE)
-                    .withName(serviceName)
-                    .getURL(serviceName + "-" + port + BINDING_PORT_SUFIX);
-            serviceIP = serviceURL.split(":")[1].replace("//", "");
-            logger.debug("Service ip {}", serviceIP);
         }
+
         return serviceIP;
     }
-    
+
     public String getServiceIp(String serviceName, String namespace) {
 
         logger.debug("Getting the service ip for the service {}", serviceName);
 
         String serviceIP = "";
-        if (client.nodes().list().getItems().size() == 1) {
-            logger.debug("Nodes in the cluster: {}",
-                    client.nodes().list().getItems().size());
-            for (NodeAddress address : client.nodes().list().getItems().get(0)
-                    .getStatus().getAddresses()) {
-                logger.debug("Check ip for the cluster 1. Ip type: {}",
-                        address.getType());
-                if (address.getType().equals("ExternalIP")) {
-                    serviceIP = address.getAddress();
-                }
+
+        logger.debug("Nodes in the cluster: {}",
+                client.nodes().list().getItems().size());
+        for (NodeAddress address : client.nodes().list().getItems().get(0)
+                .getStatus().getAddresses()) {
+            logger.debug("Check ip for the cluster 1. Ip type: {}",
+                    address.getType());
+            if (address.getType().equals("ExternalIP")) {
+                serviceIP = address.getAddress();
             }
         }
-        
-        if (serviceIP.isEmpty()) {
-            ServiceResource<Service, DoneableService> service = client
-                    .services()
-                    .inNamespace(namespace != null && !namespace.isEmpty()
-                            ? namespace
-                            : DEFAULT_NAMESPACE)
-                    .withName(serviceName);
 
-            serviceIP = service
-                    .getURL(service.get().getSpec().getPorts().get(0).getName())
-                    .split(":")[1].replace("//", "");
-
-            logger.debug("External service ip {}", serviceIP);
-        }
         return serviceIP;
     }
 
