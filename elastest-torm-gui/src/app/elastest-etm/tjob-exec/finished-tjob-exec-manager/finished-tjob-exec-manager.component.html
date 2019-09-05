@@ -184,6 +184,7 @@
     <!-- logs & Metrics -->
     <td-expansion-panel label="TJob Monitoring" expand="false" class="push-sm">
       <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
+      <etm-files-manager *ngIf="tJob && tJobExec" [tJob]="tJob" [tJobExec]="tJobExec"></etm-files-manager>
     </td-expansion-panel>
   </div>
 
