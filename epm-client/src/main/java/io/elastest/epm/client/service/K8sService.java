@@ -756,7 +756,7 @@ public class K8sService {
                 .inNamespace(
                         namespace != null && !namespace.isEmpty() ? namespace
                                 : DEFAULT_NAMESPACE)
-                .withName(name).get() != null ? true : result;
+                .withName(name.replace("_", "-")).get() != null ? true : result;
         return result;
     }
 
