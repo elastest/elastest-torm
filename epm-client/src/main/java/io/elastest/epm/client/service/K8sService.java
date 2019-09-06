@@ -775,6 +775,21 @@ public class K8sService {
                 serviceIP = address.getAddress();
             }
         }
+        
+        if (serviceIP.isEmpty()) {
+            ServiceResource<Service, DoneableService> service = client
+                    .services()
+                    .inNamespace(namespace != null && !namespace.isEmpty()
+                            ? namespace
+                            : DEFAULT_NAMESPACE)
+                    .withName(serviceName);
+
+            serviceIP = service
+                    .getURL(service.get().getSpec().getPorts().get(0).getName())
+                    .split(":")[1].replace("//", "");
+
+            logger.debug("External service ip {}", serviceIP);
+        }
 
         return serviceIP;
     }
@@ -794,6 +809,21 @@ public class K8sService {
             if (address.getType().equals("ExternalIP")) {
                 serviceIP = address.getAddress();
             }
+        }
+        
+        if (serviceIP.isEmpty()) {
+            ServiceResource<Service, DoneableService> service = client
+                    .services()
+                    .inNamespace(namespace != null && !namespace.isEmpty()
+                            ? namespace
+                            : DEFAULT_NAMESPACE)
+                    .withName(serviceName);
+
+            serviceIP = service
+                    .getURL(service.get().getSpec().getPorts().get(0).getName())
+                    .split(":")[1].replace("//", "");
+
+            logger.debug("External service ip {}", serviceIP);
         }
 
         return serviceIP;
