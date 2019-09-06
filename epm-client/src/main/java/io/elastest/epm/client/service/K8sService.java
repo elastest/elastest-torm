@@ -674,14 +674,14 @@ public class K8sService {
                 ? ServiceProtocolEnum.TCP.toString()
                 : protocol;
         serviceName = serviceName.toLowerCase();
-        String k8sServiceName = serviceName;
+        String k8sServiceName = serviceName.replace("_", "-");
         String hostPortName = (podName + "-" + targetPort + BINDING_PORT_SUFIX)
                 .replace("_", "-");
         Service service = null;
         if (!checkIfServiceExistsInNamespace(k8sServiceName, namespace)) {
             logger.debug(
                     "Creating a new service for the service {} with port {}",
-                    serviceName, targetPort);
+                    k8sServiceName, targetPort);
 
             ServicePortBuilder servicePortBuilder = new ServicePortBuilder()
                     .withName(hostPortName).withProtocol(protocol)
@@ -692,7 +692,7 @@ public class K8sService {
             ServicePort servicePort = servicePortBuilder.build();
 
             service = new ServiceBuilder().withNewMetadata()
-                    .withName(serviceName).endMetadata().withNewSpec()
+                    .withName(k8sServiceName).endMetadata().withNewSpec()
                     .withSelector(Collections.singletonMap(selector, podName))
                     .addNewPortLike(servicePort).endPort()
                     .withType(ServicesType.NODE_PORT.toString()).endSpec()
@@ -750,13 +750,15 @@ public class K8sService {
 
     private boolean checkIfServiceExistsInNamespace(String name,
             String namespace) {
-        logger.debug("Checking if exist the service \"{}\"", name);
+        logger.debug(
+                "Checking if exist the service \"{}\" in the namespace \"{}\"",
+                name, namespace);
         boolean result = false;
         result = client.services()
                 .inNamespace(
                         namespace != null && !namespace.isEmpty() ? namespace
                                 : DEFAULT_NAMESPACE)
-                .withName(name.replace("_", "-")).get() != null ? true : result;
+                .withName(name).get() != null ? true : result;
         return result;
     }
 
@@ -775,14 +777,14 @@ public class K8sService {
                 serviceIP = address.getAddress();
             }
         }
-        
+
         if (serviceIP.isEmpty()) {
             ServiceResource<Service, DoneableService> service = client
                     .services()
                     .inNamespace(namespace != null && !namespace.isEmpty()
                             ? namespace
                             : DEFAULT_NAMESPACE)
-                    .withName(serviceName);
+                    .withName(serviceName.replace("_", "-"));
 
             serviceIP = service
                     .getURL(service.get().getSpec().getPorts().get(0).getName())
@@ -810,7 +812,7 @@ public class K8sService {
                 serviceIP = address.getAddress();
             }
         }
-        
+
         if (serviceIP.isEmpty()) {
             ServiceResource<Service, DoneableService> service = client
                     .services()
