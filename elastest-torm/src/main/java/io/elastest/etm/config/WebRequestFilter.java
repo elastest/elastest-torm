@@ -40,9 +40,16 @@ public class WebRequestFilter implements Filter {
         logger.info("Allowed Methods: {}", allowedMethodsList);
 
         // LogAnalyzer
+        allowedPostUris.put("/api/monitoring/loganalyzer", true);
+
+        allowedPostUris.put("/api/monitoring/log", true);
         allowedPostUris.put("/api/monitoring/log/tree", true);
         allowedPostUris.put("/api/monitoring/log/tree/levels", true);
-        allowedPostUris.put("/api/monitoring/loganalyzer", true);
+
+        allowedPostUris.put("/api/monitoring/metric", true);
+        allowedPostUris.put("api/monitoring/metric/tree", true);
+        allowedPostUris.put("api/monitoring/metric/tree", true);
+
     }
 
     @Override
