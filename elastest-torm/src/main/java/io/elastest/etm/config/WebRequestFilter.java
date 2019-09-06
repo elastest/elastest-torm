@@ -47,8 +47,7 @@ public class WebRequestFilter implements Filter {
         allowedPostUris.put("/api/monitoring/log/tree/levels", true);
 
         allowedPostUris.put("/api/monitoring/metric", true);
-        allowedPostUris.put("api/monitoring/metric/tree", true);
-        allowedPostUris.put("api/monitoring/metric/tree", true);
+        allowedPostUris.put("/api/monitoring/metric/tree", true);
 
     }
 
