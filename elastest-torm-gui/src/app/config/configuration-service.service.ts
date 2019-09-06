@@ -145,4 +145,8 @@ export class ConfigurationService {
   public logsWithTimestampToLogViewTraces(logs: string): any[] {
     return this.transformService.logsWithTimestampToLogViewTraces(logs);
   }
+
+  public isEtmViewOnlyActivated(): boolean {
+    return this.configModel && this.configModel.etmViewOnly;
+  }
 }

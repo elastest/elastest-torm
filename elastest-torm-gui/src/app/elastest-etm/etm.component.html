@@ -228,7 +228,7 @@
     </mat-nav-list>
     <td-message
       id="viewOnlyMsg"
-      *ngIf="configService && configService.configModel && configService.configModel.etmViewOnly"
+      *ngIf="configService && configService.isEtmViewOnlyActivated()"
       label="Info: This instance of ElasTest is started with 'View Only' mode, so you cannot create, modify or delete data. It is also not possible to start Test Engines or Browsers."
       icon="info"
     ></td-message>
