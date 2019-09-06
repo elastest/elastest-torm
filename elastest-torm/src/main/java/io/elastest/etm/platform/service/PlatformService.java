@@ -215,7 +215,7 @@ public abstract class PlatformService {
                 containerName = prefix.value + execution.getExecutionId();
 
             } else {
-                containerName = ContainerPrefix.SUT_EXT + "_e"
+                containerName = ContainerPrefix.SUT_EXT + "e"
                         + execution.getExternalTJob().getId();
             }
             SutSpecification sut = execution.getSut();
