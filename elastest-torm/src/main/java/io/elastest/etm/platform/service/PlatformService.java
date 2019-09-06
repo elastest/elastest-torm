@@ -87,7 +87,7 @@ public abstract class PlatformService {
     String etEtmInternalHost;
 
     public enum ContainerPrefix {
-        TEST("test_"), SUT("sut_"), CHECK("check_"), SUT_EXT("sut_ext_");
+        TEST("test_"), SUT("sut_"), CHECK("check_");
 
         private String value;
 
@@ -211,12 +211,14 @@ public abstract class PlatformService {
         logger.info("Building container name with prefix: {}", prefix);
         String containerName = "";
         if (prefix == ContainerPrefix.SUT && execution.getSut() != null) {
+            // Normal
             if (!execution.isExternal()) {
                 containerName = prefix.value + execution.getExecutionId();
 
-            } else {
-                containerName = ContainerPrefix.SUT_EXT + "e"
-                        + execution.getExternalTJob().getId();
+            } else { // External TJob (TL)
+                containerName = ContainerPrefix.SUT
+                        + execution.getExternalTJobExec()
+                                .getExternalTJobExecMonitoringIndex();
             }
             SutSpecification sut = execution.getSut();
             containerName += (sut.isDockerCommandsSut()
