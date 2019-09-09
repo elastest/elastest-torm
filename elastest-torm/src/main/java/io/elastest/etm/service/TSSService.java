@@ -730,7 +730,7 @@ public class TSSService {
             this.fillEnvVariablesToTSS(newServiceInstance);
 
             putInstanceInMap(instanceId, newServiceInstance);
-            newServiceInstance = this.provisionServiceInstanceByObject(
+            newServiceInstance = this.provisionServiceInstanceAndBuildUrls(
                     newServiceInstance, instanceId);
             putInstanceInMap(instanceId, newServiceInstance);
         } catch (Exception e) {
@@ -789,7 +789,7 @@ public class TSSService {
                 putInstanceInMap(instanceId, newServiceInstance);
             }
 
-            newServiceInstance = this.provisionServiceInstanceByObject(
+            newServiceInstance = this.provisionServiceInstanceAndBuildUrls(
                     newServiceInstance, instanceId);
 
             putInstanceInTJobExecMap(instanceId, newServiceInstance);
@@ -1100,7 +1100,7 @@ public class TSSService {
                 putInstanceInMap(instanceId, newServiceInstance);
             }
 
-            newServiceInstance = this.provisionServiceInstanceByObject(
+            newServiceInstance = this.provisionServiceInstanceAndBuildUrls(
                     newServiceInstance, instanceId);
 
             if (exTJobExec != null && execId != null) {
@@ -1185,7 +1185,7 @@ public class TSSService {
         this.fillEnvVariablesToTSS(supportServiceInstance);
     }
 
-    public SupportServiceInstance provisionServiceInstanceByObject(
+    public SupportServiceInstance provisionServiceInstanceAndBuildUrls(
             SupportServiceInstance newServiceInstance, String instanceId)
             throws Exception {
         esmServiceClient.provisionServiceInstance(newServiceInstance,
