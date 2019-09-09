@@ -39,12 +39,7 @@
           </span>
         </div>
 
-        <mat-spinner
-          strokeWidth="6"
-          *ngIf="loadingCoreServices && !coreServices; else showCoreServices"
-          color="accent"
-          class="push-top-sm spinnerCenter"
-        ></mat-spinner>
+        <elastest-spinner *ngIf="loadingCoreServices && !coreServices; else showCoreServices"></elastest-spinner>
         <ng-template #showCoreServices>
           <centered-element
             *ngIf="coreServices.length === 0; else showCoreServicesTable"

@@ -64,6 +64,7 @@ import { faFileDownload } from '@fortawesome/free-solid-svg-icons';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { ElastestLogComparatorComponent } from '../elastest-log-comparator/elastest-log-comparator.component';
 import { ReportComparisonComponent } from '../elastest-log-comparator/report-comparison/report-comparison.component';
+import { ElastestSpinnerComponent } from './elastest-spinner/elastest-spinner.component';
 
 library.add(faFileDownload);
 
@@ -143,6 +144,7 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     NormalHeightRowComponent,
     AutoHeightRowComponent,
     CenteredElementComponent,
+    ElastestSpinnerComponent,
   ],
   exports: [
     ANGULAR_MODULES,
@@ -172,6 +174,7 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     NormalHeightRowComponent,
     AutoHeightRowComponent,
     CenteredElementComponent,
+    ElastestSpinnerComponent,
   ],
 })
 export class SharedModule {}
