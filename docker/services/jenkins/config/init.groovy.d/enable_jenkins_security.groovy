@@ -26,7 +26,7 @@ instance.setSecurityRealm(hudsonRealm)
 
 def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
 
-if ((env['ET_ETM_VIEW_ONLY'] && env['ET_ETM_VIEW_ONLY'] == "true") { 
+if ((env['ET_ETM_VIEW_ONLY'] && (env['ET_ETM_VIEW_ONLY'] == "true" || env['ET_ETM_VIEW_ONLY'] == true)) { 
 	strategy.setAllowAnonymousRead(true)
 } else {
 	strategy.setAllowAnonymousRead(false)
