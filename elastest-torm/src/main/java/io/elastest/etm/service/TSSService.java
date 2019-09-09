@@ -789,6 +789,10 @@ public class TSSService {
                 putInstanceInMap(instanceId, newServiceInstance);
             }
 
+            Map<String, String> tssAdditionalLabels = new HashMap<>();
+            tssAdditionalLabels.put("io.elastest.tjob.exec.id",
+                    tJobExec.getId().toString());
+            newServiceInstance.setAdditionalLabels(tssAdditionalLabels);
             newServiceInstance = this.provisionServiceInstanceAndBuildUrls(
                     newServiceInstance, instanceId);
 
@@ -1194,7 +1198,7 @@ public class TSSService {
         logger.info("Get registered all data of a service.");
         newServiceInstance = esmServiceClient
                 .getServiceInstanceInfo(newServiceInstance);
-        
+
         buildTssInstanceUrls(newServiceInstance);
         newServiceInstance.setFullyInitialized(true);
         logger.info("Service {} with instance id {} has been fully initialized",

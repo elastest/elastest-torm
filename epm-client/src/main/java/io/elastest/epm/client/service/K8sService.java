@@ -450,18 +450,20 @@ public class K8sService {
                             .getMetadata().getName();
                     logger.debug("Editing and deploying service {}:",
                             deploymentName);
-                    DeploymentBuilder dpB = new DeploymentBuilder(
+                    DeploymentBuilder deploymentBuilder = new DeploymentBuilder(
                             ((Deployment) metadata));
-                    Deployment dp = dpB.editSpec().editTemplate().editSpec()
-                            .editContainer(0)
+                    Deployment deployment = deploymentBuilder.editSpec()
+                            .editTemplate().editMetadata()
+                            .addToLabels(project.getLabels()).endMetadata()
+                            .editSpec().editContainer(0)
                             .addAllToEnv(getEnvVarListFromMap(project.getEnv()))
                             .endContainer().endSpec().endTemplate().endSpec()
                             .build();
                     logger.debug("Deployment {} content: {}", deploymentName,
-                            dp.toString());
+                            deployment.toString());
 
                     client.apps().deployments().inNamespace(namespace)
-                            .createOrReplace(dp);
+                            .createOrReplace(deployment);
                     client.apps().deployments().inNamespace(namespace)
                             .withName(deploymentName)
                             .waitUntilReady(5, TimeUnit.MINUTES);
@@ -607,7 +609,7 @@ public class K8sService {
 
     public DockerProject createk8sProject(String projectName,
             String serviceDescriptor, Map<String, String> envs,
-            List<String> extraHosts) {
+            List<String> extraHosts, Map<String, String> labels) {
         logger.debug(
                 "Store new project \"{}\" with this deployment manifest -> {}",
                 projectName, serviceDescriptor);
@@ -621,13 +623,18 @@ public class K8sService {
             project.getExtraHosts().addAll(extraHosts);
         }
 
+        if (labels != null) {
+            project.getLabels().putAll(labels);
+        }
+
         projects.put(projectName, project);
         return project;
     }
 
     public DockerProject createk8sProject(String projectName,
             String serviceDescriptor, Map<String, String> envs) {
-        return createk8sProject(projectName, serviceDescriptor, envs, null);
+        return createk8sProject(projectName, serviceDescriptor, envs, null,
+                null);
     }
 
     public String createServiceSUT(String serviceName, Integer port,

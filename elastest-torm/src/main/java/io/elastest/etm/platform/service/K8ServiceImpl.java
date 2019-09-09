@@ -81,10 +81,10 @@ public class K8ServiceImpl extends PlatformService {
     public boolean createServiceDeploymentProject(String projectName,
             String serviceDescriptor, String targetPath, boolean override,
             Map<String, String> envs, boolean withBindedExposedPortsToRandom,
-            boolean withRemoveVolumes, List<String> extraHosts)
-            throws Exception {
+            boolean withRemoveVolumes, List<String> extraHosts,
+            Map<String, String> labels) throws Exception {
         return k8sService.createk8sProject(projectName, serviceDescriptor, envs,
-                extraHosts) != null ? true : false;
+                extraHosts, labels) != null ? true : false;
     }
 
     @Override
@@ -187,8 +187,7 @@ public class K8ServiceImpl extends PlatformService {
         List<Pod> pods = new ArrayList<>();
         Map<String, String> labels = new HashMap<>();
         labels.put("io.elastest.service", projectName);
-        pods.addAll(
-                k8sService.getPodsByLabels(labels, namespace));
+        pods.addAll(k8sService.getPodsByLabels(labels, namespace));
         return pods;
 
     }
@@ -379,7 +378,7 @@ public class K8ServiceImpl extends PlatformService {
             return k8sService.getPodIpByPodName(hostname);
         }
     }
-    
+
     @Override
     public String getETPublicHost() {
         return k8sService.getServiceIp(etEtmInternalHost, null);

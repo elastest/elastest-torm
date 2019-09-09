@@ -146,8 +146,8 @@ public abstract class PlatformService {
     public abstract boolean createServiceDeploymentProject(String projectName,
             String serviceDescriptor, String targetPath, boolean override,
             Map<String, String> envs, boolean withBindedExposedPortsToRandom,
-            boolean withRemoveVolumes, List<String> extraHosts)
-            throws Exception;
+            boolean withRemoveVolumes, List<String> extraHosts,
+            Map<String, String> labels) throws Exception;
 
     public abstract boolean deployService(String projectName, boolean withPull,
             String namespace) throws IOException, Exception;

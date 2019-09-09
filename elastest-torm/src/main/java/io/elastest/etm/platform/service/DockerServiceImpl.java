@@ -1073,8 +1073,8 @@ public class DockerServiceImpl extends PlatformService {
     public boolean createServiceDeploymentProject(String projectName,
             String serviceDescriptor, String targetPath, boolean override,
             Map<String, String> envs, boolean withBindedExposedPortsToRandom,
-            boolean withRemoveVolumes, List<String> extraHosts)
-            throws Exception {
+            boolean withRemoveVolumes, List<String> extraHosts,
+            Map<String, String> labels) throws Exception {
         return dockerComposeService.createProjectWithEnv(projectName,
                 serviceDescriptor, targetPath, true, envs,
                 withBindedExposedPortsToRandom, withBindedExposedPortsToRandom,

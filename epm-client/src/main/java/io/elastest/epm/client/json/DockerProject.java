@@ -11,6 +11,7 @@ public class DockerProject {
     String yml;
     Map<String, String> env = new HashMap<>();
     List<String> extraHosts = new ArrayList<String>();
+    Map<String, String> labels = new HashMap<>();
 
     public DockerProject(String name, String yml) {
         this.name = name;
@@ -49,6 +50,14 @@ public class DockerProject {
 
     public List<String> getExtraHosts() {
         return extraHosts;
+    }
+
+    public Map<String, String> getLabels() {
+        return labels;
+    }
+
+    public void setLabels(Map<String, String> labels) {
+        this.labels = labels;
     }
 
     @Override

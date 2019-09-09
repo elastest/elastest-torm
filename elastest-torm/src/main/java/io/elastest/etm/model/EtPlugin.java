@@ -18,6 +18,7 @@ public class EtPlugin extends DockerServiceStatus {
     protected String pass;
     protected String displayName;
     protected String fileName;
+    private Map<String, String> additionalLabels = new HashMap<>();
 
     protected List<String> extraHosts = new ArrayList<>();
 
@@ -143,6 +144,14 @@ public class EtPlugin extends DockerServiceStatus {
 
     public void setExtraHosts(List<String> extraHosts) {
         this.extraHosts = extraHosts;
+    }
+
+    public Map<String, String> getAdditionalLabels() {
+        return additionalLabels;
+    }
+
+    public void setAdditionalLabels(Map<String, String> additionalLabels) {
+        this.additionalLabels = additionalLabels;
     }
 
     @Override

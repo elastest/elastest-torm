@@ -268,7 +268,8 @@ public class EtPluginsService {
         platformService.createServiceDeploymentProject(instanceId,
                 dockerComposeYml, tmpTssInstancesYmlFolder, true,
                 serviceInstance.getParameters(), false, false,
-                serviceInstance.getExtraHosts());
+                serviceInstance.getExtraHosts(),
+                serviceInstance.getAdditionalLabels());
 
         List<String> images = platformService
                 .getServiceDeploymentImages(instanceId);
