@@ -10,6 +10,7 @@ services:
             - JENKINS_LOCATION=none
             - ET_USER=none
             - ET_PASS=none
+            - ET_ETM_VIEW_ONLY=false
       networks:
              - elastest
       volumes:

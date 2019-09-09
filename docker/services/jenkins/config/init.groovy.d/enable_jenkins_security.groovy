@@ -25,6 +25,12 @@ hudsonRealm.createAccount(user,pass)
 instance.setSecurityRealm(hudsonRealm)
 
 def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
-strategy.setAllowAnonymousRead(false)
+
+if ((env['ET_ETM_VIEW_ONLY'] && env['ET_ETM_VIEW_ONLY'] == "true") { 
+	strategy.setAllowAnonymousRead(true)
+} else {
+	strategy.setAllowAnonymousRead(false)
+}
+
 instance.setAuthorizationStrategy(strategy)
 instance.save()

@@ -233,6 +233,9 @@ public class EtPluginsService {
         String dockerComposeYml = getDockerCompose(name);
         Map<String, String> envVars = new HashMap<>();
 
+        envVars.put("ET_ETM_VIEW_ONLY",
+                etEtmViewOnly != null ? etEtmViewOnly.toString() : "false");
+
         if (name.equals(JENKINS_NAME)) {
             this.uniqueEtPluginsMap.get(name).setUser(etUser);
             this.uniqueEtPluginsMap.get(name).setPass(etPass);
@@ -243,6 +246,7 @@ public class EtPluginsService {
             }
             envVars.put("ET_USER", etUser);
             envVars.put("ET_PASS", etPass);
+
             this.createProjectWithEnv(name, dockerComposeYml,
                     uniqueEtPluginsYmlFolder, envVars);
         } else if (name.equals(TESTLINK_NAME)) {
