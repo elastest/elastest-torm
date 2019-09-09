@@ -8,8 +8,6 @@
     <script>node{
     elastest(surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, project: &apos;Jenkins Examples&apos;) {
         stage (&apos;Executing Test&apos;) {
-            echo &apos;Print env variables&apos;
-            sh &apos;env&apos;
             echo &apos;Set up test environment&apos;
             mvnHome = tool &apos;M3.3.9&apos;
             echo &apos;Cloning repository&apos;

@@ -8,8 +8,6 @@
     <script>node{
     elastest(surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true, project: &apos;Jenkins Examples&apos;) {
         stage (&apos;Executing Test&apos;) {
-            echo &apos;Print env variables&apos;
-            sh &apos;env&apos;
             def sutImage = docker.image(&apos;elastest/demo-rest-java-test-sut&apos;)
             echo &apos;Start SUT&apos;
             def sutContainerName = env.ET_SUT_CONTAINER_NAME;

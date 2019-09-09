@@ -8,7 +8,6 @@
     <script>node {
     elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, project: &apos;Jenkins Examples&apos;) {
         withKubeConfig([credentialsId: &apos;k8s-api-token&apos;, serverUrl: env.K8S_URL]) {
-            sh &quot;env&quot;
             try {
                 stage(&quot;Start SUT&quot;) {
                     git(

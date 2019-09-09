@@ -9,8 +9,6 @@
     def sutIp
     elastest(tss: [&apos;EUS&apos;], surefireReportsPattern: &apos;**/target/surefire-reports/TEST-*.xml&apos;, monitoring: true, project: &apos;Jenkins Examples&apos;) {
         stage(&quot;Setting environment&quot;) {
-            echo &apos;Environment variables&apos;
-            sh &quot;env&quot;
             git &quot;https://github.com/elastest/full-teaching-experiment.git&quot;
         }
         try {
