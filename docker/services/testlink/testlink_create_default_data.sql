@@ -198,6 +198,10 @@ INSERT INTO /*prefix*/role_rights (role_id,right_id) VALUES (9,47);
 INSERT INTO /*prefix*/users (login,password,role_id,email,first,last,locale,active,script_key,cookie_string)
 			VALUES ('admin',MD5('admin'), 8,'', 'Testlink','Administrator', 'en_GB',1,'20b9a66e17597842404062c3b628b938',CONCAT(MD5(RAND()),MD5('admin')));
 
+# guest account 
+INSERT INTO /*prefix*/users (login,password,role_id,email,first,last,locale,active,script_key,cookie_string)
+			VALUES ('guest',MD5('guest'), 5,'', 'Testlink','Guest', 'en_GB',1,'',CONCAT(MD5(RAND()),MD5('guest')));
+
 
 # Assignment types
 INSERT INTO /*prefix*/assignment_types (id,fk_table,description) VALUES(1,'testplan_tcversions','testcase_execution');
