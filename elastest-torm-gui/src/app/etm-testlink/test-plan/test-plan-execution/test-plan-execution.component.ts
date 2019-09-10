@@ -668,7 +668,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
     if (this.exTJobExec) {
       this.tJobExecUrl =
         document.location.origin +
-        '/#/external/project/' +
+        '/#/external/projects/' +
         this.exTJob.exProject.id +
         '/tjob/' +
         this.exTJob.id +
@@ -681,7 +681,7 @@ export class TestPlanExecutionComponent implements OnInit, OnDestroy {
   getCurrentTestExecutionUrl(label: string): string {
     let testExecUrl: string =
       document.location.origin +
-      '/#/external/project/' +
+      '/#/external/projects/' +
       this.exTJob.exProject.id +
       '/tjob/' +
       this.exTJob.id +
