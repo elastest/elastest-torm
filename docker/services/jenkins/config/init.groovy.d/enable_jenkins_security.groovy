@@ -25,7 +25,7 @@ hudsonRealm.createAccount(user,pass)
 instance.setSecurityRealm(hudsonRealm)
 
 def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
-println "--> Is ETM View Only mode activated?:
+println "--> Is ETM View Only mode activated?:"
 println env['ET_ETM_VIEW_ONLY']
 
 if ((env['ET_ETM_VIEW_ONLY'] && (env['ET_ETM_VIEW_ONLY'] == "true" || env['ET_ETM_VIEW_ONLY'] == true)) { 
