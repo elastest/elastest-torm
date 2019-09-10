@@ -8,6 +8,7 @@ export class EtPluginModel extends DockerServiceStatus {
   pass: string;
   displayName: string;
   fileName: string;
+  showCredentialsInEtmViewOnlyMode: boolean;
 
   constructor() {
     super();
@@ -18,5 +19,6 @@ export class EtPluginModel extends DockerServiceStatus {
     this.pass = '';
     this.displayName = '';
     this.fileName = '';
+    this.showCredentialsInEtmViewOnlyMode = true;
   }
 }

@@ -31,7 +31,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
 
     this.etPluginsService.getUniqueEtPlugin('jenkins').subscribe(
       (jenkinsModel: EtPluginModel) => {
-        this.jenkinsModel = jenkinsModel;
+        this.setJenkinsModel(jenkinsModel);
         this.initIfStarted();
         if (jenkinsModel.isNotInitialized()) {
           this.startingInProcess = false;
@@ -60,6 +60,11 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
     }
   }
 
+  setJenkinsModel(jenkinsModel: EtPluginModel): void {
+    this.jenkinsModel = jenkinsModel;
+    this.jenkinsModel.showCredentialsInEtmViewOnlyMode = false;
+  }
+
   waitForReady(): void {
     this.timer = interval(1800);
     if (
@@ -69,7 +74,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
     ) {
       this.subscription = this.timer.subscribe(() => {
         this.etPluginsService.getEtPlugin(this.jenkinsModel.name).subscribe((etPlugin: EtPluginModel) => {
-          this.jenkinsModel = etPlugin;
+          this.setJenkinsModel(etPlugin);
           if (etPlugin.isReady()) {
             this.initIfStarted();
             this.subscription.unsubscribe();
@@ -97,7 +102,7 @@ export class EtmJenkinsComponent implements OnInit, OnDestroy {
     this.startingInProcess = true;
     this.etPluginsService.startEtPluginAsync(this.jenkinsModel).subscribe(
       (jenkinsModel: EtPluginModel) => {
-        this.jenkinsModel = jenkinsModel;
+        this.setJenkinsModel(jenkinsModel);
         this.waitForReady();
       },
       (error: Error) => {
