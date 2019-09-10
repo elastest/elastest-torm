@@ -32,8 +32,6 @@ export class TestSuiteComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.titlesService.setPathName(this.router.routerState.snapshot.url);
-
     // Nested
     if (this.tJobExec && this.testSuite) {
       this.nested = true;
@@ -41,6 +39,7 @@ export class TestSuiteComponent implements OnInit {
       this.testSuiteId = this.testSuite.id;
     } else {
       // Complete Section
+      this.titlesService.setPathName(this.router.routerState.snapshot.url);
       if (this.route.params !== null || this.route.params !== undefined) {
         this.route.params.subscribe((params: Params) => {
           if (params) {

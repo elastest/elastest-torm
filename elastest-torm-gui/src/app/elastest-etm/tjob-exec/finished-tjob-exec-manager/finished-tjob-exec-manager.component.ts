@@ -9,11 +9,12 @@ import { TJobService } from '../../tjob/tjob.service';
 import { TJobExecModel } from '../tjobExec-model';
 import { TJobExecService } from '../tjobExec.service';
 
-import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, Input } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { MatDialog } from '@angular/material';
 import { MetricTraces, LogTraces, MonitoringService } from '../../../shared/services/monitoring.service';
 import { ParameterModel } from '../../parameter/parameter-model';
+import { sleep } from '../../../shared/utils';
 
 @Component({
   selector: 'etm-finished-tjob-exec-manager',
@@ -25,15 +26,20 @@ export class FinishedTjobExecManagerComponent implements OnInit {
   logsAndMetrics: EtmMonitoringViewComponent;
   showLogsAndMetrics: boolean = false;
 
+  @Input()
+  tJobExec: TJobExecModel;
+
   tJobId: number;
   tJobExecId: number;
-  tJobExec: TJobExecModel;
   tJob: TJobModel;
   downloading: boolean = false;
   deletingInProgress: boolean = false;
 
   tJobExecMultiConfigs: ParameterModel[] = [];
   tJobExecParameters: ParameterModel[] = [];
+
+  globalInfoExpansionPanelOpened: boolean = false;
+  logsAndMetricsAlreadyInitialized: boolean = false;
 
   statusIcon: any = {
     name: '',
@@ -70,8 +76,13 @@ export class FinishedTjobExecManagerComponent implements OnInit {
         this.tJobId = params.tJobId;
         this.tJobExecId = params.tJobExecId;
         this.setTitle();
-        this.tJobExec = new TJobExecModel();
-        this.loadTJobExec();
+
+        if (this.tJobExec !== undefined && this.tJobExec !== null) {
+          this.initAfetrTJobExecLoaded();
+        } else {
+          this.tJobExec = new TJobExecModel();
+          this.loadTJobExec();
+        }
       });
     }
   }
@@ -93,44 +104,50 @@ export class FinishedTjobExecManagerComponent implements OnInit {
   loadTJobExec(): void {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExec: TJobExecModel) => {
       this.tJobExec = tJobExec;
-      this.statusIcon = this.tJobExec.getResultIcon();
-      this.setTitle();
-      this.initElasTestMonitoringMarks();
-      this.titlesService.setPathName(this.router.routerState.snapshot.url);
+      this.initAfetrTJobExecLoaded();
+    });
+  }
 
-      if (this.tJobExec.parameters) {
-        for (let param of this.tJobExec.parameters) {
-          let parameter: ParameterModel = new ParameterModel(param);
-          if (param.multiConfig) {
-            this.tJobExecMultiConfigs.push(parameter);
-          } else {
-            this.tJobExecParameters.push(parameter);
-          }
+  initAfetrTJobExecLoaded(): void {
+    this.statusIcon = this.tJobExec.getResultIcon();
+    this.setTitle();
+    this.initElasTestMonitoringMarks();
+    this.titlesService.setPathName(this.router.routerState.snapshot.url);
+    if (this.tJobExec.parameters) {
+      for (let param of this.tJobExec.parameters) {
+        let parameter: ParameterModel = new ParameterModel(param);
+        if (param.multiConfig) {
+          this.tJobExecMultiConfigs.push(parameter);
+        } else {
+          this.tJobExecParameters.push(parameter);
         }
       }
-
-      this.tJobService.getTJob(this.tJobId.toString()).subscribe(
-        (tJob: TJobModel) => {
-          this.tJob = tJob;
-          if (this.tJobExec.finished()) {
-            if (this.logsAndMetrics) {
-              this.logsAndMetrics.initView(this.tJob, this.tJobExec);
-              this.showLogsAndMetrics = true;
-            }
-
-            if (this.tJobExec.isChild()) {
-              this.tJobExecService.getChildTJobExecParent(this.tJobExec.id).subscribe(
-                (parent: TJobExecModel) => {
-                  this.tJobExec.execParent = parent;
-                },
-                (error: Error) => console.log(error),
-              );
-            }
+    }
+    this.tJobService.getTJob(this.tJobId.toString()).subscribe(
+      (tJob: TJobModel) => {
+        this.tJob = tJob;
+        if (this.tJobExec.finished()) {
+          this.initLogsAndMetrics();
+          if (this.tJobExec.isChild()) {
+            this.tJobExecService.getChildTJobExecParent(this.tJobExec.id).subscribe(
+              (parent: TJobExecModel) => {
+                this.tJobExec.execParent = parent;
+              },
+              (error: Error) => console.log(error),
+            );
           }
-        },
-        (error: Error) => console.log(error),
-      );
-    });
+        }
+      },
+      (error: Error) => console.log(error),
+    );
+  }
+
+  initLogsAndMetrics(): void {
+    if (this.logsAndMetrics) {
+      this.logsAndMetrics.initView(this.tJob, this.tJobExec);
+      this.showLogsAndMetrics = true;
+      this.logsAndMetricsAlreadyInitialized = true;
+    }
   }
 
   initElasTestMonitoringMarks(): void {
@@ -252,6 +269,25 @@ export class FinishedTjobExecManagerComponent implements OnInit {
   viewParent(): void {
     if (this.tJobExec && this.tJobExec.isChild() && this.tJobExec.execParent) {
       this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', this.tJobExec.execParent.id]);
+    }
+  }
+
+  expandGlobalInfoExpansionPanel(): void {
+    this.globalInfoExpansionPanelOpened = true;
+
+    if (!this.logsAndMetricsAlreadyInitialized) {
+      // sleep
+      sleep(1000)
+        .then(() => {
+          if (!this.logsAndMetrics) {
+            this.expandGlobalInfoExpansionPanel();
+          } else {
+            this.initLogsAndMetrics();
+          }
+        })
+        .catch((e) => {
+          this.expandGlobalInfoExpansionPanel();
+        });
     }
   }
 }

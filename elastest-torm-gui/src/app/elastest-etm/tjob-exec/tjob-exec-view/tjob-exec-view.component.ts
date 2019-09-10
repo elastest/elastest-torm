@@ -52,7 +52,7 @@ export class TjobExecViewComponent implements OnInit, OnDestroy {
     if (this.checkResultSubscription === null || this.checkResultSubscription === undefined) {
       this.checkResultSubscription = timer.subscribe(() => {
         this.tJobExecService.getResultStatus(this.tJobId, this.tJobExec).subscribe(
-          (data) => {
+          (data: any) => {
             if (data.result !== this.tJobExec.result) {
               this.tJobExec.result = data.result;
             }

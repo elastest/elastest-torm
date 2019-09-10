@@ -60,8 +60,6 @@ export class TestCaseComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.titlesService.setPathName(this.router.routerState.snapshot.url);
-
     // Nested
     if (this.tJobExec && this.testCase) {
       this.nested = true;
@@ -70,6 +68,7 @@ export class TestCaseComponent implements OnInit {
       this.testCaseId = this.testCase.id;
       this.loadTestCase();
     } else {
+      this.titlesService.setPathName(this.router.routerState.snapshot.url);
       // Complete Section
       if (this.route.params !== null || this.route.params !== undefined) {
         this.route.params.subscribe((params: Params) => {
@@ -129,24 +128,19 @@ export class TestCaseComponent implements OnInit {
   getExecutionFiles(): void {
     this.tJobExecService.getTJobExecutionFiles(this.tJobId, this.tJobExecId).subscribe(
       (tJobsExecFiles: FileModel[]) => {
+        this.mp4Files = [];
         let i: number = 0;
         tJobsExecFiles.forEach((file: FileModel) => {
           if (this.isMP4(file)) {
             file['order'] = i;
             i++;
+            this.mp4Files.push(file);
           }
         });
         this.testCase.setTestCaseFiles(tJobsExecFiles);
-        this.mp4Files = this.getMP4Files();
       },
       (error: Error) => console.log(error),
     );
-  }
-
-  getMP4Files(): FileModel[] {
-    let mp4Files: FileModel[] = [];
-    mp4Files = this.testCase.files.filter((file: FileModel) => this.isMP4(file));
-    return mp4Files;
   }
 
   isMP4(file: FileModel): boolean {

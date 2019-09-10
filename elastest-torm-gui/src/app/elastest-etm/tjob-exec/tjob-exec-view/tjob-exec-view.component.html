@@ -1,6 +1,6 @@
 <ng-container *ngIf="!loading; else showSpinner">
   <ng-container *ngIf="tJobExec && tJobExec.id !== undefined && tJobExec.id !== null && tJobExec.id > 0">
-    <etm-finished-tjob-exec-manager *ngIf="finished"></etm-finished-tjob-exec-manager>
+    <etm-finished-tjob-exec-manager [tJobExec]="tJobExec" *ngIf="finished"></etm-finished-tjob-exec-manager>
 
     <etm-live-tjob-exec-manager *ngIf="!finished"></etm-live-tjob-exec-manager>
   </ng-container>
@@ -8,7 +8,7 @@
 
 <ng-template #showSpinner>
   <self-adjustable-card>
-    <sa-card-title> Wait please... </sa-card-title>
+    <sa-card-title> Loading. Wait please... </sa-card-title>
     <sa-card-content>
       <centered-element>
         <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
