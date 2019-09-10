@@ -7,8 +7,6 @@ import hudson.model.RestartListener
 def instance = Jenkins.getInstance()
 def env = System.getenv()
 
-println "--> Creating local user 'elastest'"
-println "--> Is ETM View Only mode activated?:"
 println env['ET_ETM_VIEW_ONLY']
 
 
@@ -29,8 +27,11 @@ instance.setSecurityRealm(hudsonRealm)
 
 def strategy = new FullControlOnceLoggedInAuthorizationStrategy()
 
+println "--> Creating local user 'elastest'"
+println "--> Is ETM View Only mode activated?:"
+
 if (env['ET_ETM_VIEW_ONLY'] && (env['ET_ETM_VIEW_ONLY'] == "true" || env['ET_ETM_VIEW_ONLY'] == true)) { 
-	strategy.setAllowAnonymousRead(true)
+	strategy.setAllowAnonymousRead(env['ET_ETM_VIEW_ONLY'] == "true" || env['ET_ETM_VIEW_ONLY'] == true)
 } else {
 	strategy.setAllowAnonymousRead(false)
 }
