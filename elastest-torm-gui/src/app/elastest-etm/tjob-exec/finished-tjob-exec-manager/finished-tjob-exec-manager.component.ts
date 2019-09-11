@@ -23,7 +23,7 @@ import { ElastestLogComparatorComponent } from '../../../elastest-log-comparator
   styleUrls: ['./finished-tjob-exec-manager.component.scss'],
 })
 export class FinishedTjobExecManagerComponent implements OnInit {
-  @ViewChild('logsAndMetrics', { static: true })
+  @ViewChild('logsAndMetrics', { static: false })
   logsAndMetrics: EtmMonitoringViewComponent;
   showLogsAndMetrics: boolean = false;
 
