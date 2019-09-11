@@ -157,6 +157,7 @@ import { ExternalPrometheusConfigurationComponent } from './elastest-etm/externa
 import { AngularSplitModule } from 'angular-split';
 import { BrowserCardComponentComponent } from './elastest-eus/browser-card-component/browser-card-component.component';
 import { CrossbrowserComponentComponent } from './elastest-eus/crossbrowser-component/crossbrowser-component.component';
+import { TestCaseDetailComponent } from './elastest-etm/test-case/test-case-detail/test-case-detail.component';
 
 library.add(faJenkins);
 library.add(fas);
@@ -248,6 +249,7 @@ library.add(fas);
     ExternalPrometheusConfigurationComponent,
     BrowserCardComponentComponent,
     CrossbrowserComponentComponent,
+    TestCaseDetailComponent,
   ], // directives, components, and pipes owned by this NgModule
   imports: [
     appRoutes,

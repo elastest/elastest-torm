@@ -131,7 +131,7 @@ export class TestCaseComponent implements OnInit {
         this.mp4Files = [];
         let i: number = 0;
         tJobsExecFiles.forEach((file: FileModel) => {
-          if (this.isMP4(file)) {
+          if (this.isMP4(file) && file.name.startsWith(this.testCase.name)) {
             file['order'] = i;
             i++;
             this.mp4Files.push(file);
@@ -160,8 +160,8 @@ export class TestCaseComponent implements OnInit {
   }
 
   goToVideoTab(file: FileModel): void {
-    // video position, LogAnalyzer + Files tabs);
-    this.goToTab(file['order'] + 2);
+    // video position, LogAnalyzer + Files + Details tabs);
+    this.goToTab(file['order'] + 3);
   }
 
   viewInLogAnalyzer(): void {

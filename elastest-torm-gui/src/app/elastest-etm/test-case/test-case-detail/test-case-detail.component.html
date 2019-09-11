@@ -1,0 +1,31 @@
+<mat-list id="testCaseInfo">
+  <div>
+    <h4>Time (s)</h4>
+    <p>{{ testCase.time }}</p>
+    <mat-divider></mat-divider>
+  </div>
+
+  <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
+    <h4>Failure Message</h4>
+    <p>{{ testCase.failureMessage }}</p>
+    <mat-divider></mat-divider>
+  </div>
+
+  <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
+    <h4>Failure Type</h4>
+    <p>{{ testCase.failureType }}</p>
+    <mat-divider></mat-divider>
+  </div>
+
+  <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
+    <h4>Failure Error Line</h4>
+    <p>{{ testCase.failureErrorLine }}</p>
+    <mat-divider></mat-divider>
+  </div>
+
+  <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
+    <h4>Failure Detail</h4>
+    <p>{{ testCase.failureDetail }}</p>
+    <p></p>
+  </div>
+</mat-list>

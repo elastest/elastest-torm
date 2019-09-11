@@ -34,6 +34,25 @@
   // min-width: 80px !important;
   // max-width: 85px;
   text-overflow: ellipsis;
+  opacity: 1 !important;
+}
+
+:host /deep/ .matTabOnlyBtn {
+  width: 34px !important;
+  height: 34px !important;
+}
+
+:host /deep/ .matTabOnlyBtn span.mat-button-wrapper {
+  padding: 0 !important;
+  margin-left: -2px;
+  font-size: 24px;
+  font-weight: normal;
+}
+
+:host /deep/ .matTabOnlyBtn mat-icon {
+  font-size: 22px;
+  width: 0.9em;
+  height: 0.9em;
 }
 #testCaseTabGroup {
   height: 100%;
