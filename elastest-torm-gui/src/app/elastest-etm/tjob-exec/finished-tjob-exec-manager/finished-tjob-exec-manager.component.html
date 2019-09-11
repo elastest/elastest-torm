@@ -79,7 +79,7 @@
       <mat-divider></mat-divider>
 
       <mat-card-content>
-        <div fxLayout="row">
+        <div fxLayout="row" class="finishedTJobExecDetails">
           <span fxFlex="10" fxFlex.gt-xl="5">
             <mat-card-subtitle>Result</mat-card-subtitle>
             <h4 id="resultMsgText" [style.color]="statusIcon.color">{{ tJobExec.result }}</h4>
@@ -178,11 +178,21 @@
 
 <!-- Single Execution -->
 <ng-template #showNormalExecutionView>
+  <div #logsDiffContainer fxLayout="column">
+    <elastest-log-comparator #logComparator [hide]="true" [live]="false" fxFlex></elastest-log-comparator>
+  </div>
+
   <!-- Test Suite / Cases -->
   <div id="testSuitesView" fxLayout="column" *ngIf="tJobExec.hasTestSuites(); else showLogsAndFiles">
     <etm-test-suites-view fxFlex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
     <!-- logs & Metrics -->
-    <td-expansion-panel #globalInfoExpansionPanel (expanded)="expandGlobalInfoExpansionPanel()" label="Global Execution Data" expand="false" class="push-sm">
+    <td-expansion-panel
+      #globalInfoExpansionPanel
+      (expanded)="expandGlobalInfoExpansionPanel()"
+      label="Global Execution Data"
+      expand="false"
+      class="push-sm"
+    >
       <ng-container *ngIf="globalInfoExpansionPanelOpened">
         <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
         <etm-files-manager *ngIf="tJob && tJobExec" [tJob]="tJob" [tJobExec]="tJobExec"></etm-files-manager>

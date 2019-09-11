@@ -2,6 +2,8 @@ import { Component, OnInit, Input } from '@angular/core';
 import { LogComparisonModel } from './model/log-comparison.model';
 import { isStringIntoArray, allArrayPairCombinations } from '../shared/utils';
 import { LogFieldModel } from '../shared/logs-view/models/log-field-model';
+import { TJobExecModel } from '../elastest-etm/tjob-exec/tjobExec-model';
+import { defaultStreamMap } from '../shared/defaultESData-model';
 
 @Component({
   selector: 'elastest-log-comparator',
@@ -125,6 +127,47 @@ export class ElastestLogComparatorComponent implements OnInit {
       this.generateAIOLogsComparisonTab();
     }
     return added;
+  }
+
+  addMoreLogsComparisonsByTJobExecsList(tJobExecs: TJobExecModel[], allLogs: LogFieldModel[]): void {
+    if (tJobExecs && allLogs) {
+      let monitoringIndicesList: string[] = [];
+      let startDate: Date;
+      let endDate: Date;
+
+      for (let tJobExec of tJobExecs) {
+        // Monitoring index
+        if (tJobExec.monitoringIndex !== undefined && tJobExec.monitoringIndex !== '') {
+          monitoringIndicesList.push(tJobExec.monitoringIndex);
+        }
+
+        // StartDate
+        if (!startDate) {
+          startDate = tJobExec.startDate;
+        } else {
+          startDate = tJobExec.startDate.getTime() < startDate.getTime() ? tJobExec.startDate : startDate;
+        }
+        // EndDate
+        if (!endDate) {
+          endDate = tJobExec.endDate;
+        } else {
+          if (!tJobExec.endDate) {
+            tJobExec.endDate = new Date();
+          }
+          endDate = tJobExec.endDate.getTime() > endDate.getTime() ? tJobExec.endDate : endDate;
+        }
+      }
+
+      // For each logs (test_default_log, sut..., tss_eus....)
+      for (let log of allLogs) {
+        if (log.stream === undefined || log.stream === null || log.stream === '') {
+          log.stream = defaultStreamMap.log;
+        }
+
+        this.hide = false;
+        this.addMoreLogsComparisons(monitoringIndicesList, startDate, endDate, log.name, log.stream, log.component);
+      }
+    }
   }
 
   alreadyExistComparison(logName: string, comparison: LogComparisonModel): boolean {

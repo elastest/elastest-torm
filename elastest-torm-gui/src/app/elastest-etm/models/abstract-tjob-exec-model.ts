@@ -75,14 +75,16 @@ export class AbstractTJobExecModel {
     return sutIndex;
   }
 
+  isSuccess(): boolean {
+    return this.result === 'SUCCESS';
+  }
+
+  isFailed(): boolean {
+    return this.result === 'FAILED' || this.result === 'FAIL';
+  }
+
   finished(): boolean {
-    return (
-      this.result === 'SUCCESS' ||
-      this.result === 'FAIL' ||
-      this.result === 'ERROR' ||
-      this.result === 'STOPPED' ||
-      this.result === 'FAILED'
-    );
+    return this.isSuccess() || this.isFailed() || this.result === 'ERROR' || this.result === 'STOPPED';
   }
 
   resultError(): boolean {

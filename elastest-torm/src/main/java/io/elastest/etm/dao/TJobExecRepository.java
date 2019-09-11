@@ -46,6 +46,15 @@ public interface TJobExecRepository extends JpaRepository<TJobExecution, Long> {
     public List<TJobExecution> findByTJobIdWithPageable(
             @Param("tjobId") Long tjobId, Pageable pageable);
 
+    @Query("select exec from TJobExecution exec where tjob = :tJobId and result in :results and (not type = 2 or type is null)")
+    public List<TJobExecution> findByTJobIdAndResultsWithPageableWithoutChilds(
+            Long tJobId, @Param("results") List<ResultEnum> resultList,
+            Pageable range);
+
+    @Query("select exec from TJobExecution exec where tjob = :tJobId and result in :results")
+    public List<TJobExecution> findByTJobIdAndResultsWithPageable(Long tJobId,
+            @Param("results") List<ResultEnum> resultList, Pageable range);
+
     /* *** */
 
     @Query(value = "select exec from TJobExecution exec")
@@ -140,4 +149,5 @@ public interface TJobExecRepository extends JpaRepository<TJobExecution, Long> {
     public List<TJobExecution> findByResultsAndIdGreaterThanWithPageableWithoutChilds(
             @Param("results") List<ResultEnum> resultList, @Param("id") Long id,
             Pageable pageable);
+
 }

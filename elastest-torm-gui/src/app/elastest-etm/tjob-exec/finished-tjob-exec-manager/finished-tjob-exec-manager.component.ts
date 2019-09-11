@@ -15,6 +15,7 @@ import { MatDialog } from '@angular/material';
 import { MetricTraces, LogTraces, MonitoringService } from '../../../shared/services/monitoring.service';
 import { ParameterModel } from '../../parameter/parameter-model';
 import { sleep } from '../../../shared/utils';
+import { ElastestLogComparatorComponent } from '../../../elastest-log-comparator/elastest-log-comparator.component';
 
 @Component({
   selector: 'etm-finished-tjob-exec-manager',
@@ -22,9 +23,12 @@ import { sleep } from '../../../shared/utils';
   styleUrls: ['./finished-tjob-exec-manager.component.scss'],
 })
 export class FinishedTjobExecManagerComponent implements OnInit {
-  @ViewChild('logsAndMetrics', { static: false })
+  @ViewChild('logsAndMetrics', { static: true })
   logsAndMetrics: EtmMonitoringViewComponent;
   showLogsAndMetrics: boolean = false;
+
+  @ViewChild('logComparator', { static: false })
+  logComparator: ElastestLogComparatorComponent;
 
   @Input()
   tJobExec: TJobExecModel;
@@ -40,6 +44,10 @@ export class FinishedTjobExecManagerComponent implements OnInit {
 
   globalInfoExpansionPanelOpened: boolean = false;
   logsAndMetricsAlreadyInitialized: boolean = false;
+
+  lastTJobExecSuccess: TJobExecModel;
+
+  stopSleep: boolean = false;
 
   statusIcon: any = {
     name: '',
@@ -78,7 +86,7 @@ export class FinishedTjobExecManagerComponent implements OnInit {
         this.setTitle();
 
         if (this.tJobExec !== undefined && this.tJobExec !== null) {
-          this.initAfetrTJobExecLoaded();
+          this.initAfterTJobExecLoaded();
         } else {
           this.tJobExec = new TJobExecModel();
           this.loadTJobExec();
@@ -104,11 +112,11 @@ export class FinishedTjobExecManagerComponent implements OnInit {
   loadTJobExec(): void {
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExec: TJobExecModel) => {
       this.tJobExec = tJobExec;
-      this.initAfetrTJobExecLoaded();
+      this.initAfterTJobExecLoaded();
     });
   }
 
-  initAfetrTJobExecLoaded(): void {
+  initAfterTJobExecLoaded(): void {
     this.statusIcon = this.tJobExec.getResultIcon();
     this.setTitle();
     this.initElasTestMonitoringMarks();
@@ -127,8 +135,9 @@ export class FinishedTjobExecManagerComponent implements OnInit {
       (tJob: TJobModel) => {
         this.tJob = tJob;
         if (this.tJobExec.finished()) {
-          this.initLogsAndMetrics();
+          this.checkIfFailedAndInit();
           if (this.tJobExec.isChild()) {
+            this.initLogsAndMetrics();
             this.tJobExecService.getChildTJobExecParent(this.tJobExec.id).subscribe(
               (parent: TJobExecModel) => {
                 this.tJobExec.execParent = parent;
@@ -140,6 +149,34 @@ export class FinishedTjobExecManagerComponent implements OnInit {
       },
       (error: Error) => console.log(error),
     );
+  }
+
+  checkIfFailedAndInit(): void {
+    if (this.tJobExec.result && this.tJobExec.isFailed()) {
+      this.tJobExecService.getLastSuccessTJobExecution(this.tJob.id, false).subscribe(
+        (lastTJobExecSuccess: TJobExecModel) => {
+          if (lastTJobExecSuccess) {
+            this.lastTJobExecSuccess = lastTJobExecSuccess;
+            this.initLogComparator();
+          }
+        },
+        (error: Error) => {
+          console.error(error);
+        },
+      );
+    }
+  }
+
+  initLogComparator(): void {
+    let execsToCompare: TJobExecModel[] = [this.tJobExec, this.lastTJobExecSuccess];
+
+    // retry
+    if (this.logComparator) {
+      this.logComparator.addMoreLogsComparisonsByTJobExecsList(
+        execsToCompare,
+        this.tJob.execDashboardConfigModel.allLogsTypes.logsList,
+      );
+    }
   }
 
   initLogsAndMetrics(): void {

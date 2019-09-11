@@ -96,9 +96,10 @@ public class TJobService {
 
     @PostConstruct
     private void init() {
-//
-//        PrometheusService a = new PrometheusService("http://10.111.5.160:9090");
-//        a.getMetric("go_memstats_alloc_bytes_total");
+        //
+        // PrometheusService a = new
+        // PrometheusService("http://10.111.5.160:9090");
+        // a.getMetric("go_memstats_alloc_bytes_total");
 
         manageZombieJobs();
     }
@@ -382,6 +383,28 @@ public class TJobService {
         } else {
             return tJobExecRepositoryImpl.findByTJobIdWithPageable(tJobId,
                     range);
+        }
+    }
+
+    // Last success TJobExec
+    public TJobExecution getLastSuccessTJobExecution(Long tJobId,
+            Boolean withoutChilds) {
+        Pageable range = PageRequest.of(0, 1, Direction.DESC, "id");
+
+        try {
+            if (withoutChilds) {
+                return tJobExecRepositoryImpl
+                        .findByTJobIdAndResultsWithPageableWithoutChilds(tJobId,
+                                Arrays.asList(ResultEnum.SUCCESS), range)
+                        .get(0);
+            } else {
+                return tJobExecRepositoryImpl
+                        .findByTJobIdAndResultsWithPageable(tJobId,
+                                Arrays.asList(ResultEnum.SUCCESS), range)
+                        .get(0);
+            }
+        } catch (Exception e) {
+            return null;
         }
     }
 

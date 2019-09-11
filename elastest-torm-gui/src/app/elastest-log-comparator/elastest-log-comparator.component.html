@@ -16,7 +16,7 @@
       </div>
       <span fxFlex></span>
       <div>
-        <button mat-button (click)="remove()" aria-label="Remove" title="Remove" class="iconBtn pad-left-none">
+        <button mat-button *ngIf="remove" (click)="remove()" aria-label="Remove" title="Remove" class="iconBtn pad-left-none">
           <mat-icon>clear</mat-icon>
         </button>
       </div>

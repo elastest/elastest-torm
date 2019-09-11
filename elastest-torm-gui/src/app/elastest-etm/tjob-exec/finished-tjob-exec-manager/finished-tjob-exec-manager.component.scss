@@ -14,3 +14,11 @@
 :host ::ng-deep #testSuitesView > etm-test-suites-view {
   height: 100%;
 }
+
+:host ::ng-deep .finishedTJobExecDetails h4 {
+  margin: 8px 0 !important;
+}
+
+:host ::ng-deep mat-card-subtitle {
+  margin-bottom: 1px;
+}

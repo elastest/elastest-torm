@@ -7,7 +7,6 @@ import { TJobService } from '../../tjob/tjob.service';
 import { TJobModel } from '../../tjob/tjob-model';
 import { getResultIconByString } from '../../../shared/utils';
 import { EtmMonitoringViewComponent } from '../../etm-monitoring-view/etm-monitoring-view.component';
-import { ParameterModel } from '../../parameter/parameter-model';
 import { MultiConfigModel } from '../../../shared/multi-config-view/multi-config-view.component';
 
 @Component({

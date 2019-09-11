@@ -181,6 +181,17 @@ public interface TjobApi extends EtmApiRoot {
             @RequestParam(value = "than", required = true) String than,
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds);
 
+    @ApiOperation(value = "Returns last Success TJob Execution", notes = "Returns last Success TJob Execution", response = TJobExecution.class, tags = {
+            "TJob Execution", })
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = TJobExecution.class),
+            @ApiResponse(code = 404, message = "TJobs Executions not found") })
+    @RequestMapping(value = "/tjob/{tJobId}/execs/last/success", produces = {
+            "application/json" }, method = RequestMethod.GET)
+    ResponseEntity<TJobExecution> getLastSuccessTJobExecution(
+            @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
+            @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds);
+
     /* ****************************** */
     /* *** All execs of all TJobs *** */
     /* ****************************** */
@@ -369,7 +380,7 @@ public interface TjobApi extends EtmApiRoot {
     ResponseEntity<Boolean> saveExecAttachment(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
             @RequestParam(value = "file") MultipartFile file);
-    
+
     @ApiOperation(value = "Copy the test results report from the pod given as parameter.", response = Long.class, tags = {
             "TJob Execution", })
     @ApiResponses(value = {
@@ -379,8 +390,7 @@ public interface TjobApi extends EtmApiRoot {
             "text/plain" }, method = RequestMethod.POST)
     ResponseEntity<Integer> copyTestResultsFileFromContainer(
             @ApiParam(value = "Name of the pod to use in the finalization tasks.", required = true) @PathVariable("podName") String podName);
-    
-    
+
     @ApiOperation(value = "Notifies ElasTest that the TJob is finishing its execution to do some tasks before.", response = Long.class, tags = {
             "TJob Execution", })
     @ApiResponses(value = {
@@ -390,7 +400,5 @@ public interface TjobApi extends EtmApiRoot {
             "text/plain" }, method = RequestMethod.POST)
     ResponseEntity<Integer> saveTestResultsFromContainer(
             @ApiParam(value = "Name of the pod to use in the finalization tasks.", required = true) @PathVariable("podName") String podName);
-    
-    
 
 }

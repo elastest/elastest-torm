@@ -163,6 +163,7 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     ComboChartComponent,
     EtmChartGroupComponent,
     EtmLogsGroupComponent,
+    ElastestLogComparatorComponent,
     TooltipAreaComponent,
     TimelineComponent,
     VncClientComponent,
