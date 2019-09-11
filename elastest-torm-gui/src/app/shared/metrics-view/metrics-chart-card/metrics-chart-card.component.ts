@@ -26,7 +26,7 @@ export class MetricsChartCardComponent implements OnInit {
   @Input()
   public customButtons: ButtonModel[] = [];
 
-  @ViewChild('metricsView')
+  @ViewChild('metricsView', { static: true })
   metricsView: MetricsViewComponent;
 
   constructor() {}

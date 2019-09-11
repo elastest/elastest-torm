@@ -1,6 +1,6 @@
 import { ElastestLogAnalyzerComponent } from '../elastest-log-analyzer.component';
 import { SearchPatternModel } from './search-pattern/search-pattern-model';
-import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { PopupService } from '../../shared/services/popup.service';
 
 @Component({

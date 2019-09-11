@@ -2,7 +2,7 @@
   font-family: 'Lucida Console', monospace;
 }
 
-:host /deep/ .noPaddingChilds .mat-list-item-content {
+:host ::ng-deep .noPaddingChilds .mat-list-item-content {
   padding: 0px !important;
 }
 
@@ -22,15 +22,15 @@
   max-width: 100%;
 }
 
-:host /deep/ #commandsMatFormField .mat-form-field-underline {
+:host ::ng-deep #commandsMatFormField .mat-form-field-underline {
   height: 0 !important;
   bottom: 0 !important;
 }
 
-:host /deep/ #commandsMatFormField > div {
+:host ::ng-deep #commandsMatFormField > div {
   padding-bottom: 0 !important;
 }
 
-:host /deep/ #commandsMatFormField .mat-form-field-infix {
+:host ::ng-deep #commandsMatFormField .mat-form-field-infix {
   height: 10px;
 }

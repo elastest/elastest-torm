@@ -10,7 +10,7 @@ import { TdMediaService, TdLayoutManageListComponent } from '@covalent/core';
   styleUrls: ['./etm.component.scss'],
 })
 export class EtmComponent implements AfterViewInit, OnInit {
-  @ViewChild('manageList')
+  @ViewChild('manageList', { static: true })
   manageList: TdLayoutManageListComponent;
 
   openedMenu: boolean = true;

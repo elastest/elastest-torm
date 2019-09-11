@@ -3,16 +3,16 @@
   max-height: 20vh !important;
 }
 
-:host /deep/ #testSuitesTabGroup .mat-tab-body-wrapper {
+:host ::ng-deep #testSuitesTabGroup .mat-tab-body-wrapper {
   flex-grow: 1;
 }
 
-:host /deep/ #testSuitesTabGroup .mat-tab-body {
+:host ::ng-deep #testSuitesTabGroup .mat-tab-body {
   display: flex !important;
   flex-direction: column;
 }
 
-:host /deep/ #testSuitesTabGroup .mat-tab-body-content {
+:host ::ng-deep #testSuitesTabGroup .mat-tab-body-content {
   display: flex;
   flex-direction: column;
   flex-grow: 1;

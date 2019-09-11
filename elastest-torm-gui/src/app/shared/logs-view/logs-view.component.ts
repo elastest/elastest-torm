@@ -12,7 +12,7 @@ import { getErrorColor, getWarnColor } from '../utils';
 })
 export class LogsViewComponent implements OnInit {
   @Input() public live: boolean;
-  @ViewChild('logsViewText') public logsViewText: LogsViewTextComponent;
+  @ViewChild('logsViewText', { static: false }) public logsViewText: LogsViewTextComponent;
   @Input() public model: LogViewModel;
   @Input() public remove: Function;
 

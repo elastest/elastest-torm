@@ -10,8 +10,8 @@ import { getUrlObj, randomNum } from '../utils';
   styleUrls: ['./vnc-client.component.scss'],
 })
 export class VncClientComponent implements OnInit, OnDestroy {
-  @ViewChild('canvas') vncCanvas: ElementRef;
-  @ViewChild('vncScreen') vncScreen: ElementRef;
+  @ViewChild('canvas', { static: true }) vncCanvas: ElementRef;
+  @ViewChild('vncScreen', { static: true }) vncScreen: ElementRef;
 
   @Input() public host: string;
   @Input() public port: any;

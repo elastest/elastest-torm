@@ -1,14 +1,10 @@
 import { CaseExecutionViewComponent } from './case-execution-view/case-execution-view.component';
-import { Component, OnInit, ViewChild, HostListener } from '@angular/core';
-import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
-import { ExternalDataModel } from '../../models/external-data-model';
+import { Component, OnInit, ViewChild, HostListener, OnDestroy } from '@angular/core';
 import { EusService } from '../../../../elastest-eus/elastest-eus.service';
 import { ExternalService } from '../../external.service';
 import { CompleteUrlObj } from '../../../../shared/utils';
-import { IExternalExecution } from '../../models/external-execution-interface';
 import { ExternalTJobModel } from '../../external-tjob/external-tjob-model';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { ServiceType } from '../../external-project/external-project-model';
 import { ExternalTJobExecModel, ExternalTJobExecFinishedModel } from '../external-tjob-execution-model';
 import { EsmService } from '../../../../elastest-esm/esm-service.service';
 import { Subscription } from 'rxjs/Subscription';
@@ -24,9 +20,9 @@ import { EusTestModel } from '../../../../elastest-eus/elastest-eus-test-model';
   styleUrls: ['./external-tjob-execution-new.component.scss'],
 })
 export class ExternalTjobExecutionNewComponent implements OnInit, OnDestroy {
-  @ViewChild('logsAndMetrics')
+  @ViewChild('logsAndMetrics', { static: false })
   logsAndMetrics: EtmMonitoringViewComponent;
-  @ViewChild('etmCaseExecutionView')
+  @ViewChild('etmCaseExecutionView', { static: false })
   etmCaseExecutionView: CaseExecutionViewComponent;
 
   exTJob: ExternalTJobModel;

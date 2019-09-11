@@ -94,11 +94,11 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   @Input()
   exTestExec: number;
 
-  @ViewChild('fromDate')
+  @ViewChild('fromDate', { static: false })
   fromDate: ElementRef;
-  @ViewChild('toDate')
+  @ViewChild('toDate', { static: false })
   toDate: ElementRef;
-  @ViewChild('mark')
+  @ViewChild('mark', { static: false })
   mark: MarkComponent;
 
   // Buttons
@@ -109,9 +109,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   disableBtns: boolean = false;
 
   // Filters
-  @ViewChild('componentsTree')
+  @ViewChild('componentsTree', { static: false })
   componentsTree: TreeComponent;
-  @ViewChild('levelsTree')
+  @ViewChild('levelsTree', { static: false })
   levelsTree: TreeComponent;
 
   // TestCase

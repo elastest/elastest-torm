@@ -11,7 +11,7 @@ import { TestProjectModel } from '../../models/test-project-model';
   styleUrls: ['./test-plan-form.component.scss']
 })
 export class TestPlanFormComponent implements OnInit {
-  @ViewChild('planNameInput') planNameInput: ElementRef;
+  @ViewChild('planNameInput', { static: true }) planNameInput: ElementRef;
 
   testPlan: TestPlanModel;
   testProject: TestProjectModel;

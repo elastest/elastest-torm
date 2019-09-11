@@ -27,7 +27,7 @@ import { Observable, Subject } from 'rxjs';
   styleUrls: ['./tjob-manager.component.scss'],
 })
 export class TjobManagerComponent implements OnInit {
-  @ViewChild(TdPagingBarComponent) execsPaging: TdPagingBarComponent;
+  @ViewChild(TdPagingBarComponent, { static: false }) execsPaging: TdPagingBarComponent;
 
   tJob: TJobModel;
   editMode: boolean = false;

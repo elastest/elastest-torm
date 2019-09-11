@@ -21,8 +21,8 @@ import { MonitoringService } from '../../../shared/services/monitoring.service';
   styleUrls: ['./monitoring-configuration.component.scss'],
 })
 export class MonitoringConfigurationComponent implements OnInit {
-  @ViewChild('logsTree') logsTreeComponent: TreeComponent;
-  @ViewChild('metricsTree') metricsTreeComponent: TreeComponent;
+  @ViewChild('logsTree', { static: false }) logsTreeComponent: TreeComponent;
+  @ViewChild('metricsTree', { static: false }) metricsTreeComponent: TreeComponent;
 
   logTree: AgTreeCheckModel;
   metricTree: AgTreeCheckModel;

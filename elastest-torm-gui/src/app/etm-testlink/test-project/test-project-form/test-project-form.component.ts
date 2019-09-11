@@ -11,7 +11,7 @@ import { TestLinkService } from '../../testlink.service';
 })
 export class TestProjectFormComponent implements OnInit {
 
-  @ViewChild('projectNameInput') projectNameInput: ElementRef;
+  @ViewChild('projectNameInput', { static: true }) projectNameInput: ElementRef;
 
   testProject: TestProjectModel;
   currentPath: string = '';

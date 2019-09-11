@@ -14,7 +14,7 @@ import { EusTestModel } from '../../../../elastest-eus/elastest-eus-test-model';
   styleUrls: ['./external-test-execution-form.component.scss'],
 })
 export class ExternalTestExecutionFormComponent implements OnInit, OnDestroy {
-  @ViewChild('externalExecution') externalExecution: IExternalExecution;
+  @ViewChild('externalExecution', { static: false }) externalExecution: IExternalExecution;
 
   model: ExternalDataModel;
   ready: boolean = false;

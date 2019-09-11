@@ -18,7 +18,7 @@ import { IExternalExecutionSaveModel } from '../../../models/external-execution-
 export class ExecutionViewComponent implements OnInit, IExternalExecution {
   @Input() model: ExternalDataModel;
 
-  @ViewChild('executionForm') executionForm: IExternalExecution;
+  @ViewChild('executionForm', { static: false }) executionForm: IExternalExecution;
 
   data: any;
 

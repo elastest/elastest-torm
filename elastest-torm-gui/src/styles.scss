@@ -52,11 +52,11 @@ a[mat-icon-button] {
   text-transform: capitalize;
 }
 
-:host /deep/ .noMarginInput > .mat-input-wrapper {
+:host ::ng-deep .noMarginInput > .mat-input-wrapper {
   margin: 0 !important;
 }
 
-:host /deep/ .noPaddingInput > .mat-input-wrapper {
+:host ::ng-deep .noPaddingInput > .mat-input-wrapper {
   padding: 0 !important;
 }
 

@@ -49,11 +49,11 @@ import { TimelineComponent } from './components/timeline.component';
   ],
 })
 export class ComboChartComponent extends BaseChartComponent {
-  @ViewChild(LineSeriesComponent)
+  @ViewChild(LineSeriesComponent, { static: false })
   lineSeriesComponent: LineSeriesComponent;
-  @ViewChild('timeline')
+  @ViewChild('timeline', { static: false })
   timelineObj: TimelineComponent;
-  @ViewChild('tooltip')
+  @ViewChild('tooltip', { static: false })
   tooltipObj: TooltipAreaComponent;
 
   @Input()
@@ -132,9 +132,9 @@ export class ComboChartComponent extends BaseChartComponent {
   @Output()
   deactivate: EventEmitter<any> = new EventEmitter();
 
-  @ContentChild('tooltipTemplate')
+  @ContentChild('tooltipTemplate', /* TODO: add static flag */ { static: true })
   tooltipTemplate: TemplateRef<any>;
-  @ContentChild('seriesTooltipTemplate')
+  @ContentChild('seriesTooltipTemplate', /* TODO: add static flag */ { static: true })
   seriesTooltipTemplate: TemplateRef<any>;
 
   dims: ViewDimensions;

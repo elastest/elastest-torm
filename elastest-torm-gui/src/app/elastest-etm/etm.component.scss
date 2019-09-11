@@ -1,17 +1,17 @@
-:host /deep/ #menusideLeft > .td-layout-manage-list .list {
+:host ::ng-deep #menusideLeft > .td-layout-manage-list .list {
   overflow-x: hidden !important;
 }
 
-:host /deep/ span.td-layout-nav-toolbar-content,
-:host /deep/ span.td-layout-nav-toolbar-content > mat-icon.mat-icon-logo {
+:host ::ng-deep span.td-layout-nav-toolbar-content,
+:host ::ng-deep span.td-layout-nav-toolbar-content > mat-icon.mat-icon-logo {
   height: 100%;
 }
 
-:host /deep/ mat-sidenav .mat-list-item-content fa-icon {
+:host ::ng-deep mat-sidenav .mat-list-item-content fa-icon {
   margin-right: 16px;
 }
 
-:host /deep/ mat-sidenav .mat-list-item-content mat-icon > svg {
+:host ::ng-deep mat-sidenav .mat-list-item-content mat-icon > svg {
   display: inline-block;
   overflow-x: visible;
   overflow-y: visible;
@@ -24,34 +24,34 @@
   font-size: inherit;
 }
 
-:host /deep/ mat-sidenav .mat-list-item-content fa-icon {
+:host ::ng-deep mat-sidenav .mat-list-item-content fa-icon {
   color: #737373;
 }
 
-:host /deep/ mat-nav-list [mat-list-item].active fa-icon[mat-list-icon] {
+:host ::ng-deep mat-nav-list [mat-list-item].active fa-icon[mat-list-icon] {
   color: #ffac2f !important;
 }
 
-:host /deep/ mat-nav-list [mat-list-item].active mat-icon[mat-list-icon] {
+:host ::ng-deep mat-nav-list [mat-list-item].active mat-icon[mat-list-icon] {
   fill: #ffac2f !important;
 }
 
-:host /deep/ #nav_jenkins fa-icon {
+:host ::ng-deep #nav_jenkins fa-icon {
   color: #252525;
 }
 
-:host /deep/ .td-layout-manage-list-sidenav {
+:host ::ng-deep .td-layout-manage-list-sidenav {
   max-width: 100%;
   overflow-x: hidden !important;
 }
 
-:host /deep/ #viewOnlyMsg {
+:host ::ng-deep #viewOnlyMsg {
   margin: 0px 6px !important;
   color: #ffffff !important;
   background-color: #ffac2f !important;
 }
 
-:host /deep/ #viewOnlyMsg .td-message-wrapper {
+:host ::ng-deep #viewOnlyMsg .td-message-wrapper {
   min-height: 38px !important;
   padding: 1px 16px !important;
 }

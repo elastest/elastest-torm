@@ -14,7 +14,7 @@ import { MonitoringService } from '../../../shared/services/monitoring.service';
   styleUrls: ['./external-tjob-execution.component.scss'],
 })
 export class ExternalTjobExecutionComponent implements OnInit {
-  @ViewChild('logsAndMetrics') logsAndMetrics: EtmMonitoringViewComponent;
+  @ViewChild('logsAndMetrics', { static: true }) logsAndMetrics: EtmMonitoringViewComponent;
 
   exTJobId: number;
   exTJobExecId: number;

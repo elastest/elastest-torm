@@ -15,10 +15,10 @@ import { MatSelectChange } from '@angular/material';
   styleUrls: ['./external-monitoring-db.component.scss'],
 })
 export class ExternalMonitoringDbComponent implements OnInit {
-  @ViewChild('externalElasticsearchConfigurationComponent')
+  @ViewChild('externalElasticsearchConfigurationComponent', { static: false })
   externalElasticsearchConfigurationComponent: ExternalElasticsearchConfigurationComponent;
 
-  @ViewChild('externalPrometheusConfigurationComponent')
+  @ViewChild('externalPrometheusConfigurationComponent', { static: false })
   externalPrometheusConfigurationComponent: ExternalPrometheusConfigurationComponent;
 
   @Input()

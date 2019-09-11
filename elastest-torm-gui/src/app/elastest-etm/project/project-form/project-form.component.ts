@@ -2,8 +2,7 @@ import { TitlesService } from '../../../shared/services/titles.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ProjectService } from '../project.service';
 import { ProjectModel } from '../project-model';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { ElementRef } from '@angular/core/';
 
 @Component({
@@ -12,7 +11,7 @@ import { ElementRef } from '@angular/core/';
   styleUrls: ['./project-form.component.scss'],
 })
 export class ProjectFormComponent implements OnInit, AfterViewInit {
-  @ViewChild('projectNameInput') projectNameInput: ElementRef;
+  @ViewChild('projectNameInput', { static: true }) projectNameInput: ElementRef;
 
   project: ProjectModel;
   currentPath: string = '';

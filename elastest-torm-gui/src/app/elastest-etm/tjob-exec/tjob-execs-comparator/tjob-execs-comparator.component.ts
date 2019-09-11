@@ -16,7 +16,7 @@ import { MultiConfigModel } from '../../../shared/multi-config-view/multi-config
   styleUrls: ['./tjob-execs-comparator.component.scss'],
 })
 export class TjobExecsComparatorComponent implements OnInit {
-  @ViewChild('logsAndMetrics')
+  @ViewChild('logsAndMetrics', { static: true })
   logsAndMetrics: EtmMonitoringViewComponent;
   showLogsAndMetrics: boolean = false;
 

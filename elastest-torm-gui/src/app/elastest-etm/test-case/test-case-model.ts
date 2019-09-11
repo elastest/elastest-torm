@@ -12,6 +12,8 @@ export class TestCaseModel {
   failureDetail: string;
   testSuite: TestSuiteModel;
 
+  result: any;
+
   // Only GUI Attr
   files: FileModel[];
 

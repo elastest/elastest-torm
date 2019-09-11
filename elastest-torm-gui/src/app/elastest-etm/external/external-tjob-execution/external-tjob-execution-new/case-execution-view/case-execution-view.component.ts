@@ -21,7 +21,7 @@ import { TestCaseExecutionModel } from '../../../../../etm-testlink/models/test-
   styleUrls: ['./case-execution-view.component.scss'],
 })
 export class CaseExecutionViewComponent implements OnInit, IExternalExecution {
-  @ViewChild('executionForm') executionForm: IExternalExecution;
+  @ViewChild('executionForm', { static: false }) executionForm: IExternalExecution;
 
   @Input() exTJob: ExternalTJobModel;
   @Input() exTJobExec: ExternalTJobExecModel;

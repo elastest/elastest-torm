@@ -1,10 +1,9 @@
-import { Component, Inject, OnInit, Optional, ViewChild, ElementRef } from '@angular/core';
+import { Component, Inject, OnInit, Optional, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 import { TLTestCaseModel, ExecStatusValue } from '../../models/test-case-model';
 import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
 import { BuildModel } from '../../models/build-model';
 import { TestLinkService } from '../../testlink.service';
-import { AfterViewChecked } from '@angular/core/src/metadata/lifecycle_hooks';
 
 @Component({
   selector: 'testlink-execute-case-modal',
@@ -12,7 +11,7 @@ import { AfterViewChecked } from '@angular/core/src/metadata/lifecycle_hooks';
   styleUrls: ['./execute-case-modal.component.scss'],
 })
 export class ExecuteCaseModalComponent implements OnInit, AfterViewChecked {
-  @ViewChild('notes') notes: ElementRef;
+  @ViewChild('notes', { static: true }) notes: ElementRef;
   alreadyFocused: boolean = false;
 
   // TestCaseSteps Data

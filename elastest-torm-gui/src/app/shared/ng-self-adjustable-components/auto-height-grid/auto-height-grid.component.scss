@@ -1,9 +1,9 @@
-:host /deep/ auto-height-row {
+:host ::ng-deep auto-height-row {
   flex: 1 !important;
   box-sizing: border-box !important;
 }
 
-:host /deep/ normal-height-row {
+:host ::ng-deep normal-height-row {
   display: block !important;
 }
 

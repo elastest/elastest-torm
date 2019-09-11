@@ -22,7 +22,7 @@ import { sleep } from '../../../shared/utils';
   styleUrls: ['./finished-tjob-exec-manager.component.scss'],
 })
 export class FinishedTjobExecManagerComponent implements OnInit {
-  @ViewChild('logsAndMetrics')
+  @ViewChild('logsAndMetrics', { static: false })
   logsAndMetrics: EtmMonitoringViewComponent;
   showLogsAndMetrics: boolean = false;
 

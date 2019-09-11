@@ -20,7 +20,7 @@ import { ITdDataTableColumn } from '@covalent/core';
 export class TestCaseComponent implements OnInit {
   private filesUrlPrefix: string;
 
-  @ViewChild('logsAndMetrics')
+  @ViewChild('logsAndMetrics', { static: true })
   logsAndMetrics: EtmMonitoringViewComponent;
 
   showLogsAndMetrics: boolean = false;
@@ -46,7 +46,7 @@ export class TestCaseComponent implements OnInit {
     { name: 'options', label: 'Options', sortable: false, width: { min: 46, max: 130 } },
   ];
 
-  @ViewChild('miniLogAnalyzer') private miniLogAnalyzer: ElastestLogAnalyzerComponent;
+  @ViewChild('miniLogAnalyzer', { static: false }) private miniLogAnalyzer: ElastestLogAnalyzerComponent;
 
   constructor(
     private testCaseService: TestCaseService,
@@ -86,7 +86,7 @@ export class TestCaseComponent implements OnInit {
   loadTestCase(): void {
     this.testCaseService.getTestCaseById(this.testCaseId).subscribe((testCase: TestCaseModel) => {
       this.testCase = testCase;
-      this.testCase['result'] = this.testCase.getResultIcon();
+      this.testCase.result = this.testCase.getResultIcon();
       this.getExecutionFiles();
 
       if (this.logsAndMetrics) {

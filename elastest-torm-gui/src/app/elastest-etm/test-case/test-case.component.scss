@@ -21,15 +21,15 @@
   word-wrap: break-word;
 }
 
-:host /deep/ .mat-tab-body-wrapper {
+:host ::ng-deep .mat-tab-body-wrapper {
   height: 100%;
 }
-:host /deep/ .mat-sidenav-content {
+:host ::ng-deep .mat-sidenav-content {
   padding: 0px !important;
   height: 103%;
 }
 
-:host /deep/ .mat-tab-label {
+:host ::ng-deep .mat-tab-label {
   min-width: 1px !important;
   // min-width: 80px !important;
   // max-width: 85px;
@@ -37,19 +37,19 @@
   opacity: 1 !important;
 }
 
-:host /deep/ .matTabOnlyBtn {
+:host ::ng-deep .matTabOnlyBtn {
   width: 34px !important;
   height: 34px !important;
 }
 
-:host /deep/ .matTabOnlyBtn span.mat-button-wrapper {
+:host ::ng-deep .matTabOnlyBtn span.mat-button-wrapper {
   padding: 0 !important;
   margin-left: -2px;
   font-size: 24px;
   font-weight: normal;
 }
 
-:host /deep/ .matTabOnlyBtn mat-icon {
+:host ::ng-deep .matTabOnlyBtn mat-icon {
   font-size: 22px;
   width: 0.9em;
   height: 0.9em;

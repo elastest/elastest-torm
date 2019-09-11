@@ -36,13 +36,13 @@ import { CrossbrowserComponentComponent } from '../../../elastest-eus/crossbrows
   styleUrls: ['./test-plan-execution.component.scss'],
 })
 export class TestPlanExecutionComponent implements OnInit, OnDestroy {
-  @ViewChild('logsAndMetrics')
+  @ViewChild('logsAndMetrics', { static: false })
   logsAndMetrics: EtmMonitoringViewComponent;
-  @ViewChild('tlExecutionForm')
+  @ViewChild('tlExecutionForm', { static: false })
   tlExecutionForm: ExecutionFormComponent;
-  @ViewChild('singleBrowserCard')
+  @ViewChild('singleBrowserCard', { static: false })
   singleBrowserCard: BrowserCardComponentComponent;
-  @ViewChild('crossbrowser')
+  @ViewChild('crossbrowser', { static: false })
   crossbrowser: CrossbrowserComponentComponent;
 
   // For development only! RETURN TO FALSE ON COMMIT

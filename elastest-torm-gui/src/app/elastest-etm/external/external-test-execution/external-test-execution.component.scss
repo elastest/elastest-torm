@@ -1,11 +1,11 @@
-:host /deep/ .mat-tab-body-wrapper {
+:host ::ng-deep .mat-tab-body-wrapper {
   height: 100%;
 }
-:host /deep/ .mat-sidenav-content {
+:host ::ng-deep .mat-sidenav-content {
   padding: 0px !important;
   height: 103%;
 }
-:host /deep/ .mat-tab-label {
+:host ::ng-deep .mat-tab-label {
   min-width: 80px !important;
   max-width: 85px;
   text-overflow: ellipsis;

@@ -16,7 +16,7 @@ import { ConfigurationService } from '../../../config/configuration-service.serv
   styleUrls: ['./external-test-execution.component.scss'],
 })
 export class ExternalTestExecutionComponent implements OnInit {
-  @ViewChild('miniLogAnalyzer') public miniLogAnalyzer: ElastestLogAnalyzerComponent;
+  @ViewChild('miniLogAnalyzer', { static: false }) public miniLogAnalyzer: ElastestLogAnalyzerComponent;
 
   exTestExecId: number;
   exTestExec: ExternalTestExecutionModel;

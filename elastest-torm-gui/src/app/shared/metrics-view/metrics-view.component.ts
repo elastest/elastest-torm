@@ -18,7 +18,7 @@ export class MetricsViewComponent implements OnInit {
 
   @Input() public remove: Function;
 
-  @ViewChild('comboChart') comboChart: ComboChartComponent;
+  @ViewChild('comboChart', { static: true }) comboChart: ComboChartComponent;
 
   constructor() {}
 

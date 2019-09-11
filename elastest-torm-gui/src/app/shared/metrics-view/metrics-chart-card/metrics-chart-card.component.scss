@@ -12,6 +12,6 @@ mat-card-title {
   }
 }
 
-:host /deep/ .metricsChartCardContent {
+:host ::ng-deep .metricsChartCardContent {
   padding: 2px !important;
 }

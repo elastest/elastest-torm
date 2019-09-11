@@ -2,7 +2,7 @@
   padding-left: 0 !important;
 }
 
-:host /deep/ .logsViewContent {
+:host ::ng-deep .logsViewContent {
   height: 60vh !important;
 }
 
@@ -11,6 +11,6 @@
   max-height: 2800px;
 }
 
-:host /deep/ #testSuitesView > etm-test-suites-view {
+:host ::ng-deep #testSuitesView > etm-test-suites-view {
   height: 100%;
 }

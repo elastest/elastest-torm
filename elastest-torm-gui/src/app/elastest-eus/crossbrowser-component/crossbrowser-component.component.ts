@@ -17,7 +17,7 @@ import { SelfAdjustableCardComponent } from '../../shared/ng-self-adjustable-com
 })
 export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
   @ViewChildren('singleBrowser') browserCards: QueryList<BrowserCardComponentComponent>;
-  @ViewChild('mainCard')
+  @ViewChild('mainCard', { static: true })
   mainCard: SelfAdjustableCardComponent;
 
   @Input()

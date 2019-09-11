@@ -7,9 +7,8 @@ import { SutModel } from '../../sut/sut-model';
 import { TJobModel } from '../tjob-model';
 import { TJobService } from '../tjob.service';
 
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, DoCheck } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { DoCheck } from '@angular/core/src/metadata/lifecycle_hooks';
 import { SupportServiceConfigModel } from '../../../elastest-esm/support-service.model';
 import { LogFieldModel } from '../../../shared/logs-view/models/log-field-model';
 
@@ -19,7 +18,7 @@ import { LogFieldModel } from '../../../shared/logs-view/models/log-field-model'
   styleUrls: ['./tjob-form.component.scss'],
 })
 export class TJobFormComponent implements OnInit, DoCheck {
-  @ViewChild('tjobNameInput')
+  @ViewChild('tjobNameInput', { static: false })
   tjobNameInput: ElementRef;
   alreadyFocusedTJobNameInput: boolean = false;
 

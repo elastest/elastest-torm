@@ -22,7 +22,7 @@ import { interval } from 'rxjs';
   styleUrls: ['./live-tjob-exec-manager.component.scss'],
 })
 export class LiveTjobExecManagerComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('logsAndMetrics')
+  @ViewChild('logsAndMetrics', { static: false })
   logsAndMetrics: EtmMonitoringViewComponent;
   showLogsAndMetrics: boolean = false;
 

@@ -7,7 +7,7 @@ import { LogViewModel } from '../logs-view/log-view-model';
   styleUrls: ['./logs-view-text.component.scss'],
 })
 export class LogsViewTextComponent implements OnInit, AfterViewChecked {
-  @ViewChild('scrollMe')
+  @ViewChild('scrollMe', { static: true })
   private myScrollContainer: ElementRef;
   @Input()
   public model: LogViewModel;

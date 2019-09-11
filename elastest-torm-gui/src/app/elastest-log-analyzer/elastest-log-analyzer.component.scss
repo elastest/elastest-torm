@@ -1,21 +1,21 @@
 /******************************/
 /********** AG GRID ***********/
 /******************************/
-:host /deep/ ag-grid-angular {
+:host ::ng-deep ag-grid-angular {
   height: 99% !important; //96% with card title
 }
 
-:host /deep/ .ag-header-cell {
+:host ::ng-deep .ag-header-cell {
   line-height: 45px;
 }
 
-:host /deep/ .ag-header-cell,
-:host /deep/ .ag-cell {
+:host ::ng-deep .ag-header-cell,
+:host ::ng-deep .ag-cell {
   padding-right: 6px;
   padding-left: 6px;
 }
 
-:host /deep/ .ag-cell {
+:host ::ng-deep .ag-cell {
   font-family: monospace !important;
   line-height: 20px;
   user-select: text !important;
@@ -34,16 +34,16 @@
   text-overflow: initial !important;
 }
 
-:host /deep/ .ag-theme-material .ag-header-cell-label {
+:host ::ng-deep .ag-theme-material .ag-header-cell-label {
   width: calc(100%) !important;
 }
 
-:host /deep/ .ag-row-selected {
+:host ::ng-deep .ag-row-selected {
   background-color: #ffac2f !important;
   color: #000 !important;
 }
 
-:host /deep/ .ag-cell:focus {
+:host ::ng-deep .ag-cell:focus {
   border: 1px solid #ffac2f !important;
 }
 
@@ -55,7 +55,7 @@ mat-sidenav-container {
   min-height: 100%;
 }
 
-:host /deep/ .mat-sidenav-content {
+:host ::ng-deep .mat-sidenav-content {
   padding: 8px;
 }
 
@@ -72,15 +72,15 @@ mat-sidenav-container {
   padding: 0px;
 }
 
-:host /deep/ .mat-tab-label {
+:host ::ng-deep .mat-tab-label {
   min-width: 33% !important;
 }
 
-:host /deep/ .mat-tab-header {
+:host ::ng-deep .mat-tab-header {
   min-width: 100%;
 }
 
-:host /deep/ .mat-icon {
+:host ::ng-deep .mat-icon {
   vertical-align: middle;
 }
 
@@ -104,7 +104,7 @@ mat-sidenav-container {
   //padding-bottom: 0;
 }
 
-:host /deep/ #logSidenav mat-tab-group .mat-tab-body-wrapper {
+:host ::ng-deep #logSidenav mat-tab-group .mat-tab-body-wrapper {
   height: 93% !important;
 }
 
@@ -140,7 +140,7 @@ mat-sidenav-container {
   margin-left: 10px;
 }
 
-:host /deep/ #logDate {
+:host ::ng-deep #logDate {
   //max-height: 26% !important;
   margin-top: -3px;
 }
@@ -164,7 +164,7 @@ mat-sidenav-container {
   max-height: initial;
 }
 
-:host /deep/ #componentsLevels .angular-tree-component {
+:host ::ng-deep #componentsLevels .angular-tree-component {
   overflow: hidden;
 }
 
@@ -192,13 +192,13 @@ mat-sidenav-container {
   border: none;
 }
 
-:host /deep/ .mat-tab-body-content {
+:host ::ng-deep .mat-tab-body-content {
   overflow-y: hidden !important;
 }
 
 @media (min-width: 1400px) {
   //TODO not working
-  :host /deep/ .mat-tab-body-content:has(> #logAnalyzerForm) {
+  :host ::ng-deep .mat-tab-body-content:has(> #logAnalyzerForm) {
     overflow-x: hidden !important;
   }
 }
@@ -212,7 +212,7 @@ mat-sidenav-container {
   margin-top: 20px;
 }
 
-:host /deep/ .ag-overlay-loading-center {
+:host ::ng-deep .ag-overlay-loading-center {
   padding: 18px;
   font-size: 1.2em;
   font-weight: bold;
@@ -221,11 +221,11 @@ mat-sidenav-container {
   /* background: #ffac2f; */
   /* color: #ffffff; */
 }
-:host /deep/ .ag-overlay-no-rows-center{
+:host ::ng-deep .ag-overlay-no-rows-center{
   font-size:1.2em;
 }
 
 // Temp
-:host /deep/ #logsGrid div[ref='eLabel'] {
+:host ::ng-deep #logsGrid div[ref='eLabel'] {
   border-right: 1px solid rgba(189, 195, 199, 0.5);
 }

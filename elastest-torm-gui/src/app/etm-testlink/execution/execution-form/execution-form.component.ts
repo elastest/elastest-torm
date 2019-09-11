@@ -1,9 +1,8 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewChecked, OnChanges, SimpleChanges } from '@angular/core';
 import { TestLinkService } from '../../testlink.service';
 import { TestCaseExecutionModel } from '../../models/test-case-execution-model';
 import { BuildModel } from '../../models/build-model';
 import { TLTestCaseModel } from '../../models/test-case-model';
-import { AfterViewChecked, OnChanges, SimpleChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import { IExternalExecution } from '../../../elastest-etm/external/models/external-execution-interface';
@@ -18,7 +17,7 @@ import { getResultIconByString } from '../../../shared/utils';
 export class ExecutionFormComponent implements OnInit, OnChanges, AfterViewChecked, IExternalExecution {
   @Input() data: any;
 
-  @ViewChild('notes') notes: ElementRef;
+  @ViewChild('notes', { static: true }) notes: ElementRef;
   alreadyFocused: boolean = false;
 
   // TestCaseSteps Data

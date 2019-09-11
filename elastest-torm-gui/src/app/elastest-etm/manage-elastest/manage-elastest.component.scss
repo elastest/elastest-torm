@@ -1,10 +1,10 @@
-:host /deep/ #manage-tabs > mat-tab-header {
+:host ::ng-deep #manage-tabs > mat-tab-header {
   background-color: #ffffff;
   margin: 0px 0px;
 }
 
 
-:host /deep/ #manage-tabs mat-card {
+:host ::ng-deep #manage-tabs mat-card {
   margin-left: 0px !important;
   margin-right: 0px !important;
 }

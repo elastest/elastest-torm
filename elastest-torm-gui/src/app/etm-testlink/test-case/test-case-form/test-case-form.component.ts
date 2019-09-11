@@ -12,7 +12,7 @@ import { TLTestSuiteModel } from '../../models/test-suite-model';
   styleUrls: ['./test-case-form.component.scss']
 })
 export class TestCaseFormComponent implements OnInit {
-  @ViewChild('caseNameInput') caseNameInput: ElementRef;
+  @ViewChild('caseNameInput', { static: true }) caseNameInput: ElementRef;
 
   testCase: TLTestCaseModel;
   testProject: TestProjectModel;

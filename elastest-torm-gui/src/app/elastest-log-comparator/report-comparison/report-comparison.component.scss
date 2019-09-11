@@ -220,20 +220,20 @@ h5 {
   color: #fff;
 }
 
-:host /deep/ ins {
+:host ::ng-deep ins {
   color: black;
   background: rgb(153, 255, 153);
   text-decoration: none;
 }
 
-:host /deep/ del {
+:host ::ng-deep del {
   color: black;
   background: rgb(255, 136, 136);
   text-decoration: none;
 }
 
-:host /deep/ #main-content td span,
-:host /deep/ #main-content td ins,
-:host /deep/ #main-content td del {
+:host ::ng-deep #main-content td span,
+:host ::ng-deep #main-content td ins,
+:host ::ng-deep #main-content td del {
   word-break: break-word;
 }

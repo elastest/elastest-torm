@@ -5,9 +5,8 @@ import { ProjectService } from '../../project/project.service';
 import { SutModel } from '../sut-model';
 import { SutService } from '../sut.service';
 
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, DoCheck } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { DoCheck } from '@angular/core/src/metadata/lifecycle_hooks';
 import { ExternalService } from '../../external/external.service';
 import { ExternalProjectModel } from '../../external/external-project/external-project-model';
 import { ExternalMonitoringDbComponent } from './external-monitoring-db/external-monitoring-db.component';
@@ -18,11 +17,11 @@ import { ExternalMonitoringDbComponent } from './external-monitoring-db/external
   styleUrls: ['./sut-form.component.scss'],
 })
 export class SutFormComponent implements OnInit, DoCheck {
-  @ViewChild('sutForm')
+  @ViewChild('sutForm', { static: true })
   sutForm: HTMLFormElement;
-  @ViewChild('sutNameInput')
+  @ViewChild('sutNameInput', { static: false })
   sutNameInput: ElementRef;
-  @ViewChild('externalMonitoringDBComponent')
+  @ViewChild('externalMonitoringDBComponent', { static: false })
   externalMonitoringDBComponent: ExternalMonitoringDbComponent;
 
   alreadyFocusedSutNameInput: boolean = false;

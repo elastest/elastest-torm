@@ -15,7 +15,7 @@ import { Subject, Observable } from 'rxjs';
   styleUrls: ['./browser-card-component.component.scss'],
 })
 export class BrowserCardComponentComponent implements OnInit {
-  @ViewChild('browserVnc')
+  @ViewChild('browserVnc', { static: false })
   browserVnc: VncClientComponent;
   @Input()
   logsAndMetrics: EtmMonitoringViewComponent = undefined;

@@ -25,9 +25,9 @@ import { MetricsFieldModel } from '../../shared/metrics-view/metrics-chart-card/
   styleUrls: ['./etm-monitoring-view.component.scss'],
 })
 export class EtmMonitoringViewComponent implements OnInit {
-  @ViewChild('metricsGroup')
+  @ViewChild('metricsGroup', { static: false })
   metricsGroup: EtmChartGroupComponent;
-  @ViewChild('logsGroup')
+  @ViewChild('logsGroup', { static: false })
   logsGroup: EtmLogsGroupComponent;
 
   @Input()

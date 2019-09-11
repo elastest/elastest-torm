@@ -23,7 +23,7 @@ export class EtmLogsGroupComponent implements OnInit {
   @ViewChildren(LogsViewComponent)
   logsViewComponents: QueryList<LogsViewComponent>;
 
-  @ViewChild('logComparator')
+  @ViewChild('logComparator', { static: true })
   logComparator: ElastestLogComparatorComponent;
 
   @Input()
