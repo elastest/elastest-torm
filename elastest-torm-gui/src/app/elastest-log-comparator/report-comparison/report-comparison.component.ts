@@ -24,10 +24,10 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
   comparisonNoTimestampBtnEnabled: boolean = false;
   comparisonTimeDiffBtnEnabled: boolean = true;
 
-  currentViewMode: number = 0;
-  viewCompleteBtnEnabled: boolean = false;
+  currentViewMode: number = 2;
+  viewCompleteBtnEnabled: boolean = true;
   viewTestsLogsBtnEnabled: boolean = true;
-  viewFailedTestsBtnEnabled: boolean = true;
+  viewFailedTestsBtnEnabled: boolean = false;
 
   execsRow: any[] = [];
   loadingData: boolean = false;

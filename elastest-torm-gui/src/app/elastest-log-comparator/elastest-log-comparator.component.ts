@@ -31,14 +31,27 @@ export class ElastestLogComparatorComponent implements OnInit {
     this.selectedLogTab = num;
   }
 
+  goToAIOTab(): void {
+    if (this.hasAIOTab()) {
+      try {
+        let index: number = Array.from(this.model.keys()).indexOf(this.aioKey);
+        this.goToLogTab(index);
+      } catch (e) {}
+    }
+  }
+
+  hasAIOTab(): boolean {
+    return this.model && this.model.has(this.aioKey);
+  }
+
   goToLogComparisonTab(num: number): void {
     this.selectedLogComparisionTab = num;
   }
 
   generateAIOLogsComparisonTab(): void {
     if (this.model) {
-      // Has only 1 (AIO comparison tab) or two (1 normal and 1 AIO)
-      if (this.model.size > 0 && this.model.size < 3 && this.model.has(this.aioKey)) {
+      // Has only 1 (AIO comparison tab) or two (1 normal and 1 AIO), delete AIO
+      if (this.model.size > 0 && this.model.size < 3 && this.hasAIOTab()) {
         // 1 or 2 and has AIO
         if (this.model.size > 0) {
           this.model.delete(this.aioKey);

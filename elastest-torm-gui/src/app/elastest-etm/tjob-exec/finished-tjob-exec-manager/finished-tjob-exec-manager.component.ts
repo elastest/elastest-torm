@@ -176,6 +176,7 @@ export class FinishedTjobExecManagerComponent implements OnInit {
         execsToCompare,
         this.tJob.execDashboardConfigModel.allLogsTypes.logsList,
       );
+      this.logComparator.goToAIOTab();
     }
   }
 
