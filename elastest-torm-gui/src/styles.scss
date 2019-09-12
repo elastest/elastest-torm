@@ -78,6 +78,8 @@ td-layout-manage-list .mat-toolbar {
 }
 
 .mat-card mat-card-title {
+  padding-left: 14px;
+  padding-right: 14px;
   padding-top: 11px !important;
 }
 .mat-card mat-card-title:last-child {
@@ -88,9 +90,18 @@ mat-card-title > div {
   align-items: center;
 }
 
+mat-card mat-card-content {
+  padding: 12px !important;
+}
+
 mat-card-content a {
   color: #ffac2f;
   font-weight: bold;
+}
+
+.mat-tab-label {
+  height: 44px !important;
+  padding: 0 18px !important;
 }
 
 a.normalTextLink {

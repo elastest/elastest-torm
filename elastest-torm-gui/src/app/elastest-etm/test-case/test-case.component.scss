@@ -38,21 +38,21 @@
 }
 
 :host ::ng-deep .matTabOnlyBtn {
-  width: 34px !important;
-  height: 34px !important;
+  width: 30px !important;
+  height: 30px !important;
 }
 
 :host ::ng-deep .matTabOnlyBtn span.mat-button-wrapper {
   padding: 0 !important;
-  margin-left: -2px;
-  font-size: 24px;
+  margin-left: -4px;
+  font-size: 36px;
   font-weight: normal;
 }
 
 :host ::ng-deep .matTabOnlyBtn mat-icon {
-  font-size: 22px;
-  width: 0.9em;
-  height: 0.9em;
+  font-size: 20px;
+  width: 0.8em;
+  height: 0.8em;
 }
 #testCaseTabGroup {
   height: 100%;

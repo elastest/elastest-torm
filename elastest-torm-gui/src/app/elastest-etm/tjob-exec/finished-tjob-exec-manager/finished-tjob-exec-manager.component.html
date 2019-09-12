@@ -182,8 +182,8 @@
     <elastest-log-comparator #logComparator [hide]="true" [live]="false" fxFlex></elastest-log-comparator>
   </div>
 
-  <!-- Test Suite / Cases -->
   <div id="testSuitesView" fxLayout="column" *ngIf="tJobExec.hasTestSuites(); else showLogsAndFiles">
+    <!-- Test Suite / Cases -->
     <etm-test-suites-view fxFlex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
     <!-- logs & Metrics -->
     <td-expansion-panel
