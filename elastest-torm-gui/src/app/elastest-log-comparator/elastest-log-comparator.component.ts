@@ -4,6 +4,7 @@ import { isStringIntoArray, allArrayPairCombinations } from '../shared/utils';
 import { LogFieldModel } from '../shared/logs-view/models/log-field-model';
 import { TJobExecModel } from '../elastest-etm/tjob-exec/tjobExec-model';
 import { defaultStreamMap } from '../shared/defaultESData-model';
+import { TJobModel } from '../elastest-etm/tjob/tjob-model';
 
 @Component({
   selector: 'elastest-log-comparator',
@@ -147,8 +148,9 @@ export class ElastestLogComparatorComponent implements OnInit {
       let monitoringIndicesList: string[] = [];
       let startDate: Date;
       let endDate: Date;
-
+      let tJob: TJobModel;
       for (let tJobExec of tJobExecs) {
+        tJob = tJobExec ? tJobExec.tJob : undefined;
         // Monitoring index
         if (tJobExec.monitoringIndex !== undefined && tJobExec.monitoringIndex !== '') {
           monitoringIndicesList.push(tJobExec.monitoringIndex);
@@ -173,12 +175,17 @@ export class ElastestLogComparatorComponent implements OnInit {
 
       // For each logs (test_default_log, sut..., tss_eus....)
       for (let log of allLogs) {
-        if (log.stream === undefined || log.stream === null || log.stream === '') {
-          log.stream = defaultStreamMap.log;
-        }
+        // If is sut log and TJob hasn't Sut, discard
+        if (log.component && log.component === 'sut' && tJob && !tJob.hasSut()) {
+          // do nothing
+        } else {
+          if (log.stream === undefined || log.stream === null || log.stream === '') {
+            log.stream = defaultStreamMap.log;
+          }
 
-        this.hide = false;
-        this.addMoreLogsComparisons(monitoringIndicesList, startDate, endDate, log.name, log.stream, log.component);
+          this.hide = false;
+          this.addMoreLogsComparisons(monitoringIndicesList, startDate, endDate, log.name, log.stream, log.component);
+        }
       }
     }
   }

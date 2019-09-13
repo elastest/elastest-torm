@@ -178,13 +178,7 @@
 
 <!-- Single Execution -->
 <ng-template #showNormalExecutionView>
-  <div #logsDiffContainer fxLayout="column">
-    <elastest-log-comparator #logComparator [hide]="true" [live]="false" fxFlex></elastest-log-comparator>
-  </div>
-
   <div id="testSuitesView" fxLayout="column" *ngIf="tJobExec.hasTestSuites(); else showLogsAndFiles">
-    <!-- Test Suite / Cases -->
-    <etm-test-suites-view fxFlex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
     <!-- logs & Metrics -->
     <td-expansion-panel
       #globalInfoExpansionPanel
@@ -198,6 +192,11 @@
         <etm-files-manager *ngIf="tJob && tJobExec" [tJob]="tJob" [tJobExec]="tJobExec"></etm-files-manager>
       </ng-container>
     </td-expansion-panel>
+
+    <elastest-log-comparator #logComparator [hide]="true" [live]="false" fxFlex></elastest-log-comparator>
+
+    <!-- Test Suite / Cases -->
+    <etm-test-suites-view fxFlex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
   </div>
 
   <ng-template #showLogsAndFiles>

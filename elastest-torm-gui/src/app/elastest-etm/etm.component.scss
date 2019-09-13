@@ -7,8 +7,14 @@
   height: 100%;
 }
 
-:host ::ng-deep mat-sidenav .mat-list-item-content fa-icon {
-  margin-right: 16px;
+:host ::ng-deep mat-sidenav .mat-list-base .mat-list-item .mat-list-item-content,
+.mat-list-base .mat-list-option .mat-list-item-content {
+  padding: 0 10px !important;
+}
+
+:host ::ng-deep mat-sidenav .mat-list-item-content fa-icon,
+:host ::ng-deep mat-sidenav .mat-list-item-content mat-icon {
+  margin-right: 6px !important;
 }
 
 :host ::ng-deep mat-sidenav .mat-list-item-content mat-icon > svg {
