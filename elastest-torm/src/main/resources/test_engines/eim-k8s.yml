@@ -54,4 +54,5 @@ spec:
         stdin: true
         tty: true
       restartPolicy: Always
+      imagePullPolicy: Always
 status: {}
