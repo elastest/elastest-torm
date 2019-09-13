@@ -56,12 +56,12 @@ mat-sidenav-container {
 }
 
 :host ::ng-deep .mat-sidenav-content {
-  padding: 8px;
+  padding: 4px;
 }
 
 #logCard {
   width: 100%;
-  height: 98%;
+  height: 100%;
 }
 #logCard mat-card-title {
   height: 3%;
@@ -221,8 +221,8 @@ mat-sidenav-container {
   /* background: #ffac2f; */
   /* color: #ffffff; */
 }
-:host ::ng-deep .ag-overlay-no-rows-center{
-  font-size:1.2em;
+:host ::ng-deep .ag-overlay-no-rows-center {
+  font-size: 1.2em;
 }
 
 // Temp

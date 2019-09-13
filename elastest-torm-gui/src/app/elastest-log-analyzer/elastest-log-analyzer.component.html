@@ -1,6 +1,6 @@
 <mat-sidenav-container autosize fullscreen>
   <!-- SIDENAV -->
-  <mat-sidenav position="end" mode="side" [opened]="true" [style.width.%]="25">
+  <mat-sidenav position="end" mode="side" [opened]="true" fxFlex="25">
     <mat-card id="logSidenav">
       <mat-card-content class="push-bottom-none" *ngIf="logAnalyzer">
         <mat-tab-group>
@@ -189,12 +189,7 @@
                 </div>
                 <div fxLayout="row" class="">
                   <div fxFlex="50" id="addFromLast" *ngIf="showLoadMore && !showPauseTail">
-                    <button
-                      mat-button
-                      (click)="loadMore()"
-                      [disabled]="disableBtns"
-                      title="Add more traces from last"
-                    >
+                    <button mat-button (click)="loadMore()" [disabled]="disableBtns" title="Add more traces from last">
                       <mat-icon>vertical_align_bottom</mat-icon>
                     </button>
                   </div>
@@ -229,8 +224,7 @@
           <!-- Mark (Patterns) -->
           <mat-tab [disabled]="this.getRowsData().length === 0">
             <ng-template mat-tab-label>
-              <mat-icon matTooltip="Mark">search</mat-icon>
-              <p>Mark</p>
+              <fa-icon matTooltip="Find and Mark" class="mat-icon" [icon]="['fas', 'highlighter']"></fa-icon>
             </ng-template>
             <mark-component #mark [model]="this"></mark-component>
           </mat-tab>
@@ -283,7 +277,7 @@
   </mat-sidenav>
 
   <!-- Ag Grid -->
-  <mat-sidenav-content id="content">
+  <mat-sidenav-content id="content" fxFlex>
     <mat-card id="logCard" class="push-none">
       <mat-card-content class="push-bottom-none pad-bottom-none pad-top-none">
         <ag-grid-angular

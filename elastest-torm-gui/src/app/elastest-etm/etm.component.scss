@@ -1,3 +1,12 @@
+:host ::ng-deep mat-toolbar .mat-icon-button {
+  width: 34px !important;
+}
+
+:host ::ng-deep .mat-toolbar-single-row {
+  height: 56px;
+  padding: 0 4px !important;
+}
+
 :host ::ng-deep #menusideLeft > .td-layout-manage-list .list {
   overflow-x: hidden !important;
 }
@@ -5,6 +14,7 @@
 :host ::ng-deep span.td-layout-nav-toolbar-content,
 :host ::ng-deep span.td-layout-nav-toolbar-content > mat-icon.mat-icon-logo {
   height: 100%;
+  margin-left: 4px;
 }
 
 :host ::ng-deep mat-sidenav .mat-list-base .mat-list-item .mat-list-item-content,
