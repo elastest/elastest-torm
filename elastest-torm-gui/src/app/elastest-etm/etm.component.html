@@ -27,17 +27,17 @@
   <td-layout-manage-list
     id="menusideLeft"
     #manageList
-    [opened]="media.registerQuery('gt-sm') | async"
-    [mode]="(media.registerQuery('gt-sm') | async) ? 'side' : 'push'"
+    [opened]="isMediaSizeByGiven('gt-sm') | async"
+    [mode]="(isMediaSizeByGiven('gt-sm') | async) ? 'side' : 'push'"
     [containerAutosize]="true"
     [sidenavWidth]="
-      (media.registerQuery('gt-lg') | async)
-        ? '188px'
-        : (media.registerQuery('gt-sm') | async)
-        ? '170px'
-        : (media.registerQuery('gt-xs') | async)
-        ? '28%'
-        : '45%'
+      (isMediaSizeByGiven('gt-lg') | async)
+        ? onlyIconsWidth
+        : (isMediaSizeByGiven('gt-sm') | async)
+        ? onlyIconsWidth
+        : (isMediaSizeByGiven('gt-xs') | async)
+        ? gtXsWidth
+        : otherWidth
     "
   >
     <!-- <mat-toolbar td-sidenav-content>
@@ -53,6 +53,7 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [routerLink]="['/']"
         id="dashboard"
+        matTooltip="Dashboard"
       >
         <mat-icon mat-list-icon>dashboard</mat-icon>
         Dashboard
@@ -66,15 +67,13 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [routerLink]="['/projects']"
         id="nav_projects"
+        matTooltip="Projects"
       >
         <mat-icon mat-list-icon>folder_multiple</mat-icon>
         Projects
       </a>
       <a
         mat-list-item
-        (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple
-        class="block relative"
         mat-ripple
         class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()"
@@ -82,15 +81,13 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [routerLink]="['/eus']"
         id="nav_integrated_eus"
+        matTooltip="Web Browsers"
       >
         <mat-icon mat-list-icon>open_in_browser</mat-icon>
         Web Browsers
       </a>
       <a
         mat-list-item
-        (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple
-        class="block relative"
         mat-ripple
         class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()"
@@ -98,6 +95,7 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [routerLink]="['/test-engines']"
         id="nav_test_engines"
+        matTooltip="Test Engines"
       >
         <mat-icon mat-list-icon>battery_charging_full</mat-icon>
         Test Engines
@@ -106,9 +104,6 @@
       <a
         *ngIf="configService.configModel.elasTestExecMode === 'NONE'"
         mat-list-item
-        (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple
-        class="block relative"
         mat-ripple
         class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()"
@@ -116,15 +111,13 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [routerLink]="['/support-services']"
         id="nav_support_services"
+        matTooltip="Test Support Services"
       >
         <mat-icon mat-list-icon>settings_input_component</mat-icon>
         Test Support Services
       </a>
       <a
         mat-list-item
-        (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple
-        class="block relative"
         mat-ripple
         class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()"
@@ -132,6 +125,7 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [routerLink]="['/loganalyzer']"
         id="nav_log_manager"
+        matTooltip="Log Analyzer"
       >
         <mat-icon mat-list-icon>library_books</mat-icon>
         Log Analyzer
@@ -139,9 +133,6 @@
 
       <a
         mat-list-item
-        (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple
-        class="block relative"
         mat-ripple
         class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()"
@@ -149,15 +140,13 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [routerLink]="['/testlink']"
         id="nav_testlink"
+        matTooltip="TestLink"
       >
         <mat-icon mat-list-icon svgIcon="icon-testlink"></mat-icon>
         TestLink
       </a>
       <a
         mat-list-item
-        (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple
-        class="block relative"
         mat-ripple
         class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()"
@@ -165,6 +154,7 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [routerLink]="['/jenkins']"
         id="nav_jenkins"
+        matTooltip="Jenkins"
       >
         <fa-icon mat-list-icon class="mat-icon" [icon]="['fab', 'jenkins']"></fa-icon>
         Jenkins
@@ -172,9 +162,6 @@
       <a
         *ngIf="configService.configModel.elasTestExecMode === 'singlenode'"
         mat-list-item
-        (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple
-        class="block relative"
         mat-ripple
         class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()"
@@ -182,6 +169,7 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [routerLink]="['/edm']"
         id="nav_edm"
+        matTooltip="Data Manager (EDM)"
       >
         <mat-icon mat-list-icon>storage</mat-icon>
         Data Manager (EDM)
@@ -189,9 +177,6 @@
       <a
         *ngIf="configService.configModel.elasTestExecMode === 'singlenode'"
         mat-list-item
-        (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple
-        class="block relative"
         mat-ripple
         class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()"
@@ -199,15 +184,13 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [routerLink]="['/emp']"
         id="nav_emp"
+        matTooltip="Monitoring Platform (EMP)"
       >
         <mat-icon mat-list-icon>insert_chart</mat-icon>
-        Monitoring Platfrom (EMP)
+        Monitoring Platform (EMP)
       </a>
       <a
         mat-list-item
-        (click)="!media.query('gt-sm') && manageList.close()"
-        mat-ripple
-        class="block relative"
         mat-ripple
         class="block relative"
         (click)="!media.query('gt-sm') && manageList.close()"
@@ -215,6 +198,7 @@
         [routerLinkActiveOptions]="{ exact: true }"
         [routerLink]="['/manage']"
         id="nav_manage_elastest"
+        matTooltip="Manage ElasTest"
       >
         <fa-icon mat-list-icon class="mat-icon" [icon]="['fas', 'toolbox']"></fa-icon>
         Manage Elastest

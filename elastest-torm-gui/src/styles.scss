@@ -73,8 +73,9 @@ td-layout-manage-list .mat-toolbar {
   font-weight: bold !important;
 }
 
-.mat-card {
-  margin: 6px 7px !important;
+.mat-card,
+.td-expansion-panel {
+  margin: 5px !important;
 }
 
 .mat-card mat-card-title {
@@ -91,7 +92,7 @@ mat-card-title > div {
 }
 
 mat-card mat-card-content {
-  padding: 12px !important;
+  padding: 9px !important;
 }
 
 mat-card-content a {

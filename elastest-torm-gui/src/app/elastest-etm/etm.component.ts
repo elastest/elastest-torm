@@ -3,6 +3,7 @@ import { TitlesService } from '../shared/services/titles.service';
 import { ElastestRabbitmqService } from '../shared/services/elastest-rabbitmq.service';
 import { AfterViewInit, Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { TdMediaService, TdLayoutManageListComponent } from '@covalent/core';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'etm-etm',
@@ -15,6 +16,12 @@ export class EtmComponent implements AfterViewInit, OnInit {
 
   openedMenu: boolean = true;
   enableRefresh: boolean = false;
+
+  gtLgWidth: string = '188px';
+  gtSmWidth: string = '170px';
+  gtXsWidth: string = '28%';
+  otherWidth: string = '45%';
+  onlyIconsWidth: string = '49px';
 
   constructor(
     private titlesService: TitlesService,
@@ -39,9 +46,32 @@ export class EtmComponent implements AfterViewInit, OnInit {
     this.cdr.detectChanges();
   }
 
+  switchMainSidenavWidthIcon(width: string): void {
+    if (this.manageList.sidenavWidth === this.onlyIconsWidth) {
+      this.manageList.sidenavWidth = width;
+    } else {
+      this.manageList.sidenavWidth = this.onlyIconsWidth;
+    }
+  }
+
   openMainSidenav(): void {
-    this.manageList.toggle();
-    // this.openedMenu = !this.openedMenu;
+    if (this.media.query('gt-lg')) {
+      this.switchMainSidenavWidthIcon(this.gtLgWidth);
+    } else if (this.media.query('gt-md')) {
+      this.switchMainSidenavWidthIcon(this.gtSmWidth);
+    } else if (this.media.query('gt-sm')) {
+      this.switchMainSidenavWidthIcon(this.gtSmWidth);
+    } else if (this.media.query('gt-xs')) {
+      this.manageList.sidenavWidth = this.gtXsWidth;
+      this.manageList.toggle();
+    } else {
+      this.manageList.sidenavWidth = this.otherWidth;
+      this.manageList.toggle();
+    }
+  }
+
+  isMediaSizeByGiven(size: 'gt-lg' | 'gt-md' | 'gt-sm' | 'gt-xs'): Observable<boolean> {
+    return this.media.registerQuery(size);
   }
 
   capitalize(value: any): any {
