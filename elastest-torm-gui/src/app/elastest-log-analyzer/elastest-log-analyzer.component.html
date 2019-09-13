@@ -1,6 +1,6 @@
 <mat-sidenav-container autosize fullscreen>
   <!-- SIDENAV -->
-  <mat-sidenav position="end" mode="side" [opened]="true" fxFlex="25">
+  <mat-sidenav #sidenav position="end" mode="side" [opened]="true" fxFlex="22">
     <mat-card id="logSidenav">
       <mat-card-content class="push-bottom-none" *ngIf="logAnalyzer">
         <mat-tab-group>
@@ -278,26 +278,42 @@
 
   <!-- Ag Grid -->
   <mat-sidenav-content id="content" fxFlex>
-    <mat-card id="logCard" class="push-none">
-      <mat-card-content class="push-bottom-none pad-bottom-none pad-top-none">
-        <ag-grid-angular
-          #logsGrid
-          id="logsGrid"
-          class="ag-theme-material"
-          [rowData]="logRows"
-          [columnDefs]="logColumns"
-          [gridOptions]="gridOptions"
-          (gridReady)="onGridReady($event)"
-          (rowDataChanged)="rowDataChanged($event)"
-          (componentStateChanged)="componentStateChanged($event)"
-          (rowSelected)="switchRowSelection($event)"
-          (columnResized)="saveColumnsConfig($event, false)"
-          (columnMoved)="saveColumnsConfig(undefined, false)"
-          (rowDoubleClicked)="openMessageModal($event)"
-          style="width: 100%; height: 80%;"
+    <div fxLayout="row" fxFlexFill>
+      <mat-card id="logCard" class="push-none">
+        <mat-card-content class="push-bottom-none pad-bottom-none pad-top-none">
+          <ag-grid-angular
+            #logsGrid
+            id="logsGrid"
+            class="ag-theme-material"
+            [rowData]="logRows"
+            [columnDefs]="logColumns"
+            [gridOptions]="gridOptions"
+            (gridReady)="onGridReady($event)"
+            (rowDataChanged)="rowDataChanged($event)"
+            (componentStateChanged)="componentStateChanged($event)"
+            (rowSelected)="switchRowSelection($event)"
+            (columnResized)="saveColumnsConfig($event, false)"
+            (columnMoved)="saveColumnsConfig(undefined, false)"
+            (rowDoubleClicked)="openMessageModal($event)"
+            style="width: 100%; height: 80%;"
+          >
+          </ag-grid-angular>
+        </mat-card-content>
+      </mat-card>
+      <div fxFlex="1" fxFlexFill style="background-color: #999999; color: #ffffff;" class="push-left-xs">
+        <button
+          mat-icon-button
+          class="onlyIconBtn"
+          (click)="toggleSidenav()"
+          style="width: 100%; height: 100%"
+          matTooltip="Toggle Sidenav"
         >
-        </ag-grid-angular>
-      </mat-card-content>
-    </mat-card>
+          <centered-element>
+            <mat-icon *ngIf="!openedSidenav">keyboard_arrow_left</mat-icon>
+            <mat-icon *ngIf="openedSidenav">keyboard_arrow_right</mat-icon>
+          </centered-element>
+        </button>
+      </div>
+    </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

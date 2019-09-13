@@ -7,7 +7,7 @@ import { LogAnalyzerModel } from './log-analyzer-model';
 import { GetIndexModalComponent } from '../elastest-log-analyzer/get-index-modal/get-index-modal.component';
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild, Input, OnDestroy } from '@angular/core';
 import { dateToInputLiteral, invertColor } from './utils/Utils';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef, MatSidenav } from '@angular/material';
 import {
   ColumnApi,
   ComponentStateChangedEvent,
@@ -40,6 +40,11 @@ import { ColumnState } from 'ag-grid-community/dist/lib/columnController/columnC
   styleUrls: ['./elastest-log-analyzer.component.scss'],
 })
 export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('sidenav', { static: true })
+  sidenav: MatSidenav;
+
+  openedSidenav: boolean = true;
+
   private charsByLine: number = 0;
 
   public gridApi: GridApi;
@@ -968,5 +973,12 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
       this.logAnalyzer.setLevels(levels);
       this.levelsTree.treeModel.update();
     });
+  }
+
+  toggleSidenav(): void {
+    if (this.sidenav) {
+      this.sidenav.toggle();
+      this.openedSidenav = !this.openedSidenav;
+    }
   }
 }
