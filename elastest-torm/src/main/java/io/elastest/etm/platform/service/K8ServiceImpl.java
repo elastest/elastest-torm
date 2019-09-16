@@ -372,16 +372,12 @@ public class K8ServiceImpl extends PlatformService {
 
     @Override
     public String getEtmHost() throws Exception {
-        if (utilsService.isEtmInDevelopment()) {
-            return utilsService.getEtPublicHostValue();
-        } else {
-            return k8sService.getPodIpByPodName(hostname);
-        }
+        return utilsService.getEtPublicHostValue();
     }
 
     @Override
     public String getETPublicHost() {
-        return k8sService.getServiceIp(etEtmInternalHost, null);
+        return utilsService.getEtPublicHostValue();
     }
 
     @Override
@@ -544,14 +540,6 @@ public class K8ServiceImpl extends PlatformService {
     public String getTSSInstanceContainerName(String... params) {
         logger.debug("Check if the TSS {} exist as a pod in the namespace {}",
                 params[1], params[0]);
-        // String name = "";
-        // Map<String, String> labels = new HashMap<>();
-        // labels.put("io.elastest.tjob.tss.id", params[1]);
-        // if (k8sService.getPodsByLabels(labels, params[0]).size() > 0) {
-        // name = params[1];
-        // }
-        // logger.debug("Service name: {}", name);
-        // return name;
         return params[1];
     }
 

@@ -1334,14 +1334,11 @@ public class TSSService {
                 serviceInstance.setUrlValue(nodeName, internalUrl, false);
 
                 if (withServerAddress) {
-                    String serviceIp = platformService
-                            .getBindedServiceIp(serviceInstance, nodePort);
+                    String serviceIp = platformService.getETPublicHost();
                     serviceInstance.setServiceIp(serviceIp);
                     serviceInstance.setBindedServiceIp(serviceIp);
                     String externalUrl = buildEndpointUrlAsString(node,
-                            platformService.getBindedServiceIp(serviceInstance,
-                                    nodePort),
-                            serviceInstance.getBindedServicePort());
+                            serviceIp, serviceInstance.getBindedServicePort());
                     serviceInstance.setUrlValue(nodeName, externalUrl, true);
                 }
             }

@@ -76,9 +76,6 @@ public class K8sService {
     private static final Logger logger = LoggerFactory
             .getLogger(K8sService.class);
 
-    @Value("${et.enable.cloud.mode}")
-    public boolean enableCloudMode;
-
     private static final String DEFAULT_NAMESPACE = "default";
     public static final String LABEL_JOB_NAME = "job-name";
     public static final String LABEL_POD_NAME = "pod-name";
@@ -89,14 +86,16 @@ public class K8sService {
     public static final String LABEL_TSS_NAME = "io.elastest.tjob.tss.id";
     public static final String LABEL_UNIQUE_PLUGIN_NAME = "io.elastest.service";
 
+    @Value("${et.enable.cloud.mode}")
+    public boolean enableCloudMode;
     @Value("${et.data.in.host}")
     public String etDataInHost;
-
     @Value("${et.tools.resource.folder.path}")
     public String etToolsResourceFolderPath;
-
     @Value("${et.shared.folder}")
     public String etSharedFolder;
+    @Value("${et.public.host:localhost}")
+    public String publicHost;
 
     public HostPathVolumeSource etToolsVolume;
     public static final String etToolsInternalPath = "et_tools";
@@ -653,24 +652,6 @@ public class K8sService {
                 .withName(service.getMetadata().getName())
                 .getURL(SUT_PORT_NAME);
 
-        if (client.nodes().list().getItems().size() == 1) {
-            try {
-                for (NodeAddress address : client.nodes().list().getItems()
-                        .get(0).getStatus().getAddresses()) {
-                    if (address.getType().equals("ExternalIP")) {
-                        URL nodeURL;
-                        nodeURL = new URL(serviceURL);
-                        URL newServiceURL = new URL(nodeURL.getProtocol(),
-                                address.getAddress(), nodeURL.getPort(), "");
-                        serviceURL = newServiceURL.toString();
-                    }
-                }
-            } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-
         return serviceURL;
     }
 
@@ -728,30 +709,9 @@ public class K8sService {
                 .inNamespace(namespace == null ? DEFAULT_NAMESPACE : namespace)
                 .withName(service.getMetadata().getName()).getURL(hostPortName);
 
-        logger.debug("Nodes in the cluster: {}",
-                client.nodes().list().getItems().size());
-        for (NodeAddress address : client.nodes().list().getItems().get(0)
-                .getStatus().getAddresses()) {
-            logger.debug("Check ip for the cluster 1. Ip type: {}",
-                    address.getType());
-            if (address.getType().equals("ExternalIP")) {
-                logger.debug("Replace old ip with the node external ip: {}",
-                        address.getAddress());
-                URL nodeURL = new URL(serviceURL.replaceAll("tcp", "http"));
-                try {
-                    URL newServiceURL = new URL(nodeURL.getProtocol(),
-                            address.getAddress(), nodeURL.getPort(), "");
-                    serviceURL = newServiceURL.toString();
-                } catch (Exception e) {
-                    logger.error("Error message: {}", e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        }
-
         logger.debug("Service url: {}", serviceURL);
         String[] urlParts = serviceURL.split(":");
-        return new ServiceInfo(urlParts[2], serviceName, // service.getMetadata().getName(),
+        return new ServiceInfo(urlParts[2], serviceName,
                 new URL(serviceURL.replaceAll("tcp", "http")));
     }
 

@@ -577,8 +577,7 @@ public class EtPluginsService {
                             serviceId = bp.getContainerId();
                         }
 
-                        String bindedIp = platformService.getPublicServiceIp(
-                                serviceId, internalPort, null);
+                        String bindedIp = platformService.getETPublicHost();
                         String ip = bindedIp;
 
                         // If not server-address, use internal ip
