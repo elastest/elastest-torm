@@ -79,9 +79,9 @@ td-layout-manage-list .mat-toolbar {
 }
 
 .mat-card mat-card-title {
-  padding-left: 14px;
-  padding-right: 14px;
-  padding-top: 11px !important;
+  padding: 10px 10px 0 12px !important;
+  font-size: 22px;
+  margin-bottom: 6px !important;
 }
 .mat-card mat-card-title:last-child {
   padding-bottom: 11px !important;
@@ -92,7 +92,7 @@ mat-card-title > div {
 }
 
 mat-card mat-card-content {
-  padding: 9px !important;
+  padding: 10px !important;
 }
 
 mat-card-content a {
@@ -101,7 +101,7 @@ mat-card-content a {
 }
 
 .mat-tab-label {
-  height: 44px !important;
+  height: 42px !important;
   padding: 0 18px !important;
 }
 
@@ -1501,17 +1501,45 @@ fa-icon.mat-icon > svg {
   word-break: break-all;
 }
 
+.td-expansion-panel-header-content {
+  height: 40px !important;
+  padding: 0 18px !important;
+}
+
 td-expansion-panel.dark > div.td-expansion-panel-header,
 td-expansion-panel.dark > div.td-expansion-panel-header:focus {
   background-color: #666666 !important;
   color: #ffffff !important;
 }
 
-td-expansion-panel.dark mat-icon.td-expand-icon {
+td-expansion-panel.dark mat-icon.td-expand-icon,
+td-expansion-panel.dark .td-expansion-label {
   color: #ffffff !important;
 }
 
-td-expansion-panel.dark > div.td-expansion-panel-header:hover {
+td-expansion-panel.dark > div.td-expansion-panel-header:hover,
+td-expansion-panel.dark > div.td-expansion-panel-header:hover .td-expansion-label,
+td-expansion-panel.dark > div.td-expansion-panel-header:hover mat-icon.td-expand-icon {
   background-color: #eeeeee !important;
   color: #333333 !important;
+}
+
+td-expansion-panel.accent > div.td-expansion-panel-header,
+td-expansion-panel.accent > div.td-expansion-panel-header:focus {
+  background-color: #ffab2f !important;
+  color: #ffffff !important;
+}
+
+td-expansion-panel.accent mat-icon.td-expand-icon,
+td-expansion-panel.accent .td-expansion-label {
+  color: #ffffff !important;
+  font-weight: bold !important;
+}
+
+td-expansion-panel.accent > div.td-expansion-panel-header:hover,
+td-expansion-panel.accent > div.td-expansion-panel-header:hover .td-expansion-label,
+td-expansion-panel.accent > div.td-expansion-panel-header:hover mat-icon.td-expand-icon {
+  background-color: #eeeeee !important;
+  color: #000000de !important;
+  font-weight: normal !important;
 }

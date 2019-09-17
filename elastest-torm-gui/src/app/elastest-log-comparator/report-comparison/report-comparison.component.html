@@ -1,8 +1,8 @@
 <auto-height-grid fxLayout="column">
   <normal-height-row>
-    <div layout="row" class="padding-xl-sides push-top-sm">
+    <div layout="row" class="padding-xl-sides push-top-sm" fxLayoutAlign="start center">
       <div fxLayout="row" fxLayoutAlign="start center">
-        <span class="push-right-sm">
+        <span class="push-top-xs push-right-sm">
           View:
         </span>
         <div>
@@ -40,7 +40,7 @@
       </div>
       <mat-divider [vertical]="true" class="push-left-md push-right-md" style="height: 40px;"></mat-divider>
       <div fxLayout="row" fxLayoutAlign="start center">
-        <span class="push-right-sm">
+        <span class="push-top-xs push-right-sm">
           Comparison:
         </span>
         <div>
@@ -96,11 +96,11 @@
         </div>
       </div>
     </div>
-    <mat-divider class="push-top-sm"></mat-divider>
   </normal-height-row>
 
-  <auto-height-row fxLayout="column" id="main-content" class="pad-top-md">
-    <div *ngIf="!startComparisonAlreadyClicked; else comparisonStarted">
+  <auto-height-row fxLayout="column" id="main-content">
+    <mat-divider class="push-top-sm"></mat-divider>
+    <div *ngIf="!startComparisonAlreadyClicked; else comparisonStarted" class="push-top push-bottom-xs">
       <centered-element>
         <button
           mat-raised-button
@@ -110,12 +110,12 @@
           (click)="init()"
           matTooltip="Start Comparison"
         >
-          Start Comparison
+          <b>Start Comparison</b>
         </button>
       </centered-element>
     </div>
     <ng-template #comparisonStarted>
-      <div *ngIf="loadingData; else notLoading">
+      <div *ngIf="loadingData; else notLoading" class="push-top push-bottom-xs">
         <div fxLayout="column" fxLayoutAlign="center center">
           <centered-element>
             <mat-spinner strokeWidth="6" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
@@ -124,7 +124,7 @@
         </div>
       </div>
       <ng-template #notLoading>
-        <div fxFlex *ngIf="diff && comparisonInProgress; else noData">
+        <div fxFlex *ngIf="diff && comparisonInProgress; else noData" class="push-top push-bottom-xs">
           <table class="diff-table">
             <tbody>
               <tr *ngFor="let result of resultData[0].logs">
