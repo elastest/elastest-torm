@@ -100,9 +100,24 @@ mat-card-content a {
   font-weight: bold;
 }
 
+.mat-tab-labels {
+  background-color: #f5f5f5;
+}
+
 .mat-tab-label {
-  height: 42px !important;
+  height: 40px !important;
   padding: 0 18px !important;
+  background-color: #f5f5f5;
+  border-radius: 8px 8px 0 0;
+  border-right: 1px solid #e1e1e1;
+  // border-left: 1px solid #e1e1e1;
+}
+
+.mat-tab-label-active {
+  background-color: #ffffff;
+  color: rgba(0, 0, 0, 0.87) !important;
+  opacity: 1 !important;
+  border-top: 1px solid #eaeaea;
 }
 
 a.normalTextLink {

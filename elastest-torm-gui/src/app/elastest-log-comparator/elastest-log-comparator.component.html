@@ -33,7 +33,7 @@
         *ngFor="let key of keys; let i = index; let firstKey = first; let lastKey = last"
         label="{{ key }}"
       >
-        <mat-tab-group [(selectedIndex)]="selectedLogComparisionTab">
+        <mat-tab-group [(selectedIndex)]="selectedLogComparisionTab" class="push-top-xs">
           <mat-tab
             fxLayout="column"
             *ngFor="let logComparison of model.get(key); let j = index; let firstComparison = first; let lastComparison = last"
