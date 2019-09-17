@@ -1,6 +1,6 @@
 <auto-height-grid fxLayout="row" fxLayout.lt-md="column" *ngIf="testCase" id="testCaseContent" fxFlexFill>
   <auto-height-row class="mat-content">
-    <self-adjustable-card id="testCaseTabsCard" [hideTitle]="true">
+    <self-adjustable-card id="testCaseTabsCard" [hideTitle]="true" [contentPaddingPixels]="nested ? 0 : undefined">
       <sa-card-content fxFlexFill fxLayout="column">
         <mat-tab-group #testCaseTabGroup id="testCaseTabGroup" [(selectedIndex)]="selectedTab">
           <mat-tab label="Log Analyzer">
