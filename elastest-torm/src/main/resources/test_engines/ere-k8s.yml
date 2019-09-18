@@ -45,8 +45,6 @@ metadata:
   labels:
     io.elastest: true
     io.elastest.service: ere
-    elastest-component-type: te
-    elastest-component: ere
   name: ere
 spec:
   replicas: 1
@@ -56,6 +54,8 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        elastest-component-type: te
+        elastest-component: ere
         io.elastest.service: ere
     spec:
       containers:

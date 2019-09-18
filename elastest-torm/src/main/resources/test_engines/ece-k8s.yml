@@ -22,7 +22,6 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   creationTimestamp: null
-  labels:
   name: ece
 spec:
   replicas: 1

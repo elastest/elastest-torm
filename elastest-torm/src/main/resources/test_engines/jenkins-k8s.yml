@@ -45,8 +45,6 @@ metadata:
     io.elastest: true
     io.elastest.service: jenkins
     io.elastest.service.type: external
-    elastest-component-type: external
-    elastest-component: jenkins
   name: etm-jenkins
 spec:
   replicas: 1
@@ -58,6 +56,8 @@ spec:
       labels:
         io.elastest.service.type: external
         io.elastest.service: jenkins
+        elastest-component-type: external
+        elastest-component: jenkins
     spec:
       containers:
       - env:

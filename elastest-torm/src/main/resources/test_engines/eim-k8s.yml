@@ -26,8 +26,6 @@ metadata:
   labels:
     io.elastest: true
     io.elastest.service: eim
-    elastest-component-type: core
-    elastest-component: eim
   name: eim
 spec:
   replicas: 1
@@ -36,6 +34,8 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
+        elastest-component-type: core
+        elastest-component: eim
         io.elastest.service: eim
     spec:
       containers:
