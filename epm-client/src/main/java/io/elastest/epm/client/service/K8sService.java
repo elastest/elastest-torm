@@ -85,6 +85,8 @@ public class K8sService {
     private static final String CLUSTER_DOMAIN = "svc.cluster.local";
     public static final String LABEL_TSS_NAME = "io.elastest.tjob.tss.id";
     public static final String LABEL_UNIQUE_PLUGIN_NAME = "io.elastest.service";
+    public static final String LABEL_COMPONENT = "elastest-component";
+    public static final String LABEL_COMPONENT_TYPE = "elastest-component-type";
 
     @Value("${et.enable.cloud.mode}")
     public boolean enableCloudMode;
@@ -184,7 +186,33 @@ public class K8sService {
             }
             return null;
         }
+    }
+    
+    public enum ElastestComponentType {
+        CORE("core"), TSS("tss"), TE("te"), BROWSER("browser"), JOB("job"),
+        SUT("sut");
 
+        private String value;
+
+        ElastestComponentType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        @JsonValue
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static ElastestComponentType fromValue(String text) {
+            for (ElastestComponentType b : ElastestComponentType.values()) {
+                if (String.valueOf(b.value).equals(text)) {
+                    return b;
+                }
+            }
+            return null;
+        }
     }
 
     public enum ServiceProtocolEnum {
@@ -234,6 +262,9 @@ public class K8sService {
                     .get().replace("_", "-");
 
             k8sJobLabels.put(LABEL_JOB_NAME, containerNameWithoutUnderscore);
+            k8sJobLabels.put(LABEL_COMPONENT, containerNameWithoutUnderscore);
+            k8sJobLabels.put(LABEL_COMPONENT_TYPE,
+                    ElastestComponentType.JOB.value);
 
             String etToolsVolumeName = "et-tools";
             final Job job = new JobBuilder(Boolean.FALSE)
@@ -340,6 +371,9 @@ public class K8sService {
 
             String containerNameWithoutUnderscore = container.getContainerName()
                     .get().replace("_", "-");
+            k8sPobLabels.put(LABEL_COMPONENT, containerNameWithoutUnderscore);
+            k8sPobLabels.put(LABEL_COMPONENT_TYPE,
+                    getETComponentType(containerNameWithoutUnderscore));
 
             // Create Container
             ContainerBuilder containerBuilder = new ContainerBuilder();
@@ -376,24 +410,18 @@ public class K8sService {
             }
 
             PodBuilder podBuilder = new PodBuilder();
-            podBuilder.withNewMetadata()
-                    .withName(containerNameWithoutUnderscore).endMetadata()
-                    .withNewSpec().addNewContainerLike(containerBuilder.build())
-                    .endContainer().endSpec();
-
             // Set Labels if there are
             if (container.getLabels().isPresent()
                     && container.getLabels().get().size() > 0) {
-                podBuilder.buildMetadata()
-                        .setLabels(container.getLabels().get());
+                k8sPobLabels.putAll(container.getLabels().get());
             }
 
-            if (podBuilder.buildMetadata().getLabels() != null) {
-                podBuilder.buildMetadata().getLabels().put(LABEL_POD_NAME,
-                        container.getContainerName().get());
-            } else {
-                podBuilder.buildMetadata().setLabels(k8sPobLabels);
-            }
+            podBuilder.withNewMetadata()
+                    .withName(containerNameWithoutUnderscore)
+                    .withLabels(k8sPobLabels).endMetadata().withNewSpec()
+                    .addNewContainerLike(containerBuilder.build())
+                    .endContainer().endSpec();
+
 
             podBuilder.buildSpec().getContainers().get(0);
             pod = client.pods().inNamespace(namespace)
@@ -638,8 +666,11 @@ public class K8sService {
 
     public String createServiceSUT(String serviceName, Integer port,
             String protocol) {
+        Map<String, String> labels = new HashMap<>();
+        labels.put(LABEL_COMPONENT, serviceName);
         Service service = new ServiceBuilder().withNewMetadata()
-                .withName(serviceName).endMetadata().withNewSpec()
+                .withName(serviceName).withLabels(labels).endMetadata()
+                .withNewSpec()
                 .withSelector(
                         Collections.singletonMap(LABEL_APP_NAME, serviceName))
                 .addNewPort().withName(SUT_PORT_NAME).withProtocol(protocol)
@@ -678,9 +709,13 @@ public class K8sService {
                 servicePortBuilder.withNodePort(port);
             }
             ServicePort servicePort = servicePortBuilder.build();
+            
+            Map<String, String> labels = new HashMap<>();
+            labels.put(LABEL_COMPONENT, serviceName);
 
             service = new ServiceBuilder().withNewMetadata()
-                    .withName(k8sServiceName).endMetadata().withNewSpec()
+                    .withName(k8sServiceName).withLabels(labels).endMetadata()
+                    .withNewSpec()
                     .withSelector(Collections.singletonMap(selector, podName))
                     .addNewPortLike(servicePort).endPort()
                     .withType(ServicesType.NODE_PORT.toString()).endSpec()
@@ -1205,6 +1240,18 @@ public class K8sService {
         }
 
         return serviceName;
+    }
+
+    private String getETComponentType(String componentName) {
+        String nameInLowerCase = componentName.toLowerCase();
+        String componentType = "";
+        if (nameInLowerCase.contains(ElastestComponentType.SUT.value)) {
+            componentType = ElastestComponentType.SUT.value;
+        } else if (nameInLowerCase.contains(ElastestComponentType.BROWSER.value)) {
+            componentType = ElastestComponentType.BROWSER.value;
+        }
+        
+        return componentType;
     }
 
     public class PodInfo {

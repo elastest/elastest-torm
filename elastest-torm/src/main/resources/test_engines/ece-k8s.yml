@@ -1,12 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    io.elastest: true
-    io.elastest.service.type: te
   creationTimestamp: null
   labels:
-    io.elastest: true
+    elastest-component: ece
     io.elastest.service: ece
   name: ece
 spec:
@@ -16,7 +13,7 @@ spec:
     targetPort: 8888
     nodePort: 37008
   selector:
-    io.elastest.service: ece
+    elastest-component: ece
   type: NodePort
 status:
   loadBalancer: {}
@@ -24,12 +21,8 @@ status:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  annotations:
-    io.elastest.service.type: te
   creationTimestamp: null
   labels:
-    io.elastest: true
-    io.elastest.service: ece
   name: ece
 spec:
   replicas: 1
@@ -38,7 +31,8 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        io.elastest: true
+        elastest-component-type: te
+        elastest-component: ece
         io.elastest.service: ece
     spec:
       containers:

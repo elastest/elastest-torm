@@ -6,6 +6,7 @@ metadata:
     io.elastest: true
     io.elastest.service: jenkins
     io.elastest.service.type: external
+    elastest-component: jenkins
   name: jenkins
 spec:
   ports:
@@ -26,6 +27,7 @@ metadata:
   labels:
     io.elastest: true
     io.elastest.pvc: elastest-jenkins-data-claim 
+    elastest-component: jenkins
 spec:
   accessModes:
   - ReadWriteOnce
@@ -43,6 +45,8 @@ metadata:
     io.elastest: true
     io.elastest.service: jenkins
     io.elastest.service.type: external
+    elastest-component-type: external
+    elastest-component: jenkins
   name: etm-jenkins
 spec:
   replicas: 1
