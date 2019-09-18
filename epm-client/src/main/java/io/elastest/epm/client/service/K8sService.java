@@ -835,10 +835,12 @@ public class K8sService {
 
     public void createNamespace(String name) {
         logger.debug("Checking if the namespace {} exists", name);
+        Map<String, String> labels = new HashMap<>();
+        labels.put(LABEL_COMPONENT, "none");
         if (client.namespaces().withName(name).get() == null) {
             logger.debug("Creating namespace -> {}", name);
             Namespace ns = new NamespaceBuilder().withNewMetadata()
-                    .withName(name).addToLabels("io.elastest.name", name)
+                    .withName(name).addToLabels(labels)
                     .endMetadata().build();
             client.namespaces().create(ns);
         } else {
