@@ -25,6 +25,9 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   name: qa
+  labels:
+    elastest-component.type: te
+    elastest-component: qa
 spec:
   replicas: 1
   strategy: {}

@@ -45,6 +45,8 @@ metadata:
   labels:
     io.elastest: true
     io.elastest.service: ere
+    elastest-component-type: te
+    elastest-component: ere
   name: ere
 spec:
   replicas: 1
