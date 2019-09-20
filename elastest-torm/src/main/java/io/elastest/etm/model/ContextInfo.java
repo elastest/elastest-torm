@@ -88,6 +88,9 @@ public class ContextInfo {
     @JsonProperty("etmApiUrl")
     private String etmApiUrl;
 
+    @JsonProperty("etmInternalApiUrl")
+    private String etmInternalApiUrl;
+
     @JsonProperty("isKubernetes")
     private boolean isKubernetes;
 
@@ -317,6 +320,14 @@ public class ContextInfo {
         this.etmApiUrl = etmApiUrl;
     }
 
+    public String getEtmInternalApiUrl() {
+        return etmInternalApiUrl;
+    }
+
+    public void setEtmInternalApiUrl(String etmInternalApiUrl) {
+        this.etmInternalApiUrl = etmInternalApiUrl;
+    }
+
     public boolean getIsKubernetes() {
         return isKubernetes;
     }
@@ -358,8 +369,9 @@ public class ContextInfo {
                 + ", eusSSInstance=" + eusSSInstance + ", testLinkStarted="
                 + testLinkStarted + ", empGrafanaUrl=" + empGrafanaUrl
                 + ", edmCommandUrl=" + edmCommandUrl + ", etmApiUrl="
-                + etmApiUrl + ", isKubernetes=" + isKubernetes
-                + ", etmViewOnly=" + etmViewOnly + "]";
+                + etmApiUrl + ", etmInternalApiUrl=" + etmInternalApiUrl
+                + ", isKubernetes=" + isKubernetes + ", etmViewOnly="
+                + etmViewOnly + "]";
     }
 
 }

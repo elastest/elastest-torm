@@ -729,7 +729,7 @@ public class TJobExecOrchestratorService {
          * Test File Attachments Api URL TODO build url in Context, not here
          */
         String attachmentsApiURL = etmContextService.getContextInfo()
-                .getEtmApiUrl() + "tjob/exec/" + tJobExec.getId()
+                .getEtmInternalApiUrl() + "tjob/exec/" + tJobExec.getId()
                 + "/attachment";
         envVars.put("ET_ETM_TJOB_ATTACHMENT_API", attachmentsApiURL);
 

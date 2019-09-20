@@ -51,6 +51,8 @@ public class EtmContextAuxService {
     @Value("${et.mini.etm.monitoring.http.path}")
     String etMiniEtmMonitoringHttpPath;
 
+    @Value("${et.etm.api}")
+    public String etEtmApi;
     /* **************** */
     /* *** Logstash *** */
     /* **************** */
@@ -205,6 +207,9 @@ public class EtmContextAuxService {
 
         contextInfo
                 .setEtmApiUrl("http://" + proxyIp + ":" + proxyPort + "/api/");
+
+        contextInfo.setEtmInternalApiUrl(etEtmApi);
+
         contextInfo.setIsKubernetes(utilsService.isKubernetes());
 
         contextInfo
