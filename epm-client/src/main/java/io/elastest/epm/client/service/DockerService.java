@@ -582,8 +582,8 @@ public class DockerService {
         return containerIp;
     }
 
-    public boolean waitForContainerCreated(String containerId, long timeoutMillis)
-            throws Exception {
+    public boolean waitForContainerCreated(String containerId,
+            long timeoutMillis) throws Exception {
         long start_time = System.currentTimeMillis();
         long end_time = start_time + timeoutMillis;
 
@@ -798,6 +798,8 @@ public class DockerService {
             String containerNameOrId, String fullPath) throws Exception {
         InputStream inputStream = null;
         if (existsContainer(containerNameOrId)) {
+            // Note!!!: if file does not exists, spotify docker
+            // returns ContainernotFoundException (bug)
             inputStream = getDockerClient().archiveContainer(containerNameOrId,
                     fullPath);
         }

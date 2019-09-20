@@ -459,6 +459,9 @@ public abstract class PlatformService {
 
         String sutPath = null;
 
+        ArrayList<String> envList = new ArrayList<>();
+        String envVar;
+
         if (ContainerType.SUT.equals(type)) {
             logger.debug("Creating SUT container");
             parametersList = sut.getParameters();
@@ -488,6 +491,10 @@ public abstract class PlatformService {
             prefix = ContainerPrefix.TEST.toString();
             containerName = generateContainerName(ContainerPrefix.TEST,
                     execution);
+
+            envVar = "ET_TEST_CONTAINER_NAME=" + containerName;
+            envList.add(envVar);
+
             if (execution.isWithSut()) {
                 sutHost = execution.getSutExec().getIp();
                 sutPort = sut.getPort();
@@ -495,10 +502,7 @@ public abstract class PlatformService {
             }
 
         }
-
-        // Environment variables (optional)
-        ArrayList<String> envList = new ArrayList<>();
-        String envVar;
+        /* ********* Environment variables (optional) ********* */
 
         // Get (External)TJob Exec Env Vars
         Map<String, String> tJobEnvVars;
@@ -534,7 +538,8 @@ public abstract class PlatformService {
 
         envList.add("ET_NETWORK=" + elastestNetwork);
 
-        // Commands (optional)
+        /* ********** Commands (optional) ********** */
+
         ArrayList<String> cmdList = new ArrayList<>();
         ArrayList<String> entrypointList = null;
 
@@ -569,7 +574,8 @@ public abstract class PlatformService {
             });
         }
 
-        // Load Log Config
+        /* ********** Load Log Config ********** */
+
         LogConfig logConfig = null;
         if (isEMSSelected(execution)) {
             logger.debug("EMS selected.");
@@ -585,7 +591,7 @@ public abstract class PlatformService {
                     execution);
         }
 
-        // ElasTest labels
+        /* ********** ElasTest labels ********** */
         Map<String, String> labels = this.getEtLabels(execution,
                 type.toString());
 
@@ -598,14 +604,15 @@ public abstract class PlatformService {
 
         List<Bind> volumes = new ArrayList<>();
 
-        // Docker Sock
+        /* ********** Docker Sock ********** */
+
         logger.info("Docker sock volume: {}", dockerSock);
         Builder dockerSockVolumeBuilder = Bind.builder();
         dockerSockVolumeBuilder.from(dockerSock);
         dockerSockVolumeBuilder.to(dockerSock);
         volumes.add(dockerSockVolumeBuilder.build());
 
-        // Shared data in sutInNewContainer
+        /* ********** Shared data in sutInNewContainer ********** */
         if (sut != null && sut.isSutInNewContainer()) {
             Builder sharedDataVolumeBuilder = Bind.builder();
             sharedDataVolumeBuilder.from(etDataInHost);
@@ -616,7 +623,7 @@ public abstract class PlatformService {
 
         dockerBuilder.volumeBindList(volumes);
 
-        // Create DockerContainer object
+        /* ********** Create DockerContainer object ********** */
         return dockerBuilder.build();
     }
 
