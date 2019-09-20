@@ -178,32 +178,34 @@
 
 <!-- Single Execution -->
 <ng-template #showNormalExecutionView>
-  <div id="testSuitesView" fxLayout="column" *ngIf="tJobExec.hasTestSuites(); else showLogsAndFiles">
-    <!-- logs & Metrics -->
-    <td-expansion-panel
-      #globalInfoExpansionPanel
-      (expanded)="expandGlobalInfoExpansionPanel()"
-      label="Global Execution Data"
-      expand="false"
-      class="push-sm"
-    >
-      <ng-container *ngIf="globalInfoExpansionPanelOpened">
-        <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
-        <etm-files-manager *ngIf="tJob && tJobExec" [tJob]="tJob" [tJobExec]="tJobExec"></etm-files-manager>
-      </ng-container>
-    </td-expansion-panel>
+  <ng-container *ngIf="tJobExec">
+    <div id="testSuitesView" fxLayout="column" *ngIf="tJobExec.hasTestSuites(); else showLogsAndFiles">
+      <!-- logs & Metrics -->
+      <td-expansion-panel
+        #globalInfoExpansionPanel
+        (expanded)="expandGlobalInfoExpansionPanel()"
+        label="Global Execution Data"
+        expand="false"
+        class="push-sm"
+      >
+        <ng-container *ngIf="globalInfoExpansionPanelOpened">
+          <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
+          <etm-files-manager *ngIf="tJob && tJobExec" [tJob]="tJob" [tJobExec]="tJobExec"></etm-files-manager>
+        </ng-container>
+      </td-expansion-panel>
 
-    <elastest-log-comparator #logComparator [hide]="true" [live]="false" fxFlex></elastest-log-comparator>
+      <elastest-log-comparator #logComparator [hide]="true" [live]="false" fxFlex></elastest-log-comparator>
 
-    <!-- Test Suite / Cases -->
-    <etm-test-suites-view fxFlex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
-  </div>
+      <!-- Test Suite / Cases -->
+      <etm-test-suites-view fxFlex="100" [tJobExec]="tJobExec" [testSuites]="tJobExec.testSuites"></etm-test-suites-view>
+    </div>
 
-  <ng-template #showLogsAndFiles>
-    <!-- logs & Metrics -->
-    <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
+    <ng-template #showLogsAndFiles>
+      <!-- logs & Metrics -->
+      <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false"></etm-monitoring-view>
 
-    <!-- Execution files -->
-    <etm-files-manager *ngIf="tJob && tJobExec" [tJob]="tJob" [tJobExec]="tJobExec"></etm-files-manager>
-  </ng-template>
+      <!-- Execution files -->
+      <etm-files-manager *ngIf="tJob && tJobExec" [tJob]="tJob" [tJobExec]="tJobExec"></etm-files-manager>
+    </ng-template>
+  </ng-container>
 </ng-template>

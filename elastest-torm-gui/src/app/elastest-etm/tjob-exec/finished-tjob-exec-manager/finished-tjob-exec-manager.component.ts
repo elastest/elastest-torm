@@ -136,8 +136,8 @@ export class FinishedTjobExecManagerComponent implements OnInit {
         this.tJob = tJob;
         if (this.tJobExec.finished()) {
           this.checkIfFailedAndInit();
+          this.initLogsAndMetrics();
           if (this.tJobExec.isChild()) {
-            this.initLogsAndMetrics();
             this.tJobExecService.getChildTJobExecParent(this.tJobExec.id).subscribe(
               (parent: TJobExecModel) => {
                 this.tJobExec.execParent = parent;
