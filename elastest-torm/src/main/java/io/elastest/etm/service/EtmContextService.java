@@ -56,8 +56,6 @@ public class EtmContextService {
     public String etEdmApi;
     @Value("${et.epm.api}")
     public String etEpmApi;
-    @Value("${et.etm.api}")
-    public String etEtmApi;
     @Value("${et.esm.api}")
     public String etEsmApi;
     @Value("${et.eim.api}")

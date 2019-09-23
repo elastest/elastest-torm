@@ -70,9 +70,6 @@ public class ExternalService {
     @Value("${et.etm.lshttp.port}")
     private String etEtmLsHttpPort;
 
-    @Value("${et.etm.api}")
-    private String etEtmApi;
-
     @Value("${et.proxy.port}")
     private String etProxyPort;
 
@@ -163,8 +160,8 @@ public class ExternalService {
 
             String etPublicHost = platformService.getETPublicHost();
 
-                    externalJob.setExecutionUrl((etInProd
-                            ? "http://" + etPublicHost + ":" + etProxyPort
+            externalJob.setExecutionUrl(
+                    (etInProd ? "http://" + etPublicHost + ":" + etProxyPort
                             : "http://localhost" + ":" + etEtmDevGuiPort)
                             + "/#/projects/" + tJob.getProject().getId()
                             + "/tjob/" + tJob.getId() + "/tjob-exec/"

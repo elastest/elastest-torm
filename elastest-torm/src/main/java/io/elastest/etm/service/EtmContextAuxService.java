@@ -208,7 +208,12 @@ public class EtmContextAuxService {
         contextInfo
                 .setEtmApiUrl("http://" + proxyIp + ":" + proxyPort + "/api/");
 
-        contextInfo.setEtmInternalApiUrl(etEtmApi);
+        if (utilsService.isEtmInDevelopment()) {
+            String etmApi = "http://" + hostIpByNetwork + ":8091/api/";
+            contextInfo.setEtmInternalApiUrl(etmApi);
+        } else {
+            contextInfo.setEtmInternalApiUrl(etEtmApi);
+        }
 
         contextInfo.setIsKubernetes(utilsService.isKubernetes());
 
