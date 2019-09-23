@@ -166,4 +166,8 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
   showNoFilesMessage(): boolean {
     return this.filteredExecutionFiles && this.filteredExecutionFiles.length === 0;
   }
+
+  isVideo(name: string): boolean {
+    return name.includes('.mp4') || name.includes('.webm') || name.includes('.avi');
+  }
 }
