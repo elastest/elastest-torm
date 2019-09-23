@@ -225,88 +225,14 @@ public class DockerServiceImpl extends PlatformService {
         return prefix + suffix;
     }
 
-    private void startDockbeat(Execution execution) throws Exception {
+    @Override
+    protected void startDockbeat(DockerContainer dockerContainer)
+            throws Exception {
         try {
-            Long executionId = execution.getExecutionId();
-
-            String containerName = getDockbeatContainerName(execution);
-
-            // Environment variables
-            ArrayList<String> envList = new ArrayList<>();
-            String envVar;
-
-            // Get Parameters and insert into Env Vars¡
-            String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashOrMiniHost;
-            String lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
-                    + lsInternalBeatsPort;
-
-            Map<String, String> execEnvVars = new HashMap<>();
-            String execId = "";
-            String tJobId = "";
-
-            if (execution.isExternal()) {
-                execEnvVars = execution.getExternalTJobExec().getEnvVars();
-                execId = execution.getExternalTJobExec().getId().toString();
-                tJobId = execution.getExternalTJob().getId().toString();
-
-            } else {
-                execEnvVars = execution.getTJobExec().getEnvVars();
-                execId = execution.getTJobExec().getId().toString();
-                tJobId = execution.gettJob().getId().toString();
-            }
-
-            if (isEMSSelected(execution)) {
-
-                String regexSuffix = "_?(" + executionId
-                        + ")(_([^_]*(_\\d*)?))?";
-                String testRegex = "^test" + regexSuffix;
-                String sutRegex = "^sut" + regexSuffix;
-                envVar = "FILTER_CONTAINERS" + "=" + testRegex + "|" + sutRegex;
-                envList.add(envVar);
-
-                // envVar = "FILTER_EXCLUDE" + "=" + "\"\"";
-                // envList.add(envVar);
-
-                lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
-                        + execEnvVars.get("ET_EMS_LSBEATS_PORT");
-
-                lsHostEnvVar = "LOGSTASHHOST" + "="
-                        + execEnvVars.get("ET_EMS_LSBEATS_HOST");
-            }
-            envList.add(lsHostEnvVar);
-            envList.add(lsInternalBeatsPortEnvVar);
-            // dockerSock volume bind
-            Bind dockerSockVolumeBind = Bind.from(dockerSock).to(dockerSock)
-                    .build();
-
-            // ElasTest labels
-            Map<String, String> labels = new HashMap<>();
-            labels.put(etTypeLabel, etTypeMonitoringLabelValue);
-            labels.put(etTJobExecIdLabel, execId);
-            labels.put(etTJobIdLabel, tJobId);
-
-            // TODO Move this Pull Image to each invocation methods
-            this.pullETExecImage(dockbeatImage, "Dockbeat", false);
-
-            // Create Container
-            logger.debug("Creating Dockbeat Container...");
-
-            /* ******************************************************** */
-            DockerBuilder dockerBuilder = new DockerBuilder(dockbeatImage);
-            dockerBuilder.envs(envList);
-            dockerBuilder.containerName(containerName);
-            logger.debug("Adding dockbeat to network: {}", elastestNetwork);
-            dockerBuilder.network(elastestNetwork);
-
-            dockerBuilder.volumeBindList(Arrays.asList(dockerSockVolumeBind));
-
-            dockerBuilder.labels(labels);
-
-            DockerContainer dockerContainer = dockerBuilder.build();
             String containerId = dockerService
-                    .createAndStartContainer(dockerContainer);
-            this.insertCreatedContainer(containerId, containerName);
-
+                    .createAndStartContainerWithPull(dockerContainer, true);
+            this.insertCreatedContainer(containerId,
+                    dockerContainer.getContainerName().get());
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -1246,13 +1172,6 @@ public class DockerServiceImpl extends PlatformService {
             logger.error("Error on get {} internal url", serviceName);
         }
         return currentContainerName;
-    }
-
-    @Override
-    public void enableServiceMetricMonitoring(Execution execution)
-            throws Exception {
-        // Start Dockbeat
-        startDockbeat(execution);
     }
 
     @Override

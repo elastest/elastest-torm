@@ -46,6 +46,7 @@ import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.model.external.ExternalTJobExecution;
+import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.ElastestConstants;
 import io.elastest.etm.utils.EtmFilesService;
 
@@ -85,9 +86,16 @@ public abstract class PlatformService {
     String etProxyPort;
     @Value("${et.etm.internal.host}")
     String etEtmInternalHost;
-
+    @Value("${et.etm.internal.lsbeats.port}")
+    private String lsInternalBeatsPort;
+    @Value("${et.type.monitoring.label.value}")
+    public String etTypeMonitoringLabelValue;
+    @Value("${et.docker.img.dockbeat}")
+    private String dockbeatImage;
+    
     public enum ContainerPrefix {
-        TEST("test_"), SUT("sut_"), CHECK("check_");
+        TEST("test_"), SUT("sut_"), CHECK("check_"),
+        DOCK_BEAT("elastest_dockbeat_");
 
         private String value;
 
@@ -189,8 +197,6 @@ public abstract class PlatformService {
 
     public abstract String getTSSInstanceContainerName(String... params);
 
-    public abstract void enableServiceMetricMonitoring(Execution execution)
-            throws Exception;
 
     public abstract void disableMetricMonitoring(Execution execution,
             boolean force) throws Exception;
@@ -226,7 +232,10 @@ public abstract class PlatformService {
                             ? "_" + sut.getSutInContainerAuxLabel()
                             : "");
         } else {
-            containerName = prefix.value + execution.getExecutionId();
+            containerName = prefix.value + (execution.isExternal()
+                    ? execution.getExternalTJobExec()
+                            .getExternalTJobExecMonitoringIndex()
+                    : execution.getExecutionId().toString());
         }
         logger.debug("Generated container name: {}", containerName);
         return containerName;
@@ -286,6 +295,94 @@ public abstract class PlatformService {
 
     public abstract boolean isContainerByServiceName(String serviceName,
             DockerContainerInfo.DockerContainer container);
+    
+    protected abstract void startDockbeat(DockerContainer dockerContainer)
+            throws Exception;
+    
+    public void enableServiceMetricMonitoring(Execution execution)
+            throws Exception {
+        try {
+            Long executionId = execution.getExecutionId();
+
+            String containerName = generateContainerName(
+                    ContainerPrefix.DOCK_BEAT, execution);
+
+            // Environment variables
+            ArrayList<String> envList = new ArrayList<>();
+            String envVar;
+
+            // Get Parameters and insert into Env Vars¡
+            String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashOrMiniHost;
+            String lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
+                    + lsInternalBeatsPort;
+
+            Map<String, String> execEnvVars = new HashMap<>();
+            String execId = "";
+            String tJobId = "";
+
+            if (execution.isExternal()) {
+                execEnvVars = execution.getExternalTJobExec().getEnvVars();
+                execId = execution.getExternalTJobExec().getId().toString();
+                tJobId = execution.getExternalTJob().getId().toString();
+
+            } else {
+                execEnvVars = execution.getTJobExec().getEnvVars();
+                execId = execution.getTJobExec().getId().toString();
+                tJobId = execution.gettJob().getId().toString();
+            }
+
+            if (isEMSSelected(execution)) {
+
+                String regexSuffix = "_?(" + executionId
+                        + ")(_([^_]*(_\\d*)?))?";
+                String testRegex = "^test" + regexSuffix;
+                String sutRegex = "^sut" + regexSuffix;
+                envVar = "FILTER_CONTAINERS" + "=" + testRegex + "|" + sutRegex;
+                envList.add(envVar);
+
+                // envVar = "FILTER_EXCLUDE" + "=" + "\"\"";
+                // envList.add(envVar);
+
+                lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
+                        + execEnvVars.get("ET_EMS_LSBEATS_PORT");
+
+                lsHostEnvVar = "LOGSTASHHOST" + "="
+                        + execEnvVars.get("ET_EMS_LSBEATS_HOST");
+            }
+            envList.add(lsHostEnvVar);
+            envList.add(lsInternalBeatsPortEnvVar);
+            // dockerSock volume bind
+            Bind dockerSockVolumeBind = Bind.from(dockerSock).to(dockerSock)
+                    .build();
+
+            // ElasTest labels
+            Map<String, String> labels = new HashMap<>();
+            labels.put(etTypeLabel, etTypeMonitoringLabelValue);
+            labels.put(etTJobExecIdLabel, execId);
+            labels.put(etTJobIdLabel, tJobId);
+
+            // Create Container
+            logger.debug("Creating Dockbeat Container...");
+
+            /* ******************************************************** */
+            DockerBuilder dockerBuilder = new DockerBuilder(dockbeatImage);
+            dockerBuilder.envs(envList);
+            dockerBuilder.containerName(containerName);
+            logger.debug("Adding dockbeat to network: {}", elastestNetwork);
+            dockerBuilder.network(elastestNetwork);
+
+            dockerBuilder.volumeBindList(Arrays.asList(dockerSockVolumeBind));
+
+            dockerBuilder.labels(labels);
+
+            DockerContainer dockerContainer = dockerBuilder.build();
+            startDockbeat(dockerContainer);
+        } catch (TJobStoppedException e) {
+            throw e;
+        } catch (Exception e) {
+            new Exception("Exception on start Dockbeat", e);
+        }
+    }
 
     protected String getSutPath(Execution execution) {
         String sutPath;

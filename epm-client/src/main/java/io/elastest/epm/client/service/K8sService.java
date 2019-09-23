@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.spotify.docker.client.messages.HostConfig.Bind;
 
 import io.elastest.epm.client.DockerContainer;
 import io.elastest.epm.client.json.DockerProject;
@@ -57,6 +58,10 @@ import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.ServiceBuilder;
 import io.fabric8.kubernetes.api.model.ServicePort;
 import io.fabric8.kubernetes.api.model.ServicePortBuilder;
+import io.fabric8.kubernetes.api.model.Volume;
+import io.fabric8.kubernetes.api.model.VolumeBuilder;
+import io.fabric8.kubernetes.api.model.VolumeMount;
+import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.Job;
@@ -187,7 +192,7 @@ public class K8sService {
             return null;
         }
     }
-    
+
     public enum ElastestComponentType {
         CORE("core"), TSS("tss"), TE("te"), BROWSER("browser"), JOB("job"),
         SUT("sut");
@@ -409,6 +414,27 @@ public class K8sService {
                         .withSecurityContext(securityContextBuilder.build());
             }
 
+            // Add volumes if there are
+            List<Volume> volumes = new ArrayList<>();
+            List<VolumeMount> volumeMounts = new ArrayList<>();
+            if (container.getVolumeBindList().isPresent()
+                    && !container.getVolumeBindList().get().isEmpty()) {
+                int count = 0;
+                for (Bind dockerVolume : container.getVolumeBindList().get()) {
+                    VolumeMount volumeMount = new VolumeMountBuilder()
+                            .withName("v_" + count)
+                            .withMountPath(dockerVolume.to()).build();
+                    volumeMounts.add(volumeMount);
+                    HostPathVolumeSource hostPath = new HostPathVolumeSourceBuilder()
+                            .withPath(dockerVolume.to()).build();
+                    Volume volume = new VolumeBuilder().withName("v_" + count)
+                            .withHostPath(hostPath).build();
+                    volumes.add(volume);
+                    count++;
+                }
+                containerBuilder.withVolumeMounts(volumeMounts);
+            }
+
             PodBuilder podBuilder = new PodBuilder();
             // Set Labels if there are
             if (container.getLabels().isPresent()
@@ -420,8 +446,7 @@ public class K8sService {
                     .withName(containerNameWithoutUnderscore)
                     .withLabels(k8sPobLabels).endMetadata().withNewSpec()
                     .addNewContainerLike(containerBuilder.build())
-                    .endContainer().endSpec();
-
+                    .endContainer().withVolumes(volumes).endSpec();
 
             podBuilder.buildSpec().getContainers().get(0);
             pod = client.pods().inNamespace(namespace)
@@ -436,6 +461,9 @@ public class K8sService {
 
         } catch (final KubernetesClientException e) {
             logger.error("Unable to create job", e);
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
             throw e;
         }
         podInfo.setPodIp(pod.getStatus().getPodIP());
@@ -709,7 +737,7 @@ public class K8sService {
                 servicePortBuilder.withNodePort(port);
             }
             ServicePort servicePort = servicePortBuilder.build();
-            
+
             Map<String, String> labels = new HashMap<>();
             labels.put(LABEL_COMPONENT, serviceName);
 
@@ -840,8 +868,7 @@ public class K8sService {
         if (client.namespaces().withName(name).get() == null) {
             logger.debug("Creating namespace -> {}", name);
             Namespace ns = new NamespaceBuilder().withNewMetadata()
-                    .withName(name).addToLabels(labels)
-                    .endMetadata().build();
+                    .withName(name).addToLabels(labels).endMetadata().build();
             client.namespaces().create(ns);
         } else {
             logger.info("Namespace -> {} already exists", name);
@@ -1249,10 +1276,11 @@ public class K8sService {
         String componentType = "";
         if (nameInLowerCase.contains(ElastestComponentType.SUT.value)) {
             componentType = ElastestComponentType.SUT.value;
-        } else if (nameInLowerCase.contains(ElastestComponentType.BROWSER.value)) {
+        } else if (nameInLowerCase
+                .contains(ElastestComponentType.BROWSER.value)) {
             componentType = ElastestComponentType.BROWSER.value;
         }
-        
+
         return componentType;
     }
 

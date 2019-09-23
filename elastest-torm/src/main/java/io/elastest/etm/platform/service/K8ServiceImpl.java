@@ -33,6 +33,7 @@ import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
+import io.elastest.etm.platform.service.PlatformService.ContainerPrefix;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.service.exception.TJobStoppedException;
@@ -240,17 +241,25 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public void enableServiceMetricMonitoring(Execution execution)
+    protected void startDockbeat(DockerContainer dockerContainer)
             throws Exception {
-        // TODO Auto-generated method stub
-
+        try {
+            k8sService.deployPod(dockerContainer);
+        } catch (TJobStoppedException e) {
+            throw e;
+        } catch (Exception e) {
+            new Exception("Exception on start Dockbeat", e);
+        }
     }
 
     @Override
     public void disableMetricMonitoring(Execution execution, boolean force)
             throws Exception {
-        // TODO Auto-generated method stub
-
+        Map<String, String> labels = new HashMap<>();
+        labels.put("pod-name",
+                generateContainerName(ContainerPrefix.DOCK_BEAT, execution));
+        k8sService.deletePod(k8sService.getPodsByLabels(labels, null).get(0)
+                .getMetadata().getName());
     }
 
     @Override
