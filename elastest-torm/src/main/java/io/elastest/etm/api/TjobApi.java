@@ -372,7 +372,7 @@ public interface TjobApi extends EtmApiRoot {
             @ApiResponse(code = 200, message = "Successful operation", response = Boolean.class),
             @ApiResponse(code = 202, message = "The request has been accepted, but the processing has not been completed"),
             @ApiResponse(code = 400, message = "Invalid File supplied"),
-            @ApiResponse(code = 404, message = "TJob not found"),
+            @ApiResponse(code = 404, message = "TJob Exec not found"),
             @ApiResponse(code = 500, message = "Server Error") })
     @RequestMapping(value = "/tjob/exec/{tJobExecId}/attachment", consumes = {
             "multipart/form-data" }, produces = {

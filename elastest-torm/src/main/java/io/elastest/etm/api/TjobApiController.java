@@ -433,6 +433,8 @@ public class TjobApiController implements TjobApi {
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
             @RequestParam("file") MultipartFile file) {
         try {
+            logger.info("Attachment file request received for TJobExec {}",
+                    tJobExecId);
             Boolean saved = tJobService.saveExecAttachmentFile(tJobExecId,
                     file);
             return new ResponseEntity<Boolean>(saved, HttpStatus.OK);
