@@ -16,6 +16,7 @@ import { AfterViewInit, Component, Input, OnInit, ViewContainerRef } from '@angu
 import { MatDialog } from '@angular/material';
 import { PopupService } from '../../../shared/services/popup.service';
 import { Observable, Subject } from 'rxjs';
+import { ConfigurationService } from '../../../config/configuration-service.service';
 
 @Component({
   selector: 'etm-projects-manager',
@@ -58,6 +59,7 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
     public dialog: MatDialog,
     private popupService: PopupService,
     private dataTableService: TdDataTableService,
+    private configService: ConfigurationService,
   ) {}
 
   ngOnInit(): void {
@@ -119,14 +121,18 @@ export class ProjectsManagerComponent implements OnInit, AfterViewInit {
   }
 
   restoreDemoProjects(): void {
-    this.projectService.restoreDemoProjects().subscribe(
-      (restored: boolean) => {
-        if (restored) {
-          this.loadProjects();
-        }
-      },
-      (error: Error) => console.log(error),
-    );
+    if (this.configService && this.configService.isEtmViewOnlyActivated()) {
+      this.popupService.openSnackBar('Restore demo projects is not allowed in this ElasTest instance');
+    } else {
+      this.projectService.restoreDemoProjects().subscribe(
+        (restored: boolean) => {
+          if (restored) {
+            this.loadProjects();
+          }
+        },
+        (error: Error) => console.log(error),
+      );
+    }
   }
 
   switchProjectsSelectionByData(project: ProjectModel, selected: boolean): void {

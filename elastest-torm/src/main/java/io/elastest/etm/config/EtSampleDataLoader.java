@@ -563,7 +563,7 @@ public class EtSampleDataLoader {
 
             String tJobName = "Videocall Test";
             String resultsPath = "/demo-projects/openvidu-test/target/surefire-reports/";
-            String tJobCommands = "echo \"Cloning project\";\ngit clone https://github.com/elastest/demo-projects;\ncd demo-projects/openvidu-test;\necho \"Compiling project\";\nmvn -DskipTests=true -B package;\necho \"Executing test\";\nmvn -B test;";
+            String tJobCommands = "echo \"Cloning project\";\ngit clone https://github.com/elastest/demo-projects;\ncd demo-projects/openvidu-test;\necho \"Compiling project\";\nmvn -DskipTests=true -B package;\necho \"Executing test\";\nmvn -B test -DbrowserVersion=74;";
             List<String> tss = Arrays.asList("EUS");
 
             this.printLog(pjName);
@@ -627,7 +627,7 @@ public class EtSampleDataLoader {
 
             String tJobName = "E2E Teacher + Student VIDEO-SESSION";
             String resultsPath = "/full-teaching-experiment/target/surefire-reports/";
-            String commands = "git clone https://github.com/elastest/full-teaching-experiment;\ncd full-teaching-experiment;\nmvn -Dtest=FullTeachingTestE2EVideoSession -B test;";
+            String commands = "git clone https://github.com/elastest/full-teaching-experiment;\ncd full-teaching-experiment;\nmvn -Dtest=FullTeachingTestE2EVideoSession -B test -DbrowserVersion=74;";
             List<String> tss = Arrays.asList("EUS");
 
             this.printLog(pjName);
