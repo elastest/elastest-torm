@@ -800,6 +800,10 @@ public class TJobExecOrchestratorService {
         // Setting SUT name for external Job
         envVars.put("ET_SUT_CONTAINER_NAME", sutContainerName);
 
+        String testContainerName = platformService.generateContainerName(
+                PlatformService.ContainerPrefix.TEST, new Execution(tJobExec));
+        envVars.put("ET_TEST_CONTAINER_NAME", testContainerName);
+
         tJobExec.setEnvVars(envVars);
     }
 
