@@ -422,12 +422,12 @@ public class K8sService {
                 int count = 0;
                 for (Bind dockerVolume : container.getVolumeBindList().get()) {
                     VolumeMount volumeMount = new VolumeMountBuilder()
-                            .withName("v_" + count)
+                            .withName("v-" + count)
                             .withMountPath(dockerVolume.to()).build();
                     volumeMounts.add(volumeMount);
                     HostPathVolumeSource hostPath = new HostPathVolumeSourceBuilder()
                             .withPath(dockerVolume.to()).build();
-                    Volume volume = new VolumeBuilder().withName("v_" + count)
+                    Volume volume = new VolumeBuilder().withName("v-" + count)
                             .withHostPath(hostPath).build();
                     volumes.add(volume);
                     count++;
