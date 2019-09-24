@@ -79,7 +79,7 @@
       <mat-divider></mat-divider>
 
       <mat-card-content>
-        <div fxLayout="row" class="finishedTJobExecDetails">
+        <div fxLayout="row" fxLayout.lt-sm="column" class="finishedTJobExecDetails">
           <span fxFlex="10" fxFlex.gt-xl="5">
             <mat-card-subtitle>Result</mat-card-subtitle>
             <h4 id="resultMsgText" [style.color]="statusIcon.color">{{ tJobExec.result }}</h4>

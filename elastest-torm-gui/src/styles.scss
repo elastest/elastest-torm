@@ -120,6 +120,28 @@ mat-card-content a {
   border-top: 1px solid #eaeaea;
 }
 
+.matTabOnlyBtn {
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.matTabOnlyBtn span.mat-button-wrapper {
+  padding: 0 !important;
+  margin-left: -4px !important;
+  font-size: 33px !important;
+  font-weight: normal !important;
+}
+
+.matTabOnlyBtn mat-icon {
+  font-size: 20px !important;
+  width: 0.8em !important;
+  height: 0.8em !important;
+}
+
+:host ::ng-deep div:has(button) {
+  opacity: 1 !important;
+}
+
 a.normalTextLink {
   text-decoration: none;
   color: #000;

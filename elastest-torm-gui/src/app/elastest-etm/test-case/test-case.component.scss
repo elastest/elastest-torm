@@ -36,23 +36,6 @@
   text-overflow: ellipsis;
 }
 
-:host ::ng-deep .matTabOnlyBtn {
-  width: 30px !important;
-  height: 30px !important;
-}
-
-:host ::ng-deep .matTabOnlyBtn span.mat-button-wrapper {
-  padding: 0 !important;
-  margin-left: -4px;
-  font-size: 33px;
-  font-weight: normal;
-}
-
-:host ::ng-deep .matTabOnlyBtn mat-icon {
-  font-size: 20px;
-  width: 0.8em;
-  height: 0.8em;
-}
 #testCaseTabGroup {
   height: 100%;
 }

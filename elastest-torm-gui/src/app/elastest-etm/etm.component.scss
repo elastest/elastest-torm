@@ -27,6 +27,11 @@
   margin-right: 6px !important;
 }
 
+.mat-list-base .mat-list-item.mat-list-item-with-avatar,
+.mat-list-base .mat-list-option.mat-list-item-with-avatar {
+  height: 53px !important;
+}
+
 :host ::ng-deep mat-sidenav .mat-list-item-content mat-icon > svg {
   display: inline-block;
   overflow-x: visible;

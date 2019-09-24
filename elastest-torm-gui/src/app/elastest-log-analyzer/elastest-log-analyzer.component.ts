@@ -58,6 +58,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   public autoRowHeight: boolean = true;
 
   public overlayLoadingTemplate: string = '<span class="ag-overlay-loading-center">Please wait while logs are loading</span>';
+  public overlayNoRowsTemplate: string = '<span class="ag-overlay-no-rows-center">No rows to show.</span>';
 
   public gridOptions: GridOptions = {
     defaultColDef: {
@@ -78,6 +79,7 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
       return 18 * (Math.floor(params.data.message.length / 30) + 1);
     },*/
     overlayLoadingTemplate: this.overlayLoadingTemplate,
+    overlayNoRowsTemplate: this.overlayNoRowsTemplate,
   };
 
   @Input()
@@ -372,8 +374,9 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
     }
   }
 
-  showNoLogsMsg(): void {
+  showNoLogsMsg(msg: string = this.overlayNoRowsTemplate): void {
     if (this.gridOptions.api) {
+      this.gridOptions.overlayNoRowsTemplate = msg;
       this.gridOptions.api.showNoRowsOverlay();
     }
   }
@@ -431,7 +434,11 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
 
     this.monitoringService.searchLogAnalyzerQuery(this.logAnalyzerQueryModel).subscribe(
       (logs: any) => {
-        this.loadLogByGivenData(logs);
+        if (logs !== undefined && logs !== null && logs.length > 0) {
+          this.loadLogByGivenData(logs);
+        } else {
+          this.startBehaviourOnNoLogs();
+        }
       },
       (error: Error) => {
         this.disableBtns = false;
@@ -909,25 +916,30 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
                   },
                 );
               } else {
-                this.startBehaviourOnNoLogs();
+                let msg: string = 'No rows to show: Could not find "finish" trace to filter the logs of this test case.';
+                this.startBehaviourOnNoLogs(msg);
               }
             },
             (error: Error) => {
-              this.startBehaviourOnNoLogs();
+              let msg: string = 'No rows to show: There was an error on get "finish" trace to filter the logs of this test case.';
+              this.startBehaviourOnNoLogs(msg);
             },
           );
         } else {
-          this.startBehaviourOnNoLogs();
+          let msg: string = 'No rows to show: Could not find "start" trace to filter the logs of this test case.';
+          this.startBehaviourOnNoLogs(msg);
         }
       },
       (error: Error) => {
-        this.startBehaviourOnNoLogs();
+        let msg: string = 'No rows to show: There was an error on get "start" trace to filter the logs of this test case.';
+        this.startBehaviourOnNoLogs(msg);
       },
     );
     // TODO search start MSG with  to make searchafter...
   }
 
-  startBehaviourOnNoLogs(): void {
+  startBehaviourOnNoLogs(noRowsMsg: string = this.overlayNoRowsTemplate): void {
+    this.showNoLogsMsg(noRowsMsg);
     this.loadLogByGivenData([]);
   }
 
