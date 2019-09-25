@@ -92,7 +92,7 @@ public abstract class PlatformService {
     public String etTypeMonitoringLabelValue;
     @Value("${et.docker.img.dockbeat}")
     private String dockbeatImage;
-    
+
     public enum ContainerPrefix {
         TEST("test_"), SUT("sut_"), CHECK("check_"),
         DOCK_BEAT("elastest_dockbeat_");
@@ -197,7 +197,6 @@ public abstract class PlatformService {
 
     public abstract String getTSSInstanceContainerName(String... params);
 
-
     public abstract void disableMetricMonitoring(Execution execution,
             boolean force) throws Exception;
 
@@ -295,10 +294,10 @@ public abstract class PlatformService {
 
     public abstract boolean isContainerByServiceName(String serviceName,
             DockerContainerInfo.DockerContainer container);
-    
+
     protected abstract void startDockbeat(DockerContainer dockerContainer)
             throws Exception;
-    
+
     public void enableServiceMetricMonitoring(Execution execution)
             throws Exception {
         try {
@@ -331,14 +330,15 @@ public abstract class PlatformService {
                 tJobId = execution.gettJob().getId().toString();
             }
 
-            if (isEMSSelected(execution)) {
+            String regexSuffix = "_?(" + executionId + ")(_([^_]*(_\\d*)?))?";
+            String testRegex = "^test" + regexSuffix;
+            String sutRegex = "^sut" + regexSuffix;
+            String browserRegex = "^(eus-browser-[^_]*_exec)" + regexSuffix;
+            envVar = "FILTER_CONTAINERS" + "=" + testRegex + "|" + sutRegex
+                    + "|" + browserRegex;
+            envList.add(envVar);
 
-                String regexSuffix = "_?(" + executionId
-                        + ")(_([^_]*(_\\d*)?))?";
-                String testRegex = "^test" + regexSuffix;
-                String sutRegex = "^sut" + regexSuffix;
-                envVar = "FILTER_CONTAINERS" + "=" + testRegex + "|" + sutRegex;
-                envList.add(envVar);
+            if (isEMSSelected(execution)) {
 
                 // envVar = "FILTER_EXCLUDE" + "=" + "\"\"";
                 // envList.add(envVar);
