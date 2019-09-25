@@ -88,7 +88,6 @@ public class K8sService {
     public static final String LABEL_POD_NAME = "pod-name";
     public static final String LABEL_APP_NAME = "app";
     private static final String SUT_PORT_NAME = "sut-port";
-    private static final String BINDING_PORT_SUFIX = "-host-port";
     private static final String CLUSTER_DOMAIN = "svc.cluster.local";
     public static final String LABEL_TSS_NAME = "io.elastest.tjob.tss.id";
     public static final String LABEL_UNIQUE_PLUGIN_NAME = "io.elastest.service";
@@ -842,7 +841,7 @@ public class K8sService {
                 : protocol;
         serviceName = serviceName.toLowerCase();
         String k8sServiceName = serviceName.replace("_", "-");
-        String hostPortName = (podName + "-" + targetPort + BINDING_PORT_SUFIX)
+        String hostPortName = (podName + "-" + targetPort)
                 .replace("_", "-");
         Service service = null;
         if (!checkIfServiceExistsInNamespace(k8sServiceName, namespace)) {
