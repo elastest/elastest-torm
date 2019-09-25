@@ -62,6 +62,8 @@ import io.fabric8.kubernetes.api.model.Volume;
 import io.fabric8.kubernetes.api.model.VolumeBuilder;
 import io.fabric8.kubernetes.api.model.VolumeMount;
 import io.fabric8.kubernetes.api.model.VolumeMountBuilder;
+import io.fabric8.kubernetes.api.model.apps.DaemonSet;
+import io.fabric8.kubernetes.api.model.apps.DaemonSetBuilder;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.Job;
@@ -560,6 +562,111 @@ public class K8sService {
         return podsInfoList;
     }
 
+    public boolean createDaemonSetFromContainerInfo(DockerContainer container) {
+        return createDaemonSetFromContainerInfo(container, DEFAULT_NAMESPACE);
+    }
+
+    public boolean createDaemonSetFromContainerInfo(DockerContainer container,
+            String namespace) {
+        Boolean created = false;
+
+        try {
+            logger.info("Container name: {}",
+                    container.getContainerName().get());
+            if (container.getCmd().isPresent()) {
+                logger.info(String.join(",", container.getCmd().get()));
+            }
+
+            String containerNameWithoutUnderscore = container.getContainerName()
+                    .get().replace("_", "-");
+            Map<String, String> k8sPobLabels = container.getLabels().get();
+            k8sPobLabels.put(LABEL_POD_NAME,
+                    container.getContainerName().get());
+            k8sPobLabels.put(LABEL_COMPONENT, containerNameWithoutUnderscore);
+
+            // Create Container
+            ContainerBuilder containerBuilder = new ContainerBuilder();
+            containerBuilder.withName(containerNameWithoutUnderscore)
+                    .withImage(container.getImageId())
+                    .withEnv(getEnvVarListFromStringList(
+                            container.getEnvs().get()));
+
+            // Add ports
+            if (container.getExposedPorts().isPresent()
+                    && !container.getExposedPorts().get().isEmpty()) {
+                List<ContainerPort> ports = new ArrayList<>();
+                container.getExposedPorts().get().forEach(port -> {
+                    ContainerPort containerPort = new ContainerPort();
+                    containerPort.setContainerPort(new Integer(port));
+                    ports.add(containerPort);
+                });
+                containerBuilder.withPorts(ports);
+            }
+
+            if (container.getCapAdd().isPresent()
+                    && !container.getCapAdd().get().isEmpty()) {
+                SecurityContextBuilder securityContextBuilder = new SecurityContextBuilder();
+                List<String> stringCapabilities = new ArrayList<>();
+                container.getCapAdd().get().forEach(cap -> {
+                    stringCapabilities.add(cap);
+                });
+                Capabilities capabilities = new CapabilitiesBuilder()
+                        .withAdd(stringCapabilities).build();
+
+                securityContextBuilder.withCapabilities(capabilities);
+                containerBuilder
+                        .withSecurityContext(securityContextBuilder.build());
+            }
+
+            // Add volumes if there are
+            List<Volume> volumes = new ArrayList<>();
+            List<VolumeMount> volumeMounts = new ArrayList<>();
+            if (container.getVolumeBindList().isPresent()
+                    && !container.getVolumeBindList().get().isEmpty()) {
+                int count = 0;
+                for (Bind dockerVolume : container.getVolumeBindList().get()) {
+                    VolumeMount volumeMount = new VolumeMountBuilder()
+                            .withName("v-" + count)
+                            .withMountPath(dockerVolume.to()).build();
+                    volumeMounts.add(volumeMount);
+                    HostPathVolumeSource hostPath = new HostPathVolumeSourceBuilder()
+                            .withPath(dockerVolume.to()).build();
+                    Volume volume = new VolumeBuilder().withName("v-" + count)
+                            .withHostPath(hostPath).build();
+                    volumes.add(volume);
+                    count++;
+                }
+                containerBuilder.withVolumeMounts(volumeMounts);
+            }
+
+            LabelSelectorBuilder selectorBuilder = new LabelSelectorBuilder();
+            LabelSelector labelSelector = selectorBuilder
+                    .withMatchLabels(Collections.singletonMap(LABEL_COMPONENT,
+                            containerNameWithoutUnderscore))
+                    .build();
+//            String dName = "daemonset-" + containerNameWithoutUnderscore;
+            DaemonSet daemonSet = new DaemonSetBuilder().withNewMetadata()
+                    .withName(containerNameWithoutUnderscore)
+                    .withNamespace(namespace).withLabels(k8sPobLabels)
+                    .endMetadata().withNewSpec().withSelector(labelSelector)
+                    .withNewTemplate().withNewMetadata()
+                    .withLabels(k8sPobLabels).endMetadata().withNewSpec()
+                    .addNewContainerLike(containerBuilder.build())
+                    .endContainer().withVolumes(volumes).endSpec().endTemplate()
+                    .endSpec().build();
+
+            client.apps().daemonSets().create(daemonSet);
+            client.apps().daemonSets().inNamespace(namespace)
+                    .withName(containerNameWithoutUnderscore).cascading(true);
+        } catch (Exception e) {
+            logger.error("Error deploying DaemonSet");
+            e.printStackTrace();
+            throw e;
+        }
+
+        return created;
+    }
+
     public boolean deleteResources(String projectName) {
         DockerProject project = projects.get(projectName);
         logger.debug("Remove resources described in this yml: {}",
@@ -645,6 +752,19 @@ public class K8sService {
                     .withName(pvc.getMetadata().getName()).delete();
         } else {
             return true;
+        }
+    }
+
+    public void deleteDaemonByName(String name, String namespace) {
+        logger.debug("Delete DaemonSet with label \"{}\"",
+                name.replace("_", "-"));
+        namespace = namespace != null && !namespace.isEmpty() ? namespace
+                : DEFAULT_NAMESPACE;
+
+        if (client.apps().daemonSets().inNamespace(namespace)
+                .withName(name.replace("_", "-")) != null) {
+            client.apps().daemonSets().inNamespace(namespace)
+                    .withName(name.replace("_", "-")).cascading(true).delete();
         }
     }
 

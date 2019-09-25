@@ -244,22 +244,19 @@ public class K8ServiceImpl extends PlatformService {
     protected void startDockbeat(DockerContainer dockerContainer)
             throws Exception {
         try {
-            k8sService.deployPod(dockerContainer);
-        } catch (TJobStoppedException e) {
-            throw e;
+            k8sService.createDaemonSetFromContainerInfo(dockerContainer);
         } catch (Exception e) {
             new Exception("Exception on start Dockbeat", e);
+            throw e;
         }
     }
 
     @Override
     public void disableMetricMonitoring(Execution execution, boolean force)
             throws Exception {
-        Map<String, String> labels = new HashMap<>();
-        labels.put("pod-name",
-                generateContainerName(ContainerPrefix.DOCK_BEAT, execution));
-        k8sService.deletePod(k8sService.getPodsByLabels(labels, null).get(0)
-                .getMetadata().getName());
+        String containerName = generateContainerName(ContainerPrefix.DOCK_BEAT,
+                execution);
+        k8sService.deleteDaemonByName(containerName, null);
     }
 
     @Override
