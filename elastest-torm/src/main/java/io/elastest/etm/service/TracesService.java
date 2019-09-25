@@ -54,7 +54,7 @@ public class TracesService {
     String javaLogLevelExpression = "%{JAVALOGLEVEL:level}";
     String containerNameExpression = "%{CONTAINERNAME:containerName}";
     String monitoringExecExpression = "(\\d+|ext\\d+_e\\d+|s\\d+_e\\d+)";
-    String componentExecAndComponentServiceExpression = "^(?<component>(test|sut|dynamic|k8s_test|k8s_sut))(_|-)?(?<exec>"
+    String componentExecAndComponentServiceExpression = "^(?<component>(test|sut|dynamic|k8s_test|k8s_sut|eus-browser-[^_]*_exec|k8s_eus-browser-[^_]*_exec))(_|-)?(?<exec>"
             + monitoringExecExpression
             + ")((_|-)(?<componentService>[^_]*(?=_\\d*)?))?";
 
@@ -63,7 +63,7 @@ public class TracesService {
             + "|dynamic_" + monitoringExecExpression
             + ")\\D*(?>_exec)(\\[.*\\])?[\\s][-][\\s]";
 
-    String startsWithTestOrSutExpression = "(^(test|sut)(_)?(\\d*)(.*)?)|(^(k8s_test|k8s_sut)(.*)?)";
+    String startsWithTestOrSutExpression = "(^(test|sut|eus(_|-)browser(_|-).*_exec)(_)?(\\d*)(.*)?)|(^(k8s_test|k8s_sut|k8s_eus(_|-)browser(_|-).*_exec)(.*)?)";
 
     String dockbeatStream = "et_dockbeat";
 
@@ -398,10 +398,10 @@ public class TracesService {
                 // Its Metric
                 if (trace.getStreamType() == null
                         || !trace.getStreamType().equals(StreamType.LOG)) {
-                    // Dockbeat
                     if (trace.getStream() == null) {
                         return false;
                     }
+                    // Dockbeat
                     if (trace.getStream().equals(dockbeatStream)) {
                         if (trace.getContainerName() != null
                                 && trace.getContainerName().matches(
@@ -419,7 +419,7 @@ public class TracesService {
 
                         } else {
                             logger.trace(
-                                    "Dockbeat trace container name {} does not matches sut/test, discarding",
+                                    "Dockbeat trace container name {} does not matches sut/test/eus-browser, discarding",
                                     trace.getContainerName());
                             return false;
                         }
