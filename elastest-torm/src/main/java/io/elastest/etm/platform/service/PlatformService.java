@@ -330,12 +330,8 @@ public abstract class PlatformService {
                 tJobId = execution.gettJob().getId().toString();
             }
 
-            String regexSuffix = "_?(" + executionId + ")(_([^_]*(_\\d*)?))?";
-            String testRegex = "^test" + regexSuffix;
-            String sutRegex = "^sut" + regexSuffix;
-            String browserRegex = "^(eus-browser-[^_]*_exec)" + regexSuffix;
-            envVar = "FILTER_CONTAINERS" + "=" + testRegex + "|" + sutRegex
-                    + "|" + browserRegex;
+            envVar = "FILTER_CONTAINERS"
+                    + "=(^(test|sut|eus(_|-)browser(_|-).*_exec)(_)?(\\\\d*)(.*)?)|(^(k8s_test|k8s_sut|k8s_eus(_|-)browser(_|-).*(_|-)exec)(.*)?)";
             envList.add(envVar);
 
             if (isEMSSelected(execution)) {
