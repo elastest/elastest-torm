@@ -63,7 +63,7 @@ public class TracesService {
             + "|dynamic_" + monitoringExecExpression
             + ")\\D*(?>_exec)(\\[.*\\])?[\\s][-][\\s]";
 
-    String startsWithTestOrSutExpression = "(^(test|sut|eus(_|-)browser(_|-).*_exec)(_)?(\\\\d*)(.*)?)|(^(k8s_test|k8s_sut|k8s_eus(_|-)browser(_|-).*(_|-)exec)(.*)?)";
+    String startsWithTestOrSutExpression = "(^(test|sut|eus(_|-)browser(_|-).*_exec)(_)?(\\d*)(.*)?)|(^(k8s_test|k8s_sut|k8s_eus(_|-)browser(_|-).*(_|-)exec)(.*)?)";
 
     String dockbeatStream = "et_dockbeat";
 
