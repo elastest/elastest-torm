@@ -10,7 +10,7 @@ metadata:
   name: jenkins
 spec:
   ports:
-  - name: "jenkins-8080-host-port"
+  - name: "jenkins-8080"
     port: 8080
     targetPort: 8080
     nodePort: 37092

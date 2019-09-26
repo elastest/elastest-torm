@@ -9,7 +9,7 @@ metadata:
   name: eim
 spec:
   ports:
-  - name: "eim-8080-host-port"
+  - name: "eim-8080"
     port: 8080
     targetPort: 8080
     nodePort: 37004

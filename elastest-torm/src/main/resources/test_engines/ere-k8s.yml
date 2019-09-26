@@ -9,7 +9,7 @@ metadata:
   name: ere
 spec:
   ports:
-  - name: "ere-9080-host-port"
+  - name: "ere-9080"
     port: 9080
     targetPort: 9080
     nodePort: 37008

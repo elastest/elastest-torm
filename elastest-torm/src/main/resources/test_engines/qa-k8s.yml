@@ -10,7 +10,7 @@ metadata:
   name: qa
 spec:
   ports:
-  - name: "qa-9080-host-port"
+  - name: "qa-9080"
     port: 9080
     targetPort: 9080
     notePort: 37009
