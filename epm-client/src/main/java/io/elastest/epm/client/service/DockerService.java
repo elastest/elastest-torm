@@ -1116,4 +1116,41 @@ public class DockerService {
         return output;
     }
 
+    public List<String> getFilesListFromContainerFolder(String containerId,
+            String containerFolderPath, String filter) throws Exception {
+        String grepFilter = "";
+        if (filter != null && !"".equals(filter)) {
+            grepFilter = " | grep " + filter;
+        }
+
+        String command = "ls -p " + containerFolderPath + grepFilter
+                + " | grep -v / | tr '\\n' ','";
+        List<String> filesNames = null;
+        String response = execCommand(containerId, true, command);
+
+        if (response != null) {
+            try {
+                String[] filesNamesArr = response.split(",");
+                filesNames = Arrays.asList(filesNamesArr);
+
+                // If last is empty, remove
+                if (filesNames != null && filesNames.size() > 0
+                        && "".equals(filesNames.get(filesNames.size() - 1))) {
+                    filesNames.remove(filesNames.size() - 1);
+                }
+            } catch (Exception e) {
+                throw new Exception(
+                        "Error on get names of files from response: "
+                                + response);
+            }
+        }
+
+        return filesNames;
+    }
+
+    public List<String> getFilesListFromContainerFolder(String containerId,
+            String containerFolderPath) throws Exception {
+        return getFilesListFromContainerFolder(containerId, containerFolderPath,
+                null);
+    }
 }
