@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.net.ServerSocket;
+import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -791,6 +792,16 @@ public class DockerService {
                 params.toArray(new LogsParam[params.size()]));
 
         return logStream.readFully();
+    }
+
+    public void copyFileToContainer(String containerId,
+            InputStream tarStreamFile, String toPath) throws Exception {
+        getDockerClient().copyToContainer(tarStreamFile, containerId, toPath);
+    }
+
+    public void copyFileToContainer(String containerId, Path fromPath,
+            String toPath) throws Exception {
+        getDockerClient().copyToContainer(fromPath, containerId, toPath);
     }
 
     // Returns InputStream .tar file with file(s) into
