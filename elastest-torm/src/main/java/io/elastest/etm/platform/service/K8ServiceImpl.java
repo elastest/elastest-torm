@@ -33,7 +33,6 @@ import io.elastest.etm.model.SutExecution.DeployStatusEnum;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
-import io.elastest.etm.platform.service.PlatformService.ContainerPrefix;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.VersionInfo;
 import io.elastest.etm.service.exception.TJobStoppedException;
@@ -569,6 +568,11 @@ public class K8ServiceImpl extends PlatformService {
             }
         }
         return false;
+    }
+
+    @Override
+    protected String getCommandsByPlatform() {
+        return "curl -X POST http://etm:8091/api/tjob/exec/pod/$HOSTNAME/results";
     }
 
 }

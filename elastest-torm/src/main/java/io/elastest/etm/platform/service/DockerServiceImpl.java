@@ -1404,4 +1404,9 @@ public class DockerServiceImpl extends PlatformService {
         }
     }
 
+    @Override
+    protected String getCommandsByPlatform() {
+        return "";
+    }
+
 }

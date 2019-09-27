@@ -653,6 +653,8 @@ public abstract class PlatformService {
                 commands = "export ET_SUT_HOST=$(" + GET_CONTAINER_IP_COMMAND
                         + ") || echo;" + commands;
             }
+            
+            commands = commands + getCommandsByPlatform();
             cmdList.add(commands);
             entrypointList.add("/bin/sh");
             cmdList.forEach((command) -> {
@@ -823,4 +825,6 @@ public abstract class PlatformService {
             throws Exception;
 
     protected abstract void endContainer(String containerName) throws Exception;
+    
+    protected abstract String getCommandsByPlatform();
 }
