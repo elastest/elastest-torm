@@ -263,7 +263,7 @@ public class TSSService {
 
             eusInstance.setServiceIp(serviceIp);
             eusInstance.setEndpointName("elastest-eus");
-            eusInstance = buildTssInstanceUrls(eusInstance);
+            buildTssInstanceUrls(eusInstance);
 
             // Replace EUS port to ETM port
             String originalInternalPort = String
@@ -1207,15 +1207,15 @@ public class TSSService {
         return newServiceInstance;
     }
 
-    private SupportServiceInstance buildTssInstanceUrls(
-            SupportServiceInstance serviceInstance) throws Exception {
+    private void buildTssInstanceUrls(SupportServiceInstance serviceInstance)
+            throws Exception {
         logger.info("Building TSSs URLs for {}",
                 serviceInstance.getEndpointName());
         TssManifest manifest = esmServiceClient
                 .getManifestById(serviceInstance.getManifestId());
 
         // Build the URL for the service checked as main
-        serviceInstance = buildSubserviceUrls(serviceInstance, manifest);
+        buildSubserviceUrls(serviceInstance, manifest);
 
         // Build URLs for the Subservices
         for (SupportServiceInstance subService : serviceInstance
@@ -1226,16 +1226,14 @@ public class TSSService {
                 throw new Exception("Field ip not found for "
                         + subService.getEndpointName() + " instance.");
             } else {
-                serviceInstance = buildSubserviceUrls(subService, manifest);
+                buildSubserviceUrls(subService, manifest);
             }
         }
 
-        return serviceInstance;
     }
 
-    private SupportServiceInstance buildSubserviceUrls(
-            SupportServiceInstance serviceInstance, TssManifest manifest)
-            throws Exception {
+    private void buildSubserviceUrls(SupportServiceInstance serviceInstance,
+            TssManifest manifest) throws Exception {
         JsonNode manifestEndpoints = manifest.getEndpoints();
         logger.debug("Endpoints for the service: {}",
                 manifestEndpoints.toString());
@@ -1290,7 +1288,6 @@ public class TSSService {
             throw new Exception(
                     "Error building endpoints info: " + e.getMessage());
         }
-        return serviceInstance;
     }
 
     private void buildEndpointUrl(SupportServiceInstance serviceInstance,
