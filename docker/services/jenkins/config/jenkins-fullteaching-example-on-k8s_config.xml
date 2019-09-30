@@ -19,11 +19,11 @@
                 
                 stage(&quot;Run tests&quot;) {
                     mvnHome = tool &apos;M3.3.9&apos;
-                    def sutIp = getPodIp(&apos;full-teaching&apos;)
-                    waitForService(5, &quot;https://&quot; + sutIp + &quot;:5001&quot;)
+                    def sutIp = getPodIp(&quot;${ET_SUT_CONTAINER_NAME}-full-teaching&quot;)
+                    waitForService(5, &quot;https://&quot; + sutIp + &quot;:5000&quot;)
                     withEnv([&apos;ET_SUT_HOST=&apos; + sutIp]) {
                         echo &quot;Running test&quot;
-                        sh &quot;&apos;${mvnHome}/bin/mvn&apos; -Dapp.url=https://&quot; + sutIp +&quot;:5001/ -Dtest=FullTeachingTestE2EREST,FullTeachingTestE2EVideoSession,FullTeachingTestE2EChat -B -DforkCount=0 test&quot;
+                        sh &quot;&apos;${mvnHome}/bin/mvn&apos; -Dapp.url=https://&quot; + sutIp +&quot;:5000/ -Dtest=FullTeachingTestE2EREST,FullTeachingTestE2EVideoSession,FullTeachingTestE2EChat -B -DforkCount=0 test&quot;
                     }
                 }
             
@@ -37,7 +37,7 @@
 def getPodIp(podName) {
     echo &quot;Retrive pod ip&quot;
     def podIp = sh (
-        script: &quot;kubectl get pod -o wide | grep &quot; + podName + &quot; | awk &apos;{print \$6}&apos;&quot;,
+        script: &quot;kubectl get pod -o wide | grep &quot; + podName.replace(&apos;_&apos;,&apos;-&apos;) + &quot; | awk &apos;{print \$6}&apos;&quot;,
         returnStdout: true
     ).split( &apos;\n&apos; ).first()
 
