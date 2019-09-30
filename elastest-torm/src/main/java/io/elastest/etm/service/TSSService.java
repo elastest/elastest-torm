@@ -336,6 +336,7 @@ public class TSSService {
 
             putInstanceInMap(tssInstanceId, eusInstance);
 
+            eusInstance.setFullyInitialized(true);
             etmContextAuxService.getContextInfo().setEusSSInstance(eusInstance);
         } catch (Exception e) {
             logger.error("Error on start integrated EUS:", e);
