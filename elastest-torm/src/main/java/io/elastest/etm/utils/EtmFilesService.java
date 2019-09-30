@@ -30,6 +30,7 @@ import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.TJob;
+import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 
 @Service
@@ -341,13 +342,34 @@ public class EtmFilesService {
         return filesList;
     }
 
-    private String getExternalTJobExecFolderPath(
-            ExternalTJobExecution exTJobExec, boolean relativePath) {
+    private String getExternalTJobFolderPath(ExternalTJob exTJob,
+            boolean relativePath) {
         return (relativePath ? "" : sharedFolder) + FILE_SEPARATOR
                 + EXTERNAL_TJOBS_FOLDER + FILE_SEPARATOR
-                + EXTERNAL_TJOB_FOLDER_PREFIX + exTJobExec.getExTJob().getId()
-                + FILE_SEPARATOR + EXTERNAL_TJOB_EXEC_FOLDER_PREFIX
-                + exTJobExec.getId() + FILE_SEPARATOR;
+                + EXTERNAL_TJOB_FOLDER_PREFIX + exTJob.getId() + FILE_SEPARATOR;
+    }
+
+    public void removeExternalTJobFolderPath(ExternalTJob exTJob)
+            throws IOException {
+        logger.debug("Trying to remove External TJob {} folder",
+                exTJob.getId());
+        String folderPath = getExternalTJobFolderPath(exTJob, false);
+        removeFolder(folderPath);
+    }
+
+    private String getExternalTJobExecFolderPath(
+            ExternalTJobExecution exTJobExec, boolean relativePath) {
+        return getExternalTJobFolderPath(exTJobExec.getExTJob(), relativePath)
+                + EXTERNAL_TJOB_EXEC_FOLDER_PREFIX + exTJobExec.getId()
+                + FILE_SEPARATOR;
+    }
+
+    public void removeExternalTJobExecFolderPath(
+            ExternalTJobExecution exTJobExec) throws IOException {
+        logger.debug("Trying to remove External TJob Exec {} folder",
+                exTJobExec.getId());
+        String folderPath = getExternalTJobExecFolderPath(exTJobExec, false);
+        removeFolder(folderPath);
     }
 
     /* ********************************************************** */

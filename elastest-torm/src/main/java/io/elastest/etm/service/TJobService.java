@@ -160,7 +160,6 @@ public class TJobService {
         try {
             etmFilesService.removeTJobFolderPath(tJob);
         } catch (IOException e) {
-
         }
     }
 

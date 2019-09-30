@@ -1,5 +1,6 @@
 package io.elastest.etm.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -574,8 +575,12 @@ public class ExternalService {
         String index = exTJobExec.getExternalTJobExecMonitoringIndex();
         monitoringService
                 .deleteMonitoringDataByIndicesAsync(Arrays.asList(index));
-        // TODO remove video folders
         externalTJobExecutionRepository.delete(exTJobExec);
+
+        try {
+            etmFilesService.removeExternalTJobExecFolderPath(exTJobExec);
+        } catch (IOException e) {
+        }
     }
 
     public ExternalTJobExecution startEus(ExternalTJobExecution exec) {
