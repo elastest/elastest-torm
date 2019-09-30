@@ -161,3 +161,32 @@ export function isStringIntoArray(str: string, arr: string[]): boolean {
 export function randomNum(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+export function stringifyEvent(e: Event): string {
+  const obj: any = {};
+  for (let k in e) {
+    if (!(e[k] instanceof Node) && !(e[k] instanceof Window) && k !== 'sourceCapabilities') {
+      obj[k] = e[k];
+    }
+  }
+  return JSON.stringify(
+    obj,
+    (k: string, v: any) => {
+      if (v instanceof Node) {
+        return 'Node';
+      }
+      if (v instanceof Window) {
+        return 'Window';
+      }
+      if (k === 'sourceCapabilities') {
+        return 'sourceCapabilities';
+      }
+      return v;
+    },
+    ' ',
+  );
+}
+
+export function cloneEvent(e: Event): any {
+  return JSON.parse(stringifyEvent(e));
+}

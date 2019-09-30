@@ -2,7 +2,7 @@ import { VncUI } from './ui';
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { fromEvent, Subject } from 'rxjs';
-import { getUrlObj, randomNum } from '../utils';
+import { getUrlObj, cloneEvent } from '../utils';
 
 @Component({
   selector: 'vnc-client',
@@ -126,6 +126,7 @@ export class VncClientComponent implements OnInit, OnDestroy {
     const mouseOverObs: Observable<any> = fromEvent(canvasNE, 'mouseover');
     const mouseDownObs: Observable<any> = fromEvent(canvasNE, 'mousedown');
     const mouseUpObs: Observable<any> = fromEvent(canvasNE, 'mouseup');
+    const wheelScrollObs: Observable<any> = fromEvent(canvasNE, 'wheel');
 
     mouseOutObs.subscribe(
       (mouseEvent: MouseEvent) => {
@@ -173,6 +174,17 @@ export class VncClientComponent implements OnInit, OnDestroy {
       },
       (error: Error) => console.log(error),
     );
+
+    wheelScrollObs.subscribe(
+      (wheelEvent: WheelEvent) => {
+        this.stopEventPropagationAndDefault(wheelEvent);
+        if (this.mouseKeyboardEvents && !wheelEvent.metaKey) {
+          this.mouseKeyboardEvents.next(wheelEvent);
+        }
+      },
+      (error: Error) => console.log(error),
+    );
+
     this.switchHTMLClickEventListener(true);
   }
 
@@ -208,19 +220,18 @@ export class VncClientComponent implements OnInit, OnDestroy {
     let y: number = this.canvas.getBoundingClientRect().top + mouseEvent.offsetY;
 
     let newMouseEvent: MouseEvent;
-    let mouseEventInit: any = {};
-    for (let key of Object.keys(mouseEvent)) {
-      mouseEventInit[key] = mouseEvent[key];
-    }
-    mouseEventInit.x = x;
-    mouseEventInit.clientX = x;
+    let mouseEventInit: any = cloneEvent(mouseEvent);
 
-    mouseEventInit.y = y;
-    mouseEventInit.clientY = y;
+    if (event.type !== 'wheel') {
+      mouseEventInit.x = x;
+      mouseEventInit.clientX = x;
+
+      mouseEventInit.y = y;
+      mouseEventInit.clientY = y;
+    }
 
     // HACK to know if event is propagated
     mouseEventInit.metaKey = true;
-
     switch (event.type) {
       case 'mouseout':
         newMouseEvent = new MouseEvent('mouseout', mouseEventInit);
@@ -233,6 +244,10 @@ export class VncClientComponent implements OnInit, OnDestroy {
         break;
       case 'mouseup':
         newMouseEvent = new MouseEvent('mouseup', mouseEventInit);
+        break;
+      case 'wheel':
+        newMouseEvent = new WheelEvent('wheel', mouseEventInit);
+        console.log('aaaaaa', newMouseEvent, mouseEvent);
         break;
       default:
         return;

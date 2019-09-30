@@ -108,7 +108,7 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
   clear(): void {
     // Only remove if comes from it's own page
     if (this.browserSyncIdentifier) {
-      this.unsubscribeToMouseEvents();
+      this.unsubscribeToMouseAndKeyboardEvents();
     }
   }
 
@@ -204,7 +204,7 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
         // Navigation is not necessary because is loaded in backend
         position++;
       }
-      this.subscribeToMouseEvents();
+      this.subscribeToMouseAndKeyboardEvents();
     }
   }
 
@@ -382,7 +382,7 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
     return hide;
   }
 
-  subscribeToMouseEvents(): void {
+  subscribeToMouseAndKeyboardEvents(): void {
     this.mouseKeyboardEventsObs = this.mouseKeyboardEvents.asObservable();
     this.mouseKeyboardEventsSubscription = this.mouseKeyboardEventsObs.subscribe((mouseEvent: MouseEvent) => {
       if (this.browserCards && this.browserCards.toArray().length > 0) {
@@ -392,7 +392,7 @@ export class CrossbrowserComponentComponent implements OnInit, OnDestroy {
       }
     });
   }
-  unsubscribeToMouseEvents(): void {
+  unsubscribeToMouseAndKeyboardEvents(): void {
     if (this.mouseKeyboardEventsSubscription) {
       this.mouseKeyboardEventsSubscription.unsubscribe();
       this.mouseKeyboardEventsSubscription = undefined;
