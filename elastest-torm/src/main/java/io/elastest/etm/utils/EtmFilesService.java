@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.ElastestFile;
 import io.elastest.etm.model.Execution;
+import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 
 @Service
@@ -186,12 +187,22 @@ public class EtmFilesService {
     /* ************************** TJob Exec ************************** */
     /* *************************************************************** */
 
-    private String getTJobExecFolderPath(TJobExecution tJobExec,
-            boolean relativePath) {
-
+    private String getTJobFolderPath(TJob tJob, boolean relativePath) {
         String path = (relativePath ? "" : sharedFolder) + FILE_SEPARATOR
                 + TJOBS_FOLDER + FILE_SEPARATOR + TJOB_FOLDER_PREFIX
-                + tJobExec.getTjob().getId() + FILE_SEPARATOR
+                + tJob.getId() + FILE_SEPARATOR;
+        return path;
+    }
+
+    public void removeTJobFolderPath(TJob tJob) throws IOException {
+        logger.debug("Trying to remove TJob {} folder", tJob.getId());
+        String folderPath = getTJobFolderPath(tJob, false);
+        removeFolder(folderPath);
+    }
+
+    private String getTJobExecFolderPath(TJobExecution tJobExec,
+            boolean relativePath) {
+        String path = getTJobFolderPath(tJobExec.getTjob(), relativePath)
                 + TJOB_EXEC_FOLDER_PREFIX + tJobExec.getId() + FILE_SEPARATOR;
         return path;
     }
@@ -215,6 +226,14 @@ public class EtmFilesService {
                     tJobExecId);
         }
         return filesList;
+    }
+
+    public void removeTJobExecFolderPath(TJobExecution tJobExec)
+            throws IOException {
+        logger.debug("Trying to remove TJobExecution {} folder",
+                tJobExec.getId());
+        String folderPath = getTJobExecFolderPath(tJobExec, false);
+        removeFolder(folderPath);
     }
 
     public String buildExecutionFilesPath(Long tJobId, Long tJobExecId,

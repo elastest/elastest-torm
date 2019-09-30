@@ -157,6 +157,11 @@ public class TJobService {
         monitoringService.deleteMonitoringDataByIndicesAsync(
                 tJob.getAllMonitoringIndices());
         tJobRepo.delete(tJob);
+        try {
+            etmFilesService.removeTJobFolderPath(tJob);
+        } catch (IOException e) {
+
+        }
     }
 
     public List<TJob> getAllTJobs() {
@@ -331,6 +336,10 @@ public class TJobService {
         monitoringService
                 .deleteMonitoringDataByIndicesAsync(Arrays.asList(index));
         tJobExecRepositoryImpl.delete(tJobExec);
+        try {
+            etmFilesService.removeTJobExecFolderPath(tJobExec);
+        } catch (IOException e) {
+        }
     }
 
     public void deleteTJobExec(Long tJobExecId) {

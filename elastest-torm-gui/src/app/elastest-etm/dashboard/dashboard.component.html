@@ -1,5 +1,7 @@
 <auto-height-grid fxLayout="column">
-  <normal-height-row> <etm-projects-manager #projectsManager [isNested]="true"> </etm-projects-manager> </normal-height-row>
+  <normal-height-row>
+    <etm-projects-manager #projectsManager [isNested]="true"> </etm-projects-manager>
+  </normal-height-row>
   <auto-height-row fxLayout="column">
     <auto-height-grid fxFlex>
       <etm-tjob-execs-manager *ngIf="projectsManager && !projectsManager.deletingInProgress; else showSpinner" [isNested]="true">
