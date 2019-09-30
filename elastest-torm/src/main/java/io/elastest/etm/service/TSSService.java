@@ -1731,6 +1731,7 @@ public class TSSService {
         List<SupportServiceInstance> tSSInstanceList = new ArrayList<>();
         externalTJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
             if (tSSInstance.gettJobExecIdList().contains(tJobExecId.longValue())
+                    && tSSInstance.isFullyInitialized()
                     && checkInstanceUrlIsUp(tSSInstance)) {
                 tSSInstance.setStatus(DockerServiceStatusEnum.READY);
                 tSSInstance.setStatusMsg("Ready");
