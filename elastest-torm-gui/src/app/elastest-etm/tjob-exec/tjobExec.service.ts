@@ -464,6 +464,9 @@ export class TJobExecService {
             let _logs: Subject<any[]> = new Subject<any[]>();
             let logsObs: Observable<any[]> = _logs.asObservable();
 
+            tCase['startDate'] = startFinishObj.startDate;
+            tCase['endDate'] = startFinishObj.finishDate;
+
             // Logs
             this.logAnalyzerService.searchTestCaseLogsByGivenStartFinishTraces(
               tCase.name,
@@ -472,22 +475,26 @@ export class TJobExecService {
               _logs,
             );
 
+            // After logs loaded
             logsObs.subscribe(
               (logs: any[]) => {
                 someTestCaseWithDate = true;
                 tCase['logs'] = logs;
 
                 // Metrics
-                this.logAnalyzerService.monitoringService.getAllTJobExecMetrics(tJobExec).subscribe(
-                  (metricsTraces: MetricTraces[]) => {
-                    tCase['metrics'] = metricsTraces;
+                // TODO: get only test case metrics
+                this.logAnalyzerService.monitoringService
+                  .getAllTJobExecMetrics(tJobExec, startFinishObj.startDate, startFinishObj.finishDate)
+                  .subscribe(
+                    (metricsTraces: MetricTraces[]) => {
+                      tCase['metrics'] = metricsTraces;
 
-                    this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
-                  },
-                  (error: Error) => {
-                    this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
-                  },
-                );
+                      this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
+                    },
+                    (error: Error) => {
+                      this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
+                    },
+                  );
               },
               (error: Error) => {
                 this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);

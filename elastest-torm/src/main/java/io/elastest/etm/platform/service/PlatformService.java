@@ -94,8 +94,8 @@ public abstract class PlatformService {
     private String dockbeatImage;
 
     public enum ContainerPrefix {
-        TEST("test_"), SUT("sut_"), CHECK("check_"),
-        DOCK_BEAT("elastest_dockbeat_");
+        TEST("test_"), SUT("sut_"), CHECK("check_"), DOCK_BEAT(
+                "elastest_dockbeat_");
 
         private String value;
 
@@ -331,7 +331,7 @@ public abstract class PlatformService {
             }
 
             envVar = "FILTER_CONTAINERS"
-                    + "=(^(test|sut|eus(_|-)browser(_|-).*_exec)(_)?(\\\\d*)(.*)?)|(^(k8s_test|k8s_sut|k8s_eus(_|-)browser(_|-).*(_|-)exec)(.*)?)";
+                    + "=(^(test|sut|eus(_|-)browser(_|-).*_exec)(_)?(\\d*)(.*)?)|(^(k8s_test|k8s_sut|k8s_eus(_|-)browser(_|-).*(_|-)exec)(.*)?)";
             envList.add(envVar);
 
             if (isEMSSelected(execution)) {
@@ -654,7 +654,7 @@ public abstract class PlatformService {
                 commands = "export ET_SUT_HOST=$(" + GET_CONTAINER_IP_COMMAND
                         + ") || echo;" + commands;
             }
-            
+
             commands = commands + getCommandsByPlatform();
             cmdList.add(commands);
             entrypointList.add("/bin/sh");
@@ -826,6 +826,6 @@ public abstract class PlatformService {
             throws Exception;
 
     protected abstract void endContainer(String containerName) throws Exception;
-    
+
     protected abstract String getCommandsByPlatform();
 }

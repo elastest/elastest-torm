@@ -985,8 +985,8 @@ export class MonitoringService {
       query.selectedTerms.push('etType');
     }
 
+    // Note: filter by time not working with generic searchAllByTerms, only with searchAllLogs and metrics (back bug)
     let getTracesSubscription: Observable<any> = this.searchAllByTerms(query);
-
     if (traceType !== undefined) {
       if (traceType === 'log') {
         getTracesSubscription = this.searchAllLogs(query);
@@ -1212,7 +1212,13 @@ export class MonitoringService {
   /* *** Metrics *** */
   /* *************** */
 
-  getAllTJobExecMetrics(tJobExec: TJobExecModel): Observable<MetricTraces[]> {
+  getAllTJobExecMetrics(
+    tJobExec: TJobExecModel,
+    from: Date = undefined,
+    to: Date = undefined,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
+  ): Observable<MetricTraces[]> {
     let _metrics: Subject<MetricTraces[]> = new Subject<MetricTraces[]>();
     let metricsObs: Observable<MetricTraces[]> = _metrics.asObservable();
     let metrics: MetricTraces[] = [];
@@ -1246,7 +1252,7 @@ export class MonitoringService {
           }
         }
       }
-      this.getAllMetricsByGiven(allMetrics, _metrics, metrics);
+      this.getAllMetricsByGiven(allMetrics, _metrics, metrics, from, to, includedFrom, includedTo);
     });
     return metricsObs;
   }
@@ -1255,6 +1261,10 @@ export class MonitoringService {
     metricsObjList: ESRabComplexMetricsModel[],
     _metrics: Subject<MetricTraces[]>,
     metrics: MetricTraces[],
+    from: Date = undefined,
+    to: Date = undefined,
+    includedFrom: boolean = true,
+    includedTo: boolean = true,
   ): void {
     if (metricsObjList.length > 0) {
       let currentMetric: ESRabComplexMetricsModel = metricsObjList.shift();
@@ -1263,16 +1273,22 @@ export class MonitoringService {
         currentMetric.stream,
         currentMetric.component,
         currentMetric.name,
+        undefined,
+        from,
+        to,
+        includedFrom,
+        includedTo,
+        'metric',
       ).subscribe(
         (obj: any) => {
           let metricTraces: MetricTraces = new MetricTraces();
           metricTraces.name = currentMetric.component + '-' + currentMetric.stream + '-' + currentMetric.name;
           metricTraces.traces = this.getMetricsObjFromRawSource(obj.data);
           metrics.push(metricTraces);
-          this.getAllMetricsByGiven(metricsObjList, _metrics, metrics);
+          this.getAllMetricsByGiven(metricsObjList, _metrics, metrics, from, to, includedFrom, includedTo);
         },
         (error: Error) => {
-          this.getAllMetricsByGiven(metricsObjList, _metrics, metrics);
+          this.getAllMetricsByGiven(metricsObjList, _metrics, metrics, from, to, includedFrom, includedTo);
         },
       );
     } else {
