@@ -229,26 +229,44 @@ export class EtmLogsGroupComponent implements OnInit {
     this.selectedTraces = [];
   }
 
-  removeAndUnsubscribe(pos: number): void {
-    let component: string = this.logsList[pos].component;
-    let stream: string = this.logsList[pos].stream;
-    let name: string = this.logsList[pos].name;
-    let streamType: string = 'log';
+  removeAndUnsubscribeByListAndPos(pos: number, list: ESRabLogModel[] = this.logsList): void {
+    if (list[pos]) {
+      let component: string = this.logsList[pos].component;
+      let stream: string = this.logsList[pos].stream;
+      let name: string = this.logsList[pos].name;
+      let streamType: string = 'log';
 
-    // If is live, unsubscribe
-    if (this.live) {
-      let index: string = this.getAbstractTJobExecIndex(component);
+      // If is live, unsubscribe
+      if (this.live) {
+        let index: string = this.getAbstractTJobExecIndex(component);
 
-      this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
+        this.elastestRabbitmqService.unsuscribeFromTopic(index, streamType, component, stream);
 
-      let key: string = this.elastestRabbitmqService.getDestinationFromData(index, streamType, component, stream);
-      if (this.subscriptions.has(key)) {
-        this.subscriptions.get(key).unsubscribe();
-        this.subscriptions.delete(key);
+        let key: string = this.elastestRabbitmqService.getDestinationFromData(index, streamType, component, stream);
+        if (this.subscriptions.has(key)) {
+          this.subscriptions.get(key).unsubscribe();
+          this.subscriptions.delete(key);
+        }
       }
+      this.logsList.splice(pos, 1);
+      this.createGroupedLogsList();
     }
-    this.logsList.splice(pos, 1);
-    this.createGroupedLogsList();
+  }
+
+  removeAndUnsubscribeByNameAndList(name: string, list: ESRabLogModel[] = this.logsList): void {
+    let pos: number = 0;
+    for (let metricCard of list) {
+      if (metricCard.name === name) {
+        this.removeAndUnsubscribeByListAndPos(pos, list);
+      }
+      pos++;
+    }
+  }
+
+  removeAndUnsubscribe(log: ESRabLogModel): void {
+    if (log) {
+      this.removeAndUnsubscribeByNameAndList(log.name);
+    }
   }
 
   getAbstractTJobExecIndex(component: string): string {

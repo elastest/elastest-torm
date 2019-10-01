@@ -6,7 +6,7 @@
       fxGrow="1"
       [fxFlex.gt-md]="f && l ? 100 : 50"
     >
-      <logs-view #individual{{i}} [model]="log" [remove]="removeAndUnsubscribe.bind(this, i)" [live]="live"></logs-view>
+      <logs-view #individual{{i}} [model]="log" [remove]="removeAndUnsubscribe.bind(this, log)" [live]="live"></logs-view>
     </div>
   </div>
 </ng-container>
