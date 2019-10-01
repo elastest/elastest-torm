@@ -316,7 +316,6 @@ public class K8ServiceImpl extends PlatformService {
                 logger.trace("SUT {} is not ready yet",
                         execution.getSut().getName());
             }
-            ;
 
             sutsByExecution.put(execution.getExecutionId().toString(),
                     podInfo.getPodName());
@@ -354,6 +353,9 @@ public class K8ServiceImpl extends PlatformService {
                     }
                     String sutContainerName = generateContainerName(
                             ContainerPrefix.SUT, execution);
+                    k8sService.deleteServiceAssociatedWithAPOD(sutContainerName,
+                            null);
+
                     endContainer(sutContainerName);
                 } else {
                     // endComposedSutExec(execution);

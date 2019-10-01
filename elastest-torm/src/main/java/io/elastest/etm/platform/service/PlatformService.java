@@ -568,6 +568,7 @@ public abstract class PlatformService {
             } else {
                 containerName = generateContainerName(ContainerPrefix.SUT,
                         execution);
+                envList.add("ET_K8S_SUT_NAME=" + containerName);
             }
 
             sutPath = getSutPath(execution);

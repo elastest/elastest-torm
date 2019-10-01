@@ -45,6 +45,7 @@ import io.elastest.etm.model.TJobSupportService;
 import io.elastest.etm.model.TestSuite;
 import io.elastest.etm.model.external.ExternalTJobExecution;
 import io.elastest.etm.platform.service.PlatformService;
+import io.elastest.etm.platform.service.PlatformService.ContainerPrefix;
 import io.elastest.etm.service.exception.TJobStoppedException;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
@@ -224,7 +225,7 @@ public class TJobExecOrchestratorService {
 
                 // Start SuT if it's necessary
                 if (execution.isWithSut()) {
-                    initSut(execution);
+                    initSut(execution,true);
                 }
 
                 // Run Test
@@ -957,9 +958,12 @@ public class TJobExecOrchestratorService {
 
                     sutExec = startManagedSut(execution);
                     if (publicSut) {
+                        logger.debug("Creating service for the SUT");
+                        String sutName = platformService.generateContainerName(
+                                ContainerPrefix.SUT, execution);
                         ServiceBindedPort socatBindedPortObj = platformService
-                                .getBindedPort(sutExec.getIp(),
-                                        "sut_" + sutExec.getId(), null,
+                                .getBindedPort(sutName,
+                                        sutName, null,
                                         execution.getSut().getPort(), null);
                         sutExec.setPublicPort(Long
                                 .parseLong(socatBindedPortObj.getBindedPort()));
