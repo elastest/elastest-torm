@@ -269,11 +269,12 @@ export class LogAnalyzerService {
     from: Date,
     to: Date,
     maxResults: number = this.maxResults,
+    suiteName: string = undefined,
   ): Observable<any[]> {
     let _logs: Subject<any[]> = new Subject<any[]>();
     let logsObs: Observable<any[]> = _logs.asObservable();
     // Obtain start/finish traces first
-    this.searchTestCaseStartAndFinishTraces(caseName, indices, from, to).subscribe(
+    this.searchTestCaseStartAndFinishTraces(caseName, indices, from, to, suiteName).subscribe(
       (startFinishObj: StartFinishTestCaseTraces) => {
         this.searchTestCaseLogsByGivenStartFinishTraces(caseName, indices, startFinishObj, _logs, maxResults);
       },

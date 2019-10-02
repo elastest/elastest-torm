@@ -11,6 +11,7 @@ import { EtmMonitoringViewComponent } from '../etm-monitoring-view/etm-monitorin
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { StartFinishTestCaseTraces } from '../../elastest-log-analyzer/log-analyzer.service';
 import { ITdDataTableColumn } from '@covalent/core';
+import { TestSuiteModel } from '../test-suite/test-suite-model';
 
 @Component({
   selector: 'etm-test-case',
@@ -35,6 +36,8 @@ export class TestCaseComponent implements OnInit {
   tJobExec: TJobExecModel;
   @Input()
   testCase: TestCaseModel;
+  @Input()
+  testSuite: TestSuiteModel;
 
   nested: boolean = false;
 
@@ -116,6 +119,7 @@ export class TestCaseComponent implements OnInit {
         [this.tJobExec.monitoringIndex],
         this.tJobExec.startDate,
         this.tJobExec.endDate,
+        this.testSuite ? this.testSuite.name : undefined,
       )
       .subscribe((startFinishObj: StartFinishTestCaseTraces) => {
         if (startFinishObj) {
@@ -169,7 +173,7 @@ export class TestCaseComponent implements OnInit {
   }
 
   viewInLogAnalyzer(): void {
-    if (this.testCase) {
+    if (this.testCase && this.testSuite) {
       this.router.navigate(
         [
           '/projects',
@@ -179,7 +183,7 @@ export class TestCaseComponent implements OnInit {
           'tjob-exec',
           this.tJobExecId,
           'testSuite',
-          this.testCase.testSuite.id,
+          this.testSuite.id,
           'testCase',
           this.testCase.id,
           'loganalyzer',
