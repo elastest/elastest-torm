@@ -269,6 +269,21 @@ export class EtmLogsGroupComponent implements OnInit {
     }
   }
 
+  removeAndUnsubscribeByComponentAndStreamAndList(
+    component: string,
+    stream: string,
+    list: ESRabLogModel[] = this.logsList,
+  ): void {
+    let position: number = 0;
+    for (let logCard of list) {
+      if (logCard.component === component && logCard.stream === stream) {
+        this.removeAndUnsubscribeByListAndPos(position, list);
+        break;
+      }
+      position++;
+    }
+  }
+
   getAbstractTJobExecIndex(component: string): string {
     let index: string;
     switch (this.tJobExec.getAbstractTJobExecClass()) {

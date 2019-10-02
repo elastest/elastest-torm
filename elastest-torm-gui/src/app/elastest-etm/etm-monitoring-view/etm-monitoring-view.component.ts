@@ -335,13 +335,8 @@ export class EtmMonitoringViewComponent implements OnInit {
   }
 
   removeLogCard(log: any): void {
-    let position: number = 0;
-    for (let logCard of this.logsGroup.logsList) {
-      if (logCard.component === log.component && logCard.stream === log.stream) {
-        this.logsGroup.removeAndUnsubscribe(position);
-        break;
-      }
-      position++;
+    if (log) {
+      this.logsGroup.removeAndUnsubscribeByComponentAndStreamAndList(log.component, log.stream);
     }
   }
 
