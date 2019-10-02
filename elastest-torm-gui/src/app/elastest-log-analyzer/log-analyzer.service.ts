@@ -257,7 +257,7 @@ export class LogAnalyzerService {
         let procesedLogs: any = this.monitoringService.getLogsObjFromRawSource(logs);
         _logs.next(procesedLogs);
       },
-      (error) => {
+      (error: Error) => {
         _logs.error('an error has occurred while searching for test case ' + caseName + ' logs: ' + error);
       },
     );

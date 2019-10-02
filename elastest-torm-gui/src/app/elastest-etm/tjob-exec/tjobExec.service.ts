@@ -468,8 +468,8 @@ export class TJobExecService {
               let _logs: Subject<any[]> = new Subject<any[]>();
               let logsObs: Observable<any[]> = _logs.asObservable();
 
-              tCase['startDate'] = startFinishObj.startDate;
-              tCase['endDate'] = startFinishObj.finishDate;
+              tCase.startDate = startFinishObj.startDate;
+              tCase.endDate = startFinishObj.finishDate;
 
               // Logs
               this.logAnalyzerService.searchTestCaseLogsByGivenStartFinishTraces(

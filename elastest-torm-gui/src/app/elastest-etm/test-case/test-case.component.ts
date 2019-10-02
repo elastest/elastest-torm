@@ -113,24 +113,29 @@ export class TestCaseComponent implements OnInit {
   }
 
   initAfterLoadTJobExec(): void {
-    this.tJobExecService.logAnalyzerService
-      .searchTestCaseStartAndFinishTraces(
-        this.testCase.name,
-        [this.tJobExec.monitoringIndex],
-        this.tJobExec.startDate,
-        this.tJobExec.endDate,
-        this.testSuite ? this.testSuite.name : undefined,
-      )
-      .subscribe((startFinishObj: StartFinishTestCaseTraces) => {
-        if (startFinishObj) {
-          let startDate: Date = startFinishObj.startDate;
-          let endDate: Date = startFinishObj.finishDate;
-          if (startDate && endDate) {
-            this.logsAndMetrics.initView(this.tJobExec.tJob, this.tJobExec, startDate, endDate);
-            this.showLogsAndMetrics = true;
+    if (this.testCase.startDate && this.testCase.endDate) {
+      this.logsAndMetrics.initView(this.tJobExec.tJob, this.tJobExec, this.testCase.startDate, this.testCase.endDate);
+      this.showLogsAndMetrics = true;
+    } else {
+      this.tJobExecService.logAnalyzerService
+        .searchTestCaseStartAndFinishTraces(
+          this.testCase.name,
+          [this.tJobExec.monitoringIndex],
+          this.tJobExec.startDate,
+          this.tJobExec.endDate,
+          this.testSuite ? this.testSuite.name : undefined,
+        )
+        .subscribe((startFinishObj: StartFinishTestCaseTraces) => {
+          if (startFinishObj) {
+            let startDate: Date = startFinishObj.startDate;
+            let endDate: Date = startFinishObj.finishDate;
+            if (startDate && endDate) {
+              this.logsAndMetrics.initView(this.tJobExec.tJob, this.tJobExec, startDate, endDate);
+              this.showLogsAndMetrics = true;
+            }
           }
-        }
-      });
+        });
+    }
   }
 
   getExecutionFiles(): void {
