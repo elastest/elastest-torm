@@ -35,6 +35,9 @@ public class UtilsService {
     @Value("${test.case.finish.msg.prefix}")
     public String tcFinishMsgPrefix;
 
+    @Value("${test.suite.test.case.trace.separator}")
+    public String testSuiteTestCaseTraceSeparator;
+
     @Value("${et.etm.incontainer}")
     private boolean etmInContainer;
 
@@ -313,7 +316,17 @@ public class UtilsService {
     }
 
     private String[] splitTCAndTestSuite(String suffixStr) {
-        return suffixStr.split(" -> ");
+        // ->
+        return suffixStr.split(testSuiteTestCaseTraceSeparator);
+    }
+
+    public String getTestSuiteAndTestCaseSuffix(String testSuiteName,
+            String testCaseName) {
+        if (testSuiteName != null && testCaseName != null) {
+            return testSuiteName + testSuiteTestCaseTraceSeparator
+                    + testCaseName;
+        }
+        return null;
     }
 
     public String getTestCaseNameFromStartFinishTrace(String trace) {

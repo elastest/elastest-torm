@@ -11,6 +11,8 @@ export class TestCaseModel {
   failureErrorLine: string;
   failureDetail: string;
   testSuite: TestSuiteModel;
+  startDate: Date;
+  endDate: Date;
 
   result: any;
 

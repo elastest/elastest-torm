@@ -39,7 +39,6 @@ public class EtmTestResultService {
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
     }
 
-
     public void saveTestResults(List<ReportTestSuite> testSuites,
             TJobExecution tJobExec) {
         logger.info("Saving TJob Execution {} results", tJobExec.getId());
@@ -74,13 +73,15 @@ public class EtmTestResultService {
                         Date startDate = this.monitoringService
                                 .findFirstStartTestMsgAndGetTimestamp(
                                         tJobExec.getMonitoringIndex(),
-                                        tCase.getName(), Arrays.asList("test"));
+                                        tSuite.getName(), tCase.getName(),
+                                        Arrays.asList("test"));
                         tCase.setStartDate(startDate);
 
                         Date endDate = this.monitoringService
                                 .findFirstFinishTestMsgAndGetTimestamp(
                                         tJobExec.getMonitoringIndex(),
-                                        tCase.getName(), Arrays.asList("test"));
+                                        tSuite.getName(), tCase.getName(),
+                                        Arrays.asList("test"));
                         tCase.setEndDate(endDate);
                     } catch (Exception e) {
                         logger.debug(

@@ -66,7 +66,8 @@ export class TestCaseComponent implements OnInit {
       this.tJobId = this.tJobExec.tJob.id;
       this.tJobExecId = this.tJobExec.id;
       this.testCaseId = this.testCase.id;
-      this.loadTestCase();
+      this.testCase = this.testCase;
+      this.initAfterLoadTestCase();
     } else {
       this.titlesService.setPathName(this.router.routerState.snapshot.url);
       // Complete Section
@@ -86,23 +87,26 @@ export class TestCaseComponent implements OnInit {
   loadTestCase(): void {
     this.testCaseService.getTestCaseById(this.testCaseId).subscribe((testCase: TestCaseModel) => {
       this.testCase = testCase;
-      this.testCase.result = this.testCase.getResultIcon();
-      this.getExecutionFiles();
-
-      if (this.logsAndMetrics) {
-        if (this.nested) {
-          this.initAfterLoadTJobExec();
-        } else {
-          this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe(
-            (tJobExec: TJobExecModel) => {
-              this.tJobExec = tJobExec;
-              this.initAfterLoadTJobExec();
-            },
-            (error: Error) => console.error(error),
-          );
-        }
-      }
+      this.initAfterLoadTestCase();
     });
+  }
+
+  initAfterLoadTestCase(): void {
+    this.testCase.result = this.testCase.getResultIcon();
+    this.getExecutionFiles();
+    if (this.logsAndMetrics) {
+      if (this.nested) {
+        this.initAfterLoadTJobExec();
+      } else {
+        this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe(
+          (tJobExec: TJobExecModel) => {
+            this.tJobExec = tJobExec;
+            this.initAfterLoadTJobExec();
+          },
+          (error: Error) => console.error(error),
+        );
+      }
+    }
   }
 
   initAfterLoadTJobExec(): void {

@@ -33,8 +33,8 @@ public class TestCase {
     public interface TestCaseView {
     }
 
-    @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecCompleteView.class,
-            TJobCompleteView.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecCompleteView.class, TJobCompleteView.class })
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
@@ -42,38 +42,38 @@ public class TestCase {
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecCompleteView.class,
-            TJobCompleteView.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecCompleteView.class, TJobCompleteView.class })
     @Column(name = "name")
     @JsonProperty("name")
     private String name;
 
-    @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecCompleteView.class,
-            TJobCompleteView.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecCompleteView.class, TJobCompleteView.class })
     @Column(name = "time")
     @JsonProperty("time")
     private double time;
 
-    @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecCompleteView.class,
-            TJobCompleteView.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecCompleteView.class, TJobCompleteView.class })
     @Column(name = "failureMessage", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("failureMessage")
     private String failureMessage;
 
-    @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecCompleteView.class,
-            TJobCompleteView.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecCompleteView.class, TJobCompleteView.class })
     @Column(name = "failureType")
     @JsonProperty("failureType")
     private String failureType;
 
-    @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecCompleteView.class,
-            TJobCompleteView.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecCompleteView.class, TJobCompleteView.class })
     @Column(name = "failureErrorLine")
     @JsonProperty("failureErrorLine")
     private String failureErrorLine;
 
-    @JsonView({ TestCaseView.class, TestSuiteView.class, TJobExecCompleteView.class,
-            TJobCompleteView.class })
+    @JsonView({ TestCaseView.class, TestSuiteView.class,
+            TJobExecCompleteView.class, TJobCompleteView.class })
     @Column(name = "failureDetail", columnDefinition = "TEXT", length = 65535)
     @JsonProperty("failureDetail")
     private String failureDetail;
@@ -85,12 +85,12 @@ public class TestCase {
     private TestSuite testSuite;
 
     @JsonView({ TJobExecCompleteView.class, TJobCompleteView.class,
-            ProjectMediumView.class })
+            ProjectMediumView.class, TestCaseView.class, TestSuiteView.class })
     @Column(name = "startDate")
     private Date startDate = null;
 
     @JsonView({ TJobExecCompleteView.class, TJobCompleteView.class,
-            ProjectMediumView.class })
+            ProjectMediumView.class, TestCaseView.class, TestSuiteView.class })
     @Column(name = "endDate")
     private Date endDate = null;
 

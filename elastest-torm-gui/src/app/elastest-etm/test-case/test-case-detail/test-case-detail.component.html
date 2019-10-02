@@ -5,6 +5,18 @@
     <mat-divider></mat-divider>
   </div>
 
+  <div *ngIf="testCase.startDate">
+    <h4>Start Date</h4>
+    <p>{{ testCase.startDate | date: 'dd/MM/yyyy HH:mm:ss' }}</p>
+    <mat-divider></mat-divider>
+  </div>
+
+  <div *ngIf="testCase.endDate">
+    <h4>End Date</h4>
+    <p>{{ testCase.endDate | date: 'dd/MM/yyyy HH:mm:ss' }}</p>
+    <mat-divider></mat-divider>
+  </div>
+
   <div *ngIf="testCase.result && testCase.result.result !== 'SUCCESS' && testCase.result.result !== 'PASSED'">
     <h4>Failure Message</h4>
     <p>{{ testCase.failureMessage }}</p>

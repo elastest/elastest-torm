@@ -167,11 +167,11 @@ public abstract class AbstractMonitoringService {
         }
 
         Date startTestTrace = this.findFirstStartTestMsgAndGetTimestamp(
-                monitoringQuery.getIndicesAsString(), testCaseName,
-                testComponents);
+                monitoringQuery.getIndicesAsString(), testSuiteName,
+                testCaseName, testComponents);
         Date finishTestTrace = this.findFirstFinishTestMsgAndGetTimestamp(
-                monitoringQuery.getIndicesAsString(), testCaseName,
-                testComponents);
+                monitoringQuery.getIndicesAsString(), testSuiteName,
+                testCaseName, testComponents);
 
         if (startTestTrace != null && finishTestTrace != null) {
 
@@ -351,23 +351,62 @@ public abstract class AbstractMonitoringService {
             List<String> components) throws Exception;
 
     public Date findFirstStartTestMsgAndGetTimestamp(String index,
-            String testName, List<String> components) throws Exception {
-        return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix() + testName, components);
+            String testSuiteName, String testCaseName, List<String> components)
+            throws Exception {
+        String msg = utilsService.getTestSuiteAndTestCaseSuffix(testSuiteName,
+                testCaseName);
+        if (msg == null) {
+            msg = testCaseName;
+        }
+
+        msg = utilsService.getETTestStartPrefix() + msg;
+
+        Date startDate = this.findFirstMsgAndGetTimestamp(index, msg,
+                components);
+
+        // If startDate is null and testSuite name != null, retry with TestCase
+        // only
+        if (startDate == null && testSuiteName != null
+                && !"".equals(testSuiteName)) {
+            return findFirstStartTestMsgAndGetTimestamp(index, null,
+                    testCaseName, components);
+        } else {
+            return startDate;
+        }
     }
 
     public Date findFirstFinishTestMsgAndGetTimestamp(String index,
-            String testName, List<String> components) throws Exception {
-        return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestFinishPrefix() + testName, components);
+            String testSuiteName, String testCaseName, List<String> components)
+            throws Exception {
+        String msg = utilsService.getTestSuiteAndTestCaseSuffix(testSuiteName,
+                testCaseName);
+        if (msg == null) {
+            msg = testCaseName;
+        }
+
+        msg = utilsService.getETTestFinishPrefix() + msg;
+
+        Date endDate = this.findFirstMsgAndGetTimestamp(index, msg, components);
+
+        // If startDate is null and testSuite name != null, retry with TestCase
+        // only
+        if (endDate == null && testSuiteName != null
+                && !"".equals(testSuiteName)) {
+            return findFirstFinishTestMsgAndGetTimestamp(index, null,
+                    testCaseName, components);
+        } else {
+            return endDate;
+        }
     }
 
+    // first of all start
     public Date findFirstStartTestMsgAndGetTimestamp(String index,
             List<String> components) throws Exception {
         return this.findFirstMsgAndGetTimestamp(index,
                 utilsService.getETTestStartPrefix(), components);
     }
 
+    // first of all finish
     public Date findFirstFinishTestMsgAndGetTimestamp(String index,
             List<String> components) throws Exception {
         return this.findFirstMsgAndGetTimestamp(index,

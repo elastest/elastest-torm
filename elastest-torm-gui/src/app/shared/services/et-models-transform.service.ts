@@ -254,6 +254,8 @@ export class ETModelsTransformServices {
       newTestCase.failureType = testCase.failureType;
       newTestCase.failureErrorLine = testCase.failureErrorLine;
       newTestCase.failureDetail = testCase.failureDetail;
+      newTestCase.startDate = testCase.startDate ? new Date(testCase.startDate) : undefined;
+      newTestCase.endDate = testCase.endDate ? new Date(testCase.endDate) : undefined;
 
       if (!fromTestSuite) {
         newTestCase.testSuite = this.jsonToTestSuiteModel(testCase.testSuite, true);
