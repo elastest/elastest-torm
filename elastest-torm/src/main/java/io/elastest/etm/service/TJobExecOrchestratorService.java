@@ -225,7 +225,7 @@ public class TJobExecOrchestratorService {
 
                 // Start SuT if it's necessary
                 if (execution.isWithSut()) {
-                    initSut(execution,true);
+                    initSut(execution, true);
                 }
 
                 // Run Test
@@ -962,8 +962,7 @@ public class TJobExecOrchestratorService {
                         String sutName = platformService.generateContainerName(
                                 ContainerPrefix.SUT, execution);
                         ServiceBindedPort socatBindedPortObj = platformService
-                                .getBindedPort(sutName,
-                                        sutName, null,
+                                .getBindedPort(sutName, sutName, null,
                                         execution.getSut().getPort(), null);
                         sutExec.setPublicPort(Long
                                 .parseLong(socatBindedPortObj.getBindedPort()));

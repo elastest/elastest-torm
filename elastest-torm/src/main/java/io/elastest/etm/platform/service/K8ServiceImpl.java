@@ -311,7 +311,9 @@ public class K8ServiceImpl extends PlatformService {
             podInfo = k8sService.deployPod(sutContainer);
             execution.getSutExec().setUrl(
                     execution.getSut().getSutUrlByGivenIp(podInfo.getPodIp()));
-            logger.info("Waiting for sut {}", execution.getSut().getName());
+            logger.info("Waiting for sut {} deployed in {}",
+                    execution.getSut().getName(),
+                    execution.getSutExec().getUrl());
             while (!UtilTools.checkIfUrlIsUp(execution.getSutExec().getUrl())) {
                 logger.trace("SUT {} is not ready yet",
                         execution.getSut().getName());
