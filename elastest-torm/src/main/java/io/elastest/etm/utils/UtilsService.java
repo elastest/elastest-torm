@@ -299,12 +299,71 @@ public class UtilsService {
         return str.contains(tcFinishMsgPrefix);
     }
 
+    public boolean containsTCMsgWithTestSuite(String suffixStr) {
+        if (suffixStr == null) {
+            return false;
+        }
+
+        String[] splitted = splitTCAndTestSuite(suffixStr);
+        if (splitted != null && splitted.length == 2) {
+            return !"".equals(splitted[0]) && !"".equals(splitted[0]);
+        }
+
+        return false;
+    }
+
+    private String[] splitTCAndTestSuite(String suffixStr) {
+        return suffixStr.split(" -> ");
+    }
+
     public String getTestCaseNameFromStartFinishTrace(String trace) {
         if (trace != null) {
             if (containsTCStartMsgPrefix(trace)) {
-                return trace.split(getETTestStartPrefix())[1];
+                String suffix = trace.split(getETTestStartPrefix())[1];
+
+                // If is with test suite: TestSuiteName -> TestCaseName
+                if (containsTCMsgWithTestSuite(suffix)) {
+                    String[] splitted = splitTCAndTestSuite(suffix);
+                    return splitted[1];
+                }
+
+                // Else: TestCaseName
+                return suffix;
             } else if (containsTCFinishMsgPrefix(trace)) {
-                return trace.split(getETTestFinishPrefix())[1];
+                String suffix = trace.split(getETTestFinishPrefix())[1];
+
+                // If is with test suite: TestSuiteName -> TestCaseName
+                if (containsTCMsgWithTestSuite(suffix)) {
+                    String[] splitted = splitTCAndTestSuite(suffix);
+                    return splitted[1];
+                }
+
+                // Else: TestCaseName
+                return suffix;
+            }
+        }
+        return null;
+    }
+
+    public String getTestSuiteNameFromStartFinishTrace(String trace) {
+        if (trace != null) {
+            if (containsTCStartMsgPrefix(trace)) {
+                String suffix = trace.split(getETTestStartPrefix())[1];
+
+                // If is with test suite: TestSuiteName -> TestCaseName
+                if (containsTCMsgWithTestSuite(suffix)) {
+                    String[] splitted = splitTCAndTestSuite(suffix);
+                    return splitted[0];
+                }
+
+            } else if (containsTCFinishMsgPrefix(trace)) {
+                String suffix = trace.split(getETTestFinishPrefix())[1];
+
+                // If is with test suite: TestSuiteName -> TestCaseName
+                if (containsTCMsgWithTestSuite(suffix)) {
+                    String[] splitted = splitTCAndTestSuite(suffix);
+                    return splitted[0];
+                }
             }
         }
         return null;
