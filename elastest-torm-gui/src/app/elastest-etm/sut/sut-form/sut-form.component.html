@@ -139,6 +139,12 @@
                   name="dockerComposeRadio"
                   value="{{ dockerCompose }}"
                   [checked]="dockerCompose"
+                  [disabled]="configurationService.configModel.isKubernetes"
+                  matTooltip="{{
+                    configurationService.configModel.isKubernetes
+                      ? 'Not available in ElasTest With K8s'
+                      : 'SuT is started from docker-compose.yml file'
+                  }}"
                 >
                   With Docker Compose
                 </mat-radio-button>
@@ -221,6 +227,12 @@
                     name="inNewContainerRadio"
                     value="{{ optionInNewContainer }}"
                     [checked]="optionInNewContainer"
+                    [disabled]="configurationService.configModel.isKubernetes"
+                    matTooltip="{{
+                      configurationService.configModel.isKubernetes
+                        ? 'Not available in ElasTest With K8s'
+                        : 'SuT is started inside the command container into a new docker container'
+                    }}"
                     class="push-right"
                   >
                     SuT In New Container
@@ -231,6 +243,12 @@
                     name="inDockerComposeRadio"
                     value="{{ optionInDockerCompose }}"
                     [checked]="optionInDockerCompose"
+                    [disabled]="configurationService.configModel.isKubernetes"
+                    matTooltip="{{
+                      configurationService.configModel.isKubernetes
+                        ? 'Not available in ElasTest With K8s'
+                        : 'SuT is started inside the command container into a new docker compose containers'
+                    }}"
                   >
                     SuT In Docker Compose
                   </mat-radio-button>

@@ -93,7 +93,7 @@ export class SutFormComponent implements OnInit, DoCheck {
     private router: Router,
     private projectService: ProjectService,
     private externalService: ExternalService,
-    private configurationService: ConfigurationService,
+    public configurationService: ConfigurationService,
   ) {}
 
   ngOnInit(): void {
