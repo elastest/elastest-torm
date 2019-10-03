@@ -161,16 +161,17 @@ export class LogAnalyzerService {
     from: Date,
     to: Date,
     suiteName: string = undefined,
+    maxResults: number = undefined,
   ): void {
     let startFinishObj: StartFinishTestCaseTraces = new StartFinishTestCaseTraces();
 
-    this.searchTestCaseStartTrace(caseName, indices, from, to, suiteName).subscribe(
+    this.searchTestCaseStartTrace(caseName, indices, from, to, suiteName, maxResults).subscribe(
       (startData: any[]) => {
         if (startData.length > 0) {
           let startRow: any = startData[0];
           let startDate: Date = new Date(startRow['@timestamp']);
 
-          this.searchTestCaseFinishTrace(caseName, indices, from, to, suiteName).subscribe((finishData: any[]) => {
+          this.searchTestCaseFinishTrace(caseName, indices, from, to, suiteName, maxResults).subscribe((finishData: any[]) => {
             if (finishData.length > 0) {
               let finishRow: any = finishData[0];
               let finishDate: Date = new Date(finishRow['@timestamp']);
@@ -193,7 +194,7 @@ export class LogAnalyzerService {
         } else {
           if (suiteName !== undefined && suiteName !== '') {
             // Retry without suitename
-            this.searchTestCaseStartAndFinishTracesAsync(_startFinish, caseName, indices, from, to, undefined);
+            this.searchTestCaseStartAndFinishTracesAsync(_startFinish, caseName, indices, from, to, undefined, maxResults);
           } else {
             _startFinish.error(
               'An error occurred while trying to obtain the start/finish traces of the test case ' +
@@ -217,11 +218,12 @@ export class LogAnalyzerService {
     from: Date,
     to: Date,
     suiteName: string = undefined,
+    maxResults: number = undefined,
   ): Observable<StartFinishTestCaseTraces> {
     let _startFinish: Subject<StartFinishTestCaseTraces> = new Subject<StartFinishTestCaseTraces>();
     let startFinishObs: Observable<StartFinishTestCaseTraces> = _startFinish.asObservable();
 
-    this.searchTestCaseStartAndFinishTracesAsync(_startFinish, caseName, indices, from, to, suiteName);
+    this.searchTestCaseStartAndFinishTracesAsync(_startFinish, caseName, indices, from, to, suiteName, maxResults);
 
     return startFinishObs;
   }
@@ -238,7 +240,7 @@ export class LogAnalyzerService {
 
     logAnalyzerQueryModel.indices = indices;
     logAnalyzerQueryModel.filterPathList = this.filters;
-    logAnalyzerQueryModel.size = this.maxResults;
+    logAnalyzerQueryModel.size = maxResults;
 
     logAnalyzerQueryModel.searchAfterTrace = startFinishObj.startRow;
 
@@ -274,7 +276,7 @@ export class LogAnalyzerService {
     let _logs: Subject<any[]> = new Subject<any[]>();
     let logsObs: Observable<any[]> = _logs.asObservable();
     // Obtain start/finish traces first
-    this.searchTestCaseStartAndFinishTraces(caseName, indices, from, to, suiteName).subscribe(
+    this.searchTestCaseStartAndFinishTraces(caseName, indices, from, to, suiteName, maxResults).subscribe(
       (startFinishObj: StartFinishTestCaseTraces) => {
         this.searchTestCaseLogsByGivenStartFinishTraces(caseName, indices, startFinishObj, _logs, maxResults);
       },

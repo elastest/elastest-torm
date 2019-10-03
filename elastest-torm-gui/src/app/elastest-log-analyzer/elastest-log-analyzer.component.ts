@@ -1,4 +1,4 @@
-import { LogAnalyzerService } from './log-analyzer.service';
+import { LogAnalyzerService, StartFinishTestCaseTraces } from './log-analyzer.service';
 import { AgGridColumn } from 'ag-grid-angular/main';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs/Rx';
@@ -86,6 +86,8 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
   tJobId: number;
   @Input()
   tJobExecId: number;
+  @Input()
+  testSuiteName: string;
   @Input()
   testCase: string;
   @Input()
@@ -872,69 +874,70 @@ export class ElastestLogAnalyzerComponent implements OnInit, AfterViewInit, OnDe
 
   filterTestCase(testCase: string): void {
     this.showLoadMsg();
-    let startMsg: string = this.logAnalyzerService.startTestCasePrefix + testCase;
-    let endMsg: string = this.logAnalyzerService.endTestCasePrefix + testCase;
+    this.prepareLoadLog();
 
     // too old Date for search start test trace, to evit problems
     let startDateForStartMsg: Date = new Date(1900, 1);
 
     // Search Start Msg
     // TODO use refactorized method into logAnalyzer Service
-    this.searchTraceByGivenMsg(startMsg, startDateForStartMsg).subscribe(
-      (startData: any) => {
-        if (startData.length > 0) {
-          let startRow: any = startData[0];
-          this.setFromDate(new Date(startRow['@timestamp']));
-          // Search Finish Msg
-          this.searchTraceByGivenMsg(endMsg).subscribe(
-            (finishData: any) => {
-              if (finishData.length > 0) {
-                let finishRow: any = finishData[0];
-                // Add 1 second to solve end trace milliseconds and future searches
-                let toDate: Date = new Date(new Date(finishRow['@timestamp']).getTime() + 1000);
-                this.setToDate(toDate);
-                let finishRowFullMsg: string = finishRow.message;
-                this.logAnalyzerQueryModel.searchAfterTrace = startRow;
-                this.setRangeByGiven(startRow['@timestamp'], finishRow['@timestamp']);
-                // Load Logs
-                this.logAnalyzer.selectedRow = undefined;
+    this.logAnalyzerService
+      .searchTestCaseStartAndFinishTraces(
+        testCase,
+        this.logAnalyzer.selectedIndices,
+        startDateForStartMsg,
+        this.getToDate(),
+        this.testSuiteName,
+        this.logAnalyzer.maxResults,
+      )
+      .subscribe((startFinishObj: StartFinishTestCaseTraces) => {
+        if (startFinishObj) {
+          if (startFinishObj.startDate) {
+            if (startFinishObj.finishDate) {
+              let startRow: any = startFinishObj.startRow;
+              this.setFromDate(startFinishObj.startDate);
 
-                this.monitoringService.searchLogAnalyzerQuery(this.logAnalyzerQueryModel).subscribe(
-                  (data: any) => {
-                    let logs: any[] = data;
+              let finishRow: any = startFinishObj.finishRow;
+              let toDate: Date = new Date(startFinishObj.finishDate.getTime() + 1000);
+              this.setToDate(toDate);
 
-                    let finishObj: any = logs.find((x: any) => x.message === finishRowFullMsg);
-                    if (finishObj) {
-                      let finishIndex: number = logs.indexOf(finishObj);
-                      logs.splice(finishIndex);
-                    }
+              let finishRowFullMsg: string = finishRow.message;
+              this.logAnalyzerQueryModel.searchAfterTrace = startRow;
+              // Use raw date (@timestamp)
+              this.setRangeByGiven(startRow['@timestamp'], finishRow['@timestamp']);
+              // Load Logs
+              this.logAnalyzer.selectedRow = undefined;
 
-                    this.loadLogByGivenData(logs);
-                  },
-                  (error: Error) => {
-                    this.startBehaviourOnNoLogs();
-                  },
-                );
-              } else {
-                let msg: string = 'No rows to show: Could not find "finish" trace to filter the logs of this test case.';
-                this.startBehaviourOnNoLogs(msg);
-              }
-            },
-            (error: Error) => {
-              let msg: string = 'No rows to show: There was an error on get "finish" trace to filter the logs of this test case.';
+              this.monitoringService.searchLogAnalyzerQuery(this.logAnalyzerQueryModel).subscribe(
+                (data: any) => {
+                  let logs: any[] = data;
+
+                  let finishObj: any = logs.find((x: any) => x.message === finishRowFullMsg);
+                  if (finishObj) {
+                    let finishIndex: number = logs.indexOf(finishObj);
+                    logs.splice(finishIndex);
+                  }
+
+                  this.loadLogByGivenData(logs);
+                },
+                (error: Error) => {
+                  this.startBehaviourOnNoLogs();
+                },
+              );
+            } else {
+              let msg: string = 'No rows to show: Could not find "finish" trace to filter the logs of this test case.';
               this.startBehaviourOnNoLogs(msg);
-            },
-          );
+            }
+          } else {
+            let msg: string = 'No rows to show: Could not find "start" trace to filter the logs of this test case.';
+            this.startBehaviourOnNoLogs(msg);
+          }
         } else {
-          let msg: string = 'No rows to show: Could not find "start" trace to filter the logs of this test case.';
+          let msg: string = 'No rows to show: Could not find "start/finish" trace to filter the logs of this test case.';
           this.startBehaviourOnNoLogs(msg);
         }
-      },
-      (error: Error) => {
-        let msg: string = 'No rows to show: There was an error on get "start" trace to filter the logs of this test case.';
-        this.startBehaviourOnNoLogs(msg);
-      },
-    );
+      });
+
     // TODO search start MSG with  to make searchafter...
   }
 

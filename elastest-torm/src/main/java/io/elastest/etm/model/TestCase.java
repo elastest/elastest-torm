@@ -86,12 +86,12 @@ public class TestCase {
 
     @JsonView({ TJobExecCompleteView.class, TJobCompleteView.class,
             ProjectMediumView.class, TestCaseView.class, TestSuiteView.class })
-    @Column(name = "startDate")
+    @Column(name = "startDate", columnDefinition = "DATETIME(3) NOT NULL", length = 3)
     private Date startDate = null;
 
     @JsonView({ TJobExecCompleteView.class, TJobCompleteView.class,
             ProjectMediumView.class, TestCaseView.class, TestSuiteView.class })
-    @Column(name = "endDate")
+    @Column(name = "endDate", columnDefinition = "DATETIME(3) NOT NULL", length = 3)
     private Date endDate = null;
 
     // Constructors
