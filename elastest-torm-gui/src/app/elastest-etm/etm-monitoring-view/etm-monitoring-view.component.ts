@@ -95,12 +95,12 @@ export class EtmMonitoringViewComponent implements OnInit {
 
     if (!this.isInitialized) {
       // Load logs
-      if (!this.hideLogs) {
+      if (!this.hideLogs && this.logsGroup) {
         this.logsGroup.initLogsView(this.tJob, this.tJobExec, customStartDate, customEndDate);
       }
 
       // Load metrics
-      if (!this.hideMetrics) {
+      if (!this.hideMetrics && this.metricsGroup) {
         this.metricsGroup.initMetricsView(this.tJob, this.tJobExec, undefined, customStartDate, customEndDate);
       }
 

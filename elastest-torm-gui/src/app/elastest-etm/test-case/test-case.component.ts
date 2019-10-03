@@ -114,8 +114,7 @@ export class TestCaseComponent implements OnInit {
 
   initAfterLoadTJobExec(): void {
     if (this.testCase.startDate && this.testCase.endDate) {
-      this.logsAndMetrics.initView(this.tJobExec.tJob, this.tJobExec, this.testCase.startDate, this.testCase.endDate);
-      this.showLogsAndMetrics = true;
+      this.initMonitoring(this.testCase.startDate, this.testCase.endDate);
     } else {
       this.tJobExecService.logAnalyzerService
         .searchTestCaseStartAndFinishTraces(
@@ -129,12 +128,16 @@ export class TestCaseComponent implements OnInit {
           if (startFinishObj) {
             let startDate: Date = startFinishObj.startDate;
             let endDate: Date = startFinishObj.finishDate;
-            if (startDate && endDate) {
-              this.logsAndMetrics.initView(this.tJobExec.tJob, this.tJobExec, startDate, endDate);
-              this.showLogsAndMetrics = true;
-            }
+            this.initMonitoring(startDate, endDate);
           }
         });
+    }
+  }
+
+  initMonitoring(startDate: Date, endDate: Date): void {
+    if (startDate && endDate) {
+      this.logsAndMetrics.initView(this.tJobExec.tJob, this.tJobExec, startDate, endDate);
+      this.showLogsAndMetrics = true;
     }
   }
 
