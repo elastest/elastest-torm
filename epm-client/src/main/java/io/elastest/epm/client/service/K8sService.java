@@ -841,7 +841,7 @@ public class K8sService {
                 : protocol;
         serviceName = serviceName.toLowerCase();
         String k8sServiceName = serviceName.replace("_", "-");
-        String hostPortName = (podName + "-" + targetPort)
+        String hostPortName = (podName.replace("_", "-") + "-" + targetPort)
                 .replace("_", "-");
         Service service = null;
         if (!checkIfServiceExistsInNamespace(k8sServiceName, namespace)) {
@@ -858,7 +858,7 @@ public class K8sService {
             ServicePort servicePort = servicePortBuilder.build();
 
             Map<String, String> labels = new HashMap<>();
-            labels.put(LABEL_COMPONENT, serviceName);
+            labels.put(LABEL_COMPONENT, k8sServiceName);
 
             service = new ServiceBuilder().withNewMetadata()
                     .withName(k8sServiceName).withLabels(labels).endMetadata()
