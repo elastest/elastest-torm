@@ -1276,8 +1276,8 @@ public class DockerServiceImpl extends PlatformService {
                 if (execution.getSutExec() != null
                         && execution.getSutExec().getPublicPort() != null) {
                     logger.debug("Removing sut socat container: {}",
-                            "socat_sut_" + execution.getSutExec().getId());
-                    endContainer("socat_sut_" + execution.getSutExec().getId());
+                            "socat_sut_" + execution.getExecutionId());
+                    endContainer("socat_sut_" + execution.getExecutionId());
                     removeSutByExecution(execution.getExecutionId().toString());
                 }
             }
