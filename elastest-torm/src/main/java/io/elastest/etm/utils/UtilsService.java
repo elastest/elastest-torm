@@ -317,13 +317,13 @@ public class UtilsService {
 
     private String[] splitTCAndTestSuite(String suffixStr) {
         // ->
-        return suffixStr.split(testSuiteTestCaseTraceSeparator);
+        return suffixStr.split(" " + testSuiteTestCaseTraceSeparator + " ");
     }
 
     public String getTestSuiteAndTestCaseSuffix(String testSuiteName,
             String testCaseName) {
         if (testSuiteName != null && testCaseName != null) {
-            return testSuiteName + testSuiteTestCaseTraceSeparator
+            return testSuiteName + " " + testSuiteTestCaseTraceSeparator + " "
                     + testCaseName;
         }
         return null;
