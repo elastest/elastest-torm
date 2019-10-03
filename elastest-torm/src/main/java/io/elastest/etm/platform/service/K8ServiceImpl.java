@@ -593,11 +593,7 @@ public class K8ServiceImpl extends PlatformService {
                 serviceName,
                 bindedPort != null ? Integer.valueOf(bindedPort) : null,
                 Integer.valueOf(port), "http", namespace,
-                (serviceName.equals("jenkins") || serviceName.equals("testlink")
-                        || serviceName.equals("ece")
-                        || serviceName.equals("ere"))
-                                ? k8sService.LABEL_UNIQUE_PLUGIN_NAME
-                                : k8sService.LABEL_TSS_NAME);
+                K8sService.LABEL_COMPONENT);
         logger.debug("Getting binding port");
 
         ServiceBindedPort bindedPortObj = new ServiceBindedPort(port,
