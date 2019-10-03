@@ -2,8 +2,8 @@
   <auto-height-row>
     <self-adjustable-card [contentPaddingPixels]="0" [noContentBackground]="true">
       <sa-card-title>Manage Elastest</sa-card-title>
-      <sa-card-content fxLayout="column" style="max-width: 100%">
-        <mat-tab-group id="manage-tabs" [(selectedIndex)]="selectedTab">
+      <sa-card-content fxFlexFill fxLayout="column" style="max-width: 100%">
+        <mat-tab-group id="manage-tabs" [(selectedIndex)]="selectedTab" fxFlexFill>
           <mat-tab label="Main Services Status">
             <ng-template matTabContent>
               <etm-manage-main-services> </etm-manage-main-services>

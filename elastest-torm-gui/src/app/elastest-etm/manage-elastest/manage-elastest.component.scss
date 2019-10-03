@@ -3,8 +3,11 @@
   margin: 0px 0px;
 }
 
-
 :host ::ng-deep #manage-tabs mat-card {
   margin-left: 0px !important;
   margin-right: 0px !important;
+}
+
+:host ::ng-deep #manage-tabs .mat-tab-body-wrapper {
+  flex-grow: 1;
 }
