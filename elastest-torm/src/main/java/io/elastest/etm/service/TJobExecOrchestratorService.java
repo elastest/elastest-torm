@@ -225,7 +225,7 @@ public class TJobExecOrchestratorService {
 
                 // Start SuT if it's necessary
                 if (execution.isWithSut()) {
-                    initSut(execution, true);
+                    initSut(execution, false);
                 }
 
                 // Run Test
@@ -957,7 +957,7 @@ public class TJobExecOrchestratorService {
                     }
 
                     sutExec = startManagedSut(execution);
-                    if (publicSut) {
+                    if (publicSut || utilsService.isKubernetes()) {
                         logger.debug("Creating service for the SUT");
                         String sutName = platformService.generateContainerName(
                                 ContainerPrefix.SUT, execution);
