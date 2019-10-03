@@ -113,25 +113,26 @@ export class TestCaseComponent implements OnInit {
   }
 
   initAfterLoadTJobExec(): void {
-    if (this.testCase.startDate && this.testCase.endDate) {
-      this.initMonitoring(this.testCase.startDate, this.testCase.endDate);
-    } else {
-      this.tJobExecService.logAnalyzerService
-        .searchTestCaseStartAndFinishTraces(
-          this.testCase.name,
-          [this.tJobExec.monitoringIndex],
-          this.tJobExec.startDate,
-          this.tJobExec.endDate,
-          this.testSuite ? this.testSuite.name : undefined,
-        )
-        .subscribe((startFinishObj: StartFinishTestCaseTraces) => {
-          if (startFinishObj) {
-            let startDate: Date = startFinishObj.startDate;
-            let endDate: Date = startFinishObj.finishDate;
-            this.initMonitoring(startDate, endDate);
-          }
-        });
-    }
+    // TODO Temporally disabled (not working: logsView and metricsView are undefined)
+    // if (this.testCase.startDate && this.testCase.endDate) {
+    //   this.initMonitoring(this.testCase.startDate, this.testCase.endDate);
+    // } else {
+    this.tJobExecService.logAnalyzerService
+      .searchTestCaseStartAndFinishTraces(
+        this.testCase.name,
+        [this.tJobExec.monitoringIndex],
+        this.tJobExec.startDate,
+        this.tJobExec.endDate,
+        this.testSuite ? this.testSuite.name : undefined,
+      )
+      .subscribe((startFinishObj: StartFinishTestCaseTraces) => {
+        if (startFinishObj) {
+          let startDate: Date = startFinishObj.startDate;
+          let endDate: Date = startFinishObj.finishDate;
+          this.initMonitoring(startDate, endDate);
+        }
+      });
+    // }
   }
 
   initMonitoring(startDate: Date, endDate: Date): void {

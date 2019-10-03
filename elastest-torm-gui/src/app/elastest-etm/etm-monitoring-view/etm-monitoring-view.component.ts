@@ -95,13 +95,21 @@ export class EtmMonitoringViewComponent implements OnInit {
 
     if (!this.isInitialized) {
       // Load logs
-      if (!this.hideLogs && this.logsGroup) {
-        this.logsGroup.initLogsView(this.tJob, this.tJobExec, customStartDate, customEndDate);
+      if (!this.hideLogs) {
+        if (this.logsGroup) {
+          this.logsGroup.initLogsView(this.tJob, this.tJobExec, customStartDate, customEndDate);
+        } else {
+          console.error('Error on init logs view: logsGroup is undefined');
+        }
       }
 
       // Load metrics
-      if (!this.hideMetrics && this.metricsGroup) {
-        this.metricsGroup.initMetricsView(this.tJob, this.tJobExec, undefined, customStartDate, customEndDate);
+      if (!this.hideMetrics) {
+        if (this.metricsGroup) {
+          this.metricsGroup.initMetricsView(this.tJob, this.tJobExec, undefined, customStartDate, customEndDate);
+        } else {
+          console.error('Error on init metrics view: metricsGroup is undefined');
+        }
       }
 
       this.isInitialized = true;

@@ -190,3 +190,11 @@ export function stringifyEvent(e: Event): string {
 export function cloneEvent(e: Event): any {
   return JSON.parse(stringifyEvent(e));
 }
+
+export function wait(ms: number): void {
+  let current: number = new Date().getTime();
+  let end: number = current + ms;
+  while (current < end) {
+    current = new Date().getTime();
+  }
+}
