@@ -819,7 +819,7 @@ public class K8sService {
                 .withName(serviceName).withLabels(labels).endMetadata()
                 .withNewSpec()
                 .withSelector(
-                        Collections.singletonMap(LABEL_APP_NAME, serviceName))
+                        Collections.singletonMap(LABEL_COMPONENT, serviceName))
                 .addNewPort().withName(SUT_PORT_NAME).withProtocol(protocol)
                 .withPort(port).endPort().withType("NodePort").endSpec()
                 .build();
@@ -863,7 +863,8 @@ public class K8sService {
             service = new ServiceBuilder().withNewMetadata()
                     .withName(k8sServiceName).withLabels(labels).endMetadata()
                     .withNewSpec()
-                    .withSelector(Collections.singletonMap(selector, podName))
+                    .withSelector(Collections.singletonMap(selector,
+                            podName.replace("_", "-")))
                     .addNewPortLike(servicePort).endPort()
                     .withType(ServicesType.NODE_PORT.toString()).endSpec()
                     .build();
