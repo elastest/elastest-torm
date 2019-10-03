@@ -404,21 +404,11 @@ public class UtilTools {
         int responseCode = 0;
 
         try {
-            logger.debug("Checking connection to {}", urlValue);
             HttpURLConnection huc = (HttpURLConnection) url.openConnection();
-            if (huc instanceof HttpURLConnection) {
-                logger.debug("Insecure url");
-                huc.setConnectTimeout(2000);
-                responseCode = huc.getResponseCode();
-                return ((responseCode >= 200 && responseCode <= 299)
-                        || (responseCode >= 400 && responseCode <= 415));
-            } else {
-                logger.debug("Secure url");
-                HttpsURLConnection hucs = (HttpsURLConnection) huc;
-                responseCode = hucs.getResponseCode();
-                return ((responseCode >= 200 && responseCode <= 299)
-                        || (responseCode >= 400 && responseCode <= 415));
-            }
+            huc.setConnectTimeout(2000);
+            responseCode = huc.getResponseCode();
+            return ((responseCode >= 200 && responseCode <= 299)
+                    || (responseCode >= 400 && responseCode <= 415));
         } catch (IOException | IllegalArgumentException e) {
             return false;
         }

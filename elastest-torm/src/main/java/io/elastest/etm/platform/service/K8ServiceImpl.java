@@ -4,16 +4,37 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeoutException;
 
+import javax.net.ssl.SSLContext;
+
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.ssl.TrustStrategy;
 import org.apache.maven.plugins.surefire.report.ReportTestSuite;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
 
 import com.spotify.docker.client.ProgressHandler;
 
@@ -314,11 +335,7 @@ public class K8ServiceImpl extends PlatformService {
             logger.info("Waiting for sut {} deployed in {}",
                     execution.getSut().getName(),
                     execution.getSutExec().getUrl());
-            while (!UtilTools.checkIfUrlIsUp(execution.getSutExec().getUrl())) {
-                logger.trace("SUT {} is not ready yet",
-                        execution.getSut().getName());
-            }
-
+            checkIfServiceIsUp(execution.getSutExec().getUrl(), 480000);
             sutsByExecution.put(execution.getExecutionId().toString(),
                     podInfo.getPodName());
 
@@ -338,6 +355,61 @@ public class K8ServiceImpl extends PlatformService {
             throw new Exception("Error on create and start Sut container", e);
         }
 
+    }
+
+    private boolean checkIfServiceIsUp(String url, long timeout)
+            throws TimeoutException {
+        logger.debug("Checking connection to {}", url);
+
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + timeout;
+
+        boolean created = false;
+
+        while (!created && System.currentTimeMillis() < endTime) {
+            try {
+                ResponseEntity<String> response = prepareRestTemplate()
+                        .exchange(url, HttpMethod.GET, null, String.class);
+                int responseCode = response.getStatusCode().value();
+                created = ((responseCode >= 200 && responseCode <= 299)
+                        || (responseCode >= 400 && responseCode <= 415));
+                if (created) {
+                    return created;
+                } else {
+                    UtilTools.sleep(2);
+                }
+            } catch (Exception e) {
+                logger.trace("Service is not up yet at {}: {}", url,
+                        e.getMessage());
+                UtilTools.sleep(2);
+            }
+        }
+
+        throw new TimeoutException("Timeout connecting to " + url);
+
+    }
+
+    private RestTemplate prepareRestTemplate() throws KeyManagementException,
+            NoSuchAlgorithmException, KeyStoreException {
+        TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
+        SSLContext sslContext = SSLContexts.custom()
+                .loadTrustMaterial(null, acceptingTrustStrategy).build();
+        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
+                sslContext, NoopHostnameVerifier.INSTANCE);
+
+        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder
+                .<ConnectionSocketFactory>create().register("https", sslsf)
+                .register("http", new PlainConnectionSocketFactory()).build();
+
+        BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(
+                socketFactoryRegistry);
+        CloseableHttpClient httpClient = HttpClients.custom()
+                .setSSLSocketFactory(sslsf)
+                .setConnectionManager(connectionManager).build();
+
+        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(
+                httpClient);
+        return new RestTemplate(requestFactory);
     }
 
     @Override
