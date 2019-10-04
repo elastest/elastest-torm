@@ -4,6 +4,8 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +23,9 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestCaseStep;
 import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
+import io.elastest.etm.model.EimBeatConfig;
+import io.elastest.etm.model.EimConfig;
+import io.elastest.etm.model.EimMonitoringConfig;
 import io.elastest.etm.model.Enums.ProtocolEnum;
 import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
@@ -28,15 +33,16 @@ import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
+import io.elastest.etm.model.SutSpecification.InstrumentedByEnum;
 import io.elastest.etm.model.SutSpecification.ManagedDockerType;
 import io.elastest.etm.model.SutSpecification.SutTypeEnum;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalTJob;
-import io.elastest.etm.service.TSSService;
 import io.elastest.etm.service.ProjectService;
 import io.elastest.etm.service.SutService;
 import io.elastest.etm.service.TJobService;
+import io.elastest.etm.service.TSSService;
 import io.elastest.etm.service.TestLinkService;
 
 @Service
@@ -214,6 +220,10 @@ public class EtDataLoader {
         return sut;
     }
 
+    public SutSpecification createSut(SutSpecification sut) {
+        return this.sutService.createSutSpecification(sut);
+    }
+
     public SutSpecification createSutDeployedByElastestWithCommands(
             Project project, ExternalProject exProject, String name,
             String desc, String image, String commands,
@@ -264,8 +274,51 @@ public class EtDataLoader {
         return this.createSut(sut);
     }
 
-    public SutSpecification createSut(SutSpecification sut) {
-        return this.sutService.createSutSpecification(sut);
+    public SutSpecification createSutDeployedOutsideAndInstrumentedByElastest(
+            Project project, ExternalProject exProject, String name,
+            String desc, String ip, ProtocolEnum protocol, String port,
+            List<Parameter> parameters, String user, String password,
+            String privateKey, List<String> logPaths,
+            List<String> dockerizedLogPaths,
+            List<String> dockerizedDockersockPaths, boolean dockerized) {
+        SutSpecification sut = new SutSpecification();
+        sut.setSutType(SutTypeEnum.DEPLOYED);
+        sut.setInstrumentedBy(InstrumentedByEnum.ELASTEST);
+
+        sut = this.initCommonSutFields(sut, project, exProject, name, desc, ip,
+                port, protocol, parameters);
+
+        // Eim config
+        EimConfig eimConfig = new EimConfig(null, user, password, privateKey,
+                null, null, null, null, null, null, null, null, null, null,
+                null, null, null);
+        sut.setEimConfig(eimConfig);
+
+        // Eim monitoring config
+        if (dockerizedLogPaths == null || dockerizedLogPaths.size() == 0) {
+            dockerizedLogPaths = Arrays.asList("/var/lib/docker/containers/");
+        }
+
+        if (dockerizedDockersockPaths == null
+                || dockerizedDockersockPaths.size() == 0) {
+            dockerizedDockersockPaths = Arrays.asList("/var/run/docker.sock");
+        }
+
+        Map<String, EimBeatConfig> beats = new HashMap<String, EimBeatConfig>();
+        beats.put("packetbeat",
+                new EimBeatConfig("packetbeat", "et_packetbeat", null, null));
+        beats.put("filebeat", new EimBeatConfig("filebeat", "default_log",
+                logPaths, dockerizedLogPaths));
+        beats.put("metricbeat", new EimBeatConfig("metricbeat", "et_metricbeat",
+                null, dockerizedDockersockPaths));
+
+        EimMonitoringConfig eimMonitoringConfig = new EimMonitoringConfig(null,
+                null, "sut", dockerized, beats);
+        sut.setEimMonitoringConfig(eimMonitoringConfig);
+
+        sut.setInstrumentalize(false);
+
+        return this.createSut(sut);
     }
 
     /* ********************************************************************* */

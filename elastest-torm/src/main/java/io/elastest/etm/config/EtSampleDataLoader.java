@@ -22,10 +22,11 @@ import br.eti.kinoshita.testlinkjavaapi.model.TestPlan;
 import br.eti.kinoshita.testlinkjavaapi.model.TestProject;
 import br.eti.kinoshita.testlinkjavaapi.model.TestSuite;
 import io.elastest.etm.model.Enums.ProtocolEnum;
-import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.MultiConfig;
+import io.elastest.etm.model.Parameter;
 import io.elastest.etm.model.Project;
 import io.elastest.etm.model.SutSpecification;
+import io.elastest.etm.model.SutSpecification.CommandsOptionEnum;
 import io.elastest.etm.model.external.ExternalProject;
 import io.elastest.etm.model.external.ExternalTJob;
 import io.elastest.etm.service.ExternalService;
@@ -56,6 +57,7 @@ public class EtSampleDataLoader {
     private static String pythonImage = "elastest/test-etm-alpinegitpython";
     private static String nodeImage = "elastest/test-etm-alpinegitnode";
     private static String gaugeImage = "elastest/test-etm-alpinegitjavagauge";
+    private static String javaAWSImage = "elastest/test-etm-alpinegitjavaaws";
 
     private static String javaRelativeResultsPath = "/target/surefire-reports";
     private static String pythonRelativeResultsPath = "/testresults";
@@ -90,6 +92,7 @@ public class EtSampleDataLoader {
                 if (!utilsService.isKubernetes()) {
                     this.createOpenVidu();
                     this.createFullteaching();
+//                    this.createBrowsersInAWS();
                     this.createEMS();
                     this.createEDS();
                 }
@@ -649,6 +652,63 @@ public class EtSampleDataLoader {
             etDataLoader.createTJob(project, tJobName, resultsPath,
                     javaMvnImage, false, commands,
                     EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut, null);
+        }
+    }
+
+    private void createBrowsersInAWS() {
+        String pjName = "Browsers in AWS";
+        if (!etDataLoader.projectExists(pjName)) {
+            String sutName = "OpenViduServer AWS";
+            String sutDesc = "OpenViduServer In AWS";
+            String sutIP = "Your OpenviduServer ip here";
+            ProtocolEnum sutProtocol = ProtocolEnum.HTTPS;
+            String sutPort = "4443";
+
+            String sutUser = "ubuntu";
+            String sutPass = "1234";
+            String sutPrivateKey = "Your privateKey to connect with ssh here";
+
+            List<String> sutLogPaths = Arrays.asList("/var/log/openvidu.log",
+                    "/var/log/kurento-media-server/*.log");
+
+            String tJobName = "Load Test";
+            String resultsPath = "/demo-projects/aws/junit5-qe-openvidu/target/surefire-reports";
+            String tJobCommands = "git clone https://github.com/elastest/codeurjc-qe-openvidu;\\ncd codeurjc-qe-openvidu;\nmvn -B test -Dtest=CodeURJCQEOpenViduAppTest;";
+            List<String> tss = Arrays.asList("EUS");
+
+            // TJob Params
+            List<Parameter> parameters = new ArrayList<>();
+            parameters.add(new Parameter("AWS_ACCESS_KEY_ID", ""));
+            parameters.add(new Parameter("AWS_SECRET_ACCESS_KEY", ""));
+            parameters.add(new Parameter("AWS_AMI_ID", ""));
+            parameters.add(new Parameter("AWS_INSTANCE_TYPE", "t2.xlarge"));
+            parameters.add(new Parameter("AWS_KEY_NAME", ""));
+            parameters.add(new Parameter("AWS_REGION", ""));
+            parameters.add(new Parameter("AWS_SECURITY_GROUPS", ""));
+            parameters.add(new Parameter("AWS_SSH_PRIVATE_KEY", ""));
+            parameters.add(new Parameter("AWS_SSH_USER", "ubuntu"));
+            parameters.add(new Parameter("AWS_TAG_SPECIFICATIONS", ""));
+            parameters.add(new Parameter("OPENVIDU_SECRET", "MY_SECRET"));
+            parameters.add(new Parameter("USERS_BY_SESSION", "3"));
+            parameters.add(new Parameter("MAX_SESSIONS", "2"));
+            parameters.add(
+                    new Parameter("ET_MON_LSHTTPS_API", "http://etm:5003"));
+
+            this.printLog(pjName);
+            // Create Project
+            Project project = etDataLoader.createProject(pjName);
+
+            // Create Sut
+            SutSpecification sut = etDataLoader
+                    .createSutDeployedOutsideAndInstrumentedByElastest(project,
+                            null, sutName, sutDesc, sutIP, sutProtocol, sutPort,
+                            null, sutUser, sutPass, sutPrivateKey, sutLogPaths,
+                            null, null, false);
+
+            // Create TJob
+            etDataLoader.createTJob(project, tJobName, resultsPath,
+                    javaAWSImage, false, tJobCommands,
+                    EXEC_DASHBOARD_CONFIG_WITH_SUT, parameters, tss, sut, null);
         }
     }
 
