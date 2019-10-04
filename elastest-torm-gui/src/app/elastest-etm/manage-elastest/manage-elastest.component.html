@@ -14,7 +14,14 @@
               <etm-manage-elasticsearch></etm-manage-elasticsearch>
             </ng-template>
           </mat-tab>
-          <mat-tab *ngIf="configService.configModel.isKubernetes" label="Manage Clusters">
+          <mat-tab
+            *ngIf="configService.configModel.isKubernetes"
+            [disabled]="configService.configModel.isKubernetes"
+            label="Manage Clusters"
+          >
+            <ng-template mat-tab-label>
+              <span matTooltip="Not available yet">Manage Clusters</span>
+            </ng-template>
             <ng-template matTabContent>
               <etm-manage-clusters></etm-manage-clusters>
             </ng-template>

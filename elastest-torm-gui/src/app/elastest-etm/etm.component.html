@@ -133,20 +133,36 @@
         Log Analyzer
       </a>
 
-      <a
-        mat-list-item
-        mat-ripple
-        class="block relative"
-        (click)="!media.query('gt-sm') && manageList.close()"
-        [routerLinkActive]="['active']"
-        [routerLinkActiveOptions]="{ exact: true }"
-        [routerLink]="['/testlink']"
-        id="nav_testlink"
-        matTooltip="TestLink"
-      >
-        <mat-icon mat-list-icon svgIcon="icon-testlink"></mat-icon>
-        TestLink
-      </a>
+      <ng-container *ngIf="!configService.configModel.isKubernetes; else tlDisabled">
+        <a
+          mat-list-item
+          mat-ripple
+          class="block relative"
+          (click)="!media.query('gt-sm') && manageList.close()"
+          [routerLinkActive]="['active']"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [routerLink]="['/testlink']"
+          id="nav_testlink"
+          matTooltip="TestLink"
+        >
+          <mat-icon mat-list-icon svgIcon="icon-testlink"></mat-icon>
+          TestLink
+        </a>
+      </ng-container>
+      <ng-template #tlDisabled>
+        <button
+          mat-list-item
+          mat-ripple
+          class="block relative"
+          id="nav_testlink"
+          matTooltip="{{ 'TestLink is not available in ElasTest With K8s yet' }}"
+          style="border: none"
+        >
+          <mat-icon mat-list-icon svgIcon="icon-testlink"></mat-icon>
+          TestLink
+        </button>
+      </ng-template>
+
       <a
         mat-list-item
         mat-ripple
