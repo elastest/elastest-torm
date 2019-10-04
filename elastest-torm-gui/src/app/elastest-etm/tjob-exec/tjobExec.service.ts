@@ -422,7 +422,7 @@ export class TJobExecService {
   ): void {
     if (testSuites.length > 0) {
       let suite: TestSuiteModel = testSuites.shift();
-      this.loadTestCasesInfoToDownload(tJobExec, [...suite.testCases]).subscribe(
+      this.loadTestCasesInfoToDownload(tJobExec, [...suite.testCases], suite.name).subscribe(
         (someTestCaseWithDate: boolean) => {
           someTestSuiteWithDate = someTestSuiteWithDate || someTestCaseWithDate;
 
@@ -440,10 +440,14 @@ export class TJobExecService {
     }
   }
 
-  loadTestCasesInfoToDownload(tJobExec: TJobExecModel, testCases: TestCaseModel[]): Observable<boolean> {
+  loadTestCasesInfoToDownload(
+    tJobExec: TJobExecModel,
+    testCases: TestCaseModel[],
+    suiteName: string = undefined,
+  ): Observable<boolean> {
     let _cases: Subject<boolean> = new Subject<boolean>();
     let casesObs: Observable<boolean> = _cases.asObservable();
-    this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, false);
+    this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, suiteName, false);
     return casesObs;
   }
 
@@ -451,6 +455,7 @@ export class TJobExecService {
     tJobExec: TJobExecModel,
     testCases: TestCaseModel[],
     _cases: Subject<boolean>,
+    suiteName: string = undefined,
     someTestCaseWithDate: boolean,
   ): void {
     if (testCases.length > 0) {
@@ -458,11 +463,17 @@ export class TJobExecService {
 
       if (tCase.isSkipped()) {
         // Next
-        this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
+        this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, suiteName, someTestCaseWithDate);
       } else {
         // Obtain start/finish traces first
         this.logAnalyzerService
-          .searchTestCaseStartAndFinishTraces(tCase.name, [tJobExec.monitoringIndex], tJobExec.startDate, tJobExec.endDate)
+          .searchTestCaseStartAndFinishTraces(
+            tCase.name,
+            [tJobExec.monitoringIndex],
+            tJobExec.startDate,
+            tJobExec.endDate,
+            suiteName,
+          )
           .subscribe(
             (startFinishObj: StartFinishTestCaseTraces) => {
               let _logs: Subject<any[]> = new Subject<any[]>();
@@ -493,22 +504,22 @@ export class TJobExecService {
                       (metricsTraces: MetricTraces[]) => {
                         tCase['metrics'] = metricsTraces;
                         // Next
-                        this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
+                        this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, suiteName, someTestCaseWithDate);
                       },
                       (error: Error) => {
                         // Next
-                        this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
+                        this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, suiteName, someTestCaseWithDate);
                       },
                     );
                 },
                 (error: Error) => {
-                  this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
+                  this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, suiteName, someTestCaseWithDate);
                 },
               );
             },
             (error: Error) => {
               // Next
-              this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, someTestCaseWithDate);
+              this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, suiteName, someTestCaseWithDate);
             },
           );
       }
