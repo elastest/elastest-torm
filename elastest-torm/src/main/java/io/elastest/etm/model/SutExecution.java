@@ -47,11 +47,12 @@ public class SutExecution {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
-    @JsonView({ SutExecView.class, TJobCompleteView.class, TJobExecCompleteView.class })
+    @JsonView({ SutExecView.class, TJobCompleteView.class,
+            TJobExecCompleteView.class })
     @JsonProperty("id")
     private Long id = null;
 
-    @JsonView(SutExecView.class)
+    @JsonView({ SutExecView.class, TJobExecCompleteView.class })
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonProperty("sutSpecification")
     @JsonIgnoreProperties(value = "sutExecution")

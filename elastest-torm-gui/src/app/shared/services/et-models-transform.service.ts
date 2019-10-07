@@ -354,7 +354,7 @@ export class ETModelsTransformServices {
       newSutExec.id = sutExec.id;
       newSutExec.deplotStatus = sutExec.deplotStatus;
       newSutExec.url = sutExec.url;
-      newSutExec.sut = sutExec.sut;
+      newSutExec.sut = sutExec.sut ? new SutModel(sutExec.sut) : new SutModel(sutExec.sutSpecification);
       newSutExec.parameters = sutExec.parameters;
     }
 
