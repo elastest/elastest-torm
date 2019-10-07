@@ -92,7 +92,7 @@ public class EtSampleDataLoader {
                 if (!utilsService.isKubernetes()) {
                     this.createOpenVidu();
                     this.createFullteaching();
-//                    this.createBrowsersInAWS();
+                    this.createBrowsersInAWS();
                     this.createEMS();
                     this.createEDS();
                 }
@@ -673,14 +673,14 @@ public class EtSampleDataLoader {
 
             String tJobName = "Load Test";
             String resultsPath = "/demo-projects/aws/junit5-qe-openvidu/target/surefire-reports";
-            String tJobCommands = "git clone https://github.com/elastest/codeurjc-qe-openvidu;\\ncd codeurjc-qe-openvidu;\nmvn -B test -Dtest=CodeURJCQEOpenViduAppTest;";
+            String tJobCommands = "git clone https://github.com/elastest/demo-projects;\ncd /demo-projects/aws/junit5-qe-openvidu;\nmvn -B test -Dtest=QEOpenViduAppTest;";
             List<String> tss = Arrays.asList("EUS");
 
             // TJob Params
             List<Parameter> parameters = new ArrayList<>();
             parameters.add(new Parameter("AWS_ACCESS_KEY_ID", ""));
             parameters.add(new Parameter("AWS_SECRET_ACCESS_KEY", ""));
-            parameters.add(new Parameter("AWS_AMI_ID", ""));
+            parameters.add(new Parameter("AWS_AMI_ID", "ami-0bfc646d9bb6ad37c"));
             parameters.add(new Parameter("AWS_INSTANCE_TYPE", "t2.xlarge"));
             parameters.add(new Parameter("AWS_KEY_NAME", ""));
             parameters.add(new Parameter("AWS_REGION", ""));

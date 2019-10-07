@@ -105,7 +105,7 @@ public class EtDataLoader {
             List<String> activatedTSSList, SutSpecification sut,
             List<MultiConfig> multiConfigurations) {
         TJob tJob = new TJob();
-
+        tJob.setMaxExecutions(new Long(15));
         tJob.setProject(project);
         tJob.setName(name);
         if (resultsPath != null && !"".equals(resultsPath)) {
@@ -216,6 +216,9 @@ public class EtDataLoader {
         if (parameters != null) {
             sut.setParameters(parameters);
         }
+
+        // Default (cannot be null)
+        sut.setManagedDockerType(ManagedDockerType.COMMANDS);
 
         return sut;
     }
