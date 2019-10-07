@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.spotify.docker.client.messages.Container;
 
+import io.elastest.epm.client.utils.UtilTools;
 import io.elastest.etm.dao.LogAnalyzerRepository;
 import io.elastest.etm.model.ContextInfo;
 import io.elastest.etm.model.CoreServiceInfo;
@@ -114,12 +115,18 @@ public class EtmContextService {
 
     public ContextInfo getContextInfo() {
         logger.debug("Loading ElasTest Context");
-        // TODO timeout
-        while (contextInfo.getEusSSInstance() == null) {
-            logger.debug("Waiting for the ElasTest Context to be ready");
-        }
-
+        waitForContextWithTimeout(60);
         return contextInfo;
+    }
+
+    private void waitForContextWithTimeout(int seconds) {
+        long initialTime = System.currentTimeMillis();
+        long finalTime = initialTime + seconds * 1000;
+        while (System.currentTimeMillis() < finalTime
+                && contextInfo.getEusSSInstance() == null) {
+            logger.debug("Waiting for the ElasTest Context to be ready");
+            UtilTools.sleep(2);
+        }
     }
 
     public HelpInfo getHelpInfo() {
@@ -243,8 +250,8 @@ public class EtmContextService {
         if (coreService != null) {
             String containerName = coreService.getFirstContainerNameCleaned();
             if (containerName != null) {
-                return platformService.getContainerLogsFrom(containerName, since,
-                                withFollow);
+                return platformService.getContainerLogsFrom(containerName,
+                        since, withFollow);
             }
         }
         throw new Exception("Error on get " + coreServiceName
