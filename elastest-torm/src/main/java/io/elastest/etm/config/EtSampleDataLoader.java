@@ -683,7 +683,7 @@ public class EtSampleDataLoader {
             parameters.add(new Parameter("AWS_AMI_ID", "ami-0bfc646d9bb6ad37c"));
             parameters.add(new Parameter("AWS_INSTANCE_TYPE", "t2.xlarge"));
             parameters.add(new Parameter("AWS_KEY_NAME", ""));
-            parameters.add(new Parameter("AWS_REGION", ""));
+            parameters.add(new Parameter("AWS_REGION", "eu-west-1"));
             parameters.add(new Parameter("AWS_SECURITY_GROUPS", ""));
             parameters.add(new Parameter("AWS_SSH_PRIVATE_KEY", ""));
             parameters.add(new Parameter("AWS_SSH_USER", "ubuntu"));
