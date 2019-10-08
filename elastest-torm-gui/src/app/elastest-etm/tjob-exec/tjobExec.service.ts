@@ -461,7 +461,7 @@ export class TJobExecService {
     if (testCases.length > 0) {
       let tCase: TestCaseModel = testCases.shift();
 
-      if (tCase.isSkipped()) {
+      if (!tCase || tCase.isSkipped()) {
         // Next
         this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, suiteName, someTestCaseWithDate);
       } else {
