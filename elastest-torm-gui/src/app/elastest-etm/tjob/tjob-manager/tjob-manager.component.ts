@@ -51,7 +51,8 @@ export class TjobManagerComponent implements OnInit {
     { name: 'startDate', label: 'Start Date' },
     { name: 'endDate', label: 'End Date' },
     { name: 'duration', label: 'Duration(sec)', width: 112 },
-    { name: 'sutExecution', label: 'Sut Execution', width: 120 },
+    { name: 'sut', label: 'Sut', width: 95 },
+    { name: 'sutExecution', label: 'Sut Execution', width: 113 },
     { name: 'monitoringStorageType', label: 'Mon. Storage', width: 123 },
     { name: 'options', label: 'Options', sortable: false },
   ];

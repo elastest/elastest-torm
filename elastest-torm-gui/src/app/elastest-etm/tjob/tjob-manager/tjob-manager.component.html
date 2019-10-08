@@ -64,7 +64,14 @@
                     <fa-icon mat-icon class="mat-icon" [icon]="['fab', 'jenkins']"></fa-icon>
                   </ng-template>
                 </button>
-                <button id="deleteTJobBtn" mat-button (click)="deleteTJob()" [disabled]="deletingInProgress" class="iconBtn" title="Delete TJob">
+                <button
+                  id="deleteTJobBtn"
+                  mat-button
+                  (click)="deleteTJob()"
+                  [disabled]="deletingInProgress"
+                  class="iconBtn"
+                  title="Delete TJob"
+                >
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -152,7 +159,7 @@
                 (click)="viewTJobExec(row)"
                 class="hover-pointer"
               >
-                <span *ngIf="column.name !== 'sutExecution'; else tjobSutValue">
+                <span *ngIf="column.name !== 'sutExecution' && column.name !== 'sut'; else tjobSutValue">
                   <ng-container *ngIf="column.name === 'result'">
                     <mat-spinner
                       *ngIf="!row.finished()"
@@ -167,8 +174,18 @@
                   </ng-container>
                   <span style="vertical-align: middle; margin-left: 4px;">{{ value }}</span>
                 </span>
+
                 <ng-template #tjobSutValue>
-                  <span *ngIf="row.hasSutExec()">{{ row.sutExec.id }}</span> <span *ngIf="!row.hasSutExec()">None</span>
+                  <ng-container *ngIf="column.name === 'sut'; else sutExec">
+                    <span *ngIf="row.hasSutExec() && row.sutExec.sut && row.sutExec.sut.id; else noneSut">
+                      {{ row.sutExec.sut.id }}
+                    </span>
+                    <ng-template #noneSut> None </ng-template>
+                  </ng-container>
+
+                  <ng-template #sutExec>
+                    <span *ngIf="row.hasSutExec()">{{ row.sutExec.id }}</span> <span *ngIf="!row.hasSutExec()">None</span>
+                  </ng-template>
                 </ng-template>
               </div>
               <div *ngIf="column.name === 'startDate' || column.name === 'endDate'" (click)="viewTJobExec(row)">

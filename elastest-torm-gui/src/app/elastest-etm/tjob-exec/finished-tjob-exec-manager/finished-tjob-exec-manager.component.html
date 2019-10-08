@@ -106,14 +106,18 @@
             <h4>{{ tJobExec.endDate | date: 'dd/MM/yyyy HH:mm:ss' }}</h4>
           </span>
 
-          <ng-container
-            *ngIf="tJobExec.sutExec !== undefined && tJobExec.sutExec !== null && tJobExec.sutExec.sut && tJobExec.sutExec.sut.id"
-          >
+          <ng-container>
             <span fxFlex="8">
               <mat-card-subtitle>Sut</mat-card-subtitle>
-              <h4>
+              <h4
+                *ngIf="
+                  tJobExec.sutExec !== undefined && tJobExec.sutExec !== null && tJobExec.sutExec.sut && tJobExec.sutExec.sut.id;
+                  else NoneSut
+                "
+              >
                 {{ tJobExec.sutExec.sut.id }}
               </h4>
+              <ng-template #NoneSut> <h4>None</h4> </ng-template>
             </span>
           </ng-container>
 

@@ -18,8 +18,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.Project.ProjectMediumView;
+import io.elastest.etm.model.SutSpecification;
 import io.elastest.etm.model.SutSpecification.SutView;
 import io.elastest.etm.model.TJob.TJobCompleteView;
 import io.elastest.etm.model.external.ExternalElasticsearch.ExternalElasticsearchView;
@@ -117,6 +117,9 @@ public class ExternalMonitoringDBForMetrics {
             this.type = externalMonitoringDBForMetrics.getType();
             this.externalMonitoringDB = externalMonitoringDBForMetrics
                     .getExternalMonitoringDB();
+        }
+        if (this.type == null) {
+            this.type = ExternalMonitoringDBForMetricsType.NONE;
         }
     }
 

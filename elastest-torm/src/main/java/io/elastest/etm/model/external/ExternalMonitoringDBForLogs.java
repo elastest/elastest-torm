@@ -104,7 +104,11 @@ public class ExternalMonitoringDBForLogs {
         this.setId(null);
         if (externalMonitoringDBForLogs != null) {
             this.type = externalMonitoringDBForLogs.getType();
-            this.externalMonitoringDB = externalMonitoringDBForLogs.getExternalMonitoringDB();
+            this.externalMonitoringDB = externalMonitoringDBForLogs
+                    .getExternalMonitoringDB();
+        }
+        if (this.type == null) {
+            this.type = ExternalMonitoringDBForLogsType.NONE;
         }
     }
 

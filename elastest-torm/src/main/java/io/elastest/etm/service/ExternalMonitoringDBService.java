@@ -9,7 +9,9 @@ import io.elastest.etm.dao.external.ExternalMonitoringDBRepository;
 import io.elastest.etm.dao.external.ExternalPrometheusRepository;
 import io.elastest.etm.model.external.ExternalElasticsearch;
 import io.elastest.etm.model.external.ExternalMonitoringDBForLogs;
+import io.elastest.etm.model.external.ExternalMonitoringDBForLogs.ExternalMonitoringDBForLogsType;
 import io.elastest.etm.model.external.ExternalMonitoringDBForMetrics;
+import io.elastest.etm.model.external.ExternalMonitoringDBForMetrics.ExternalMonitoringDBForMetricsType;
 import io.elastest.etm.model.external.ExternalPrometheus;
 import io.elastest.etm.utils.UtilsService;
 
@@ -108,6 +110,10 @@ public class ExternalMonitoringDBService {
                             .setExternalElasticsearch(newExternalElasticsearch);
                     break;
                 default:
+                    if (externalMonitoringDBForLogs.getType() == null) {
+                        externalMonitoringDBForLogs
+                                .setType(ExternalMonitoringDBForLogsType.NONE);
+                    }
                     break;
                 }
 
@@ -151,6 +157,10 @@ public class ExternalMonitoringDBService {
                             .setExternalElasticsearch(newExternalElasticsearch);
                     break;
                 default:
+                    if (externalMonitoringDBForMetrics.getType() == null) {
+                        externalMonitoringDBForMetrics.setType(
+                                ExternalMonitoringDBForMetricsType.NONE);
+                    }
                     break;
                 }
 

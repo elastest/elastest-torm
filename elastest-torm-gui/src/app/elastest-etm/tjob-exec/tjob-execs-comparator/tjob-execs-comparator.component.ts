@@ -36,6 +36,7 @@ export class TjobExecsComparatorComponent implements OnInit {
     { name: 'endDate', label: 'End Date' },
     { name: 'duration', label: 'Duration(sec)' },
     { name: 'monitoringStorageType', label: 'Mon. Storage', width: 123 },
+    { name: 'sut', label: 'Sut', width: 100 },
     { name: 'sutExecution', label: 'Sut Execution', width: 116 },
     // { name: 'options', label: 'Options' },
   ];
