@@ -602,8 +602,12 @@ public abstract class PlatformService {
         // Get (External)TJob Exec Env Vars
         Map<String, String> tJobEnvVars;
         if (execution.isExternal()) {
+            // Generate the SUT name
+            String sutContainerName = generateContainerName(ContainerPrefix.SUT,
+                    execution);
             // tJobEnvVars = execution.getExternalTJob().getEnvVars(); TODO
             tJobEnvVars = new HashMap<>();
+            tJobEnvVars.put("ET_SUT_CONTAINER_NAME", sutContainerName);
         } else {
             tJobEnvVars = execution.getTJobExec().getEnvVars();
         }
