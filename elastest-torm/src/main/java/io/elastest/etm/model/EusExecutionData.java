@@ -85,6 +85,19 @@ public class EusExecutionData {
 
     }
 
+    public EusExecutionData(ExternalTJobExecution exTJobExec, String folderPath,
+            boolean useSutNetwork, String sutContainerPrefix) {
+        this.type = "externalTJob";
+        this.tJobId = exTJobExec.getExTJob().getId();
+        this.tJobExecId = exTJobExec.getId();
+        this.monitoringIndex = exTJobExec.getExternalTJobExecMonitoringIndex();
+        this.folderPath = folderPath;
+        // initWebRtcStatsActivated(exTJobExec);
+        this.webRtcStatsActivated = false;
+        this.useSutNetwork = useSutNetwork;
+        this.sutContainerPrefix = sutContainerPrefix;
+    }
+
     private void initWebRtcStatsActivated(TJobExecution tJobExec) {
         this.webRtcStatsActivated = false;
         try {

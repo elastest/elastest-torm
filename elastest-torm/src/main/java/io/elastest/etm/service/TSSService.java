@@ -559,17 +559,19 @@ public class TSSService {
 
             EusExecutionData eusExecutionData;
 
+            String sutContainerPrefix = platformService.generateContainerName(
+                    PlatformService.ContainerPrefix.SUT, execution);
+
             // ExTJobExec
             if (execution.isExternal()) {
                 eusExecutionData = new EusExecutionData(
-                        execution.getExternalTJobExec(), folderPath);
+                        execution.getExternalTJobExec(), folderPath, true,
+                        sutContainerPrefix);
             } else { // TJobExec
                 // If is Jenkins, config EUS to start browsers at sut network
                 boolean useSutNetwork = execution.gettJob().isExternal();
-                String sutContainerPrefix = platformService
-                        .generateContainerName(
-                                PlatformService.ContainerPrefix.SUT, execution);
 
+                // TODO useSutNetwork in normal executions?
                 eusExecutionData = new EusExecutionData(execution.getTJobExec(),
                         folderPath, useSutNetwork, sutContainerPrefix);
             }
