@@ -753,47 +753,48 @@ export class MonitoringService {
     if (trace['@timestamp'] !== '0001-01-01T00:00:00.000Z') {
       let metricContent: any[] = trace[trace['et_type']];
       if (typeArr[0] in MetricbeatType && metricContent) {
+        // Value can be a json object if is nested subtype or simple value if not
         let subtypeValueObj: any = metricContent[metricsField.subtype];
 
-        if (!subtypeValueObj && metricContent && metricsField.subtype) {
-          let splittedMetricsFieldSubtype: string[] = metricsField.subtype.split('_');
-          if (splittedMetricsFieldSubtype && splittedMetricsFieldSubtype[0]) {
-            if (
-              metricContent[splittedMetricsFieldSubtype[0]] !== undefined &&
-              metricContent[splittedMetricsFieldSubtype[0]] !== null
-            ) {
-              subtypeValueObj = metricContent[splittedMetricsFieldSubtype[0]];
-            }
+        // if subtype is like xxx_yyy is nested subtype like "used" in 'system_memory :{ used: { pct: xxxx, bytes: xxxx }}'
+        let splittedNestedSubtype: string[] = metricsField.subtype.split('_');
+        let isNestedSubtype: boolean = false;
+        // If not value, posibly subtype is nested (used_bytes)
+        if (
+          !subtypeValueObj &&
+          metricContent &&
+          metricsField.subtype &&
+          splittedNestedSubtype &&
+          splittedNestedSubtype.length === 2
+        ) {
+          if (
+            splittedNestedSubtype[0] &&
+            metricContent[splittedNestedSubtype[0]] !== undefined &&
+            metricContent[splittedNestedSubtype[0]] !== null
+          ) {
+            subtypeValueObj = metricContent[splittedNestedSubtype[0]];
+            isNestedSubtype = true;
           }
         }
         if (subtypeValueObj) {
           switch (typeArr[1]) {
             case 'cpu':
-              if (subtypeValueObj.pct !== undefined) {
-                parsedData = this.getBasicSingleMetric(trace, metricsField);
-                // pct is 0-1 based percentage
-                parsedData.value = this.convertMetricbeatPctTrace(subtypeValueObj.pct);
-              }
-              break;
             case 'memory':
-              if (subtypeValueObj.pct !== undefined) {
-                parsedData = this.getBasicSingleMetric(trace, metricsField);
-                parsedData.value = this.convertMetricbeatPctTrace(subtypeValueObj.pct);
-              } else {
-                let nestedSubtype: string[] = metricsField.subtype.split('_');
-                if (nestedSubtype.length === 2) {
-                  let nestedSubtypeObj: any = metricContent[nestedSubtype[0]]; // system_memory :{ USED: { pct: xxxx, bytes: xxxx }}
-                  let nestedSubtypeValueObj: any = nestedSubtypeObj[nestedSubtype[1]]; // system_memory :{ used: { PCT: xxxx }}
-                  if (nestedSubtypeObj && nestedSubtypeValueObj !== undefined) {
-                    parsedData = this.getBasicSingleMetric(trace, metricsField);
-                    parsedData.value = nestedSubtypeValueObj;
-                  }
-                }
-              }
-              break;
             case 'network':
             case 'diskio':
-              parsedData = this.convertMetricbeatWithNestedSubtypeTrace(trace, metricsField, metricContent);
+              if (isNestedSubtype) {
+                parsedData = this.convertMetricbeatWithNestedSubtypeTrace(
+                  trace,
+                  metricsField,
+                  splittedNestedSubtype,
+                  subtypeValueObj,
+                );
+              } else {
+                // simple value
+                parsedData = this.getBasicSingleMetric(trace, metricsField);
+                parsedData.value = subtypeValueObj;
+              }
+
               break;
             default:
               break;
@@ -804,18 +805,29 @@ export class MonitoringService {
     return parsedData;
   }
 
-  convertMetricbeatWithNestedSubtypeTrace(trace: any, metricsField: MetricsFieldModel, metricContent: any[]): SingleMetricModel {
+  convertMetricbeatWithNestedSubtypeTrace(
+    trace: any,
+    metricsField: MetricsFieldModel,
+    splittedNestedSubtype: string[],
+    subtypeValueObj: any,
+  ): SingleMetricModel {
     let parsedData: SingleMetricModel = undefined;
 
-    let nestedSubtype: string[] = metricsField.subtype.split('_');
-    if (nestedSubtype.length === 2) {
-      let nestedSubtypeObj: any = metricContent[nestedSubtype[0]]; // ej system_memory :{ USED: { pct: xxxx, bytes: xxxx }}
-      let nestedSubtypeValueObj: any = nestedSubtypeObj[nestedSubtype[1]]; // ej system_memory :{ used: { PCT: xxxx }}
-      if (nestedSubtypeObj && nestedSubtypeValueObj !== undefined) {
+    let childOfSubtype: string = splittedNestedSubtype[1];
+    if (childOfSubtype) {
+      if (childOfSubtype === 'pct' && subtypeValueObj.pct !== undefined) {
         parsedData = this.getBasicSingleMetric(trace, metricsField);
-        parsedData.value = nestedSubtypeValueObj;
+        // pct is 0-1 based percentage
+        parsedData.value = this.convertMetricbeatPctTrace(subtypeValueObj.pct);
+      } else {
+        let nestedChildOfSubtypeValue: any = subtypeValueObj[childOfSubtype]; // xxxx in system_memory :{ used: { PCT: xxxx }}
+        if (subtypeValueObj && nestedChildOfSubtypeValue !== undefined) {
+          parsedData = this.getBasicSingleMetric(trace, metricsField);
+          parsedData.value = nestedChildOfSubtypeValue;
+        }
       }
     }
+
     return parsedData;
   }
 

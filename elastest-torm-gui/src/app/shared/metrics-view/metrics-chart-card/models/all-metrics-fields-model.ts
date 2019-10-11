@@ -71,15 +71,16 @@ export let metricFieldGroupList: MetricFieldGroupModel[] = [
 /***** Metricbeat *****/
 /**********************/
 export let metricbeatCpuSubtypes: SubtypesObjectModel[] = [
-  new SubtypesObjectModel('system', 'percent'),
-  new SubtypesObjectModel('user', 'percent'),
-  new SubtypesObjectModel('total', 'percent'),
-  new SubtypesObjectModel('steal', 'percent'),
-  new SubtypesObjectModel('softirq', 'percent'),
-  new SubtypesObjectModel('nice', 'percent'),
-  new SubtypesObjectModel('irq', 'percent'),
-  new SubtypesObjectModel('iowait', 'percent'),
-  new SubtypesObjectModel('idle', 'percent'),
+  new SubtypesObjectModel('system_pct', 'percent'),
+  new SubtypesObjectModel('user_pct', 'percent'),
+  new SubtypesObjectModel('total_pct', 'percent'),
+  new SubtypesObjectModel('steal_pct', 'percent'),
+  new SubtypesObjectModel('softirq_pct', 'percent'),
+  new SubtypesObjectModel('nice_pct', 'percent'),
+  new SubtypesObjectModel('irq_pct', 'percent'),
+  new SubtypesObjectModel('iowait_pct', 'percent'),
+  new SubtypesObjectModel('idle_pct', 'percent'),
+  new SubtypesObjectModel('cores', 'amount'),
 ];
 
 export let metricbeatCpuForDockerSubtypes: SubtypesObjectModel[] = [
@@ -92,6 +93,8 @@ export let metricbeatCpuForDockerSubtypes: SubtypesObjectModel[] = [
 export let metricbeatMemorySubtypes: SubtypesObjectModel[] = [
   new SubtypesObjectModel('used_bytes', 'bytes'),
   new SubtypesObjectModel('used_pct', 'percent'),
+  new SubtypesObjectModel('total', 'bytes'),
+  new SubtypesObjectModel('free', 'bytes'),
 ];
 
 export let metricbeatMemoryForDockerSubtypes: SubtypesObjectModel[] = [
