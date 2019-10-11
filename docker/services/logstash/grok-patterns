@@ -109,13 +109,13 @@ JAVALOGLEVEL (ALERT|TRACE|DEBUG|NOTICE|INFO|WARNING|ERROR|CRITICAL|FATAL|SEVERE|
 
 # CONTAINER NAME for Logs (ex: test_37_exec or test_37_servicename_exec or sut34_exec...)
 # OLD => CONTAINERNAME (test_\d*|sut_\d*|dynamic_\d*)(?=_exec)
-CONTAINERNAME ((test|sut|dynamic)(_)?(\d*))(\S*)?(?=(_exec))
+CONTAINERNAME ((test|sut|eus(_|-)browser(_|-).*_exec|k8s_test|k8s_sut|k8s_eus(_|-)browser(_|-).*(_|-)exec)(_|-)?(\d*))(\S*)?(?=((_|-)exec))?
 
 # exec ID EXECID (?<=\D_|\D\d)(\d*)
 EXECID (?<=test_|sut_|beats_|logstash_|dynamic_)(\d*)
 
 # COMPONENT
-COMPONENT (test|sut|dynamic)(?=((_)?(\d*)(.*)?))
+COMPONENT (test|sut|dynamic|eus(_|-)browser(_|-).*_exec|k8s_test|k8s_sut|k8s_eus(_|-)browser(_|-).*(_|-)exec)(?=((_|-)?(\d*)(.*)?))
 
 # component service
 COMPONENTSERVICE (?<=\d_)(.*)
