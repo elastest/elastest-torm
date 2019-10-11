@@ -339,7 +339,7 @@ export class MonitoringConfigurationComponent implements OnInit {
     // Can be multiple subtipes (metricbeat, for example has: system_cpu[total, user...])
     if (subtypes && subtypes.length > 0) {
       for (let subtype of subtypes) {
-        if (subtype && subtype.checked) {
+        if (subtype) {
           let metric: any = {
             component: component,
             stream: stream,
