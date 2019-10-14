@@ -331,7 +331,8 @@ public abstract class PlatformService {
             }
 
             envVar = "FILTER_CONTAINERS"
-                    + "=(^(test|sut|eus(_|-)browser(_|-).*(_|-)exec)(_)?(\\d*)(.*)?)|(^(k8s_test|k8s_sut|k8s_eus(_|-)browser(_|-).*(_|-)exec)(.*)?)";
+                    + "=(^(test|sut|eus[_|-]browser[_|-].*[_|-]exec[_|-]|k8s_test|k8s_sut|k8s_eus[_|-]browser[_|-].*[_|-]exec[_|-])[_|-]?("
+                    + executionId + ")(.*)?)";
             envList.add(envVar);
 
             if (isEMSSelected(execution)) {
