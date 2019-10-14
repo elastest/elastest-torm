@@ -200,8 +200,8 @@ public abstract class AbstractMonitoringService {
     @SuppressWarnings("unchecked")
     public String compareLogsPair(MonitoringQuery body, String comparison,
             String view, String timeout) throws Exception {
-        if (body != null && body.getIndices() != null
-                && body.getIndices().size() == 2) {
+        if (body != null && body.isPairOfIndices() && body.getExecsIds() != null
+                && body.getExecsIds().size() == 2) {
             float timeoutFloat = 0;
             try {
                 timeoutFloat = Float.parseFloat(timeout);
@@ -228,17 +228,16 @@ public abstract class AbstractMonitoringService {
             }
 
             List<String>[] pairLogs = new List[2];
-            int pos = 0;
             Map<String, List<String>> failedTCasesAndSuitesNamesMap = null;
             if (view != null && view.equals("failedtests")) {
                 // Map with key=Suitename and value List(TCasename1, ...)
                 failedTCasesAndSuitesNamesMap = testSuiteService
-                        .getFailedTJobExecsTestCasesAndSuitesNamesPairByStrIds(
-                                body.getIndices());
+                        .getFailedTJobExecsTestCasesAndSuitesNamesPair(
+                                body.getExecsIds());
             }
 
+            int pos = 0;
             for (String index : body.getIndices()) {
-
                 MonitoringQuery newQuery = new MonitoringQuery(body);
                 newQuery.setIndices(Arrays.asList(index));
 
@@ -246,7 +245,7 @@ public abstract class AbstractMonitoringService {
                 // item in the list
                 List<List<String>> logsList = new ArrayList<>();
 
-                Long tJobExecId = new Long(index);
+                Long tJobExecId = body.getExecsIds().get(pos);
                 if (view != null) {
                     switch (view) {
                     case "failedtests":

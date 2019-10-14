@@ -4,6 +4,7 @@ export class LogComparisonModel {
   components: string[];
   stream: string;
   pair: string[];
+  execsIds: number[];
 
   startDate: Date;
   endDate: Date;
@@ -15,6 +16,7 @@ export class LogComparisonModel {
     this.components = [];
     this.stream = '';
     this.pair = [];
+    this.execsIds = [];
     this.startDate = undefined;
     this.endDate = undefined;
   }

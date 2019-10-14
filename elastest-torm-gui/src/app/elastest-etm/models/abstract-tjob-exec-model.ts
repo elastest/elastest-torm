@@ -45,13 +45,13 @@ export class AbstractTJobExecModel {
     return monitoringIndexList;
   }
 
-  getTJobIndex(): string {
+  getTJobExecIndex(): string {
     let testIndex: string = this.getMonitoringIndexAsList()[0];
     return testIndex;
   }
 
   getCurrentMonitoringIndex(component: string): string {
-    let index: string = this.getTJobIndex();
+    let index: string = this.getTJobExecIndex();
     if (component === 'sut' || component.startsWith('sut_')) {
       index = this.getSutIndex();
     }
@@ -67,10 +67,10 @@ export class AbstractTJobExecModel {
     if (this.tJob && this.tJob.hasSut()) {
       sutIndex = this.monitoringIndex.split(',')[1];
       if (!sutIndex) {
-        sutIndex = this.getTJobIndex();
+        sutIndex = this.getTJobExecIndex();
       }
     } else {
-      sutIndex = this.getTJobIndex();
+      sutIndex = this.getTJobExecIndex();
     }
     return sutIndex;
   }

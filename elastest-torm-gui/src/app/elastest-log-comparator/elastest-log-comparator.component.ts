@@ -113,6 +113,7 @@ export class ElastestLogComparatorComponent implements OnInit {
 
   addMoreLogsComparisons(
     monitoringIndicesList: string[],
+    execsIds: number[],
     startDate: Date,
     endDate: Date,
     logName: string,
@@ -132,6 +133,7 @@ export class ElastestLogComparatorComponent implements OnInit {
         logComparison.startDate = startDate;
         logComparison.endDate = endDate;
         logComparison.pair = pair;
+        logComparison.execsIds = execsIds;
 
         added = this.addMoreLogsComparison(logName, logComparison) || added;
       }
@@ -146,6 +148,8 @@ export class ElastestLogComparatorComponent implements OnInit {
   addMoreLogsComparisonsByTJobExecsList(tJobExecs: TJobExecModel[], allLogs: LogFieldModel[]): void {
     if (tJobExecs && allLogs) {
       let monitoringIndicesList: string[] = [];
+      let execsIds: number[] = [];
+
       let startDate: Date;
       let endDate: Date;
       let tJob: TJobModel;
@@ -154,6 +158,11 @@ export class ElastestLogComparatorComponent implements OnInit {
         // Monitoring index
         if (tJobExec.monitoringIndex !== undefined && tJobExec.monitoringIndex !== '') {
           monitoringIndicesList.push(tJobExec.monitoringIndex);
+        }
+
+        // Monitoring index
+        if (tJobExec.id !== undefined && tJobExec.id !== null && tJobExec.id !== 0) {
+          execsIds.push(tJobExec.id);
         }
 
         // StartDate
@@ -184,7 +193,7 @@ export class ElastestLogComparatorComponent implements OnInit {
           }
 
           this.hide = false;
-          this.addMoreLogsComparisons(monitoringIndicesList, startDate, endDate, log.name, log.stream, log.component);
+          this.addMoreLogsComparisons(monitoringIndicesList, execsIds, startDate, endDate, log.name, log.stream, log.component);
         }
       }
     }

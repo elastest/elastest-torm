@@ -142,6 +142,18 @@ export class TJobExecModel extends AbstractTJobExecModel {
     return monitoringIndices;
   }
 
+  getChildsIds(): number[] {
+    let ids: number[] = [];
+    if (this.isParent() && this.execChilds !== undefined) {
+      for (let child of this.execChilds) {
+        if (child.id !== undefined && child.id !== null && child.id !== 0) {
+          ids.push(child.id);
+        }
+      }
+    }
+    return ids;
+  }
+
   hasMonitoringMarks(): boolean {
     let hasMarks: boolean = super.hasMonitoringMarks();
 

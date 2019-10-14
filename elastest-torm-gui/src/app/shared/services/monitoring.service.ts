@@ -131,6 +131,7 @@ export class MonitoringService {
   compareLogsPair(
     async: boolean = false,
     pair: string[],
+    execsIds: number[],
     stream: string,
     components: string[],
     from: Date = undefined,
@@ -147,6 +148,7 @@ export class MonitoringService {
     query.components = components;
     query.setTimeRange(from, to, includedFrom, includedTo);
     query.selectedTerms.push('stream', 'component');
+    query.execsIds = execsIds;
 
     if (async) {
       // Returns processId

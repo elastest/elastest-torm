@@ -18,11 +18,15 @@ export class MonitoringQueryModel {
     gte: Date;
   };
 
+  // Only for LogComparator, to obtain TestSuites
+  execsIds: number[];
+
   constructor() {
     this.indices = [];
     this.selectedTerms = [];
     this.components = [];
     this.streams = [];
+    this.execsIds = [];
   }
 
   initTimeRange(): void {

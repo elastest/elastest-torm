@@ -37,16 +37,16 @@ export class ExternalTJobExecModel extends AbstractTJobExecModel {
     if (this.exTJob && this.exTJob.hasSut()) {
       sutIndex = this.getMonitoringIndexAsList()[1];
       if (!sutIndex) {
-        sutIndex = this.getTJobIndex();
+        sutIndex = this.getTJobExecIndex();
       }
     } else {
-      sutIndex = this.getTJobIndex();
+      sutIndex = this.getTJobExecIndex();
     }
     return sutIndex;
   }
 
   getCurrentMonitoringIndex(component: string): string {
-    let index: string = this.getTJobIndex();
+    let index: string = this.getTJobExecIndex();
     if (component === 'sut') {
       index = this.getSutIndex();
     }

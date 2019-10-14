@@ -52,8 +52,7 @@ public class TracesSearchService extends AbstractMonitoringService {
     JPAQueryFactory queryFactory;
 
     public TracesSearchService(TraceRepository traceRepository,
-            TestSuiteService testSuiteService,
-            UtilsService utilsService) {
+            TestSuiteService testSuiteService, UtilsService utilsService) {
         super(testSuiteService, utilsService);
         this.traceRepository = traceRepository;
     }
@@ -84,7 +83,7 @@ public class TracesSearchService extends AbstractMonitoringService {
                     monitoringQuery.getAttributeValueByGivenName(field));
         }
 
-        for (String exec : monitoringQuery.getIndices()) {
+        for (String exec : monitoringQuery.getIndicesSplitted()) {
             sampleTrace.setExec(exec);
             Example<Trace> example = Example.of(sampleTrace, matcher);
 
@@ -122,7 +121,7 @@ public class TracesSearchService extends AbstractMonitoringService {
 
             // Where
             BooleanExpression whereExpression = QTrace.trace.exec
-                    .in(monitoringQuery.getIndices());
+                    .in(monitoringQuery.getIndicesSplitted());
             if (isMetric) {
                 // Not Log
                 whereExpression = whereExpression
@@ -172,7 +171,7 @@ public class TracesSearchService extends AbstractMonitoringService {
         List<Trace> traces = null;
         TimeRange timeRange = monitoringQuery.getTimeRange();
         if (timeRange != null && !timeRange.isEmpty()) {
-            List<String> indices = monitoringQuery.getIndices();
+            List<String> indices = monitoringQuery.getIndicesSplitted();
             String stream = monitoringQuery.getStream();
             String component = monitoringQuery.getComponent();
 
@@ -264,7 +263,8 @@ public class TracesSearchService extends AbstractMonitoringService {
 
             traces = traceRepository
                     .findByStreamTypeAndExecInAndStreamAndComponentInOrderByIdAscTimestampAsc(
-                            StreamType.LOG, monitoringQuery.getIndices(),
+                            StreamType.LOG,
+                            monitoringQuery.getIndicesSplitted(),
                             monitoringQuery.getStream(), components);
         }
         return traces;
@@ -332,8 +332,8 @@ public class TracesSearchService extends AbstractMonitoringService {
                             String msgWithTimestampRegex2 = "^[A-Z][a-z][a-z]\\s\\d\\d,\\s\\d\\d\\d\\d\\s\\d?\\d:\\d\\d:\\d\\d\\s[A-Z][A-Z]\\s";
                             // 11:00:01.309
                             String msgWithTimestampRegex3 = "^\\d\\d:\\d\\d:\\d\\d\\.\\d\\d\\d\\s";
-                            
-//                            Jun 14, 2019 8:23:52 AM
+
+                            // Jun 14, 2019 8:23:52 AM
 
                             if (message.matches(msgWithTimestampRegex + ".*")) {
                                 message = message.replaceFirst(
@@ -370,7 +370,7 @@ public class TracesSearchService extends AbstractMonitoringService {
             MonitoringQuery monitoringQuery, int size) throws Exception {
         List<Trace> traces = traceRepository
                 .findByStreamTypeAndExecInAndStreamAndComponentOrderByIdDescTimestampDesc(
-                        StreamType.LOG, monitoringQuery.getIndices(),
+                        StreamType.LOG, monitoringQuery.getIndicesSplitted(),
                         monitoringQuery.getStream(),
                         monitoringQuery.getComponent());
 
@@ -389,7 +389,7 @@ public class TracesSearchService extends AbstractMonitoringService {
         // Get by timestamp
         List<Trace> tracesWithSameTimestamp = traceRepository
                 .findByStreamTypeAndExecInAndStreamAndComponentAndMessageAndTimestampOrderByIdAscTimestampAsc(
-                        StreamType.LOG, monitoringQuery.getIndices(),
+                        StreamType.LOG, monitoringQuery.getIndicesSplitted(),
                         monitoringQuery.getStream(),
                         monitoringQuery.getComponent(),
                         monitoringQuery.getMessage(),
@@ -410,7 +410,8 @@ public class TracesSearchService extends AbstractMonitoringService {
             } else { // Without range
                 traces = traceRepository
                         .findByStreamTypeAndExecInAndStreamAndComponentAndIdLessThanOrderByIdAscTimestampAsc(
-                                StreamType.LOG, monitoringQuery.getIndices(),
+                                StreamType.LOG,
+                                monitoringQuery.getIndicesSplitted(),
                                 monitoringQuery.getStream(),
                                 monitoringQuery.getComponent(),
                                 referenceTraceId);
@@ -425,7 +426,7 @@ public class TracesSearchService extends AbstractMonitoringService {
         List<Trace> traces = null;
         TimeRange timeRange = monitoringQuery.getTimeRange();
         if (timeRange != null && !timeRange.isEmpty()) {
-            List<String> indices = monitoringQuery.getIndices();
+            List<String> indices = monitoringQuery.getIndicesSplitted();
             String stream = monitoringQuery.getStream();
             String component = monitoringQuery.getComponent();
 
@@ -616,7 +617,7 @@ public class TracesSearchService extends AbstractMonitoringService {
                         monitoringQuery);
             } else {
                 traces = traceRepository.findByExecInAndEtTypeAndComponent(
-                        monitoringQuery.getIndices(),
+                        monitoringQuery.getIndicesSplitted(),
                         monitoringQuery.getEtType(),
                         monitoringQuery.getComponent());
             }
@@ -626,7 +627,7 @@ public class TracesSearchService extends AbstractMonitoringService {
                         monitoringQuery);
             } else {
                 traces = traceRepository.findByExecInAndEtType(
-                        monitoringQuery.getIndices(),
+                        monitoringQuery.getIndicesSplitted(),
                         monitoringQuery.getEtType());
             }
         }
@@ -639,7 +640,7 @@ public class TracesSearchService extends AbstractMonitoringService {
         List<Trace> traces = null;
         TimeRange timeRange = monitoringQuery.getTimeRange();
         if (timeRange != null && !timeRange.isEmpty()) {
-            List<String> indices = monitoringQuery.getIndices();
+            List<String> indices = monitoringQuery.getIndicesSplitted();
             String etType = monitoringQuery.getEtType();
             String component = monitoringQuery.getComponent();
 
@@ -703,7 +704,7 @@ public class TracesSearchService extends AbstractMonitoringService {
         List<Trace> traces = null;
         TimeRange timeRange = monitoringQuery.getTimeRange();
         if (timeRange != null && !timeRange.isEmpty()) {
-            List<String> indices = monitoringQuery.getIndices();
+            List<String> indices = monitoringQuery.getIndicesSplitted();
             String etType = monitoringQuery.getEtType();
 
             Date gt = timeRange.getGt();
@@ -768,12 +769,13 @@ public class TracesSearchService extends AbstractMonitoringService {
         if (monitoringQuery.getComponent() != null) {
             traces = traceRepository
                     .findByExecInAndEtTypeAndComponentOrderByIdDesc(
-                            monitoringQuery.getIndices(),
+                            monitoringQuery.getIndicesSplitted(),
                             monitoringQuery.getEtType(),
                             monitoringQuery.getComponent());
         } else {
             traces = traceRepository.findByExecInAndEtTypeOrderByIdDesc(
-                    monitoringQuery.getIndices(), monitoringQuery.getEtType());
+                    monitoringQuery.getIndicesSplitted(),
+                    monitoringQuery.getEtType());
         }
         if (traces.size() > 0) {
             traces = ListUtils.partition(traces, size).get(0);
@@ -792,7 +794,7 @@ public class TracesSearchService extends AbstractMonitoringService {
         if (monitoringQuery.getComponent() != null) {
             tracesWithSameTimestamp = traceRepository
                     .findByExecInAndEtTypeAndComponentAndTimestamp(
-                            monitoringQuery.getIndices(),
+                            monitoringQuery.getIndicesSplitted(),
                             monitoringQuery.getEtType(),
                             monitoringQuery.getComponent(),
                             utilsService.getGMT0DateFromIso8601Str(
@@ -800,7 +802,7 @@ public class TracesSearchService extends AbstractMonitoringService {
         } else {
             tracesWithSameTimestamp = traceRepository
                     .findByExecInAndEtTypeAndTimestamp(
-                            monitoringQuery.getIndices(),
+                            monitoringQuery.getIndicesSplitted(),
                             monitoringQuery.getEtType(),
                             utilsService.getGMT0DateFromIso8601Str(
                                     monitoringQuery.getTimestamp()));
@@ -811,13 +813,13 @@ public class TracesSearchService extends AbstractMonitoringService {
             if (monitoringQuery.getComponent() != null) {
                 traces = traceRepository
                         .findByExecInAndEtTypeAndComponentAndIdLessThan(
-                                monitoringQuery.getIndices(),
+                                monitoringQuery.getIndicesSplitted(),
                                 monitoringQuery.getEtType(),
                                 monitoringQuery.getComponent(),
                                 tracesWithSameTimestamp.get(0).getId());
             } else {
                 traces = traceRepository.findByExecInAndEtTypeAndIdLessThan(
-                        monitoringQuery.getIndices(),
+                        monitoringQuery.getIndicesSplitted(),
                         monitoringQuery.getEtType(),
                         tracesWithSameTimestamp.get(0).getId());
             }

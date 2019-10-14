@@ -323,8 +323,10 @@ export class EtmLogsGroupComponent implements OnInit {
     if (this.logComparator && tJobExec instanceof TJobExecModel && tJobExec.isParent()) {
       this.logComparator.hide = false;
       let monitoringIndicesList: string[] = tJobExec.getChildsMonitoringIndicesList();
+      let childsIds: number[] = tJobExec.getChildsIds();
       added = this.logComparator.addMoreLogsComparisons(
         monitoringIndicesList,
+        childsIds,
         tJobExec.startDate,
         tJobExec.endDate,
         logName,

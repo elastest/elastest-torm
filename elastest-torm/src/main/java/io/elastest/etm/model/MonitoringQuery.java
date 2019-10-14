@@ -1,6 +1,7 @@
 package io.elastest.etm.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.elasticsearch.index.query.QueryBuilders;
@@ -54,9 +55,14 @@ public class MonitoringQuery {
     @JsonProperty("timeRange")
     TimeRange timeRange;
 
+    // Optional
+    @JsonProperty("execsIds")
+    List<Long> execsIds;
+
     public MonitoringQuery() {
         this.indices = new ArrayList<>();
         this.selectedTerms = new ArrayList<>();
+        this.execsIds = new ArrayList<>();
     }
 
     public MonitoringQuery(MonitoringQuery monitoringQuery) {
@@ -82,10 +88,34 @@ public class MonitoringQuery {
         this.rawData = monitoringQuery.rawData;
         this.timeRange = new TimeRange(monitoringQuery.timeRange);
 
+        this.execsIds = monitoringQuery.execsIds != null
+                ? new ArrayList<>(monitoringQuery.execsIds)
+                : new ArrayList<>();
+
     }
 
     public List<String> getIndices() {
         return indices;
+    }
+
+    public boolean isPairOfIndices() {
+        return getIndices() != null && getIndices().size() == 2;
+    }
+
+    // Indices can be comma separated
+    // ["1068,s61_e425", "1067,s61_e425"]
+    public List<String> getIndicesSplitted() {
+        try {
+            List<String> indices = new ArrayList<>();
+            if (getIndices() != null) {
+                for (String index : getIndices()) {
+                    indices.addAll(Arrays.asList(index.split(",")));
+                }
+            }
+            return indices;
+        } catch (Exception e) {
+            return getIndices();
+        }
     }
 
     public String[] getIndicesAsArray() {
@@ -202,6 +232,14 @@ public class MonitoringQuery {
 
     public void setTimeRange(TimeRange timeRange) {
         this.timeRange = timeRange;
+    }
+
+    public List<Long> getExecsIds() {
+        return execsIds;
+    }
+
+    public void setExecsIds(List<Long> execsIds) {
+        this.execsIds = execsIds;
     }
 
     // For Elasticsearch

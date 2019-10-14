@@ -108,6 +108,7 @@ export class ReportComparisonComponent implements OnInit, OnDestroy {
         .compareLogsPair(
           true,
           this.logComparison.pair,
+          this.logComparison.execsIds,
           this.logComparison.stream,
           components,
           this.logComparison.startDate,
