@@ -11,6 +11,17 @@
       [sortable]="false"
       [resizableColumns]="true"
     >
+      <ng-template
+        *ngFor="let column of testEnginesColumns"
+        tdDataTableTemplate="{{ column.name }}"
+        let-value="value"
+        let-row="row"
+      >
+        <div *ngIf="column.name !== 'options' && column.name !== 'started'" id="{{ row.name }}-{{ column.name }}">
+          {{ value }}
+        </div></ng-template
+      >
+
       <ng-template tdDataTableTemplate="started" let-value="value" let-row="row" let-column="column">
         {{ row.started }}
       </ng-template>
@@ -44,6 +55,7 @@
             (click)="startTestEngine(row)"
             class="iconBtn"
             title="Start Engine"
+            id="start-engine-{{ row.name }}"
           >
             <mat-icon>play_circle_outline</mat-icon>
           </button>
@@ -54,6 +66,7 @@
             (click)="viewTestEngine(row)"
             class="iconBtn"
             title="View Engine"
+            id="view-engine-{{ row.name }}"
           >
             <mat-icon>remove_red_eye</mat-icon>
           </button>
@@ -64,6 +77,7 @@
             (click)="stopTestEngine(row)"
             class="iconBtn"
             title="Stop Engine"
+            id="stop-engine-{{ row.name }}"
           >
             <mat-icon>delete</mat-icon>
           </button>

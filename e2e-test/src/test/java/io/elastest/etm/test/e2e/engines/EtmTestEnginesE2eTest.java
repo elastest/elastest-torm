@@ -54,32 +54,28 @@ public class EtmTestEnginesE2eTest extends EtmBaseTest {
         navigateToTorm(driver);
         navigateToTestEnginesPage(driver);
 
-        String firstEngineButtonsXpath = "//elastest-test-engines//tr[1]//button";
-
+        // Start button
         log.debug("Start first Test Engine (ECE)");
-        getElementByXpath(driver,
-                firstEngineButtonsXpath + "[@title='Start Engine']").click();
+        getElementByXpath(driver, "//*[@id='start-engine-ece']").click();
 
-        String statusXpath = "//elastest-test-engines//tr[1]/td[3]/div/span";
+        String statusXpath = "//*[@id='ece-status']";
 
         log.debug("Waiting for the Test Engine (ECE) to be ready");
         getElementByXpath(driver, statusXpath + "[contains(string(),'Ready')]",
                 300).getText();
 
-//        log.debug("Navigate to view of Test Engine (ECE)");
-        getElementByXpath(driver,
-                firstEngineButtonsXpath + "[@title='View Engine']");
-//                        .click();
+        // log.debug("Navigate to view of Test Engine (ECE)");
+        getElementByXpath(driver, "//*[@id='view-engine-ece']");
+        // .click();
 
-//        log.debug("Check if Test Engine (ECE) iframe exists");
-//        getElementByXpath(driver, "//iframe[@name='engine']");
+        // log.debug("Check if Test Engine (ECE) iframe exists");
+        // getElementByXpath(driver, "//iframe[@name='engine']");
 
-//        log.debug("Return to Test Engines page");
-//        navigateToTestEnginesPage(driver);
+        // log.debug("Return to Test Engines page");
+        // navigateToTestEnginesPage(driver);
 
         log.debug("Stop Test Engine (ECE)");
-        getElementByXpath(driver,
-                firstEngineButtonsXpath + "[@title='Stop Engine']").click();
+        getElementByXpath(driver, "//*[@id='stop-engine-ece']").click();
         log.debug("Wait for Test Engine (ECE) to be stopped");
         getElementByXpath(driver,
                 statusXpath + "[contains(string(),'Not initialized')]", 120)
