@@ -39,6 +39,7 @@ public class DatabaseSessionManager {
 
     public void reloaEntityFromDb(Object entity) throws Exception {
         try {
+            bindSession();
             entityManager.refresh(entity);
 
         } catch (Exception e) {
