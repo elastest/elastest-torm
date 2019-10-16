@@ -14,7 +14,7 @@ export class EtmComponent implements AfterViewInit, OnInit {
   @ViewChild('manageList', { static: true })
   manageList: TdLayoutManageListComponent;
 
-  openedMenu: boolean = true;
+  expandedMenu: boolean = false;
   enableRefresh: boolean = false;
 
   gtLgWidth: string = '188px';
@@ -55,6 +55,7 @@ export class EtmComponent implements AfterViewInit, OnInit {
   }
 
   openMainSidenav(): void {
+    this.expandedMenu = !this.expandedMenu;
     if (this.media.query('gt-lg')) {
       this.switchMainSidenavWidthIcon(this.gtLgWidth);
     } else if (this.media.query('gt-md')) {

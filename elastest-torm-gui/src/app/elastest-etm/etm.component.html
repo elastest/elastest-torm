@@ -56,6 +56,7 @@
         [routerLink]="['/']"
         id="dashboard"
         matTooltip="Dashboard"
+        [matTooltipDisabled]="expandedMenu"
       >
         <mat-icon mat-list-icon>dashboard</mat-icon>
         Dashboard
@@ -70,6 +71,7 @@
         [routerLink]="['/projects']"
         id="nav_projects"
         matTooltip="Projects"
+        [matTooltipDisabled]="expandedMenu"
       >
         <mat-icon mat-list-icon>folder_multiple</mat-icon>
         Projects
@@ -84,6 +86,7 @@
         [routerLink]="['/eus']"
         id="nav_integrated_eus"
         matTooltip="Web Browsers"
+        [matTooltipDisabled]="expandedMenu"
       >
         <mat-icon mat-list-icon>open_in_browser</mat-icon>
         Web Browsers
@@ -98,6 +101,7 @@
         [routerLink]="['/test-engines']"
         id="nav_test_engines"
         matTooltip="Test Engines"
+        [matTooltipDisabled]="expandedMenu"
       >
         <mat-icon mat-list-icon>battery_charging_full</mat-icon>
         Test Engines
@@ -114,6 +118,7 @@
         [routerLink]="['/support-services']"
         id="nav_support_services"
         matTooltip="Test Support Services"
+        [matTooltipDisabled]="expandedMenu"
       >
         <mat-icon mat-list-icon>settings_input_component</mat-icon>
         Test Support Services
@@ -128,6 +133,7 @@
         [routerLink]="['/loganalyzer']"
         id="nav_log_manager"
         matTooltip="Log Analyzer"
+        [matTooltipDisabled]="expandedMenu"
       >
         <mat-icon mat-list-icon>library_books</mat-icon>
         Log Analyzer
@@ -144,6 +150,7 @@
           [routerLink]="['/testlink']"
           id="nav_testlink"
           matTooltip="TestLink"
+          [matTooltipDisabled]="expandedMenu"
         >
           <mat-icon mat-list-icon svgIcon="icon-testlink"></mat-icon>
           TestLink
@@ -156,6 +163,7 @@
           class="block relative"
           id="nav_testlink"
           matTooltip="{{ 'TestLink is not available in ElasTest With K8s yet' }}"
+          [matTooltipDisabled]="expandedMenu"
           style="border: none"
         >
           <mat-icon mat-list-icon svgIcon="icon-testlink"></mat-icon>
@@ -173,6 +181,7 @@
         [routerLink]="['/jenkins']"
         id="nav_jenkins"
         matTooltip="Jenkins"
+        [matTooltipDisabled]="expandedMenu"
       >
         <fa-icon mat-list-icon class="mat-icon" [icon]="['fab', 'jenkins']"></fa-icon>
         Jenkins
@@ -188,6 +197,7 @@
         [routerLink]="['/edm']"
         id="nav_edm"
         matTooltip="Data Manager (EDM)"
+        [matTooltipDisabled]="expandedMenu"
       >
         <mat-icon mat-list-icon>storage</mat-icon>
         Data Manager (EDM)
@@ -203,6 +213,7 @@
         [routerLink]="['/emp']"
         id="nav_emp"
         matTooltip="Monitoring Platform (EMP)"
+        [matTooltipDisabled]="expandedMenu"
       >
         <mat-icon mat-list-icon>insert_chart</mat-icon>
         Monitoring Platform (EMP)
@@ -217,6 +228,7 @@
         [routerLink]="['/manage']"
         id="nav_manage_elastest"
         matTooltip="Manage ElasTest"
+        [matTooltipDisabled]="expandedMenu"
       >
         <fa-icon mat-list-icon class="mat-icon" [icon]="['fas', 'toolbox']"></fa-icon>
         Manage Elastest
