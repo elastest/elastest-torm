@@ -12,6 +12,7 @@ import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { StartFinishTestCaseTraces } from '../../elastest-log-analyzer/log-analyzer.service';
 import { ITdDataTableColumn } from '@covalent/core';
 import { TestSuiteModel } from '../test-suite/test-suite-model';
+import { FilesService } from '../../shared/services/files.service';
 
 @Component({
   selector: 'etm-test-case',
@@ -58,6 +59,7 @@ export class TestCaseComponent implements OnInit {
     private router: Router,
     private tJobExecService: TJobExecService,
     private configurationService: ConfigurationService,
+    private filesService: FilesService,
   ) {
     this.filesUrlPrefix = this.configurationService.configModel.host.replace('4200', '8091');
   }
@@ -148,7 +150,7 @@ export class TestCaseComponent implements OnInit {
         this.mp4Files = [];
         let i: number = 0;
         tJobsExecFiles.forEach((file: FileModel) => {
-          if (this.isMP4(file) && file.name.startsWith(this.testCase.name)) {
+          if (this.filesService.isVideoByFileModel(file) && file.name.startsWith(this.testCase.name)) {
             file['order'] = i;
             i++;
             this.mp4Files.push(file);
@@ -158,10 +160,6 @@ export class TestCaseComponent implements OnInit {
       },
       (error: Error) => console.log(error),
     );
-  }
-
-  isMP4(file: FileModel): boolean {
-    return file && file.name.endsWith('mp4');
   }
 
   getVideoFileUrl(file: FileModel): string {

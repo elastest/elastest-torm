@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { FileModel } from '../../elastest-etm/files-manager/file-model';
 @Injectable()
 export class FilesService {
   defaultName: string = 'elastest_download';
@@ -31,5 +32,13 @@ export class FilesService {
     a.click();
     window.URL.revokeObjectURL(url);
     a.remove(); // remove the tmp element
+  }
+
+  isVideo(name: string): boolean {
+    return name.includes('.mp4') || name.includes('.webm') || name.includes('.avi');
+  }
+
+  isVideoByFileModel(file: FileModel): boolean {
+    return file && this.isVideo(file.name);
   }
 }

@@ -45,7 +45,7 @@
                   <!-- OPTIONS -->
                   <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                     <div fxLayout="row" class="sutOptions optionsColumn">
-                      <ng-container *ngIf="isMP4(row)">
+                      <ng-container *ngIf="filesService.isVideoByFileModel(row)">
                         <i
                           class="material-icons"
                           (click)="openUrlInNewTab(row)"

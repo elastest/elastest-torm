@@ -112,7 +112,7 @@
                       <p>Title</p>
                       <span>{{ file.name }}</span>
                     </div>
-                    <a mat-button *ngIf="isMP4(file)" (click)="goToTab(file.tabRef)">
+                    <a mat-button *ngIf="filesService.isVideoByFileModel(file)" (click)="goToTab(file.tabRef)">
                       Open Video
                       <mat-icon>open_in_new</mat-icon>
                     </a>
@@ -123,7 +123,7 @@
                   <p>No Files found</p>
                 </centered-element>
               </mat-tab>
-              <mat-tab *ngFor="let file of getMP4Files()">
+              <mat-tab *ngFor="let file of getVideoFiles()">
                 <ng-template mat-tab-label>
                   <mat-icon matTooltip="Video" id="videoIcon">play_circle_filled</mat-icon>
                 </ng-template>

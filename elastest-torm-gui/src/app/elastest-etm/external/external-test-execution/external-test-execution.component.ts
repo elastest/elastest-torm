@@ -9,6 +9,7 @@ import { ExternalTJobExecModel } from '../external-tjob-execution/external-tjob-
 import { ElastestLogAnalyzerComponent } from '../../../elastest-log-analyzer/elastest-log-analyzer.component';
 import { FileModel } from '../../files-manager/file-model';
 import { ConfigurationService } from '../../../config/configuration-service.service';
+import { FilesService } from '../../../shared/services/files.service';
 
 @Component({
   selector: 'etm-external-test-execution',
@@ -36,6 +37,7 @@ export class ExternalTestExecutionComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private configurationService: ConfigurationService,
+    private filesService: FilesService,
   ) {
     this.filesUrlPrefix = configurationService.configModel.host.replace('4200', '8091');
     if (this.route.params !== null || this.route.params !== undefined) {
@@ -74,7 +76,7 @@ export class ExternalTestExecutionComponent implements OnInit {
       (tJobsExecFiles: any) => {
         let i: number = 0;
         tJobsExecFiles.forEach((file: FileModel) => {
-          if (this.isMP4(file)) {
+          if (this.filesService.isVideoByFileModel(file)) {
             file['tabRef'] = this.miniLogAnalyzer.componentsTree.treeModel.nodes.length + 2 + i; // components and Logs + Files tabs
           }
         });
@@ -84,14 +86,10 @@ export class ExternalTestExecutionComponent implements OnInit {
     );
   }
 
-  getMP4Files(): FileModel[] {
-    let mp4Files: FileModel[] = [];
-    mp4Files = this.files.filter((file: FileModel) => this.isMP4(file));
-    return mp4Files;
-  }
-
-  isMP4(file: FileModel): boolean {
-    return file && file.name.endsWith('mp4');
+  getVideoFiles(): FileModel[] {
+    let videoFiles: FileModel[] = [];
+    videoFiles = this.files.filter((file: FileModel) => this.filesService.isVideoByFileModel(file));
+    return videoFiles;
   }
 
   goToTab(num: number): void {

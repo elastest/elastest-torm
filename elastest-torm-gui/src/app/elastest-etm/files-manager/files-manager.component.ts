@@ -13,6 +13,7 @@ import { ElastestEusDialogService } from '../../elastest-eus/elastest-eus.dialog
 import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
 import { interval } from 'rxjs';
 import { AbstractTJobModel } from '../models/abstract-tjob-model';
+import { FilesService } from '../../shared/services/files.service';
 
 @Component({
   selector: 'etm-files-manager',
@@ -55,6 +56,7 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
     private externalService: ExternalService,
     private configurationService: ConfigurationService,
     private eusDialog: ElastestEusDialogService,
+    private filesService: FilesService,
   ) {
     this.filesUrlPrefix = configurationService.configModel.proxyHost;
   }
@@ -165,9 +167,5 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
 
   showNoFilesMessage(): boolean {
     return this.filteredExecutionFiles && this.filteredExecutionFiles.length === 0;
-  }
-
-  isVideo(name: string): boolean {
-    return name.includes('.mp4') || name.includes('.webm') || name.includes('.avi');
   }
 }

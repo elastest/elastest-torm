@@ -34,7 +34,7 @@
                       <a mat-button [attr.href]="filesUrlPrefix + row.encodedUrl" class="iconBtn-xs" target="_blank" matTooltip="Open in new tab">
                         <mat-icon>open_in_new</mat-icon>
                       </a>
-                      <a *ngIf="isVideo(row.name)" mat-button (click)="viewSession(row, row.name)"
+                      <a *ngIf="filesService.isVideo(row.name)" mat-button (click)="viewSession(row, row.name)"
                         class="iconBtn-xs" target="_blank" matTooltip="Open as dialog">
                         <mat-icon>open_in_browser</mat-icon>
                       </a>
