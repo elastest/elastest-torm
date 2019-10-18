@@ -35,7 +35,7 @@ export class FilesService {
   }
 
   isVideo(name: string): boolean {
-    return name.includes('.mp4') || name.includes('.webm') || name.includes('.avi');
+    return name.includes('.mp4') || name.includes('.webm') || name.includes('.avi') || name.includes('.y4m');
   }
 
   isVideoByFileModel(file: FileModel): boolean {

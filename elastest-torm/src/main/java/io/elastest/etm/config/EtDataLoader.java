@@ -233,7 +233,6 @@ public class EtDataLoader {
             CommandsOptionEnum commandsOption, ProtocolEnum protocol,
             String port, List<Parameter> parameters) {
         SutSpecification sut = new SutSpecification();
-
         sut = this.initCommonSutFields(sut, project, exProject, name, desc,
                 image, port, protocol, parameters);
 
@@ -251,7 +250,6 @@ public class EtDataLoader {
             String desc, String image, ProtocolEnum protocol, String port,
             List<Parameter> parameters) {
         SutSpecification sut = new SutSpecification();
-
         sut = this.initCommonSutFields(sut, project, exProject, name, desc,
                 image, port, protocol, parameters);
 
@@ -266,11 +264,11 @@ public class EtDataLoader {
             String desc, String compose, String mainServiceName,
             ProtocolEnum protocol, String port, List<Parameter> parameters) {
         SutSpecification sut = new SutSpecification();
-        sut.setSutType(SutTypeEnum.MANAGED);
-        sut.setManagedDockerType(ManagedDockerType.COMPOSE);
-
         sut = this.initCommonSutFields(sut, project, exProject, name, desc,
                 compose, port, protocol, parameters);
+
+        sut.setSutType(SutTypeEnum.MANAGED);
+        sut.setManagedDockerType(ManagedDockerType.COMPOSE);
 
         sut.setMainService(mainServiceName);
 
@@ -285,11 +283,11 @@ public class EtDataLoader {
             List<String> dockerizedLogPaths,
             List<String> dockerizedDockersockPaths, boolean dockerized) {
         SutSpecification sut = new SutSpecification();
-        sut.setSutType(SutTypeEnum.DEPLOYED);
-        sut.setInstrumentedBy(InstrumentedByEnum.ELASTEST);
-
         sut = this.initCommonSutFields(sut, project, exProject, name, desc, ip,
                 port, protocol, parameters);
+
+        sut.setSutType(SutTypeEnum.DEPLOYED);
+        sut.setInstrumentedBy(InstrumentedByEnum.ELASTEST);
 
         // Eim config
         EimConfig eimConfig = new EimConfig(null, user, password, privateKey,
