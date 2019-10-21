@@ -9,6 +9,7 @@ export class CardLogModel implements LogViewModel {
   hidePrevBtn: boolean;
   etType: string;
   monitoringIndex: string;
+  showTimestamp: boolean;
 
   startDate: Date;
   endDate: Date;
@@ -24,6 +25,7 @@ export class CardLogModel implements LogViewModel {
     this.hidePrevBtn = false;
     this.etType = '';
     this.monitoringIndex = '';
+    this.showTimestamp = false;
   }
 
   cloneModel(): LogViewModel {

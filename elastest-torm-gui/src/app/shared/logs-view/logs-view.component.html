@@ -68,6 +68,17 @@
           >Warnings: {{ loadWarnings() }}</span
         >
       </button>
+      <span fxFlex></span>
+      <mat-checkbox
+        #showTimestampCheckbox
+        [(ngModel)]="model.showTimestamp"
+        id="showLogTimestampCheckbox"
+        name="showLogTimestampCheckbox"
+        matTooltip="Show timestamp"
+        [labelPosition]="'before'"
+        class="pad-right-sm"
+      >
+      </mat-checkbox>
     </div>
   </mat-card-title>
   <mat-divider></mat-divider>

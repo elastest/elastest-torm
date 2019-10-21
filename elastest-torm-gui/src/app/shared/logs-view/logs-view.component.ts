@@ -107,4 +107,8 @@ export class LogsViewComponent implements OnInit {
   switchFilterWarnings(): void {
     this.warningsFiltered = !this.warningsFiltered;
   }
+
+  switchShowTimestamp(): void {
+    this.model.showTimestamp = !this.model.showTimestamp;
+  }
 }

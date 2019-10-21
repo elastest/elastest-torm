@@ -9,6 +9,7 @@ export interface LogViewModel extends LoadPreviousModel {
   hidePrevBtn: boolean;
   etType: string;
   monitoringIndex: string;
+  showTimestamp: boolean;
 
   cloneModel(): LogViewModel;
 
