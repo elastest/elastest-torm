@@ -48,7 +48,7 @@ export class TjobExecViewComponent implements OnInit, OnDestroy {
   }
 
   checkResultStatus(): void {
-    let timer: Observable<number> = interval(1800);
+    let timer: Observable<number> = interval(2800);
     if (this.checkResultSubscription === null || this.checkResultSubscription === undefined) {
       this.checkResultSubscription = timer.subscribe(() => {
         this.tJobExecService.getResultStatus(this.tJobId, this.tJobExec).subscribe(

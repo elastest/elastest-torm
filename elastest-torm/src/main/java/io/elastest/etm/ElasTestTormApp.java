@@ -63,6 +63,9 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Value("${additional.server.port}")
     int additionalServerPort;
 
+    @Value("${et.core.pool.size}")
+    int etCorePoolSize;
+
     @Bean
     UtilTools utils() {
         UtilTools utils = new UtilTools();
@@ -71,9 +74,14 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
 
     public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(8);
+
+        System.out.println("Core pool size: " + etCorePoolSize);
+        // Max 4 process
+        executor.setCorePoolSize(etCorePoolSize);
+        // after 4 process, queued
         executor.setQueueCapacity(500);
+        // After queue capacity (500)
+        executor.setMaxPoolSize(8);
         executor.setThreadNamePrefix("ET-");
         executor.initialize();
         return executor;

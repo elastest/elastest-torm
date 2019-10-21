@@ -2,19 +2,19 @@
   Showing: Filtered
 </ng-container>
 <div fxLayout="row">
-  <ul #scrollMe class="logsViewContent" (scroll)="onScroll($event);">
+  <ul #scrollMe class="logsViewContent" (scroll)="onScroll($event)">
     <ng-container *ngIf="model.filteredTraces.length === 0">
       <li *ngFor="let trace of model.prevTraces">
-        <pre>{{trace.message}}</pre>
+        <pre [class]="getTraceLevelClass(trace)">{{ trace.message }}</pre>
       </li>
       <!-- <mat-divider *ngIf="model.prevTraces.length > 0" class="push-bottom push-top"></mat-divider> -->
       <li *ngFor="let trace of model.traces">
-        <pre [class]="getTraceLevelClass(trace)">{{trace.message}}</pre>
+        <pre [class]="getTraceLevelClass(trace)">{{ trace.message }}</pre>
       </li>
     </ng-container>
     <ng-container *ngIf="model.filteredTraces.length > 0">
       <li *ngFor="let trace of model.filteredTraces">
-        <pre>{{trace.message}}</pre>
+        <pre [class]="getTraceLevelClass(trace)">{{ trace.message }}</pre>
       </li>
     </ng-container>
   </ul>

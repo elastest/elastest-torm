@@ -194,7 +194,7 @@ export class LiveTjobExecManagerComponent implements OnInit, AfterViewInit, OnDe
   }
 
   checkResultStatus(): void {
-    let timer: Observable<number> = interval(2500);
+    let timer: Observable<number> = interval(2800);
     if (this.checkResultSubscription === null || this.checkResultSubscription === undefined) {
       this.checkResultSubscription = timer.subscribe(() => {
         this.tJobExecService.getResultStatusByTJob(this.tJob, this.tJobExec).subscribe(
