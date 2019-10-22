@@ -36,15 +36,4 @@ public class DatabaseSessionManager {
         EntityManagerFactoryUtils
                 .closeEntityManager(emHolder.getEntityManager());
     }
-
-    public void reloaEntityFromDb(Object entity) throws Exception {
-        try {
-            bindSession();
-            entityManager.refresh(entity);
-
-        } catch (Exception e) {
-            logger.error("EntityManager can't be null");
-            throw e;
-        }
-    }
 }
