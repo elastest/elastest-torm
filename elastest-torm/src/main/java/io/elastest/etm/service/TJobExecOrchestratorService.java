@@ -243,8 +243,13 @@ public class TJobExecOrchestratorService {
                             execution.getReportTestSuite(), tJobExec);
                 } else if (execution.getReportTestSuite() == null) {
                     logger.debug("Saving test suitest from a TJob on k8s");
-                    tJobExec = tJobExecRepositoryImpl
-                            .findById(tJobExec.getId().longValue()).get();
+                    try {
+                        dbmanager.reloadEntityFromDb(tJobExec);
+                    } catch (IllegalArgumentException iae) {
+                        tJobExec = tJobExecRepositoryImpl
+                                .findById(tJobExec.getId()).get();
+                    }
+
                 }
 
                 tJobExec.setEndDate(new Date());

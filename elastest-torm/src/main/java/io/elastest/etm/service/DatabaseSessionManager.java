@@ -36,4 +36,16 @@ public class DatabaseSessionManager {
         EntityManagerFactoryUtils
                 .closeEntityManager(emHolder.getEntityManager());
     }
+
+    public void reloadEntityFromDb(Object entity) throws Exception,IllegalArgumentException {
+        try {
+            entityManager.refresh(entity);
+        } catch (IllegalArgumentException iae) {
+            logger.error(iae.getMessage());
+            throw iae;
+        } catch (Exception e) {
+            logger.error("EntityManager can't be null");
+            throw e;
+        }
+    }
 }

@@ -93,8 +93,8 @@ public class EtmTestResultService {
                 }
 
                 tSuite.settJobExec(tJobExec);
-                testSuiteRepo.save(tSuite);
-                tJobExec.getTestSuites().add(tSuite);
+                tJobExec.getTestSuites()
+                        .add(testSuiteRepo.saveAndFlush(tSuite));
             }
         }
     }
