@@ -24,6 +24,8 @@ public class DatabaseSessionManager {
     public void bindSession() {
         if (!TransactionSynchronizationManager
                 .hasResource(entityManagerFactory)) {
+            logger.debug("Add Entity Manager to thread: {}",
+                    Thread.currentThread().getName());
             entityManager = entityManagerFactory.createEntityManager();
             TransactionSynchronizationManager.bindResource(entityManagerFactory,
                     new EntityManagerHolder(entityManager));
@@ -35,11 +37,22 @@ public class DatabaseSessionManager {
                 .unbindResource(entityManagerFactory);
         EntityManagerFactoryUtils
                 .closeEntityManager(emHolder.getEntityManager());
+        logger.debug("Unbinded EntityManager from thread: {}",
+                Thread.currentThread().getName());
     }
 
-    public void reloadEntityFromDb(Object entity) throws Exception,IllegalArgumentException {
+    public void reloadEntityFromDb(Object entity)
+            throws Exception, IllegalArgumentException {
+        EntityManager entityManager;
+        entityManager = ((EntityManagerHolder) TransactionSynchronizationManager
+                .getResource(entityManagerFactory)).getEntityManager();
         try {
-            entityManager.refresh(entity);
+            if (entityManager.isOpen()) {
+                entityManager.refresh(entity);
+            } else {
+                unbindSession();
+                bindSession();
+            }
         } catch (IllegalArgumentException iae) {
             logger.error(iae.getMessage());
             throw iae;
@@ -48,4 +61,5 @@ public class DatabaseSessionManager {
             throw e;
         }
     }
+
 }
