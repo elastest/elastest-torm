@@ -87,7 +87,9 @@ export class ElastestLogComparatorComponent implements OnInit {
             newLogComparison.endDate = logComparison.endDate;
             newLogComparison.pair = logComparison.pair;
             newLogComparison.components = componentsList;
+            newLogComparison.execsIds = logComparison.execsIds;
             this.addMoreLogsComparison(this.aioKey, newLogComparison);
+
           }
         } // Else is empty
       }
