@@ -15,7 +15,6 @@ import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
-import org.springframework.scheduling.annotation.Async;
 
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
@@ -29,7 +28,7 @@ import io.elastest.etm.utils.UtilsService;
 public abstract class AbstractMonitoringService {
     protected final Logger logger = getLogger(lookup().lookupClass());
     String processingComparationMsg = "ET-PROCESSING";
-    private Map<String, String> comparisonProcessMap = new HashMap<>();
+    protected Map<String, String> comparisonProcessMap = new HashMap<>();
 
     protected TestSuiteService testSuiteService;
     protected UtilsService utilsService;
@@ -52,6 +51,7 @@ public abstract class AbstractMonitoringService {
         if (indices != null) {
             for (String index : indices) {
                 try {
+                    logger.debug("Deleting monitoring data of index {}", index);
                     allDeleted = deleteMonitoringDataByExec(index)
                             && allDeleted;
                 } catch (Exception e) {
@@ -63,11 +63,6 @@ public abstract class AbstractMonitoringService {
         }
 
         return allDeleted;
-    }
-
-    @Async
-    public void deleteMonitoringDataByIndicesAsync(List<String> indices) {
-        deleteMonitoringDataByIndices(indices);
     }
 
     /* *** Logs *** */
@@ -308,10 +303,10 @@ public abstract class AbstractMonitoringService {
         return html;
     }
 
-    @Async
     public void compareLogsPairAsync(MonitoringQuery body, String comparison,
             String view, String timeout, String processId) throws Exception {
         comparisonProcessMap.put(processId, processingComparationMsg);
+        logger.debug("Async comparison with process ID {} starts", processId);
         String comparisonString = this.compareLogsPair(body, comparison, view,
                 timeout);
         logger.debug("Async comparison with process ID {} ends", processId);

@@ -103,6 +103,7 @@ public class ExternalService {
     private LogstashService logstashService;
 
     private AbstractMonitoringService monitoringService;
+    private AsyncMonitoringService asyncMonitoringService;
     private UtilsService utilsService;
     private SutService sutService;
     private EtmFilesService etmFilesService;
@@ -116,6 +117,7 @@ public class ExternalService {
             ExternalTJobRepository externalTJobRepository,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
             TSSService esmService, AbstractMonitoringService monitoringService,
+            AsyncMonitoringService asyncMonitoringService,
             EtmContextService etmContextService,
             LogstashService logstashService, UtilsService utilsService,
             TJobExecOrchestratorService tJobExecOrchestratorService,
@@ -132,6 +134,7 @@ public class ExternalService {
         this.externalTJobExecutionRepository = externalTJobExecutionRepository;
         this.esmService = esmService;
         this.monitoringService = monitoringService;
+        this.asyncMonitoringService = asyncMonitoringService;
         this.etmContextService = etmContextService;
         this.logstashService = logstashService;
         this.utilsService = utilsService;
@@ -573,7 +576,7 @@ public class ExternalService {
         ExternalTJobExecution exTJobExec = externalTJobExecutionRepository
                 .findById(exTJobExecId).get();
         String index = exTJobExec.getExternalTJobExecMonitoringIndex();
-        monitoringService
+        asyncMonitoringService
                 .deleteMonitoringDataByIndicesAsync(Arrays.asList(index));
         externalTJobExecutionRepository.delete(exTJobExec);
 

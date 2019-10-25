@@ -64,7 +64,8 @@ public class TJobService {
     private final TJobExecRepository tJobExecRepositoryImpl;
     public final TJobExecOrchestratorService tJobExecOrchestratorService;
     private UtilsService utilsService;
-    private AbstractMonitoringService monitoringService;
+    private AsyncMonitoringService asyncMonitoringService;
+
     private EtmTestResultService etmTestResultService;
     private EtmFilesService etmFilesService;
     private PlatformService platformService;
@@ -75,7 +76,7 @@ public class TJobService {
             TJobExecRepository tJobExecRepositoryImpl,
             TJobExecOrchestratorService epmIntegrationService,
             UtilsService utilsService,
-            AbstractMonitoringService monitoringService,
+            AsyncMonitoringService asyncMonitoringService,
             EtmTestResultService etmTestResultService,
             EtmFilesService etmFilesService, PlatformService platformService) {
         super();
@@ -83,7 +84,7 @@ public class TJobService {
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.tJobExecOrchestratorService = epmIntegrationService;
         this.utilsService = utilsService;
-        this.monitoringService = monitoringService;
+        this.asyncMonitoringService = asyncMonitoringService;
         this.etmTestResultService = etmTestResultService;
         this.etmFilesService = etmFilesService;
         this.platformService = platformService;
@@ -154,7 +155,7 @@ public class TJobService {
 
     public void deleteTJob(Long tJobId) {
         TJob tJob = tJobRepo.findById(tJobId).get();
-        monitoringService.deleteMonitoringDataByIndicesAsync(
+        asyncMonitoringService.deleteMonitoringDataByIndicesAsync(
                 tJob.getAllMonitoringIndices());
         tJobRepo.delete(tJob);
         try {
@@ -332,7 +333,7 @@ public class TJobService {
 
     public void deleteTJobExec(TJobExecution tJobExec) {
         String index = tJobExec.getOnlyTJobExecMonitoringIndex();
-        monitoringService
+        asyncMonitoringService
                 .deleteMonitoringDataByIndicesAsync(Arrays.asList(index));
         tJobExecRepositoryImpl.delete(tJobExec);
         try {

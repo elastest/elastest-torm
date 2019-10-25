@@ -21,6 +21,7 @@ import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.service.AbstractMonitoringService;
+import io.elastest.etm.service.AsyncMonitoringService;
 import io.elastest.etm.service.TracesService;
 import io.elastest.etm.utils.UtilTools;
 import io.swagger.annotations.ApiParam;
@@ -31,11 +32,14 @@ public class TracesApiController implements TracesApi {
 
     private TracesService tracesService;
     private AbstractMonitoringService monitoringService;
+    private AsyncMonitoringService asyncMonitoringService;
 
     public TracesApiController(TracesService tracesService,
-            AbstractMonitoringService monitoringService) {
+            AbstractMonitoringService monitoringService,
+            AsyncMonitoringService asyncMonitoringService) {
         this.tracesService = tracesService;
         this.monitoringService = monitoringService;
+        this.asyncMonitoringService = asyncMonitoringService;
     }
 
     public ResponseEntity<Map<String, Object>> processTrace(
@@ -133,7 +137,7 @@ public class TracesApiController implements TracesApi {
             @RequestParam(value = "timeout", required = true) String timeout)
             throws Exception {
         String processId = UtilTools.generateUniqueId();
-        monitoringService.compareLogsPairAsync(body, comparison, view, timeout,
+        asyncMonitoringService.compareLogsPairAsync(body, comparison, view, timeout,
                 processId);
         return new ResponseEntity<>(processId, HttpStatus.OK);
     }
