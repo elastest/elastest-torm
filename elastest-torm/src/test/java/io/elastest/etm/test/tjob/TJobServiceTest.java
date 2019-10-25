@@ -18,6 +18,7 @@ import io.elastest.etm.model.Project;
 import io.elastest.etm.model.TJob;
 import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.service.AbstractMonitoringService;
+import io.elastest.etm.service.AsyncMonitoringService;
 import io.elastest.etm.service.TSSService;
 import io.elastest.etm.service.EtmTestResultService;
 import io.elastest.etm.service.TJobExecOrchestratorService;
@@ -51,16 +52,15 @@ public class TJobServiceTest {
             @Mock TJobExecOrchestratorService epmIntegrationService,
             @Mock TJobExecRepository tJobExecRepo, @Mock TSSService esmService,
             @Mock UtilsService utilsService,
-            @Mock AbstractMonitoringService abstractMonitoringService,
+            @Mock AsyncMonitoringService asyncMonitoringService,
             @Mock EtmTestResultService etmTestResultService,
             @Mock EtmFilesService etmFilesService,
             @Mock PlatformService platformService) {
         // TJob createdTJob =
         when(tJobRepo.save(tJob)).thenReturn(tJob);
         TJobService tJobService = new TJobService(tJobRepo, tJobExecRepo,
-                epmIntegrationService, utilsService,
-                abstractMonitoringService, etmTestResultService,
-                etmFilesService, platformService);
+                epmIntegrationService, utilsService, asyncMonitoringService,
+                etmTestResultService, etmFilesService, platformService);
         TJob tJob1 = tJobService.createTJob(tJob);
         System.out.println("ImageName:" + tJob1.getImageName());
         assertNotNull(tJob1.getId());
