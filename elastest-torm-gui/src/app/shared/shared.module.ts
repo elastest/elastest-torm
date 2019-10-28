@@ -4,6 +4,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { InputTrimModule } from 'ng2-trim-directive';
+
 import {
   CovalentDataTableModule,
   CovalentMediaModule,
@@ -117,6 +119,7 @@ const CHART_MODULES: any[] = [NgxChartsModule];
     CovalentExpansionPanelModule,
     FontAwesomeModule,
     MatProgressSpinnerModule,
+    InputTrimModule,
   ],
   declarations: [
     LogsViewComponent,

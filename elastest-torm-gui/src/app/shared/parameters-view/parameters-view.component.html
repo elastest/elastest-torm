@@ -1,5 +1,12 @@
 <ng-container *ngIf="!updateInProgress">
-  <button mat-raised-button color="accent" (click)="addParameter()" matTooltip="Add parameter" id="addNewParameter" class="iconBtn push-top-sm">
+  <button
+    mat-raised-button
+    color="accent"
+    (click)="addParameter()"
+    matTooltip="Add parameter"
+    id="addNewParameter"
+    class="iconBtn push-top-sm"
+  >
     <mat-icon>add</mat-icon>Add Parameter
   </button>
 
@@ -7,11 +14,26 @@
     <mat-list-item fxFlex.gt-xs="100">
       <div fxLayout="row" fxLayoutAlign="center center">
         <mat-form-field>
-          <input matInput id="parameterName{{i}}" value="" [(ngModel)]="parameter.name" placeholder="Name" required>
+          <input
+            matInput
+            id="parameterName{{ i }}"
+            value=""
+            [(ngModel)]="parameter.name"
+            placeholder="Name"
+            trim="blur"
+            type="text"
+            required
+          />
         </mat-form-field>
         <mat-form-field fxFlexOffset="5">
-          <input matInput id="parameterValue{{i}}" value="" [(ngModel)]="parameter.value" placeholder="Default Value"
-            required>
+          <input
+            matInput
+            id="parameterValue{{ i }}"
+            value=""
+            [(ngModel)]="parameter.value"
+            placeholder="Default Value"
+            required
+          />
         </mat-form-field>
 
         <button mat-button (click)="deleteParameter(i)" matTooltip="Delete parameter" class="iconBtn push-top-sm">
