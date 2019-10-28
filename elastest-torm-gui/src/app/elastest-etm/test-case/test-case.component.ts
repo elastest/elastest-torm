@@ -201,4 +201,8 @@ export class TestCaseComponent implements OnInit {
       );
     }
   }
+
+  caseHasFiles(): boolean {
+    return this.testCase && this.testCase.files && this.testCase.files.length > 0;
+  }
 }

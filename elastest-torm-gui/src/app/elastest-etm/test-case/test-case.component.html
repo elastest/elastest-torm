@@ -19,9 +19,9 @@
             <etm-test-case-detail fxLayout="column" fxFlexFill [testCase]="testCase"></etm-test-case-detail>
           </mat-tab>
 
-          <mat-tab label="Files">
+          <mat-tab label="Files ({{ caseHasFiles() ? this.testCase.files.length : 0 }})">
             <ng-template matTabContent>
-              <div fxLayout="row" fxFlexFill *ngIf="testCase && testCase.files && testCase.files.length > 0; else showEmptyMsg">
+              <div fxLayout="row" fxFlexFill *ngIf="caseHasFiles(); else showEmptyMsg">
                 <td-data-table
                   #filesTable
                   fxFlex
