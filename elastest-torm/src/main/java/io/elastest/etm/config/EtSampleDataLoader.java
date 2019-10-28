@@ -592,67 +592,125 @@ public class EtSampleDataLoader {
         }
     }
 
+    @SuppressWarnings("unused")
     public void createFullteaching() {
         String pjName = "FullTeaching";
         if (!etDataLoader.projectExists(pjName)) {
-            String sut1Name = "OpenVidu Test App";
-            String sut1Desc = "FullTeaching Software under Test";
-
-            String sut1Compose = "version: '3'\r\n" + "services:\r\n"
-                    + " full-teaching-mysql:\r\n" + "   image: mysql:5.7.21\r\n"
-                    + "   environment:\r\n"
-                    + "     - MYSQL_ROOT_PASSWORD=pass\r\n"
-                    + "     - MYSQL_DATABASE=full_teaching\r\n"
-                    + "     - MYSQL_USER=ft-root\r\n"
-                    + "     - MYSQL_PASSWORD=pass\r\n"
-                    + " full-teaching-openvidu-server-kms:\r\n"
-                    + "   image: openvidu/openvidu-server-kms:1.7.0\r\n"
-                    + "   expose:\r\n" + "     - 8443\r\n"
-                    + "   environment:\r\n"
-                    + "     - KMS_STUN_IP=stun.l.google.com\r\n"
-                    + "     - KMS_STUN_PORT=19302\r\n"
-                    + "     - openvidu.secret=MY_SECRET\r\n"
-                    + "     - openvidu.publicurl=docker\r\n"
-                    + " full-teaching:\r\n"
-                    + "   image: codeurjc/full-teaching:demo\r\n"
-                    + "   depends_on:\r\n" + "     - full-teaching-mysql\r\n"
-                    + "     - full-teaching-openvidu-server-kms\r\n"
-                    + "   expose:\r\n" + "     - 5000\r\n"
-                    + "   environment:\r\n"
-                    + "     - WAIT_HOSTS=full-teaching-mysql:3306\r\n"
-                    + "     - WAIT_HOSTS_TIMEOUT=120\r\n"
-                    + "     - MYSQL_PORT_3306_TCP_ADDR=full-teaching-mysql\r\n"
-                    + "     - MYSQL_PORT_3306_TCP_PORT=3306\r\n"
-                    + "     - MYSQL_ENV_MYSQL_DATABASE=full_teaching\r\n"
-                    + "     - MYSQL_ENV_MYSQL_USER=ft-root\r\n"
-                    + "     - MYSQL_ENV_MYSQL_PASSWORD=pass\r\n"
-                    + "     - server.port=5000\r\n"
-                    + "     - openvidu.url=https://full-teaching-openvidu-server-kms:8443\r\n"
-                    + "     - openvidu.secret=MY_SECRET\r\n";
-
-            ProtocolEnum sut1Protocol = ProtocolEnum.HTTPS;
-            String sut1Port = "5000";
-
-            String tJobName = "E2E Teacher + Student VIDEO-SESSION";
-            String resultsPath = "/full-teaching-experiment/target/surefire-reports/";
-            String commands = "git clone https://github.com/elastest/full-teaching-experiment;\ncd full-teaching-experiment;\nmvn -Dtest=FullTeachingTestE2EVideoSession -B test -DbrowserVersion=74;";
-            List<String> tss = Arrays.asList("EUS");
-
             this.printLog(pjName);
+
             // Create Project
             Project project = etDataLoader.createProject(pjName);
 
             // Create Sut
-            SutSpecification sut = etDataLoader
-                    .createSutDeployedByElastestWithCompose(project, null,
-                            sut1Name, sut1Desc, sut1Compose, "full-teaching",
-                            sut1Protocol, sut1Port, null);
+            SutSpecification sut = createAndGetFullteachingSut(project, null);
 
-            // Create TJob
-            etDataLoader.createTJob(project, tJobName, resultsPath,
-                    javaMvnImage, false, commands,
+            // Create Bug Suts
+            SutSpecification sutBug1 = createAndGetFullteachingSut(project,
+                    "bug1");
+            SutSpecification sutBug2 = createAndGetFullteachingSut(project,
+                    "bug2");
+            SutSpecification sutBug3 = createAndGetFullteachingSut(project,
+                    "bug3");
+            SutSpecification sutBug4 = createAndGetFullteachingSut(project,
+                    "bug4");
+            SutSpecification sutBug5 = createAndGetFullteachingSut(project,
+                    "bug5");
+            SutSpecification sutBug6 = createAndGetFullteachingSut(project,
+                    "bug6");
+            SutSpecification sutBug7 = createAndGetFullteachingSut(project,
+                    "bug7");
+            SutSpecification sutBug8 = createAndGetFullteachingSut(project,
+                    "bug8");
+            SutSpecification sutBug9 = createAndGetFullteachingSut(project,
+                    "bug9");
+            SutSpecification sutBug10 = createAndGetFullteachingSut(project,
+                    "bug10");
+            SutSpecification sutBug11 = createAndGetFullteachingSut(project,
+                    "bug11");
+            SutSpecification sutBug12 = createAndGetFullteachingSut(project,
+                    "bug12");
+            SutSpecification sutBug13 = createAndGetFullteachingSut(project,
+                    "bug13");
+
+            // Create TJob 1
+            String tJobName1 = "E2E Teacher + Student VIDEO-SESSION";
+            String resultsPath1 = "/full-teaching-experiment/target/surefire-reports/";
+            String commands1 = "git clone https://github.com/elastest/full-teaching-experiment;\ncd full-teaching-experiment;\nmvn -Dtest=FullTeachingTestE2EVideoSession -B test -DbrowserVersion=74;";
+            List<String> tss = Arrays.asList("EUS");
+
+            etDataLoader.createTJob(project, tJobName1, resultsPath1,
+                    javaMvnImage, false, commands1,
+                    EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut, null);
+
+            // Create TJob 2
+            String tJobName2 = "E2E REST operations";
+            String resultsPath2 = "/full-teaching-experiment/target/surefire-reports/";
+            String commands2 = "git clone https://github.com/elastest/full-teaching-experiment;\ncd full-teaching-experiment;\nmvn -Dtest=FullTeachingTestE2EREST -B test -DbrowserVersion=74;";
+
+            etDataLoader.createTJob(project, tJobName2, resultsPath2,
+                    javaMvnImage, false, commands2,
+                    EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut, null);
+
+            // Create TJob 3
+            String tJobName3 = "E2E Teacher + Student CHAT";
+            String resultsPath3 = "/full-teaching-experiment/target/surefire-reports/";
+            String commands3 = "git clone https://github.com/elastest/full-teaching-experiment;\ncd full-teaching-experiment;\nmvn -Dtest=FullTeachingTestE2EChat -B test -DbrowserVersion=74;";
+
+            etDataLoader.createTJob(project, tJobName3, resultsPath3,
+                    javaMvnImage, false, commands3,
                     EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut, null);
         }
+    }
+
+    private SutSpecification createAndGetFullteachingSut(Project project,
+            String imageTag) {
+        String sutName = "OpenVidu Test App";
+        if (imageTag == null || "".equals(imageTag)) {
+            imageTag = "demo";
+        } else {
+            sutName += ": " + imageTag;
+        }
+
+        String sutDesc = "FullTeaching Software under Test";
+
+        String sutCompose = getFullteachingCompose(imageTag);
+
+        ProtocolEnum sutProtocol = ProtocolEnum.HTTPS;
+        String sutPort = "5000";
+
+        return etDataLoader.createSutDeployedByElastestWithCompose(project,
+                null, sutName, sutDesc, sutCompose, "full-teaching",
+                sutProtocol, sutPort, null);
+    }
+
+    private String getFullteachingCompose(String imageTag) {
+        return "version: '3'\r\n" + "services:\r\n"
+                + " full-teaching-mysql:\r\n" + "   image: mysql:5.7.21\r\n"
+                + "   environment:\r\n" + "     - MYSQL_ROOT_PASSWORD=pass\r\n"
+                + "     - MYSQL_DATABASE=full_teaching\r\n"
+                + "     - MYSQL_USER=ft-root\r\n"
+                + "     - MYSQL_PASSWORD=pass\r\n"
+                + " full-teaching-openvidu-server-kms:\r\n"
+                + "   image: openvidu/openvidu-server-kms:1.7.0\r\n"
+                + "   expose:\r\n" + "     - 8443\r\n" + "   environment:\r\n"
+                + "     - KMS_STUN_IP=stun.l.google.com\r\n"
+                + "     - KMS_STUN_PORT=19302\r\n"
+                + "     - openvidu.secret=MY_SECRET\r\n"
+                + "     - openvidu.publicurl=docker\r\n" + " full-teaching:\r\n"
+                + "   image: codeurjc/full-teaching:" + imageTag + "\r\n"
+                + "   depends_on:\r\n" + "     - full-teaching-mysql\r\n"
+                + "     - full-teaching-openvidu-server-kms\r\n"
+                + "   expose:\r\n" + "     - 5000\r\n" + "   environment:\r\n"
+                + "     - WAIT_HOSTS=full-teaching-mysql:3306\r\n"
+                + "     - WAIT_HOSTS_TIMEOUT=120\r\n"
+                + "     - MYSQL_PORT_3306_TCP_ADDR=full-teaching-mysql\r\n"
+                + "     - MYSQL_PORT_3306_TCP_PORT=3306\r\n"
+                + "     - MYSQL_ENV_MYSQL_DATABASE=full_teaching\r\n"
+                + "     - MYSQL_ENV_MYSQL_USER=ft-root\r\n"
+                + "     - MYSQL_ENV_MYSQL_PASSWORD=pass\r\n"
+                + "     - server.port=5000\r\n"
+                + "     - openvidu.url=https://full-teaching-openvidu-server-kms:8443\r\n"
+                + "     - openvidu.secret=MY_SECRET\r\n";
     }
 
     private void createBrowsersInAWS() {
