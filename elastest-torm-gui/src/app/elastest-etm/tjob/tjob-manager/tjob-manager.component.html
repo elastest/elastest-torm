@@ -177,7 +177,10 @@
 
                 <ng-template #tjobSutValue>
                   <ng-container *ngIf="column.name === 'sut'; else sutExec">
-                    <span *ngIf="row.hasSutExec() && row.sutExec.sut && row.sutExec.sut.id; else noneSut">
+                    <span
+                      *ngIf="row.hasSutExec() && row.sutExec.sut && row.sutExec.sut.id; else noneSut"
+                      matTooltip="{{ row.sutExec.sut.name }}"
+                    >
                       {{ row.sutExec.sut.id }}
                     </span>
                     <ng-template #noneSut> None </ng-template>

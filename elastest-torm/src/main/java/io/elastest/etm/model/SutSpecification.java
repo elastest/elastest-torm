@@ -70,7 +70,7 @@ public class SutSpecification {
 
     @JsonView({ SutView.class, ProjectMediumView.class,
             ExternalProjectView.class, ExternalTJobView.class,
-            TJobMediumView.class })
+            TJobMediumView.class, TJobExecCompleteView.class })
     @JsonProperty("name")
     private String name = null;
 
