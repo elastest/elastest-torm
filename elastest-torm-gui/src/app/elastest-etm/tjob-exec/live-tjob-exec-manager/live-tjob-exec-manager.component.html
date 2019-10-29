@@ -13,6 +13,10 @@
       </mat-card-title>
       <mat-divider></mat-divider>
       <mat-card-content *ngIf="tJobExec">
+        <div *ngIf="tJobExec && tJobExec.startDate">
+          <span class="mat-small">Started at {{ tJobExec.startDate | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
+        </div>
+
         <div fxLayout="row" fxLayoutAlign="space-between end">
           <span class="displayBlock">
             <mat-spinner
