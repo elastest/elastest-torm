@@ -21,7 +21,6 @@ public class Execution extends DockerServiceStatus {
     private SutSpecification sut;
     private SutExecution sutExec;
     private List<ReportTestSuite> reportTestSuite;
-    
 
     public Execution() {
     }
@@ -99,8 +98,7 @@ public class Execution extends DockerServiceStatus {
         this.updateFromExternalTJobExec(externalTJobExec);
     }
 
-    public void updateFromExternalTJobExec(
-            ExternalTJobExecution externalTJobExec) {
+    public void updateFromExternalTJobExec(ExternalTJobExecution externalTJobExec) {
         this.externalTJobExec = externalTJobExec;
         this.externalTJob = externalTJobExec.getExTJob();
         this.sut = this.externalTJob.getSut();
@@ -115,8 +113,7 @@ public class Execution extends DockerServiceStatus {
     }
 
     public boolean isWithSut() {
-        return isExternal() ? externalTJobExec.isWithSut()
-                : tJobExec.isWithSut();
+        return isExternal() ? externalTJobExec.isWithSut() : tJobExec.isWithSut();
     }
 
     public SutExecution getSutExec() {
@@ -127,8 +124,7 @@ public class Execution extends DockerServiceStatus {
         this.sutExec = sutExec;
     }
 
-    public void updateTJobExecutionStatus(ResultEnum resultCode,
-            String resultMsg) {
+    public void updateTJobExecutionStatus(ResultEnum resultCode, String resultMsg) {
         if (isExternal()) {
             externalTJobExec.setResult(resultCode);
             externalTJobExec.setResultMsg(resultMsg);
@@ -156,6 +152,14 @@ public class Execution extends DockerServiceStatus {
         }
     }
 
+    public String getKeyIdByExecutionType() {
+        if (isExternal()) {
+            return "extexec";
+        } else {
+            return "exec";
+        }
+    }
+
     public List<ReportTestSuite> getReportTestSuite() {
         return reportTestSuite;
     }
@@ -174,10 +178,9 @@ public class Execution extends DockerServiceStatus {
 
     @Override
     public String toString() {
-        return "Execution [isExternal=" + isExternal() + ", tJobExec="
-                + tJobExec + ", tJob=" + tJob + ", externalTJob=" + externalTJob
-                + ", externalTJobExec=" + externalTJobExec + ", sut=" + sut
-                + ", sutExec=" + sutExec + ", withSut=" + isWithSut() + "]";
+        return "Execution [isExternal=" + isExternal() + ", tJobExec=" + tJobExec + ", tJob=" + tJob
+                + ", externalTJob=" + externalTJob + ", externalTJobExec=" + externalTJobExec
+                + ", sut=" + sut + ", sutExec=" + sutExec + ", withSut=" + isWithSut() + "]";
     }
 
 }

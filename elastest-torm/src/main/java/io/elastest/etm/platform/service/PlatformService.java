@@ -94,8 +94,7 @@ public abstract class PlatformService {
     private String dockbeatImage;
 
     public enum ContainerPrefix {
-        TEST("test_"), SUT("sut_"), CHECK("check_"), DOCK_BEAT(
-                "elastest_dockbeat_");
+        TEST("test_"), SUT("sut_"), CHECK("check_"), DOCK_BEAT("elastest_dockbeat_");
 
         private String value;
 
@@ -147,72 +146,61 @@ public abstract class PlatformService {
     }
 
     public abstract boolean createServiceDeploymentProject(String projectName,
-            String serviceDescriptor, String targetPath, boolean override,
-            Map<String, String> envs, boolean withBindedExposedPortsToRandom,
-            boolean withRemoveVolumes) throws Exception;
+            String serviceDescriptor, String targetPath, boolean override, Map<String, String> envs,
+            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes) throws Exception;
 
     public abstract boolean createServiceDeploymentProject(String projectName,
-            String serviceDescriptor, String targetPath, boolean override,
-            Map<String, String> envs, boolean withBindedExposedPortsToRandom,
-            boolean withRemoveVolumes, List<String> extraHosts,
-            Map<String, String> labels) throws Exception;
+            String serviceDescriptor, String targetPath, boolean override, Map<String, String> envs,
+            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes,
+            List<String> extraHosts, Map<String, String> labels) throws Exception;
 
-    public abstract boolean deployService(String projectName, boolean withPull,
-            String namespace) throws IOException, Exception;
+    public abstract boolean deployService(String projectName, boolean withPull, String namespace)
+            throws IOException, Exception;
 
-    public abstract boolean undeployService(String projectName)
-            throws IOException;
+    public abstract boolean undeployService(String projectName) throws IOException;
 
     public abstract boolean undeployAndCleanDeployment(String projectName,
             SupportServiceInstance serviceInstance);
 
-    public abstract List<String> getDeploymentImages(String projectName)
+    public abstract List<String> getDeploymentImages(String projectName) throws Exception;
+
+    public abstract void pullProject(String projectName, Map<String, EtPlugin> currentEtPluginMap)
             throws Exception;
 
-    public abstract void pullProject(String projectName,
-            Map<String, EtPlugin> currentEtPluginMap) throws Exception;
+    public abstract void pullImageWithProgress(String projectName, ProgressHandler progressHandler,
+            String image) throws Exception;
 
-    public abstract void pullImageWithProgress(String projectName,
-            ProgressHandler progressHandler, String image) throws Exception;
+    public abstract void pullDeploymentImages(String projectName, DockerServiceStatus serviceStatus,
+            List<String> images, boolean withProgress) throws Exception;
 
-    public abstract void pullDeploymentImages(String projectName,
-            DockerServiceStatus serviceStatus, List<String> images,
-            boolean withProgress) throws Exception;
-
-    public abstract List<String> getServiceDeploymentImages(String projectName)
-            throws Exception;
+    public abstract List<String> getServiceDeploymentImages(String projectName) throws Exception;
 
     public abstract DockerContainerInfo getContainers(String projectName);
 
-    public abstract boolean isContainerIntoNetwork(String networkId,
-            String containerId) throws Exception;
+    public abstract boolean isContainerIntoNetwork(String networkId, String containerId)
+            throws Exception;
 
     public abstract String getContainerIp(String containerId) throws Exception;
 
-    public abstract String getContainerIp(String serviceId,
-            EtPlugin serviceInstance) throws Exception;
+    public abstract String getContainerIp(String serviceId, EtPlugin serviceInstance)
+            throws Exception;
 
-    public abstract String getUniqPluginContainerName(String serviceName,
-            String network);
+    public abstract String getUniqPluginContainerName(String serviceName, String network);
 
     public abstract String getTSSInstanceContainerName(String... params);
 
-    public abstract void disableMetricMonitoring(Execution execution,
-            boolean force) throws Exception;
-
-    public abstract void deployAndRunTJobExecution(Execution execution)
+    public abstract void disableMetricMonitoring(Execution execution, boolean force)
             throws Exception;
 
-    public abstract String getPublicServiceIp(String serviceName, String port,
-            String namespace);
+    public abstract void deployAndRunTJobExecution(Execution execution) throws Exception;
 
-    public String generateContainerName(ContainerPrefix prefix,
-            Execution execution) {
+    public abstract String getPublicServiceIp(String serviceName, String port, String namespace);
+
+    public String generateContainerName(ContainerPrefix prefix, Execution execution) {
         return this.generateContainerName(prefix, execution, false);
     }
 
-    public String generateContainerName(ContainerPrefix prefix,
-            Execution execution, boolean aux) {
+    public String generateContainerName(ContainerPrefix prefix, Execution execution, boolean aux) {
         logger.info("Building container name with prefix: {}", prefix);
         String containerName = "";
         if (prefix == ContainerPrefix.SUT && execution.getSut() != null) {
@@ -222,31 +210,30 @@ public abstract class PlatformService {
 
             } else { // External TJob (TL)
                 containerName = ContainerPrefix.SUT
-                        + execution.getExternalTJobExec()
-                                .getExternalTJobExecMonitoringIndex();
+                        + execution.getExternalTJobExec().getExternalTJobExecMonitoringIndex();
             }
             SutSpecification sut = execution.getSut();
-            containerName += (sut.isDockerCommandsSut()
-                    && sut.isSutInNewContainer() && aux
-                            ? "_" + sut.getSutInContainerAuxLabel()
-                            : "");
+            containerName += (sut.isDockerCommandsSut() && sut.isSutInNewContainer() && aux
+                    ? "_" + sut.getSutInContainerAuxLabel()
+                    : "");
         } else {
             containerName = prefix.value + (execution.isExternal()
-                    ? execution.getExternalTJobExec()
-                            .getExternalTJobExecMonitoringIndex()
+                    ? execution.getExternalTJobExec().getExternalTJobExecMonitoringIndex()
                     : execution.getExecutionId().toString());
         }
         logger.debug("Generated container name: {}", containerName);
         return containerName;
     }
 
+    public String generateExecutionNetworkName(Execution execution) {
+        return "elastest_" + execution.getKeyIdByExecutionType() + "_" + execution.getExecutionId();
+    }
+
     public abstract void deploySut(Execution execution) throws Exception;
 
-    public abstract void undeploySut(Execution execution, boolean force)
-            throws Exception;
+    public abstract void undeploySut(Execution execution, boolean force) throws Exception;
 
-    public abstract void undeployTJob(Execution execution, boolean force)
-            throws Exception;
+    public abstract void undeployTJob(Execution execution, boolean force) throws Exception;
 
     public abstract String getEtmHost() throws Exception;
 
@@ -256,55 +243,49 @@ public abstract class PlatformService {
 
     public abstract VersionInfo getImageInfo(String name) throws Exception;
 
-    public abstract VersionInfo getVersionInfoFromContainer(String imageName,
-            String version) throws Exception;
+    public abstract VersionInfo getVersionInfoFromContainer(String imageName, String version)
+            throws Exception;
 
     public abstract String getImageTagFromImageName(String imageName);
 
     public abstract String getImageNameFromCompleteImageName(String imageName);
 
-    public abstract void setCoreServiceInfoFromContainer(String imageName,
-            String version, CoreServiceInfo coreServiceInfo) throws Exception;
+    public abstract void setCoreServiceInfoFromContainer(String imageName, String version,
+            CoreServiceInfo coreServiceInfo) throws Exception;
 
-    public abstract String getAllContainerLogs(String containerName,
+    public abstract String getAllContainerLogs(String containerName, boolean withFollow)
+            throws Exception;
+
+    public abstract String getSomeContainerLogs(String containerName, int amount,
             boolean withFollow) throws Exception;
 
-    public abstract String getSomeContainerLogs(String containerName,
-            int amount, boolean withFollow) throws Exception;
+    public abstract String getContainerLogsFrom(String containerId, int from, boolean withFollow)
+            throws Exception;
 
-    public abstract String getContainerLogsFrom(String containerId, int from,
-            boolean withFollow) throws Exception;
-
-    public abstract void removeBindedPorts(
-            SupportServiceInstance serviceInstance);
+    public abstract void removeBindedPorts(SupportServiceInstance serviceInstance);
 
     public abstract void removeBindedPort(String portBindedId);
 
     public abstract void removeWorkEnvironment(String name);
 
-    public abstract Integer copyFilesFomContainer(String container,
-            String originPath, String targetPath);
+    public abstract Integer copyFilesFomContainer(String container, String originPath,
+            String targetPath);
 
-    public abstract ServiceBindedPort getBindedPort(String serviceIdentifier,
-            String containerSufix, String bindedPort, String port,
-            String namespace) throws Exception;
+    public abstract ServiceBindedPort getBindedPort(String serviceIdentifier, String containerSufix,
+            String bindedPort, String port, String namespace) throws Exception;
 
-    public abstract String getBindedServiceIp(
-            SupportServiceInstance serviceInstance, String port);
+    public abstract String getBindedServiceIp(SupportServiceInstance serviceInstance, String port);
 
     public abstract boolean isContainerByServiceName(String serviceName,
             DockerContainerInfo.DockerContainer container);
 
-    protected abstract void startDockbeat(DockerContainer dockerContainer)
-            throws Exception;
+    protected abstract void startDockbeat(DockerContainer dockerContainer) throws Exception;
 
-    public void enableServiceMetricMonitoring(Execution execution)
-            throws Exception {
+    public void enableServiceMetricMonitoring(Execution execution) throws Exception {
         try {
             Long executionId = execution.getExecutionId();
 
-            String containerName = generateContainerName(
-                    ContainerPrefix.DOCK_BEAT, execution);
+            String containerName = generateContainerName(ContainerPrefix.DOCK_BEAT, execution);
 
             // Environment variables
             ArrayList<String> envList = new ArrayList<>();
@@ -312,8 +293,7 @@ public abstract class PlatformService {
 
             // Get Parameters and insert into Env Vars¡
             String lsHostEnvVar = "LOGSTASHHOST" + "=" + logstashOrMiniHost;
-            String lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
-                    + lsInternalBeatsPort;
+            String lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "=" + lsInternalBeatsPort;
 
             Map<String, String> execEnvVars = new HashMap<>();
             String execId = "";
@@ -343,14 +323,12 @@ public abstract class PlatformService {
                 lsInternalBeatsPortEnvVar = "LOGSTASHPORT" + "="
                         + execEnvVars.get("ET_EMS_LSBEATS_PORT");
 
-                lsHostEnvVar = "LOGSTASHHOST" + "="
-                        + execEnvVars.get("ET_EMS_LSBEATS_HOST");
+                lsHostEnvVar = "LOGSTASHHOST" + "=" + execEnvVars.get("ET_EMS_LSBEATS_HOST");
             }
             envList.add(lsHostEnvVar);
             envList.add(lsInternalBeatsPortEnvVar);
             // dockerSock volume bind
-            Bind dockerSockVolumeBind = Bind.from(dockerSock).to(dockerSock)
-                    .build();
+            Bind dockerSockVolumeBind = Bind.from(dockerSock).to(dockerSock).build();
 
             // ElasTest labels
             Map<String, String> labels = new HashMap<>();
@@ -394,16 +372,13 @@ public abstract class PlatformService {
 
             logger.debug("etmFilesService {}", etmFilesService != null);
             logger.debug("tJobExec {}", tJobExec != null);
-            logger.debug("ElastestConstants.SUT_FOLDER {}",
-                    ElastestConstants.SUT_FOLDER != null);
-            sutPath = etmFilesService.buildTJobFilesPath(tJobExec,
-                    ElastestConstants.SUT_FOLDER);
+            logger.debug("ElastestConstants.SUT_FOLDER {}", ElastestConstants.SUT_FOLDER != null);
+            sutPath = etmFilesService.buildTJobFilesPath(tJobExec, ElastestConstants.SUT_FOLDER);
         }
         return sutPath;
     }
 
-    protected Map<String, String> getEtLabels(Execution execution,
-            String type) {
+    protected Map<String, String> getEtLabels(Execution execution, String type) {
         return this.getEtLabels(execution, type, null);
     }
 
@@ -439,12 +414,11 @@ public abstract class PlatformService {
     }
 
     protected boolean isEMSSelected(Execution execution) {
-        return !execution.isExternal()
-                && execution.gettJob().isSelectedService("ems");
+        return !execution.isExternal() && execution.gettJob().isSelectedService("ems");
     }
 
-    protected LogConfig getEMSLogConfig(String type, String tagPrefix,
-            String tagSuffix, Execution execution) throws Exception {
+    protected LogConfig getEMSLogConfig(String type, String tagPrefix, String tagSuffix,
+            Execution execution) throws Exception {
         TJobExecution tJobExec = execution.getTJobExec();
         String host = null;
         String port = null;
@@ -458,11 +432,9 @@ public abstract class PlatformService {
         }
 
         if (host != null && port != null) {
-            logger.info(
-                    "EMS Host to send logs from {} container: {}. To port {}",
-                    type, host, port);
-            return this.getLogConfig(host, port, tagPrefix, tagSuffix,
-                    execution);
+            logger.info("EMS Host to send logs from {} container: {}. To port {}", type, host,
+                    port);
+            return this.getLogConfig(host, port, tagPrefix, tagSuffix, execution);
         } else {
             throw new Exception("Error on get EMS Log config");
         }
@@ -471,15 +443,14 @@ public abstract class PlatformService {
     /* ******************************* */
     /* ******* Logging methods ******* */
     /* ******************************* */
-    protected LogConfig getLogConfig(String host, String port, String tagPrefix,
-            String tagSuffix, Execution execution) {
+    protected LogConfig getLogConfig(String host, String port, String tagPrefix, String tagSuffix,
+            Execution execution) {
         Map<String, String> configMap = new HashMap<String, String>();
 
         String monitoringIndex = "";
 
         if (execution.isExternal()) {
-            monitoringIndex = execution.getExternalTJobExec()
-                    .getExternalTJobExecMonitoringIndex();
+            monitoringIndex = execution.getExternalTJobExec().getExternalTJobExecMonitoringIndex();
         } else {
             monitoringIndex = execution.getExecutionId().toString();
         }
@@ -506,20 +477,17 @@ public abstract class PlatformService {
         }
     }
 
-    protected LogConfig getDefaultLogConfig(String port, String tagPrefix,
-            String tagSuffix, Execution execution) throws Exception {
+    protected LogConfig getDefaultLogConfig(String port, String tagPrefix, String tagSuffix,
+            Execution execution) throws Exception {
 
         initLogstashHostIfNecessary();
-        logger.info(
-                "Logstash/Tcp Server Host to send logs from containers: {}. To port {}",
+        logger.info("Logstash/Tcp Server Host to send logs from containers: {}. To port {}",
                 logstashOrMiniHost, port);
 
-        return this.getLogConfig(logstashOrMiniHost, port, tagPrefix, tagSuffix,
-                execution);
+        return this.getLogConfig(logstashOrMiniHost, port, tagPrefix, tagSuffix, execution);
     }
 
-    protected LogConfig getLogstashOrMiniLogConfig(String tag)
-            throws Exception {
+    protected LogConfig getLogstashOrMiniLogConfig(String tag) throws Exception {
         this.initLogstashHostIfNecessary();
 
         Map<String, String> configMap = new HashMap<String, String>();
@@ -527,8 +495,7 @@ public abstract class PlatformService {
 
         LogConfig logConfig = null;
 
-        configMap.put("syslog-address",
-                "tcp://" + logstashOrMiniHost + ":" + logstashTcpPort);
+        configMap.put("syslog-address", "tcp://" + logstashOrMiniHost + ":" + logstashTcpPort);
         configMap.put("syslog-format", "rfc5424micro");
 
         logConfig = LogConfig.create("syslog", configMap);
@@ -536,8 +503,8 @@ public abstract class PlatformService {
         return logConfig;
     }
 
-    protected DockerContainer createContainer(Execution execution,
-            ContainerType type) throws Exception {
+    protected DockerContainer createContainer(Execution execution, ContainerType type)
+            throws Exception {
         logger.debug("Creating new container");
         SutSpecification sut = execution.getSut();
 
@@ -564,13 +531,10 @@ public abstract class PlatformService {
             prefix = ContainerPrefix.SUT.toString();
             if (sut.isSutInNewContainer()) {
                 suffix = sut.getSutInContainerAuxLabel();
-                containerName = generateContainerName(ContainerPrefix.SUT,
-                        execution, true);
+                containerName = generateContainerName(ContainerPrefix.SUT, execution, true);
             } else {
-                containerName = generateContainerName(ContainerPrefix.SUT,
-                        execution);
-                envList.add(
-                        "ET_K8S_SUT_NAME=" + containerName.replace("_", "-"));
+                containerName = generateContainerName(ContainerPrefix.SUT, execution);
+                envList.add("ET_K8S_SUT_NAME=" + containerName.replace("_", "-"));
             }
 
             sutPath = getSutPath(execution);
@@ -585,8 +549,7 @@ public abstract class PlatformService {
             commands = tJob.getCommands();
             image = tJob.getImageName();
             prefix = ContainerPrefix.TEST.toString();
-            containerName = generateContainerName(ContainerPrefix.TEST,
-                    execution);
+            containerName = generateContainerName(ContainerPrefix.TEST, execution);
 
             envVar = "ET_TEST_CONTAINER_NAME=" + containerName;
             envList.add(envVar);
@@ -604,8 +567,7 @@ public abstract class PlatformService {
         Map<String, String> tJobEnvVars;
         if (execution.isExternal()) {
             // Generate the SUT name
-            String sutContainerName = generateContainerName(ContainerPrefix.SUT,
-                    execution);
+            String sutContainerName = generateContainerName(ContainerPrefix.SUT, execution);
             // tJobEnvVars = execution.getExternalTJob().getEnvVars(); TODO
             tJobEnvVars = new HashMap<>();
             tJobEnvVars.put("ET_SUT_CONTAINER_NAME", sutContainerName);
@@ -652,13 +614,11 @@ public abstract class PlatformService {
             logger.debug("Filling cmdList");
             if (sut != null) {
                 if (sut.isSutInNewContainer()) {
-                    commands = sutPath != null
-                            ? ("cd " + sutPath + ";" + commands)
-                            : commands;
+                    commands = sutPath != null ? ("cd " + sutPath + ";" + commands) : commands;
                 }
             } else {
-                commands = "export ET_SUT_HOST=$(" + GET_CONTAINER_IP_COMMAND
-                        + ") || echo;" + commands;
+                commands = "export ET_SUT_HOST=$(" + GET_CONTAINER_IP_COMMAND + ") || echo;"
+                        + commands;
             }
 
             commands = commands + getCommandsByPlatform();
@@ -682,27 +642,22 @@ public abstract class PlatformService {
         if (isEMSSelected(execution)) {
             logger.debug("EMS selected.");
             try {
-                logConfig = getEMSLogConfig(type.toString(), prefix, suffix,
-                        execution);
+                logConfig = getEMSLogConfig(type.toString(), prefix, suffix, execution);
             } catch (Exception e) {
                 logger.error("Cannot get Ems Log config", e);
             }
         } else {
             logger.debug("Setting syslog");
-            logConfig = getDefaultLogConfig((logstashTcpPort), prefix, suffix,
-                    execution);
+            logConfig = getDefaultLogConfig((logstashTcpPort), prefix, suffix, execution);
         }
 
         /* ********** ElasTest labels ********** */
-        Map<String, String> labels = this.getEtLabels(execution,
-                type.toString());
+        Map<String, String> labels = this.getEtLabels(execution, type.toString());
 
         /* ******************************************************** */
         DockerBuilder dockerBuilder = new DockerBuilder(image);
-        dockerBuilder.envs(envList).logConfig(logConfig)
-                .containerName(containerName).cmd(cmdList)
-                .entryPoint(entrypointList).network(elastestNetwork)
-                .labels(labels);
+        dockerBuilder.envs(envList).logConfig(logConfig).containerName(containerName).cmd(cmdList)
+                .entryPoint(entrypointList).network(elastestNetwork).labels(labels);
 
         List<Bind> volumes = new ArrayList<>();
 
@@ -733,16 +688,15 @@ public abstract class PlatformService {
     /* **** Get TestResults **** */
     /* ************************* */
 
-    public List<ReportTestSuite> getTestResultsFromContainer(
-            String testContainer, String filePath) throws Exception {
+    public List<ReportTestSuite> getTestResultsFromContainer(String testContainer, String filePath)
+            throws Exception {
         List<ReportTestSuite> results = new ArrayList<>();
-        List<String> files = getFilesContentFromContainer(testContainer,
-                filePath, Arrays.asList("xml"));
+        List<String> files = getFilesContentFromContainer(testContainer, filePath,
+                Arrays.asList("xml"));
 
         if (files != null) {
             for (String fileContent : files) {
-                List<ReportTestSuite> testResults = getTestSuitesByString(
-                        fileContent);
+                List<ReportTestSuite> testResults = getTestSuitesByString(fileContent);
                 if (testResults != null) {
                     results.addAll(testResults);
                 }
@@ -752,8 +706,7 @@ public abstract class PlatformService {
         return results;
     }
 
-    public abstract List<String> getFilesContentFromContainer(
-            String testContainer, String filePath,
+    public abstract List<String> getFilesContentFromContainer(String testContainer, String filePath,
             List<String> filterExtensions) throws Exception;
 
     public List<ReportTestSuite> getTestSuitesByString(String result) {
@@ -778,10 +731,8 @@ public abstract class PlatformService {
 
                     try {
                         // normally, a single test suite
-                        testSuites = this
-                                .testSuiteStringToReportTestSuite(newResult);
-                    } catch (ParserConfigurationException | SAXException
-                            | IOException e) {
+                        testSuites = this.testSuiteStringToReportTestSuite(newResult);
+                    } catch (ParserConfigurationException | SAXException | IOException e) {
                         logger.error("Error on parse testSuite {}", e);
                     }
 
@@ -795,16 +746,14 @@ public abstract class PlatformService {
         return results;
     }
 
-    protected List<ReportTestSuite> testSuiteStringToReportTestSuite(
-            String testSuiteStr) throws UnsupportedEncodingException,
-            ParserConfigurationException, SAXException, IOException {
+    protected List<ReportTestSuite> testSuiteStringToReportTestSuite(String testSuiteStr)
+            throws UnsupportedEncodingException, ParserConfigurationException, SAXException,
+            IOException {
         TestSuiteXmlParser testSuiteXmlParser = new TestSuiteXmlParser(null);
-        InputStream byteArrayIs = new ByteArrayInputStream(
-                testSuiteStr.getBytes());
+        InputStream byteArrayIs = new ByteArrayInputStream(testSuiteStr.getBytes());
 
         // normally, a single test suite, but in some cases returns more than 1
-        return testSuiteXmlParser
-                .parse(new InputStreamReader(byteArrayIs, "UTF-8"));
+        return testSuiteXmlParser.parse(new InputStreamReader(byteArrayIs, "UTF-8"));
     }
 
     protected void removeSutVolumeFolder(Execution execution) {
@@ -813,13 +762,11 @@ public abstract class PlatformService {
         try {
             etmFilesService.removeFolder(sutPath);
         } catch (Exception e) {
-            logger.debug("The SuT folder could not be deleted: {}",
-                    e.getMessage());
+            logger.debug("The SuT folder could not be deleted: {}", e.getMessage());
         }
     }
 
-    protected void updateSutExecDeployStatus(Execution execution,
-            DeployStatusEnum status) {
+    protected void updateSutExecDeployStatus(Execution execution, DeployStatusEnum status) {
         SutExecution sutExec = execution.getSutExec();
 
         if (sutExec != null) {
@@ -828,8 +775,7 @@ public abstract class PlatformService {
         execution.setSutExec(sutExec);
     }
 
-    protected abstract void endContainer(String containerName, int timeout)
-            throws Exception;
+    protected abstract void endContainer(String containerName, int timeout) throws Exception;
 
     protected abstract void endContainer(String containerName) throws Exception;
 

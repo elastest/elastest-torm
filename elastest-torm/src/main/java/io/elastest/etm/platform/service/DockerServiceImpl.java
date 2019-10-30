@@ -127,8 +127,8 @@ public class DockerServiceImpl extends PlatformService {
         logger.info("Pulling dockbeat image...");
         try {
             this.pullETExecImage(dockbeatImage, "Dockbeat", true);
-        } catch (TJobStoppedException | DockerCertificateException
-                | DockerException | InterruptedException e) {
+        } catch (TJobStoppedException | DockerCertificateException | DockerException
+                | InterruptedException e) {
             logger.error("Error on pulling Dockbeat Image", e);
         }
     }
@@ -145,27 +145,25 @@ public class DockerServiceImpl extends PlatformService {
                 logger.info("Container {} removed", containerName);
 
             } catch (Exception e) {
-                logger.error("Error on stop or remove container {}: {}",
-                        containerId, e.getMessage());
+                logger.error("Error on stop or remove container {}: {}", containerId,
+                        e.getMessage());
             }
         }
     }
 
-    public void insertCreatedContainer(String containerId,
-            String containerName) {
+    public void insertCreatedContainer(String containerId, String containerName) {
         createdContainers.put(containerId, containerName);
     }
 
-    private void pullETExecImageWithProgressHandler(String image, String name,
-            boolean forcePull, ProgressHandler progressHandler)
+    private void pullETExecImageWithProgressHandler(String image, String name, boolean forcePull,
+            ProgressHandler progressHandler)
             throws DockerException, InterruptedException, Exception {
         logger.debug("Try to Pulling {} Image ({})", name, image);
         // try {
         if (forcePull) {
             dockerService.pullImageWithProgressHandler(image, progressHandler);
         } else {
-            dockerService.pullImageIfNotExistWithProgressHandler(image,
-                    progressHandler);
+            dockerService.pullImageIfNotExistWithProgressHandler(image, progressHandler);
         }
 
         logger.debug("{} image pulled succesfully!", name);
@@ -174,26 +172,22 @@ public class DockerServiceImpl extends PlatformService {
 
     public void pullETExecImage(String image, String name, boolean forcePull)
             throws DockerException, InterruptedException, Exception {
-        this.pullETExecImageWithProgressHandler(image, name, forcePull,
-                new ProgressHandler() {
-                    @Override
-                    public void progress(ProgressMessage message)
-                            throws DockerException {
-                    }
-                });
+        this.pullETExecImageWithProgressHandler(image, name, forcePull, new ProgressHandler() {
+            @Override
+            public void progress(ProgressMessage message) throws DockerException {
+            }
+        });
     }
 
-    private void pullETExecutionImage(Execution execution, String image,
-            String name, boolean forcePull)
-            throws DockerException, InterruptedException, Exception {
+    private void pullETExecutionImage(Execution execution, String image, String name,
+            boolean forcePull) throws DockerException, InterruptedException, Exception {
         DockerPullImageProgress dockerPullImageProgress = new DockerPullImageProgress();
         dockerPullImageProgress.setImage(image);
         dockerPullImageProgress.setCurrentPercentage(0);
 
         ProgressHandler progressHandler = new ProgressHandler() {
             @Override
-            public void progress(ProgressMessage message)
-                    throws DockerException {
+            public void progress(ProgressMessage message) throws DockerException {
                 dockerPullImageProgress.processNewMessage(message);
                 String msg = "Pulling " + name + " image (" + image + "): "
                         + dockerPullImageProgress.getCurrentPercentage() + "%";
@@ -208,8 +202,7 @@ public class DockerServiceImpl extends PlatformService {
 
         };
 
-        this.pullETExecImageWithProgressHandler(image, name, forcePull,
-                progressHandler);
+        this.pullETExecImageWithProgressHandler(image, name, forcePull, progressHandler);
     }
 
     private String getDockbeatContainerName(Execution execution) {
@@ -217,21 +210,18 @@ public class DockerServiceImpl extends PlatformService {
 
         // elastest_dockbeat_X | elastest_dockbeat_extX_eX
         String suffix = execution.isExternal()
-                ? execution.getExternalTJobExec()
-                        .getExternalTJobExecMonitoringIndex()
+                ? execution.getExternalTJobExec().getExternalTJobExecMonitoringIndex()
                 : execution.getExecutionId().toString();
 
         return prefix + suffix;
     }
 
     @Override
-    protected void startDockbeat(DockerContainer dockerContainer)
-            throws Exception {
+    protected void startDockbeat(DockerContainer dockerContainer) throws Exception {
         try {
-            String containerId = dockerService
-                    .createAndStartContainerWithPull(dockerContainer, true);
-            this.insertCreatedContainer(containerId,
-                    dockerContainer.getContainerName().get());
+            String containerId = dockerService.createAndStartContainerWithPull(dockerContainer,
+                    true);
+            this.insertCreatedContainer(containerId, dockerContainer.getContainerName().get());
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -243,33 +233,26 @@ public class DockerServiceImpl extends PlatformService {
         }
     }
 
-    private void createAndStartSutContainer(Execution execution)
-            throws Exception {
+    private void createAndStartSutContainer(Execution execution) throws Exception {
         try {
             // Create Container Object
-            DockerContainer sutContainer = createContainer(execution,
-                    ContainerType.SUT);
+            DockerContainer sutContainer = createContainer(execution, ContainerType.SUT);
             // Pull Image
-            pullETExecutionImage(execution, sutContainer.getImageId(),
-                    ContainerType.SUT.toString(), false);
+            pullETExecutionImage(execution, sutContainer.getImageId(), ContainerType.SUT.toString(),
+                    false);
 
             String resultMsg = "Starting dockerized SuT";
-            execution.updateTJobExecutionStatus(
-                    TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
+            execution.updateTJobExecutionStatus(TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
             logger.info(resultMsg + " " + execution.getExecutionId());
 
             // Create and start container
-            String sutContainerId = dockerService
-                    .createAndStartContainer(sutContainer);
-            sutsByExecution.put(execution.getExecutionId().toString(),
-                    sutContainerId);
+            String sutContainerId = dockerService.createAndStartContainer(sutContainer);
+            sutsByExecution.put(execution.getExecutionId().toString(), sutContainerId);
 
-            String sutName = generateContainerName(ContainerPrefix.SUT,
-                    execution);
+            String sutName = generateContainerName(ContainerPrefix.SUT, execution);
             this.insertCreatedContainer(sutContainerId, sutName);
         } catch (TJobStoppedException e) {
-            throw new TJobStoppedException(
-                    "Error on create and start Sut container", e);
+            throw new TJobStoppedException("Error on create and start Sut container", e);
         } catch (Exception e) {
             throw new Exception("Error on create and start Sut container", e);
         }
@@ -298,13 +281,12 @@ public class DockerServiceImpl extends PlatformService {
             dockerBuilder.network(elastestNetwork);
 
             DockerContainer dockerContainer = dockerBuilder.build();
-            String checkContainerId = dockerService
-                    .createAndStartContainer(dockerContainer);
+            String checkContainerId = dockerService.createAndStartContainer(dockerContainer);
 
             this.insertCreatedContainer(checkContainerId, checkName);
 
-            int statusCode = dockerService.getDockerClient()
-                    .waitContainer(checkContainerId).statusCode();
+            int statusCode = dockerService.getDockerClient().waitContainer(checkContainerId)
+                    .statusCode();
             if (statusCode == 0) {
                 logger.info("Sut is ready " + execution.getExecutionId());
 
@@ -324,37 +306,31 @@ public class DockerServiceImpl extends PlatformService {
     /* ************** */
 
     @Override
-    public void deployAndRunTJobExecution(Execution execution)
-            throws Exception {
+    public void deployAndRunTJobExecution(Execution execution) throws Exception {
         TJobExecution tJobExec = execution.getTJobExec();
         try {
             // Create Container Object
-            DockerContainer testContainer = createContainer(execution,
-                    ContainerType.TJOB);
+            DockerContainer testContainer = createContainer(execution, ContainerType.TJOB);
             // Pull Image
             pullETExecutionImage(execution, testContainer.getImageId(),
                     ContainerType.TJOB.toString(), false);
 
             String resultMsg = "Starting Test Execution";
-            execution.updateTJobExecutionStatus(
-                    TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+            execution.updateTJobExecutionStatus(TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
             execution.setStatusMsg(resultMsg);
 
             // Create and start container
-            String testContainerId = dockerService
-                    .createAndStartContainer(testContainer);
+            String testContainerId = dockerService.createAndStartContainer(testContainer);
 
             resultMsg = "Executing Test";
-            execution.updateTJobExecutionStatus(
-                    TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+            execution.updateTJobExecutionStatus(TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
             execution.setStatusMsg(resultMsg);
 
-            String testName = generateContainerName(ContainerPrefix.TEST,
-                    execution);
+            String testName = generateContainerName(ContainerPrefix.TEST, execution);
             this.insertCreatedContainer(testContainerId, testName);
 
-            int exitCode = dockerService.getDockerClient()
-                    .waitContainer(testContainerId).statusCode();
+            int exitCode = dockerService.getDockerClient().waitContainer(testContainerId)
+                    .statusCode();
             logger.info("Test container ends with code " + exitCode);
 
             // Test Results
@@ -362,39 +338,36 @@ public class DockerServiceImpl extends PlatformService {
             execution.updateTJobExecutionStatus(ResultEnum.WAITING, resultMsg);
             execution.setStatusMsg(resultMsg);
             String resultsPath = execution.gettJob().getResultsPath();
-            List<ReportTestSuite> testResults = getTestResultsFromContainer(
-                    testContainerId, resultsPath);
+            List<ReportTestSuite> testResults = getTestResultsFromContainer(testContainerId,
+                    resultsPath);
             execution.setReportTestSuite(testResults);
             execution.setExitCode(exitCode);
 
         } catch (TJobStoppedException | InterruptedException e) {
-            throw new TJobStoppedException(
-                    "Error on create and start TJob container: Stopped", e);
+            throw new TJobStoppedException("Error on create and start TJob container: Stopped", e);
         } catch (Exception e) {
             throw new Exception("Error on create and start TJob container", e);
         }
     }
 
     @Override
-    public List<String> getFilesContentFromContainer(String testContainer,
-            String filePath, List<String> filterExtensions) throws Exception {
+    public List<String> getFilesContentFromContainer(String testContainer, String filePath,
+            List<String> filterExtensions) throws Exception {
         List<String> filesList = new ArrayList<>();
         try {
             if (filePath != null && !filePath.isEmpty()) {
                 try {
                     List<InputStream> filesIS = dockerService
-                            .getFilesFromContainerAsInputStreamList(
-                                    testContainer, filePath, filterExtensions);
+                            .getFilesFromContainerAsInputStreamList(testContainer, filePath,
+                                    filterExtensions);
 
                     if (filesIS != null) {
                         for (InputStream fileIS : filesIS) {
                             try {
-                                filesList.add(IOUtils.toString(fileIS,
-                                        StandardCharsets.UTF_8));
+                                filesList.add(IOUtils.toString(fileIS, StandardCharsets.UTF_8));
                                 fileIS.close();
                             } catch (IOException e) {
-                                logger.error(
-                                        "Error on transform InputStream file to String.");
+                                logger.error("Error on transform InputStream file to String.");
                             }
                         }
                     }
@@ -403,8 +376,7 @@ public class DockerServiceImpl extends PlatformService {
                 }
             }
         } catch (Exception e) {
-            throw new Exception(
-                    "Error on get test results. Maybe the specified path is incorrect.",
+            throw new Exception("Error on get test results. Maybe the specified path is incorrect.",
                     e);
         }
         return filesList;
@@ -414,22 +386,21 @@ public class DockerServiceImpl extends PlatformService {
     /* **** Utils **** */
     /* *************** */
 
-    private String getContainerIpWithDockerExecution(String containerId,
-            Execution execution) throws Exception {
-        return dockerService.getContainerIpWithDockerClient(
-                dockerService.getDockerClient(), containerId, elastestNetwork);
+    private String getContainerIpWithDockerExecution(String containerId, Execution execution)
+            throws Exception {
+        return dockerService.getContainerIpWithDockerClient(dockerService.getDockerClient(),
+                containerId, elastestNetwork);
     }
 
-    private String waitForContainerIpWithDockerExecution(String containerId,
-            Execution execution, long timeout) throws Exception {
-        return dockerService.waitForContainerIpWithDockerClient(
-                dockerService.getDockerClient(), containerId, elastestNetwork,
-                timeout);
+    private String waitForContainerIpWithDockerExecution(String containerId, Execution execution,
+            long timeout) throws Exception {
+        return dockerService.waitForContainerIpWithDockerClient(dockerService.getDockerClient(),
+                containerId, elastestNetwork, timeout);
     }
 
     private String getHostIp(Execution execution) throws Exception {
-        return dockerService.getDockerClient().inspectNetwork(elastestNetwork)
-                .ipam().config().get(0).gateway();
+        return dockerService.getDockerClient().inspectNetwork(elastestNetwork).ipam().config()
+                .get(0).gateway();
     }
 
     public void removeDockerContainer(String containerId) throws Exception {
@@ -446,8 +417,7 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    protected void endContainer(String containerName, int timeout)
-            throws Exception {
+    protected void endContainer(String containerName, int timeout) throws Exception {
         dockerService.endContainer(containerName, true, timeout);
         String containerId = dockerService.getContainerIdByName(containerName);
 
@@ -478,25 +448,22 @@ public class DockerServiceImpl extends PlatformService {
         sutsByExecution.put(executionId, sutContainerId);
     }
 
-    private void deploySutFromDockerImage(Execution execution)
-            throws Exception {
+    private void deploySutFromDockerImage(Execution execution) throws Exception {
         createAndStartSutContainer(execution);
     }
 
-    private void deploySutFromDockerCompose(Execution execution)
-            throws Exception {
+    private void deploySutFromDockerCompose(Execution execution) throws Exception {
         SutSpecification sut = execution.getSut();
         String mainService = sut.getMainService();
         logger.debug("The main service saved in DB is: {}", mainService);
-        String composeProjectName = generateContainerName(ContainerPrefix.SUT,
-                execution);
+        String composeProjectName = generateContainerName(ContainerPrefix.SUT, execution);
 
         // TMP replace sut exec and logstash sut tcp
         String dockerComposeYml = sut.getSpecification();
 
         // Set logging, network, labels and do pull of images
-        dockerComposeYml = prepareElasTestConfigInDockerComposeYml(
-                dockerComposeYml, composeProjectName, execution, mainService);
+        dockerComposeYml = prepareElasTestConfigInDockerComposeYml(dockerComposeYml,
+                composeProjectName, execution);
 
         // Environment variables (optional)
         ArrayList<String> envList = new ArrayList<>();
@@ -508,12 +475,11 @@ public class DockerServiceImpl extends PlatformService {
             envList.add(envVar);
         }
 
-        DockerComposeCreateProject project = new DockerComposeCreateProject(
-                composeProjectName, dockerComposeYml, envList);
+        DockerComposeCreateProject project = new DockerComposeCreateProject(composeProjectName,
+                dockerComposeYml, envList);
 
         String resultMsg = "Starting dockerized SuT";
-        execution.updateTJobExecutionStatus(ResultEnum.EXECUTING_SUT,
-                resultMsg);
+        execution.updateTJobExecutionStatus(ResultEnum.EXECUTING_SUT, resultMsg);
         logger.info(resultMsg + " " + execution.getExecutionId());
 
         // Create Containers
@@ -521,45 +487,37 @@ public class DockerServiceImpl extends PlatformService {
 
         pathToSaveTmpYml = etmFilesService.getExecutionFolderPath(execution);
 
-        boolean created = dockerComposeService.createProject(project,
-                pathToSaveTmpYml, false, false, false);
+        boolean created = dockerComposeService.createProject(project, pathToSaveTmpYml, false,
+                false, false);
 
         // Start Containers
         if (!created) {
-            throw new Exception(
-                    "Sut docker compose containers are not created");
+            throw new Exception("Sut docker compose containers are not created");
         }
 
         dockerComposeService.startProject(composeProjectName, false);
 
         for (io.elastest.epm.client.json.DockerContainerInfo.DockerContainer container : dockerComposeService
                 .getContainers(composeProjectName).getContainers()) {
-            String containerId = dockerService
-                    .getContainerIdByName(container.getName());
+            String containerId = dockerService.getContainerIdByName(container.getName());
 
             // Insert container into containers list
             insertCreatedContainer(containerId, container.getName());
             // If is main service container, set app id
-            if (container.getName()
-                    .equals(composeProjectName + "_" + mainService + "_1")) {
-                addSutByExecution(execution.getExecutionId().toString(),
-                        containerId);
+            if (container.getName().equals(composeProjectName + "_" + mainService + "_1")) {
+                addSutByExecution(execution.getExecutionId().toString(), containerId);
             }
 
-            if (getSutContainerIdByExec(
-                    execution.getExecutionId().toString()) == null
-                    || getSutContainerIdByExec(
-                            execution.getExecutionId().toString()).isEmpty()) {
-                throw new Exception(
-                        "Main Sut service from docker compose not started");
+            if (getSutContainerIdByExec(execution.getExecutionId().toString()) == null
+                    || getSutContainerIdByExec(execution.getExecutionId().toString()).isEmpty()) {
+                throw new Exception("Main Sut service from docker compose not started");
             }
         }
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private String prepareElasTestConfigInDockerComposeYml(
-            String dockerComposeYml, String composeProjectName,
-            Execution execution, String mainService) throws Exception {
+    private String prepareElasTestConfigInDockerComposeYml(String dockerComposeYml,
+            String composeProjectName, Execution execution) throws Exception {
         YAMLFactory yf = new YAMLFactory();
         ObjectMapper mapper = new ObjectMapper(yf);
         Object object;
@@ -568,24 +526,37 @@ public class DockerServiceImpl extends PlatformService {
 
             Map<String, HashMap<String, HashMap>> dockerComposeMap = (HashMap) object;
             Map<String, HashMap> servicesMap = dockerComposeMap.get("services");
-            for (HashMap.Entry<String, HashMap> service : servicesMap
-                    .entrySet()) {
+
+            String execNetwork = generateExecutionNetworkName(execution);
+            dockerService.createNetwork(execNetwork);
+
+            for (HashMap.Entry<String, HashMap> service : servicesMap.entrySet()) {
 
                 // Set Logging
-                service = setLoggingToDockerComposeYmlService(service,
-                        composeProjectName, execution);
+                service = setLoggingToDockerComposeYmlService(service, composeProjectName,
+                        execution);
 
                 // Set Elastest Network
-                service = setNetworkToDockerComposeYmlService(service,
-                        composeProjectName, execution);
+                String serviceAlias = service.getKey() + "-" + execution.getKeyIdByExecutionType()
+                        + "-" + execution.getExecutionId();
+                List<String> aliases = Arrays.asList(serviceAlias);
+                service = setElasTestNetworkToDockerComposeYmlService(service, composeProjectName,
+                        execution, aliases);
+
+                // Set Elastest execution Network
+                service = setNetworkToDockerComposeYmlService(service, composeProjectName,
+                        execution, execNetwork, null, false);
 
                 // Set Elastest Labels
-                service = setETLabelsToDockerComposeYmlService(service,
-                        composeProjectName, execution);
+                service = setETLabelsToDockerComposeYmlService(service, composeProjectName,
+                        execution);
             }
 
-            dockerComposeMap = setNetworkToDockerComposeYmlRoot(
-                    dockerComposeMap, composeProjectName, execution);
+            dockerComposeMap = setNetworkToDockerComposeYmlRoot(dockerComposeMap,
+                    composeProjectName, execution, getElastestNetwork(), true);
+
+            dockerComposeMap = setNetworkToDockerComposeYmlRoot(dockerComposeMap,
+                    composeProjectName, execution, execNetwork, false);
 
             StringWriter writer = new StringWriter();
 
@@ -603,9 +574,8 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void pullDockerComposeYmlService(
-            HashMap.Entry<String, HashMap> service, Execution execution)
-            throws DockerException, InterruptedException, Exception {
+    private void pullDockerComposeYmlService(HashMap.Entry<String, HashMap> service,
+            Execution execution) throws DockerException, InterruptedException, Exception {
         HashMap<String, String> serviceContent = service.getValue();
 
         String imageKey = "image";
@@ -617,10 +587,16 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     private void endComposedSutExec(Execution execution) throws Exception {
-        String composeProjectName = generateContainerName(ContainerPrefix.SUT,
-                execution);
-        ;
+        String composeProjectName = generateContainerName(ContainerPrefix.SUT, execution);
         dockerComposeService.stopAndRemoveProject(composeProjectName);
+
+        String networkName = generateExecutionNetworkName(execution);
+        try {
+            dockerService.deleteNetwork(networkName);
+        } catch (Exception e) {
+            logger.error("Execution {} => Error on delete network {}: {}",
+                    execution.getExecutionId(), networkName, e.getMessage());
+        }
     }
 
     private void endCheckSutExec(Execution execution) throws Exception {
@@ -632,52 +608,43 @@ public class DockerServiceImpl extends PlatformService {
         String containerName = null;
         String sutPrefix = null;
         boolean isDockerCompose = false;
-        logger.debug("Execution {} => Ending Sut In Container",
-                execution.getExecutionId());
+        logger.debug("Execution {} => Ending Sut In Container", execution.getExecutionId());
 
         // If is Docker compose Sut
         if (sut.getCommandsOption() == CommandsOptionEnum.IN_DOCKER_COMPOSE) {
-            containerName = this.getCurrentExecSutMainServiceName(sut,
-                    execution);
+            containerName = this.getCurrentExecSutMainServiceName(sut, execution);
             sutPrefix = generateContainerName(ContainerPrefix.SUT, execution);
             isDockerCompose = true;
         }
         // If is unique Docker image Sut
-        else if (sut
-                .getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
-            containerName = generateContainerName(ContainerPrefix.SUT,
-                    execution, true);
+        else if (sut.getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
+            containerName = generateContainerName(ContainerPrefix.SUT, execution, true);
             sutPrefix = containerName;
         }
 
         // Add containers to the containers list
         if (isDockerCompose) {
-            List<Container> containersList = this.dockerService
-                    .getContainersCreatedSinceId(getSutsByExecution()
-                            .get(execution.getExecutionId().toString()));
-            this.dockerService.getContainersByNamePrefixByGivenList(
-                    containersList, sutPrefix, ContainersListActionEnum.REMOVE,
-                    getElastestNetwork());
+            List<Container> containersList = this.dockerService.getContainersCreatedSinceId(
+                    getSutsByExecution().get(execution.getExecutionId().toString()));
+            this.dockerService.getContainersByNamePrefixByGivenList(containersList, sutPrefix,
+                    ContainersListActionEnum.REMOVE, getElastestNetwork());
         } else {
             this.endContainer(containerName);
         }
     }
 
-    private Container getContainerFromImage(String imageName, String version)
-            throws Exception {
+    private Container getContainerFromImage(String imageName, String version) throws Exception {
         Container container;
         if (version.equals("unspecified")) {
-            container = dockerService.getRunningContainersByImageName(imageName)
-                    .get(0);
+            container = dockerService.getRunningContainersByImageName(imageName).get(0);
         } else {
-            container = dockerService.getRunningContainersByImageNameAndVersion(
-                    imageName, version).get(0);
+            container = dockerService.getRunningContainersByImageNameAndVersion(imageName, version)
+                    .get(0);
         }
         return container;
     }
 
-    private String waitForSutInContainer(Execution execution,
-            long timeoutMillis) throws Exception {
+    private String waitForSutInContainer(Execution execution, long timeoutMillis) throws Exception {
         SutSpecification sut = execution.getSut();
         String containerName = null;
         String sutPrefix = null;
@@ -685,8 +652,7 @@ public class DockerServiceImpl extends PlatformService {
 
         // If is Docker compose Sut
         if (sut.getCommandsOption() == CommandsOptionEnum.IN_DOCKER_COMPOSE) {
-            containerName = this.getCurrentExecSutMainServiceName(sut,
-                    execution);
+            containerName = this.getCurrentExecSutMainServiceName(sut, execution);
             sutPrefix = generateContainerName(ContainerPrefix.SUT, execution);
             isDockerCompose = true;
             logger.debug(
@@ -694,41 +660,33 @@ public class DockerServiceImpl extends PlatformService {
                     containerName);
         }
         // If is unique Docker image Sut In New container
-        else if (sut
-                .getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
-            containerName = generateContainerName(ContainerPrefix.SUT,
-                    execution);
+        else if (sut.getCommandsOption() == CommandsOptionEnum.IN_NEW_CONTAINER) {
+            containerName = generateContainerName(ContainerPrefix.SUT, execution);
             sutPrefix = containerName;
-            logger.debug(
-                    "Is SuT in new container With Docker Image. Container Name: {}",
+            logger.debug("Is SuT in new container With Docker Image. Container Name: {}",
                     containerName);
         }
 
         // Wait for created
-        this.dockerService.waitForContainerCreated(containerName,
-                timeoutMillis);
+        this.dockerService.waitForContainerCreated(containerName, timeoutMillis);
 
-        String containerId = this.dockerService
-                .getContainerIdByName(containerName);
+        String containerId = this.dockerService.getContainerIdByName(containerName);
 
         // Insert main sut/service into ET network if it's necessary
         this.dockerService.insertIntoNetwork(getElastestNetwork(), containerId);
 
         // Get Main sut/service ip from ET network
-        String sutIp = waitForContainerIpWithDockerExecution(containerName,
-                execution, timeoutMillis);
+        String sutIp = waitForContainerIpWithDockerExecution(containerName, execution,
+                timeoutMillis);
 
         // Add containers to the containers list
         if (isDockerCompose) {
-            List<Container> containersList = this.dockerService
-                    .getContainersCreatedSinceId(getSutContainerIdByExec(
-                            execution.getExecutionId().toString()));
-            this.dockerService.getContainersByNamePrefixByGivenList(
-                    containersList, sutPrefix, ContainersListActionEnum.ADD,
-                    getElastestNetwork());
+            List<Container> containersList = this.dockerService.getContainersCreatedSinceId(
+                    getSutContainerIdByExec(execution.getExecutionId().toString()));
+            this.dockerService.getContainersByNamePrefixByGivenList(containersList, sutPrefix,
+                    ContainersListActionEnum.ADD, getElastestNetwork());
         } else {
-            containerId = this.dockerService
-                    .getContainerIdByName(containerName);
+            containerId = this.dockerService.getContainerIdByName(containerName);
             this.insertCreatedContainer(containerId, containerName);
         }
         return sutIp;
@@ -736,8 +694,8 @@ public class DockerServiceImpl extends PlatformService {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private HashMap.Entry<String, HashMap> setLoggingToDockerComposeYmlService(
-            HashMap.Entry<String, HashMap> service, String composeProjectName,
-            Execution execution) throws Exception {
+            HashMap.Entry<String, HashMap> service, String composeProjectName, Execution execution)
+            throws Exception {
         HashMap<String, HashMap> serviceContent = service.getValue();
         String loggingKey = "logging";
         // If service has logging, remove it
@@ -754,29 +712,23 @@ public class DockerServiceImpl extends PlatformService {
 
         if (isEMSSelected(execution)) {
             // ET_EMS env vars created in EsmService setTssEnvVarByEndpoint()
-            host = execution.getTJobExec().getEnvVars()
-                    .get("ET_EMS_TCP_SUTLOGS_HOST");
-            port = execution.getTJobExec().getEnvVars()
-                    .get("ET_EMS_TCP_SUTLOGS_PORT");
+            host = execution.getTJobExec().getEnvVars().get("ET_EMS_TCP_SUTLOGS_HOST");
+            port = execution.getTJobExec().getEnvVars().get("ET_EMS_TCP_SUTLOGS_PORT");
         } else {
             try {
                 host = getLogstashHost();
             } catch (Exception e) {
                 throw new TJobStoppedException(
-                        "Error on set Logging to Service of docker compose yml:"
-                                + e);
+                        "Error on set Logging to Service of docker compose yml:" + e);
             }
         }
 
-        if (host != null && !"".equals(host) && port != null
-                && !"".equals(port)) {
+        if (host != null && !"".equals(host) && port != null && !"".equals(port)) {
 
-            loggingOptionsContent.put("syslog-address",
-                    "tcp://" + host + ":" + port);
+            loggingOptionsContent.put("syslog-address", "tcp://" + host + ":" + port);
             loggingOptionsContent.put("syslog-format", "rfc5424micro");
 
-            loggingOptionsContent.put("tag",
-                    composeProjectName + "_" + service.getKey() + "_exec");
+            loggingOptionsContent.put("tag", composeProjectName + "_" + service.getKey() + "_exec");
 
             loggingContent.put("options", loggingOptionsContent);
 
@@ -784,28 +736,46 @@ public class DockerServiceImpl extends PlatformService {
 
             return service;
         } else {
-            throw new Exception("Error on get Logging config. Host(" + host
-                    + ") or Port(" + port + ") are null");
+            throw new Exception("Error on get Logging config. Host(" + host + ") or Port(" + port
+                    + ") are null");
         }
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private HashMap.Entry<String, HashMap> setNetworkToDockerComposeYmlService(
-            HashMap.Entry<String, HashMap> service, String composeProjectName,
-            Execution execution) {
-
+            HashMap.Entry<String, HashMap> service, String composeProjectName, Execution execution,
+            String networkName, List<String> aliases, boolean removeExistent) {
         HashMap serviceContent = service.getValue();
         String networksKey = "networks";
-        // If service has networks, remove it
-        if (serviceContent.containsKey(networksKey)) {
+        // If removeExistent is true and service has networks, remove it
+        if (removeExistent && serviceContent.containsKey(networksKey)) {
             serviceContent.remove(networksKey);
         }
 
-        List<String> networksList = new ArrayList<>();
-        networksList.add(getElastestNetwork());
-        serviceContent.put(networksKey, networksList);
+        if (aliases == null || aliases.size() == 0) {
+            // User default service name as alias
+            aliases = Arrays.asList(service.getKey());
+        }
+
+        Map<String, Map<String, List<String>>> networksMap = serviceContent.get(networksKey) != null
+                ? (Map<String, Map<String, List<String>>>) serviceContent.get(networksKey)
+                : new HashMap<>();
+
+        Map<String, List<String>> aliasesMap = new HashMap<>();
+        aliasesMap.put("aliases", aliases);
+
+        networksMap.put(networkName, aliasesMap);
+        serviceContent.put(networksKey, networksMap);
 
         return service;
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+    private HashMap.Entry<String, HashMap> setElasTestNetworkToDockerComposeYmlService(
+            HashMap.Entry<String, HashMap> service, String composeProjectName, Execution execution,
+            List<String> aliases) {
+        return setNetworkToDockerComposeYmlService(service, composeProjectName, execution,
+                getElastestNetwork(), aliases, true);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -820,35 +790,34 @@ public class DockerServiceImpl extends PlatformService {
             serviceContent.remove(labelsKey);
         }
 
-        Map<String, String> labelsMap = getEtLabels(execution, "sut",
-                service.getKey());
+        Map<String, String> labelsMap = getEtLabels(execution, "sut", service.getKey());
 
-        serviceContent.put(labelsKey,
-                dockerComposeService.mapAsList(labelsMap));
+        serviceContent.put(labelsKey, dockerComposeService.mapAsList(labelsMap));
 
         return service;
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Map<String, HashMap<String, HashMap>> setNetworkToDockerComposeYmlRoot(
-            Map<String, HashMap<String, HashMap>> dockerComposeMap,
-            String composeProjectName, Execution execution) {
+            Map<String, HashMap<String, HashMap>> dockerComposeMap, String composeProjectName,
+            Execution execution, String networkName, boolean removeExistent) {
 
         String networksKey = "networks";
         // If service has networks, remove it
-        if (dockerComposeMap.containsKey(networksKey)) {
+        if (removeExistent && dockerComposeMap.containsKey(networksKey)) {
             dockerComposeMap.remove(networksKey);
         }
 
-        HashMap<String, HashMap> networkMap = new HashMap();
+        HashMap<String, HashMap> networkMap = dockerComposeMap.get(networksKey) != null
+                ? dockerComposeMap.get(networksKey)
+                : new HashMap();
         HashMap<String, Boolean> networkOptions = new HashMap<>();
         networkOptions.put("external", true);
 
-        networkMap.put(getElastestNetwork(), networkOptions);
+        networkMap.put(networkName, networkOptions);
         dockerComposeMap.put(networksKey, networkMap);
 
         return dockerComposeMap;
-
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -861,8 +830,7 @@ public class DockerServiceImpl extends PlatformService {
         String exposeKey = "expose";
 
         List<String> bindingPorts = new ArrayList<>();
-        String servicePort = ((List<Integer>) serviceContent.get(exposeKey))
-                .get(0).toString();
+        String servicePort = ((List<Integer>) serviceContent.get(exposeKey)).get(0).toString();
         logger.info("Service port: {}", servicePort);
         bindingPorts.add(servicePort + ":" + servicePort);
         serviceContent.put(portsKey, bindingPorts);
@@ -870,48 +838,42 @@ public class DockerServiceImpl extends PlatformService {
         return service;
     }
 
-    private String getCurrentExecSutMainServiceName(SutSpecification sut,
-            Execution execution) {
-        return generateContainerName(ContainerPrefix.SUT, execution) + "_"
-                + sut.getMainService() + "_1";
+    private String getCurrentExecSutMainServiceName(SutSpecification sut, Execution execution) {
+        return generateContainerName(ContainerPrefix.SUT, execution) + "_" + sut.getMainService()
+                + "_1";
     }
 
-    private ProgressHandler getEtPluginProgressHandler(String projectName,
-            String image, DockerServiceStatus serviceToPull) {
+    private ProgressHandler getEtPluginProgressHandler(String projectName, String image,
+            DockerServiceStatus serviceToPull) {
         DockerPullImageProgress dockerPullImageProgress = new DockerPullImageProgress();
         dockerPullImageProgress.setImage(image);
         dockerPullImageProgress.setCurrentPercentage(0);
 
-        updateStatus(projectName, DockerServiceStatusEnum.PULLING,
-                "Pulling " + image + " image", serviceToPull);
+        updateStatus(projectName, DockerServiceStatusEnum.PULLING, "Pulling " + image + " image",
+                serviceToPull);
         return new ProgressHandler() {
             @Override
-            public void progress(ProgressMessage message)
-                    throws DockerException {
+            public void progress(ProgressMessage message) throws DockerException {
                 dockerPullImageProgress.processNewMessage(message);
-                String msg = "Pulling image " + image + " from " + projectName
-                        + " ET Plugin: "
+                String msg = "Pulling image " + image + " from " + projectName + " ET Plugin: "
                         + dockerPullImageProgress.getCurrentPercentage() + "%";
 
-                updateStatus(projectName, DockerServiceStatusEnum.PULLING, msg,
-                        serviceToPull);
+                updateStatus(projectName, DockerServiceStatusEnum.PULLING, msg, serviceToPull);
             }
 
         };
 
     }
 
-    private void updateStatus(String serviceName,
-            DockerServiceStatusEnum status, String statusMsg,
+    private void updateStatus(String serviceName, DockerServiceStatusEnum status, String statusMsg,
             DockerServiceStatus serviceToPull) throws NotFoundException {
         serviceToPull.setStatus(status);
         serviceToPull.setStatusMsg(statusMsg);
     }
 
     @Override
-    public ServiceBindedPort getBindedPort(String serviceIp,
-            String containerSufix, String bindedPort, String port,
-            String namespace) throws Exception {
+    public ServiceBindedPort getBindedPort(String serviceIp, String containerSufix,
+            String bindedPort, String port, String namespace) throws Exception {
         bindedPort = "37000";
         String socatContainerId = null;
         try {
@@ -924,32 +886,27 @@ public class DockerServiceImpl extends PlatformService {
 
             DockerBuilder dockerBuilder = new DockerBuilder(etSocatImage);
             dockerBuilder.envs(envVariables);
-            dockerBuilder.containerName("socat_"
-                    + (containerSufix != null && !containerSufix.isEmpty()
-                            ? containerSufix
+            dockerBuilder.containerName(
+                    "socat_" + (containerSufix != null && !containerSufix.isEmpty() ? containerSufix
                             : bindedPort));
             dockerBuilder.network(elastestNetwork);
             dockerBuilder.exposedPorts(Arrays.asList(bindedPort));
 
             // portBindings
             Map<String, List<PortBinding>> portBindings = new HashMap<>();
-            portBindings.put(bindedPort,
-                    Arrays.asList(PortBinding.of("0.0.0.0", bindedPort)));
+            portBindings.put(bindedPort, Arrays.asList(PortBinding.of("0.0.0.0", bindedPort)));
             dockerBuilder.portBindings(portBindings);
 
             dockerService.pullImage(etSocatImage);
 
-            socatContainerId = dockerService
-                    .createAndStartContainer(dockerBuilder.build());
+            socatContainerId = dockerService.createAndStartContainer(dockerBuilder.build());
             logger.info("Socat container id: {} ", socatContainerId);
 
         } catch (Exception e) {
-            throw new Exception("Error on bindingPort (start socat container)",
-                    e);
+            throw new Exception("Error on bindingPort (start socat container)", e);
         }
 
-        ServiceBindedPort bindedPortObj = new ServiceBindedPort(port,
-                bindedPort, socatContainerId);
+        ServiceBindedPort bindedPortObj = new ServiceBindedPort(port, bindedPort, socatContainerId);
 
         return bindedPortObj;
     }
@@ -967,14 +924,12 @@ public class DockerServiceImpl extends PlatformService {
             dockerService.stopDockerContainer(containerId);
             dockerService.removeDockerContainer(containerId);
         } catch (Exception e) {
-            logger.error("Error on stop and remove container {}", containerId,
-                    e);
+            logger.error("Error on stop and remove container {}", containerId, e);
         }
     }
 
     @Override
-    public String getBindedServiceIp(SupportServiceInstance serviceInstance,
-            String Port) {
+    public String getBindedServiceIp(SupportServiceInstance serviceInstance, String Port) {
         return serviceInstance.getBindedServiceIp();
     }
 
@@ -984,33 +939,26 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public boolean createServiceDeploymentProject(String projectName,
-            String serviceDescriptor, String targetPath, boolean override,
-            Map<String, String> envs, boolean withBindedExposedPortsToRandom,
-            boolean withRemoveVolumes) throws Exception {
-        return dockerComposeService.createProjectWithEnv(projectName,
-                serviceDescriptor, targetPath, true, envs,
-                withBindedExposedPortsToRandom, withBindedExposedPortsToRandom,
-                null);
+    public boolean createServiceDeploymentProject(String projectName, String serviceDescriptor,
+            String targetPath, boolean override, Map<String, String> envs,
+            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes) throws Exception {
+        return dockerComposeService.createProjectWithEnv(projectName, serviceDescriptor, targetPath,
+                true, envs, withBindedExposedPortsToRandom, withBindedExposedPortsToRandom, null);
     }
 
     @Override
-    public boolean createServiceDeploymentProject(String projectName,
-            String serviceDescriptor, String targetPath, boolean override,
-            Map<String, String> envs, boolean withBindedExposedPortsToRandom,
-            boolean withRemoveVolumes, List<String> extraHosts,
-            Map<String, String> labels) throws Exception {
-        return dockerComposeService.createProjectWithEnv(projectName,
-                serviceDescriptor, targetPath, true, envs,
-                withBindedExposedPortsToRandom, withBindedExposedPortsToRandom,
+    public boolean createServiceDeploymentProject(String projectName, String serviceDescriptor,
+            String targetPath, boolean override, Map<String, String> envs,
+            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes,
+            List<String> extraHosts, Map<String, String> labels) throws Exception {
+        return dockerComposeService.createProjectWithEnv(projectName, serviceDescriptor, targetPath,
+                true, envs, withBindedExposedPortsToRandom, withBindedExposedPortsToRandom,
                 extraHosts);
     }
 
     @Override
-    public List<String> getServiceDeploymentImages(String projectName)
-            throws Exception {
-        List<String> images = dockerComposeService
-                .getProjectImages(projectName);
+    public List<String> getServiceDeploymentImages(String projectName) throws Exception {
+        List<String> images = dockerComposeService.getProjectImages(projectName);
         return images;
     }
 
@@ -1026,18 +974,16 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public boolean deployService(String projectName, boolean withPull,
-            String namespace) throws Exception {
+    public boolean deployService(String projectName, boolean withPull, String namespace)
+            throws Exception {
         boolean result = dockerComposeService.startProject(projectName, false);
         insertIntoETNetwork(projectName,
-                namespace != null && !namespace.isEmpty() ? namespace
-                        : elastestNetwork);
+                namespace != null && !namespace.isEmpty() ? namespace : elastestNetwork);
         return result;
     }
 
     @Override
-    public List<String> getDeploymentImages(String projectName)
-            throws Exception {
+    public List<String> getDeploymentImages(String projectName) throws Exception {
         return dockerComposeService.getProjectImages(projectName);
     }
 
@@ -1046,11 +992,10 @@ public class DockerServiceImpl extends PlatformService {
     /* *************************** */
 
     @Override
-    public void pullProject(String projectName,
-            Map<String, EtPlugin> currentEtPluginMap) throws Exception {
+    public void pullProject(String projectName, Map<String, EtPlugin> currentEtPluginMap)
+            throws Exception {
 
-        List<String> images = currentEtPluginMap.get(projectName)
-                .getImagesList();
+        List<String> images = currentEtPluginMap.get(projectName).getImagesList();
 
         if (images == null || images.isEmpty()) {
             images = getDeploymentImages(projectName);
@@ -1066,19 +1011,17 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public void pullImageWithProgress(String projectName,
-            ProgressHandler progressHandler, String image) throws Exception {
-        dockerComposeService.pullImageWithProgressHandler(projectName,
-                progressHandler, image);
+    public void pullImageWithProgress(String projectName, ProgressHandler progressHandler,
+            String image) throws Exception {
+        dockerComposeService.pullImageWithProgressHandler(projectName, progressHandler, image);
     }
 
     @Override
-    public void pullDeploymentImages(String projectName,
-            DockerServiceStatus serviceStatus, List<String> images,
-            boolean withProgress) throws Exception {
+    public void pullDeploymentImages(String projectName, DockerServiceStatus serviceStatus,
+            List<String> images, boolean withProgress) throws Exception {
         for (String image : images) {
-            ProgressHandler progressHandler = getEtPluginProgressHandler(
-                    projectName, image, serviceStatus);
+            ProgressHandler progressHandler = getEtPluginProgressHandler(projectName, image,
+                    serviceStatus);
 
             pullImageWithProgress(projectName, progressHandler, image);
         }
@@ -1103,45 +1046,38 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public boolean isContainerIntoNetwork(String networkId, String containerId)
-            throws Exception {
+    public boolean isContainerIntoNetwork(String networkId, String containerId) throws Exception {
         return dockerService.isContainerIntoNetwork(networkId, containerId);
     }
 
     @Override
     public String getContainerIp(String containerId) throws Exception {
         logger.debug("Getting container ip2: {}", containerId);
-        return dockerService.getContainerIpByNetwork(containerId,
-                elastestNetwork);
+        return dockerService.getContainerIpByNetwork(containerId, elastestNetwork);
     }
 
     @Override
-    public String getContainerIp(String containerId, EtPlugin serviceInstance)
-            throws Exception {
+    public String getContainerIp(String containerId, EtPlugin serviceInstance) throws Exception {
         logger.debug("Getting container ip: {}", containerId);
         return getContainerIp(containerId);
     }
 
-    public void insertIntoETNetwork(String engineName, String network)
-            throws Exception {
+    public void insertIntoETNetwork(String engineName, String network) throws Exception {
         try {
             for (io.elastest.epm.client.json.DockerContainerInfo.DockerContainer container : getContainers(
                     engineName).getContainers()) {
                 try {
-                    dockerService.insertIntoNetwork(network,
-                            container.getName());
+                    dockerService.insertIntoNetwork(network, container.getName());
                     try {
                         // Insert into bridge too
-                        dockerService.insertIntoNetwork("bridge",
-                                container.getName());
+                        dockerService.insertIntoNetwork("bridge", container.getName());
                     } catch (Exception e) {
-                        logger.error("Error on insert container "
-                                + container.getName() + " into bridge network");
+                        logger.error("Error on insert container " + container.getName()
+                                + " into bridge network");
                     }
                 } catch (InterruptedException | DockerCertificateException e) {
-                    throw new Exception(
-                            "Error on insert container " + container.getName()
-                                    + " into " + network + " network");
+                    throw new Exception("Error on insert container " + container.getName()
+                            + " into " + network + " network");
                 }
             }
         } catch (IOException e) {
@@ -1150,18 +1086,15 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getUniqPluginContainerName(String serviceName,
-            String network) {
+    public String getUniqPluginContainerName(String serviceName, String network) {
         String currentContainerName = null;
         try {
-            for (Container container : dockerComposeService.dockerService
-                    .getAllContainers()) {
+            for (Container container : dockerComposeService.dockerService.getAllContainers()) {
                 currentContainerName = container.names().get(0); // example:
 
                 if (currentContainerName != null
                         && currentContainerName.endsWith(serviceName + "_1")
-                        && isContainerIntoNetwork(network,
-                                currentContainerName)) {
+                        && isContainerIntoNetwork(network, currentContainerName)) {
                     logger.info("Container name: {}", currentContainerName);
                     return currentContainerName;
 
@@ -1174,8 +1107,7 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public void disableMetricMonitoring(Execution execution, boolean force)
-            throws Exception {
+    public void disableMetricMonitoring(Execution execution, boolean force) throws Exception {
         String containerName = getDockbeatContainerName(execution);
         if (force) {
             endContainer(containerName, 1);
@@ -1198,12 +1130,10 @@ public class DockerServiceImpl extends PlatformService {
             logger.debug("Is Sut By Docker Compose");
             deploySutFromDockerCompose(execution);
         }
-        execution.getSutExec()
-                .setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
+        execution.getSutExec().setDeployStatus(SutExecution.DeployStatusEnum.DEPLOYED);
 
         String sutIp;
-        String sutContainerId = getSutContainerIdByExec(
-                execution.getExecutionId().toString());
+        String sutContainerId = getSutContainerIdByExec(execution.getExecutionId().toString());
         sutIp = getContainerIpWithDockerExecution(sutContainerId, execution);
 
         // If port is defined, wait for SuT ready
@@ -1211,8 +1141,7 @@ public class DockerServiceImpl extends PlatformService {
             String sutPort = sut.getPort();
             String resultMsg = "Waiting for dockerized SuT";
             logger.info(resultMsg);
-            execution.updateTJobExecutionStatus(ResultEnum.WAITING_SUT,
-                    resultMsg);
+            execution.updateTJobExecutionStatus(ResultEnum.WAITING_SUT, resultMsg);
 
             // If is Sut In new Container
             if (sut.isSutInNewContainer()) {
@@ -1220,8 +1149,7 @@ public class DockerServiceImpl extends PlatformService {
             }
 
             // Wait for SuT started
-            resultMsg = "Waiting for SuT service ready at ip " + sutIp
-                    + " and port " + sutPort;
+            resultMsg = "Waiting for SuT service ready at ip " + sutIp + " and port " + sutPort;
             logger.debug(resultMsg);
             checkSut(execution, sutIp, sutPort);
             endContainer(getCheckName(execution));
@@ -1247,8 +1175,7 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public void undeploySut(Execution execution, boolean force)
-            throws Exception {
+    public void undeploySut(Execution execution, boolean force) throws Exception {
         SutSpecification sut = execution.getSut();
         removeSutVolumeFolder(execution);
         // If it's Managed Sut, and container is created
@@ -1259,8 +1186,7 @@ public class DockerServiceImpl extends PlatformService {
                     if (sut.isSutInNewContainer()) {
                         endSutInContainer(execution);
                     }
-                    String sutContainerName = generateContainerName(
-                            ContainerPrefix.SUT, execution);
+                    String sutContainerName = generateContainerName(ContainerPrefix.SUT, execution);
                     if (force) {
                         endContainer(sutContainerName, 1);
                     } else {
@@ -1269,8 +1195,7 @@ public class DockerServiceImpl extends PlatformService {
                 } else {
                     endComposedSutExec(execution);
                 }
-                updateSutExecDeployStatus(execution,
-                        DeployStatusEnum.UNDEPLOYED);
+                updateSutExecDeployStatus(execution, DeployStatusEnum.UNDEPLOYED);
             } finally {
                 if (execution.getSutExec() != null
                         && execution.getSutExec().getPublicPort() != null) {
@@ -1285,10 +1210,8 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public void undeployTJob(Execution execution, boolean force)
-            throws Exception {
-        String testContainerName = generateContainerName(ContainerPrefix.TEST,
-                execution);
+    public void undeployTJob(Execution execution, boolean force) throws Exception {
+        String testContainerName = generateContainerName(ContainerPrefix.TEST, execution);
         if (force) {
             endContainer(testContainerName, 1);
         } else {
@@ -1299,8 +1222,7 @@ public class DockerServiceImpl extends PlatformService {
     @Override
     public String getEtmHost() throws Exception {
         if (utilsService.isEtmInContainer()) {
-            return dockerService.getContainerIpByNetwork(etEtmContainerName,
-                    elastestNetwork);
+            return dockerService.getContainerIpByNetwork(etEtmContainerName, elastestNetwork);
         } else {
             return dockerService.getHostIpByNetwork(elastestNetwork);
         }
@@ -1316,8 +1238,8 @@ public class DockerServiceImpl extends PlatformService {
         if (utilsService.isElastestMini()) {
             return getEtmHost();
         } else {
-            return dockerService.getContainerIpByNetwork(
-                    etEtmLogstashContainerName, elastestNetwork);
+            return dockerService.getContainerIpByNetwork(etEtmLogstashContainerName,
+                    elastestNetwork);
         }
     }
 
@@ -1327,11 +1249,10 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public VersionInfo getVersionInfoFromContainer(String imageName,
-            String version) throws Exception {
+    public VersionInfo getVersionInfoFromContainer(String imageName, String version)
+            throws Exception {
         Container container = getContainerFromImage(imageName, version);
-        return new VersionInfo(
-                dockerService.getImageInfoByContainerId(container.id()));
+        return new VersionInfo(dockerService.getImageInfoByContainerId(container.id()));
     }
 
     @Override
@@ -1345,49 +1266,42 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public void setCoreServiceInfoFromContainer(String imageName,
-            String version, CoreServiceInfo coreServiceInfo) throws Exception {
-        coreServiceInfo
-                .setDataByContainer(getContainerFromImage(version, imageName));
+    public void setCoreServiceInfoFromContainer(String imageName, String version,
+            CoreServiceInfo coreServiceInfo) throws Exception {
+        coreServiceInfo.setDataByContainer(getContainerFromImage(version, imageName));
     }
 
     @Override
-    public String getAllContainerLogs(String containerName, boolean withFollow)
-            throws Exception {
+    public String getAllContainerLogs(String containerName, boolean withFollow) throws Exception {
         return dockerService.getAllContainerLogs(containerName, withFollow);
     }
 
     @Override
-    public String getSomeContainerLogs(String containerName, int amount,
-            boolean withFollow) throws Exception {
-        return dockerService.getSomeContainerLogs(containerName, amount,
-                withFollow);
+    public String getSomeContainerLogs(String containerName, int amount, boolean withFollow)
+            throws Exception {
+        return dockerService.getSomeContainerLogs(containerName, amount, withFollow);
     }
 
     @Override
-    public String getContainerLogsFrom(String containerId, int from,
-            boolean withFollow) throws Exception {
-        return dockerService.getContainerLogsSinceDate(containerId, from,
-                withFollow);
+    public String getContainerLogsFrom(String containerId, int from, boolean withFollow)
+            throws Exception {
+        return dockerService.getContainerLogsSinceDate(containerId, from, withFollow);
     }
 
     @Override
-    public Integer copyFilesFomContainer(String container, String originPath,
-            String targetPath) {
+    public Integer copyFilesFomContainer(String container, String originPath, String targetPath) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getTSSInstanceContainerName(String... params) {
-        logger.debug("Name of the container to retrieve {}",
-                params[0] + "_" + params[1] + "_1");
+        logger.debug("Name of the container to retrieve {}", params[0] + "_" + params[1] + "_1");
         return params[0] + "_" + params[1] + "_1";
     }
 
     @Override
-    public String getPublicServiceIp(String serviceName, String port,
-            String namespace) {
+    public String getPublicServiceIp(String serviceName, String port, String namespace) {
         return utilsService.getEtPublicHostValue();
     }
 
