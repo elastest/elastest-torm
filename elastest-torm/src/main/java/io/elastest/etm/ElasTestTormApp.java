@@ -132,7 +132,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
             return new MiniEsmServiceClient(getEtPluginsService(), utilsService,
                     platformService());
         } else {
-            return new EsmServiceClientImpl(utilsService);
+            return new EsmServiceClientImpl(utilsService, platformService());
         }
     }
 
