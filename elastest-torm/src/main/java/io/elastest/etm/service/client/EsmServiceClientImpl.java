@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.elastest.etm.model.SupportService;
 import io.elastest.etm.model.SupportServiceInstance;
 import io.elastest.etm.model.SupportServiceInstance.ProvisionView;
+import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.model.TssManifest;
 import io.elastest.etm.utils.UtilTools;
 import io.elastest.etm.utils.UtilsService;
@@ -61,9 +62,12 @@ public class EsmServiceClientImpl implements EsmServiceClient {
     HttpHeaders headers;
 
     UtilsService utilsService;
+    PlatformService platformService;
 
-    public EsmServiceClientImpl(UtilsService utilsService) {
+    public EsmServiceClientImpl(UtilsService utilsService,
+            PlatformService platformService) {
         this.utilsService = utilsService;
+        this.platformService = platformService;
         httpClient = new RestTemplate();
         headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -310,7 +314,7 @@ public class EsmServiceClientImpl implements EsmServiceClient {
 
             while (itEsmRespContextFields.hasNext() && !ipFound) {
                 String fieldName = itEsmRespContextFields.next();
-                logger.debug("Instance data fields {}:" + fieldName);
+                logger.debug("Instance data fields {}:", fieldName);
 
                 if (fieldName.contains(serviceIpFieldSufix)
                         && fieldName.contains(serviceName)) {
@@ -318,6 +322,11 @@ public class EsmServiceClientImpl implements EsmServiceClient {
                         String containerIp = serviceInstanceDetail
                                 .get("context").get(fieldName).toString()
                                 .replaceAll("\"", "");
+                        if (containerIp.equals("pending")) {
+                            containerIp = platformService.getContainerIp(
+                                    serviceName, serviceInstance);
+                        }
+
                         String containerName = fieldName.substring(0,
                                 fieldName.indexOf("_Ip"));
                         logger.debug("Container ip {} for the service {}",
