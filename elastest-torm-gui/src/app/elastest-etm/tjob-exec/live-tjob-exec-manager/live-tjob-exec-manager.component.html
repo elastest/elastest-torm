@@ -4,7 +4,7 @@
       <mat-card-title>
         <a *ngIf="tJob" (click)="viewTJob()" class="hover-pointer">
           <span *ngIf="tJobExec && tJobExec.isMultiConfig()">Multi-Configuration&nbsp;</span> <span>TJob</span>
-          <span> "{{ tJob.name }}": </span>
+          <span>&nbsp;"{{ tJob.name }}": </span>
         </a>
 
         <span *ngIf="tJobExec && tJobExec.isChild()">&nbsp;Configuration</span>
