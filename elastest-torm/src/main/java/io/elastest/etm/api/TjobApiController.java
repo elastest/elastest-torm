@@ -28,7 +28,6 @@ import io.elastest.etm.model.TJob;
 import io.elastest.etm.model.TJob.TJobCompleteView;
 import io.elastest.etm.model.TJobExecution;
 import io.elastest.etm.model.TJobExecution.TJobExecCompleteView;
-import io.elastest.etm.service.TSSService;
 import io.elastest.etm.service.TJobService;
 import io.swagger.annotations.ApiParam;
 
@@ -37,14 +36,10 @@ import io.swagger.annotations.ApiParam;
 @Controller
 public class TjobApiController implements TjobApi {
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(TjobApiController.class);
+    private static final Logger logger = LoggerFactory.getLogger(TjobApiController.class);
 
     @Autowired
     private TJobService tJobService;
-
-    @Autowired
-    TSSService esmService;
 
     /* *************** */
     /* **** TJobs **** */
@@ -100,9 +95,8 @@ public class TjobApiController implements TjobApi {
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "Execution Parameters", required = false) @Valid @RequestBody ExecData parameters) {
         try {
-            TJobExecution tJobExec = tJobService.executeTJob(tJobId,
-                    parameters.gettJobParams(), parameters.getSutParams(),
-                    parameters.getMultiConfigurations(), null);
+            TJobExecution tJobExec = tJobService.executeTJob(tJobId, parameters.gettJobParams(),
+                    parameters.getSutParams(), parameters.getMultiConfigurations(), null);
             tJobService.removeOldTJobExecsAsync(tJobId);
             return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
         } catch (HttpClientErrorException e) {
@@ -129,8 +123,7 @@ public class TjobApiController implements TjobApi {
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "TJob Execution Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
 
-        TJobExecution tJobExec = tJobService.getTJobsExecution(tJobId,
-                tJobExecId);
+        TJobExecution tJobExec = tJobService.getTJobsExecution(tJobId, tJobExecId);
         return new ResponseEntity<TJobExecution>(tJobExec, HttpStatus.OK);
     }
 
@@ -138,20 +131,16 @@ public class TjobApiController implements TjobApi {
     public ResponseEntity<List<TJobExecution>> getTJobExecutionsByTJob(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
 
-        List<TJobExecution> tjobExecList = tJobService
-                .getTJobExecutionsByTJobId(tJobId, false);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        List<TJobExecution> tjobExecList = tJobService.getTJobExecutionsByTJobId(tJobId, false);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @JsonView(TJobExecCompleteView.class)
     public ResponseEntity<List<TJobExecution>> getTJobExecutionsByTJobWithoutChilds(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId) {
 
-        List<TJobExecution> tjobExecList = tJobService
-                .getTJobExecutionsByTJobId(tJobId, true);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        List<TJobExecution> tjobExecList = tJobService.getTJobExecutionsByTJobId(tJobId, true);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @JsonView(TJobExecCompleteView.class)
@@ -159,10 +148,9 @@ public class TjobApiController implements TjobApi {
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "Number of TJobExecs to get.", required = true) @PathVariable("number") Long number,
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
-        List<TJobExecution> tjobExecList = tJobService.getLastNTJobExecs(tJobId,
-                number, withoutChilds);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        List<TJobExecution> tjobExecList = tJobService.getLastNTJobExecs(tJobId, number,
+                withoutChilds);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @JsonView(TJobExecCompleteView.class)
@@ -176,16 +164,15 @@ public class TjobApiController implements TjobApi {
         if (sortOrder != null) {
             withoutChilds = withoutChilds != null ? withoutChilds : false;
             if ("desc".equals(sortOrder)) {
-                tjobExecList = tJobService.getTJobExecsByPage(tJobId, page,
-                        pageSize, Direction.DESC, withoutChilds);
+                tjobExecList = tJobService.getTJobExecsByPage(tJobId, page, pageSize,
+                        Direction.DESC, withoutChilds);
             } else if ("asc".equals(sortOrder)) {
-                tjobExecList = tJobService.getTJobExecsByPage(tJobId, page,
-                        pageSize, Direction.ASC, withoutChilds);
+                tjobExecList = tJobService.getTJobExecsByPage(tJobId, page, pageSize, Direction.ASC,
+                        withoutChilds);
             }
         }
 
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @Override
@@ -195,8 +182,7 @@ public class TjobApiController implements TjobApi {
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
         withoutChilds = withoutChilds != null ? withoutChilds : false;
         return new ResponseEntity<TJobExecution>(
-                tJobService.getLastSuccessTJobExecution(tJobId, withoutChilds),
-                HttpStatus.OK);
+                tJobService.getLastSuccessTJobExecution(tJobId, withoutChilds), HttpStatus.OK);
     }
 
     /* ****************************** */
@@ -207,8 +193,7 @@ public class TjobApiController implements TjobApi {
     @JsonView(TJobExecCompleteView.class)
     public ResponseEntity<List<TJobExecution>> getAllTJobExecutions() {
         List<TJobExecution> tjobExecList = tJobService.getAllTJobExecs();
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     /* *** By ID *** */
@@ -220,10 +205,9 @@ public class TjobApiController implements TjobApi {
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
         withoutChilds = withoutChilds != null ? withoutChilds : false;
 
-        List<TJobExecution> tjobExecList = tJobService.getTJobsExecsByPage(page,
-                pageSize, Direction.DESC, withoutChilds);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        List<TJobExecution> tjobExecList = tJobService.getTJobsExecsByPage(page, pageSize,
+                Direction.DESC, withoutChilds);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @Override
@@ -233,10 +217,8 @@ public class TjobApiController implements TjobApi {
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
         withoutChilds = withoutChilds != null ? withoutChilds : false;
 
-        List<TJobExecution> tjobExecList = tJobService
-                .getLastNTJobsExecs(number, withoutChilds);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        List<TJobExecution> tjobExecList = tJobService.getLastNTJobsExecs(number, withoutChilds);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     /* *** By results *** */
@@ -247,10 +229,8 @@ public class TjobApiController implements TjobApi {
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
         withoutChilds = withoutChilds != null ? withoutChilds : false;
 
-        List<TJobExecution> tjobExecList = tJobService
-                .getAllRunningTJobsExecs(withoutChilds);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        List<TJobExecution> tjobExecList = tJobService.getAllRunningTJobsExecs(withoutChilds);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @Override
@@ -261,11 +241,9 @@ public class TjobApiController implements TjobApi {
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
         withoutChilds = withoutChilds != null ? withoutChilds : false;
 
-        List<TJobExecution> tjobExecList = tJobService
-                .getRunningTJobExecsByPage(page, pageSize, Direction.DESC,
-                        withoutChilds);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        List<TJobExecution> tjobExecList = tJobService.getRunningTJobExecsByPage(page, pageSize,
+                Direction.DESC, withoutChilds);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @Override
@@ -275,10 +253,9 @@ public class TjobApiController implements TjobApi {
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
         withoutChilds = withoutChilds != null ? withoutChilds : false;
 
-        List<TJobExecution> tjobExecList = tJobService
-                .getLastNRunningTJobExecs(number, withoutChilds);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        List<TJobExecution> tjobExecList = tJobService.getLastNRunningTJobExecs(number,
+                withoutChilds);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @Override
@@ -289,8 +266,7 @@ public class TjobApiController implements TjobApi {
 
         List<TJobExecution> tjobExecList = tJobService
                 .getAllFinishedOrNotExecutedTJobExecs(withoutChilds);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @JsonView(TJobExecCompleteView.class)
@@ -302,18 +278,15 @@ public class TjobApiController implements TjobApi {
         if (than != null) {
             withoutChilds = withoutChilds != null ? withoutChilds : false;
             if ("less".equals(than)) {
-                tjobExecList = tJobService
-                        .getAllFinishedOrNotExecutedTJobsExecsByIdLessThan(
-                                tJobExecId, withoutChilds);
+                tjobExecList = tJobService.getAllFinishedOrNotExecutedTJobsExecsByIdLessThan(
+                        tJobExecId, withoutChilds);
             } else if ("greater".equals(than)) {
-                tjobExecList = tJobService
-                        .getAllFinishedOrNotExecutedTJobsExecsByIdGreaterThan(
-                                tJobExecId, withoutChilds);
+                tjobExecList = tJobService.getAllFinishedOrNotExecutedTJobsExecsByIdGreaterThan(
+                        tJobExecId, withoutChilds);
             }
         }
 
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @Override
@@ -323,11 +296,9 @@ public class TjobApiController implements TjobApi {
             @RequestParam(value = "pageSize", required = true) int pageSize,
             @RequestParam(value = "withoutChilds", required = true) Boolean withoutChilds) {
         withoutChilds = withoutChilds != null ? withoutChilds : false;
-        List<TJobExecution> tjobExecList = tJobService
-                .getFinishedOrNotExecutedTJobsExecsByPage(page, pageSize,
-                        Direction.DESC, withoutChilds);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        List<TJobExecution> tjobExecList = tJobService.getFinishedOrNotExecutedTJobsExecsByPage(
+                page, pageSize, Direction.DESC, withoutChilds);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @JsonView(TJobExecCompleteView.class)
@@ -341,20 +312,15 @@ public class TjobApiController implements TjobApi {
         if (than != null) {
             withoutChilds = withoutChilds != null ? withoutChilds : false;
             if ("less".equals(than)) {
-                tjobExecList = tJobService
-                        .getFinishedOrNotExecutedTJobsExecsByPageAndIdLessThan(
-                                page, pageSize, tJobExecId, Direction.DESC,
-                                withoutChilds);
+                tjobExecList = tJobService.getFinishedOrNotExecutedTJobsExecsByPageAndIdLessThan(
+                        page, pageSize, tJobExecId, Direction.DESC, withoutChilds);
             } else if ("greater".equals(than)) {
-                tjobExecList = tJobService
-                        .getFinishedOrNotExecutedTJobsExecsByPageAndIdGreaterThan(
-                                page, pageSize, tJobExecId, Direction.DESC,
-                                withoutChilds);
+                tjobExecList = tJobService.getFinishedOrNotExecutedTJobsExecsByPageAndIdGreaterThan(
+                        page, pageSize, tJobExecId, Direction.DESC, withoutChilds);
             }
         }
 
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @Override
@@ -366,8 +332,7 @@ public class TjobApiController implements TjobApi {
 
         List<TJobExecution> tjobExecList = tJobService
                 .getLastNFinishedOrNotExecutedTJobsExecs(number, withoutChilds);
-        return new ResponseEntity<List<TJobExecution>>(tjobExecList,
-                HttpStatus.OK);
+        return new ResponseEntity<List<TJobExecution>>(tjobExecList, HttpStatus.OK);
     }
 
     @Override
@@ -378,8 +343,7 @@ public class TjobApiController implements TjobApi {
 
         try {
             response = new ResponseEntity<List<ElastestFile>>(
-                    tJobService.getTJobExecutionFilesUrls(tJobId, tJobExecId),
-                    HttpStatus.OK);
+                    tJobService.getTJobExecutionFilesUrls(tJobId, tJobExecId), HttpStatus.OK);
         } catch (Exception e) {
             response = new ResponseEntity<List<ElastestFile>>(new ArrayList<>(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
@@ -392,8 +356,7 @@ public class TjobApiController implements TjobApi {
     public ResponseEntity<Map<String, Object>> getTJobExecResultStatus(
             @ApiParam(value = "TJob Id.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "TJob Execution Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
-        TJobExecution tJobExec = tJobService.getTJobsExecution(tJobId,
-                tJobExecId);
+        TJobExecution tJobExec = tJobService.getTJobsExecution(tJobId, tJobExecId);
         Map<String, Object> response = new HashMap<>();
         response.put("result", tJobExec.getResult());
         response.put("msg", tJobExec.getResultMsg());
@@ -423,8 +386,7 @@ public class TjobApiController implements TjobApi {
     @JsonView(TJobExecCompleteView.class)
     public ResponseEntity<List<TJobExecution>> getParentTJobExecChilds(
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId) {
-        List<TJobExecution> tJobExec = tJobService
-                .getParentTJobExecChilds(tJobExecId);
+        List<TJobExecution> tJobExec = tJobService.getParentTJobExecChilds(tJobExecId);
         return new ResponseEntity<List<TJobExecution>>(tJobExec, HttpStatus.OK);
     }
 
@@ -433,15 +395,12 @@ public class TjobApiController implements TjobApi {
             @ApiParam(value = "TJobExec Id.", required = true) @PathVariable("tJobExecId") Long tJobExecId,
             @RequestParam("file") MultipartFile file) {
         try {
-            logger.info("Attachment file request received for TJobExec {}",
-                    tJobExecId);
-            Boolean saved = tJobService.saveExecAttachmentFile(tJobExecId,
-                    file);
+            logger.info("Attachment file request received for TJobExec {}", tJobExecId);
+            Boolean saved = tJobService.saveExecAttachmentFile(tJobExecId, file);
             return new ResponseEntity<Boolean>(saved, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error on save Attachment for exec {}", tJobExecId);
-            return new ResponseEntity<Boolean>(false,
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Boolean>(false, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -453,13 +412,10 @@ public class TjobApiController implements TjobApi {
             Integer result = tJobService.getTestResultsFromContainer(podName);
             return new ResponseEntity<Integer>(result, HttpStatus.OK);
         } catch (Exception e) {
-            logger.error(
-                    "Error saving the test results generated by the pod {}",
-                    podName);
+            logger.error("Error saving the test results generated by the pod {}", podName);
             logger.error("Error: {}", e.getMessage());
             e.printStackTrace();
-            return new ResponseEntity<Integer>(2,
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Integer>(2, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -474,8 +430,7 @@ public class TjobApiController implements TjobApi {
             logger.error("Error copying files from the pod {}", podName);
             logger.error("Error: {}", e.getMessage());
             e.printStackTrace();
-            return new ResponseEntity<Integer>(2,
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<Integer>(2, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

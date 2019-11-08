@@ -1037,7 +1037,8 @@ public class DockerService {
                 output = startResultCallback.readFully();
             }
 
-            logger.debug("Callback terminated. Result: {}", output);
+            logger.debug("Callback terminated for command {} in container {}. Result: {}",
+                    commandStr, containerName, output);
 
         }
         return output;

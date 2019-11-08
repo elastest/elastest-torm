@@ -116,15 +116,15 @@ public abstract class AbstractMonitoringService {
         return testsLogs;
     }
 
-    public List<List<String>> searchTestLogsMessageByCasesNames(
+    public List<List<String>> searchTestLogsMessageBySuitesAndCasesNames(
             MonitoringQuery monitoringQuery, boolean withTimestamp,
             boolean timeDiff,
-            Map<String, List<String>> failedTCasesAndSuitesNamesMap)
+            Map<String, List<String>> tCasesAndSuitesNamesMap)
             throws Exception {
         List<List<String>> testsLogs = new ArrayList<>();
-        if (failedTCasesAndSuitesNamesMap != null
-                && !failedTCasesAndSuitesNamesMap.isEmpty()) {
-            for (HashMap.Entry<String, List<String>> currentCaseSuiteNamesEntry : failedTCasesAndSuitesNamesMap
+        if (tCasesAndSuitesNamesMap != null
+                && !tCasesAndSuitesNamesMap.isEmpty()) {
+            for (HashMap.Entry<String, List<String>> currentCaseSuiteNamesEntry : tCasesAndSuitesNamesMap
                     .entrySet()) {
                 if (currentCaseSuiteNamesEntry != null
                         && currentCaseSuiteNamesEntry.getValue() != null) {
@@ -244,7 +244,7 @@ public abstract class AbstractMonitoringService {
                 if (view != null) {
                     switch (view) {
                     case "failedtests":
-                        logsList = searchTestLogsMessageByCasesNames(newQuery,
+                        logsList = searchTestLogsMessageBySuitesAndCasesNames(newQuery,
                                 withTimestamp, timeDiff,
                                 failedTCasesAndSuitesNamesMap);
                         break;
