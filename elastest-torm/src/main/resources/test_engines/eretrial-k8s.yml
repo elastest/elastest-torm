@@ -62,6 +62,7 @@ spec:
     spec:
       containers:
       - image: elastest/ere-trial:latest
+        imagePullPolicy: Always
         name: ere
         ports:
         - containerPort: 9080
@@ -70,7 +71,6 @@ spec:
         - mountPath: /ere-data
           name: ere-data
       restartPolicy: Always
-      imagePullPolicy: Always
       volumes:
       - name: ere-data
         persistentVolumeClaim:

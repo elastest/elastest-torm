@@ -44,6 +44,7 @@ spec:
     spec:
       containers:
       - image: 842800759158.dkr.ecr.eu-west-1.amazonaws.com/elastest/elastest-qa-engine:latest
+        imagePullPolicy: Always
         name: qa
         ports:
         - containerPort: 9080

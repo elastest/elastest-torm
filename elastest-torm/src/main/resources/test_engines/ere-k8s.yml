@@ -67,8 +67,8 @@ spec:
         volumeMounts:
         - mountPath: /ere-data
           name: ere-data
+        imagePullPolicy: Always
       restartPolicy: Always
-      imagePullPolicy: Always
       volumes:
       - name: ere-data
         persistentVolumeClaim:

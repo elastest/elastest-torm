@@ -54,10 +54,10 @@ spec:
         - name: ET_ETM_API
           value: http://etm:8091/
         image: elastest/ece:latest
+        imagePullPolicy: Always
         name: ece
         ports:
         - containerPort: 8888
         resources: {}
       restartPolicy: Always
-      imagePullPolicy: Always
 status: {}
