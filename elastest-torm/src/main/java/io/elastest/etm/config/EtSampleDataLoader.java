@@ -66,8 +66,8 @@ public class EtSampleDataLoader {
     @Value("${et.config.folder}")
     private String configFolder;
 
-    public EtSampleDataLoader(EtDataLoader etDataLoader,
-            ExternalService externalService, UtilsService utilsService) {
+    public EtSampleDataLoader(EtDataLoader etDataLoader, ExternalService externalService,
+            UtilsService utilsService) {
         this.etDataLoader = etDataLoader;
         this.externalService = externalService;
         this.utilsService = utilsService;
@@ -80,8 +80,7 @@ public class EtSampleDataLoader {
 
     public boolean createData(boolean withForce) {
         try {
-            String sampleDataCreated = (configFolder.endsWith("/")
-                    ? configFolder
+            String sampleDataCreated = (configFolder.endsWith("/") ? configFolder
                     : configFolder + "/") + "sampleDataCreated";
             File sampleDataCreatedFile = new File(sampleDataCreated);
             boolean alreadyExists = sampleDataCreatedFile.exists();
@@ -95,6 +94,7 @@ public class EtSampleDataLoader {
                     this.createBrowsersInAWS();
                     this.createEMS();
                     this.createEDS();
+                    this.createQoE();
                 }
 
                 if (etDataLoader.isStartedTestLink()) {
@@ -106,8 +106,7 @@ public class EtSampleDataLoader {
                         logger.info("Sample Data has been created!");
                         sampleDataCreatedFile.createNewFile();
                     } catch (IOException e) {
-                        logger.error("File {} has not been created",
-                                sampleDataCreated);
+                        logger.error("File {} has not been created", sampleDataCreated);
                     }
                 }
                 return true;
@@ -132,47 +131,40 @@ public class EtSampleDataLoader {
             Project project = etDataLoader.createProject(pjName);
 
             String junit5UnitProjectPath = unitTestFolder + "/junit5-unit-test";
-            String junit5UnitResultsPath = junit5UnitProjectPath
-                    + javaRelativeResultsPath;
+            String junit5UnitResultsPath = junit5UnitProjectPath + javaRelativeResultsPath;
 
             String junit4UnitProjectPath = unitTestFolder + "/junit4-unit-test";
-            String junit4UnitResultsPath = junit4UnitProjectPath
-                    + javaRelativeResultsPath;
+            String junit4UnitResultsPath = junit4UnitProjectPath + javaRelativeResultsPath;
 
             /* *** TJob 1 *** */
             String tJob1Name = "JUnit5 Unit Test";
             String commands1 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + junit5UnitProjectPath + ";\nmvn -B test\n";
 
-            etDataLoader.createTJob(project, tJob1Name, junit5UnitResultsPath,
-                    javaMvnImage, false, commands1, EXEC_DASHBOARD_CONFIG, null,
-                    null, null, null);
+            etDataLoader.createTJob(project, tJob1Name, junit5UnitResultsPath, javaMvnImage, false,
+                    commands1, EXEC_DASHBOARD_CONFIG, null, null, null, null);
 
             /* *** TJob 2 *** */
             String tJob2Name = "JUnit4 Unit Test";
             String commands2 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + junit4UnitProjectPath + ";\nmvn -B test\n";
 
-            etDataLoader.createTJob(project, tJob2Name, junit4UnitResultsPath,
-                    javaMvnImage, false, commands2, EXEC_DASHBOARD_CONFIG, null,
-                    null, null, null);
+            etDataLoader.createTJob(project, tJob2Name, junit4UnitResultsPath, javaMvnImage, false,
+                    commands2, EXEC_DASHBOARD_CONFIG, null, null, null, null);
 
             /* *** TJob 3 *** */
             String pythonUnitProjectPath = unitTestFolder + "/python-unit-test";
-            String pythonUnitResultsPath = pythonUnitProjectPath
-                    + pythonRelativeResultsPath;
+            String pythonUnitResultsPath = pythonUnitProjectPath + pythonRelativeResultsPath;
 
             String tJob3Name = "Python Unit Test";
             String commands3 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + pythonUnitProjectPath + ";\npython UnitTest.py;";
 
-            etDataLoader.createTJob(project, tJob3Name, pythonUnitResultsPath,
-                    pythonImage, false, commands3, EXEC_DASHBOARD_CONFIG, null,
-                    null, null, null);
+            etDataLoader.createTJob(project, tJob3Name, pythonUnitResultsPath, pythonImage, false,
+                    commands3, EXEC_DASHBOARD_CONFIG, null, null, null, null);
 
             /* *** TJob 4 *** */
-            String jasmineUnitProjectPath = unitTestFolder
-                    + "/jasmine-unit-test";
+            String jasmineUnitProjectPath = unitTestFolder + "/jasmine-unit-test";
             String jasmineUnitResultsPath = jasmineUnitProjectPath
                     + jasmineAndProtractorRelativeResultsPath;
 
@@ -181,9 +173,8 @@ public class EtSampleDataLoader {
             String commands4 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + jasmineUnitProjectPath + ";\njasmine;";
 
-            etDataLoader.createTJob(project, tJob4Name, jasmineUnitResultsPath,
-                    nodeImage, false, commands4, EXEC_DASHBOARD_CONFIG, null,
-                    null, null, null);
+            etDataLoader.createTJob(project, tJob4Name, jasmineUnitResultsPath, nodeImage, false,
+                    commands4, EXEC_DASHBOARD_CONFIG, null, null, null, null);
         }
     }
 
@@ -203,53 +194,44 @@ public class EtSampleDataLoader {
             ProtocolEnum sutProtocol = ProtocolEnum.HTTP;
             String sutPort = "8080";
 
-            SutSpecification sut = etDataLoader
-                    .createSutDeployedByElastestWithDockerImage(project, null,
-                            sutName, sutDesc, sutImage, sutProtocol, sutPort,
-                            null);
+            SutSpecification sut = etDataLoader.createSutDeployedByElastestWithDockerImage(project,
+                    null, sutName, sutDesc, sutImage, sutProtocol, sutPort, null);
 
             String junit5RestProjectPath = restTestFolder + "/junit5-rest-test";
-            String junit5RestResultsPath = junit5RestProjectPath
-                    + javaRelativeResultsPath;
+            String junit5RestResultsPath = junit5RestProjectPath + javaRelativeResultsPath;
 
             String junit4RestProjectPath = restTestFolder + "/junit4-rest-test";
-            String junit4RestResultsPath = junit4RestProjectPath
-                    + javaRelativeResultsPath;
+            String junit4RestResultsPath = junit4RestProjectPath + javaRelativeResultsPath;
 
             /* *** TJob 1 *** */
             String tJob1Name = "JUnit5 Rest Test";
             String commands1 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + junit5RestProjectPath + ";\nmvn -B test;";
 
-            etDataLoader.createTJob(project, tJob1Name, junit5RestResultsPath,
-                    javaMvnImage, false, commands1,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
+            etDataLoader.createTJob(project, tJob1Name, junit5RestResultsPath, javaMvnImage, false,
+                    commands1, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
 
             /* *** TJob 2 *** */
             String tJob2Name = "JUnit4 Rest Test";
             String commands2 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + junit4RestProjectPath + ";\nmvn -B test;";
 
-            etDataLoader.createTJob(project, tJob2Name, junit4RestResultsPath,
-                    javaMvnImage, false, commands2,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
+            etDataLoader.createTJob(project, tJob2Name, junit4RestResultsPath, javaMvnImage, false,
+                    commands2, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
 
             /* *** TJob 3 *** */
             String karateRestProjectPath = restTestFolder + "/karate-rest-test";
-            String karateRestResultsPath = karateRestProjectPath
-                    + javaRelativeResultsPath;
+            String karateRestResultsPath = karateRestProjectPath + javaRelativeResultsPath;
 
             String tJob3Name = "Karate Rest Test";
             String commands3 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + karateRestProjectPath + ";\nmvn -B test;";
 
-            etDataLoader.createTJob(project, tJob3Name, karateRestResultsPath,
-                    javaMvnImage, false, commands3,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
+            etDataLoader.createTJob(project, tJob3Name, karateRestResultsPath, javaMvnImage, false,
+                    commands3, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
 
             /* *** TJob 4 *** */
-            String jasmineRestProjectPath = restTestFolder
-                    + "/jasmine-rest-test";
+            String jasmineRestProjectPath = restTestFolder + "/jasmine-rest-test";
             String jasmineRestResultsPath = jasmineRestProjectPath
                     + jasmineAndProtractorRelativeResultsPath;
 
@@ -257,22 +239,19 @@ public class EtSampleDataLoader {
             String commands4 = "npm install --save request;\ngit clone https://github.com/elastest/demo-projects;\ncd "
                     + jasmineRestProjectPath + ";\njasmine;";
 
-            etDataLoader.createTJob(project, tJob4Name, jasmineRestResultsPath,
-                    nodeImage, false, commands4, EXEC_DASHBOARD_CONFIG_WITH_SUT,
-                    null, null, sut, null);
+            etDataLoader.createTJob(project, tJob4Name, jasmineRestResultsPath, nodeImage, false,
+                    commands4, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
 
             /* *** TJob 5 *** */
             String pythonRestProjectPath = restTestFolder + "/python-rest-test";
-            String pythonRestResultsPath = pythonRestProjectPath
-                    + pythonRelativeResultsPath;
+            String pythonRestResultsPath = pythonRestProjectPath + pythonRelativeResultsPath;
 
             String tJob5Name = "Python Rest Test";
             String commands5 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + pythonRestProjectPath + ";\npython RestTest.py;";
 
-            etDataLoader.createTJob(project, tJob5Name, pythonRestResultsPath,
-                    pythonImage, false, commands5,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
+            etDataLoader.createTJob(project, tJob5Name, pythonRestResultsPath, pythonImage, false,
+                    commands5, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, null, sut, null);
         }
     }
 
@@ -286,10 +265,9 @@ public class EtSampleDataLoader {
             Project project = etDataLoader.createProject(pjName);
 
             // Create Sut
-            SutSpecification sut = etDataLoader
-                    .createSutDeployedByElastestWithDockerImage(project, null,
-                            webAppSutName, webAppSutDesc, webAppSutImage,
-                            webAppSutProtocol, webAppSutPort, null);
+            SutSpecification sut = etDataLoader.createSutDeployedByElastestWithDockerImage(project,
+                    null, webAppSutName, webAppSutDesc, webAppSutImage, webAppSutProtocol,
+                    webAppSutPort, null);
 
             List<String> tss = Arrays.asList("EUS");
 
@@ -310,47 +288,39 @@ public class EtSampleDataLoader {
             /* *** TJob 1 *** */
             String tJob1Name = "JUnit5 Multi Browser Test";
             String commands1 = "git clone https://github.com/elastest/demo-projects;\ncd "
-                    + junit5MultipleBrowsersProjectPath
-                    + ";\nmvn -B -Dbrowser=chrome test;";
-            etDataLoader.createTJob(project, tJob1Name,
-                    junit5MultipleBrowsersResultsPath, javaMvnImage, false,
-                    commands1, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    + junit5MultipleBrowsersProjectPath + ";\nmvn -B -Dbrowser=chrome test;";
+            etDataLoader.createTJob(project, tJob1Name, junit5MultipleBrowsersResultsPath,
+                    javaMvnImage, false, commands1, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
             /* *** TJob 2 *** */
 
             String tJob2Name = "JUnit5 Multi Browser Test (Firefox)";
             String commands2 = "git clone https://github.com/elastest/demo-projects;\ncd "
-                    + junit5MultipleBrowsersProjectPath
-                    + ";\nmvn -B -Dbrowser=firefox test;";
-            etDataLoader.createTJob(project, tJob2Name,
-                    junit5MultipleBrowsersResultsPath, javaMvnImage, false,
-                    commands2, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    + junit5MultipleBrowsersProjectPath + ";\nmvn -B -Dbrowser=firefox test;";
+            etDataLoader.createTJob(project, tJob2Name, junit5MultipleBrowsersResultsPath,
+                    javaMvnImage, false, commands2, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
             /* *** TJob 3 *** */
             String tJob3Name = "JUnit5 Single Browser Test";
             String commands3 = "git clone https://github.com/elastest/demo-projects;\ncd "
-                    + junit5SingleBrowserProjectPath
-                    + ";\nmvn -B -Dbrowser=chrome test;";
-            etDataLoader.createTJob(project, tJob3Name,
-                    junit5SingleBrowserResultsPath, javaMvnImage, false,
-                    commands3, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    + junit5SingleBrowserProjectPath + ";\nmvn -B -Dbrowser=chrome test;";
+            etDataLoader.createTJob(project, tJob3Name, junit5SingleBrowserResultsPath,
+                    javaMvnImage, false, commands3, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
             /* *** TJob 4 *** */
 
             String tJob4Name = "Multi JUnit5 Multi Browser Test";
             String commands4 = "git clone https://github.com/elastest/demo-projects; cd "
-                    + junit5MultipleBrowsersProjectPath
-                    + "; mvn -B -Dbrowser=$BROWSER test;";
+                    + junit5MultipleBrowsersProjectPath + "; mvn -B -Dbrowser=$BROWSER test;";
             List<MultiConfig> multiConfigs = new ArrayList<>();
             multiConfigs.add(new MultiConfig("BROWSER",
                     new ArrayList<String>(Arrays.asList("chrome", "firefox"))));
 
-            etDataLoader.createTJob(project, tJob4Name,
-                    junit5MultipleBrowsersResultsPath, javaMvnImage, false,
-                    commands4, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+            etDataLoader.createTJob(project, tJob4Name, junit5MultipleBrowsersResultsPath,
+                    javaMvnImage, false, commands4, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     multiConfigs);
 
             /* ************************************** */
@@ -370,21 +340,17 @@ public class EtSampleDataLoader {
             /* *** TJob 5 *** */
             String tJob5Name = "Junit4 Multi Browser Test";
             String commands5 = "git clone https://github.com/elastest/demo-projects;\ncd "
-                    + junit4MultipleBrowsersProjectPath
-                    + ";\nmvn -B -Dbrowser=chrome test;";
-            etDataLoader.createTJob(project, tJob5Name,
-                    junit4MultipleBrowsersResultsPath, javaMvnImage, false,
-                    commands5, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    + junit4MultipleBrowsersProjectPath + ";\nmvn -B -Dbrowser=chrome test;";
+            etDataLoader.createTJob(project, tJob5Name, junit4MultipleBrowsersResultsPath,
+                    javaMvnImage, false, commands5, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
             /* *** TJob 6 *** */
             String tJob6Name = "Junit4 Single Browser Test";
             String commands6 = "git clone https://github.com/elastest/demo-projects;\ncd "
-                    + junit4SingleBrowserProjectPath
-                    + ";\nmvn -B -Dbrowser=chrome test;";
-            etDataLoader.createTJob(project, tJob6Name,
-                    junit4SingleBrowserResultsPath, javaMvnImage, false,
-                    commands6, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    + junit4SingleBrowserProjectPath + ";\nmvn -B -Dbrowser=chrome test;";
+            etDataLoader.createTJob(project, tJob6Name, junit4SingleBrowserResultsPath,
+                    javaMvnImage, false, commands6, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
             /* ************************************** */
@@ -406,9 +372,8 @@ public class EtSampleDataLoader {
             String commands7 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + cucumberMultipleBrowsersProjectPath
                     + ";\nmvn -B -Dtest=WebAppTestRunner -Dbrowser=chrome test;";
-            etDataLoader.createTJob(project, tJob7Name,
-                    cucumberMultipleBrowsersResultsPath, javaMvnImage, false,
-                    commands7, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+            etDataLoader.createTJob(project, tJob7Name, cucumberMultipleBrowsersResultsPath,
+                    javaMvnImage, false, commands7, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
             /* *** TJob 8 *** */
@@ -416,9 +381,8 @@ public class EtSampleDataLoader {
             String commands8 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + cucumberSingleBrowserProjectPath
                     + ";\nmvn -B -Dtest=WebAppTestRunner -Dbrowser=chrome test;";
-            etDataLoader.createTJob(project, tJob8Name,
-                    cucumberSingleBrowserResultsPath, javaMvnImage, false,
-                    commands8, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+            etDataLoader.createTJob(project, tJob8Name, cucumberSingleBrowserResultsPath,
+                    javaMvnImage, false, commands8, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
             /* *************************************** */
@@ -429,8 +393,7 @@ public class EtSampleDataLoader {
             String gaugeMultipleBrowsersResultsPath = gaugeMultipleBrowsersProjectPath
                     + javaRelativeResultsPath;
 
-            String gaugeSingleBrowserProjectPath = webAppFolder
-                    + "/gauge-web-single-browser-test";
+            String gaugeSingleBrowserProjectPath = webAppFolder + "/gauge-web-single-browser-test";
             String gaugeSingleBrowserResultsPath = gaugeSingleBrowserProjectPath
                     + javaRelativeResultsPath;
 
@@ -438,19 +401,16 @@ public class EtSampleDataLoader {
             String tJob9Name = "Gauge Multi Browser Test";
             String commands9 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + gaugeMultipleBrowsersProjectPath + ";\nmvn clean test ;";
-            etDataLoader.createTJob(project, tJob9Name,
-                    gaugeMultipleBrowsersResultsPath, gaugeImage, false,
-                    commands9, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+            etDataLoader.createTJob(project, tJob9Name, gaugeMultipleBrowsersResultsPath,
+                    gaugeImage, false, commands9, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
             /* *** TJob 10 *** */
             String tJob10Name = "Gauge Single Browser Test";
             String commands10 = "git clone https://github.com/elastest/demo-projects;\ncd "
                     + gaugeSingleBrowserProjectPath + ";\nmvn clean test ;";
-            etDataLoader.createTJob(project, tJob10Name,
-                    gaugeSingleBrowserResultsPath, gaugeImage, false,
-                    commands10, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
-                    null);
+            etDataLoader.createTJob(project, tJob10Name, gaugeSingleBrowserResultsPath, gaugeImage,
+                    false, commands10, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
 
             /* **************************************** */
             /* ************** Protractor ************** */
@@ -468,21 +428,17 @@ public class EtSampleDataLoader {
             /* *** TJob 11 *** */
             String tJob11Name = "Protractor Multi Browser Test";
             String commands11 = "git clone https://github.com/elastest/demo-projects;\ncd "
-                    + protractorMultiBrowsersProjectPath
-                    + ";\nprotractor conf.js;";
-            etDataLoader.createTJob(project, tJob11Name,
-                    protractorMultiBrowsersResultsPath, nodeImage, false,
-                    commands11, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    + protractorMultiBrowsersProjectPath + ";\nprotractor conf.js;";
+            etDataLoader.createTJob(project, tJob11Name, protractorMultiBrowsersResultsPath,
+                    nodeImage, false, commands11, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
             /* *** TJob 12 *** */
             String tJob12Name = "Protractor Single Browser Test";
             String commands12 = "git clone https://github.com/elastest/demo-projects;\ncd "
-                    + protractorSingleBrowserProjectPath
-                    + ";\nprotractor conf.js;";
-            etDataLoader.createTJob(project, tJob12Name,
-                    protractorSingleBrowserResultsPath, nodeImage, false,
-                    commands12, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    + protractorSingleBrowserProjectPath + ";\nprotractor conf.js;";
+            etDataLoader.createTJob(project, tJob12Name, protractorSingleBrowserResultsPath,
+                    nodeImage, false, commands12, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
             /* **************************************** */
@@ -502,21 +458,17 @@ public class EtSampleDataLoader {
             /* *** TJob 13 *** */
             String tJob13Name = "Python Multi Browser Test";
             String commands13 = "git clone https://github.com/elastest/demo-projects;\ncd "
-                    + pythonMultipleBrowsersProjectPath
-                    + ";\npython WebappTest.py;";
-            etDataLoader.createTJob(project, tJob13Name,
-                    pythonMultipleBrowsersResultsPath, pythonImage, false,
-                    commands13, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    + pythonMultipleBrowsersProjectPath + ";\npython WebappTest.py;";
+            etDataLoader.createTJob(project, tJob13Name, pythonMultipleBrowsersResultsPath,
+                    pythonImage, false, commands13, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
 
             /* *** TJob 14 *** */
             String tJob14Name = "Python Single Browser Test";
             String commands14 = "git clone https://github.com/elastest/demo-projects;\ncd "
-                    + pythonSingleBrowserProjectPath
-                    + ";\npython WebappTest.py;";
-            etDataLoader.createTJob(project, tJob14Name,
-                    pythonSingleBrowserResultsPath, pythonImage, false,
-                    commands14, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
+                    + pythonSingleBrowserProjectPath + ";\npython WebappTest.py;";
+            etDataLoader.createTJob(project, tJob14Name, pythonSingleBrowserResultsPath,
+                    pythonImage, false, commands14, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut,
                     null);
         }
     }
@@ -529,8 +481,8 @@ public class EtSampleDataLoader {
             String sutImage = "elastest/test-etm-alpinedockernode";
             ProtocolEnum sutProtocol = ProtocolEnum.HTTPS;
             String sutPort = "5000";
-            String sutCommands = "echo \"### Create Dockerfile ###\"\n"
-                    + "mkdir dockerimage;\n" + "cd dockerimage;\n"
+            String sutCommands = "echo \"### Create Dockerfile ###\"\n" + "mkdir dockerimage;\n"
+                    + "cd dockerimage;\n"
                     + "echo \"FROM openvidu/openvidu-server-kms:2.6.0\" >> Dockerfile\n"
                     + "echo \"RUN apt-get update\" >> Dockerfile\n"
                     + "echo \"RUN apt-get install -y git\" >> Dockerfile\n"
@@ -541,8 +493,7 @@ public class EtSampleDataLoader {
                     + "echo \"RUN npm install -g @angular/cli@7.1.3\" >> Dockerfile\n"
                     + "echo \"RUN npm install -g http-server\" >> Dockerfile\n"
                     + "echo \"EXPOSE 4443\" >> Dockerfile\n"
-                    + "echo \"EXPOSE 5000\" >> Dockerfile\n"
-                    + "echo -n \"CMD \" >> Dockerfile\n"
+                    + "echo \"EXPOSE 5000\" >> Dockerfile\n" + "echo -n \"CMD \" >> Dockerfile\n"
                     + "echo -n \"echo 'run supervisord';\" >> Dockerfile\n"
                     + "echo -n \"/usr/bin/supervisord & \" >> Dockerfile\n"
                     + "echo -n \"echo '##### BUILD OPENVIDU #####';\" >> Dockerfile\n"
@@ -562,9 +513,8 @@ public class EtSampleDataLoader {
                     + "echo -n \"cd dist;\" >> Dockerfile;\n"
                     + "echo -n \"openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -subj '/CN=www.mydom.com/O=My Company LTD./C=US' -keyout key.pem -out cert.pem;\" >> Dockerfile;\n"
                     + "echo -n \" echo '##### RUN OPENVIDU #####';\" >> Dockerfile\n"
-                    + "echo -n \"http-server -S -p 5000;\" >> Dockerfile;\n"
-                    + "cat Dockerfile;\n" + "echo \"\";\n"
-                    + "echo “### BUILD AND RUN ###”\n"
+                    + "echo -n \"http-server -S -p 5000;\" >> Dockerfile;\n" + "cat Dockerfile;\n"
+                    + "echo \"\";\n" + "echo “### BUILD AND RUN ###”\n"
                     + "docker build -t openvidu/elastest .\n" + "echo \"\"\n"
                     + "echo \"Running image\"\n"
                     + "docker run --name $ET_SUT_CONTAINER_NAME --network $ET_NETWORK -e \"OPENVIDU_PUBLICURL=docker\" openvidu/elastest\n";
@@ -579,16 +529,13 @@ public class EtSampleDataLoader {
             Project project = etDataLoader.createProject(pjName);
 
             // Create Sut
-            SutSpecification sut = etDataLoader
-                    .createSutDeployedByElastestWithCommands(project, null,
-                            sutName, sutDesc, sutImage, sutCommands,
-                            CommandsOptionEnum.IN_NEW_CONTAINER, sutProtocol,
-                            sutPort, null);
+            SutSpecification sut = etDataLoader.createSutDeployedByElastestWithCommands(project,
+                    null, sutName, sutDesc, sutImage, sutCommands,
+                    CommandsOptionEnum.IN_NEW_CONTAINER, sutProtocol, sutPort, null);
 
             // Create TJob
-            etDataLoader.createTJob(project, tJobName, resultsPath,
-                    javaMvnImage, false, tJobCommands,
-                    EXEC_DASHBOARD_CONFIG_OPENVIDU, null, tss, sut, null);
+            etDataLoader.createTJob(project, tJobName, resultsPath, javaMvnImage, false,
+                    tJobCommands, EXEC_DASHBOARD_CONFIG_OPENVIDU, null, tss, sut, null);
         }
     }
 
@@ -605,32 +552,19 @@ public class EtSampleDataLoader {
             SutSpecification sut = createAndGetFullteachingSut(project, null);
 
             // Create Bug Suts
-            SutSpecification sutBug1 = createAndGetFullteachingSut(project,
-                    "bug1");
-            SutSpecification sutBug2 = createAndGetFullteachingSut(project,
-                    "bug2");
-            SutSpecification sutBug3 = createAndGetFullteachingSut(project,
-                    "bug3");
-            SutSpecification sutBug4 = createAndGetFullteachingSut(project,
-                    "bug4");
-            SutSpecification sutBug5 = createAndGetFullteachingSut(project,
-                    "bug5");
-            SutSpecification sutBug6 = createAndGetFullteachingSut(project,
-                    "bug6");
-            SutSpecification sutBug7 = createAndGetFullteachingSut(project,
-                    "bug7");
-            SutSpecification sutBug8 = createAndGetFullteachingSut(project,
-                    "bug8");
-            SutSpecification sutBug9 = createAndGetFullteachingSut(project,
-                    "bug9");
-            SutSpecification sutBug10 = createAndGetFullteachingSut(project,
-                    "bug10");
-            SutSpecification sutBug11 = createAndGetFullteachingSut(project,
-                    "bug11");
-            SutSpecification sutBug12 = createAndGetFullteachingSut(project,
-                    "bug12");
-            SutSpecification sutBug13 = createAndGetFullteachingSut(project,
-                    "bug13");
+            SutSpecification sutBug1 = createAndGetFullteachingSut(project, "bug1");
+            SutSpecification sutBug2 = createAndGetFullteachingSut(project, "bug2");
+            SutSpecification sutBug3 = createAndGetFullteachingSut(project, "bug3");
+            SutSpecification sutBug4 = createAndGetFullteachingSut(project, "bug4");
+            SutSpecification sutBug5 = createAndGetFullteachingSut(project, "bug5");
+            SutSpecification sutBug6 = createAndGetFullteachingSut(project, "bug6");
+            SutSpecification sutBug7 = createAndGetFullteachingSut(project, "bug7");
+            SutSpecification sutBug8 = createAndGetFullteachingSut(project, "bug8");
+            SutSpecification sutBug9 = createAndGetFullteachingSut(project, "bug9");
+            SutSpecification sutBug10 = createAndGetFullteachingSut(project, "bug10");
+            SutSpecification sutBug11 = createAndGetFullteachingSut(project, "bug11");
+            SutSpecification sutBug12 = createAndGetFullteachingSut(project, "bug12");
+            SutSpecification sutBug13 = createAndGetFullteachingSut(project, "bug13");
 
             // Create TJob 1
             String tJobName1 = "E2E Teacher + Student VIDEO-SESSION";
@@ -638,32 +572,28 @@ public class EtSampleDataLoader {
             String commands1 = "git clone https://github.com/elastest/full-teaching-experiment;\ncd full-teaching-experiment;\nmvn -Dtest=FullTeachingTestE2EVideoSession -B test -DbrowserVersion=74;";
             List<String> tss = Arrays.asList("EUS");
 
-            etDataLoader.createTJob(project, tJobName1, resultsPath1,
-                    javaMvnImage, false, commands1,
-                    EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut, null);
+            etDataLoader.createTJob(project, tJobName1, resultsPath1, javaMvnImage, false,
+                    commands1, EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut, null);
 
             // Create TJob 2
             String tJobName2 = "E2E REST operations";
             String resultsPath2 = "/full-teaching-experiment/target/surefire-reports/";
             String commands2 = "git clone https://github.com/elastest/full-teaching-experiment;\ncd full-teaching-experiment;\nmvn -Dtest=FullTeachingTestE2EREST -B test -DbrowserVersion=74;";
 
-            etDataLoader.createTJob(project, tJobName2, resultsPath2,
-                    javaMvnImage, false, commands2,
-                    EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut, null);
+            etDataLoader.createTJob(project, tJobName2, resultsPath2, javaMvnImage, false,
+                    commands2, EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut, null);
 
             // Create TJob 3
             String tJobName3 = "E2E Teacher + Student CHAT";
             String resultsPath3 = "/full-teaching-experiment/target/surefire-reports/";
             String commands3 = "git clone https://github.com/elastest/full-teaching-experiment;\ncd full-teaching-experiment;\nmvn -Dtest=FullTeachingTestE2EChat -B test -DbrowserVersion=74;";
 
-            etDataLoader.createTJob(project, tJobName3, resultsPath3,
-                    javaMvnImage, false, commands3,
-                    EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut, null);
+            etDataLoader.createTJob(project, tJobName3, resultsPath3, javaMvnImage, false,
+                    commands3, EXEC_DASHBOARD_CONFIG_FULLTEACHING, null, tss, sut, null);
         }
     }
 
-    private SutSpecification createAndGetFullteachingSut(Project project,
-            String imageTag) {
+    private SutSpecification createAndGetFullteachingSut(Project project, String imageTag) {
         String sutName = "OpenVidu Test App";
         if (imageTag == null || "".equals(imageTag)) {
             imageTag = "demo";
@@ -678,37 +608,31 @@ public class EtSampleDataLoader {
         ProtocolEnum sutProtocol = ProtocolEnum.HTTPS;
         String sutPort = "5000";
 
-        return etDataLoader.createSutDeployedByElastestWithCompose(project,
-                null, sutName, sutDesc, sutCompose, "full-teaching",
-                sutProtocol, sutPort, null);
+        return etDataLoader.createSutDeployedByElastestWithCompose(project, null, sutName, sutDesc,
+                sutCompose, "full-teaching", sutProtocol, sutPort, null);
     }
 
     private String getFullteachingCompose(String imageTag) {
-        return "version: '3'\r\n" + "services:\r\n"
-                + " full-teaching-mysql:\r\n" + "   image: mysql:5.7.21\r\n"
-                + "   environment:\r\n" + "     - MYSQL_ROOT_PASSWORD=pass\r\n"
-                + "     - MYSQL_DATABASE=full_teaching\r\n"
-                + "     - MYSQL_USER=ft-root\r\n"
-                + "     - MYSQL_PASSWORD=pass\r\n"
+        return "version: '3'\r\n" + "services:\r\n" + " full-teaching-mysql:\r\n"
+                + "   image: mysql:5.7.21\r\n" + "   environment:\r\n"
+                + "     - MYSQL_ROOT_PASSWORD=pass\r\n" + "     - MYSQL_DATABASE=full_teaching\r\n"
+                + "     - MYSQL_USER=ft-root\r\n" + "     - MYSQL_PASSWORD=pass\r\n"
                 + " full-teaching-openvidu-server-kms:\r\n"
-                + "   image: openvidu/openvidu-server-kms:1.7.0\r\n"
-                + "   expose:\r\n" + "     - 8443\r\n" + "   environment:\r\n"
-                + "     - KMS_STUN_IP=stun.l.google.com\r\n"
-                + "     - KMS_STUN_PORT=19302\r\n"
-                + "     - openvidu.secret=MY_SECRET\r\n"
-                + "     - openvidu.publicurl=docker\r\n" + " full-teaching:\r\n"
-                + "   image: codeurjc/full-teaching:" + imageTag + "\r\n"
+                + "   image: openvidu/openvidu-server-kms:1.7.0\r\n" + "   expose:\r\n"
+                + "     - 8443\r\n" + "   environment:\r\n"
+                + "     - KMS_STUN_IP=stun.l.google.com\r\n" + "     - KMS_STUN_PORT=19302\r\n"
+                + "     - openvidu.secret=MY_SECRET\r\n" + "     - openvidu.publicurl=docker\r\n"
+                + " full-teaching:\r\n" + "   image: codeurjc/full-teaching:" + imageTag + "\r\n"
                 + "   depends_on:\r\n" + "     - full-teaching-mysql\r\n"
-                + "     - full-teaching-openvidu-server-kms\r\n"
-                + "   expose:\r\n" + "     - 5000\r\n" + "   environment:\r\n"
+                + "     - full-teaching-openvidu-server-kms\r\n" + "   expose:\r\n"
+                + "     - 5000\r\n" + "   environment:\r\n"
                 + "     - WAIT_HOSTS=full-teaching-mysql:3306\r\n"
                 + "     - WAIT_HOSTS_TIMEOUT=120\r\n"
                 + "     - MYSQL_PORT_3306_TCP_ADDR=full-teaching-mysql\r\n"
                 + "     - MYSQL_PORT_3306_TCP_PORT=3306\r\n"
                 + "     - MYSQL_ENV_MYSQL_DATABASE=full_teaching\r\n"
                 + "     - MYSQL_ENV_MYSQL_USER=ft-root\r\n"
-                + "     - MYSQL_ENV_MYSQL_PASSWORD=pass\r\n"
-                + "     - server.port=5000\r\n"
+                + "     - MYSQL_ENV_MYSQL_PASSWORD=pass\r\n" + "     - server.port=5000\r\n"
                 + "     - openvidu.url=https://full-teaching-openvidu-server-kms:8443\r\n"
                 + "     - openvidu.secret=MY_SECRET\r\n";
     }
@@ -747,24 +671,20 @@ public class EtSampleDataLoader {
             parameters.add(new Parameter("OPENVIDU_SECRET", "MY_SECRET"));
             parameters.add(new Parameter("USERS_BY_SESSION", "3"));
             parameters.add(new Parameter("MAX_SESSIONS", "2"));
-            parameters.add(
-                    new Parameter("ET_MON_LSHTTPS_API", "http://etm:5003"));
+            parameters.add(new Parameter("ET_MON_LSHTTPS_API", "http://etm:5003"));
 
             this.printLog(pjName);
             // Create Project
             Project project = etDataLoader.createProject(pjName);
 
             // Create Sut
-            SutSpecification sut = etDataLoader
-                    .createSutDeployedOutsideAndInstrumentedByElastest(project,
-                            null, sutName, sutDesc, sutIP, sutProtocol, sutPort,
-                            null, sutUser, sutPass, sutPrivateKey, sutLogPaths,
-                            null, null, false);
+            SutSpecification sut = etDataLoader.createSutDeployedOutsideAndInstrumentedByElastest(
+                    project, null, sutName, sutDesc, sutIP, sutProtocol, sutPort, null, sutUser,
+                    sutPass, sutPrivateKey, sutLogPaths, null, null, false);
 
             // Create TJob
-            etDataLoader.createTJob(project, tJobName, resultsPath,
-                    javaAWSImage, false, tJobCommands,
-                    EXEC_DASHBOARD_CONFIG_WITH_SUT, parameters, tss, sut, null);
+            etDataLoader.createTJob(project, tJobName, resultsPath, javaAWSImage, false,
+                    tJobCommands, EXEC_DASHBOARD_CONFIG_WITH_SUT, parameters, tss, sut, null);
         }
     }
 
@@ -774,9 +694,8 @@ public class EtSampleDataLoader {
             String sutName = "nginx";
             String sutDesc = "nginx";
 
-            String sutCompose = "version: '3'\r\n" + "services:\r\n"
-                    + " nginx-service:\r\n" + "   image: nginx\r\n"
-                    + "   entrypoint:\r\n" + "     - /bin/bash\r\n"
+            String sutCompose = "version: '3'\r\n" + "services:\r\n" + " nginx-service:\r\n"
+                    + "   image: nginx\r\n" + "   entrypoint:\r\n" + "     - /bin/bash\r\n"
                     + "     - \"-c\"\r\n"
                     + "     - \"dd if=/dev/random of=/usr/share/nginx/html/sparse bs=1024 count=1 seek=5242880000;nginx;sleep infinity\"\r\n"
                     + "   expose:\r\n" + "     - \"80\"";
@@ -796,15 +715,12 @@ public class EtSampleDataLoader {
             Project project = etDataLoader.createProject(pjName);
 
             // Create Sut
-            SutSpecification sut = etDataLoader
-                    .createSutDeployedByElastestWithCompose(project, null,
-                            sutName, sutDesc, sutCompose, mainService,
-                            sutProtocol, sutPort, null);
+            SutSpecification sut = etDataLoader.createSutDeployedByElastestWithCompose(project,
+                    null, sutName, sutDesc, sutCompose, mainService, sutProtocol, sutPort, null);
 
             // Create TJob
-            etDataLoader.createTJob(project, tJobName, resultsPath, tJobImage,
-                    false, commands, EXEC_DASHBOARD_CONFIG, null, tss, sut,
-                    null);
+            etDataLoader.createTJob(project, tJobName, resultsPath, tJobImage, false, commands,
+                    EXEC_DASHBOARD_CONFIG, null, tss, sut, null);
         }
 
     }
@@ -828,13 +744,12 @@ public class EtSampleDataLoader {
             String tJobName = "EDS TJob";
             String resultsPath = "/tmp/test-reports";
             String tJobImage = "elastest/eds-base";
-            String commands = "# Give enough time for full initialization of SuT\n"
-                    + "sleep 10\n" + "\n"
+            String commands = "# Give enough time for full initialization of SuT\n" + "sleep 10\n"
+                    + "\n"
                     + "git clone https://github.com/elastest/elastest-device-emulator-service.git /tmp/eds\n"
-                    + "\n" + "# create TJob app template\n"
-                    + "./create-app-structure -d TestJob\n"
-                    + "cp /tmp/eds/demo/eds_tjob/tjob1/* apps/TestJob/src/testjob/\n"
-                    + "\n" + "sh ./apps/test-job -v";
+                    + "\n" + "# create TJob app template\n" + "./create-app-structure -d TestJob\n"
+                    + "cp /tmp/eds/demo/eds_tjob/tjob1/* apps/TestJob/src/testjob/\n" + "\n"
+                    + "sh ./apps/test-job -v";
             List<String> tss = Arrays.asList("EDS");
 
             this.printLog(pjName);
@@ -842,16 +757,47 @@ public class EtSampleDataLoader {
             Project project = etDataLoader.createProject(pjName);
 
             // Create Sut
-            SutSpecification sut = etDataLoader
-                    .createSutDeployedByElastestWithCommands(project, null,
-                            sutName, sutDesc, sutImage, sutCommands,
-                            CommandsOptionEnum.DEFAULT, sutProtocol, sutPort,
-                            null);
+            SutSpecification sut = etDataLoader.createSutDeployedByElastestWithCommands(project,
+                    null, sutName, sutDesc, sutImage, sutCommands, CommandsOptionEnum.DEFAULT,
+                    sutProtocol, sutPort, null);
 
             // Create TJob
-            etDataLoader.createTJob(project, tJobName, resultsPath, tJobImage,
-                    false, commands, EXEC_DASHBOARD_CONFIG, null, tss, sut,
-                    null);
+            etDataLoader.createTJob(project, tJobName, resultsPath, tJobImage, false, commands,
+                    EXEC_DASHBOARD_CONFIG, null, tss, sut, null);
+        }
+
+    }
+
+    public void createQoE() {
+        String pjName = "QoE";
+        if (!etDataLoader.projectExists(pjName)) {
+            // Create Project
+            this.printLog(pjName);
+            Project project = etDataLoader.createProject(pjName);
+
+            // Create Sut
+            String sutName = "OpenVidu";
+            String sutDesc = "OpenVidu App";
+            String sutImage = "elastest/openvidu-loadtest:latest";
+            ProtocolEnum sutProtocol = ProtocolEnum.HTTPS;
+            String sutPort = "5000";
+
+            List<Parameter> sutParameters = new ArrayList<>();
+            sutParameters.add(new Parameter("OPENVIDU_PUBLICURL", "docker"));
+
+            SutSpecification sut = etDataLoader.createSutDeployedByElastestWithDockerImage(project,
+                    null, sutName, sutDesc, sutImage, sutProtocol, sutPort, sutParameters);
+
+            String testResultsPath = "/codeurjc-qe-openvidu/target/surefire-reports";
+            List<String> tss = Arrays.asList("EUS");
+
+            /* *** TJob 1 *** */
+            String tJob1Name = "JUnit5 QoE Meter Docker";
+            String commands1 = "git clone https://github.com/elastest/codeurjc-qe-openvidu;\n"
+                    + " cd codeurjc-qe-openvidu;\n" + " mvn -B test -Dtest=OpenviduWebRTCQoEMeter;";
+
+            etDataLoader.createTJob(project, tJob1Name, testResultsPath, javaMvnImage, false,
+                    commands1, EXEC_DASHBOARD_CONFIG_WITH_SUT, null, tss, sut, null);
         }
 
     }
@@ -881,15 +827,12 @@ public class EtSampleDataLoader {
         if (!etDataLoader.tlProjectExists(pjName)) {
             this.printLog("TestLink " + pjName);
 
-            TestProject project = etDataLoader.createTlTestProject(pjName, "WA",
-                    "WebApp Project");
-            TestSuite suite = etDataLoader.createTlTestSuite(project.getId(),
-                    "Webapp Suite", "Suite of Webapp");
-            TestPlan plan = etDataLoader.createTlTestPlan("WebApp Plan", pjName,
-                    "Plan of Webapp");
+            TestProject project = etDataLoader.createTlTestProject(pjName, "WA", "WebApp Project");
+            TestSuite suite = etDataLoader.createTlTestSuite(project.getId(), "Webapp Suite",
+                    "Suite of Webapp");
+            TestPlan plan = etDataLoader.createTlTestPlan("WebApp Plan", pjName, "Plan of Webapp");
 
-            etDataLoader.createTlBuild(plan.getId(), "Webapp Build",
-                    "The Build of Webapp");
+            etDataLoader.createTlBuild(plan.getId(), "Webapp Build", "The Build of Webapp");
 
             // case 1
 
@@ -905,8 +848,7 @@ public class EtSampleDataLoader {
 
             case1 = etDataLoader.createTlTestCase(case1);
 
-            TestCaseStep case1Step1 = etDataLoader.getNewCaseStep(
-                    "Press 'New' button",
+            TestCaseStep case1Step1 = etDataLoader.getNewCaseStep("Press 'New' button",
                     "New entry with empty Title and Description added", 1);
 
             List<TestCaseStep> case1StepsList = Arrays.asList(case1Step1);
@@ -936,17 +878,14 @@ public class EtSampleDataLoader {
                     "Type 'MessageBody' into Body field",
                     "'MessageBody' will be shown into Body field", 2);
 
-            TestCaseStep case2Step3 = etDataLoader.getNewCaseStep(
-                    "Press 'New' button",
-                    "New entry with Title='MessageTitle' and Description='MessageBody' added",
-                    3);
+            TestCaseStep case2Step3 = etDataLoader.getNewCaseStep("Press 'New' button",
+                    "New entry with Title='MessageTitle' and Description='MessageBody' added", 3);
 
-            TestCaseStep case2Step4 = etDataLoader.getNewCaseStep(
-                    "Press 'Clear' button",
+            TestCaseStep case2Step4 = etDataLoader.getNewCaseStep("Press 'Clear' button",
                     "The entry created should have been removed", 4);
 
-            List<TestCaseStep> case2StepsList = Arrays.asList(case2Step1,
-                    case2Step2, case2Step3, case2Step4);
+            List<TestCaseStep> case2StepsList = Arrays.asList(case2Step1, case2Step2, case2Step3,
+                    case2Step4);
             etDataLoader.createTestCaseSteps(case2StepsList, case2);
             case2.setSteps(case2StepsList);
 
@@ -971,13 +910,10 @@ public class EtSampleDataLoader {
                     "Type 'MessageBody' into Body field",
                     "'MessageBody' will be shown into Body field", 2);
 
-            TestCaseStep case3Step3 = etDataLoader.getNewCaseStep(
-                    "Press 'New' button",
-                    "New entry with Title='MessageTitle' and Description='MessageBody' added",
-                    3);
+            TestCaseStep case3Step3 = etDataLoader.getNewCaseStep("Press 'New' button",
+                    "New entry with Title='MessageTitle' and Description='MessageBody' added", 3);
 
-            List<TestCaseStep> case3StepsList = Arrays.asList(case3Step1,
-                    case3Step2, case3Step3);
+            List<TestCaseStep> case3StepsList = Arrays.asList(case3Step1, case3Step2, case3Step3);
             etDataLoader.createTestCaseSteps(case3StepsList, case3);
 
             case3.setSteps(case3StepsList);
@@ -991,13 +927,11 @@ public class EtSampleDataLoader {
             // Create Sut
             ExternalProject exProject = etDataLoader
                     .getExternalProjectByTestProjectId(project.getId());
-            SutSpecification sut = etDataLoader
-                    .createSutDeployedByElastestWithDockerImage(null, exProject,
-                            webAppSutName, webAppSutDesc, webAppSutImage,
-                            webAppSutProtocol, webAppSutPort, null);
+            SutSpecification sut = etDataLoader.createSutDeployedByElastestWithDockerImage(null,
+                    exProject, webAppSutName, webAppSutDesc, webAppSutImage, webAppSutProtocol,
+                    webAppSutPort, null);
 
-            ExternalTJob exTJob = etDataLoader
-                    .getExternalTJobByPlanId(plan.getId());
+            ExternalTJob exTJob = etDataLoader.getExternalTJobByPlanId(plan.getId());
             exTJob.setSut(sut);
             exTJob.setExecDashboardConfig(EXEC_DASHBOARD_CONFIG_FOR_TESTLINK);
 
