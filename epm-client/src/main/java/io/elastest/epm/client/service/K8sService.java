@@ -272,7 +272,6 @@ public class K8sService {
             k8sJobLabels.put(LABEL_COMPONENT_TYPE,
                     ElastestComponentType.JOB.value);
 
-            String etToolsVolumeName = "et-tools";
             final Job job = new JobBuilder(Boolean.FALSE)
                     .withApiVersion("batch/v1").withNewMetadata()
                     .withName(containerNameWithoutUnderscore)
