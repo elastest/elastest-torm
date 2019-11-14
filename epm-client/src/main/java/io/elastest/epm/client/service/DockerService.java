@@ -1054,7 +1054,7 @@ public class DockerService {
         String command = "ls -p " + containerFolderPath + grepFilter
                 + " | grep -v / | tr '\\n' ','";
         List<String> filesNames = null;
-        String response = execCommand(containerId, true, command);
+        String response = execCommand(containerId, true, "sh", "-c", command);
 
         if (response != null) {
             try {
