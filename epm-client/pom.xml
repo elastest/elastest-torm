@@ -46,7 +46,7 @@
 
         <!-- Dependencies version -->
         <docker-java.version>3.0.13</docker-java.version>
-        <retrofit.version>2.3.0</retrofit.version>
+        <retrofit.version>2.6.2</retrofit.version>
 
         <!-- Test dependencies version -->
         <junit.jupiter.version>5.0.0</junit.jupiter.version>
