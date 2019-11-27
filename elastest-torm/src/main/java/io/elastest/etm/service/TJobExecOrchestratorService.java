@@ -655,6 +655,11 @@ public class TJobExecOrchestratorService {
 		// Get EIM URL Env Var
 		if (eimService.isStarted()) {
 			envVars.put("ET_EIM_API", eimService.getEimApiUrl());
+			// If EIM, set agentID
+			SutSpecification sut = tJobExec.getTjob() != null ? tJobExec.getTjob().getSut() : null;
+			if (sut != null && sut.getEimConfig() != null && sut.getEimConfig().getAgentId() != null) {
+				envVars.put("ET_EIM_SUT_AGENT_ID", sut.getEimConfig().getAgentId());
+			}
 		}
 
 		/*
@@ -715,12 +720,6 @@ public class TJobExecOrchestratorService {
 				envVars.put(sutProtocolKey, sutProtocol);
 				logger.debug("{}: {}", sutProtocolKey, sutProtocol);
 			}
-
-			// If EIM, set agentID
-			if (eimService.isStarted() && sut.getEimConfig() != null && sut.getEimConfig().getAgentId() != null) {
-				envVars.put("ET_EIM_SUT_AGENT_ID", sut.getEimConfig().getAgentId());
-			}
-
 		}
 
 		envVars.put("ET_NETWORK", elastestDockerNetwork);

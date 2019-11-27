@@ -728,7 +728,7 @@ public class EtSampleDataLoader {
 			SutSpecification sut = etDataLoader.createSutDeployedByElastestWithDockerImage(project, null, sutName,
 					sutDesc, sutImage, sutProtocol, sutPort, sutParameters);
 
-			String testResultsPath = "/codeurjc-qe-openvidu/target/surefire-reports";
+			String testResultsPath = "/codeurjc-qe-openvidu" + javaRelativeResultsPath;
 			List<String> tss = Arrays.asList("EUS");
 
 			/* *** TJob 1 *** */
@@ -770,7 +770,7 @@ public class EtSampleDataLoader {
 			List<String> sutLogPaths = Arrays.asList("/var/log/openvidu.log", "/var/log/kurento-media-server/*.log");
 
 			String tJobName = "JUnit5 QoE Meter AWS";
-			String resultsPath = "/demo-projects/aws/junit5-qe-openvidu/target/surefire-reports";
+			String testResultsPath = "/codeurjc-qe-openvidu" + javaRelativeResultsPath;
 			String tJobCommands = "git clone https://github.com/elastest/demo-projects;\ncd /demo-projects/aws/junit5-qe-openvidu;\nmvn -B test -Dtest=OpenviduWebRTCQoEMeterAWS;";
 			List<String> tss = Arrays.asList("EUS");
 
@@ -790,7 +790,7 @@ public class EtSampleDataLoader {
 					null, null, false);
 
 			// Create TJob
-			etDataLoader.createTJob(project, tJobName, resultsPath, javaAWSImage, false, tJobCommands,
+			etDataLoader.createTJob(project, tJobName, testResultsPath, javaAWSImage, false, tJobCommands,
 					EXEC_DASHBOARD_CONFIG_WITH_SUT, parameters, tss, sut, null);
 		}
 	}
