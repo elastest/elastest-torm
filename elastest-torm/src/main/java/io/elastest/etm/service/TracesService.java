@@ -58,7 +58,7 @@ public class TracesService {
             + monitoringExecExpression
             + ")((_|-)(?<componentService>[^_]*(?=_\\d*)?))?";
 
-    String cleanMessageExpression = "^([<]\\d*[>].*)?(?>test_"
+    String cleanMessageExpression = "^([<]\\d*[>]\\d+(\\s\\S*){4}\\s)?(?>test_"
             + monitoringExecExpression + "|sut_" + monitoringExecExpression
             + "|dynamic_" + monitoringExecExpression
             + ")\\D*(?>_exec)(\\[.*\\])?[\\s][-][\\s]";
