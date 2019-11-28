@@ -771,7 +771,7 @@ public class EtSampleDataLoader {
 
 			String tJobName = "JUnit5 QoE Meter AWS";
 			String testResultsPath = "/codeurjc-qe-openvidu" + javaRelativeResultsPath;
-			String tJobCommands = "git clone https://github.com/elastest/demo-projects;\ncd /demo-projects/aws/junit5-qe-openvidu;\nmvn -B test -Dtest=OpenviduWebRTCQoEMeterAWS;";
+			String tJobCommands = "git clone https://github.com/elastest/codeurjc-qe-openvidu;\ncd /codeurjc-qe-openvidu;\nmvn -B test -Dtest=OpenviduWebRTCQoEMeterAWS;";
 			List<String> tss = Arrays.asList("EUS");
 
 			// TJob Params
