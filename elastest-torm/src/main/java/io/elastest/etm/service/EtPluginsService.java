@@ -520,7 +520,7 @@ public class EtPluginsService {
                             break;
 
                         case QA_NAME:
-                            internalPort = "8888";
+                            internalPort = "9080";
                             bindedPort = "37009";
                             bindPort = true;
                             break;
