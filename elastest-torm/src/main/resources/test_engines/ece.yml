@@ -2,7 +2,7 @@ version: '3'
 
 services:
   ece:
-    image: elastest/ece:latest
+    image: elastest/ece:2.1.1
     ports:
       - 37008:8888
     environment:

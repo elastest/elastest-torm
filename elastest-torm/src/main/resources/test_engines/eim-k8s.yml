@@ -46,7 +46,7 @@ spec:
           value: edm-mysql
         - name: ET_EDM_MYSQL_PORT
           value: "3306"
-        image: elastest/eim:latest
+        image: elastest/eim:2.1.1
         imagePullPolicy: Always
         name: eim
         ports:
