@@ -12,7 +12,7 @@ spec:
   - name: "ere-9080"
     port: 9080
     targetPort: 9080
-    nodePort: 37008
+    nodePort: 37007
   selector:
     elastest-component: ere
   type: NodePort
