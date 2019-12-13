@@ -135,8 +135,7 @@ public class EtPluginsService {
     private String tmpTssInstancesYmlFolder;
     private PlatformService platformService;
 
-    public EtPluginsService(PlatformService platformService,
-            UtilsService utilsService) {
+    public EtPluginsService(PlatformService platformService, UtilsService utilsService) {
         this.utilsService = utilsService;
         this.platformService = platformService;
     }
@@ -148,39 +147,33 @@ public class EtPluginsService {
 
         if (privateEreEnabled || "true".equals(privateEreEnabledString)) {
             logger.debug("Private ERE is enabled");
-            this.enginesMap.put(ERE_NAME,
-                    new EtPlugin(ERE_NAME, ERE_DISPLAY_NAME));
-            this.enginesMap.put(QA_NAME,
-                    new EtPlugin(QA_NAME, QA_DISPLAY_NAME));
+            this.enginesMap.put(ERE_NAME, new EtPlugin(ERE_NAME, ERE_DISPLAY_NAME));
+            this.enginesMap.put(QA_NAME, new EtPlugin(QA_NAME, QA_DISPLAY_NAME));
         } else { // TRIAL
             logger.debug("Trial ERE is enabled");
-            this.enginesMap.put(ERE_NAME, new EtPlugin(ERE_NAME,
-                    ERE_TRIAL_DISPLAY_NAME, ERE_TRIAL_NAME));
+            this.enginesMap.put(ERE_NAME,
+                    new EtPlugin(ERE_NAME, ERE_TRIAL_DISPLAY_NAME, ERE_TRIAL_NAME));
         }
 
-        this.uniqueEtPluginsMap.put(EIM_NAME,
-                new EtPlugin(EIM_NAME, EIM_DISPLAY_NAME));
+        this.uniqueEtPluginsMap.put(EIM_NAME, new EtPlugin(EIM_NAME, EIM_DISPLAY_NAME));
         this.uniqueEtPluginsMap.put(TESTLINK_NAME,
                 new EtPlugin(TESTLINK_NAME, TESTLINK_DISPLAY_NAME));
-        this.uniqueEtPluginsMap.put(JENKINS_NAME,
-                new EtPlugin(JENKINS_NAME, JENKINS_DISPLAY_NAME));
+        this.uniqueEtPluginsMap.put(JENKINS_NAME, new EtPlugin(JENKINS_NAME, JENKINS_DISPLAY_NAME));
     }
 
     @PostConstruct
     public void init() throws Exception {
-        String path = sharedFolder.endsWith("/") ? sharedFolder
-                : sharedFolder + "/";
+        String path = sharedFolder.endsWith("/") ? sharedFolder : sharedFolder + "/";
         this.tmpEnginesYmlFolder = path + "tmp-engines-yml";
         this.tmpTssInstancesYmlFolder = path + "tmp-support-services-yml";
         this.uniqueEtPluginsYmlFolder = path + "tmp-unique-etplugins-yml";
 
         // Set credentials for ET Plugin
         if (etUser.equals("none") && etPass.equals("none")) {
-            logger.debug(
-                    "Creating credentials for the integrated external services.");
+            logger.debug("Creating credentials for the integrated external services.");
             etUser = "elastest";
-            etPass = PasswordFactory.generatePassword(8, PasswordFactory.ALPHA
-                    + PasswordFactory.ALPHA_CAPS + PasswordFactory.NUMERIC);
+            etPass = PasswordFactory.generatePassword(8,
+                    PasswordFactory.ALPHA + PasswordFactory.ALPHA_CAPS + PasswordFactory.NUMERIC);
         }
 
         // If ElasTest View only mode activated, change credentials
@@ -191,8 +184,7 @@ public class EtPluginsService {
 
         registerEngines();
         for (String engine : this.enginesMap.keySet()) {
-            createTestEngineProject(engine,
-                    this.enginesMap.get(engine).getFileName());
+            createTestEngineProject(engine, this.enginesMap.get(engine).getFileName());
         }
 
         for (String plugin : this.uniqueEtPluginsMap.keySet()) {
@@ -206,8 +198,7 @@ public class EtPluginsService {
 
     @PreDestroy
     public void destroy() {
-        logger.debug(
-                "Removing services started by the ETM before ElaTest shutdown");
+        logger.debug("Removing services started by the ETM before ElaTest shutdown");
         for (String engine : this.enginesMap.keySet()) {
             stopAndRemoveProject(engine, null);
         }
@@ -228,51 +219,41 @@ public class EtPluginsService {
         this.createProject(name, dockerComposeYml, tmpEnginesYmlFolder);
     }
 
-    public void createUniqueEtPluginProject(String name, String fileName)
-            throws Exception {
+    public void createUniqueEtPluginProject(String name, String fileName) throws Exception {
         String dockerComposeYml = getDockerCompose(name);
         Map<String, String> envVars = new HashMap<>();
 
-        envVars.put("ET_ETM_VIEW_ONLY",
-                etEtmViewOnly != null ? etEtmViewOnly.toString() : "false");
+        envVars.put("ET_ETM_VIEW_ONLY", etEtmViewOnly != null ? etEtmViewOnly.toString() : "false");
 
         if (name.equals(JENKINS_NAME)) {
             this.uniqueEtPluginsMap.get(name).setUser(etUser);
             this.uniqueEtPluginsMap.get(name).setPass(etPass);
             if (!utilsService.isDefaultEtPublicHost()) {
-                envVars.put("JENKINS_LOCATION",
-                        "http://" + utilsService.getEtPublicHostValue() + ":"
-                                + etEtmJenkinsBindedPort);
+                envVars.put("JENKINS_LOCATION", "http://" + utilsService.getEtPublicHostValue()
+                        + ":" + etEtmJenkinsBindedPort);
             }
             envVars.put("ET_USER", etUser);
             envVars.put("ET_PASS", etPass);
 
-            this.createProjectWithEnv(name, dockerComposeYml,
-                    uniqueEtPluginsYmlFolder, envVars);
+            this.createProjectWithEnv(name, dockerComposeYml, uniqueEtPluginsYmlFolder, envVars);
         } else if (name.equals(TESTLINK_NAME)) {
             this.uniqueEtPluginsMap.get(name).setUser(etUser);
             this.uniqueEtPluginsMap.get(name).setPass(etPass);
             envVars.put("TESTLINK_USERNAME", etUser);
             envVars.put("TESTLINK_PASSWORD", etPass);
-            this.createProjectWithEnv(name, dockerComposeYml,
-                    uniqueEtPluginsYmlFolder, envVars);
+            this.createProjectWithEnv(name, dockerComposeYml, uniqueEtPluginsYmlFolder, envVars);
         } else {
-            this.createProject(name, dockerComposeYml,
-                    uniqueEtPluginsYmlFolder);
+            this.createProject(name, dockerComposeYml, uniqueEtPluginsYmlFolder);
         }
     }
 
     public SupportServiceInstance createTssInstanceProject(String instanceId,
-            String dockerComposeYml, SupportServiceInstance serviceInstance)
-            throws Exception {
-        platformService.createServiceDeploymentProject(instanceId,
-                dockerComposeYml, tmpTssInstancesYmlFolder, true,
-                serviceInstance.getParameters(), false, false,
-                serviceInstance.getExtraHosts(),
-                serviceInstance.getAdditionalLabels());
+            String dockerComposeYml, SupportServiceInstance serviceInstance) throws Exception {
+        platformService.createServiceDeploymentProject(instanceId, dockerComposeYml,
+                tmpTssInstancesYmlFolder, true, serviceInstance.getParameters(), false, false,
+                serviceInstance.getExtraHosts(), serviceInstance.getAdditionalLabels());
 
-        List<String> images = platformService
-                .getServiceDeploymentImages(instanceId);
+        List<String> images = platformService.getServiceDeploymentImages(instanceId);
         serviceInstance.setImagesList(images);
 
         tssInstancesMap.put(instanceId, serviceInstance);
@@ -285,38 +266,33 @@ public class EtPluginsService {
     /* ******************************* */
 
     public void createProject(String name, String dockerComposeYml,
-            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes,
-            String ymlPath) {
+            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes, String ymlPath) {
         try {
-            platformService.createServiceDeploymentProject(name,
-                    dockerComposeYml, ymlPath, true, null,
-                    withBindedExposedPortsToRandom, withRemoveVolumes);
+            platformService.createServiceDeploymentProject(name, dockerComposeYml, ymlPath, true,
+                    null, withBindedExposedPortsToRandom, withRemoveVolumes);
         } catch (Exception e) {
             logger.error("Exception creating project {}", name, e);
         }
     }
 
-    public void createProject(String name, String dockerComposeYml,
-            String ymlPath) {
+    public void createProject(String name, String dockerComposeYml, String ymlPath) {
         this.createProject(name, dockerComposeYml, false, false, ymlPath);
     }
 
     public void createProjectWithEnv(String name, String dockerComposeYml,
-            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes,
-            String ymlPath, Map<String, String> envs) {
+            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes, String ymlPath,
+            Map<String, String> envs) {
         try {
-            platformService.createServiceDeploymentProject(name,
-                    dockerComposeYml, ymlPath, true, envs,
-                    withBindedExposedPortsToRandom, withRemoveVolumes);
+            platformService.createServiceDeploymentProject(name, dockerComposeYml, ymlPath, true,
+                    envs, withBindedExposedPortsToRandom, withRemoveVolumes);
         } catch (Exception e) {
             logger.error("Exception creating project {}", name, e);
         }
     }
 
-    public void createProjectWithEnv(String name, String dockerComposeYml,
-            String ymlPath, Map<String, String> envs) {
-        this.createProjectWithEnv(name, dockerComposeYml, false, false, ymlPath,
-                envs);
+    public void createProjectWithEnv(String name, String dockerComposeYml, String ymlPath,
+            Map<String, String> envs) {
+        this.createProjectWithEnv(name, dockerComposeYml, false, false, ymlPath, envs);
     }
 
     /* **************************** */
@@ -336,8 +312,7 @@ public class EtPluginsService {
     public boolean stopAndRemoveProject(String projectName,
             SupportServiceInstance serviceInstance) {
         logger.debug("Start service \"{}\" stop", projectName);
-        boolean removed = platformService
-                .undeployAndCleanDeployment(projectName, serviceInstance);
+        boolean removed = platformService.undeployAndCleanDeployment(projectName, serviceInstance);
 
         if (!removed) {
             return removed;
@@ -365,47 +340,45 @@ public class EtPluginsService {
     public EtPlugin startEtPlugin(String projectName) throws Exception {
         try {
             // Initialize
-            this.updateStatus(projectName, DockerServiceStatusEnum.INITIALIZING,
-                    "Initializing...");
+            this.updateStatus(projectName, DockerServiceStatusEnum.INITIALIZING, "Initializing...");
             logger.debug("Initializing {} plugin...", projectName);
+            logger.debug("Identifying {} plugin type...", projectName);
 
             Map<String, EtPlugin> currentEtPluginMap;
             if (enginesMap.containsKey(projectName)) {
                 currentEtPluginMap = enginesMap;
+                logger.debug("{} plugin type is Test Engine", projectName);
             } else if (uniqueEtPluginsMap.containsKey(projectName)) {
                 currentEtPluginMap = uniqueEtPluginsMap;
+                logger.debug("{} plugin type is Unique EtPlugin", projectName);
             } else if (tssInstancesMap.containsKey(projectName)) {
                 currentEtPluginMap = tssInstancesMap;
+                logger.debug("{} plugin type is Test Support Service", projectName);
             } else {
-                throw new Exception("Error on pulling images of " + projectName
-                        + ": EtPlugin does not exists");
+                throw new Exception(
+                        "Error before pulling images of " + projectName + ": EtPlugin does not exists");
             }
+            
             // Pull
             platformService.pullProject(projectName, currentEtPluginMap);
 
             // Start
-            this.updateStatus(projectName, DockerServiceStatusEnum.STARTING,
-                    "Starting...");
+            this.updateStatus(projectName, DockerServiceStatusEnum.STARTING, "Starting...");
             logger.debug("Starting {} plugin...", projectName);
 
             platformService.deployService(projectName, false,
-                    (projectName.contains(JENKINS_NAME)
-                            || projectName.contains(TESTLINK_NAME)
-                            || projectName.contains(ECE_NAME)
-                            || projectName.contains(ERE_NAME)
-                            || projectName.contains(QA_NAME)
-                            || projectName.contains(EIM_NAME))
+                    (projectName.contains(JENKINS_NAME) || projectName.contains(TESTLINK_NAME)
+                            || projectName.contains(ECE_NAME) || projectName.contains(ERE_NAME)
+                            || projectName.contains(QA_NAME) || projectName.contains(EIM_NAME))
                                     ? null
-                                    : (utilsService.isElastestMini()
-                                            && !utilsService.isKubernetes()
-                                                    ? null
-                                                    : projectName));
+                                    : (utilsService.isElastestMini() && !utilsService.isKubernetes()
+                                            ? null
+                                            : projectName));
         } catch (Exception e) {
             logger.error("Cannot start {} ETPlugin", projectName, e);
             logger.error("Stopping service {}", projectName);
             this.stopEtPlugin(projectName);
-            this.getEtPlugin(projectName)
-                    .setStatus(DockerServiceStatusEnum.NOT_INITIALIZED);
+            this.getEtPlugin(projectName).setStatus(DockerServiceStatusEnum.NOT_INITIALIZED);
             throw e;
         }
 
@@ -413,13 +386,11 @@ public class EtPluginsService {
     }
 
     @Async
-    public void startEngineOrUniquePluginAsync(String projectName)
-            throws Exception {
+    public void startEngineOrUniquePluginAsync(String projectName) throws Exception {
         this.startEngineOrUniquePlugin(projectName);
     }
 
-    public EtPlugin startEngineOrUniquePlugin(String projectName)
-            throws Exception {
+    public EtPlugin startEngineOrUniquePlugin(String projectName) throws Exception {
         int timeoutSeconds = 1800;
         long endWaitTime = System.currentTimeMillis() + timeoutSeconds * 1000;
 
@@ -439,8 +410,7 @@ public class EtPluginsService {
         }
 
         if (timeout) {
-            logger.error("Timeout({}s) waiting for {} EtPlugin url",
-                    timeoutSeconds, projectName);
+            logger.error("Timeout({}s) waiting for {} EtPlugin url", timeoutSeconds, projectName);
             return this.getEtPlugin(projectName);
         }
 
@@ -463,8 +433,7 @@ public class EtPluginsService {
         return getEtPluginUrl(serviceName, serviceName + "_1");
     }
 
-    public String getEtPluginUrl(String serviceName,
-            String containerNameSuffix) {
+    public String getEtPluginUrl(String serviceName, String containerNameSuffix) {
         logger.debug("Building url for the plugin: {}", serviceName);
         String url = "";
         if (serviceName != null && containerNameSuffix != null) {
@@ -475,23 +444,21 @@ public class EtPluginsService {
                     return this.getUniqueEtPlugin(serviceName).getUrl();
                 }
 
-                for (DockerContainer container : platformService
-                        .getContainers(serviceName).getContainers()) {
+                for (DockerContainer container : platformService.getContainers(serviceName)
+                        .getContainers()) {
                     String containerName = container.getName(); // example:
                                                                 // ece_ece_1
                     logger.debug("Retrieved services containers");
-                    if (containerName != null
-                            && (containerName.endsWith(containerNameSuffix)
-                                    || utilsService.isKubernetes())) {
-                        logger.debug("Container info: {}", container);
+                    if (containerName != null && (containerName.endsWith(containerNameSuffix)
+                            || utilsService.isKubernetes())) {
+                        logger.debug("Container info for service {}: {}", serviceName, container);
 
                         String internalIp = "";
                         boolean useBindedPort = true;
 
-                        if (platformService.isContainerIntoNetwork(network,
-                                containerName) || utilsService.isKubernetes()) {
-                            internalIp = platformService
-                                    .getContainerIp(containerName, null);
+                        if (platformService.isContainerIntoNetwork(network, containerName)
+                                || utilsService.isKubernetes()) {
+                            internalIp = platformService.getContainerIp(containerName, null);
                         }
 
                         String port = "";
@@ -542,23 +509,19 @@ public class EtPluginsService {
                                         serviceName);
 
                                 if (tss.getInternalServicePort() != 0) {
-                                    internalPort = ""
-                                            + tss.getInternalServicePort();
-                                    bindedPort = ""
-                                            + tss.getBindedServicePort();
+                                    internalPort = "" + tss.getInternalServicePort();
+                                    bindedPort = "" + tss.getBindedServicePort();
                                     break;
                                 }
 
                             }
 
                             // Other
-                            for (Entry<String, List<PortInfo>> portList : container
-                                    .getPorts().entrySet()) {
+                            for (Entry<String, List<PortInfo>> portList : container.getPorts()
+                                    .entrySet()) {
                                 if (portList.getValue() != null) {
-                                    internalPort = portList.getKey()
-                                            .split("/")[0];
-                                    bindedPort = portList.getValue().get(0)
-                                            .getHostPort();
+                                    internalPort = portList.getKey().split("/")[0];
+                                    bindedPort = portList.getValue().get(0).getHostPort();
                                     break;
                                 }
                             }
@@ -569,11 +532,9 @@ public class EtPluginsService {
                         String serviceId = null;
                         if (utilsService.isKubernetes() && bindPort) {// serviceName.equals(JENKINS_NAME))
                                                                       // {
-                            logger.debug("Getting external ip for Jenkins");
-                            ServiceBindedPort bp = platformService
-                                    .getBindedPort(serviceName,
-                                            containerNameSuffix, bindedPort,
-                                            internalPort, null);
+                            logger.debug("Getting external ip for {}", serviceName);
+                            ServiceBindedPort bp = platformService.getBindedPort(serviceName,
+                                    containerNameSuffix, bindedPort, internalPort, null);
                             serviceId = bp.getContainerId();
                         }
 
@@ -605,8 +566,7 @@ public class EtPluginsService {
                         }
 
                         url = protocol + "://" + ip + ":" + port;
-                        if (ERE_NAME.equals(serviceName)
-                                || ERE_TRIAL_NAME.equals(serviceName)) {
+                        if (ERE_NAME.equals(serviceName) || ERE_TRIAL_NAME.equals(serviceName)) {
                             url += "/ere-app";
                         } else if (QA_NAME.equals(serviceName)) {
                             url += "/eqe-app";
@@ -614,32 +574,25 @@ public class EtPluginsService {
                         logger.debug("Url: " + url);
 
                         // Update EtPlugin Urls
-                        Map<String, EtPlugin> map = getMapThatContainsEtPlugin(
-                                serviceName);
+                        Map<String, EtPlugin> map = getMapThatContainsEtPlugin(serviceName);
                         if (map != null && map.containsKey(serviceName)) {
                             map.get(serviceName).setUrl(url);
 
                             String internalUrl = "";
-                            if (protocol != null && !"".equals(protocol)
-                                    && internalIp != null
-                                    && !"".equals(internalIp)
-                                    && internalPort != null
+                            if (protocol != null && !"".equals(protocol) && internalIp != null
+                                    && !"".equals(internalIp) && internalPort != null
                                     && !"".equals(internalPort)) {
-                                internalUrl = protocol + "://" + internalIp
-                                        + ":" + internalPort;
-                                logger.debug("Plugin Service URL -> {}",
-                                        internalUrl);
+                                internalUrl = protocol + "://" + internalIp + ":" + internalPort;
+                                logger.debug("Plugin Service URL -> {}", internalUrl);
                             }
 
                             map.get(serviceName).setInternalUrl(internalUrl);
 
                             String bindedUrl = "";
-                            if (protocol != null && !"".equals(protocol)
-                                    && bindedIp != null && !"".equals(bindedIp)
-                                    && internalPort != null
+                            if (protocol != null && !"".equals(protocol) && bindedIp != null
+                                    && !"".equals(bindedIp) && internalPort != null
                                     && !"".equals(internalPort)) {
-                                bindedUrl = protocol + "://" + bindedIp + ":"
-                                        + bindedPort;
+                                bindedUrl = protocol + "://" + bindedIp + ":" + bindedPort;
                             }
                             map.get(serviceName).setBindedUrl(bindedUrl);
 
@@ -667,22 +620,18 @@ public class EtPluginsService {
                     plugin.getInternalUrl());
             String url = "";
 
-            if (platformService.getUniqPluginContainerName(serviceName,
-                    serviceName) == null) {
+            if (platformService.getUniqPluginContainerName(serviceName, serviceName) == null) {
                 url = plugin.getBindedUrl();
             } else {
-                url = plugin.getInternalUrl() != null
-                        && !plugin.getInternalUrl().isEmpty()
-                                ? plugin.getInternalUrl()
-                                : getEtPluginUrl(serviceName);
+                url = plugin.getInternalUrl() != null && !plugin.getInternalUrl().isEmpty()
+                        ? plugin.getInternalUrl()
+                        : getEtPluginUrl(serviceName);
             }
 
             logger.debug("Service {} url: {} ", serviceName, url);
             if (!"".equals(url)) {
-                logger.debug("Service {} internal url: {} ", serviceName,
-                        plugin.getInternalUrl());
-                logger.debug("Service {} binded url: {} ", serviceName,
-                        plugin.getBindedUrl());
+                logger.debug("Service {} internal url: {} ", serviceName, plugin.getInternalUrl());
+                logger.debug("Service {} binded url: {} ", serviceName, plugin.getBindedUrl());
             }
 
             boolean isUp = false;
@@ -697,8 +646,7 @@ public class EtPluginsService {
             }
 
             if (isUp) {
-                this.updateStatus(serviceName, DockerServiceStatusEnum.READY,
-                        "Ready");
+                this.updateStatus(serviceName, DockerServiceStatusEnum.READY, "Ready");
             }
             return isUp;
         }
@@ -715,9 +663,8 @@ public class EtPluginsService {
 
             int responseCode = huc.getResponseCode();
             logger.info("Code returned: {}", responseCode);
-            up = ((responseCode >= 200 && responseCode <= 299)
-                    || responseCode == 301 || responseCode == 302
-                    || responseCode == 308 || responseCode == 403);
+            up = ((responseCode >= 200 && responseCode <= 299) || responseCode == 301
+                    || responseCode == 302 || responseCode == 308 || responseCode == 403);
             if (!up) {
                 logger.info("Service not ready at url: " + etPluginUrl);
                 return up;
@@ -751,10 +698,8 @@ public class EtPluginsService {
         try {
             logger.debug(future.get(2, TimeUnit.MINUTES)); // timeout is
                                                            // in 2 seconds
-        } catch (TimeoutException | InterruptedException
-                | ExecutionException e) {
-            logger.error("Timeout waiting for the EtPlugin {} to be ready",
-                    projectName);
+        } catch (TimeoutException | InterruptedException | ExecutionException e) {
+            logger.error("Timeout waiting for the EtPlugin {} to be ready", projectName);
             return false;
         } finally {
             executor.shutdownNow();
@@ -770,24 +715,21 @@ public class EtPluginsService {
                 return true;
             }
 
-            for (DockerContainer container : platformService
-                    .getContainers(serviceName).getContainers()) {
-                if (platformService.isContainerByServiceName(serviceName,
-                        container)) {
+            for (DockerContainer container : platformService.getContainers(serviceName)
+                    .getContainers()) {
+                if (platformService.isContainerByServiceName(serviceName, container)) {
                     return container.isRunning();
                 }
             }
 
         } catch (Exception e) {
-            logger.error("EtPlugin {} not started or not exist", serviceName,
-                    e);
+            logger.error("EtPlugin {} not started or not exist", serviceName, e);
         }
         return false;
     }
 
     public boolean isUniqueEtPluginStartedOnInit(String serviceName) {
-        logger.debug("Checking if {} is Unique Plugin Started on init...",
-                serviceName);
+        logger.debug("Checking if {} is Unique Plugin Started on init...", serviceName);
         boolean isUniqueEtPluginStartedOnInit = false;
         switch (serviceName) {
         case JENKINS_NAME:
@@ -804,16 +746,14 @@ public class EtPluginsService {
         if (isUniqueEtPluginStartedOnInit) {
             logger.debug("{} is Unique Plugin started on init", serviceName);
         } else {
-            logger.debug("{} is not Unique Plugin or is not started on init",
-                    serviceName);
+            logger.debug("{} is not Unique Plugin or is not started on init", serviceName);
         }
         return isUniqueEtPluginStartedOnInit;
     }
 
     public EtPlugin getUniqueEtPlugin(String serviceName) {
         // TODO refactor (common code with getUrl)
-        logger.debug("Building EtPlugin object and its urls for the service {}",
-                serviceName);
+        logger.debug("Building EtPlugin object and its urls for the service {}", serviceName);
 
         String protocol = "http://";
         String host = "";
@@ -841,14 +781,12 @@ public class EtPluginsService {
 
         port = utilsService.isDefaultEtPublicHost() ? internalPort : bindedPort;
 
-        EtPlugin etPlugin = new EtPlugin(
-                this.uniqueEtPluginsMap.get(serviceName));
+        EtPlugin etPlugin = new EtPlugin(this.uniqueEtPluginsMap.get(serviceName));
         logger.debug("Get unique service: {}", serviceName);
 
         String internalHost = null;
         try {
-            containerName = platformService
-                    .getUniqPluginContainerName(serviceName, network);
+            containerName = platformService.getUniqPluginContainerName(serviceName, network);
             internalHost = platformService.getContainerIp(containerName);
         } catch (Exception e) {
             logger.error("Error on get {} internal url", serviceName);
@@ -858,16 +796,14 @@ public class EtPluginsService {
 
         String internalUrl = "";
         if (protocol != null && !"".equals(protocol) && internalHost != null
-                && !"".equals(internalHost) && internalPort != null
-                && !"".equals(internalPort)) {
+                && !"".equals(internalHost) && internalPort != null && !"".equals(internalPort)) {
             internalUrl = protocol + internalHost + ":" + internalPort;
         }
         etPlugin.setInternalUrl(internalUrl);
 
         String bindedUrl = "";
-        if (protocol != null && !"".equals(protocol) && bindedHost != null
-                && !"".equals(bindedHost) && bindedPort != null
-                && !"".equals(bindedPort)) {
+        if (protocol != null && !"".equals(protocol) && bindedHost != null && !"".equals(bindedHost)
+                && bindedPort != null && !"".equals(bindedPort)) {
             bindedUrl = protocol + bindedHost + ":" + bindedPort;
         }
         etPlugin.setBindedUrl(bindedUrl);
@@ -885,8 +821,7 @@ public class EtPluginsService {
             }
 
             if (protocol != null && !"".equals(protocol) && finalHost != null
-                    && !"".equals(finalHost) && port != null
-                    && !"".equals(port)) {
+                    && !"".equals(finalHost) && port != null && !"".equals(port)) {
                 String url = protocol + finalHost + ":" + port;
                 etPlugin.setUrl(url);
             }
@@ -933,8 +868,7 @@ public class EtPluginsService {
     }
 
     public boolean isUniquePlugin(String name) {
-        if (enginesMap.containsKey(name)
-                || uniqueEtPluginsMap.containsKey(name)) {
+        if (enginesMap.containsKey(name) || uniqueEtPluginsMap.containsKey(name)) {
             return true;
         } else {
             return false;
@@ -954,8 +888,7 @@ public class EtPluginsService {
         } else if (tssInstancesMap.containsKey(serviceName)) {
             return tssInstancesMap;
         }
-        throw new NotFoundException(
-                "The EtPlugin " + serviceName + " does not exist");
+        throw new NotFoundException("The EtPlugin " + serviceName + " does not exist");
     }
 
     public String getUrlIfIsRunning(String engineName) {
@@ -966,14 +899,11 @@ public class EtPluginsService {
         String content = "";
         logger.debug("Load file : {}",
                 "/" + ET_TEST_ENGINES_PATH
-                        + (utilsService.isKubernetes() ? engineFileName + "-k8s"
-                                : engineFileName)
+                        + (utilsService.isKubernetes() ? engineFileName + "-k8s" : engineFileName)
                         + ".yml");
-        try (InputStream inputStream = getClass()
-                .getResourceAsStream("/" + ET_TEST_ENGINES_PATH
-                        + (utilsService.isKubernetes() ? engineFileName + "-k8s"
-                                : engineFileName)
-                        + ".yml")) {
+        try (InputStream inputStream = getClass().getResourceAsStream("/" + ET_TEST_ENGINES_PATH
+                + (utilsService.isKubernetes() ? engineFileName + "-k8s" : engineFileName)
+                + ".yml")) {
             content = IOUtils.toString(inputStream, "UTF-8");
         } catch (Exception e) {
             e.printStackTrace();
@@ -990,8 +920,8 @@ public class EtPluginsService {
     /* ****** Others ****** */
     /* ******************** */
 
-    public void updateStatus(String serviceName, DockerServiceStatusEnum status,
-            String statusMsg) throws NotFoundException {
+    public void updateStatus(String serviceName, DockerServiceStatusEnum status, String statusMsg)
+            throws NotFoundException {
         Map<String, EtPlugin> map = getMapThatContainsEtPlugin(serviceName);
         if (map != null) {
             map.get(serviceName).setStatus(status);
@@ -999,8 +929,7 @@ public class EtPluginsService {
         }
     }
 
-    private String replaceProjectNameMatchesByElastestProjectName(
-            String content) {
+    private String replaceProjectNameMatchesByElastestProjectName(String content) {
         return content.replaceAll("projectnametoreplace", etComposeProjectName);
     }
 

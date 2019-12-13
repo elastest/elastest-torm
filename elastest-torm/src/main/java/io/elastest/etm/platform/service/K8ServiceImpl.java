@@ -89,33 +89,30 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public boolean createServiceDeploymentProject(String projectName,
-            String serviceDescriptor, String targetPath, boolean override,
-            Map<String, String> envs, boolean withBindedExposedPortsToRandom,
-            boolean withRemoveVolumes) throws Exception {
+    public boolean createServiceDeploymentProject(String projectName, String serviceDescriptor,
+            String targetPath, boolean override, Map<String, String> envs,
+            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes) throws Exception {
 
-        return k8sService.createk8sProject(projectName, serviceDescriptor,
-                envs) != null ? true : false;
+        return k8sService.createk8sProject(projectName, serviceDescriptor, envs) != null ? true
+                : false;
     }
 
     @Override
-    public boolean createServiceDeploymentProject(String projectName,
-            String serviceDescriptor, String targetPath, boolean override,
-            Map<String, String> envs, boolean withBindedExposedPortsToRandom,
-            boolean withRemoveVolumes, List<String> extraHosts,
-            Map<String, String> labels) throws Exception {
-        return k8sService.createk8sProject(projectName, serviceDescriptor, envs,
-                extraHosts, labels) != null ? true : false;
+    public boolean createServiceDeploymentProject(String projectName, String serviceDescriptor,
+            String targetPath, boolean override, Map<String, String> envs,
+            boolean withBindedExposedPortsToRandom, boolean withRemoveVolumes,
+            List<String> extraHosts, Map<String, String> labels) throws Exception {
+        return k8sService.createk8sProject(projectName, serviceDescriptor, envs, extraHosts,
+                labels) != null ? true : false;
     }
 
     @Override
-    public boolean deployService(String projectName, boolean withPull,
-            String namespace) throws Exception {
+    public boolean deployService(String projectName, boolean withPull, String namespace)
+            throws Exception {
         if (namespace != null && !namespace.isEmpty()) {
             k8sService.createNamespace(projectName);
         }
-        return k8sService.deployResourcesFromProject(projectName,
-                namespace) != null ? true : false;
+        return k8sService.deployResourcesFromProject(projectName, namespace) != null ? true : false;
     }
 
     @Override
@@ -129,23 +126,18 @@ public class K8ServiceImpl extends PlatformService {
         boolean result = false;
         try {
             if (serviceInstance != null) {
-                List<Pod> pods = k8sService
-                        .getPodsFromNamespace(serviceInstance.getInstanceId());
+                List<Pod> pods = k8sService.getPodsFromNamespace(serviceInstance.getInstanceId());
                 pods.forEach(pod -> {
-                    k8sService.copyFileFromContainer(
-                            pod.getMetadata().getName(),
-                            serviceInstance.getParameters()
-                                    .get("ET_SHARED_FOLDER"),
-                            serviceInstance.getParameters()
-                                    .get("ET_FILES_PATH"),
+                    k8sService.copyFileFromContainer(pod.getMetadata().getName(),
+                            serviceInstance.getParameters().get("ET_SHARED_FOLDER"),
+                            serviceInstance.getParameters().get("ET_FILES_PATH"),
                             serviceInstance.getInstanceId());
                 });
             }
         } catch (Exception e) {
             logger.error("Error copying files from {} to {}",
                     serviceInstance.getParameters().get("ET_FILES_PATH"),
-                    serviceInstance.getParameters()
-                            .get("ET_FILES_PATH_IN_HOST"));
+                    serviceInstance.getParameters().get("ET_FILES_PATH_IN_HOST"));
         } finally {
             result = k8sService.deleteResources(projectName);
         }
@@ -153,37 +145,34 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public List<String> getDeploymentImages(String projectName)
-            throws Exception {
+    public List<String> getDeploymentImages(String projectName) throws Exception {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void pullProject(String projectName,
-            Map<String, EtPlugin> currentEtPluginMap) throws Exception {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void pullImageWithProgress(String projectName,
-            ProgressHandler progressHandler, String image) throws Exception {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void pullDeploymentImages(String projectName,
-            DockerServiceStatus serviceStatus, List<String> images,
-            boolean withProgress) throws Exception {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public List<String> getServiceDeploymentImages(String projectName)
+    public void pullProject(String projectName, Map<String, EtPlugin> currentEtPluginMap)
             throws Exception {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void pullImageWithProgress(String projectName, ProgressHandler progressHandler,
+            String image) throws Exception {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void pullDeploymentImages(String projectName, DockerServiceStatus serviceStatus,
+            List<String> images, boolean withProgress) throws Exception {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public List<String> getServiceDeploymentImages(String projectName) throws Exception {
         // TODO Auto-generated method stub
         return null;
     }
@@ -214,8 +203,7 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public boolean isContainerIntoNetwork(String networkId, String containerId)
-            throws Exception {
+    public boolean isContainerIntoNetwork(String networkId, String containerId) throws Exception {
         // TODO Auto-generated method stub
         return false;
     }
@@ -226,21 +214,16 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getContainerIp(String serviceName, EtPlugin serviceInstance)
-            throws Exception {
+    public String getContainerIp(String serviceName, EtPlugin serviceInstance) throws Exception {
 
         if (serviceInstance != null) {
             if (serviceInstance instanceof SupportServiceInstance) {
-                logger.debug(
-                        "Get Container ip for the service {}-{} in the namespace {}",
-                        serviceName, ((SupportServiceInstance) serviceInstance)
-                                .getInstanceId());
-                return k8sService.getPodIpByLabel("io.elastest.tjob.tss.id",
-                        serviceName, ((SupportServiceInstance) serviceInstance)
-                                .getInstanceId());
+                logger.debug("Get Container ip for the service {}-{} in the namespace {}",
+                        serviceName, ((SupportServiceInstance) serviceInstance).getInstanceId());
+                return k8sService.getPodIpByLabel("io.elastest.tjob.tss.id", serviceName,
+                        ((SupportServiceInstance) serviceInstance).getInstanceId());
             } else {
-                return k8sService.getPodIpByPodName(serviceName,
-                        serviceInstance.getName());
+                return k8sService.getPodIpByPodName(serviceName, serviceInstance.getName());
             }
         } else {
             return k8sService.getPodIpByPodName(serviceName);
@@ -248,21 +231,18 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getUniqPluginContainerName(String serviceName,
-            String network) {
+    public String getUniqPluginContainerName(String serviceName, String network) {
         Map<String, String> labels = new HashMap<>();
         labels.put("io.elastest.service", serviceName);
         if (!k8sService.getPodsByLabels(labels, null).isEmpty()) {
-            return k8sService.getPodsByLabels(labels, null).get(0).getMetadata()
-                    .getName();
+            return k8sService.getPodsByLabels(labels, null).get(0).getMetadata().getName();
         } else {
             return "";
         }
     }
 
     @Override
-    protected void startDockbeat(DockerContainer dockerContainer)
-            throws Exception {
+    protected void startDockbeat(DockerContainer dockerContainer) throws Exception {
         try {
             k8sService.createDaemonSetFromContainerInfo(dockerContainer);
         } catch (Exception e) {
@@ -272,28 +252,23 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public void disableMetricMonitoring(Execution execution, boolean force)
-            throws Exception {
-        String containerName = generateContainerName(ContainerPrefix.DOCK_BEAT,
-                execution);
+    public void disableMetricMonitoring(Execution execution, boolean force) throws Exception {
+        String containerName = generateContainerName(ContainerPrefix.DOCK_BEAT, execution);
         k8sService.deleteDaemonByName(containerName, null);
     }
 
     @Override
-    public void deployAndRunTJobExecution(Execution execution)
-            throws Exception {
+    public void deployAndRunTJobExecution(Execution execution) throws Exception {
         List<ReportTestSuite> testResults = new ArrayList<ReportTestSuite>();
         TJobExecution tJobExec = execution.getTJobExec();
         JobResult result = null;
         String resultMsg = "";
         try {
             // Create Container Object
-            DockerContainer testContainer = createContainer(execution,
-                    ContainerType.TJOB);
+            DockerContainer testContainer = createContainer(execution, ContainerType.TJOB);
 
             resultMsg = "Executing Test";
-            execution.updateTJobExecutionStatus(
-                    TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
+            execution.updateTJobExecutionStatus(TJobExecution.ResultEnum.EXECUTING_TEST, resultMsg);
             execution.setStatusMsg(resultMsg);
 
             // Create and start container
@@ -301,14 +276,12 @@ public class K8ServiceImpl extends PlatformService {
             execution.setExitCode(result.getResult());
 
         } catch (TJobStoppedException | InterruptedException e) {
-            throw new TJobStoppedException(
-                    "Error on create and start TJob container: Stopped", e);
+            throw new TJobStoppedException("Error on create and start TJob container: Stopped", e);
         } catch (Exception e) {
             e.printStackTrace();
             throw new Exception("Error running the TJob", e);
         } finally {
-            if (result != null
-                    && k8sService.existJobByName(result.getJobName())) {
+            if (result != null && k8sService.existJobByName(result.getJobName())) {
                 k8sService.deleteJob(result.getJobName());
             }
         }
@@ -320,33 +293,26 @@ public class K8ServiceImpl extends PlatformService {
         PodInfo podInfo = null;
         try {
             // Create Container Object
-            DockerContainer sutContainer = createContainer(execution,
-                    ContainerType.SUT);
+            DockerContainer sutContainer = createContainer(execution, ContainerType.SUT);
 
             String resultMsg = "Starting dockerized SuT";
-            execution.updateTJobExecutionStatus(
-                    TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
+            execution.updateTJobExecutionStatus(TJobExecution.ResultEnum.EXECUTING_SUT, resultMsg);
             logger.info(resultMsg + " " + execution.getExecutionId());
 
             // Create and start container
             podInfo = k8sService.deployPod(sutContainer);
-            execution.getSutExec().setUrl(
-                    execution.getSut().getSutUrlByGivenIp(podInfo.getPodIp()));
-            logger.info("Waiting for sut {} deployed in {}",
-                    execution.getSut().getName(),
+            execution.getSutExec()
+                    .setUrl(execution.getSut().getSutUrlByGivenIp(podInfo.getPodIp()));
+            logger.info("Waiting for sut {} deployed in {}", execution.getSut().getName(),
                     execution.getSutExec().getUrl());
             checkIfServiceIsUp(execution.getSutExec().getUrl(), 480000);
-            sutsByExecution.put(execution.getExecutionId().toString(),
-                    podInfo.getPodName());
+            sutsByExecution.put(execution.getExecutionId().toString(), podInfo.getPodName());
 
-            String sutName = generateContainerName(ContainerPrefix.SUT,
-                    execution);
+            String sutName = generateContainerName(ContainerPrefix.SUT, execution);
             this.insertCreatedContainer(podInfo.getPodName(), sutName);
             execution.getSutExec().setIp(podInfo.getPodIp());
-            logger.debug("Sut Ip stored in the sutExec {}",
-                    execution.getSutExec().getIp());
-            logger.debug(" Url stored in the sutExec {}",
-                    execution.getSutExec().getUrl());
+            logger.debug("Sut Ip stored in the sutExec {}", execution.getSutExec().getIp());
+            logger.debug(" Url stored in the sutExec {}", execution.getSutExec().getUrl());
 
         } catch (Exception e) {
             if (podInfo.getPodName() != null) {
@@ -357,8 +323,7 @@ public class K8ServiceImpl extends PlatformService {
 
     }
 
-    private boolean checkIfServiceIsUp(String url, long timeout)
-            throws TimeoutException {
+    private boolean checkIfServiceIsUp(String url, long timeout) throws TimeoutException {
         logger.debug("Checking connection to {}", url);
 
         long startTime = System.currentTimeMillis();
@@ -368,8 +333,8 @@ public class K8ServiceImpl extends PlatformService {
 
         while (!created && System.currentTimeMillis() < endTime) {
             try {
-                ResponseEntity<String> response = prepareRestTemplate()
-                        .exchange(url, HttpMethod.GET, null, String.class);
+                ResponseEntity<String> response = prepareRestTemplate().exchange(url,
+                        HttpMethod.GET, null, String.class);
                 int responseCode = response.getStatusCode().value();
                 created = ((responseCode >= 200 && responseCode <= 299)
                         || (responseCode >= 400 && responseCode <= 415));
@@ -379,8 +344,7 @@ public class K8ServiceImpl extends PlatformService {
                     UtilTools.sleep(2);
                 }
             } catch (Exception e) {
-                logger.trace("Service is not up yet at {}: {}", url,
-                        e.getMessage());
+                logger.trace("Service is not up yet at {}: {}", url, e.getMessage());
                 UtilTools.sleep(2);
             }
         }
@@ -389,13 +353,13 @@ public class K8ServiceImpl extends PlatformService {
 
     }
 
-    private RestTemplate prepareRestTemplate() throws KeyManagementException,
-            NoSuchAlgorithmException, KeyStoreException {
+    private RestTemplate prepareRestTemplate()
+            throws KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
         TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
-        SSLContext sslContext = SSLContexts.custom()
-                .loadTrustMaterial(null, acceptingTrustStrategy).build();
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
-                sslContext, NoopHostnameVerifier.INSTANCE);
+        SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy)
+                .build();
+        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext,
+                NoopHostnameVerifier.INSTANCE);
 
         Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder
                 .<ConnectionSocketFactory>create().register("https", sslsf)
@@ -403,8 +367,7 @@ public class K8ServiceImpl extends PlatformService {
 
         BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(
                 socketFactoryRegistry);
-        CloseableHttpClient httpClient = HttpClients.custom()
-                .setSSLSocketFactory(sslsf)
+        CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(sslsf)
                 .setConnectionManager(connectionManager).build();
 
         HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(
@@ -413,8 +376,7 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public void undeploySut(Execution execution, boolean force)
-            throws Exception {
+    public void undeploySut(Execution execution, boolean force) throws Exception {
         SutSpecification sut = execution.getSut();
         removeSutVolumeFolder(execution);
         // If it's Managed Sut, and container is created
@@ -425,17 +387,14 @@ public class K8ServiceImpl extends PlatformService {
                     if (sut.isSutInNewContainer()) {
                         // endSutInContainer(execution);
                     }
-                    String sutContainerName = generateContainerName(
-                            ContainerPrefix.SUT, execution);
-                    k8sService.deleteServiceAssociatedWithAPOD(sutContainerName,
-                            null);
+                    String sutContainerName = generateContainerName(ContainerPrefix.SUT, execution);
+                    k8sService.deleteServiceAssociatedWithAPOD(sutContainerName, null);
 
                     endContainer(sutContainerName);
                 } else {
                     // endComposedSutExec(execution);
                 }
-                updateSutExecDeployStatus(execution,
-                        DeployStatusEnum.UNDEPLOYED);
+                updateSutExecDeployStatus(execution, DeployStatusEnum.UNDEPLOYED);
             } finally {
 
             }
@@ -443,12 +402,9 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public void undeployTJob(Execution execution, boolean force)
-            throws Exception {
-        DockerContainer testContainer = createContainer(execution,
-                ContainerType.TJOB);
-        k8sService.deleteJob(
-                testContainer.getContainerName().get().replace("_", "-"));
+    public void undeployTJob(Execution execution, boolean force) throws Exception {
+        DockerContainer testContainer = createContainer(execution, ContainerType.TJOB);
+        k8sService.deleteJob(testContainer.getContainerName().get().replace("_", "-"));
     }
 
     @Override
@@ -464,8 +420,7 @@ public class K8ServiceImpl extends PlatformService {
     @Override
     public void removeBindedPorts(SupportServiceInstance serviceInstance) {
         for (String serviceName : serviceInstance.getPortBindingContainers()) {
-            logger.debug(
-                    "Deleteing the k8s service that bind the port of the service: {}",
+            logger.debug("Deleteing the k8s service that bind the port of the service: {}",
                     serviceName);
             removeBindedPort(serviceName, serviceInstance.getInstanceId());
         }
@@ -498,8 +453,8 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public VersionInfo getVersionInfoFromContainer(String version,
-            String imageName) throws Exception {
+    public VersionInfo getVersionInfoFromContainer(String version, String imageName)
+            throws Exception {
         // TODO Auto-generated method stub
         return null;
     }
@@ -517,49 +472,43 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public void setCoreServiceInfoFromContainer(String version,
-            String imageName, CoreServiceInfo coreServiceInfo)
+    public void setCoreServiceInfoFromContainer(String version, String imageName,
+            CoreServiceInfo coreServiceInfo) throws Exception {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public String getAllContainerLogs(String containerName, boolean withFollow) throws Exception {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getSomeContainerLogs(String containerName, int amount, boolean withFollow)
             throws Exception {
         // TODO Auto-generated method stub
-
+        return null;
     }
 
     @Override
-    public String getAllContainerLogs(String containerName, boolean withFollow)
+    public String getContainerLogsFrom(String containerId, int from, boolean withFollow)
             throws Exception {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public String getSomeContainerLogs(String containerName, int amount,
-            boolean withFollow) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+    public List<String> getFilesContentFromContainer(String testContainer, String filePath,
+            List<String> filterExtensions) throws Exception {
+        return k8sService.readFilesFromContainer(testContainer, filePath, filterExtensions);
     }
 
     @Override
-    public String getContainerLogsFrom(String containerId, int from,
-            boolean withFollow) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<String> getFilesContentFromContainer(String testContainer,
-            String filePath, List<String> filterExtensions) throws Exception {
-        return k8sService.readFilesFromContainer(testContainer, filePath,
-                filterExtensions);
-    }
-
-    @Override
-    public Integer copyFilesFomContainer(String container, String originPath,
-            String targetPath) {
-        logger.info("Copy files in {}, from {} to {}.", container, originPath,
-                targetPath);
+    public Integer copyFilesFomContainer(String container, String originPath, String targetPath) {
+        logger.info("Copy files in {}, from {} to {}.", container, originPath, targetPath);
         Integer result = 1;
-        result = k8sService.copyFileFromContainer(container, originPath,
-                targetPath, null);
+        result = k8sService.copyFileFromContainer(container, originPath, targetPath, null);
         return result;
     }
 
@@ -569,73 +518,62 @@ public class K8ServiceImpl extends PlatformService {
         createdContainers.remove(containerName);
     }
 
-    public void insertCreatedContainer(String containerId,
-            String containerName) {
+    public void insertCreatedContainer(String containerId, String containerName) {
         createdContainers.put(containerId, containerName);
     }
 
     @Override
-    protected void endContainer(String containerName, int timeout)
-            throws Exception {
+    protected void endContainer(String containerName, int timeout) throws Exception {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public ServiceBindedPort getBindedPort(String serviceName,
-            String containerSufix, String bindedPort, String port,
-            String namespace) throws Exception {
-        logger.debug("Biniding port for the service {}", serviceName);
+    public ServiceBindedPort getBindedPort(String serviceName, String containerSufix,
+            String bindedPort, String port, String namespace) throws Exception {
+        logger.debug("Binding port for the service {}", serviceName);
         if (namespace != null && !namespace.isEmpty()) {
             k8sService.createNamespace(namespace);
         }
-        ServiceInfo serviceInfo = k8sService.createService(serviceName,
-                serviceName,
-                bindedPort != null ? Integer.valueOf(bindedPort) : null,
-                Integer.valueOf(port), "http", namespace,
-                K8sService.LABEL_COMPONENT);
-        logger.debug("Getting binding port");
+        ServiceInfo serviceInfo = k8sService.createService(serviceName, serviceName,
+                bindedPort != null ? Integer.valueOf(bindedPort) : null, Integer.valueOf(port),
+                "http", namespace, K8sService.LABEL_COMPONENT);
+        logger.debug("Getting binding port for the service {}", serviceName);
 
-        ServiceBindedPort bindedPortObj = new ServiceBindedPort(port,
-                serviceInfo.getServicePort(), serviceInfo.getServiceName());
-        logger.debug("Port binded against: {}", serviceInfo.getServicePort());
+        ServiceBindedPort bindedPortObj = new ServiceBindedPort(port, serviceInfo.getServicePort(),
+                serviceInfo.getServiceName());
+        logger.debug("Port for service {} binded against: {}", serviceName,
+                serviceInfo.getServicePort());
         return bindedPortObj;
 
     }
 
     @Override
-    public String getBindedServiceIp(SupportServiceInstance serviceInstance,
-            String port) {
+    public String getBindedServiceIp(SupportServiceInstance serviceInstance, String port) {
         logger.debug("Getting binded service ip for the service: {}",
                 serviceInstance.getServiceName());
-        return k8sService.getServiceIp(
-                serviceInstance.getEndpointName().toLowerCase(), port,
+        return k8sService.getServiceIp(serviceInstance.getEndpointName().toLowerCase(), port,
                 serviceInstance.getInstanceId());
     }
 
     @Override
     public String getTSSInstanceContainerName(String... params) {
-        logger.debug("Check if the TSS {} exist as a pod in the namespace {}",
-                params[1], params[0]);
+        logger.debug("Check if the TSS {} exist as a pod in the namespace {}", params[1],
+                params[0]);
         return params[1];
     }
 
     @Override
-    public String getPublicServiceIp(String serviceName, String port,
-            String namespace) {
-        logger.debug("Getting binded service ip for the service: {}",
-                serviceName);
-        return k8sService.getServiceIp(serviceName.toLowerCase(), port,
-                namespace);
+    public String getPublicServiceIp(String serviceName, String port, String namespace) {
+        logger.debug("Getting binded service ip for the service: {}", serviceName);
+        return k8sService.getServiceIp(serviceName.toLowerCase(), port, namespace);
     }
 
     @Override
     public boolean isContainerByServiceName(String serviceName,
             io.elastest.epm.client.json.DockerContainerInfo.DockerContainer container) {
-        for (Entry<String, String> label : container.getLabels().getAllLabels()
-                .entrySet()) {
-            if (label.getValue().equals(serviceName)
-                    || label.getValue().contains(serviceName)) {
+        for (Entry<String, String> label : container.getLabels().getAllLabels().entrySet()) {
+            if (label.getValue().equals(serviceName) || label.getValue().contains(serviceName)) {
                 return true;
             }
         }
