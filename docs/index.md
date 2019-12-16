@@ -113,6 +113,7 @@ You can develop ElasTest TORM Server Application using an editor and the command
     - After, if you want to run ElasTest mini, you need [build `EUS`](https://github.com/elastest/elastest-user-emulator-service/blob/master/docs/dev-docs.md#eus-server-application-1) as dependency.
     - Lastly, build ETM. Right click over the project and select `Run as..> Maven build`. In Goals type `clean package -Dmaven.javadoc.skip=true -DskipTests`.
   - **Import Launch configurations**. Go to `File..>Import..` and select `Run/Debug..>Launch configurations`. Select `elastest-torm/docs` folder and import all files with `.launch` extension
+    - Note: edit `ET_DATA_IN_HOST` and `ET_SHARED_FOLDER` to set your `.elastest` folder path
   - **Execute the project**, doing right click over the project and select `Run as ..> SpringBoot Application`
 
 - Using editor and console:

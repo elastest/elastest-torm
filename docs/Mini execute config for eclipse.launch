@@ -8,13 +8,13 @@
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
 <mapEntry key="ET_CORE_IMAGES" value="elastest/platform-services:dev,elastest/etm:latest,elastest/edm-mysql:latest,elastest/etm-filebeat:latest,elastest/etm-proxy:latest,elastest/platform:dev"/>
-<mapEntry key="ET_DATA_IN_HOST" value="/home/frdiaz/.elastest"/>
+<mapEntry key="ET_DATA_IN_HOST" value="/home/user/.elastest"/>
 <mapEntry key="ET_ETM_LOG_LEVEL" value="DEBUG"/>
 <mapEntry key="ET_ETM_TESTLINK_API_KEY" value="d8521eaf4ca542449d3e869dd1ea4667"/>
 <mapEntry key="ET_IMAGES" value="elastest/platform-services:dev,elastest/etm:latest,elastest/edm-mysql:latest,elastest/etm-filebeat:latest,elastest/etm-proxy:latest,elastest/platform:dev"/>
 <mapEntry key="ET_MASTER_SLAVE_MODE" value="false"/>
 <mapEntry key="ET_PASS" value="b01gAEOP"/>
-<mapEntry key="ET_SHARED_FOLDER" value="/home/frdiaz/.elastest"/>
+<mapEntry key="ET_SHARED_FOLDER" value="/home/user/.elastest"/>
 <mapEntry key="ET_USER" value="elastest"/>
 <mapEntry key="EXEC_MODE" value="mini"/>
 <mapEntry key="enable.et.mini" value="true"/>
