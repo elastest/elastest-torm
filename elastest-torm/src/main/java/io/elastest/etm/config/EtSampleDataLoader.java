@@ -635,7 +635,7 @@ public class EtSampleDataLoader {
 	}
 
 	private void createEMS() {
-		String pjName = "EMS Example";
+		String pjName = "Building assertions with monitoring data";
 		if (!etDataLoader.projectExists(pjName)) {
 			String sutName = "nginx";
 			String sutDesc = "nginx";
@@ -671,7 +671,7 @@ public class EtSampleDataLoader {
 	}
 
 	private void createEDS() {
-		String pjName = "EDS Example";
+		String pjName = "IoT device emulation";
 		if (!etDataLoader.projectExists(pjName)) {
 			String sutName = "EDS SuT";
 			String sutDesc = "Sensor Actuator Logic SuT";
@@ -709,7 +709,7 @@ public class EtSampleDataLoader {
 	}
 
 	public void createQoE() {
-		String pjName = "QoE";
+		String pjName = "Asserting Quality of Experience in WebRTC";
 		if (!etDataLoader.projectExists(pjName)) {
 			// Create Project
 			this.printLog(pjName);
@@ -743,7 +743,7 @@ public class EtSampleDataLoader {
 	}
 
 	public void createQoEAWS() {
-		String pjName = "QoE";
+		String pjName = "Asserting Quality of Experience in WebRTC";
 		Project project;
 
 		if (!etDataLoader.projectExists(pjName)) {
