@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.springframework.ide.eclipse.boot.launch">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/dummy-tss/src/main/java/io/elastest/tss/DemoApplication.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<mapAttribute key="org.eclipse.debug.core.environmentVariables">
+<mapEntry key="ET_CORE_IMAGES" value="elastest/platform-services:dev,elastest/etm:latest,elastest/edm-mysql:latest,elastest/etm-filebeat:latest,elastest/etm-proxy:latest,elastest/platform:dev"/>
+<mapEntry key="ET_DATA_IN_HOST" value="/home/frdiaz/.elastest"/>
+<mapEntry key="ET_ETM_LOG_LEVEL" value="DEBUG"/>
+<mapEntry key="ET_ETM_TESTLINK_API_KEY" value="d8521eaf4ca542449d3e869dd1ea4667"/>
+<mapEntry key="ET_IMAGES" value="elastest/platform-services:dev,elastest/etm:latest,elastest/edm-mysql:latest,elastest/etm-filebeat:latest,elastest/etm-proxy:latest,elastest/platform:dev"/>
+<mapEntry key="ET_MASTER_SLAVE_MODE" value="false"/>
+<mapEntry key="ET_PASS" value="b01gAEOP"/>
+<mapEntry key="ET_SHARED_FOLDER" value="/home/frdiaz/.elastest"/>
+<mapEntry key="ET_USER" value="elastest"/>
+<mapEntry key="EXEC_MODE" value="mini"/>
+<mapEntry key="enable.et.mini" value="true"/>
+<mapEntry key="et.enable.cloud.mode" value="true"/>
+<mapEntry key="et.epm.k8s.master" value="192.168.1.50"/>
+<mapEntry key="et.etm.jenkins.container.name" value="none"/>
+<mapEntry key="et.etm.jenkins.host" value="none"/>
+<mapEntry key="et.etm.lshttp.api" value="http://etm:5003/api/monitoring/"/>
+<mapEntry key="et.etm.testlink.host" value="none"/>
+<mapEntry key="et.in.prod" value="false"/>
+<mapEntry key="et.proxy.port" value="37000"/>
+<mapEntry key="et.public.host" value="192.168.1.50"/>
+</mapAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.springframework.ide.eclipse.boot.launch.BootMavenClassPathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="io.elastest.etm.ElasTestTormApp"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="elastest-torm"/>
+<stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.springframework.ide.eclipse.boot.launch.BootMavenSourcePathProvider"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.security.egd=file:/dev/./urandom"/>
+<stringAttribute key="process_factory_id" value="org.springframework.ide.eclipse.boot.launch.process.BootProcessFactory"/>
+<booleanAttribute key="spring.boot.ansi.console" value="true"/>
+<stringAttribute key="spring.boot.app.properties" value=""/>
+<booleanAttribute key="spring.boot.dash.hidden" value="false"/>
+<booleanAttribute key="spring.boot.debug.enable" value="false"/>
+<booleanAttribute key="spring.boot.fast.startup" value="true"/>
+<booleanAttribute key="spring.boot.jmx.enable" value="true"/>
+<booleanAttribute key="spring.boot.lifecycle.enable" value="true"/>
+<stringAttribute key="spring.boot.lifecycle.termination.timeout" value="15000"/>
+<booleanAttribute key="spring.boot.livebean.enable" value="false"/>
+<stringAttribute key="spring.boot.livebean.port" value="0"/>
+<stringAttribute key="spring.boot.profile" value=""/>
+</launchConfiguration>

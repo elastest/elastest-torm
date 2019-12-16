@@ -50,4 +50,5 @@ elastest-torm-gui/bin
 .classpath
 .c9/
 *.launch
+!docs/*.launch
 .settings/
