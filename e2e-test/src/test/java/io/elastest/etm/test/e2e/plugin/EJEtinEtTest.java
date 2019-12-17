@@ -40,7 +40,7 @@ public class EJEtinEtTest extends EtmPluginBaseTest {
     void testETInETPluginInPipelineJob(
             @DockerBrowser(type = CHROME) RemoteWebDriver localDriver,
             TestInfo testInfo) throws Exception {
-        setupTestBrowser(testInfo, BrowserType.CHROME, "71", localDriver);
+        setupTestBrowser(testInfo, BrowserType.CHROME, "74", localDriver);
         navigateTo(driver, jenkinsCIUrl);
         loginOnJenkins(driver);
 
