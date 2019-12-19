@@ -67,7 +67,7 @@ spec:
           value: "true"
         - name: JAVA_OPTS
           value: -Djenkins.install.runSetupWizard=false
-        image: elastest/etm-jenkins:1.1.1
+        image: elastest/etm-jenkins:1.2.0
         imagePullPolicy: Always
         name: etm-jenkins
         ports:
