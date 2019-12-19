@@ -53,7 +53,7 @@ spec:
           value: http://esm:37005/
         - name: ET_ETM_API
           value: http://etm:8091/
-        image: elastest/ece:latest
+        image: elastest/ece:2.2.0
         imagePullPolicy: Always
         name: ece
         ports:
