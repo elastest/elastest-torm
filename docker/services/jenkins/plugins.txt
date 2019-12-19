@@ -75,7 +75,7 @@ locale:1.4
 javadoc:1.5
 timestamper:1.10
 git:4.0.0-beta10
-elastest:1.1.0
+elastest:1.2.1
 plain-credentials:1.5
 pipeline-model-declarative-agent:1.1.1
 scm-api:2.6.3

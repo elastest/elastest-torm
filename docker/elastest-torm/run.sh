@@ -25,7 +25,7 @@ echo $HOST_TIMEZONE >  /etc/timezone
 
 # CHECK MySQL
 while ! nc -z edm-mysql 3306 ; do
-    echo "MySQL server is not ready in address 'mysql' and port 3306"
+    echo "MySQL server is not ready in address 'edm-mysql' and port 3306"
     sleep 2
 done
 
