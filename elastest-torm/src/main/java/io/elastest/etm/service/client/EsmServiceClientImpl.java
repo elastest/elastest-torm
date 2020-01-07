@@ -64,8 +64,7 @@ public class EsmServiceClientImpl implements EsmServiceClient {
     UtilsService utilsService;
     PlatformService platformService;
 
-    public EsmServiceClientImpl(UtilsService utilsService,
-            PlatformService platformService) {
+    public EsmServiceClientImpl(UtilsService utilsService, PlatformService platformService) {
         this.utilsService = utilsService;
         this.platformService = platformService;
         httpClient = new RestTemplate();
@@ -77,8 +76,7 @@ public class EsmServiceClientImpl implements EsmServiceClient {
     @Override
     public void registerService(String serviceRegistry) {
         logger.info("Registering the service in the ESM.");
-        HttpEntity<String> entity = new HttpEntity<String>(serviceRegistry,
-                headers);
+        HttpEntity<String> entity = new HttpEntity<String>(serviceRegistry, headers);
 
         try {
             httpClient.put(URL_ESM_REGISTER_SERVICE, entity);
@@ -92,8 +90,7 @@ public class EsmServiceClientImpl implements EsmServiceClient {
     @Override
     public void registerManifest(String serviceManifest, String id) {
         logger.info("Registering the service manifest in the ESM.");
-        HttpEntity<String> entity = new HttpEntity<String>(serviceManifest,
-                headers);
+        HttpEntity<String> entity = new HttpEntity<String>(serviceManifest, headers);
 
         Map<String, String> params = new HashMap<>();
         params.put("manifest_id", id);
@@ -102,10 +99,9 @@ public class EsmServiceClientImpl implements EsmServiceClient {
                 .fromUriString(URL_ESM_REGISTER_MANIFEST);
         ResponseEntity<ObjectNode> result = null;
         try {
-            result = httpClient.exchange(builder.buildAndExpand(params).toUri(),
-                    HttpMethod.PUT, entity, ObjectNode.class);
-            logger.info(
-                    "Manifest registered: {}" + result.getBody().toString());
+            result = httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.PUT,
+                    entity, ObjectNode.class);
+            logger.info("Manifest registered: {}" + result.getBody().toString());
         } catch (Exception e) {
             // if (result != null &&
             // result.getBody().toString().equals("\"duplicate\"")){
@@ -118,15 +114,14 @@ public class EsmServiceClientImpl implements EsmServiceClient {
     }
 
     @Override
-    public String provisionServiceInstance(
-            SupportServiceInstance serviceInstance, String instanceId,
-            String accept_incomplete) {
+    public String provisionServiceInstance(SupportServiceInstance serviceInstance,
+            String instanceId, String accept_incomplete) {
         String serviceInstanceData = "";
-        logger.info("Request a service instance.");
-        HttpEntity<String> entity = new HttpEntity<String>(
-                UtilTools.convertJsonString(serviceInstance,
-                        ProvisionView.class, Include.NON_EMPTY),
-                headers);
+        String serviceName = serviceInstance != null ? serviceInstance.getServiceName() : null;
+        String serviceId = serviceInstance != null ? serviceInstance.getService_id() : null;
+        logger.info("Request a service instance of service {} ({}).", serviceId, serviceName);
+        HttpEntity<String> entity = new HttpEntity<String>(UtilTools.convertJsonString(
+                serviceInstance, ProvisionView.class, Include.NON_EMPTY), headers);
 
         Map<String, String> params = new HashMap<>();
         params.put("instance_id", instanceId);
@@ -136,13 +131,13 @@ public class EsmServiceClientImpl implements EsmServiceClient {
                 .queryParam("accept_incomplete", accept_incomplete);
 
         try {
-            httpClient.exchange(builder.buildAndExpand(params).toUri(),
-                    HttpMethod.PUT, entity, String.class);
-            logger.info("Requested service.");
+            httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.PUT, entity,
+                    String.class);
+            logger.info("Service {} ({}) with instanceId {} was requested successfully.", serviceId,
+                    serviceName, instanceId);
         } catch (Exception e) {
-            throw new RuntimeException("Exception provisioning service \""
-                    + serviceInstance.getService_id() + "\" with instanceId \""
-                    + instanceId + "\"", e);
+            throw new RuntimeException("Exception provisioning service \"" + serviceId
+                    + "\" with instanceId \"" + instanceId + "\"", e);
         }
 
         return serviceInstanceData;
@@ -163,13 +158,12 @@ public class EsmServiceClientImpl implements EsmServiceClient {
                 .queryParam("plan_id", serviceInstance.getPlan_id());
 
         try {
-            httpClient.exchange(builder.buildAndExpand(params).toUri(),
-                    HttpMethod.DELETE, entity, ObjectNode.class);
-            logger.info("Service {} deprovisioned.",
-                    serviceInstance.getServiceName());
+            httpClient.exchange(builder.buildAndExpand(params).toUri(), HttpMethod.DELETE, entity,
+                    ObjectNode.class);
+            logger.info("Service {} with instanceId {} was deprovisioned.",
+                    serviceInstance.getServiceName(), instanceId);
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Exception deprovisioning instance \"" + instanceId + "\"",
+            throw new RuntimeException("Exception deprovisioning instance \"" + instanceId + "\"",
                     e);
         }
     }
@@ -180,16 +174,13 @@ public class EsmServiceClientImpl implements EsmServiceClient {
         HttpEntity<String> entity = new HttpEntity<String>(headers);
 
         try {
-            ResponseEntity<ObjectNode> objNode = httpClient.exchange(
-                    URL_GET_CATALOG_ESM, HttpMethod.GET, entity,
-                    ObjectNode.class);
+            ResponseEntity<ObjectNode> objNode = httpClient.exchange(URL_GET_CATALOG_ESM,
+                    HttpMethod.GET, entity, ObjectNode.class);
             logger.info("Retrieved services.");
-            return UtilTools.convertJsonStringToObj(
-                    objNode.getBody().get("services").toString(),
+            return UtilTools.convertJsonStringToObj(objNode.getBody().get("services").toString(),
                     SupportService[].class, Include.NON_EMPTY, false);
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Exception retrieving registered services", e);
+            throw new RuntimeException("Exception retrieving registered services", e);
         }
     }
 
@@ -200,14 +191,12 @@ public class EsmServiceClientImpl implements EsmServiceClient {
         HttpEntity<String> entity = new HttpEntity<String>(headers);
 
         try {
-            ResponseEntity<ObjectNode> objNode = httpClient.exchange(
-                    URL_GET_CATALOG_ESM, HttpMethod.GET, entity,
-                    ObjectNode.class);
+            ResponseEntity<ObjectNode> objNode = httpClient.exchange(URL_GET_CATALOG_ESM,
+                    HttpMethod.GET, entity, ObjectNode.class);
             logger.info("Retrieved services.");
             return objNode.getBody().get("services");
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Exception retrieving registered services", e);
+            throw new RuntimeException("Exception retrieving registered services", e);
         }
     }
 
@@ -216,8 +205,7 @@ public class EsmServiceClientImpl implements EsmServiceClient {
         JsonNode service = null;
         JsonNode services = getRawRegisteredServices();
         for (JsonNode currentService : services) {
-            if (currentService.get("id").toString().replaceAll("\"", "")
-                    .equals(serviceId)) {
+            if (currentService.get("id").toString().replaceAll("\"", "").equals(serviceId)) {
                 service = currentService;
                 break;
             }
@@ -226,8 +214,7 @@ public class EsmServiceClientImpl implements EsmServiceClient {
     }
 
     @Override
-    public SupportServiceInstance getServiceInstanceInfo(
-            SupportServiceInstance instance) {
+    public SupportServiceInstance getServiceInstanceInfo(SupportServiceInstance instance) {
         return initSupportServiceInstanceData(instance);
 
     }
@@ -241,17 +228,14 @@ public class EsmServiceClientImpl implements EsmServiceClient {
         params.put("instance_id", instanceId);
 
         try {
-            ResponseEntity<ObjectNode> objNode = httpClient.exchange(
-                    URL_ESM_SERVICE_INSTANCE_INFO, HttpMethod.GET, entity,
-                    ObjectNode.class, params);
+            ResponseEntity<ObjectNode> objNode = httpClient.exchange(URL_ESM_SERVICE_INSTANCE_INFO,
+                    HttpMethod.GET, entity, ObjectNode.class, params);
             logger.info("Retrieved services instance info.");
             logger.info("Instance info: " + objNode.getBody().toString());
             return objNode.getBody();
         } catch (Exception e) {
             throw new RuntimeException(
-                    "Exception retrieving info of instance \"" + instanceId
-                            + "\"",
-                    e);
+                    "Exception retrieving info of instance \"" + instanceId + "\"", e);
         }
     }
 
@@ -261,53 +245,44 @@ public class EsmServiceClientImpl implements EsmServiceClient {
         params.put("manifest_id", manifestId);
 
         try {
-            ResponseEntity<ObjectNode[]> objNode = httpClient.exchange(
-                    URL_ESM_GET_MANIFEST, HttpMethod.GET, null,
-                    ObjectNode[].class, params);
+            ResponseEntity<ObjectNode[]> objNode = httpClient.exchange(URL_ESM_GET_MANIFEST,
+                    HttpMethod.GET, null, ObjectNode[].class, params);
             logger.info("Manifest info: " + objNode.getBody()[0].toString());
             return objNode.getBody()[0];
         } catch (Exception e) {
             throw new RuntimeException(
-                    "Exception retrieving info of manifest \"" + manifestId
-                            + "\"",
-                    e);
+                    "Exception retrieving info of manifest \"" + manifestId + "\"", e);
         }
     }
 
     @Override
     public TssManifest getManifestById(String manifestId) {
         ObjectNode manifestJson = getManifestJsonById(manifestId);
-        return UtilTools.convertJsonStringToObj(manifestJson.toString(),
-                TssManifest.class, Include.NON_EMPTY);
+        return UtilTools.convertJsonStringToObj(manifestJson.toString(), TssManifest.class,
+                Include.NON_EMPTY);
     }
 
     @Override
-    public TssManifest getManifestBySupportServiceInstance(
-            SupportServiceInstance serviceInstance) {
+    public TssManifest getManifestBySupportServiceInstance(SupportServiceInstance serviceInstance) {
         return null; // TODO
     }
 
     @Override
     public SupportServiceInstance initSupportServiceInstanceData(
             SupportServiceInstance serviceInstance) {
-        ObjectNode serviceInstanceDetail = getServiceInstanceInfo(
-                serviceInstance.getInstanceId());
-        serviceInstance.setManifestId(serviceInstanceDetail.get("context")
-                .get("manifest_id").toString().replaceAll("\"", ""));
+        ObjectNode serviceInstanceDetail = getServiceInstanceInfo(serviceInstance.getInstanceId());
+        serviceInstance.setManifestId(serviceInstanceDetail.get("context").get("manifest_id")
+                .toString().replaceAll("\"", ""));
 
-        ObjectNode manifest = getManifestJsonById(
-                serviceInstance.getManifestId());
+        ObjectNode manifest = getManifestJsonById(serviceInstance.getManifestId());
         JsonNode manifestEndpoints = manifest.get("endpoints");
         Iterator<String> subServicesNames = manifestEndpoints.fieldNames();
-        Iterator<String> itEsmRespContextFields = serviceInstanceDetail
-                .get("context").fieldNames();
+        Iterator<String> itEsmRespContextFields = serviceInstanceDetail.get("context").fieldNames();
 
         while (subServicesNames.hasNext()) {
             String serviceName = subServicesNames.next();
-            logger.debug("Building service instance data for a {} TSS.",
-                    serviceName);
-            JsonNode manifestEndpointService = manifestEndpoints
-                    .get(serviceName);
+            logger.debug("Building service instance data for a {} TSS.", serviceName);
+            JsonNode manifestEndpointService = manifestEndpoints.get(serviceName);
             String serviceIpFieldSufix = "_Ip";
             String serviceIp = null;
             boolean ipFound = false;
@@ -316,72 +291,55 @@ public class EsmServiceClientImpl implements EsmServiceClient {
                 String fieldName = itEsmRespContextFields.next();
                 logger.debug("Instance data fields {}:", fieldName);
 
-                if (fieldName.contains(serviceIpFieldSufix)
-                        && fieldName.contains(serviceName)) {
+                if (fieldName.contains(serviceIpFieldSufix) && fieldName.contains(serviceName)) {
                     try {
-                        String containerIp = serviceInstanceDetail
-                                .get("context").get(fieldName).toString()
-                                .replaceAll("\"", "");
+                        String containerIp = serviceInstanceDetail.get("context").get(fieldName)
+                                .toString().replaceAll("\"", "");
                         if (containerIp.equals("pending")) {
-                            containerIp = platformService.getContainerIp(
-                                    serviceName, serviceInstance);
+                            containerIp = platformService.getContainerIp(serviceName,
+                                    serviceInstance);
                         }
 
-                        String containerName = fieldName.substring(0,
-                                fieldName.indexOf("_Ip"));
-                        logger.debug("Container ip {} for the service {}",
-                                containerIp, containerName);
-                        logger.debug("ET_PUBLIC_HOST value: "
-                                + utilsService.getEtPublicHostValue());
+                        String containerName = fieldName.substring(0, fieldName.indexOf("_Ip"));
+                        logger.debug("Container ip {} for the service {}", containerIp,
+                                containerName);
+                        logger.debug(
+                                "ET_PUBLIC_HOST value: " + utilsService.getEtPublicHostValue());
                         String internalServiceIp = containerIp;
-                        String bindedServiceIp = utilsService
-                                .getEtPublicHostValue();
-                        serviceIp = !utilsService.isDefaultEtPublicHost()
-                                ? bindedServiceIp
+                        String bindedServiceIp = utilsService.getEtPublicHostValue();
+                        serviceIp = !utilsService.isDefaultEtPublicHost() ? bindedServiceIp
                                 : internalServiceIp;
                         if (manifestEndpointService.get("main") != null
-                                && manifestEndpointService.get("main")
-                                        .booleanValue()) {
-                            logger.debug(
-                                    "Building data for the main sub-service {}",
-                                    serviceName);
+                                && manifestEndpointService.get("main").booleanValue()) {
+                            logger.debug("Building data for the main sub-service {}", serviceName);
                             serviceInstance.setContainerName(containerName);
-                            serviceInstance
-                                    .setInternalServiceIp(internalServiceIp);
+                            serviceInstance.setInternalServiceIp(internalServiceIp);
                             serviceInstance.setBindedServiceIp(bindedServiceIp);
                             serviceInstance.setServiceIp(serviceIp);
                             serviceInstance.setEndpointName(serviceName);
                             serviceInstance.setContainerIp(containerIp);
                         } else {
-                            logger.debug("Building data for a sub-service {}",
-                                    serviceName);
+                            logger.debug("Building data for a sub-service {}", serviceName);
                             SupportServiceInstance auxServiceInstance = null;
                             auxServiceInstance = new SupportServiceInstance();
                             auxServiceInstance.setContainerName(containerName);
-                            auxServiceInstance
-                                    .setInternalServiceIp(internalServiceIp);
-                            auxServiceInstance
-                                    .setBindedServiceIp(bindedServiceIp);
+                            auxServiceInstance.setInternalServiceIp(internalServiceIp);
+                            auxServiceInstance.setBindedServiceIp(bindedServiceIp);
                             auxServiceInstance.setEndpointName(serviceName);
                             auxServiceInstance.setContainerIp(containerIp);
                             auxServiceInstance.setServiceIp(serviceIp);
-                            auxServiceInstance.setParameters(
-                                    serviceInstance.getParameters());
-                            serviceInstance.getSubServices()
-                                    .add(auxServiceInstance);
+                            auxServiceInstance.setParameters(serviceInstance.getParameters());
+                            serviceInstance.getSubServices().add(auxServiceInstance);
                         }
                         ipFound = true;
                     } catch (Exception e) {
-                        logger.error(
-                                "Error on getting TSS instance container ip",
-                                e);
+                        logger.error("Error on getting TSS instance container ip", e);
                     }
                 }
             }
         }
 
-        logger.debug("Service instance to return {}",
-                serviceInstance.getEndpointName());
+        logger.debug("Service instance to return {}", serviceInstance.getEndpointName());
         return serviceInstance;
     }
 }
