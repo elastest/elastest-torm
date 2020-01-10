@@ -170,13 +170,10 @@ public class TSSService {
     private boolean withServerAddress;
 
     @Autowired
-    public TSSService(EsmServiceClient supportServiceClient,
-            EtmFilesService filesServices,
-            EtmContextAuxService etmContextAuxService,
-            TJobExecRepository tJobExecRepositoryImpl,
+    public TSSService(EsmServiceClient supportServiceClient, EtmFilesService filesServices,
+            EtmContextAuxService etmContextAuxService, TJobExecRepository tJobExecRepositoryImpl,
             ExternalTJobExecutionRepository externalTJobExecutionRepository,
-            DynamicDataService dynamicDataService,
-            WebDriverService eusWebDriverService,
+            DynamicDataService dynamicDataService, WebDriverService eusWebDriverService,
             EtPluginsService etPluginsService, UtilsService utilsService,
             PlatformService platformService) {
         this.esmServiceClient = supportServiceClient;
@@ -205,34 +202,30 @@ public class TSSService {
         try {
             registerElastestServices();
             tSSIdLoadedOnInit.forEach((serviceId) -> {
-                String serviceName = getServiceNameByServiceId(serviceId)
-                        .toUpperCase();
+                String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
 
                 String tssInstanceId = null;
 
                 withServerAddress = !utilsService.isDefaultEtPublicHost();
 
                 // If mini and EUS, use integrated EUS
-                if (utilsService.isElastestMini()
-                        && serviceName.equals("EUS")) {
+                if (utilsService.isElastestMini() && serviceName.equals("EUS")) {
                     tssInstanceId = startIntegratedEus(serviceId);
 
                 } else {
                     tssInstanceId = provisionServiceInstanceSync(serviceId);
-                    SupportServiceInstance tssInstance = servicesInstances
-                            .get(tssInstanceId);
+                    SupportServiceInstance tssInstance = servicesInstances.get(tssInstanceId);
                     waitForServiceIsReady(tssInstance);
                     if (serviceName.equals("EUS")) {
-                        etmContextAuxService.getContextInfo()
-                                .setEusSSInstance(tssInstance);
+                        etmContextAuxService.getContextInfo().setEusSSInstance(tssInstance);
                     }
 
                 }
 
                 tssLoadedOnInitMap.put(serviceName, tssInstanceId);
 
-                logger.debug("{} is started from ElasTest in {} mode",
-                        serviceName, utilsService.getExecMode());
+                logger.debug("{} is started from ElasTest in {} mode", serviceName,
+                        utilsService.getExecMode());
             });
         } catch (Exception e) {
             logger.warn("Error during the services registry. ", e);
@@ -243,8 +236,8 @@ public class TSSService {
         String tssInstanceId;
         tssInstanceId = UtilTools.generateUniqueId();
         try {
-            SupportServiceInstance eusInstance = this
-                    .createNewServiceInstance(serviceId, null, tssInstanceId);
+            SupportServiceInstance eusInstance = this.createNewServiceInstance(serviceId, null,
+                    tssInstanceId);
             TssManifest manifest = esmServiceClient
                     .getManifestBySupportServiceInstance(eusInstance);
             eusInstance.setManifestId(manifest.getId());
@@ -266,10 +259,8 @@ public class TSSService {
             buildTssInstanceUrls(eusInstance);
 
             // Replace EUS port to ETM port
-            String originalInternalPort = String
-                    .valueOf(eusInstance.getInternalServicePort());
-            String originalExternalPort = String
-                    .valueOf(eusInstance.getBindedServicePort());
+            String originalInternalPort = String.valueOf(eusInstance.getInternalServicePort());
+            String originalExternalPort = String.valueOf(eusInstance.getBindedServicePort());
 
             // Set ports after buildTssInstanceUrls to update
             eusInstance.setInternalServicePort(internalServicePort);
@@ -277,29 +268,23 @@ public class TSSService {
 
             for (String key : eusInstance.getUrls().keySet()) {
 
-                String newInternalUrlValue = eusInstance
-                        .getUrlIfExistsByKey(key, false)
-                        .replaceAll(originalInternalPort,
-                                String.valueOf(internalServicePort));
+                String newInternalUrlValue = eusInstance.getUrlIfExistsByKey(key, false)
+                        .replaceAll(originalInternalPort, String.valueOf(internalServicePort));
                 eusInstance.setUrlValue(key, newInternalUrlValue, false);
 
-                logger.info("Replace internal EUS port {} by {}",
-                        originalInternalPort, internalServicePort);
-                logger.info("EUS internal URL: {} => {}", key,
-                        newInternalUrlValue);
+                logger.info("Replace internal EUS port {} by {}", originalInternalPort,
+                        internalServicePort);
+                logger.info("EUS internal URL: {} => {}", key, newInternalUrlValue);
 
                 if (withServerAddress) {
-                    String newExternalUrlValue = eusInstance
-                            .getUrlIfExistsByKey(key, true)
-                            .replaceAll(originalExternalPort,
-                                    String.valueOf(bindedServicePort));
+                    String newExternalUrlValue = eusInstance.getUrlIfExistsByKey(key, true)
+                            .replaceAll(originalExternalPort, String.valueOf(bindedServicePort));
 
                     eusInstance.setUrlValue(key, newExternalUrlValue, true);
 
-                    logger.info("Replace external EUS port {} by {}",
-                            originalExternalPort, bindedServicePort);
-                    logger.info("EUS external URL: {} => {}", key,
-                            newExternalUrlValue);
+                    logger.info("Replace external EUS port {} by {}", originalExternalPort,
+                            bindedServicePort);
+                    logger.info("EUS external URL: {} => {}", key, newExternalUrlValue);
                 }
 
             }
@@ -321,8 +306,7 @@ public class TSSService {
                 }
             }
 
-            eusInstance.setServicePort(withServerAddress ? bindedServicePort
-                    : internalServicePort);
+            eusInstance.setServicePort(withServerAddress ? bindedServicePort : internalServicePort);
 
             String internalApiUrl = eusInstance.getApiUrlIfExist(false);
             eusInstance.setApiStatusUrl(internalApiUrl + "status", false);
@@ -331,8 +315,8 @@ public class TSSService {
                 eusInstance.setApiStatusUrl(externalApiUrl + "status", true);
             }
 
-            dynamicDataService.setLogstashHttpsApi(etmContextAuxService
-                    .getContextInfo().getLogstashSSLHttpUrl());
+            dynamicDataService.setLogstashHttpsApi(
+                    etmContextAuxService.getContextInfo().getLogstashSSLHttpUrl());
 
             putInstanceInMap(tssInstanceId, eusInstance);
 
@@ -354,19 +338,16 @@ public class TSSService {
      * Register the ElasTest Services into the ESM.
      */
     public void registerElastestServices() {
-        logger.info("Get and send the register information: {}",
-                etEsmSsDescFilesPath);
+        logger.info("Get and send the register information: {}", etEsmSsDescFilesPath);
 
         try {
-            List<File> files = filesServices
-                    .getFilesFromFolder(etEsmSsDescFilesPath);
+            List<File> files = filesServices.getFilesFromFolder(etEsmSsDescFilesPath);
             for (File file : files) {
                 registerElastestService(file);
             }
         } catch (IOException ioe) {
-            logger.warn(
-                    "Service could not be registered. The file with the path "
-                            + etEsmSsDescFilesPath + " does not exist.");
+            logger.warn("Service could not be registered. The file with the path "
+                    + etEsmSsDescFilesPath + " does not exist.");
         }
     }
 
@@ -375,20 +356,17 @@ public class TSSService {
             String content = filesServices.readFile(serviceFile);
 
             if (content != null) {
-                ObjectNode serviceDefJson = ParserService
-                        .getJsonNodeFromString(content);
+                ObjectNode serviceDefJson = ParserService.getJsonNodeFromString(content);
                 logger.debug("TSS file {}", serviceFile.getName());
-                String serviceName = serviceFile.getName().split("-")[0]
-                        .toUpperCase();
+                String serviceName = serviceFile.getName().split("-")[0].toUpperCase();
 
                 // If is loaded on init (EUS)
                 if (tSSNameLoadedOnInit.contains(serviceName)) {
-                    logger.debug("TSS {} will be registered in {} mode.",
-                            serviceName, execMode);
+                    logger.debug("TSS {} will be registered in {} mode.", serviceName, execMode);
                     registerElasTestService(serviceDefJson);
 
-                    String tssId = serviceDefJson.get("register").get("id")
-                            .toString().replaceAll("\"", "");
+                    String tssId = serviceDefJson.get("register").get("id").toString()
+                            .replaceAll("\"", "");
                     if (tSSNameLoadedOnInit.contains(serviceName)) {
                         tSSIdLoadedOnInit.add(tssId);
                     }
@@ -405,13 +383,11 @@ public class TSSService {
     }
 
     private void registerElasTestService(ObjectNode serviceDefJson) {
-        logger.debug("Registering the {} TSS.",
-                ParserService.getNodeByElemChain(serviceDefJson,
-                        Arrays.asList("register", "name")));
+        logger.debug("Registering the {} TSS.", ParserService.getNodeByElemChain(serviceDefJson,
+                Arrays.asList("register", "name")));
 
         // Register Tss service
-        esmServiceClient
-                .registerService(serviceDefJson.get("register").toString());
+        esmServiceClient.registerService(serviceDefJson.get("register").toString());
 
         // Register associated manifests
         JsonNode manifests = serviceDefJson.get("manifests");
@@ -421,11 +397,10 @@ public class TSSService {
         if (manifests != null && manifests.isArray()) {
             for (final JsonNode manifestNode : manifests) {
                 logger.debug("Manifest: {}", manifestNode);
-                if ((utilsService.isKubernetes() && manifestNode
-                        .get("manifest_type").toString().contains("kubernetes"))
-                        || (!utilsService.isKubernetes()
-                                && manifestNode.get("manifest_type").toString()
-                                        .contains("docker-compose"))) {
+                if ((utilsService.isKubernetes()
+                        && manifestNode.get("manifest_type").toString().contains("kubernetes"))
+                        || (!utilsService.isKubernetes() && manifestNode.get("manifest_type")
+                                .toString().contains("docker-compose"))) {
                     manifestToRegister = manifestNode;
                     break;
                 }
@@ -435,24 +410,17 @@ public class TSSService {
         }
 
         logger.debug("Register manifest Id {} associated to service {}",
-                manifestToRegister.get("id"),
-                serviceDefJson.get("register").get("id"));
+                manifestToRegister.get("id"), serviceDefJson.get("register").get("id"));
 
-        esmServiceClient.registerManifest(
-                "{ " + "\"id\": " + manifestToRegister.get("id").toString()
-                        + ", \"manifest_content\": "
-                        + manifestToRegister.get("manifest_content").toString()
-                        + ", \"manifest_type\": "
-                        + manifestToRegister.get("manifest_type").toString()
-                        + ", \"plan_id\": "
-                        + manifestToRegister.get("plan_id").toString()
-                        + ", \"service_id\": "
-                        + manifestToRegister.get("service_id").toString()
-                        + ", \"endpoints\": "
-                        + manifestToRegister.get("endpoints").toString()
-                        // + ", \"config\": " + config
-                        + " }",
-                manifestToRegister.get("id").toString().replaceAll("\"", ""));
+        esmServiceClient.registerManifest("{ " + "\"id\": "
+                + manifestToRegister.get("id").toString() + ", \"manifest_content\": "
+                + manifestToRegister.get("manifest_content").toString() + ", \"manifest_type\": "
+                + manifestToRegister.get("manifest_type").toString() + ", \"plan_id\": "
+                + manifestToRegister.get("plan_id").toString() + ", \"service_id\": "
+                + manifestToRegister.get("service_id").toString() + ", \"endpoints\": "
+                + manifestToRegister.get("endpoints").toString()
+                // + ", \"config\": " + config
+                + " }", manifestToRegister.get("id").toString().replaceAll("\"", ""));
     }
 
     public List<String> getRegisteredServicesName() {
@@ -481,8 +449,7 @@ public class TSSService {
     public String generateNewOrGetInstanceId(String serviceId) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
 
-        if (serviceName != null
-                && tssLoadedOnInitMap.containsKey(serviceName)) {
+        if (serviceName != null && tssLoadedOnInitMap.containsKey(serviceName)) {
             return tssLoadedOnInitMap.get(serviceName);
         } else {
             return UtilTools.generateUniqueId();
@@ -490,8 +457,7 @@ public class TSSService {
     }
 
     @Async
-    public void provisionServiceInstanceAsync(String serviceId,
-            String instanceId) {
+    public void provisionServiceInstanceAsync(String serviceId, String instanceId) {
         provisionServiceInstance(serviceId, instanceId);
     }
 
@@ -504,49 +470,42 @@ public class TSSService {
     /* *** Provision With generic Execution *** */
 
     @Async
-    public void provisionExecutionServiceInstanceAsync(String serviceId,
-            Execution execution, String instanceId) throws RuntimeException {
+    public void provisionExecutionServiceInstanceAsync(String serviceId, Execution execution,
+            String instanceId) throws RuntimeException {
         if (execution.isExternal()) {
-            provisionExternalTJobExecServiceInstanceSync(serviceId,
-                    execution.getExternalTJobExec(), instanceId);
+            provisionExternalTJobExecServiceInstanceSync(serviceId, execution.getExternalTJobExec(),
+                    instanceId);
         } else {
-            provisionTJobExecServiceInstanceSync(serviceId,
-                    execution.getTJobExec(), instanceId);
+            provisionTJobExecServiceInstanceSync(serviceId, execution.getTJobExec(), instanceId);
         }
 
     }
 
-    public String provisionExecutionServiceInstanceSync(String serviceId,
-            Execution execution) {
+    public String provisionExecutionServiceInstanceSync(String serviceId, Execution execution) {
         if (execution.isExternal()) {
             return provisionExternalTJobExecServiceInstanceSync(serviceId,
                     execution.getExternalTJobExec());
         } else {
-            return provisionTJobExecServiceInstanceSync(serviceId,
-                    execution.getTJobExec());
+            return provisionTJobExecServiceInstanceSync(serviceId, execution.getTJobExec());
         }
     }
 
     /* *** Provision With TJobExec *** */
 
-    public String provisionTJobExecServiceInstanceSync(String serviceId,
-            TJobExecution tJobExec) {
+    public String provisionTJobExecServiceInstanceSync(String serviceId, TJobExecution tJobExec) {
         String tssInstanceId = this.generateNewOrGetInstanceId(serviceId);
-        this.provisionTJobExecServiceInstanceSync(serviceId, tJobExec,
-                tssInstanceId);
+        this.provisionTJobExecServiceInstanceSync(serviceId, tJobExec, tssInstanceId);
         return tssInstanceId;
     }
 
-    public void provisionTJobExecServiceInstanceSync(String serviceId,
-            TJobExecution tJobExec, String tssInstanceId) {
+    public void provisionTJobExecServiceInstanceSync(String serviceId, TJobExecution tJobExec,
+            String tssInstanceId) {
         // If is shared tss
         if (isSharedTssInstanceByServiceId(serviceId)) {
-            provisionExecutionSharedTSSSync(serviceId, new Execution(tJobExec),
-                    tssInstanceId);
+            provisionExecutionSharedTSSSync(serviceId, new Execution(tJobExec), tssInstanceId);
         } else {
             // Else start new instance
-            provisionTJobExecServiceInstance(serviceId, tJobExec,
-                    tssInstanceId);
+            provisionTJobExecServiceInstance(serviceId, tJobExec, tssInstanceId);
         }
 
     }
@@ -554,34 +513,30 @@ public class TSSService {
     public void registerExecutionInEus(String tssInstanceId, String serviceName,
             Execution execution) {
         if (servicesInstances.containsKey(tssInstanceId)) {
-            String folderPath = filesServices.getExecutionFolderPath(execution,
-                    true) + serviceName.toLowerCase() + "/";
+            String folderPath = filesServices.getExecutionFolderPath(execution, true)
+                    + serviceName.toLowerCase() + "/";
 
             EusExecutionData eusExecutionData;
 
-            String sutContainerPrefix = platformService.generateContainerName(
-                    PlatformService.ContainerPrefix.SUT, execution);
+            String sutContainerPrefix = platformService
+                    .generateContainerName(PlatformService.ContainerPrefix.SUT, execution);
 
             boolean useSutNetwork = true;
             // ExTJobExec
             if (execution.isExternal()) {
-                eusExecutionData = new EusExecutionData(
-                        execution.getExternalTJobExec(), folderPath,
+                eusExecutionData = new EusExecutionData(execution.getExternalTJobExec(), folderPath,
                         useSutNetwork, sutContainerPrefix);
             } else { // TJobExec
-                eusExecutionData = new EusExecutionData(execution.getTJobExec(),
-                        folderPath, useSutNetwork, sutContainerPrefix);
+                eusExecutionData = new EusExecutionData(execution.getTJobExec(), folderPath,
+                        useSutNetwork, sutContainerPrefix);
             }
 
             String response = "";
             if (utilsService.isElastestMini()) {
                 response = eusWebDriverService
-                        .registerExecution(
-                                eusExecutionData.getAsExecutionData())
-                        .getBody();
+                        .registerExecution(eusExecutionData.getAsExecutionData()).getBody();
             } else {
-                String eusApi = servicesInstances.get(tssInstanceId)
-                        .getApiUrlIfExist(false);
+                String eusApi = servicesInstances.get(tssInstanceId).getApiUrlIfExist(false);
                 String url = eusApi.endsWith("/") ? eusApi : eusApi + "/";
                 url += "execution/register";
 
@@ -590,38 +545,33 @@ public class TSSService {
 
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
-                headers.setAccept(
-                        Collections.singletonList(MediaType.APPLICATION_JSON));
+                headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
                 HttpEntity<EusExecutionData> request = new HttpEntity<EusExecutionData>(
                         eusExecutionData, headers);
 
-                logger.debug("Registering {} {} in EUS (url: {})",
-                        execution.getTJobExecType(), eusExecutionData, url);
+                logger.debug("Registering {} {} in EUS (url: {})", execution.getTJobExecType(),
+                        eusExecutionData, url);
 
-                response = restTemplate.postForObject(url, request,
-                        String.class);
+                response = restTemplate.postForObject(url, request, String.class);
             }
-            logger.debug("{} {} registered in EUS", execution.getTJobExecType(),
-                    response);
+            logger.debug("{} {} registered in EUS", execution.getTJobExecType(), response);
         }
     }
 
-    public void unregisterTJobExecutionInEus(String tssInstanceId,
-            String serviceName, TJobExecution tJobExec) {
+    public void unregisterTJobExecutionInEus(String tssInstanceId, String serviceName,
+            TJobExecution tJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
 
             boolean useSutNetwork = tJobExec.getTjob().isExternal();
             String sutContainerPrefix = platformService.generateContainerName(
-                    PlatformService.ContainerPrefix.SUT,
-                    new Execution(tJobExec));
+                    PlatformService.ContainerPrefix.SUT, new Execution(tJobExec));
 
-            EusExecutionData eusExecutionData = new EusExecutionData(tJobExec,
-                    "", useSutNetwork, sutContainerPrefix);
+            EusExecutionData eusExecutionData = new EusExecutionData(tJobExec, "", useSutNetwork,
+                    sutContainerPrefix);
 
             if (utilsService.isElastestMini()) {
-                eusWebDriverService
-                        .unregisterExecution(eusExecutionData.getKey());
+                eusWebDriverService.unregisterExecution(eusExecutionData.getKey());
             } else {
                 String eusApi = servicesInstances.get(tssInstanceId)
                         .getApiUrlIfExist(withServerAddress);
@@ -645,16 +595,14 @@ public class TSSService {
         provisionExternalTJobExecServiceInstanceSync(serviceId, exTJobExec);
     }
 
-    private String provisionExternalTJobExecServiceInstanceSync(
-            String serviceId, ExternalTJobExecution exTJobExec) {
+    private String provisionExternalTJobExecServiceInstanceSync(String serviceId,
+            ExternalTJobExecution exTJobExec) {
         String instanceId = UtilTools.generateUniqueId();
-        return this.provisionExternalTJobExecServiceInstanceSync(serviceId,
-                exTJobExec, instanceId);
+        return this.provisionExternalTJobExecServiceInstanceSync(serviceId, exTJobExec, instanceId);
     }
 
-    private String provisionExternalTJobExecServiceInstanceSync(
-            String serviceId, ExternalTJobExecution exTJobExec,
-            String instanceId) {
+    private String provisionExternalTJobExecServiceInstanceSync(String serviceId,
+            ExternalTJobExecution exTJobExec, String instanceId) {
         // If is shared tss
         if (isSharedTssInstanceByServiceId(serviceId)) {
             String tssInstanceId = provisionExecutionSharedTSSSync(serviceId,
@@ -665,23 +613,20 @@ public class TSSService {
         }
 
         // Else start new Eus instance
-        provisionExternalTJobExecServiceInstance(serviceId, exTJobExec,
-                instanceId);
+        provisionExternalTJobExecServiceInstance(serviceId, exTJobExec, instanceId);
         return instanceId;
     }
 
-    public String provisionExecutionSharedTSSSync(String serviceId,
-            Execution execution, String tssInstanceId) {
+    public String provisionExecutionSharedTSSSync(String serviceId, Execution execution,
+            String tssInstanceId) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
 
         if (isSharedTssInstance(serviceName)) {
             if (serviceName.equals("EUS")) {
-                this.registerExecutionInEus(tssInstanceId, serviceName,
-                        execution);
+                this.registerExecutionInEus(tssInstanceId, serviceName, execution);
             }
 
-            SupportServiceInstance instance = servicesInstances
-                    .get(tssInstanceId);
+            SupportServiceInstance instance = servicesInstances.get(tssInstanceId);
             instance.gettJobExecIdList().add(execution.getExecutionId());
 
             putInstanceInExecutionMap(tssInstanceId, instance, execution);
@@ -691,22 +636,20 @@ public class TSSService {
         return null;
     }
 
-    public String provisionExecutionSharedTSSSync(String serviceId,
-            Execution execution) {
+    public String provisionExecutionSharedTSSSync(String serviceId, Execution execution) {
         String serviceName = getServiceNameByServiceId(serviceId).toUpperCase();
         String tssInstanceId = tssLoadedOnInitMap.get(serviceName);
-        return provisionExecutionSharedTSSSync(serviceId, execution,
-                tssInstanceId);
+        return provisionExecutionSharedTSSSync(serviceId, execution, tssInstanceId);
     }
 
-    public SupportServiceInstance createNewServiceInstance(String serviceId,
-            Long executionId, String instanceId) throws IOException {
+    public SupportServiceInstance createNewServiceInstance(String serviceId, Long executionId,
+            String instanceId) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
         JsonNode service = esmServiceClient.getRawServiceById(serviceId);
         logger.info("Service instance: " + instanceId);
-        List<ObjectNode> plans = Arrays.asList(mapper.readValue(
-                service.get("plans").toString(), ObjectNode[].class));
+        List<ObjectNode> plans = Arrays
+                .asList(mapper.readValue(service.get("plans").toString(), ObjectNode[].class));
 
         return new SupportServiceInstance(instanceId,
                 service.get("id").toString().replaceAll("\"", ""),
@@ -714,8 +657,7 @@ public class TSSService {
                 // service.get("short_name").toString().replaceAll("\"",
                 // ""),
                 "", plans.get(0).get("id").toString().replaceAll("\"", ""),
-                executionId != null ? Arrays.asList(executionId)
-                        : new ArrayList<>());
+                executionId != null ? Arrays.asList(executionId) : new ArrayList<>());
     }
 
     public void provisionServiceInstance(String serviceId, String instanceId) {
@@ -723,66 +665,55 @@ public class TSSService {
         SupportServiceInstance newServiceInstance = null;
 
         try {
-            newServiceInstance = this.createNewServiceInstance(serviceId, null,
-                    instanceId);
+            newServiceInstance = this.createNewServiceInstance(serviceId, null, instanceId);
 
             this.setTSSFilesConfig(newServiceInstance);
             this.fillEnvVariablesToTSS(newServiceInstance);
 
             putInstanceInMap(instanceId, newServiceInstance);
-            newServiceInstance = this.provisionServiceInstanceAndBuildUrls(
-                    newServiceInstance, instanceId);
+            newServiceInstance = this.provisionServiceInstanceAndBuildUrls(newServiceInstance,
+                    instanceId);
             putInstanceInMap(instanceId, newServiceInstance);
         } catch (Exception e) {
             if (newServiceInstance != null) {
-                deprovisionServiceInstance(newServiceInstance.getInstanceId(),
-                        servicesInstances);
+                deprovisionServiceInstance(newServiceInstance.getInstanceId(), servicesInstances);
             }
             throw new RuntimeException(
-                    "Exception requesting an instance of service \"" + serviceId
-                            + "\"",
-                    e);
+                    "Exception requesting an instance of service \"" + serviceId + "\"", e);
         }
 
         if (newServiceInstance == null) {
-            throw new RuntimeException(
-                    "Service with name \"" + serviceId + "\" not found in ESM");
+            throw new RuntimeException("Service with name \"" + serviceId + "\" not found in ESM");
         }
     }
 
     /* *** Provision With TJobExec *** */
-    private void provisionTJobExecServiceInstance(String serviceId,
-            TJobExecution tJobExec, String instanceId) throws RuntimeException {
+    private void provisionTJobExecServiceInstance(String serviceId, TJobExecution tJobExec,
+            String instanceId) throws RuntimeException {
         logger.info("Service id to provision: " + serviceId);
         SupportServiceInstance newServiceInstance = null;
 
         try {
-            Long execId = tJobExec != null && tJobExec.getId() != null
-                    ? tJobExec.getId()
-                    : null;
-            newServiceInstance = this.createNewServiceInstance(serviceId,
-                    execId, instanceId);
+            Long execId = tJobExec != null && tJobExec.getId() != null ? tJobExec.getId() : null;
+            newServiceInstance = this.createNewServiceInstance(serviceId, execId, instanceId);
 
-            this.setExecutionTSSFilesConfig(newServiceInstance,
-                    new Execution(tJobExec));
+            this.setExecutionTSSFilesConfig(newServiceInstance, new Execution(tJobExec));
             this.fillTJobExecEnvVariablesToTSS(newServiceInstance, tJobExec);
             boolean tJobIsExternal = false;
             if (tJobExec != null && tJobExec.getTjob() != null) {
                 tJobIsExternal = tJobExec.getTjob().isExternal();
 
             }
-            this.fillEMSMonitoringEnvVariablesToTSS(newServiceInstance,
-                    tJobExec, tJobIsExternal, false);
+            this.fillEMSMonitoringEnvVariablesToTSS(newServiceInstance, tJobExec, tJobIsExternal,
+                    false);
 
             if (tJobExec != null && execId != null) {
                 putInstanceInTJobExecMap(instanceId, newServiceInstance);
                 List<String> tSSIByTJobExecAssociatedList = tSSIByTJobExecAssociated
                         .get(execId) == null ? new ArrayList<>()
                                 : tSSIByTJobExecAssociated.get(execId);
-                tSSIByTJobExecAssociatedList
-                        .add(newServiceInstance.getInstanceId());
-                tSSIByTJobExecAssociated.put(execId,
-                        tSSIByTJobExecAssociatedList);
+                tSSIByTJobExecAssociatedList.add(newServiceInstance.getInstanceId());
+                tSSIByTJobExecAssociated.put(execId, tSSIByTJobExecAssociatedList);
 
                 createExecFilesFolder(newServiceInstance);
             } else {
@@ -790,30 +721,25 @@ public class TSSService {
             }
 
             Map<String, String> tssAdditionalLabels = new HashMap<>();
-            tssAdditionalLabels.put("io.elastest.tjob.exec.id",
-                    tJobExec.getId().toString());
+            tssAdditionalLabels.put("io.elastest.tjob.exec.id", tJobExec.getId().toString());
             newServiceInstance.setAdditionalLabels(tssAdditionalLabels);
-            newServiceInstance = this.provisionServiceInstanceAndBuildUrls(
-                    newServiceInstance, instanceId);
+            newServiceInstance = this.provisionServiceInstanceAndBuildUrls(newServiceInstance,
+                    instanceId);
 
             putInstanceInTJobExecMap(instanceId, newServiceInstance);
 
         } catch (Exception e) {
             if (newServiceInstance != null) {
                 deprovisionServiceInstance(newServiceInstance.getInstanceId(),
-                        tJobExec != null && tJobExec.getId() != null
-                                ? tJobServicesInstances
+                        tJobExec != null && tJobExec.getId() != null ? tJobServicesInstances
                                 : servicesInstances);
             }
             throw new RuntimeException(
-                    "Exception requesting an instance of service \"" + serviceId
-                            + "\"",
-                    e);
+                    "Exception requesting an instance of service \"" + serviceId + "\"", e);
         }
 
         if (newServiceInstance == null) {
-            throw new RuntimeException(
-                    "Service with name \"" + serviceId + "\" not found in ESM");
+            throw new RuntimeException("Service with name \"" + serviceId + "\" not found in ESM");
         }
     }
 
@@ -829,24 +755,19 @@ public class TSSService {
         Map<String, SupportServiceInstance> tSSInstAssocToTJob = getExecutionServicesInstancesMap(
                 execution);
 
-        String resultMsg = "Waiting for the Test Support Services of "
-                + execution.getTJobExecType() + " " + execution.getExecutionId()
-                + " to be ready";
+        String resultMsg = "Waiting for the Test Support Services of " + execution.getTJobExecType()
+                + " " + execution.getExecutionId() + " to be ready";
         logger.info("{}: {}", resultMsg, tSSInstAssocToTJob.keySet());
-        updateExecutionResultStatus(execution, ResultEnum.WAITING_TSS,
-                resultMsg);
+        updateExecutionResultStatus(execution, ResultEnum.WAITING_TSS, resultMsg);
         while (!tSSInstAssocToTJob.isEmpty()) {
 
-            List<String> servicesInstances = getServicesInstancesByExecution(
-                    execution);
+            List<String> servicesInstances = getServicesInstancesByExecution(execution);
 
             servicesInstances.forEach((tSSInstId) -> {
-                SupportServiceInstance mainSubService = getExecutionServiceInstanceById(
-                        execution, tSSInstId);
-                logger.debug("Wait for TSS {} in {} {}",
-                        mainSubService.getEndpointName(),
-                        execution.getTJobExecType(),
-                        execution.getExecutionId());
+                SupportServiceInstance mainSubService = getExecutionServiceInstanceById(execution,
+                        tSSInstId);
+                logger.debug("Wait for TSS {} in {} {}", mainSubService.getEndpointName(),
+                        execution.getTJobExecType(), execution.getExecutionId());
                 waitForServiceIsReady(mainSubService);
                 tSSInstAssocToTJob.remove(tSSInstId);
             });
@@ -856,8 +777,7 @@ public class TSSService {
 
     public void waitForServiceIsReady(SupportServiceInstance serviceInstance) {
         while (!checkInstanceUrlIsUp(serviceInstance)) {
-            logger.debug("Wait for service {}",
-                    serviceInstance.getEndpointName());
+            logger.debug("Wait for service {}", serviceInstance.getEndpointName());
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException ie) {
@@ -875,22 +795,19 @@ public class TSSService {
             String serviceName) {
         String resultMsg = "Waiting for the Test Support Services to be ready: "
                 + serviceName.toUpperCase();
-        updateExecutionResultStatus(execution, ResultEnum.WAITING_TSS,
-                resultMsg);
+        updateExecutionResultStatus(execution, ResultEnum.WAITING_TSS, resultMsg);
 
-        logger.debug("Wait for TSS {} in {} {}", serviceName,
-                execution.getTJobExecType(), execution.getExecutionId());
+        logger.debug("Wait for TSS {} in {} {}", serviceName, execution.getTJobExecType(),
+                execution.getExecutionId());
 
         if (isSharedTssInstance(serviceName)) {
-            logger.debug(
-                    "Service {} is loaded on init. It's not necessary to wait for the service",
+            logger.debug("Service {} is loaded on init. It's not necessary to wait for the service",
                     serviceName);
 
             if (servicesInstances.containsKey(instanceId)) {
                 // Put is carried out in the method provision, but we put it
                 // here also in case async is executed
-                putInstanceInTJobExecMap(instanceId,
-                        servicesInstances.get(instanceId));
+                putInstanceInTJobExecMap(instanceId, servicesInstances.get(instanceId));
             }
 
             // TSS Loaded on init
@@ -912,10 +829,8 @@ public class TSSService {
             // If not started and is not ready
             DockerServiceStatusEnum tssInstanceStatus = tssInstance.getStatus();
             if (!DockerServiceStatusEnum.STARTING.equals(tssInstanceStatus)
-                    && !DockerServiceStatusEnum.READY
-                            .equals(tssInstanceStatus)) {
-                updateExecutionResultStatus(execution,
-                        TJobExecution.ResultEnum.STARTING_TSS,
+                    && !DockerServiceStatusEnum.READY.equals(tssInstanceStatus)) {
+                updateExecutionResultStatus(execution, TJobExecution.ResultEnum.STARTING_TSS,
                         tssInstance.getStatusMsg());
 
                 try {
@@ -923,23 +838,18 @@ public class TSSService {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                this.waitForTssStartedInMini(execution, instanceId,
-                        serviceName);
-            } else if (DockerServiceStatusEnum.STARTING
-                    .equals(tssInstanceStatus)
+                this.waitForTssStartedInMini(execution, instanceId, serviceName);
+            } else if (DockerServiceStatusEnum.STARTING.equals(tssInstanceStatus)
                     || (DockerServiceStatusEnum.READY.equals(tssInstanceStatus)
                             && !tssInstance.isFullyInitialized())) {
-                updateExecutionResultStatus(execution,
-                        TJobExecution.ResultEnum.WAITING_TSS,
+                updateExecutionResultStatus(execution, TJobExecution.ResultEnum.WAITING_TSS,
                         tssInstance.getStatusMsg());
 
-                etPluginsService.getEtPluginUrl(instanceId,
-                        tssInstance.getContainerName());
+                etPluginsService.getEtPluginUrl(instanceId, tssInstance.getContainerName());
                 boolean isUp = checkInstanceUrlIsUp(tssInstance);
 
-                logger.debug("Is up TSS {} in {} {}: {}", serviceName,
-                        execution.getTJobExecType(), execution.getExecutionId(),
-                        isUp);
+                logger.debug("Is up TSS {} in {} {}: {}", serviceName, execution.getTJobExecType(),
+                        execution.getExecutionId(), isUp);
 
                 // for(SupportServiceInstance)
 
@@ -949,80 +859,62 @@ public class TSSService {
                     e.printStackTrace();
                 }
 
-                this.waitForTssStartedInMini(execution, instanceId,
-                        serviceName);
+                this.waitForTssStartedInMini(execution, instanceId, serviceName);
                 // If ready
-            } else if (DockerServiceStatusEnum.READY
-                    .equals(tssInstanceStatus)) {
+            } else if (DockerServiceStatusEnum.READY.equals(tssInstanceStatus)) {
                 logger.debug("End of Wait for TSS {} in {} {}", serviceName,
-                        execution.getTJobExecType(),
-                        execution.getExecutionId());
+                        execution.getTJobExecType(), execution.getExecutionId());
 
                 // Update instance in map to have the entrypoint values
-                tssInstance = esmServiceClient
-                        .initSupportServiceInstanceData(tssInstance);
+                tssInstance = esmServiceClient.initSupportServiceInstanceData(tssInstance);
                 putInstanceInTJobExecMap(instanceId, tssInstance);
             }
         }
 
     }
 
-    private void setExecutionTSSFilesConfig(
-            SupportServiceInstance supportServiceInstance,
+    private void setExecutionTSSFilesConfig(SupportServiceInstance supportServiceInstance,
             Execution execution) {
 
         if (execution.hasJobAndExecution()) {
             String fileSeparator = "/";
             supportServiceInstance.getParameters().put("ET_FILES_PATH",
                     filesServices.getExecutionFolderPath(execution)
-                            + supportServiceInstance.getServiceName()
-                                    .toLowerCase()
+                            + supportServiceInstance.getServiceName().toLowerCase()
                             + fileSeparator);
             // Not mini
             if (!utilsService.isElastestMini()) {
-                supportServiceInstance.getParameters()
-                        .put("ET_FILES_PATH_IN_HOST", etDataInHost
-                                + filesServices
-                                        .getExecutionFolderPath(execution, true)
-                                + supportServiceInstance.getServiceName()
-                                        .toLowerCase()
+                supportServiceInstance.getParameters().put("ET_FILES_PATH_IN_HOST",
+                        etDataInHost + filesServices.getExecutionFolderPath(execution, true)
+                                + supportServiceInstance.getServiceName().toLowerCase()
                                 + fileSeparator);
             }
-            supportServiceInstance.getParameters().put("ET_SHARED_FOLDER",
-                    etSharedFolder);
-            supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
-                    etDataInHost);
+            supportServiceInstance.getParameters().put("ET_SHARED_FOLDER", etSharedFolder);
+            supportServiceInstance.getParameters().put("ET_DATA_IN_HOST", etDataInHost);
         }
 
     }
 
-    private void fillTJobExecEnvVariablesToTSS(
-            SupportServiceInstance supportServiceInstance,
+    private void fillTJobExecEnvVariablesToTSS(SupportServiceInstance supportServiceInstance,
             TJobExecution tJobExec) throws ServiceException {
 
         if (tJobExec != null && tJobExec.getTjob() != null) {
             Long tJobId = tJobExec.getTjob().getId();
             Long tJobExecId = tJobExec.getId();
-            this.fillTSSConfigEnvVarsByTJob(tJobExec.getTjob(),
-                    supportServiceInstance);
-            supportServiceInstance.getParameters().put("ET_TJOB_ID",
-                    tJobId.toString());
-            supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID",
-                    tJobExecId.toString());
-            supportServiceInstance.getParameters().put("ET_MON_EXEC",
-                    tJobExecId.toString());
+            this.fillTSSConfigEnvVarsByTJob(tJobExec.getTjob(), supportServiceInstance);
+            supportServiceInstance.getParameters().put("ET_TJOB_ID", tJobId.toString());
+            supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID", tJobExecId.toString());
+            supportServiceInstance.getParameters().put("ET_MON_EXEC", tJobExecId.toString());
             switch (supportServiceInstance.getServiceName()) {
             case "ESS":
                 logger.debug("Set timeout for {} container",
                         supportServiceInstance.getServiceName());
-                supportServiceInstance.getParameters()
-                        .put("ESM_DOCKER_DELETE_TIMEOUT", "3600");
+                supportServiceInstance.getParameters().put("ESM_DOCKER_DELETE_TIMEOUT", "3600");
                 break;
             case "EUS":
                 logger.debug("Set timeout for {} container",
                         supportServiceInstance.getServiceName());
-                supportServiceInstance.getParameters()
-                        .put("ESM_DOCKER_DELETE_TIMEOUT", "120");
+                supportServiceInstance.getParameters().put("ESM_DOCKER_DELETE_TIMEOUT", "120");
                 break;
             default:
                 logger.debug("Container Timeout not defined");
@@ -1035,8 +927,8 @@ public class TSSService {
     public void fillTSSConfigEnvVarsByTJob(TJob tJob,
             SupportServiceInstance supportServiceInstance) {
         try {
-            Map<String, String> vars = tJob.getTJobTSSConfigEnvVars(
-                    supportServiceInstance.getServiceName());
+            Map<String, String> vars = tJob
+                    .getTJobTSSConfigEnvVars(supportServiceInstance.getServiceName());
             if (vars != null) {
                 supportServiceInstance.getParameters().putAll(vars);
             }
@@ -1052,27 +944,21 @@ public class TSSService {
         SupportServiceInstance newServiceInstance = null;
 
         try {
-            Long execId = exTJobExec != null && exTJobExec.getId() != null
-                    ? exTJobExec.getId()
+            Long execId = exTJobExec != null && exTJobExec.getId() != null ? exTJobExec.getId()
                     : null;
-            newServiceInstance = this.createNewServiceInstance(serviceId,
-                    execId, instanceId);
+            newServiceInstance = this.createNewServiceInstance(serviceId, execId, instanceId);
 
             // Add extra_hosts
             if (exTJobExec.getExecutionConfig() != null) {
                 Map<String, Object> executionConfig = UtilTools
-                        .convertJsonStringToObj(exTJobExec.getExecutionConfig(),
-                                Map.class);
-                if (executionConfig != null
-                        && executionConfig.containsKey("extraHosts")) {
+                        .convertJsonStringToObj(exTJobExec.getExecutionConfig(), Map.class);
+                if (executionConfig != null && executionConfig.containsKey("extraHosts")) {
                     List<String> extraHosts = null;
                     try {
-                        extraHosts = (List<String>) executionConfig
-                                .get("extraHosts");
+                        extraHosts = (List<String>) executionConfig.get("extraHosts");
                     } catch (Exception e) {
                         // Single extraHost
-                        extraHosts = Arrays.asList(
-                                (String) executionConfig.get("extraHosts"));
+                        extraHosts = Arrays.asList((String) executionConfig.get("extraHosts"));
                     }
                     if (extraHosts != null) {
                         newServiceInstance.setExtraHosts(extraHosts);
@@ -1081,35 +967,29 @@ public class TSSService {
                 }
             }
 
-            this.setExecutionTSSFilesConfig(newServiceInstance,
-                    new Execution(exTJobExec));
-            fillExternalTJobExecEnvVariablesToTSS(newServiceInstance,
-                    exTJobExec);
+            this.setExecutionTSSFilesConfig(newServiceInstance, new Execution(exTJobExec));
+            fillExternalTJobExecEnvVariablesToTSS(newServiceInstance, exTJobExec);
 
             if (exTJobExec != null && execId != null) {
-                putInstanceInExternalTJobExecMap(instanceId,
-                        newServiceInstance);
+                putInstanceInExternalTJobExecMap(instanceId, newServiceInstance);
 
                 List<String> tSSIByExternalTJobExecAssociatedList = tSSIByExternalTJobExecAssociated
                         .get(execId) == null ? new ArrayList<>()
                                 : tSSIByExternalTJobExecAssociated.get(execId);
 
-                tSSIByExternalTJobExecAssociatedList
-                        .add(newServiceInstance.getInstanceId());
-                tSSIByExternalTJobExecAssociated.put(execId,
-                        tSSIByExternalTJobExecAssociatedList);
+                tSSIByExternalTJobExecAssociatedList.add(newServiceInstance.getInstanceId());
+                tSSIByExternalTJobExecAssociated.put(execId, tSSIByExternalTJobExecAssociatedList);
 
                 createExecFilesFolder(newServiceInstance);
             } else {
                 putInstanceInMap(instanceId, newServiceInstance);
             }
 
-            newServiceInstance = this.provisionServiceInstanceAndBuildUrls(
-                    newServiceInstance, instanceId);
+            newServiceInstance = this.provisionServiceInstanceAndBuildUrls(newServiceInstance,
+                    instanceId);
 
             if (exTJobExec != null && execId != null) {
-                putInstanceInExternalTJobExecMap(instanceId,
-                        newServiceInstance);
+                putInstanceInExternalTJobExecMap(instanceId, newServiceInstance);
             } else {
                 putInstanceInMap(instanceId, newServiceInstance);
             }
@@ -1122,26 +1002,21 @@ public class TSSService {
                                 : servicesInstances);
             }
             throw new RuntimeException(
-                    "Exception requesting an instance of service \"" + serviceId
-                            + "\"",
-                    e);
+                    "Exception requesting an instance of service \"" + serviceId + "\"", e);
         }
 
         if (newServiceInstance == null) {
-            throw new RuntimeException(
-                    "Service with name \"" + serviceId + "\" not found in ESM");
+            throw new RuntimeException("Service with name \"" + serviceId + "\" not found in ESM");
         }
     }
 
-    public void unregisterExternalTJobExecutionInEus(String tssInstanceId,
-            String serviceName, ExternalTJobExecution exTJobExec) {
+    public void unregisterExternalTJobExecutionInEus(String tssInstanceId, String serviceName,
+            ExternalTJobExecution exTJobExec) {
         if (servicesInstances.containsKey(tssInstanceId)) {
-            EusExecutionData eusExecutionData = new EusExecutionData(exTJobExec,
-                    "");
+            EusExecutionData eusExecutionData = new EusExecutionData(exTJobExec, "");
 
             if (utilsService.isElastestMini()) {
-                eusWebDriverService
-                        .unregisterExecution(eusExecutionData.getKey());
+                eusWebDriverService.unregisterExecution(eusExecutionData.getKey());
             } else {
                 String eusApi = servicesInstances.get(tssInstanceId)
                         .getApiUrlIfExist(withServerAddress);
@@ -1157,17 +1032,15 @@ public class TSSService {
     }
 
     private void fillExternalTJobExecEnvVariablesToTSS(
-            SupportServiceInstance supportServiceInstance,
-            ExternalTJobExecution exTJobExec) throws ServiceException {
+            SupportServiceInstance supportServiceInstance, ExternalTJobExecution exTJobExec)
+            throws ServiceException {
 
         if (exTJobExec != null && exTJobExec.getExTJob() != null) {
             Long exTJobId = exTJobExec.getExTJob().getId();
             Long exTJobExecId = exTJobExec.getId();
 
-            supportServiceInstance.getParameters().put("ET_TJOB_ID",
-                    exTJobId.toString());
-            supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID",
-                    exTJobExecId.toString());
+            supportServiceInstance.getParameters().put("ET_TJOB_ID", exTJobId.toString());
+            supportServiceInstance.getParameters().put("ET_TJOBEXEC_ID", exTJobExecId.toString());
 
             // Puts only Exec Monitoring index (without sut)
             supportServiceInstance.getParameters().put("ET_MON_EXEC",
@@ -1175,12 +1048,10 @@ public class TSSService {
 
             switch (supportServiceInstance.getServiceName()) {
             case "ESS":
-                supportServiceInstance.getParameters()
-                        .put("ESM_DOCKER_DELETE_TIMEOUT", "120");
+                supportServiceInstance.getParameters().put("ESM_DOCKER_DELETE_TIMEOUT", "120");
                 break;
             case "EUS":
-                supportServiceInstance.getParameters()
-                        .put("ESM_DOCKER_DELETE_TIMEOUT", "120");
+                supportServiceInstance.getParameters().put("ESM_DOCKER_DELETE_TIMEOUT", "120");
                 break;
             default:
                 logger.debug("Container Timeout not defined");
@@ -1190,14 +1061,17 @@ public class TSSService {
     }
 
     public SupportServiceInstance provisionServiceInstanceAndBuildUrls(
-            SupportServiceInstance newServiceInstance, String instanceId)
-            throws Exception {
-        esmServiceClient.provisionServiceInstance(newServiceInstance,
-                instanceId, Boolean.toString(false));
+            SupportServiceInstance newServiceInstance, String instanceId) throws Exception {
+        String serviceName = newServiceInstance != null ? newServiceInstance.getServiceName()
+                : null;
+        logger.info("Provisioning service instance {} with id {} and data: {}", serviceName,
+                instanceId, newServiceInstance);
+
+        esmServiceClient.provisionServiceInstance(newServiceInstance, instanceId,
+                Boolean.toString(false));
 
         logger.info("Get registered all data of a service.");
-        newServiceInstance = esmServiceClient
-                .getServiceInstanceInfo(newServiceInstance);
+        newServiceInstance = esmServiceClient.getServiceInstanceInfo(newServiceInstance);
 
         buildTssInstanceUrls(newServiceInstance);
         newServiceInstance.setFullyInitialized(true);
@@ -1207,24 +1081,19 @@ public class TSSService {
         return newServiceInstance;
     }
 
-    private void buildTssInstanceUrls(SupportServiceInstance serviceInstance)
-            throws Exception {
-        logger.info("Building TSSs URLs for {}",
-                serviceInstance.getEndpointName());
-        TssManifest manifest = esmServiceClient
-                .getManifestById(serviceInstance.getManifestId());
+    private void buildTssInstanceUrls(SupportServiceInstance serviceInstance) throws Exception {
+        logger.info("Building TSSs URLs for {}", serviceInstance.getEndpointName());
+        TssManifest manifest = esmServiceClient.getManifestById(serviceInstance.getManifestId());
 
         // Build the URL for the service checked as main
         buildSubserviceUrls(serviceInstance, manifest);
 
         // Build URLs for the Subservices
-        for (SupportServiceInstance subService : serviceInstance
-                .getSubServices()) {
-            logger.debug("Sub-services names: {}",
-                    subService.getEndpointName());
+        for (SupportServiceInstance subService : serviceInstance.getSubServices()) {
+            logger.debug("Sub-services names: {}", subService.getEndpointName());
             if (subService.getContainerIp() == null) {
-                throw new Exception("Field ip not found for "
-                        + subService.getEndpointName() + " instance.");
+                throw new Exception(
+                        "Field ip not found for " + subService.getEndpointName() + " instance.");
             } else {
                 buildSubserviceUrls(subService, manifest);
             }
@@ -1232,36 +1101,30 @@ public class TSSService {
 
     }
 
-    private void buildSubserviceUrls(SupportServiceInstance serviceInstance,
-            TssManifest manifest) throws Exception {
+    private void buildSubserviceUrls(SupportServiceInstance serviceInstance, TssManifest manifest)
+            throws Exception {
         JsonNode manifestEndpoints = manifest.getEndpoints();
-        logger.debug("Endpoints for the service: {}",
-                manifestEndpoints.toString());
+        logger.debug("Endpoints for the service: {}", manifestEndpoints.toString());
         logger.debug("Endpoints name: {}", serviceInstance.getEndpointName());
-        JsonNode manifestEndpointService = manifestEndpoints
-                .get(serviceInstance.getEndpointName());
+        JsonNode manifestEndpointService = manifestEndpoints.get(serviceInstance.getEndpointName());
         logger.debug("Endpoints defined inside the manifest: {}",
                 manifestEndpointService.toString());
-        JsonNode manifestEndpointServiceApi = manifestEndpointService
-                .get("api");
-        JsonNode manifestEndpointServiceGui = manifestEndpointService
-                .get("gui");
+        JsonNode manifestEndpointServiceApi = manifestEndpointService.get("api");
+        JsonNode manifestEndpointServiceGui = manifestEndpointService.get("gui");
 
         try {
             String tssContainerName = serviceInstance.getContainerName();
 
             if (manifestEndpointServiceApi != null) {
                 if (!manifestEndpointServiceApi.isArray()) {
-                    buildEndpointUrl(serviceInstance,
-                            manifestEndpointServiceApi, tssContainerName,
+                    buildEndpointUrl(serviceInstance, manifestEndpointServiceApi, tssContainerName,
                             "api");
                 } else {
                     for (final JsonNode apiNode : manifestEndpointServiceApi) {
-                        buildEndpointUrl(serviceInstance, apiNode,
-                                tssContainerName,
+                        buildEndpointUrl(serviceInstance, apiNode, tssContainerName,
                                 apiNode.get("name") != null
-                                        ? apiNode.get("name").toString()
-                                                .replaceAll("\"", "") + "api"
+                                        ? apiNode.get("name").toString().replaceAll("\"", "")
+                                                + "api"
                                         : "api");
                     }
                 }
@@ -1269,30 +1132,26 @@ public class TSSService {
 
             if (manifestEndpointServiceGui != null) {
                 if (!manifestEndpointServiceGui.isArray()) {
-                    buildEndpointUrl(serviceInstance,
-                            manifestEndpointServiceGui, tssContainerName,
+                    buildEndpointUrl(serviceInstance, manifestEndpointServiceGui, tssContainerName,
                             "gui");
                 } else {
                     for (final JsonNode guiNode : manifestEndpointServiceGui) {
-                        buildEndpointUrl(serviceInstance, guiNode,
-                                tssContainerName,
+                        buildEndpointUrl(serviceInstance, guiNode, tssContainerName,
                                 guiNode.get("name") != null
-                                        ? guiNode.get("name").toString()
-                                                .replaceAll("\"", "") + "gui"
+                                        ? guiNode.get("name").toString().replaceAll("\"", "")
+                                                + "gui"
                                         : "gui");
                     }
                 }
             }
         } catch (Exception e) {
             logger.error("Error building endpoints info: {}", e.getMessage());
-            throw new Exception(
-                    "Error building endpoints info: " + e.getMessage());
+            throw new Exception("Error building endpoints info: " + e.getMessage());
         }
     }
 
-    private void buildEndpointUrl(SupportServiceInstance serviceInstance,
-            JsonNode node, String tSSContainerName, String nodeName)
-            throws Exception {
+    private void buildEndpointUrl(SupportServiceInstance serviceInstance, JsonNode node,
+            String tSSContainerName, String nodeName) throws Exception {
 
         // Default aux port correspond with ElasTest external port
         int auxPort = 37000;
@@ -1319,8 +1178,7 @@ public class TSSService {
             // serviceInstance.getEndpointName(), serviceInstance));
             // }
 
-            if (node.get("protocol") != null && (node.get("protocol").toString()
-                    .contains("http")
+            if (node.get("protocol") != null && (node.get("protocol").toString().contains("http")
                     || node.get("protocol").toString().contains("https")
                     || node.get("protocol").toString().contains("ws"))) {
                 serviceInstance.setServicePort(auxPort);
@@ -1334,8 +1192,8 @@ public class TSSService {
                     String serviceIp = platformService.getETPublicHost();
                     serviceInstance.setServiceIp(serviceIp);
                     serviceInstance.setBindedServiceIp(serviceIp);
-                    String externalUrl = buildEndpointUrlAsString(node,
-                            serviceIp, serviceInstance.getBindedServicePort());
+                    String externalUrl = buildEndpointUrlAsString(node, serviceIp,
+                            serviceInstance.getBindedServicePort());
                     serviceInstance.setUrlValue(nodeName, externalUrl, true);
                 }
             }
@@ -1344,55 +1202,47 @@ public class TSSService {
         }
     }
 
-    private String buildEndpointUrlAsString(JsonNode node, String ip,
-            int port) {
+    private String buildEndpointUrlAsString(JsonNode node, String ip, int port) {
         String url = null;
 
         String protocol = node.get("protocol").toString().replaceAll("\"", "");
-        String path = node.get("path") != null
-                ? node.get("path").toString().replaceAll("\"", "")
+        String path = node.get("path") != null ? node.get("path").toString().replaceAll("\"", "")
                 : "/";
         url = protocol + "://" + ip + ":" + port + path;
         logger.info("New url: " + url);
         return url;
     }
 
-    public int bindingPort(SupportServiceInstance serviceInstance,
-            String nodePort, JsonNode node, Boolean integratedService)
-            throws Exception {
+    public int bindingPort(SupportServiceInstance serviceInstance, String nodePort, JsonNode node,
+            Boolean integratedService) throws Exception {
 
         int hostPort;
 
         // If there is server address ports will be binded
         int bindedPort;
         if (serviceInstance.getEndpointsBindingsPorts().containsKey(nodePort)) {
-            bindedPort = Integer.parseInt(
-                    serviceInstance.getEndpointsBindingsPorts().get(nodePort));
+            bindedPort = Integer
+                    .parseInt(serviceInstance.getEndpointsBindingsPorts().get(nodePort));
         } else {
-            if (utilsService.isKubernetes()
-                    && isIntegratedEUS(serviceInstance)) {
+            if (utilsService.isKubernetes() && isIntegratedEUS(serviceInstance)) {
                 // Do nothing. For other TSS, implement getBindingPort
                 // in K8ServiceImpl
                 bindedPort = Integer.valueOf(etProxyPort);
             } else {
                 try {
-                    ServiceBindedPort socatBindedPortObj = platformService
-                            .getBindedPort(
-                                    utilsService.isKubernetes()
-                                            ? serviceInstance.getEndpointName()
-                                            : serviceInstance.getContainerIp(),
-                                    null, null, node.get("port").toString(),
-                                    serviceInstance.getInstanceId());
+                    ServiceBindedPort socatBindedPortObj = platformService.getBindedPort(
+                            utilsService.isKubernetes() ? serviceInstance.getEndpointName()
+                                    : serviceInstance.getContainerIp(),
+                            null, null, node.get("port").toString(),
+                            serviceInstance.getInstanceId());
                     serviceInstance.getPortBindingContainers()
                             .add(socatBindedPortObj.getContainerId());
-                    bindedPort = Integer
-                            .parseInt(socatBindedPortObj.getBindedPort());
+                    bindedPort = Integer.parseInt(socatBindedPortObj.getBindedPort());
                     serviceInstance.getEndpointsBindingsPorts().put(nodePort,
                             String.valueOf(bindedPort));
                 } catch (Exception e) {
                     String message = "Ports binding fails in Service "
-                            + serviceInstance.getServiceName()
-                            + " with instance id "
+                            + serviceInstance.getServiceName() + " with instance id "
                             + serviceInstance.getInstanceId();
 
                     logger.error("{}: {} ", message, e.getMessage());
@@ -1417,8 +1267,7 @@ public class TSSService {
         tJobServicesInstances = null;
 
         externalTJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
-            deprovisionServiceInstance(tSSInstanceId,
-                    externalTJobServicesInstances);
+            deprovisionServiceInstance(tSSInstanceId, externalTJobServicesInstances);
         });
 
         externalTJobServicesInstances = null;
@@ -1444,37 +1293,29 @@ public class TSSService {
     }
 
     public boolean isIntegratedEUS(SupportServiceInstance instance) {
-        return this.isIntegratedEUS(instance.getServiceName(),
-                instance.getInstanceId());
+        return this.isIntegratedEUS(instance.getServiceName(), instance.getInstanceId());
     }
 
-    public String deprovisionExecutionServiceInstance(String instanceId,
-            Execution execution) {
+    public String deprovisionExecutionServiceInstance(String instanceId, Execution execution) {
         if (execution.isExternal()) {
             return deprovisionExternalTJobExecServiceInstance(instanceId,
                     execution.getExecutionId());
         } else {
-            return deprovisionTJobExecServiceInstance(instanceId,
-                    execution.getExecutionId());
+            return deprovisionTJobExecServiceInstance(instanceId, execution.getExecutionId());
         }
     }
 
-    public String deprovisionTJobExecServiceInstance(String instanceId,
-            Long tJobExecId) {
+    public String deprovisionTJobExecServiceInstance(String instanceId, Long tJobExecId) {
         tSSIByTJobExecAssociated.remove(tJobExecId);
 
-        SupportServiceInstance tssInstance = tJobServicesInstances
-                .get(instanceId);
-        String serviceName = tssInstance != null
-                ? tssInstance.getServiceName().toUpperCase()
+        SupportServiceInstance tssInstance = tJobServicesInstances.get(instanceId);
+        String serviceName = tssInstance != null ? tssInstance.getServiceName().toUpperCase()
                 : null;
         // If is shared tss
         if (isSharedTssInstance(serviceName)) {
             if (serviceName.equals("EUS")) {
-                TJobExecution tJobExec = tJobExecRepositoryImpl
-                        .findById(tJobExecId).get();
-                this.unregisterTJobExecutionInEus(instanceId, serviceName,
-                        tJobExec);
+                TJobExecution tJobExec = tJobExecRepositoryImpl.findById(tJobExecId).get();
+                this.unregisterTJobExecutionInEus(instanceId, serviceName, tJobExec);
                 int index = tssInstance.gettJobExecIdList().indexOf(tJobExecId);
                 if (index >= 0) {
                     tssInstance.gettJobExecIdList().remove(index);
@@ -1483,8 +1324,7 @@ public class TSSService {
             return "Instance not deleted: is shared. Finished!";
         } else {
 
-            return deprovisionServiceInstance(instanceId,
-                    tJobServicesInstances);
+            return deprovisionServiceInstance(instanceId, tJobServicesInstances);
         }
     }
 
@@ -1492,11 +1332,9 @@ public class TSSService {
             Long externalTJobExecId) {
         tSSIByExternalTJobExecAssociated.remove(externalTJobExecId);
 
-        SupportServiceInstance tssInstance = externalTJobServicesInstances
-                .get(instanceId);
+        SupportServiceInstance tssInstance = externalTJobServicesInstances.get(instanceId);
 
-        String serviceName = tssInstance != null
-                ? tssInstance.getServiceName().toUpperCase()
+        String serviceName = tssInstance != null ? tssInstance.getServiceName().toUpperCase()
                 : null;
         // If is shared tss
         if (isSharedTssInstance(serviceName)) {
@@ -1504,18 +1342,15 @@ public class TSSService {
             if (serviceName.equals("EUS")) {
                 ExternalTJobExecution exTJobExec = externalTJobExecutionRepository
                         .findById(externalTJobExecId).get();
-                this.unregisterExternalTJobExecutionInEus(instanceId,
-                        serviceName, exTJobExec);
-                int index = tssInstance.gettJobExecIdList()
-                        .indexOf(externalTJobExecId);
+                this.unregisterExternalTJobExecutionInEus(instanceId, serviceName, exTJobExec);
+                int index = tssInstance.gettJobExecIdList().indexOf(externalTJobExecId);
                 if (index >= 0) {
                     tssInstance.gettJobExecIdList().remove(index);
                 }
             }
             return "Instance not deleted: is shared. Finished!";
         } else {
-            return deprovisionServiceInstance(instanceId,
-                    externalTJobServicesInstances);
+            return deprovisionServiceInstance(instanceId, externalTJobServicesInstances);
         }
     }
 
@@ -1533,14 +1368,12 @@ public class TSSService {
 
             platformService.removeBindedPorts(serviceInstance);
 
-            for (SupportServiceInstance subServiceInstance : serviceInstance
-                    .getSubServices()) {
+            for (SupportServiceInstance subServiceInstance : serviceInstance.getSubServices()) {
                 platformService.removeBindedPorts(subServiceInstance);
 
             }
 
-            esmServiceClient.deprovisionServiceInstance(instanceId,
-                    serviceInstance);
+            esmServiceClient.deprovisionServiceInstance(instanceId, serviceInstance);
         }
         ssiMap.remove(instanceId);
         return result;
@@ -1549,16 +1382,15 @@ public class TSSService {
     public boolean isInstanceUp(String instanceId) {
         boolean result = false;
         try {
-            result = esmServiceClient.getServiceInstanceInfo(instanceId)
-                    .toString().equals("{}") ? false : true;
-            logger.info("Check instance status:{}", instanceId, ". Info: {}",
-                    result);
+            result = esmServiceClient.getServiceInstanceInfo(instanceId).toString().equals("{}")
+                    ? false
+                    : true;
+            logger.info("Check instance status:{}", instanceId, ". Info: {}", result);
             result = true;
         } catch (RuntimeException re) {
             logger.info("Error cause: {}", re.getCause().getMessage());
             if (re.getCause().getMessage().contains("404")) {
-                logger.info("Check instance status:{}", instanceId,
-                        ". Info: {}", result);
+                logger.info("Check instance status:{}", instanceId, ". Info: {}", result);
                 result = false;
             }
         }
@@ -1578,10 +1410,8 @@ public class TSSService {
         return this.getServiceInstanceBySIMap(id, tJobServicesInstances);
     }
 
-    public SupportServiceInstance getExternalTJobExecServiceInstance(
-            String id) {
-        return this.getServiceInstanceBySIMap(id,
-                externalTJobServicesInstances);
+    public SupportServiceInstance getExternalTJobExecServiceInstance(String id) {
+        return this.getServiceInstanceBySIMap(id, externalTJobServicesInstances);
     }
 
     public SupportServiceInstance getServiceInstanceBySIMap(String id,
@@ -1604,8 +1434,8 @@ public class TSSService {
             String serviceName = tSSInstance.getServiceName();
 
             // If not is integrated EUS (mini) and not is shared TSS
-            if (!this.isIntegratedEUS(tSSInstance) && this
-                    .getSharedTssInstanceId(serviceName) != tSSInstanceId) {
+            if (!this.isIntegratedEUS(tSSInstance)
+                    && this.getSharedTssInstanceId(serviceName) != tSSInstanceId) {
                 boolean isUp = checkInstanceUrlIsUp(tSSInstance);
 
                 if (isUp) {
@@ -1629,8 +1459,7 @@ public class TSSService {
         return servicesInstances;
     }
 
-    public void setServicesInstances(
-            Map<String, SupportServiceInstance> servicesInstances) {
+    public void setServicesInstances(Map<String, SupportServiceInstance> servicesInstances) {
         this.servicesInstances = servicesInstances;
     }
 
@@ -1646,18 +1475,15 @@ public class TSSService {
         return externalTJobServicesInstances;
     }
 
-    public SupportServiceInstance getExternalTJobServiceInstanceById(
-            String tSSInstId) {
+    public SupportServiceInstance getExternalTJobServiceInstanceById(String tSSInstId) {
         return externalTJobServicesInstances.get(tSSInstId);
     }
 
-    public void putInstanceInMap(String tssInstanceId,
-            SupportServiceInstance tssi) {
+    public void putInstanceInMap(String tssInstanceId, SupportServiceInstance tssi) {
         servicesInstances.put(tssInstanceId, tssi);
     }
 
-    public void putInstanceInTJobExecMap(String tssInstanceId,
-            SupportServiceInstance tssi) {
+    public void putInstanceInTJobExecMap(String tssInstanceId, SupportServiceInstance tssi) {
         tJobServicesInstances.put(tssInstanceId, tssi);
     }
 
@@ -1666,8 +1492,8 @@ public class TSSService {
         externalTJobServicesInstances.put(tssInstanceId, tssi);
     }
 
-    public void putInstanceInExecutionMap(String tssInstanceId,
-            SupportServiceInstance tssi, Execution execution) {
+    public void putInstanceInExecutionMap(String tssInstanceId, SupportServiceInstance tssi,
+            Execution execution) {
         if (execution.isExternal()) {
             putInstanceInExternalTJobExecMap(tssInstanceId, tssi);
         } else {
@@ -1677,8 +1503,7 @@ public class TSSService {
 
     /* *** *** */
 
-    public Map<String, SupportServiceInstance> getExecutionServicesInstances(
-            Execution execution) {
+    public Map<String, SupportServiceInstance> getExecutionServicesInstances(Execution execution) {
         if (execution.isExternal()) {
             return getExternalTJobServicesInstances();
         } else {
@@ -1686,8 +1511,8 @@ public class TSSService {
         }
     }
 
-    public SupportServiceInstance getExecutionServiceInstanceById(
-            Execution execution, String tSSInstId) {
+    public SupportServiceInstance getExecutionServiceInstanceById(Execution execution,
+            String tSSInstId) {
         if (execution.isExternal()) {
             return getExternalTJobServiceInstanceById(tSSInstId);
         } else {
@@ -1698,19 +1523,16 @@ public class TSSService {
     public Map<String, SupportServiceInstance> getExecutionServicesInstancesMap(
             Execution execution) {
         Map<String, SupportServiceInstance> tSSInstAssocToTJobExec = new HashMap<>();
-        List<String> servicesInstances = getServicesInstancesByExecution(
-                execution);
+        List<String> servicesInstances = getServicesInstancesByExecution(execution);
 
         servicesInstances.forEach((tSSInstId) -> {
-            tSSInstAssocToTJobExec.put(tSSInstId,
-                    getTJobServiceInstanceById(tSSInstId));
+            tSSInstAssocToTJobExec.put(tSSInstId, getTJobServiceInstanceById(tSSInstId));
         });
 
         return tSSInstAssocToTJobExec;
     }
 
-    public List<SupportServiceInstance> getTJobExecServicesInstancesList(
-            Long tJobExecId) {
+    public List<SupportServiceInstance> getTJobExecServicesInstancesList(Long tJobExecId) {
         logger.debug("Get ready TSS by TJobExecId {}", tJobExecId);
         List<SupportServiceInstance> tSSInstanceList = new ArrayList<>();
         tJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
@@ -1725,14 +1547,12 @@ public class TSSService {
         return tSSInstanceList;
     }
 
-    public List<SupportServiceInstance> getExternalTJobExecServicesInstancesList(
-            Long tJobExecId) {
+    public List<SupportServiceInstance> getExternalTJobExecServicesInstancesList(Long tJobExecId) {
         logger.debug("Get ready TSS by ExternalTJobExecId {}", tJobExecId);
         List<SupportServiceInstance> tSSInstanceList = new ArrayList<>();
         externalTJobServicesInstances.forEach((tSSInstanceId, tSSInstance) -> {
             if (tSSInstance.gettJobExecIdList().contains(tJobExecId.longValue())
-                    && tSSInstance.isFullyInitialized()
-                    && checkInstanceUrlIsUp(tSSInstance)) {
+                    && tSSInstance.isFullyInitialized() && checkInstanceUrlIsUp(tSSInstance)) {
                 tSSInstance.setStatus(DockerServiceStatusEnum.READY);
                 tSSInstance.setStatusMsg("Ready");
                 tSSInstanceList.add(tSSInstance);
@@ -1747,26 +1567,22 @@ public class TSSService {
         if (tSSInstance != null) {
             String serviceName = tSSInstance.getServiceName();
 
-            if (tSSInstance.getUrls() != null
-                    && !tSSInstance.getUrls().isEmpty()) {
+            if (tSSInstance.getUrls() != null && !tSSInstance.getUrls().isEmpty()) {
                 // First check if internal api url exists
-                String urlValue = tSSInstance.getApiUrlIfExist(
-                        utilsService.isKubernetes() ? true : false);
+                String urlValue = tSSInstance
+                        .getApiUrlIfExist(utilsService.isKubernetes() ? true : false);
                 logger.debug("{} Internal url {} ", serviceName, urlValue);
                 if (urlValue == null) {
 
                     // else if api status url exist (for integrated EUS)
                     urlValue = tSSInstance.getApiStatusUrlIfExist();
-                    logger.debug("{} Api status url {} ", serviceName,
-                            urlValue);
+                    logger.debug("{} Api status url {} ", serviceName, urlValue);
 
                     // else normal url
                     if (urlValue == null) {
-                        urlValue = tSSInstance
-                                .getApiUrlIfExist((utilsService.isKubernetes()
-                                        || withServerAddress) ? true : false);
-                        logger.debug("{} Normal url {} ", serviceName,
-                                urlValue);
+                        urlValue = tSSInstance.getApiUrlIfExist(
+                                (utilsService.isKubernetes() || withServerAddress) ? true : false);
+                        logger.debug("{} Normal url {} ", serviceName, urlValue);
                     }
                 }
 
@@ -1778,13 +1594,11 @@ public class TSSService {
                         up = up && UtilTools.checkIfUrlIsUp(urlValue);
 
                         if (!up) {
-                            logger.debug(
-                                    serviceName + " Service is not ready.");
+                            logger.debug(serviceName + " Service is not ready.");
                             return up;
                         }
                     } catch (Exception e) {
-                        logger.debug(serviceName
-                                + " Service is not ready by exception error.");
+                        logger.debug(serviceName + " Service is not ready by exception error.");
                         return false;
                     }
                 }
@@ -1792,8 +1606,7 @@ public class TSSService {
             String checklMessage = up ? serviceName + " Service is ready."
                     : serviceName + " Service is not ready yet.";
 
-            if (up && utilsService.isElastestMini()
-                    && !isSharedTssInstance(serviceName)) {
+            if (up && utilsService.isElastestMini() && !isSharedTssInstance(serviceName)) {
                 etPluginsService.updateStatus(tSSInstance.getInstanceId(),
                         DockerServiceStatusEnum.READY, "Ready");
             }
@@ -1805,16 +1618,14 @@ public class TSSService {
 
     }
 
-    private void createExecFilesFolder(
-            SupportServiceInstance supportServiceInstance) {
+    private void createExecFilesFolder(SupportServiceInstance supportServiceInstance) {
         logger.info("try to create folder.");
         File folderStructure = new File(
                 supportServiceInstance.getParameters().get("ET_FILES_PATH"));
 
         try {
             if (!folderStructure.exists()) {
-                logger.info("creating folder at {}.",
-                        folderStructure.getAbsolutePath());
+                logger.info("creating folder at {}.", folderStructure.getAbsolutePath());
                 folderStructure.mkdirs();
                 logger.info("Folder created.");
             }
@@ -1824,55 +1635,41 @@ public class TSSService {
         }
     }
 
-    private void setTSSFilesConfig(
-            SupportServiceInstance supportServiceInstance) {
+    private void setTSSFilesConfig(SupportServiceInstance supportServiceInstance) {
         String fileSeparator = "/";
-        supportServiceInstance.getParameters().put("ET_FILES_PATH",
-                etSharedFolder + fileSeparator
-                        + supportServiceInstance.getServiceName().toLowerCase()
-                        + fileSeparator);
+        supportServiceInstance.getParameters().put("ET_FILES_PATH", etSharedFolder + fileSeparator
+                + supportServiceInstance.getServiceName().toLowerCase() + fileSeparator);
 
         supportServiceInstance.getParameters().put("ET_FILES_PATH_IN_HOST",
-                etDataInHost + fileSeparator
-                        + supportServiceInstance.getServiceName().toLowerCase()
+                etDataInHost + fileSeparator + supportServiceInstance.getServiceName().toLowerCase()
                         + fileSeparator);
 
-        supportServiceInstance.getParameters().put("ET_SHARED_FOLDER",
-                etSharedFolder);
-        supportServiceInstance.getParameters().put("ET_DATA_IN_HOST",
-                etDataInHost);
+        supportServiceInstance.getParameters().put("ET_SHARED_FOLDER", etSharedFolder);
+        supportServiceInstance.getParameters().put("ET_DATA_IN_HOST", etDataInHost);
 
     }
 
-    private void fillEnvVariablesToTSS(
-            SupportServiceInstance supportServiceInstance)
+    private void fillEnvVariablesToTSS(SupportServiceInstance supportServiceInstance)
             throws ServiceException {
 
         supportServiceInstance.getParameters()
                 .putAll(etmContextAuxService.getMonitoringEnvVars(true));
 
-        supportServiceInstance.getParameters().put("ET_ETM_LSTCP_HOST",
-                etEtmLstcpHost);
-        supportServiceInstance.getParameters().put("ET_ETM_LSTCP_PORT",
-                etEtmLstcpPort);
+        supportServiceInstance.getParameters().put("ET_ETM_LSTCP_HOST", etEtmLstcpHost);
+        supportServiceInstance.getParameters().put("ET_ETM_LSTCP_PORT", etEtmLstcpPort);
 
         supportServiceInstance.getParameters().put("ET_CONTEXT_API",
-                "http://" + UtilTools.getMyIp() + ":" + etmServerPort
-                        + "/api/context/tss/"
+                "http://" + UtilTools.getMyIp() + ":" + etmServerPort + "/api/context/tss/"
                         + supportServiceInstance.getInstanceId());
 
-        supportServiceInstance.getParameters().put("ET_INTERNET_DISABLED",
-                etInternetDisabled);
+        supportServiceInstance.getParameters().put("ET_INTERNET_DISABLED", etInternetDisabled);
         supportServiceInstance.getParameters().put("ET_PUBLIC_HOST",
                 utilsService.getEtPublicHostValue());
         supportServiceInstance.getParameters().put("ET_PUBLIC_HOST_TYPE",
                 utilsService.getEtPublicHostType());
-        supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API",
-                etEdmAlluxioApi);
-        supportServiceInstance.getParameters().put("ET_EDM_MYSQL_HOST",
-                etEdmMysqlHost);
-        supportServiceInstance.getParameters().put("ET_EDM_MYSQL_PORT",
-                etEdmMysqlPort);
+        supportServiceInstance.getParameters().put("ET_EDM_ALLUXIO_API", etEdmAlluxioApi);
+        supportServiceInstance.getParameters().put("ET_EDM_MYSQL_HOST", etEdmMysqlHost);
+        supportServiceInstance.getParameters().put("ET_EDM_MYSQL_PORT", etEdmMysqlPort);
         supportServiceInstance.getParameters().put("ET_EDM_ELASTICSEARCH_API",
                 etEdmElasticsearchApi);
         supportServiceInstance.getParameters().put("ET_EDM_API", etEdmApi);
@@ -1881,12 +1678,9 @@ public class TSSService {
         supportServiceInstance.getParameters().put("ET_ESM_API", etEsmApi);
         supportServiceInstance.getParameters().put("ET_EIM_API", etEimApi);
 
-        supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_HOST",
-                etEtmLsbeatsHost);
-        supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_PORT",
-                etEtmLsbeatsPort);
-        supportServiceInstance.getParameters().put("ET_ETM_LSHTTP_API",
-                etEtmLshttpApi);
+        supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_HOST", etEtmLsbeatsHost);
+        supportServiceInstance.getParameters().put("ET_ETM_LSBEATS_PORT", etEtmLsbeatsPort);
+        supportServiceInstance.getParameters().put("ET_ETM_LSHTTP_API", etEtmLshttpApi);
 
         supportServiceInstance.getParameters().put("ET_ETM_BINDED_LSBEATS_HOST",
                 etEtmBindedLsBeatsHost);
@@ -1897,25 +1691,19 @@ public class TSSService {
         supportServiceInstance.getParameters().put("ET_ETM_BINDED_LSTCP_PORT",
                 etEtmBindedLsTcpPort);
 
-        supportServiceInstance.getParameters().put("ET_ETM_RABBIT_HOST",
-                etEtmRabbitHost);
-        supportServiceInstance.getParameters().put("ET_ETM_RABBIT_PORT",
-                etEtmRabbitPort);
+        supportServiceInstance.getParameters().put("ET_ETM_RABBIT_HOST", etEtmRabbitHost);
+        supportServiceInstance.getParameters().put("ET_ETM_RABBIT_PORT", etEtmRabbitPort);
         supportServiceInstance.getParameters().put("ET_EMP_API", etEmpApi);
-        supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_API",
-                etEmpInfluxdbApi);
-        supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_HOST",
-                etEmpInfluxdbHost);
-        supportServiceInstance.getParameters().put(
-                "ET_EMP_INFLUXDB_GRAPHITE_PORT", etEmpInfluxdbGraphitePort);
+        supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_API", etEmpInfluxdbApi);
+        supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_HOST", etEmpInfluxdbHost);
+        supportServiceInstance.getParameters().put("ET_EMP_INFLUXDB_GRAPHITE_PORT",
+                etEmpInfluxdbGraphitePort);
 
         supportServiceInstance.getParameters().put("USE_TORM", "true");
     }
 
-    private void fillEMSMonitoringEnvVariablesToTSS(
-            SupportServiceInstance supportServiceInstance,
-            TJobExecution tJobExec, boolean externalTJob,
-            boolean withPublicPrefix) {
+    private void fillEMSMonitoringEnvVariablesToTSS(SupportServiceInstance supportServiceInstance,
+            TJobExecution tJobExec, boolean externalTJob, boolean withPublicPrefix) {
         try {
             if (tJobExec != null && tJobExec.getTjob() != null) {
                 if (tJobExec.getTjob().isEmsTssSelected()) {
@@ -1923,8 +1711,7 @@ public class TSSService {
                     Map<String, String> emsEnvVars = tJobExec.getEnvVars();
 
                     supportServiceInstance.getParameters()
-                            .putAll(etmContextAuxService
-                                    .getMonitoringEnvVarsFromEms(emsEnvVars));
+                            .putAll(etmContextAuxService.getMonitoringEnvVarsFromEms(emsEnvVars));
                 }
             }
         } catch (Exception e) {
@@ -1932,8 +1719,8 @@ public class TSSService {
         }
     }
 
-    public Map<String, String> getTSSInstanceContext(String tSSInstanceId,
-            boolean publicEnvVars, boolean withPublicPrefix) {
+    public Map<String, String> getTSSInstanceContext(String tSSInstanceId, boolean publicEnvVars,
+            boolean withPublicPrefix) {
         Map<String, String> tSSInstanceContextMap = new HashMap<>();
         SupportServiceInstance ssi = null;
         if (servicesInstances.get(tSSInstanceId) != null) {
@@ -1944,8 +1731,7 @@ public class TSSService {
             return null;
         }
 
-        tSSInstanceContextMap.putAll(
-                getTSSInstanceEnvVars(ssi, publicEnvVars, withPublicPrefix));
+        tSSInstanceContextMap.putAll(getTSSInstanceEnvVars(ssi, publicEnvVars, withPublicPrefix));
         tSSInstanceContextMap.putAll(ssi.getParameters());
 
         return tSSInstanceContextMap;
@@ -1955,49 +1741,41 @@ public class TSSService {
             boolean publicEnvVars, boolean withPublicPrefix) {
         logger.debug("Creating env vars from TSS: {}", ssi); // TODO change
         Map<String, String> envVars = new HashMap<String, String>();
-        String servicePrefix = ssi.getServiceName().toUpperCase()
-                .replaceAll("-", "_");
+        String servicePrefix = ssi.getServiceName().toUpperCase().replaceAll("-", "_");
         String envVarNamePrefix = withPublicPrefix ? "ET_PUBLIC" : "ET";
 
-        for (Map.Entry<String, JsonNode> entry : ssi.getEndpointsData()
-                .entrySet()) {
+        for (Map.Entry<String, JsonNode> entry : ssi.getEndpointsData().entrySet()) {
             String prefix = withPublicPrefix ? envVarNamePrefix
                     : envVarNamePrefix + "_" + servicePrefix;
-            envVars.putAll(
-                    setTssEnvVarByEndpoint(ssi, prefix, entry, publicEnvVars));
+            envVars.putAll(setTssEnvVarByEndpoint(ssi, prefix, entry, publicEnvVars));
         }
 
         for (SupportServiceInstance subssi : ssi.getSubServices()) {
-            String envNamePrefixSubSSI = envVarNamePrefix + "_" + servicePrefix
-                    + "_" + subssi.getEndpointName().toUpperCase()
-                            .replaceAll("-", "_");
+            String envNamePrefixSubSSI = envVarNamePrefix + "_" + servicePrefix + "_"
+                    + subssi.getEndpointName().toUpperCase().replaceAll("-", "_");
 
-            for (Map.Entry<String, JsonNode> entry : subssi.getEndpointsData()
-                    .entrySet()) {
-                envVars.putAll(setTssEnvVarByEndpoint(subssi,
-                        envNamePrefixSubSSI, entry, publicEnvVars));
+            for (Map.Entry<String, JsonNode> entry : subssi.getEndpointsData().entrySet()) {
+                envVars.putAll(
+                        setTssEnvVarByEndpoint(subssi, envNamePrefixSubSSI, entry, publicEnvVars));
             }
         }
         logger.debug("TJob and Sut env vars: {}", envVars.keySet().toString());
         return envVars;
     }
 
-    private Map<String, String> setTssEnvVarByEndpoint(
-            SupportServiceInstance ssi, String prefix,
+    private Map<String, String> setTssEnvVarByEndpoint(SupportServiceInstance ssi, String prefix,
             Map.Entry<String, JsonNode> entry, boolean publicEnvVars) {
         logger.debug("Creating env vars from a TSS endpoint");
         Map<String, String> envVars = new HashMap<>();
         if (!entry.getKey().toLowerCase().contains("gui")) {
             try {
                 if (entry.getValue().get("name") != null) {
-                    prefix += "_" + entry.getValue().get("name").toString()
-                            .toUpperCase().replaceAll("\"", "")
-                            .replaceAll("-", "_");
+                    prefix += "_" + entry.getValue().get("name").toString().toUpperCase()
+                            .replaceAll("\"", "").replaceAll("-", "_");
                 }
 
                 String envNameHost = prefix + "_HOST";
-                String envValueHost = publicEnvVars ? ssi.getServiceIp()
-                        : ssi.getContainerIp();
+                String envValueHost = publicEnvVars ? ssi.getServiceIp() : ssi.getContainerIp();
 
                 String envNamePort = prefix + "_PORT";
 
@@ -2007,30 +1785,23 @@ public class TSSService {
                 } else {
                     for (Map.Entry<String, String> endpointBindingPort : ssi
                             .getEndpointsBindingsPorts().entrySet()) {
-                        logger.debug("Binding port Key: {}",
-                                endpointBindingPort.getKey());
-                        logger.debug("Binding port value: {}",
-                                endpointBindingPort.getValue());
-                        logger.debug("Node port: {}",
-                                entry.getValue().get("port").toString());
-                        if (endpointBindingPort.getValue().equals(
-                                entry.getValue().get("port").toString())) {
-                            envValuePort = !publicEnvVars
-                                    ? endpointBindingPort.getKey()
+                        logger.debug("Binding port Key: {}", endpointBindingPort.getKey());
+                        logger.debug("Binding port value: {}", endpointBindingPort.getValue());
+                        logger.debug("Node port: {}", entry.getValue().get("port").toString());
+                        if (endpointBindingPort.getValue()
+                                .equals(entry.getValue().get("port").toString())) {
+                            envValuePort = !publicEnvVars ? endpointBindingPort.getKey()
                                     : endpointBindingPort.getValue();
-                        } else if (entry.getValue().get("port").toString()
-                                .equals(etProxyPort)) {
-                            envValuePort = publicEnvVars ? etProxyPort
-                                    : etmServerPort;
+                        } else if (entry.getValue().get("port").toString().equals(etProxyPort)) {
+                            envValuePort = publicEnvVars ? etProxyPort : etmServerPort;
                         }
 
                     }
                 }
 
-                String protocol = entry.getValue().findValue("protocol")
-                        .toString().toLowerCase().replaceAll("\"", "");
-                if (protocol.equals("http") || protocol.equals("https")
-                        || protocol.equals("ws")) {
+                String protocol = entry.getValue().findValue("protocol").toString().toLowerCase()
+                        .replaceAll("\"", "");
+                if (protocol.equals("http") || protocol.equals("https") || protocol.equals("ws")) {
                     String envNameAPI = prefix + "_API";
                     JsonNode pathNode = entry.getValue().get("path");
                     String path = "/";
@@ -2041,8 +1812,8 @@ public class TSSService {
                         path = "/" + path;
                     }
 
-                    String envValueAPI = protocol + "://" + envValueHost + ":"
-                            + envValuePort + path;
+                    String envValueAPI = protocol + "://" + envValueHost + ":" + envValuePort
+                            + path;
                     envVars.put(envNameAPI, envValueAPI);
                 } else {
                     envVars.put(envNameHost, envValueHost);
@@ -2057,8 +1828,7 @@ public class TSSService {
         return envVars;
     }
 
-    public Map<Long, List<String>> gettSSIByExecutionAssociated(
-            Execution execution) {
+    public Map<Long, List<String>> gettSSIByExecutionAssociated(Execution execution) {
         if (execution.isExternal()) {
             return tSSIByExternalTJobExecAssociated;
         } else {
@@ -2066,8 +1836,7 @@ public class TSSService {
         }
     }
 
-    public void settSSIByTJobExecAssociated(
-            Map<Long, List<String>> tSSIByTJobExecAssociated) {
+    public void settSSIByTJobExecAssociated(Map<Long, List<String>> tSSIByTJobExecAssociated) {
         this.tSSIByTJobExecAssociated = tSSIByTJobExecAssociated;
     }
 
@@ -2098,8 +1867,7 @@ public class TSSService {
 
     public String getSharedTssInstanceId(String serviceName) {
         // If is shared tss
-        if (serviceName != null
-                && tssLoadedOnInitMap.containsKey(serviceName.toUpperCase())) {
+        if (serviceName != null && tssLoadedOnInitMap.containsKey(serviceName.toUpperCase())) {
             return tssLoadedOnInitMap.get(serviceName.toUpperCase());
         }
         return null;
@@ -2122,11 +1890,9 @@ public class TSSService {
         return isSharedTssInstance(serviceName);
     }
 
-    public void updateExecutionResultStatus(Execution execution,
-            ResultEnum result, String msg) {
+    public void updateExecutionResultStatus(Execution execution, ResultEnum result, String msg) {
         if (execution.isExternal()) {
-            ExternalTJobExecution externalTJobExec = execution
-                    .getExternalTJobExec();
+            ExternalTJobExecution externalTJobExec = execution.getExternalTJobExec();
             updateExternalTJobExecResultStatus(externalTJobExec, result, msg);
         } else {
             TJobExecution tJobExec = execution.getTJobExec();
@@ -2135,17 +1901,15 @@ public class TSSService {
     }
 
     // Use updateExecutionResultStatus
-    private void updateTJobExecResultStatus(TJobExecution tJobExec,
-            ResultEnum result, String msg) {
+    private void updateTJobExecResultStatus(TJobExecution tJobExec, ResultEnum result, String msg) {
         tJobExec.setResult(result);
         tJobExec.setResultMsg(msg);
         tJobExecRepositoryImpl.save(tJobExec);
     }
 
     // Use updateExecutionResultStatus
-    private void updateExternalTJobExecResultStatus(
-            ExternalTJobExecution externalTJobExec, ResultEnum result,
-            String msg) {
+    private void updateExternalTJobExecResultStatus(ExternalTJobExecution externalTJobExec,
+            ResultEnum result, String msg) {
         externalTJobExec.setResult(result);
         externalTJobExec.setResultMsg(msg);
         externalTJobExecutionRepository.save(externalTJobExec);
