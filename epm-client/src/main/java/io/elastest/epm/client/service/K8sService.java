@@ -289,7 +289,7 @@ public class K8sService {
                         @Override
                         public void eventReceived(final Action action, Pod pod) {
                             job.getMetadata().getLabels().forEach((label, value) -> {
-                                logger.debug("Label: {}-{}", label, value);
+                                logger.debug("Label: {}={}", label, value);
                             });
                             logger.debug("Job {} receives an event",
                                     job.getMetadata().getLabels().get(LABEL_JOB_NAME));
@@ -1114,7 +1114,7 @@ public class K8sService {
     }
 
     public String getPodIpByLabel(String label, String value, String namespace) {
-        logger.debug("Get Ip by label {}-{}", label, value);
+        logger.debug("Get Ip by label {}={}", label, value);
         Map<String, String> labels = new HashMap<>();
         labels.put(label, value.replace("_", "-"));
         UtilTools.sleep(4);

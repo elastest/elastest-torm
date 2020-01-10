@@ -221,7 +221,7 @@ public class EsmServiceClientImpl implements EsmServiceClient {
 
     @Override
     public ObjectNode getServiceInstanceInfo(String instanceId) {
-        logger.info("Retrieving service instance info.");
+        logger.info("Retrieving service instance {} info.", instanceId);
 
         HttpEntity<String> entity = new HttpEntity<String>(headers);
         Map<String, String> params = new HashMap<>();
@@ -230,7 +230,7 @@ public class EsmServiceClientImpl implements EsmServiceClient {
         try {
             ResponseEntity<ObjectNode> objNode = httpClient.exchange(URL_ESM_SERVICE_INSTANCE_INFO,
                     HttpMethod.GET, entity, ObjectNode.class, params);
-            logger.info("Retrieved services instance info.");
+            logger.info("Retrieved services instance {} info.", instanceId);
             logger.info("Instance info: " + objNode.getBody().toString());
             return objNode.getBody();
         } catch (Exception e) {
@@ -289,7 +289,7 @@ public class EsmServiceClientImpl implements EsmServiceClient {
 
             while (itEsmRespContextFields.hasNext() && !ipFound) {
                 String fieldName = itEsmRespContextFields.next();
-                logger.debug("Instance data fields {}:", fieldName);
+                logger.debug("Instance data field name: {}", fieldName);
 
                 if (fieldName.contains(serviceIpFieldSufix) && fieldName.contains(serviceName)) {
                     try {
@@ -301,14 +301,18 @@ public class EsmServiceClientImpl implements EsmServiceClient {
                         }
 
                         String containerName = fieldName.substring(0, fieldName.indexOf("_Ip"));
-                        logger.debug("Container ip {} for the service {}", containerIp,
-                                containerName);
+                        logger.debug("Ip {} for the service {}", containerIp, containerName);
                         logger.debug(
                                 "ET_PUBLIC_HOST value: " + utilsService.getEtPublicHostValue());
                         String internalServiceIp = containerIp;
                         String bindedServiceIp = utilsService.getEtPublicHostValue();
+
                         serviceIp = !utilsService.isDefaultEtPublicHost() ? bindedServiceIp
                                 : internalServiceIp;
+
+                        logger.debug("Using {} ip for service {}",
+                                !utilsService.isDefaultEtPublicHost() ? "binded" : "internal",
+                                containerName);
                         if (manifestEndpointService.get("main") != null
                                 && manifestEndpointService.get("main").booleanValue()) {
                             logger.debug("Building data for the main sub-service {}", serviceName);
