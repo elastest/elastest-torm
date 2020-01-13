@@ -603,15 +603,11 @@
 	<repositories>
 		<repository>
 			<id>jcenter</id>
-			<url>http://jcenter.bintray.com/</url>
+			<url>https://jcenter.bintray.com/</url>
 		</repository>
 		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
-		</repository>
-		<repository>
-			<id>jfrog</id>
-			<url>https://jfrog.com/</url>
 		</repository>
 		<repository>
 			<id>snapshots-repo</id>
