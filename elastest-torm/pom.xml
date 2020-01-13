@@ -265,7 +265,7 @@
 		<dependency>
 			<groupId>pl.pojo</groupId>
 			<artifactId>pojo-tester</artifactId>
-			<version>0.7.6</version>
+			<version>0.7.5</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/br.eti.kinoshita/testlink-java-api -->
