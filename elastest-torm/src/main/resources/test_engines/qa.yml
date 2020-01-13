@@ -8,6 +8,8 @@ services:
       - 9443
     networks:
       - elastest
+    volumes:
+      - ${ET_DATA_IN_HOST}/eqe-data:/eqe-data:rw
     labels:
       - io.elastest.type=te
 networks:

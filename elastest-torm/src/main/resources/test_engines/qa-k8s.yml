@@ -20,6 +20,25 @@ spec:
 status:
   loadBalancer: {}
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  name: elastest-eqe-data-claim
+  labels:
+    io.elastest: true
+    io.elastest.pvc: elastest-eqe-data-claim
+    elastest-component: qa 
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+  storageClassName: standard
+status: {}
+
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -49,5 +68,12 @@ spec:
         ports:
         - containerPort: 9080
         resources: {}
+        volumeMounts:
+        - mountPath: /eqe-data
+          name: eqe-data        
       restartPolicy: Always
+      volumes:
+      - name: eqe-data
+        persistentVolumeClaim:
+          claimName: elastest-eqe-data-claim
 status: {}
