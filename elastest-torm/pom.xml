@@ -262,12 +262,10 @@
 			</exclusions>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/pl.pojo/pojo-tester -->
 		<dependency>
 			<groupId>pl.pojo</groupId>
 			<artifactId>pojo-tester</artifactId>
 			<version>0.7.5</version>
-			<scope>test</scope>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/br.eti.kinoshita/testlink-java-api -->
@@ -610,6 +608,10 @@
 		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>
+		</repository>
+		<repository>
+			<id>jfrog</id>
+			<url>https://jfrog.com/</url>
 		</repository>
 		<repository>
 			<id>snapshots-repo</id>
