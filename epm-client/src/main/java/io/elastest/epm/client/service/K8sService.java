@@ -427,7 +427,9 @@ public class K8sService {
             pod = client.pods().inNamespace(namespace).createOrReplace(podBuilder.build());
             logger.info("Pod with name {} has been created in namespace {}",
                     container.getContainerName().get(), namespace);
-
+            
+            logger.info("Waiting for Pod with name {} in namespace {}...",
+                    container.getContainerName().get(), namespace);
             while (!isReady(containerNameWithoutUnderscore, namespace)) {
                 UtilTools.sleep(1);
             }
