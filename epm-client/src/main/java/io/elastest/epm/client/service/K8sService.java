@@ -346,25 +346,22 @@ public class K8sService {
 
         try {
             namespace = namespace != null ? namespace : DEFAULT_NAMESPACE;
-            logger.info("Deploying pod with name {} in namespace {}",
-                    container.getContainerName().get(), namespace);
+            String podName = container.getContainerName().get();
+            logger.info("Deploying pod with name {} in namespace {}", podName, namespace);
             if (container.getCmd().isPresent()) {
                 logger.info(String.join(",", container.getCmd().get()));
             }
 
             Map<String, String> k8sPobLabels = container.getLabels().get();
-            k8sPobLabels.put(LABEL_POD_NAME, container.getContainerName().get());
+            k8sPobLabels.put(LABEL_POD_NAME, podName);
 
-            String containerNameWithoutUnderscore = container.getContainerName().get().replace("_",
-                    "-");
-            k8sPobLabels.put(LABEL_COMPONENT, containerNameWithoutUnderscore);
-            k8sPobLabels.put(LABEL_COMPONENT_TYPE,
-                    getETComponentType(containerNameWithoutUnderscore));
+            String podNameWithoutUnderscore = podName.replace("_", "-");
+            k8sPobLabels.put(LABEL_COMPONENT, podNameWithoutUnderscore);
+            k8sPobLabels.put(LABEL_COMPONENT_TYPE, getETComponentType(podNameWithoutUnderscore));
 
             // Create Container
             ContainerBuilder containerBuilder = new ContainerBuilder();
-            containerBuilder.withName(containerNameWithoutUnderscore)
-                    .withImage(container.getImageId())
+            containerBuilder.withName(podNameWithoutUnderscore).withImage(container.getImageId())
                     .withEnv(getEnvVarListFromStringList(container.getEnvs().get()));
 
             // Add ports
@@ -418,25 +415,26 @@ public class K8sService {
                 k8sPobLabels.putAll(container.getLabels().get());
             }
 
-            podBuilder.withNewMetadata().withName(containerNameWithoutUnderscore)
-                    .withLabels(k8sPobLabels).endMetadata().withNewSpec()
-                    .addNewContainerLike(containerBuilder.build()).endContainer()
-                    .withVolumes(volumes).endSpec();
+            podBuilder.withNewMetadata().withName(podNameWithoutUnderscore).withLabels(k8sPobLabels)
+                    .endMetadata().withNewSpec().addNewContainerLike(containerBuilder.build())
+                    .endContainer().withVolumes(volumes).endSpec();
 
             podBuilder.buildSpec().getContainers().get(0);
             pod = client.pods().inNamespace(namespace).createOrReplace(podBuilder.build());
-            logger.info("Pod with name {} has been created in namespace {}",
-                    container.getContainerName().get(), namespace);
-            
-            logger.info("Waiting for Pod with name {} in namespace {}...",
-                    container.getContainerName().get(), namespace);
-            while (!isReady(containerNameWithoutUnderscore, namespace)) {
+            logger.info("Pod with name {} has been created in namespace {}", podName, namespace);
+
+            logger.info("Waiting for Pod with name {} in namespace {}...", podName, namespace);
+            while (!isReady(podNameWithoutUnderscore, namespace)) {
                 UtilTools.sleep(1);
             }
-            pod = client.pods().inNamespace(DEFAULT_NAMESPACE)
-                    .withName(containerNameWithoutUnderscore).get();
-            logger.debug("Pod with name {} ip: {}", container.getContainerName().get(),
-                    pod.getStatus().getPodIP());
+            pod = client.pods().inNamespace(namespace).withName(podNameWithoutUnderscore).get();
+
+            if (pod == null) {
+                throw new Exception(
+                        "the pod with name " + podName + " could not be obtained. Is null");
+            }
+
+            logger.debug("Pod with name {} ip: {}", podName, pod.getStatus().getPodIP());
 
         } catch (final KubernetesClientException e) {
             logger.error("Unable to create job", e);
