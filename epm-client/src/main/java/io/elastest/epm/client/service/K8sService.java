@@ -935,25 +935,31 @@ public class K8sService {
                 .inNamespace(
                         (namespace != null && !namespace.isEmpty()) ? namespace : DEFAULT_NAMESPACE)
                 .withName(name).cascading(true).delete();
+    }
 
+    public void deleteJob(String jobName, String namespace) {
+        logger.info("Deleting job {}.", jobName);
+        client.batch().jobs().inNamespace(namespace).withName(jobName).delete();
+        deletePods(client.pods().inNamespace(namespace).withLabel(LABEL_JOB_NAME, jobName).list());
     }
 
     public void deleteJob(String jobName) {
-        logger.info("Deleting job {}.", jobName);
-        client.batch().jobs().inNamespace(DEFAULT_NAMESPACE).withName(jobName).delete();
-        deletePods(client.pods().inNamespace(DEFAULT_NAMESPACE).withLabel(LABEL_JOB_NAME, jobName)
-                .list());
+        deleteJob(jobName, DEFAULT_NAMESPACE);
     }
 
     public void deletePods(PodList podList) {
         podList.getItems().forEach(pod -> {
-            deletePod(pod.getMetadata().getName());
+            deletePod(pod.getMetadata().getName(), pod.getMetadata().getNamespace());
         });
     }
 
+    public void deletePod(String podName, String namespace) {
+        logger.info("Deleting pod {} from namespace {}.", podName, namespace);
+        client.pods().inNamespace(namespace).withName(podName.replace("_", "-")).delete();
+    }
+
     public void deletePod(String podName) {
-        logger.info("Deleting pod {}.", podName);
-        client.pods().inNamespace(DEFAULT_NAMESPACE).withName(podName.replace("_", "-")).delete();
+        deletePod(podName, DEFAULT_NAMESPACE);
     }
 
     public boolean isReady(String podName, String namespace) {
