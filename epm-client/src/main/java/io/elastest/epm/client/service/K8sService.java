@@ -253,10 +253,11 @@ public class K8sService {
     public JobResult deployJob(DockerContainer container, String namespace) throws Exception {
         final JobResult result = new JobResult();
         container.getCmd().get().forEach((command) -> {
-            logger.debug("Commands to execute: {}", command);
+            logger.debug("deployJob => Commands to execute: {}", command);
         });
         try {
-            logger.info("Container name: {}", container.getContainerName().get());
+            logger.info("Starting deploy of Job with name {} in namespace {}",
+                    container.getContainerName().get(), namespace);
             logger.info(String.join(",", container.getCmd().get()));
 
             Map<String, String> k8sJobLabels = container.getLabels().get();
@@ -275,7 +276,8 @@ public class K8sService {
                     .withEnv(getEnvVarListFromStringList(container.getEnvs().get())).endContainer()
                     .withRestartPolicy("Never").endSpec().endTemplate().endSpec().build();
 
-            logger.info("Creating job: {}.", job.getMetadata().getLabels().get(LABEL_JOB_NAME));
+            logger.info("Creating Job: {} in namespace {}",
+                    job.getMetadata().getLabels().get(LABEL_JOB_NAME), namespace);
             client.batch().jobs().inNamespace(namespace).create(job);
 
             result.setResult(1);
@@ -341,10 +343,11 @@ public class K8sService {
     public PodInfo deployPod(DockerContainer container, String namespace) throws Exception {
         PodInfo podInfo = new PodInfo();
         Pod pod = null;
-        
+
         try {
             namespace = namespace != null ? namespace : DEFAULT_NAMESPACE;
-            logger.info("Container name: {}", container.getContainerName().get());
+            logger.info("Deploying pod with name {} in namespace {}",
+                    container.getContainerName().get(), namespace);
             if (container.getCmd().isPresent()) {
                 logger.info(String.join(",", container.getCmd().get()));
             }
@@ -428,7 +431,8 @@ public class K8sService {
             }
             pod = client.pods().inNamespace(DEFAULT_NAMESPACE)
                     .withName(containerNameWithoutUnderscore).get();
-            logger.debug("Sut Pod ip: {}", pod.getStatus().getPodIP());
+            logger.debug("Pod with name {} ip: {}", container.getContainerName().get(),
+                    pod.getStatus().getPodIP());
 
         } catch (final KubernetesClientException e) {
             logger.error("Unable to create job", e);
@@ -525,7 +529,9 @@ public class K8sService {
         Boolean created = false;
 
         try {
-            logger.info("Container name: {}", container.getContainerName().get());
+            logger.info("Creating Daemon Set from container name {} in namespace {}",
+                    container.getContainerName().get(), namespace);
+
             if (container.getCmd().isPresent()) {
                 logger.info(String.join(",", container.getCmd().get()));
             }
