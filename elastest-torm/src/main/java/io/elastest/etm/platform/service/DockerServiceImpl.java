@@ -1408,4 +1408,8 @@ public class DockerServiceImpl extends PlatformService {
         return "";
     }
 
+    @Override
+    public void manageTSSInstanceIfNecessary(SupportServiceInstance instance) {
+        // TODO Auto-generated method stub
+    }
 }

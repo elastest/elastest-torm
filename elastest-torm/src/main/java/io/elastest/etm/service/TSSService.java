@@ -1074,6 +1074,7 @@ public class TSSService {
         newServiceInstance = esmServiceClient.getServiceInstanceInfo(newServiceInstance);
 
         buildTssInstanceUrls(newServiceInstance);
+        platformService.manageTSSInstanceIfNecessary(newServiceInstance);
         newServiceInstance.setFullyInitialized(true);
         logger.info("Service {} with instance id {} has been fully initialized",
                 newServiceInstance.getServiceName(), instanceId);

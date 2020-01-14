@@ -585,4 +585,18 @@ public class K8ServiceImpl extends PlatformService {
         return "curl -X POST http://etm:8091/api/tjob/exec/pod/$HOSTNAME/results";
     }
 
+    @Override
+    public void manageTSSInstanceIfNecessary(SupportServiceInstance instance) {
+        if (!utilsService.isElastestMini() && "EUS".equals(instance.getServiceName().toUpperCase())) {
+            try {
+                k8sService.createClusterRoleBindingAdmin(instance.getInstanceId(),
+                        instance.getInstanceId());
+            } catch (Exception e) {
+                logger.error("Error on create cluster role binding for EUS instance with id {}",
+                        instance.getInstanceId());
+                e.printStackTrace();
+            }
+        }
+    }
+
 }
