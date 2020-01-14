@@ -341,8 +341,9 @@ public class K8sService {
     public PodInfo deployPod(DockerContainer container, String namespace) throws Exception {
         PodInfo podInfo = new PodInfo();
         Pod pod = null;
-
+        
         try {
+            namespace = namespace != null ? namespace : DEFAULT_NAMESPACE;
             logger.info("Container name: {}", container.getContainerName().get());
             if (container.getCmd().isPresent()) {
                 logger.info(String.join(",", container.getCmd().get()));

@@ -1655,6 +1655,9 @@ public class TSSService {
         supportServiceInstance.getParameters()
                 .putAll(etmContextAuxService.getMonitoringEnvVars(true));
 
+        supportServiceInstance.getParameters().put("ET_TSS_INSTANCE_ID",
+                supportServiceInstance.getInstanceId());
+
         supportServiceInstance.getParameters().put("ET_ETM_LSTCP_HOST", etEtmLstcpHost);
         supportServiceInstance.getParameters().put("ET_ETM_LSTCP_PORT", etEtmLstcpPort);
 
