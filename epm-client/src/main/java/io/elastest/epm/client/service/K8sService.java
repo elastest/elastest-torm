@@ -68,6 +68,10 @@ import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.api.model.apps.DeploymentBuilder;
 import io.fabric8.kubernetes.api.model.batch.Job;
 import io.fabric8.kubernetes.api.model.batch.JobBuilder;
+import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBinding;
+import io.fabric8.kubernetes.api.model.rbac.ClusterRoleBindingBuilder;
+import io.fabric8.kubernetes.api.model.rbac.RoleRefBuilder;
+import io.fabric8.kubernetes.api.model.rbac.SubjectBuilder;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientException;
@@ -244,6 +248,22 @@ public class K8sService {
             return null;
         }
 
+    }
+
+    public void createClusterRoleBindingAdmin(String name, String namespace) throws Exception {
+        String role = "cluster-admin";
+        logger.debug("Creating Cluster Role Binding with name {} in the namespace {} with role {}",
+                name, namespace, role);
+        ClusterRoleBinding clusterRoleBinding = new ClusterRoleBindingBuilder().withNewMetadata()
+                .withName(name).endMetadata()
+                .withRoleRef(new RoleRefBuilder().withName(role).withKind("ClusterRole")
+                        .withApiGroup("rbac.authorization.k8s.io").build())
+                .withSubjects(new SubjectBuilder().withKind("ServiceAccount")
+                        .withNamespace(namespace).withName(name).build())
+                .build();
+        client.rbac().clusterRoleBindings().create(clusterRoleBinding);
+        logger.debug("Cluster Role Binding with name {} created successfully in the namespace {}",
+                name, namespace);
     }
 
     public JobResult deployJob(DockerContainer container) throws Exception {
@@ -954,6 +974,7 @@ public class K8sService {
     }
 
     public void deletePod(String podName, String namespace) {
+        namespace = namespace != null && !namespace.isEmpty() ? namespace : DEFAULT_NAMESPACE;
         logger.info("Deleting pod {} from namespace {}.", podName, namespace);
         client.pods().inNamespace(namespace).withName(podName.replace("_", "-")).delete();
     }
