@@ -425,8 +425,10 @@ public class K8sService {
 
             podBuilder.buildSpec().getContainers().get(0);
             pod = client.pods().inNamespace(namespace).createOrReplace(podBuilder.build());
+            logger.info("Pod with name {} has been created in namespace {}",
+                    container.getContainerName().get(), namespace);
 
-            while (!isReady(containerNameWithoutUnderscore, null)) {
+            while (!isReady(containerNameWithoutUnderscore, namespace)) {
                 UtilTools.sleep(1);
             }
             pod = client.pods().inNamespace(DEFAULT_NAMESPACE)
