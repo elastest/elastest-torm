@@ -81,7 +81,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
         // after 4 process, queued
         executor.setQueueCapacity(500);
         // After queue capacity (500)
-        executor.setMaxPoolSize(8);
+        executor.setMaxPoolSize(etCorePoolSize * 2);
         executor.setThreadNamePrefix("ET-");
         executor.initialize();
         return executor;
@@ -98,8 +98,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     @Bean
     public AbstractMonitoringService getMonitoringService() {
         if (utilsService.isElastestMini()) {
-            return new TracesSearchService(traceRepository, testSuiteService,
-                    utilsService);
+            return new TracesSearchService(traceRepository, testSuiteService, utilsService);
         } else {
             return new ElasticsearchService(utilsService, testSuiteService);
         }
@@ -110,11 +109,10 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     public PlatformService platformService() {
         PlatformService platformService = null;
         if (utilsService.isKubernetes()) {
-            platformService = new K8ServiceImpl(k8Service, etmFilesService,
-                    utilsService);
+            platformService = new K8ServiceImpl(k8Service, etmFilesService, utilsService);
         } else {
-            platformService = new DockerServiceImpl(dockerComposeService,
-                    etmFilesService, utilsService, dockerService);
+            platformService = new DockerServiceImpl(dockerComposeService, etmFilesService,
+                    utilsService, dockerService);
         }
         return platformService;
     }
@@ -129,8 +127,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     // TODO Change dockerComposeService for the right platform implementation
     public EsmServiceClient getSupportServiceClientInterface() {
         if (utilsService.isElastestMini()) {
-            return new MiniEsmServiceClient(getEtPluginsService(), utilsService,
-                    platformService());
+            return new MiniEsmServiceClient(getEtPluginsService(), utilsService, platformService());
         } else {
             return new EsmServiceClientImpl(utilsService, platformService());
         }
@@ -144,8 +141,7 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
     }
 
     private Connector createStandardConnector() {
-        Connector connector = new Connector(
-                "org.apache.coyote.http11.Http11NioProtocol");
+        Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
         connector.setPort(additionalServerPort);
         return connector;
     }
