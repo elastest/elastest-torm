@@ -550,7 +550,7 @@ public abstract class PlatformService {
             envVar = "ET_TEST_CONTAINER_NAME=" + containerName;
             envList.add(envVar);
 
-            if (execution.isWithSut()) {
+            if (execution.isWithSut() && sut != null && execution.getSutExec() != null) {
                 sutHost = execution.getSutExec().getIp();
                 sutPort = sut.getPort();
                 sutProtocol = sut.getProtocol().toString();

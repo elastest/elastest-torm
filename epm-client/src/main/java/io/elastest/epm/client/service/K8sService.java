@@ -856,13 +856,12 @@ public class K8sService {
     }
 
     private boolean checkIfServiceExistsInNamespace(String name, String namespace) {
+        namespace = namespace != null && !namespace.isEmpty() ? namespace : DEFAULT_NAMESPACE;
         logger.debug("Checking if exist the service \"{}\" in the namespace \"{}\"", name,
                 namespace);
         boolean result = false;
-        result = client.services()
-                .inNamespace(
-                        namespace != null && !namespace.isEmpty() ? namespace : DEFAULT_NAMESPACE)
-                .withName(name).get() != null ? true : result;
+        result = client.services().inNamespace(namespace).withName(name).get() != null ? true
+                : result;
 
         logger.debug("Exist the service \"{}\" in the namespace \"{}\"? {}", name, namespace,
                 result);
