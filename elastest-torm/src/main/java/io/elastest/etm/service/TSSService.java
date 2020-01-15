@@ -255,7 +255,7 @@ public class TSSService {
             }
 
             eusInstance.setServiceIp(serviceIp);
-            eusInstance.setEndpointName("elastest-eus");
+            eusInstance.setEndpointName(utilsService.isKubernetes() ? "eus" : "elastest-eus");
             buildTssInstanceUrls(eusInstance);
 
             // Replace EUS port to ETM port
