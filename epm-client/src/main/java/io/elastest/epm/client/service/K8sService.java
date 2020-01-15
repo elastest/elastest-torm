@@ -1144,10 +1144,14 @@ public class K8sService {
         return client.pods().inNamespace(namespace).list().getItems();
     }
 
-    public boolean existPodByName(String name) {
-        return client.pods().inNamespace(DEFAULT_NAMESPACE).withName(name).get() != null
-                ? Boolean.TRUE
+    public boolean existPodByName(String name, String namespace) {
+        namespace = namespace != null && !namespace.isEmpty() ? namespace : DEFAULT_NAMESPACE;
+        return client.pods().inNamespace(namespace).withName(name).get() != null ? Boolean.TRUE
                 : Boolean.FALSE;
+    }
+
+    public boolean existPodByName(String name) {
+        return existPodByName(name, DEFAULT_NAMESPACE);
     }
 
     public Pod getPodByName(String name, String namespace) {
