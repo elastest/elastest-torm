@@ -586,15 +586,27 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public void manageTSSInstanceIfNecessary(SupportServiceInstance instance) {
-        if (!utilsService.isElastestMini() && "EUS".equals(instance.getServiceName().toUpperCase())) {
-            try {
-                k8sService.createClusterRoleBindingAdmin(instance.getInstanceId(),
-                        instance.getInstanceId());
-            } catch (Exception e) {
-                logger.error("Error on create cluster role binding for EUS instance with id {}",
-                        instance.getInstanceId());
-                e.printStackTrace();
+    public void manageTSSInstanceIfNecessary(SupportServiceInstance instance, boolean isCreation) {
+        if (!utilsService.isElastestMini()
+                && "EUS".equals(instance.getServiceName().toUpperCase())) {
+            if (isCreation) {
+                try {
+                    k8sService.createClusterRoleBindingAdmin(instance.getInstanceId(),
+                            instance.getInstanceId());
+                } catch (Exception e) {
+                    logger.error("Error on create cluster role binding for EUS instance with id {}",
+                            instance.getInstanceId());
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    k8sService.deleteClusterRoleBindingAdmin(instance.getInstanceId(),
+                            instance.getInstanceId());
+                } catch (Exception e) {
+                    logger.error("Error on delete cluster role binding for EUS instance with id {}",
+                            instance.getInstanceId());
+                    e.printStackTrace();
+                }
             }
         }
     }

@@ -259,11 +259,31 @@ public class K8sService {
                 .withRoleRef(new RoleRefBuilder().withName(role).withKind("ClusterRole")
                         .withApiGroup("rbac.authorization.k8s.io").build())
                 .withSubjects(new SubjectBuilder().withKind("ServiceAccount")
-                        .withNamespace(namespace).withName(name).build())
+                        .withNamespace(namespace).withName("default").build())
                 .build();
         client.rbac().clusterRoleBindings().create(clusterRoleBinding);
         logger.debug("Cluster Role Binding with name {} created successfully in the namespace {}",
                 name, namespace);
+    }
+
+    public void deleteClusterRoleBindingAdmin(String name, String namespace) throws Exception {
+        if (namespace != null && !"default".equals(namespace) && name != null
+                && !"cluster-admin".equals("name")) {
+            String role = "cluster-admin";
+            logger.debug(
+                    "Deleting Cluster Role Binding with name {} in the namespace {} with role {}",
+                    name, namespace, role);
+            ClusterRoleBinding clusterRoleBinding = new ClusterRoleBindingBuilder()
+                    .withNewMetadata().withName(name).endMetadata()
+                    .withRoleRef(new RoleRefBuilder().withName(role).withKind("ClusterRole")
+                            .withApiGroup("rbac.authorization.k8s.io").build())
+                    .withSubjects(new SubjectBuilder().withKind("ServiceAccount")
+                            .withNamespace(namespace).withName("default").build())
+                    .build();
+            client.rbac().clusterRoleBindings().delete(clusterRoleBinding);
+            logger.debug("Cluster Role Binding with name {} deleted successfully from namespace {}",
+                    name, namespace);
+        }
     }
 
     public JobResult deployJob(DockerContainer container) throws Exception {

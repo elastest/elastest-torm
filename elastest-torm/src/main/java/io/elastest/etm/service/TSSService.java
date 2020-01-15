@@ -1074,7 +1074,7 @@ public class TSSService {
         newServiceInstance = esmServiceClient.getServiceInstanceInfo(newServiceInstance);
 
         buildTssInstanceUrls(newServiceInstance);
-        platformService.manageTSSInstanceIfNecessary(newServiceInstance);
+        platformService.manageTSSInstanceIfNecessary(newServiceInstance, true);
         newServiceInstance.setFullyInitialized(true);
         logger.info("Service {} with instance id {} has been fully initialized",
                 newServiceInstance.getServiceName(), instanceId);
@@ -1371,10 +1371,11 @@ public class TSSService {
 
             for (SupportServiceInstance subServiceInstance : serviceInstance.getSubServices()) {
                 platformService.removeBindedPorts(subServiceInstance);
-
             }
 
             esmServiceClient.deprovisionServiceInstance(instanceId, serviceInstance);
+
+            platformService.manageTSSInstanceIfNecessary(serviceInstance, false);
         }
         ssiMap.remove(instanceId);
         return result;

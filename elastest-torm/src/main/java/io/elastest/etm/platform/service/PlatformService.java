@@ -777,5 +777,6 @@ public abstract class PlatformService {
 
     protected abstract String getCommandsByPlatform();
 
-    public abstract void manageTSSInstanceIfNecessary(SupportServiceInstance instance);
+    public abstract void manageTSSInstanceIfNecessary(SupportServiceInstance instance,
+            boolean isCreation);
 }
