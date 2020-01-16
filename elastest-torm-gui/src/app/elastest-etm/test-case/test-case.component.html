@@ -45,17 +45,14 @@
                   <!-- OPTIONS -->
                   <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                     <div fxLayout="row" class="sutOptions optionsColumn">
+                      <i
+                      class="material-icons"
+                      (click)="openUrlInNewTab(row)"
+                      id="view_recording_new_tab"
+                      matTooltip="Open in new tab">open_in_new</i>
                       <ng-container *ngIf="filesService.isVideoByFileModel(row)">
-                        <i
-                          class="material-icons"
-                          (click)="openUrlInNewTab(row)"
-                          id="view_recording_new_tab"
-                          matTooltip="Open in new tab"
-                          >open_in_new</i
-                        >
                         <i class="material-icons" (click)="goToVideoTab(row)" id="view_recording" matTooltip="Open"
-                          >open_in_browser</i
-                        >
+                          >open_in_browser</i>
                       </ng-container>
                     </div>
                   </ng-template>
