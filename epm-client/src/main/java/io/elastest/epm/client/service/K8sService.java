@@ -311,7 +311,8 @@ public class K8sService {
             final Job job = new JobBuilder(Boolean.FALSE).withApiVersion("batch/v1")
                     .withNewMetadata().withName(containerNameWithoutUnderscore)
                     .withLabels(k8sJobLabels).endMetadata().withNewSpec().withNewTemplate()
-                    .withNewSpec().addNewContainer().withName(containerNameWithoutUnderscore)
+                    .withNewMetadata().withLabels(k8sJobLabels).endMetadata().withNewSpec()
+                    .addNewContainer().withName(containerNameWithoutUnderscore)
                     .withImage(container.getImageId()).withArgs(container.getCmd().get())
                     .withEnv(getEnvVarListFromStringList(container.getEnvs().get())).endContainer()
                     .withRestartPolicy("Never").endSpec().endTemplate().endSpec().build();
