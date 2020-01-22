@@ -30,9 +30,12 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
   @Input() tJobExecFinish: boolean = false;
   @Input() external: boolean = false;
 
+  eusSessionsNames: string[] = [];
+
   filesColumns: any[] = [
     { name: 'name', label: 'Name' },
     { name: 'folderName', label: 'Category' },
+    { name: 'resourceType', label: 'Resource Type' },
     { name: 'options', label: 'Options' },
   ];
 
@@ -113,8 +116,16 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
     }
 
     // Get files
-    getAbstractTJobExecutionFiles.subscribe((tJobsExecFiles: any) => {
-      this.prepareDataTable(tJobsExecFiles);
+    getAbstractTJobExecutionFiles.subscribe((execFiles: FileModel[]) => {
+      if (execFiles) {
+        for (let execFile of execFiles) {
+          if (execFile && execFile.isEusMetadataFile() && execFile.name) {
+            this.eusSessionsNames.push(execFile.name.split('.')[0]);
+          }
+        }
+      }
+
+      this.prepareDataTable(execFiles);
     });
   }
 
@@ -151,14 +162,10 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
     dialog.componentInstance.closeButton = true;
   }
 
-  isEusMetadata(name: string): boolean {
-    return name.endsWith('.eus');
-  }
-
   filterFiles(): void {
     if (this.executionFiles && this.executionFiles.length >= 0) {
       for (let file of this.executionFiles) {
-        if (!this.isEusMetadata(file.name)) {
+        if (!file.isEusMetadataFile()) {
           this.filteredExecutionFiles.push(file);
         }
       }

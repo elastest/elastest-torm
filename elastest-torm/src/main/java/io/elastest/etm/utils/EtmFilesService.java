@@ -63,12 +63,11 @@ public class EtmFilesService {
     /* ********************* Elastest data folder ********************* */
     /* **************************************************************** */
 
-    public List<ElastestFile> getElastestFilesUrls(String fileSeparator,
-            String relativeFilePath) throws InterruptedException, IOException {
+    public List<ElastestFile> getElastestFilesUrls(String fileSeparator, String relativeFilePath)
+            throws InterruptedException, IOException {
         List<ElastestFile> filesList = new ArrayList<ElastestFile>();
 
-        String tJobExecFolder = sharedFolder.endsWith(fileSeparator)
-                ? sharedFolder
+        String tJobExecFolder = sharedFolder.endsWith(fileSeparator) ? sharedFolder
                 : sharedFolder + fileSeparator;
         tJobExecFolder += relativeFilePath;
         logger.debug("Shared folder: " + tJobExecFolder);
@@ -90,17 +89,16 @@ public class EtmFilesService {
                 File folder = ResourceUtils.getFile(fullPathFolder);
 
                 filesList.addAll(this.getElastestFilesByFolder(folder,
-                        relativeFilePath + folderName + fileSeparator,
-                        folderName, fileSeparator));
+                        relativeFilePath + folderName + fileSeparator, folderName, fileSeparator,
+                        folderName));
             }
         }
 
         return filesList;
     }
 
-    public List<ElastestFile> getElastestFilesByFolder(File folder,
-            String relativePath, String folderName, String fileSeparator)
-            throws IOException {
+    public List<ElastestFile> getElastestFilesByFolder(File folder, String relativePath,
+            String currentFolderName, String fileSeparator, String serviceName) throws IOException {
         String absolutePath = sharedFolder + relativePath;
         if (sharedFolder.endsWith("/") && relativePath.startsWith("/")) {
             absolutePath = sharedFolder + relativePath.replaceFirst("/", "");
@@ -111,36 +109,31 @@ public class EtmFilesService {
         }
         List<ElastestFile> filesList = new ArrayList<ElastestFile>();
 
-        List<String> folderFilesNames = new ArrayList<>(
-                Arrays.asList(folder.list()));
+        List<String> folderFilesNames = new ArrayList<>(Arrays.asList(folder.list()));
 
         for (String currentFileName : folderFilesNames) {
             String absoluteFilePath = absolutePath + currentFileName;
             String relativeFilePath = relativePath + currentFileName;
             File currentFile = ResourceUtils.getFile(absoluteFilePath);
             if (currentFile.isDirectory()) {
-                filesList.addAll(this.getElastestFilesByFolder(currentFile,
-                        relativeFilePath + fileSeparator, folderName,
-                        fileSeparator));
+                filesList.addAll(
+                        this.getElastestFilesByFolder(currentFile, relativeFilePath + fileSeparator,
+                                currentFile.getName(), fileSeparator, serviceName));
             } else {
-                String encodedCurrentFileName = URLEncoder
-                        .encode(currentFileName, "UTF-8");
-                String relativeEncodedFilePath = relativePath
-                        + encodedCurrentFileName;
+                String encodedCurrentFileName = URLEncoder.encode(currentFileName, "UTF-8");
+                String relativeEncodedFilePath = relativePath + encodedCurrentFileName;
 
-                filesList.add(new ElastestFile(currentFileName,
-                        getElastestFileUrl(relativeFilePath),
-                        getElastestFileUrl(relativeEncodedFilePath),
-                        folderName));
+                filesList
+                        .add(new ElastestFile(currentFileName, getElastestFileUrl(relativeFilePath),
+                                getElastestFileUrl(relativeEncodedFilePath), currentFolderName,
+                                relativePath, serviceName));
             }
         }
         return filesList;
     }
 
-    public String getElastestFileUrl(String serviceFilePath)
-            throws IOException {
-        String urlResponse = contextPath.replaceFirst("/", "")
-                + registryContextPath + "/"
+    public String getElastestFileUrl(String serviceFilePath) throws IOException {
+        String urlResponse = contextPath.replaceFirst("/", "") + registryContextPath + "/"
                 + serviceFilePath.replace("\\\\", "/");
         return urlResponse;
     }
@@ -166,17 +159,15 @@ public class EtmFilesService {
 
             if (file == null || !file.exists()) {
                 logger.info("Load file prod mode");
-                file = getFileFromJarFile("/" + path + fileName,
-                        sharedFolder + "/tmp/" + fileName);
+                file = getFileFromJarFile("/" + path + fileName, sharedFolder + "/tmp/" + fileName);
                 logger.info("File loaded");
             }
 
         } catch (IOException ioe) {
-            logger.error("Error reading the files. The file with the path "
-                    + path + " does not exist:");
+            logger.error(
+                    "Error reading the files. The file with the path " + path + " does not exist:");
             try {
-                file = getFileFromJarFile("/" + path + fileName,
-                        sharedFolder + "/tmp/" + fileName);
+                file = getFileFromJarFile("/" + path + fileName, sharedFolder + "/tmp/" + fileName);
             } catch (Exception e) {
                 throw e;
             }
@@ -189,9 +180,8 @@ public class EtmFilesService {
     /* *************************************************************** */
 
     private String getTJobFolderPath(TJob tJob, boolean relativePath) {
-        String path = (relativePath ? "" : sharedFolder) + FILE_SEPARATOR
-                + TJOBS_FOLDER + FILE_SEPARATOR + TJOB_FOLDER_PREFIX
-                + tJob.getId() + FILE_SEPARATOR;
+        String path = (relativePath ? "" : sharedFolder) + FILE_SEPARATOR + TJOBS_FOLDER
+                + FILE_SEPARATOR + TJOB_FOLDER_PREFIX + tJob.getId() + FILE_SEPARATOR;
         return path;
     }
 
@@ -201,52 +191,44 @@ public class EtmFilesService {
         removeFolder(folderPath);
     }
 
-    private String getTJobExecFolderPath(TJobExecution tJobExec,
-            boolean relativePath) {
-        String path = getTJobFolderPath(tJobExec.getTjob(), relativePath)
-                + TJOB_EXEC_FOLDER_PREFIX + tJobExec.getId() + FILE_SEPARATOR;
+    private String getTJobExecFolderPath(TJobExecution tJobExec, boolean relativePath) {
+        String path = getTJobFolderPath(tJobExec.getTjob(), relativePath) + TJOB_EXEC_FOLDER_PREFIX
+                + tJobExec.getId() + FILE_SEPARATOR;
         return path;
     }
 
     public List<ElastestFile> getTJobExecFilesUrls(Long tJobId, Long tJobExecId)
             throws InterruptedException {
-        logger.info("Retrived the files generated by the TJob execution: {}",
-                tJobExecId);
+        logger.info("Retrived the files generated by the TJob execution: {}", tJobExecId);
 
         String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
-        String tJobExecFilePath = TJOBS_FOLDER + fileSeparator
-                + TJOB_FOLDER_PREFIX + tJobId + fileSeparator
-                + TJOB_EXEC_FOLDER_PREFIX + tJobExecId + fileSeparator;
+        String tJobExecFilePath = TJOBS_FOLDER + fileSeparator + TJOB_FOLDER_PREFIX + tJobId
+                + fileSeparator + TJOB_EXEC_FOLDER_PREFIX + tJobExecId + fileSeparator;
 
         List<ElastestFile> filesList = null;
         try {
-            filesList = this.getElastestFilesUrls(fileSeparator,
-                    tJobExecFilePath);
+            filesList = this.getElastestFilesUrls(fileSeparator, tJobExecFilePath);
         } catch (IOException fnfe) {
-            logger.warn("Error building the URLs of the execution files {}",
-                    tJobExecId);
+            logger.warn("Error building the URLs of the execution files {}", tJobExecId);
         }
         return filesList;
     }
 
-    public void removeTJobExecFolderPath(TJobExecution tJobExec)
-            throws IOException {
-        logger.debug("Trying to remove TJobExecution {} folder",
-                tJobExec.getId());
+    public void removeTJobExecFolderPath(TJobExecution tJobExec) throws IOException {
+        logger.debug("Trying to remove TJobExecution {} folder", tJobExec.getId());
         String folderPath = getTJobExecFolderPath(tJobExec, false);
         removeFolder(folderPath);
     }
 
-    public String buildExecutionFilesPath(Long tJobId, Long tJobExecId,
-            boolean isExternal, String folder) {
+    public String buildExecutionFilesPath(Long tJobId, Long tJobExecId, boolean isExternal,
+            String folder) {
         String path = "";
 
         // etmcontextService.getMonitoringEnvVars
         String fileSeparator = "/";
         String parsedSharedFolder = sharedFolder;
         if (parsedSharedFolder.endsWith(fileSeparator)) {
-            parsedSharedFolder = parsedSharedFolder.substring(0,
-                    parsedSharedFolder.length() - 1);
+            parsedSharedFolder = parsedSharedFolder.substring(0, parsedSharedFolder.length() - 1);
         }
 
         String tJobsFolder = TJOBS_FOLDER;
@@ -259,9 +241,9 @@ public class EtmFilesService {
             tJobExecFolder = EXTERNAL_TJOB_EXEC_FOLDER_PREFIX;
         }
 
-        path = parsedSharedFolder + fileSeparator + tJobsFolder + fileSeparator
-                + tJobFolder + tJobId + fileSeparator + tJobExecFolder
-                + tJobExecId + fileSeparator + folder + fileSeparator;
+        path = parsedSharedFolder + fileSeparator + tJobsFolder + fileSeparator + tJobFolder
+                + tJobId + fileSeparator + tJobExecFolder + tJobExecId + fileSeparator + folder
+                + fileSeparator;
 
         return path;
     }
@@ -277,21 +259,19 @@ public class EtmFilesService {
         return path;
     }
 
-    public String buildExternalTJobFilesPath(
-            ExternalTJobExecution externalTJobExec, String folder) {
+    public String buildExternalTJobFilesPath(ExternalTJobExecution externalTJobExec,
+            String folder) {
         String path = "";
         if (externalTJobExec != null && externalTJobExec.getExTJob() != null) {
             Long externalTJobId = externalTJobExec.getExTJob().getId();
             Long externalTJobExecId = externalTJobExec.getId();
-            path = buildExecutionFilesPath(externalTJobId, externalTJobExecId,
-                    true, folder);
+            path = buildExecutionFilesPath(externalTJobId, externalTJobExecId, true, folder);
         }
 
         return path;
     }
 
-    public String getTJobExecAttachmentFilePath(TJobExecution tJobExec,
-            boolean relativePath) {
+    public String getTJobExecAttachmentFilePath(TJobExecution tJobExec, boolean relativePath) {
         String attachmentPath = getTJobExecFolderPath(tJobExec, relativePath)
                 + EXEC_ATTACHMENTS_FOLDER + FILE_SEPARATOR;
 
@@ -302,72 +282,60 @@ public class EtmFilesService {
         return getTJobExecAttachmentFilePath(tJobExec, false);
     }
 
-    public Boolean saveExecAttachmentFile(TJobExecution tJobExec,
-            String fileName, MultipartFile multipartFile)
-            throws IllegalStateException, IOException {
+    public Boolean saveExecAttachmentFile(TJobExecution tJobExec, String fileName,
+            MultipartFile multipartFile) throws IllegalStateException, IOException {
         String path = getTJobExecAttachmentFilePath(tJobExec);
 
         return saveMultipartFile(fileName, multipartFile, path, true, false);
     }
 
-    public Boolean saveExecAttachmentFile(TJobExecution tJobExec,
-            MultipartFile file) throws IllegalStateException, IOException {
-        return saveExecAttachmentFile(tJobExec, file.getOriginalFilename(),
-                file);
+    public Boolean saveExecAttachmentFile(TJobExecution tJobExec, MultipartFile file)
+            throws IllegalStateException, IOException {
+        return saveExecAttachmentFile(tJobExec, file.getOriginalFilename(), file);
     }
 
     /* *************************************************************** */
     /* ************************ External TJob ************************ */
     /* *************************************************************** */
 
-    public List<ElastestFile> getExternalTJobExecutionFilesUrls(Long exTJobId,
-            Long exTJobExecId) throws InterruptedException {
-        logger.info("Retrived the files generated by the TJob execution: {}",
-                exTJobExecId);
+    public List<ElastestFile> getExternalTJobExecutionFilesUrls(Long exTJobId, Long exTJobExecId)
+            throws InterruptedException {
+        logger.info("Retrived the files generated by the TJob execution: {}", exTJobExecId);
 
         String fileSeparator = IS_OS_WINDOWS ? "\\\\" : "/";
         String tJobExecFilePath = EXTERNAL_TJOBS_FOLDER + fileSeparator
                 + EXTERNAL_TJOB_FOLDER_PREFIX + exTJobId + fileSeparator
-                + EXTERNAL_TJOB_EXEC_FOLDER_PREFIX + exTJobExecId
-                + fileSeparator;
+                + EXTERNAL_TJOB_EXEC_FOLDER_PREFIX + exTJobExecId + fileSeparator;
 
         List<ElastestFile> filesList = null;
         try {
-            filesList = this.getElastestFilesUrls(fileSeparator,
-                    tJobExecFilePath);
+            filesList = this.getElastestFilesUrls(fileSeparator, tJobExecFilePath);
         } catch (IOException fnfe) {
-            logger.warn("Error building the URLs of the execution files {}",
-                    exTJobExecId);
+            logger.warn("Error building the URLs of the execution files {}", exTJobExecId);
         }
         return filesList;
     }
 
-    private String getExternalTJobFolderPath(ExternalTJob exTJob,
-            boolean relativePath) {
-        return (relativePath ? "" : sharedFolder) + FILE_SEPARATOR
-                + EXTERNAL_TJOBS_FOLDER + FILE_SEPARATOR
-                + EXTERNAL_TJOB_FOLDER_PREFIX + exTJob.getId() + FILE_SEPARATOR;
+    private String getExternalTJobFolderPath(ExternalTJob exTJob, boolean relativePath) {
+        return (relativePath ? "" : sharedFolder) + FILE_SEPARATOR + EXTERNAL_TJOBS_FOLDER
+                + FILE_SEPARATOR + EXTERNAL_TJOB_FOLDER_PREFIX + exTJob.getId() + FILE_SEPARATOR;
     }
 
-    public void removeExternalTJobFolderPath(ExternalTJob exTJob)
-            throws IOException {
-        logger.debug("Trying to remove External TJob {} folder",
-                exTJob.getId());
+    public void removeExternalTJobFolderPath(ExternalTJob exTJob) throws IOException {
+        logger.debug("Trying to remove External TJob {} folder", exTJob.getId());
         String folderPath = getExternalTJobFolderPath(exTJob, false);
         removeFolder(folderPath);
     }
 
-    private String getExternalTJobExecFolderPath(
-            ExternalTJobExecution exTJobExec, boolean relativePath) {
+    private String getExternalTJobExecFolderPath(ExternalTJobExecution exTJobExec,
+            boolean relativePath) {
         return getExternalTJobFolderPath(exTJobExec.getExTJob(), relativePath)
-                + EXTERNAL_TJOB_EXEC_FOLDER_PREFIX + exTJobExec.getId()
-                + FILE_SEPARATOR;
+                + EXTERNAL_TJOB_EXEC_FOLDER_PREFIX + exTJobExec.getId() + FILE_SEPARATOR;
     }
 
-    public void removeExternalTJobExecFolderPath(
-            ExternalTJobExecution exTJobExec) throws IOException {
-        logger.debug("Trying to remove External TJob Exec {} folder",
-                exTJobExec.getId());
+    public void removeExternalTJobExecFolderPath(ExternalTJobExecution exTJobExec)
+            throws IOException {
+        logger.debug("Trying to remove External TJob Exec {} folder", exTJobExec.getId());
         String folderPath = getExternalTJobExecFolderPath(exTJobExec, false);
         removeFolder(folderPath);
     }
@@ -376,11 +344,9 @@ public class EtmFilesService {
     /* *********************** Execution *********************** */
     /* ********************************************************** */
 
-    public String getExecutionFolderPath(Execution execution,
-            boolean relativePath) {
+    public String getExecutionFolderPath(Execution execution, boolean relativePath) {
         if (execution.isExternal()) {
-            return getExternalTJobExecFolderPath(
-                    execution.getExternalTJobExec(), relativePath);
+            return getExternalTJobExecFolderPath(execution.getExternalTJobExec(), relativePath);
         } else {
             return getTJobExecFolderPath(execution.getTJobExec(), relativePath);
         }
@@ -401,30 +367,25 @@ public class EtmFilesService {
             File file = ResourceUtils.getFile(path);
             // If not in dev mode
             if (file.exists()) {
-                List<String> filesNames = new ArrayList<>(
-                        Arrays.asList(file.list()));
+                List<String> filesNames = new ArrayList<>(Arrays.asList(file.list()));
                 for (String nameOfFile : filesNames) {
                     logger.debug("File name: {}", nameOfFile);
-                    File serviceFile = ResourceUtils
-                            .getFile(path + "/" + nameOfFile);
+                    File serviceFile = ResourceUtils.getFile(path + "/" + nameOfFile);
                     files.add(serviceFile);
                 }
             } else { // Dev mode
                 Resource resource = new ClassPathResource(path);
                 try (BufferedReader br = new BufferedReader(
-                        new InputStreamReader(resource.getInputStream()),
-                        1024)) {
+                        new InputStreamReader(resource.getInputStream()), 1024)) {
                     String line;
                     while ((line = br.readLine()) != null) {
                         logger.debug("File name (dev mode):" + line);
-                        File serviceFile = new ClassPathResource(path + line)
-                                .getFile();
+                        File serviceFile = new ClassPathResource(path + line).getFile();
                         files.add(serviceFile);
                     }
                 } catch (IOException ioe) {
-                    logger.warn(
-                            "Error reading the files. The file with the path "
-                                    + path + " does not exist:");
+                    logger.warn("Error reading the files. The file with the path " + path
+                            + " does not exist:");
                     throw ioe;
                 }
             }
@@ -432,16 +393,14 @@ public class EtmFilesService {
             return files;
 
         } catch (IOException ioe) {
-            logger.warn("Error reading the files. The file with the path "
-                    + path + " does not exist:");
+            logger.warn(
+                    "Error reading the files. The file with the path " + path + " does not exist:");
             throw ioe;
         }
     }
 
-    public File getFileFromJarFile(String sourcePath, String targetPath)
-            throws IOException {
-        InputStream iStream = getFileContentAsInputStreamFromResource(
-                sourcePath);
+    public File getFileFromJarFile(String sourcePath, String targetPath) throws IOException {
+        InputStream iStream = getFileContentAsInputStreamFromResource(sourcePath);
         return createFileFromInputStream(iStream, targetPath);
     }
 
@@ -449,15 +408,14 @@ public class EtmFilesService {
         return getClass().getResourceAsStream(path);
     }
 
-    public File createFileFromInputStream(InputStream iStream,
-            String targetPath) throws IOException {
+    public File createFileFromInputStream(InputStream iStream, String targetPath)
+            throws IOException {
         File file = new File(targetPath);
         FileUtils.copyInputStreamToFile(iStream, file);
         return ResourceUtils.getFile(targetPath);
     }
 
-    public File createFileFromString(String string, String targetPath)
-            throws IOException {
+    public File createFileFromString(String string, String targetPath) throws IOException {
         File file = new File(targetPath);
         FileUtils.writeStringToFile(file, string, StandardCharsets.UTF_8);
         return ResourceUtils.getFile(targetPath);
@@ -469,8 +427,7 @@ public class EtmFilesService {
 
         if (!folderStructure.exists()) {
             logger.debug("Try to create folder structure: {}", path);
-            logger.info("Creating folder at {}.",
-                    folderStructure.getAbsolutePath());
+            logger.info("Creating folder at {}.", folderStructure.getAbsolutePath());
             boolean created = folderStructure.mkdirs();
             if (!created) {
                 logger.error("Folder does not created at {}.", path);
@@ -488,8 +445,7 @@ public class EtmFilesService {
             try {
                 content = new String(Files.readAllBytes(file.toPath()));
             } catch (IOException e) {
-                logger.error("Error reading the content of the file {}",
-                        file.getName());
+                logger.error("Error reading the content of the file {}", file.getName());
                 throw e;
             }
         }
@@ -502,8 +458,7 @@ public class EtmFilesService {
         File folderStructure = new File(folderPath);
 
         if (folderStructure.exists() && folderStructure.isDirectory()) {
-            logger.info("Removing folder at {}.",
-                    folderStructure.getAbsolutePath());
+            logger.info("Removing folder at {}.", folderStructure.getAbsolutePath());
             try {
                 FileUtils.deleteDirectory(folderStructure);
             } catch (IOException e) {
@@ -525,10 +480,8 @@ public class EtmFilesService {
         return file.delete();
     }
 
-    public Boolean saveMultipartFile(String fileName,
-            MultipartFile multipartFile, String path,
-            boolean createFolderIfNotExists, boolean forceReplace)
-            throws IOException {
+    public Boolean saveMultipartFile(String fileName, MultipartFile multipartFile, String path,
+            boolean createFolderIfNotExists, boolean forceReplace) throws IOException {
         if (createFolderIfNotExists) {
             createFolderIfNotExists(path);
         }

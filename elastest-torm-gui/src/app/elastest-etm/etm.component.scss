@@ -49,6 +49,10 @@
   color: #737373;
 }
 
+:host ::ng-deep mat-nav-list button[mat-list-item] .mat-list-item-content {
+  font-size: 14px;
+}
+
 :host ::ng-deep mat-nav-list [mat-list-item].active fa-icon[mat-list-icon] {
   color: #ffac2f !important;
 }

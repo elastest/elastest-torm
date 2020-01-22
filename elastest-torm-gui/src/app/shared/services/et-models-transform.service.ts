@@ -12,13 +12,12 @@ import { ExternalProjectModel } from '../../elastest-etm/external/external-proje
 import { TestSuiteModel } from '../../elastest-etm/test-suite/test-suite-model';
 import { TestCaseModel } from '../../elastest-etm/test-case/test-case-model';
 import { EimMonitoringConfigModel, EimBeatConfigModel } from '../../elastest-etm/sut/eim-monitoring-config.model';
-import { ExternalElasticsearch } from '../../elastest-etm/external-monitoring-db/external-elasticsearch.model';
-import { ExternalPrometheus } from '../../elastest-etm/external-monitoring-db/external-prometheus.model';
 
 import { ParameterModel } from '../../elastest-etm/parameter/parameter-model';
 import { MultiConfigModel } from '../multi-config-view/multi-config-view.component';
 import { ExternalMonitoringDBForLogs } from '../../elastest-etm/external-monitoring-db/external-monitoring-db-for-logs.model';
 import { ExternalMonitoringDBForMetrics } from '../../elastest-etm/external-monitoring-db/external-monitoring-db-for-metrics.model';
+import { FileModel } from '../../elastest-etm/files-manager/file-model';
 @Injectable()
 export class ETModelsTransformServices {
   constructor() {}
@@ -431,5 +430,32 @@ export class ETModelsTransformServices {
 
   jsonToMultiConfigModel(multiConfig: any): MultiConfigModel {
     return new MultiConfigModel(multiConfig);
+  }
+
+  /***** Files *****/
+  public jsonToFilesList(files: any[]): FileModel[] {
+    let filesList: FileModel[] = [];
+    if (files) {
+      for (let file of files) {
+        filesList.push(this.jsonToFileModel(file));
+      }
+    }
+    return filesList;
+  }
+
+  public jsonToFileModel(file: any): FileModel {
+    let fileModel: FileModel;
+    if (file) {
+      fileModel = new FileModel();
+
+      fileModel.name = file.name;
+      fileModel.extension = file.extension;
+      fileModel.folderName = file.folderName;
+      fileModel.url = file.url;
+      fileModel.encodedUrl = file.encodedUrl;
+      fileModel.resourceType = file.resourceType ? file.resourceType : 'DEFAULT';
+      fileModel.serviceName = file.serviceName;
+    }
+    return fileModel;
   }
 }

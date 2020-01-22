@@ -13,6 +13,7 @@ import { LogAnalyzerService, StartFinishTestCaseTraces } from '../../elastest-lo
 import { MetricTraces } from '../../shared/services/monitoring.service';
 import { sleep } from '../../shared/utils';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import { FileModel } from '../files-manager/file-model';
 
 @Injectable()
 export class TJobExecService {
@@ -75,9 +76,9 @@ export class TJobExecService {
     return this.http.get(url).map((data: any[]) => this.eTModelsTransformServices.jsonToTJobExecsList(data));
   }
 
-  public getTJobExecutionFiles(tJobId: number, tJobExecId: number): Observable<any> {
+  public getTJobExecutionFiles(tJobId: number, tJobExecId: number): Observable<FileModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecId + '/files';
-    return this.http.get(url);
+    return this.http.get(url).map((data: any[]) => this.eTModelsTransformServices.jsonToFilesList(data));
   }
 
   /*public getTJobExecutionFiles(tJobExec: TJobExecModel){

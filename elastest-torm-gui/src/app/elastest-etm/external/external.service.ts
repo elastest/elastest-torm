@@ -13,6 +13,8 @@ import { ExternalTestExecutionModel } from './external-test-execution/external-t
 import { Subscription } from 'rxjs/Subscription';
 import { Subject } from 'rxjs/Subject';
 import { interval } from 'rxjs';
+import { ETModelsTransformServices } from '../../shared/services/et-models-transform.service';
+import { FileModel } from '../files-manager/file-model';
 
 @Injectable()
 export class ExternalService {
@@ -22,6 +24,7 @@ export class ExternalService {
     private http: HttpClient,
     private configurationService: ConfigurationService,
     public eTExternalModelsTransformService: ETExternalModelsTransformService,
+    public eTModelsTransformServices: ETModelsTransformServices,
     public popupService: PopupService,
   ) {
     this.hostApi = this.configurationService.configModel.hostApi;
@@ -148,9 +151,9 @@ export class ExternalService {
     return this.http.put(url, exec).map((data: any) => this.eTExternalModelsTransformService.jsonToExternalTJobExecModel(data));
   }
 
-  public getExternalTJobExecutionFiles(tJobExecId: number): Observable<any> {
+  public getExternalTJobExecutionFiles(tJobExecId: number): Observable<FileModel[]> {
     let url: string = this.configurationService.configModel.hostApi + '/external/tjobexec/' + tJobExecId + '/files';
-    return this.http.get(url);
+    return this.http.get(url).map((data: any[]) => this.eTModelsTransformServices.jsonToFilesList(data));
   }
 
   public getExternalTestExecsByExternalTJobExecId(exTJobExecId: string | number): Observable<ExternalTestExecutionModel[]> {
