@@ -6,7 +6,6 @@ import { TestCaseModel } from './test-case-model';
 import { ElastestLogAnalyzerComponent } from '../../elastest-log-analyzer/elastest-log-analyzer.component';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { FileModel } from '../files-manager/file-model';
-import { ConfigurationService } from '../../config/configuration-service.service';
 import { EtmMonitoringViewComponent } from '../etm-monitoring-view/etm-monitoring-view.component';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { StartFinishTestCaseTraces } from '../../elastest-log-analyzer/log-analyzer.service';
@@ -20,8 +19,6 @@ import { FilesService } from '../../shared/services/files.service';
   styleUrls: ['./test-case.component.scss'],
 })
 export class TestCaseComponent implements OnInit {
-  private filesUrlPrefix: string;
-
   @ViewChild('logsAndMetrics', { static: true })
   logsAndMetrics: EtmMonitoringViewComponent;
 
@@ -42,15 +39,22 @@ export class TestCaseComponent implements OnInit {
 
   nested: boolean = false;
 
-  mp4Files: FileModel[] = [];
+  videoFiles: FileModel[] = [];
+  eusSessionsNames: string[] = [];
 
   // SuT Data
   filesColumns: ITdDataTableColumn[] = [
     { name: 'name', label: 'Name' },
-    { name: 'options', label: 'Options', sortable: false, width: { min: 46, max: 130 } },
+    {
+      name: 'options',
+      label: 'Options',
+      sortable: false,
+      width: { min: 46, max: 130 },
+    },
   ];
 
-  @ViewChild('miniLogAnalyzer', { static: false }) private miniLogAnalyzer: ElastestLogAnalyzerComponent;
+  @ViewChild('miniLogAnalyzer', { static: false })
+  private miniLogAnalyzer: ElastestLogAnalyzerComponent;
 
   constructor(
     private testCaseService: TestCaseService,
@@ -58,11 +62,8 @@ export class TestCaseComponent implements OnInit {
     private titlesService: TitlesService,
     private router: Router,
     private tJobExecService: TJobExecService,
-    private configurationService: ConfigurationService,
     private filesService: FilesService,
-  ) {
-    this.filesUrlPrefix = this.configurationService.configModel.host.replace('4200', '8091');
-  }
+  ) {}
 
   ngOnInit(): void {
     // Nested
@@ -90,10 +91,12 @@ export class TestCaseComponent implements OnInit {
   }
 
   loadTestCase(): void {
-    this.testCaseService.getTestCaseById(this.testCaseId).subscribe((testCase: TestCaseModel) => {
-      this.testCase = testCase;
-      this.initAfterLoadTestCase();
-    });
+    this.testCaseService
+      .getTestCaseById(this.testCaseId)
+      .subscribe((testCase: TestCaseModel) => {
+        this.testCase = testCase;
+        this.initAfterLoadTestCase();
+      });
   }
 
   initAfterLoadTestCase(): void {
@@ -103,13 +106,15 @@ export class TestCaseComponent implements OnInit {
       if (this.nested) {
         this.initAfterLoadTJobExec();
       } else {
-        this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe(
-          (tJobExec: TJobExecModel) => {
-            this.tJobExec = tJobExec;
-            this.initAfterLoadTJobExec();
-          },
-          (error: Error) => console.error(error),
-        );
+        this.tJobExecService
+          .getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
+          .subscribe(
+            (tJobExec: TJobExecModel) => {
+              this.tJobExec = tJobExec;
+              this.initAfterLoadTJobExec();
+            },
+            (error: Error) => console.error(error),
+          );
       }
     }
   }
@@ -139,35 +144,45 @@ export class TestCaseComponent implements OnInit {
 
   initMonitoring(startDate: Date, endDate: Date): void {
     if (startDate && endDate) {
-      this.logsAndMetrics.initView(this.tJobExec.tJob, this.tJobExec, startDate, endDate);
+      this.logsAndMetrics.initView(
+        this.tJobExec.tJob,
+        this.tJobExec,
+        startDate,
+        endDate,
+      );
       this.showLogsAndMetrics = true;
     }
   }
 
   getExecutionFiles(): void {
-    this.tJobExecService.getTJobExecutionFiles(this.tJobId, this.tJobExecId).subscribe(
-      (tJobsExecFiles: FileModel[]) => {
-        this.mp4Files = [];
-        let i: number = 0;
-        tJobsExecFiles.forEach((file: FileModel) => {
-          if (this.filesService.isVideoByFileModel(file) && file.name.startsWith(this.testCase.name)) {
-            file['order'] = i;
-            i++;
-            this.mp4Files.push(file);
+    this.tJobExecService
+      .getTJobExecutionFiles(this.tJobId, this.tJobExecId)
+      .subscribe(
+        (tJobsExecFiles: FileModel[]) => {
+          if (tJobsExecFiles) {
+            for (let execFile of tJobsExecFiles) {
+              if (execFile && execFile.isEusMetadataFile() && execFile.name) {
+                this.eusSessionsNames.push(execFile.name.split('.')[0]);
+              }
+            }
           }
-        });
-        this.testCase.setTestCaseFiles(tJobsExecFiles);
-      },
-      (error: Error) => console.log(error),
-    );
-  }
 
-  getVideoFileUrl(file: FileModel): string {
-    return this.filesUrlPrefix + file.encodedUrl;
-  }
-
-  openUrlInNewTab(file: FileModel): void {
-    window.open(this.getVideoFileUrl(file));
+          this.videoFiles = [];
+          let i: number = 0;
+          tJobsExecFiles.forEach((file: FileModel) => {
+            if (
+              this.filesService.isVideoByFileModel(file) &&
+              file.name.startsWith(this.testCase.name)
+            ) {
+              file['order'] = i;
+              i++;
+              this.videoFiles.push(file);
+            }
+          });
+          this.testCase.setTestCaseFiles(tJobsExecFiles);
+        },
+        (error: Error) => console.log(error),
+      );
   }
 
   goToTab(num: number): void {
@@ -196,13 +211,23 @@ export class TestCaseComponent implements OnInit {
           'loganalyzer',
         ],
         {
-          queryParams: { tjob: this.tJobId, exec: this.tJobExecId, testCase: this.testCase.name },
+          queryParams: {
+            tjob: this.tJobId,
+            exec: this.tJobExecId,
+            testCase: this.testCase.name,
+          },
         },
       );
     }
   }
 
   caseHasFiles(): boolean {
-    return this.testCase && this.testCase.files && this.testCase.files.length > 0;
+    return (
+      this.testCase && this.testCase.files && this.testCase.files.length > 0
+    );
+  }
+
+  caseHasBrowserFiles(): boolean {
+    return this.eusSessionsNames.length > 0;
   }
 }

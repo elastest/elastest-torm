@@ -21,9 +21,12 @@ export class FileModel {
   }
 
   isEusMetadataFile(): boolean {
-    return this.resourceType === 'EUS_SESSION_INFO' || this.name.endsWith('.eus') || this.extension === 'eus';
+    return (
+      this.resourceType === 'EUS_SESSION_INFO' ||
+      this.name.endsWith('.eus') ||
+      this.extension === 'eus'
+    );
   }
-
 }
 
 export type TJobExecTypeEnum =

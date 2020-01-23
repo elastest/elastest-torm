@@ -1,4 +1,3 @@
-import { ConfigurationService } from '../../config/configuration-service.service';
 import { FileModel } from './file-model';
 import { TJobExecService } from '../tjob-exec/tjobExec.service';
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
@@ -7,9 +6,6 @@ import { TdDataTableService, TdDataTableSortingOrder } from '@covalent/core';
 import { ExternalService } from '../external/external.service';
 import { TJobExecModel } from '../tjob-exec/tjobExec-model';
 import { ExternalTJobExecModel } from '../external/external-tjob-execution/external-tjob-execution-model';
-import { ElastestEusDialog } from '../../elastest-eus/elastest-eus.dialog';
-import { MatDialogRef } from '@angular/material';
-import { ElastestEusDialogService } from '../../elastest-eus/elastest-eus.dialog.service';
 import { AbstractTJobExecModel } from '../models/abstract-tjob-exec-model';
 import { interval } from 'rxjs';
 import { AbstractTJobModel } from '../models/abstract-tjob-model';
@@ -48,8 +44,6 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
   timer: Observable<number>;
   subscription: Subscription;
 
-  filesUrlPrefix: string;
-
   loading: boolean = true;
   finished: boolean = false;
 
@@ -57,29 +51,29 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
     private _dataTableService: TdDataTableService,
     private tJobExecService: TJobExecService,
     private externalService: ExternalService,
-    private configurationService: ConfigurationService,
-    private eusDialog: ElastestEusDialogService,
     private filesService: FilesService,
-  ) {
-    this.filesUrlPrefix = configurationService.configModel.proxyHost;
-  }
+  ) {}
 
   ngOnInit(): void {
     if (!this.tJob && !this.tJobExec) {
       if (!this.external) {
-        this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExecution: TJobExecModel) => {
-          this.manageIfFinished(tJobExecution);
-          this.tJob = tJobExecution.tJob;
-          this.tJobExec = tJobExecution;
-          this.loadExecutionFiles();
-        });
+        this.tJobExecService
+          .getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
+          .subscribe((tJobExecution: TJobExecModel) => {
+            this.manageIfFinished(tJobExecution);
+            this.tJob = tJobExecution.tJob;
+            this.tJobExec = tJobExecution;
+            this.loadExecutionFiles();
+          });
       } else {
-        this.externalService.getExternalTJobExecById(this.tJobExecId).subscribe((exTJobExec: ExternalTJobExecModel) => {
-          this.manageIfFinished(exTJobExec);
-          this.tJob = exTJobExec.exTJob;
-          this.tJobExec = exTJobExec;
-          this.loadExecutionFiles();
-        });
+        this.externalService
+          .getExternalTJobExecById(this.tJobExecId)
+          .subscribe((exTJobExec: ExternalTJobExecModel) => {
+            this.manageIfFinished(exTJobExec);
+            this.tJob = exTJobExec.exTJob;
+            this.tJobExec = exTJobExec;
+            this.loadExecutionFiles();
+          });
       }
     } else {
       this.manageIfFinished(this.tJobExec);
@@ -97,7 +91,9 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
     this.timer = interval(3500);
     if (this.subscription === undefined) {
       this.loading = true;
-      console.log('Start polling for check tssInstance status');
+      console.log(
+        'Start polling for get execution ' + this.tJobExecId + ' files',
+      );
       this.subscription = this.timer.subscribe(() => {
         this.loadExecutionFiles();
       });
@@ -109,10 +105,15 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
     let getAbstractTJobExecutionFiles: Observable<any>;
     // Is external
     if (this.external) {
-      getAbstractTJobExecutionFiles = this.externalService.getExternalTJobExecutionFiles(this.tJobExec.id);
+      getAbstractTJobExecutionFiles = this.externalService.getExternalTJobExecutionFiles(
+        this.tJobExec.id,
+      );
     } else {
       // Is internal
-      getAbstractTJobExecutionFiles = this.tJobExecService.getTJobExecutionFiles(this.tJob.id, this.tJobExec.id);
+      getAbstractTJobExecutionFiles = this.tJobExecService.getTJobExecutionFiles(
+        this.tJob.id,
+        this.tJobExec.id,
+      );
     }
 
     // Get files
@@ -153,15 +154,6 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
     }
   }
 
-  viewSession(file: FileModel, title: string = 'Recorded Video'): void {
-    let url: string = this.filesUrlPrefix + file.encodedUrl;
-    let dialog: MatDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
-    dialog.componentInstance.title = title;
-    dialog.componentInstance.iframeUrl = url;
-    dialog.componentInstance.sessionType = 'video';
-    dialog.componentInstance.closeButton = true;
-  }
-
   filterFiles(): void {
     if (this.executionFiles && this.executionFiles.length >= 0) {
       for (let file of this.executionFiles) {
@@ -173,6 +165,8 @@ export class FilesManagerComponent implements OnInit, OnDestroy {
   }
 
   showNoFilesMessage(): boolean {
-    return this.filteredExecutionFiles && this.filteredExecutionFiles.length === 0;
+    return (
+      this.filteredExecutionFiles && this.filteredExecutionFiles.length === 0
+    );
   }
 }

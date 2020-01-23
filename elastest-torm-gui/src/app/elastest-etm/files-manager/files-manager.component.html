@@ -31,10 +31,10 @@
 
                   <ng-template #optionsColumn tdDataTableTemplate="options">
                     <div fxLayout="row" class="optionsColumn">
-                      <a mat-button [attr.href]="filesUrlPrefix + row.encodedUrl" class="iconBtn-xs" target="_blank" matTooltip="Open in new tab">
+                      <a mat-button [attr.href]="filesService.getFileUrl(row)" class="iconBtn-xs" target="_blank" matTooltip="Open in new tab">
                         <mat-icon>open_in_new</mat-icon>
                       </a>
-                      <a *ngIf="filesService.isVideo(row.name)" mat-button (click)="viewSession(row, row.name)"
+                      <a *ngIf="filesService.isVideo(row.name)" mat-button (click)="filesService.openVideoInDialog(row, row.name)"
                         class="iconBtn-xs" target="_blank" matTooltip="Open as dialog">
                         <mat-icon>open_in_browser</mat-icon>
                       </a>
