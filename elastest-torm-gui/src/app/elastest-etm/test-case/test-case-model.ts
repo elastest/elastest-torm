@@ -86,6 +86,7 @@ export class TestCaseModel {
 
     return skipped;
   }
+
   setTestCaseFiles(tJobExecFiles: FileModel[]): FileModel[] {
     let newExecFiles: FileModel[] = [];
     for (let file of tJobExecFiles) {

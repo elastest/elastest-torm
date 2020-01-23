@@ -107,6 +107,78 @@
             </ng-template>
           </mat-tab>
 
+          <mat-tab label="Browsers Files" *ngIf="caseHasBrowserFiles()">
+            <ng-template matTabContent>
+              <div fxLayout="column" fxFlexFill>
+                <div
+                  fxLayout="column"
+                  *ngFor="
+                    let eusSessionName of eusSessionsNames;
+                    let i = index;
+                    let f = first;
+                    let l = last
+                  "
+                >
+                  <div class="mat-h2 push-left push-top-sm">
+                    Browser - {{ eusSessionName }}
+                  </div>
+                  <div fxLayout="row">
+                    <td-data-table
+                      #browserFilesTable{{i}}
+                      fxFlex
+                      id="browserFilesTable{{ i }}"
+                      class="useMaxHeight"
+                      [data]="eusSessionsGroupsMap.get(eusSessionName)"
+                      [columns]="filesColumns"
+                      [resizableColumns]="true"
+                    >
+                      <ng-template
+                        *ngFor="let column of filesColumns"
+                        tdDataTableTemplate="{{ column.name }}"
+                        let-value="value"
+                        let-row="row"
+                      >
+                        <ng-container *ngIf="column.name !== 'options'">
+                          {{ value }}
+                        </ng-container>
+                      </ng-template>
+
+                      <!-- OPTIONS -->
+                      <ng-template
+                        tdDataTableTemplate="options"
+                        let-value="value"
+                        let-row="row"
+                        let-column="column"
+                      >
+                        <div fxLayout="row" class="sutOptions optionsColumn">
+                          <i
+                            class="material-icons"
+                            (click)="filesService.openFileInNewTab(row)"
+                            id="view_recording_new_tab"
+                            matTooltip="Open in new tab"
+                            >open_in_new</i
+                          >
+                          <ng-container
+                            *ngIf="filesService.isVideoByFileModel(row)"
+                          >
+                            <i
+                              class="material-icons"
+                              (click)="goToVideoTab(row)"
+                              id="view_recording"
+                              matTooltip="Open"
+                              >open_in_browser</i
+                            >
+                          </ng-container>
+                        </div>
+                      </ng-template>
+                    </td-data-table>
+                  </div>
+                  <mat-divider [inset]="true"></mat-divider>
+                </div>
+              </div>
+            </ng-template>
+          </mat-tab>
+
           <mat-tab *ngFor="let file of videoFiles">
             <ng-template mat-tab-label>
               <mat-icon matTooltip="Video {{ file.name }}" id="videoIcon"

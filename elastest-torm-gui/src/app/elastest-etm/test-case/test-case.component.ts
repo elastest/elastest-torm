@@ -19,6 +19,9 @@ import { FilesService } from '../../shared/services/files.service';
   styleUrls: ['./test-case.component.scss'],
 })
 export class TestCaseComponent implements OnInit {
+  @ViewChild('miniLogAnalyzer', { static: false })
+  private miniLogAnalyzer: ElastestLogAnalyzerComponent;
+
   @ViewChild('logsAndMetrics', { static: true })
   logsAndMetrics: EtmMonitoringViewComponent;
 
@@ -41,6 +44,7 @@ export class TestCaseComponent implements OnInit {
 
   videoFiles: FileModel[] = [];
   eusSessionsNames: string[] = [];
+  eusSessionsGroupsMap: Map<string, FileModel[]> = new Map();
 
   // SuT Data
   filesColumns: ITdDataTableColumn[] = [
@@ -52,9 +56,6 @@ export class TestCaseComponent implements OnInit {
       width: { min: 46, max: 130 },
     },
   ];
-
-  @ViewChild('miniLogAnalyzer', { static: false })
-  private miniLogAnalyzer: ElastestLogAnalyzerComponent;
 
   constructor(
     private testCaseService: TestCaseService,
@@ -159,27 +160,32 @@ export class TestCaseComponent implements OnInit {
       .getTJobExecutionFiles(this.tJobId, this.tJobExecId)
       .subscribe(
         (tJobsExecFiles: FileModel[]) => {
-          if (tJobsExecFiles) {
-            for (let execFile of tJobsExecFiles) {
-              if (execFile && execFile.isEusMetadataFile() && execFile.name) {
-                this.eusSessionsNames.push(execFile.name.split('.')[0]);
-              }
-            }
-          }
-
           this.videoFiles = [];
           let i: number = 0;
-          tJobsExecFiles.forEach((file: FileModel) => {
-            if (
-              this.filesService.isVideoByFileModel(file) &&
-              file.name.startsWith(this.testCase.name)
-            ) {
+          this.testCase.setTestCaseFiles(tJobsExecFiles);
+
+          // Get video files and eus sessions names
+          this.testCase.files.forEach((file: FileModel) => {
+            if (this.filesService.isVideoByFileModel(file)) {
               file['order'] = i;
               i++;
               this.videoFiles.push(file);
             }
+            if (file && file.isEusMetadataFile() && file.name) {
+              let filenameOnly: string = file.name.split('.')[0];
+              this.eusSessionsNames.push(filenameOnly);
+              this.eusSessionsGroupsMap.set(filenameOnly, []);
+            }
           });
-          this.testCase.setTestCaseFiles(tJobsExecFiles);
+
+          this.testCase.files.forEach((file: FileModel) => {
+            for (let sessionName of this.eusSessionsNames) {
+              if (file && file.name.startsWith(sessionName)) {
+                this.eusSessionsGroupsMap.get(sessionName).push(file);
+                break;
+              }
+            }
+          });
         },
         (error: Error) => console.log(error),
       );
@@ -191,7 +197,14 @@ export class TestCaseComponent implements OnInit {
 
   goToVideoTab(file: FileModel): void {
     // video position, LogAnalyzer + Files + Details tabs);
-    this.goToTab(file['order'] + 3);
+    let previousTabs: number = 3;
+
+    if (this.caseHasBrowserFiles()) {
+      // Browser Videos Tab
+      previousTabs += 1;
+    }
+
+    this.goToTab(file['order'] + previousTabs);
   }
 
   viewInLogAnalyzer(): void {
