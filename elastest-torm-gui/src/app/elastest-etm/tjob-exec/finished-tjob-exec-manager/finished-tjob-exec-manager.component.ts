@@ -199,9 +199,12 @@ export class FinishedTjobExecManagerComponent implements OnInit {
   }
 
   viewInLogAnalyzer(): void {
-    this.router.navigate(['projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', this.tJobExec.id, 'loganalyzer'], {
-      queryParams: { tjob: this.tJob.id, exec: this.tJobExec.id },
-    });
+    this.router.navigate(
+      ['projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', this.tJobExec.id, 'loganalyzer'],
+      {
+        queryParams: { tjob: this.tJob.id, exec: this.tJobExec.id },
+      },
+    );
   }
 
   deleteTJobExec(): void {
@@ -220,7 +223,7 @@ export class FinishedTjobExecManagerComponent implements OnInit {
         if (accept) {
           this.deletingInProgress = true;
           this.tJobExecService.deleteTJobExecution(this.tJob, this.tJobExec).subscribe(
-            (exec) => {
+            exec => {
               this.deletingInProgress = false;
               this.tJobExecService.popupService.openSnackBar(
                 'TJob Execution Nº' + this.tJobExec.id + ' has been removed successfully!',
@@ -243,6 +246,7 @@ export class FinishedTjobExecManagerComponent implements OnInit {
     };
 
     try {
+      console.log('Obtaining data to download as JSON');
       this.tJobExecService.loadTestSuitesInfoToDownload(this.tJobExec, [...this.tJobExec.testSuites]).subscribe(
         (someTestSuiteWithDate: boolean) => {
           if (someTestSuiteWithDate) {
@@ -269,6 +273,8 @@ export class FinishedTjobExecManagerComponent implements OnInit {
       tJobExec: this.tJobExec,
     };
 
+    console.log('Obtaining data to download as JSON (without Test Cases)');
+
     this.monitoringService.getAllTJobExecLogs(this.tJobExec).subscribe(
       (logsTraces: LogTraces[]) => {
         jsonObj['logs'] = logsTraces;
@@ -291,7 +297,8 @@ export class FinishedTjobExecManagerComponent implements OnInit {
 
   getFileName(): string {
     let namePrefix: string = this.tJob && this.tJob.name && this.tJob.name !== '' ? 'TJob_' + this.tJob.name : '';
-    let nameSuffix: string = this.tJobExec && this.tJobExec.id && this.tJobExec.id !== 0 ? 'execution_' + this.tJobExec.id : '';
+    let nameSuffix: string =
+      this.tJobExec && this.tJobExec.id && this.tJobExec.id !== 0 ? 'execution_' + this.tJobExec.id : '';
     let name: string = (namePrefix !== '' ? namePrefix + '-' : '') + (nameSuffix !== '' ? nameSuffix : '');
 
     return name !== '' ? name : 'execution';
@@ -306,7 +313,14 @@ export class FinishedTjobExecManagerComponent implements OnInit {
 
   viewParent(): void {
     if (this.tJobExec && this.tJobExec.isChild() && this.tJobExec.execParent) {
-      this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', this.tJobExec.execParent.id]);
+      this.router.navigate([
+        '/projects',
+        this.tJob.project.id,
+        'tjob',
+        this.tJob.id,
+        'tjob-exec',
+        this.tJobExec.execParent.id,
+      ]);
     }
   }
 
@@ -323,7 +337,7 @@ export class FinishedTjobExecManagerComponent implements OnInit {
             this.initLogsAndMetrics();
           }
         })
-        .catch((e) => {
+        .catch(e => {
           this.expandGlobalInfoExpansionPanel();
         });
     }

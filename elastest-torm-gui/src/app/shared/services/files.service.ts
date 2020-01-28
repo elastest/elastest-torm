@@ -10,10 +10,7 @@ export class FilesService {
   defaultExtension: string = 'json';
   filesUrlPrefix: string;
 
-  constructor(
-    private configurationService: ConfigurationService,
-    private eusDialog: ElastestEusDialogService,
-  ) {
+  constructor(private configurationService: ConfigurationService, private eusDialog: ElastestEusDialogService) {
     this.filesUrlPrefix = configurationService.configModel.proxyHost;
   }
 
@@ -21,10 +18,9 @@ export class FilesService {
     this.downloadJsonStringAsJson(JSON.stringify(obj), name);
   }
 
-  downloadJsonStringAsJson(
-    jsonString: string,
-    name: string = this.defaultName,
-  ): void {
+  downloadJsonStringAsJson(jsonString: string, name: string = this.defaultName): void {
+    console.log('Downloading as JSON...');
+
     let objAsBlob: Blob = new Blob([jsonString], {
       type: 'text/json;charset=utf-8;',
     });
@@ -32,11 +28,7 @@ export class FilesService {
     this.downloadFileFromGeneratedURL(url, name);
   }
 
-  downloadStringAsTextFile(
-    stringObj: string,
-    name: string = this.defaultName,
-    extension: string = 'txt',
-  ): void {
+  downloadStringAsTextFile(stringObj: string, name: string = this.defaultName, extension: string = 'txt'): void {
     let objAsBlob: Blob = new Blob([stringObj], {
       type: 'text/plain;charset=utf-8;',
     });
@@ -55,9 +47,7 @@ export class FilesService {
     a.href = url;
     a.download =
       (name && name !== '' ? name : this.defaultName) +
-      (extension && extension !== ''
-        ? '.' + extension
-        : '.' + this.defaultExtension);
+      (extension && extension !== '' ? '.' + extension : '.' + this.defaultExtension);
     a.click();
     window.URL.revokeObjectURL(url);
     a.remove(); // remove the tmp element
@@ -69,9 +59,7 @@ export class FilesService {
 
   openVideoInDialog(file: FileModel, title: string = 'Recorded Video'): void {
     let url: string = this.getFileUrl(file);
-    let dialog: MatDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(
-      true,
-    );
+    let dialog: MatDialogRef<ElastestEusDialog> = this.eusDialog.getDialog(true);
     dialog.componentInstance.title = title;
     dialog.componentInstance.iframeUrl = url;
     dialog.componentInstance.sessionType = 'video';
@@ -159,11 +147,7 @@ export class FilesService {
   isExcel(name: string): boolean {
     if (name) {
       let lowercasedName: string = name.toLowerCase();
-      return (
-        lowercasedName.includes('.xls') ||
-        lowercasedName.includes('.xlt') ||
-        lowercasedName.includes('.xlsx')
-      );
+      return lowercasedName.includes('.xls') || lowercasedName.includes('.xlt') || lowercasedName.includes('.xlsx');
     } else {
       return false;
     }

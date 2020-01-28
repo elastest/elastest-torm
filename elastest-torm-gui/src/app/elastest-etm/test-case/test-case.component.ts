@@ -94,12 +94,10 @@ export class TestCaseComponent implements OnInit {
   }
 
   loadTestCase(): void {
-    this.testCaseService
-      .getTestCaseById(this.testCaseId)
-      .subscribe((testCase: TestCaseModel) => {
-        this.testCase = testCase;
-        this.initAfterLoadTestCase();
-      });
+    this.testCaseService.getTestCaseById(this.testCaseId).subscribe((testCase: TestCaseModel) => {
+      this.testCase = testCase;
+      this.initAfterLoadTestCase();
+    });
   }
 
   initAfterLoadTestCase(): void {
@@ -109,15 +107,13 @@ export class TestCaseComponent implements OnInit {
       if (this.nested) {
         this.initAfterLoadTJobExec();
       } else {
-        this.tJobExecService
-          .getTJobExecutionByTJobId(this.tJobId, this.tJobExecId)
-          .subscribe(
-            (tJobExec: TJobExecModel) => {
-              this.tJobExec = tJobExec;
-              this.initAfterLoadTJobExec();
-            },
-            (error: Error) => console.error(error),
-          );
+        this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe(
+          (tJobExec: TJobExecModel) => {
+            this.tJobExec = tJobExec;
+            this.initAfterLoadTJobExec();
+          },
+          (error: Error) => console.error(error),
+        );
       }
     }
   }
@@ -147,50 +143,43 @@ export class TestCaseComponent implements OnInit {
 
   initMonitoring(startDate: Date, endDate: Date): void {
     if (startDate && endDate) {
-      this.logsAndMetrics.initView(
-        this.tJobExec.tJob,
-        this.tJobExec,
-        startDate,
-        endDate,
-      );
+      this.logsAndMetrics.initView(this.tJobExec.tJob, this.tJobExec, startDate, endDate);
       this.showLogsAndMetrics = true;
     }
   }
 
   getExecutionFiles(): void {
-    this.tJobExecService
-      .getTJobExecutionFiles(this.tJobId, this.tJobExecId)
-      .subscribe(
-        (tJobsExecFiles: FileModel[]) => {
-          this.videoFiles = [];
-          let i: number = 0;
-          this.testCase.setTestCaseFiles(tJobsExecFiles);
+    this.tJobExecService.getTJobExecutionFiles(this.tJobId, this.tJobExecId).subscribe(
+      (tJobsExecFiles: FileModel[]) => {
+        this.videoFiles = [];
+        let i: number = 0;
+        this.testCase.setTestCaseFiles(tJobsExecFiles);
 
-          // Get video files and eus sessions names
-          this.testCase.files.forEach((file: FileModel) => {
-            if (this.filesService.isVideoByFileModel(file)) {
-              file['order'] = i;
-              i++;
-              this.videoFiles.push(file);
-            }
-            if (file && file.isEusMetadataFile() && file.name) {
-              let filenameOnly: string = file.name.split('.')[0];
-              this.eusSessionsNames.push(filenameOnly);
-              this.eusSessionsGroupsMap.set(filenameOnly, []);
-            }
-          });
+        // Get video files and eus sessions names
+        this.testCase.files.forEach((file: FileModel) => {
+          if (this.filesService.isVideoByFileModel(file)) {
+            file['order'] = i;
+            i++;
+            this.videoFiles.push(file);
+          }
+          if (file && file.isEusMetadataFile() && file.name) {
+            let filenameOnly: string = file.name.split('.')[0];
+            this.eusSessionsNames.push(filenameOnly);
+            this.eusSessionsGroupsMap.set(filenameOnly, []);
+          }
+        });
 
-          this.testCase.files.forEach((file: FileModel) => {
-            for (let sessionName of this.eusSessionsNames) {
-              if (file && file.name.startsWith(sessionName)) {
-                this.eusSessionsGroupsMap.get(sessionName).push(file);
-                break;
-              }
+        this.testCase.files.forEach((file: FileModel) => {
+          for (let sessionName of this.eusSessionsNames) {
+            if (file && file.name.startsWith(sessionName)) {
+              this.eusSessionsGroupsMap.get(sessionName).push(file);
+              break;
             }
-          });
-        },
-        (error: Error) => console.log(error),
-      );
+          }
+        });
+      },
+      (error: Error) => console.log(error),
+    );
   }
 
   goToTab(num: number): void {
@@ -237,9 +226,7 @@ export class TestCaseComponent implements OnInit {
   }
 
   caseHasFiles(): boolean {
-    return (
-      this.testCase && this.testCase.files && this.testCase.files.length > 0
-    );
+    return this.testCase && this.testCase.files && this.testCase.files.length > 0;
   }
 
   caseHasBrowserFiles(): boolean {

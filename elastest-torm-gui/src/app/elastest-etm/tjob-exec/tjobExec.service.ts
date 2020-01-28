@@ -77,7 +77,8 @@ export class TJobExecService {
   }
 
   public getTJobExecutionFiles(tJobId: number, tJobExecId: number): Observable<FileModel[]> {
-    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecId + '/files';
+    let url: string =
+      this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecId + '/files';
     return this.http.get(url).map((data: any[]) => this.eTModelsTransformServices.jsonToFilesList(data));
   }
 
@@ -92,9 +93,19 @@ export class TJobExecService {
     return this.getTJobExecutionByTJobId(tJob.id, idTJobExecution);
   }
 
-  public getLastNTJobExecutions(tJobId: number | string, n: number, withoutChilds: boolean): Observable<TJobExecModel[]> {
+  public getLastNTJobExecutions(
+    tJobId: number | string,
+    n: number,
+    withoutChilds: boolean,
+  ): Observable<TJobExecModel[]> {
     let url: string =
-      this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/execs/last/' + n + '?withoutChilds=' + withoutChilds;
+      this.configurationService.configModel.hostApi +
+      '/tjob/' +
+      tJobId +
+      '/execs/last/' +
+      n +
+      '?withoutChilds=' +
+      withoutChilds;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
@@ -168,7 +179,11 @@ export class TJobExecService {
 
   /* *** By ID *** */
 
-  public getTJobsExecsRange(page: number, pageSize: number, withoutchilds: boolean = false): Observable<TJobExecModel[]> {
+  public getTJobsExecsRange(
+    page: number,
+    pageSize: number,
+    withoutchilds: boolean = false,
+  ): Observable<TJobExecModel[]> {
     let url: string =
       this.configurationService.configModel.hostApi +
       '/tjob/execs/range' +
@@ -188,7 +203,8 @@ export class TJobExecService {
   }
 
   public getLastNTJobsExecutions(n: number, withoutchilds: boolean = false): Observable<TJobExecModel[]> {
-    let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/last/' + n + '?withoutChilds=' + withoutchilds;
+    let url: string =
+      this.configurationService.configModel.hostApi + '/tjob/execs/last/' + n + '?withoutChilds=' + withoutchilds;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
@@ -201,7 +217,8 @@ export class TJobExecService {
   /* *** By results *** */
 
   public getAllRunningTJobsExecutions(withoutchilds: boolean = false): Observable<TJobExecModel[]> {
-    let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/running' + '?withoutChilds=' + withoutchilds;
+    let url: string =
+      this.configurationService.configModel.hostApi + '/tjob/execs/running' + '?withoutChilds=' + withoutchilds;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
@@ -236,7 +253,11 @@ export class TJobExecService {
 
   public getLastNRunningTJobsExecutions(n: number, withoutchilds: boolean = false): Observable<TJobExecModel[]> {
     let url: string =
-      this.configurationService.configModel.hostApi + '/tjob/execs/running/last/' + n + '?withoutChilds=' + withoutchilds;
+      this.configurationService.configModel.hostApi +
+      '/tjob/execs/running/last/' +
+      n +
+      '?withoutChilds=' +
+      withoutchilds;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
@@ -247,7 +268,8 @@ export class TJobExecService {
   }
 
   public getAllFinishedOrNotExecutedTJobsExecutions(withoutchilds: boolean = false): Observable<TJobExecModel[]> {
-    let url: string = this.configurationService.configModel.hostApi + '/tjob/execs/finished' + '?withoutChilds=' + withoutchilds;
+    let url: string =
+      this.configurationService.configModel.hostApi + '/tjob/execs/finished' + '?withoutChilds=' + withoutchilds;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
@@ -330,9 +352,16 @@ export class TJobExecService {
     });
   }
 
-  public getLastNFinishedOrNotExecutedTJobsExecutions(n: number, withoutchilds: boolean = false): Observable<TJobExecModel[]> {
+  public getLastNFinishedOrNotExecutedTJobsExecutions(
+    n: number,
+    withoutchilds: boolean = false,
+  ): Observable<TJobExecModel[]> {
     let url: string =
-      this.configurationService.configModel.hostApi + '/tjob/execs/finished/last/' + n + '?withoutChilds=' + withoutchilds;
+      this.configurationService.configModel.hostApi +
+      '/tjob/execs/finished/last/' +
+      n +
+      '?withoutChilds=' +
+      withoutchilds;
     return this.http.get(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecsList(data);
@@ -354,7 +383,8 @@ export class TJobExecService {
   }
 
   public stopTJobExecution(tJob: TJobModel, tJobExecution: TJobExecModel): Observable<TJobExecModel> {
-    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id + '/stop';
+    let url: string =
+      this.configurationService.configModel.hostApi + '/tjob/' + tJob.id + '/exec/' + tJobExecution.id + '/stop';
     return this.http.delete(url).map((data: any) => {
       if (data !== undefined && data !== null) {
         return this.eTModelsTransformServices.jsonToTJobExecModel(data);
@@ -374,7 +404,8 @@ export class TJobExecService {
   }
 
   public getResultStatus(tJobId: string | number, tJobExecution: TJobExecModel): Observable<any> {
-    let url: string = this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecution.id + '/result';
+    let url: string =
+      this.configurationService.configModel.hostApi + '/tjob/' + tJobId + '/exec/' + tJobExecution.id + '/result';
     return this.http.get(url);
   }
 
@@ -423,6 +454,7 @@ export class TJobExecService {
   ): void {
     if (testSuites.length > 0) {
       let suite: TestSuiteModel = testSuites.shift();
+      console.log('Obtaining data from suite ' + (suite ? suite.name : undefined));
       this.loadTestCasesInfoToDownload(tJobExec, [...suite.testCases], suite.name).subscribe(
         (someTestCaseWithDate: boolean) => {
           someTestSuiteWithDate = someTestSuiteWithDate || someTestCaseWithDate;
@@ -466,15 +498,12 @@ export class TJobExecService {
         // Next
         this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, suiteName, someTestCaseWithDate);
       } else {
+        console.log('Obtaining data from test case ' + tCase.name);
         // Obtain start/finish traces first
+        console.log('Obtaining start/finish traces from test case ' + tCase.name);
+        let indices: string[] = tJobExec.getSplittedComposedMonitoringIndex();
         this.logAnalyzerService
-          .searchTestCaseStartAndFinishTraces(
-            tCase.name,
-            [tJobExec.monitoringIndex],
-            tJobExec.startDate,
-            tJobExec.endDate,
-            suiteName,
-          )
+          .searchTestCaseStartAndFinishTraces(tCase.name, indices, tJobExec.startDate, tJobExec.endDate, suiteName)
           .subscribe(
             (startFinishObj: StartFinishTestCaseTraces) => {
               let _logs: Subject<any[]> = new Subject<any[]>();
@@ -484,9 +513,10 @@ export class TJobExecService {
               tCase.endDate = startFinishObj.finishDate;
 
               // Logs
+              console.log('Obtaining logs from test case ' + tCase.name);
               this.logAnalyzerService.searchTestCaseLogsByGivenStartFinishTraces(
                 tCase.name,
-                [tJobExec.monitoringIndex],
+                indices,
                 startFinishObj,
                 _logs,
               );
@@ -499,17 +529,30 @@ export class TJobExecService {
 
                   // Metrics
                   // TODO: get only test case metrics
+                  console.log('Obtaining metrics from test case ' + tCase.name);
                   this.logAnalyzerService.monitoringService
                     .getAllTJobExecMetrics(tJobExec, startFinishObj.startDate, startFinishObj.finishDate)
                     .subscribe(
                       (metricsTraces: MetricTraces[]) => {
                         tCase['metrics'] = metricsTraces;
                         // Next
-                        this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, suiteName, someTestCaseWithDate);
+                        this.loadTestCasesInfoToDownloadByGiven(
+                          tJobExec,
+                          testCases,
+                          _cases,
+                          suiteName,
+                          someTestCaseWithDate,
+                        );
                       },
                       (error: Error) => {
                         // Next
-                        this.loadTestCasesInfoToDownloadByGiven(tJobExec, testCases, _cases, suiteName, someTestCaseWithDate);
+                        this.loadTestCasesInfoToDownloadByGiven(
+                          tJobExec,
+                          testCases,
+                          _cases,
+                          suiteName,
+                          someTestCaseWithDate,
+                        );
                       },
                     );
                 },

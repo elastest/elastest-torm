@@ -1,22 +1,8 @@
-<auto-height-grid
-  fxLayout="row"
-  fxLayout.lt-md="column"
-  *ngIf="testCase"
-  id="testCaseContent"
-  fxFlexFill
->
+<auto-height-grid fxLayout="row" fxLayout.lt-md="column" *ngIf="testCase" id="testCaseContent" fxFlexFill>
   <auto-height-row class="mat-content">
-    <self-adjustable-card
-      id="testCaseTabsCard"
-      [hideTitle]="true"
-      [contentPaddingPixels]="nested ? 0 : undefined"
-    >
+    <self-adjustable-card id="testCaseTabsCard" [hideTitle]="true" [contentPaddingPixels]="nested ? 0 : undefined">
       <sa-card-content fxFlexFill fxLayout="column">
-        <mat-tab-group
-          #testCaseTabGroup
-          id="testCaseTabGroup"
-          [(selectedIndex)]="selectedTab"
-        >
+        <mat-tab-group #testCaseTabGroup id="testCaseTabGroup" [(selectedIndex)]="selectedTab">
           <mat-tab label="Log Analyzer">
             <elastest-log-analyzer
               #miniLogAnalyzer
@@ -30,24 +16,12 @@
           </mat-tab>
 
           <mat-tab label="Details">
-            <etm-test-case-detail
-              fxLayout="column"
-              fxFlexFill
-              [testCase]="testCase"
-            ></etm-test-case-detail>
+            <etm-test-case-detail fxLayout="column" fxFlexFill [testCase]="testCase"></etm-test-case-detail>
           </mat-tab>
 
-          <mat-tab
-            label="All Files ({{
-              caseHasFiles() ? this.testCase.files.length : 0
-            }})"
-          >
+          <mat-tab label="All Files ({{ caseHasFiles() ? this.testCase.files.length : 0 }})">
             <ng-template matTabContent>
-              <div
-                fxLayout="row"
-                fxFlexFill
-                *ngIf="caseHasFiles(); else showEmptyMsg"
-              >
+              <div fxLayout="row" fxFlexFill *ngIf="caseHasFiles(); else showEmptyMsg">
                 <td-data-table
                   #filesTable
                   fxFlex
@@ -64,25 +38,15 @@
                     let-row="row"
                   >
                     <ng-container *ngIf="column.name !== 'options'">
-                      <ng-container
-                        *ngIf="
-                          column.name !== 'extension';
-                          else extensionColumn
-                        "
-                      >
+                      <ng-container *ngIf="column.name !== 'extension'; else extensionColumn">
                         {{ value }}
                       </ng-container>
                       <ng-template #extensionColumn>
                         <fa-icon
                           class="mat-icon"
                           style="vertical-align: sub;"
-                          [style.color]="
-                            filesService.getIconByFileModel(row).color
-                          "
-                          [icon]="[
-                            'fas',
-                            filesService.getIconByFileModel(row).name
-                          ]"
+                          [style.color]="filesService.getIconByFileModel(row).color"
+                          [icon]="['fas', filesService.getIconByFileModel(row).name]"
                         ></fa-icon>
 
                         <span>{{ value }}</span>
@@ -91,12 +55,7 @@
                   </ng-template>
 
                   <!-- OPTIONS -->
-                  <ng-template
-                    tdDataTableTemplate="options"
-                    let-value="value"
-                    let-row="row"
-                    let-column="column"
-                  >
+                  <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                     <div fxLayout="row" class="sutOptions optionsColumn">
                       <i
                         class="material-icons"
@@ -105,14 +64,8 @@
                         matTooltip="Open in new tab"
                         >open_in_new</i
                       >
-                      <ng-container
-                        *ngIf="filesService.isVideoByFileModel(row)"
-                      >
-                        <i
-                          class="material-icons"
-                          (click)="goToVideoTab(row)"
-                          id="view_recording"
-                          matTooltip="Open"
+                      <ng-container *ngIf="filesService.isVideoByFileModel(row)">
+                        <i class="material-icons" (click)="goToVideoTab(row)" id="view_recording" matTooltip="Open"
                           >open_in_browser</i
                         >
                       </ng-container>
@@ -134,16 +87,9 @@
               <div fxLayout="column" fxFlexFill>
                 <div
                   fxLayout="column"
-                  *ngFor="
-                    let eusSessionName of eusSessionsNames;
-                    let i = index;
-                    let f = first;
-                    let l = last
-                  "
+                  *ngFor="let eusSessionName of eusSessionsNames; let i = index; let f = first; let l = last"
                 >
-                  <div class="mat-h2 push-left push-top push-bottom-xs">
-                    Browser - {{ eusSessionName }}
-                  </div>
+                  <div class="mat-h2 push-left push-top push-bottom-xs">Browser - {{ eusSessionName }}</div>
                   <div fxLayout="row">
                     <td-data-table
                       #browserFilesTable{{i}}
@@ -161,25 +107,15 @@
                         let-row="row"
                       >
                         <ng-container *ngIf="column.name !== 'options'">
-                          <ng-container
-                            *ngIf="
-                              column.name !== 'extension';
-                              else extensionColumn
-                            "
-                          >
+                          <ng-container *ngIf="column.name !== 'extension'; else extensionColumn">
                             {{ value }}
                           </ng-container>
                           <ng-template #extensionColumn>
                             <fa-icon
                               class="mat-icon"
                               style="vertical-align: sub;"
-                              [style.color]="
-                                filesService.getIconByFileModel(row).color
-                              "
-                              [icon]="[
-                                'fas',
-                                filesService.getIconByFileModel(row).name
-                              ]"
+                              [style.color]="filesService.getIconByFileModel(row).color"
+                              [icon]="['fas', filesService.getIconByFileModel(row).name]"
                             ></fa-icon>
 
                             <span>{{ value }}</span>
@@ -188,12 +124,7 @@
                       </ng-template>
 
                       <!-- OPTIONS -->
-                      <ng-template
-                        tdDataTableTemplate="options"
-                        let-value="value"
-                        let-row="row"
-                        let-column="column"
-                      >
+                      <ng-template tdDataTableTemplate="options" let-value="value" let-row="row" let-column="column">
                         <div fxLayout="row" class="sutOptions optionsColumn">
                           <i
                             class="material-icons"
@@ -202,14 +133,8 @@
                             matTooltip="Open in new tab"
                             >open_in_new</i
                           >
-                          <ng-container
-                            *ngIf="filesService.isVideoByFileModel(row)"
-                          >
-                            <i
-                              class="material-icons"
-                              (click)="goToVideoTab(row)"
-                              id="view_recording"
-                              matTooltip="Open"
+                          <ng-container *ngIf="filesService.isVideoByFileModel(row)">
+                            <i class="material-icons" (click)="goToVideoTab(row)" id="view_recording" matTooltip="Open"
                               >open_in_browser</i
                             >
                           </ng-container>
@@ -225,18 +150,11 @@
 
           <mat-tab *ngFor="let file of videoFiles">
             <ng-template mat-tab-label>
-              <mat-icon matTooltip="Video {{ file.name }}" id="videoIcon"
-                >play_circle_filled</mat-icon
-              >
+              <mat-icon matTooltip="Video {{ file.name }}" id="videoIcon">play_circle_filled</mat-icon>
             </ng-template>
             <ng-template matTabContent>
               <div id="videoContent">
-                <video
-                  controls
-                  id="video"
-                  [src]="this.filesService.getFileUrl(file)"
-                  type="video/mp4"
-                ></video>
+                <video controls id="video" [src]="this.filesService.getFileUrl(file)" type="video/mp4"></video>
               </div>
             </ng-template>
           </mat-tab>
@@ -276,10 +194,5 @@
   </auto-height-row>
 </auto-height-grid>
 <auto-height-row>
-  <etm-monitoring-view
-    #logsAndMetrics
-    [live]="false"
-    [showConfigBtn]="false"
-    [hideLogs]="true"
-  ></etm-monitoring-view>
+  <etm-monitoring-view #logsAndMetrics [live]="false" [showConfigBtn]="false" [hideLogs]="true"></etm-monitoring-view>
 </auto-height-row>
