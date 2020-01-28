@@ -49,12 +49,14 @@ export class TestCaseComponent implements OnInit {
   // SuT Data
   filesColumns: ITdDataTableColumn[] = [
     { name: 'name', label: 'Name' },
+    { name: 'extension', label: 'extension', width: { min: 86, max: 135 } },
+    { name: 'folderName', label: 'Category', width: { min: 86, max: 190 } },
     {
-      name: 'options',
-      label: 'Options',
-      sortable: false,
-      width: { min: 46, max: 130 },
+      name: 'resourceType',
+      label: 'Resource Type',
+      width: { min: 110, max: 266 },
     },
+    { name: 'options', label: 'Options', width: { min: 84, max: 120 } },
   ];
 
   constructor(

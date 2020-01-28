@@ -63,19 +63,6 @@ export class FilesService {
     a.remove(); // remove the tmp element
   }
 
-  isVideo(name: string): boolean {
-    return (
-      name.includes('.mp4') ||
-      name.includes('.webm') ||
-      name.includes('.avi') ||
-      name.includes('.y4m')
-    );
-  }
-
-  isVideoByFileModel(file: FileModel): boolean {
-    return file && this.isVideo(file.name);
-  }
-
   getFileUrl(file: FileModel): string {
     return this.filesUrlPrefix + file.encodedUrl;
   }
@@ -93,5 +80,156 @@ export class FilesService {
 
   openFileInNewTab(file: FileModel): void {
     window.open(this.getFileUrl(file));
+  }
+
+  isVideo(name: string): boolean {
+    if (name) {
+      let lowercasedName: string = name.toLowerCase();
+      return (
+        lowercasedName.includes('.mp4') ||
+        lowercasedName.includes('.webm') ||
+        lowercasedName.includes('.avi') ||
+        lowercasedName.includes('.y4m')
+      );
+    } else {
+      return false;
+    }
+  }
+
+  isVideoByFileModel(file: FileModel): boolean {
+    return file && this.isVideo(file.name);
+  }
+
+  isImage(name: string): boolean {
+    if (name) {
+      let lowercasedName: string = name.toLowerCase();
+      return (
+        lowercasedName.includes('.jpg') ||
+        lowercasedName.includes('.jpeg') ||
+        lowercasedName.includes('.png') ||
+        lowercasedName.includes('.raw') ||
+        lowercasedName.includes('.dng') ||
+        lowercasedName.includes('.svg') ||
+        lowercasedName.includes('.tiff') ||
+        lowercasedName.includes('.gif')
+      );
+    } else {
+      return false;
+    }
+  }
+
+  isImageByFileModel(file: FileModel): boolean {
+    return file && this.isImage(file.name);
+  }
+
+  isAudio(name: string): boolean {
+    if (name) {
+      let lowercasedName: string = name.toLowerCase();
+      return (
+        lowercasedName.includes('.wav') ||
+        lowercasedName.includes('.mp3') ||
+        lowercasedName.includes('.midi') ||
+        lowercasedName.includes('.wma') ||
+        lowercasedName.includes('.aac') ||
+        lowercasedName.includes('.aiff') ||
+        lowercasedName.includes('.ogg')
+      );
+    } else {
+      return false;
+    }
+  }
+
+  isAudioByFileModel(file: FileModel): boolean {
+    return file && this.isAudio(file.name);
+  }
+
+  isCsv(name: string): boolean {
+    if (name) {
+      let lowercasedName: string = name.toLowerCase();
+      return lowercasedName.includes('.csv');
+    } else {
+      return false;
+    }
+  }
+
+  isCsvByFileModel(file: FileModel): boolean {
+    return file && this.isImage(file.name);
+  }
+
+  isExcel(name: string): boolean {
+    if (name) {
+      let lowercasedName: string = name.toLowerCase();
+      return (
+        lowercasedName.includes('.xls') ||
+        lowercasedName.includes('.xlt') ||
+        lowercasedName.includes('.xlsx')
+      );
+    } else {
+      return false;
+    }
+  }
+
+  isExcelByFileModel(file: FileModel): boolean {
+    return file && this.isExcel(file.name);
+  }
+
+  isPdf(name: string): boolean {
+    if (name) {
+      let lowercasedName: string = name.toLowerCase();
+      return lowercasedName.includes('.pdf');
+    } else {
+      return false;
+    }
+  }
+
+  isPdfByFileModel(file: FileModel): boolean {
+    return file && this.isPdf(file.name);
+  }
+
+  getIcon(name: string): any {
+    let icon: any = {
+      name: 'file-alt',
+      color: '#ffab2f',
+    };
+
+    if (this.isVideo(name)) {
+      icon.name = 'file-video';
+      return icon;
+    }
+
+    if (this.isAudio(name)) {
+      icon.name = 'file-audio';
+      return icon;
+    }
+
+    if (this.isImage(name)) {
+      icon.name = 'file-image';
+      return icon;
+    }
+
+    if (this.isPdf(name)) {
+      icon.name = 'file-pdf';
+      icon.color = '#ee3124';
+      return icon;
+    }
+
+    if (this.isExcel(name)) {
+      icon.name = 'file-excel';
+      icon.color = '#287233';
+      return icon;
+    }
+
+    if (this.isCsv(name)) {
+      icon.name = 'file-csv';
+      icon.color = '#287233';
+      return icon;
+    }
+
+    icon.color = '#666666';
+    return icon;
+  }
+
+  getIconByFileModel(file: FileModel): any {
+    return this.getIcon(file ? file.name : '');
   }
 }

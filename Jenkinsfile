@@ -1,4 +1,4 @@
-    node('TESTDOCKER'){
+    node('elastest'){
         
         stage "CI Container setup"
 

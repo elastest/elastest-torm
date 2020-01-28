@@ -64,7 +64,29 @@
                     let-row="row"
                   >
                     <ng-container *ngIf="column.name !== 'options'">
-                      {{ value }}
+                      <ng-container
+                        *ngIf="
+                          column.name !== 'extension';
+                          else extensionColumn
+                        "
+                      >
+                        {{ value }}
+                      </ng-container>
+                      <ng-template #extensionColumn>
+                        <fa-icon
+                          class="mat-icon"
+                          style="vertical-align: sub;"
+                          [style.color]="
+                            filesService.getIconByFileModel(row).color
+                          "
+                          [icon]="[
+                            'fas',
+                            filesService.getIconByFileModel(row).name
+                          ]"
+                        ></fa-icon>
+
+                        <span>{{ value }}</span>
+                      </ng-template>
                     </ng-container>
                   </ng-template>
 
@@ -119,7 +141,7 @@
                     let l = last
                   "
                 >
-                  <div class="mat-h2 push-left push-top-sm">
+                  <div class="mat-h2 push-left push-top push-bottom-xs">
                     Browser - {{ eusSessionName }}
                   </div>
                   <div fxLayout="row">
@@ -139,7 +161,29 @@
                         let-row="row"
                       >
                         <ng-container *ngIf="column.name !== 'options'">
-                          {{ value }}
+                          <ng-container
+                            *ngIf="
+                              column.name !== 'extension';
+                              else extensionColumn
+                            "
+                          >
+                            {{ value }}
+                          </ng-container>
+                          <ng-template #extensionColumn>
+                            <fa-icon
+                              class="mat-icon"
+                              style="vertical-align: sub;"
+                              [style.color]="
+                                filesService.getIconByFileModel(row).color
+                              "
+                              [icon]="[
+                                'fas',
+                                filesService.getIconByFileModel(row).name
+                              ]"
+                            ></fa-icon>
+
+                            <span>{{ value }}</span>
+                          </ng-template>
                         </ng-container>
                       </ng-template>
 

@@ -6,36 +6,95 @@
           <div fxLayout="row">
             <span>Files</span>
             <span fxFlex></span>
-            <button mat-icon-button color="accent" (click)="loadExecutionFiles()" title="Reload Files" [disabled]="subscription || loading || executionFiles.length > 0">
+            <button
+              mat-icon-button
+              color="accent"
+              (click)="loadExecutionFiles()"
+              title="Reload Files"
+              [disabled]="subscription || loading || executionFiles.length > 0"
+            >
               <mat-icon>sync</mat-icon>
             </button>
           </div>
         </mat-card-title>
         <mat-divider></mat-divider>
         <mat-card-content>
-          <mat-spinner strokeWidth="6" *ngIf="loading; else showContent" color="accent" class="push-top-sm spinnerCenter"></mat-spinner>
+          <mat-spinner
+            strokeWidth="6"
+            *ngIf="loading; else showContent"
+            color="accent"
+            class="push-top-sm spinnerCenter"
+          ></mat-spinner>
           <ng-template #showContent>
-            <centered-element *ngIf="showNoFilesMessage(); else showFilesTable" class="push-top-important messageEmptyCard">
+            <centered-element
+              *ngIf="showNoFilesMessage(); else showFilesTable"
+              class="push-top-important messageEmptyCard"
+            >
               <mat-icon>assignment</mat-icon>
               <p>No files generated during execution</p>
             </centered-element>
 
             <ng-template #showFilesTable>
-              <td-data-table #filesTable class="scroll_table" [data]="filteredExecutionFiles" [columns]="filesColumns"
-                [selectable]="false" [clickable]="true" [sortable]="false" [sortBy]="sortBy" [sortOrder]="sortOrder">
-                <ng-template *ngFor="let column of filesColumns" tdDataTableTemplate="{{column.name}}" let-value="value"
-                  let-row="row">
+              <td-data-table
+                #filesTable
+                class="scroll_table"
+                [data]="filteredExecutionFiles"
+                [columns]="filesColumns"
+                [resizableColumns]="true"
+                [selectable]="false"
+                [clickable]="true"
+                [sortable]="false"
+                [sortBy]="sortBy"
+                [sortOrder]="sortOrder"
+              >
+                <ng-template
+                  *ngFor="let column of filesColumns"
+                  tdDataTableTemplate="{{ column.name }}"
+                  let-value="value"
+                  let-row="row"
+                >
                   <div *ngIf="column.name !== 'options'; else optionsColumn">
-                    {{value}}
+                    <ng-container
+                      *ngIf="column.name !== 'extension'; else extensionColumn"
+                    >
+                      {{ value }}
+                    </ng-container>
+                    <ng-template #extensionColumn>
+                      <fa-icon
+                        class="mat-icon"
+                        style="vertical-align: sub;"
+                        [style.color]="
+                          filesService.getIconByFileModel(row).color
+                        "
+                        [icon]="[
+                          'fas',
+                          filesService.getIconByFileModel(row).name
+                        ]"
+                      ></fa-icon>
+
+                      <span>{{ value }}</span>
+                    </ng-template>
                   </div>
 
                   <ng-template #optionsColumn tdDataTableTemplate="options">
                     <div fxLayout="row" class="optionsColumn">
-                      <a mat-button [attr.href]="filesService.getFileUrl(row)" class="iconBtn-xs" target="_blank" matTooltip="Open in new tab">
+                      <a
+                        mat-button
+                        [attr.href]="filesService.getFileUrl(row)"
+                        class="iconBtn-xs"
+                        target="_blank"
+                        matTooltip="Open in new tab"
+                      >
                         <mat-icon>open_in_new</mat-icon>
                       </a>
-                      <a *ngIf="filesService.isVideo(row.name)" mat-button (click)="filesService.openVideoInDialog(row, row.name)"
-                        class="iconBtn-xs" target="_blank" matTooltip="Open as dialog">
+                      <a
+                        *ngIf="filesService.isVideo(row.name)"
+                        mat-button
+                        (click)="filesService.openVideoInDialog(row, row.name)"
+                        class="iconBtn-xs"
+                        target="_blank"
+                        matTooltip="Open as dialog"
+                      >
                         <mat-icon>open_in_browser</mat-icon>
                       </a>
                     </div>
@@ -44,7 +103,6 @@
               </td-data-table>
             </ng-template>
           </ng-template>
-
         </mat-card-content>
       </mat-card>
     </div>
