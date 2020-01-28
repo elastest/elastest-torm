@@ -45,6 +45,7 @@ export class TestCaseComponent implements OnInit {
   videoFiles: FileModel[] = [];
   eusSessionsNames: string[] = [];
   eusSessionsGroupsMap: Map<string, FileModel[]> = new Map();
+  eusSessionsGroupsVmafMap: Map<string, string> = new Map();
 
   // SuT Data
   filesColumns: ITdDataTableColumn[] = [
@@ -169,10 +170,21 @@ export class TestCaseComponent implements OnInit {
           }
         });
 
+        // Group Files by session
         this.testCase.files.forEach((file: FileModel) => {
           for (let sessionName of this.eusSessionsNames) {
             if (file && file.name.startsWith(sessionName)) {
               this.eusSessionsGroupsMap.get(sessionName).push(file);
+
+              // Vmaf
+              if (this.filesService.isVmafAverageByFileModel(file)) {
+                this.filesService.getFileContent(this.filesService.getFileUrl(file)).subscribe(
+                  (data: any) => {
+                    this.eusSessionsGroupsVmafMap.set(sessionName, data);
+                  },
+                  (error: Error) => console.error(error),
+                );
+              }
               break;
             }
           }

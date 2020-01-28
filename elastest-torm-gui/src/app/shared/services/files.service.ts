@@ -4,15 +4,25 @@ import { ConfigurationService } from '../../config/configuration-service.service
 import { ElastestEusDialogService } from '../../elastest-eus/elastest-eus.dialog.service';
 import { ElastestEusDialog } from '../../elastest-eus/elastest-eus.dialog';
 import { MatDialogRef } from '@angular/material';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 @Injectable()
 export class FilesService {
   defaultName: string = 'elastest_download';
   defaultExtension: string = 'json';
   filesUrlPrefix: string;
 
-  constructor(private configurationService: ConfigurationService, private eusDialog: ElastestEusDialogService) {
+  constructor(
+    private configurationService: ConfigurationService,
+    private eusDialog: ElastestEusDialogService,
+    private http: HttpClient,
+  ) {
     this.filesUrlPrefix = configurationService.configModel.proxyHost;
   }
+
+  /* ********************** */
+  /* ****** Download ****** */
+  /* ********************** */
 
   downloadObjectAsJson(obj: object, name: string = this.defaultName): void {
     this.downloadJsonStringAsJson(JSON.stringify(obj), name);
@@ -53,9 +63,9 @@ export class FilesService {
     a.remove(); // remove the tmp element
   }
 
-  getFileUrl(file: FileModel): string {
-    return this.filesUrlPrefix + file.encodedUrl;
-  }
+  /* ********************** */
+  /* ******** Open ******** */
+  /* ********************** */
 
   openVideoInDialog(file: FileModel, title: string = 'Recorded Video'): void {
     let url: string = this.getFileUrl(file);
@@ -69,6 +79,10 @@ export class FilesService {
   openFileInNewTab(file: FileModel): void {
     window.open(this.getFileUrl(file));
   }
+
+  /* *********************** */
+  /* ******* IS type ******* */
+  /* *********************** */
 
   isVideo(name: string): boolean {
     if (name) {
@@ -170,6 +184,27 @@ export class FilesService {
     return file && this.isPdf(file.name);
   }
 
+  isVmafAverage(name: string): boolean {
+    if (name) {
+      let lowercasedName: string = name.toLowerCase();
+      return lowercasedName.endsWith('-vmaf-average.txt');
+    } else {
+      return false;
+    }
+  }
+
+  isVmafAverageByFileModel(file: FileModel): boolean {
+    return file && this.isVmafAverage(file.name);
+  }
+
+  /* *************************** */
+  /* ********* Getters ********* */
+  /* *************************** */
+
+  getFileUrl(file: FileModel): string {
+    return this.filesUrlPrefix + file.encodedUrl;
+  }
+
   getIcon(name: string): any {
     let icon: any = {
       name: 'file-alt',
@@ -215,5 +250,9 @@ export class FilesService {
 
   getIconByFileModel(file: FileModel): any {
     return this.getIcon(file ? file.name : '');
+  }
+
+  getFileContent(url: string): Observable<any> {
+    return this.http.get(url, { responseType: 'text' });
   }
 }

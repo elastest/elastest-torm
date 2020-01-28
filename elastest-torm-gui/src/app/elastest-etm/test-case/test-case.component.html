@@ -89,7 +89,21 @@
                   fxLayout="column"
                   *ngFor="let eusSessionName of eusSessionsNames; let i = index; let f = first; let l = last"
                 >
-                  <div class="mat-h2 push-left push-top push-bottom-xs">Browser - {{ eusSessionName }}</div>
+                  <div class="push-left push-top push-bottom-xs" fxLayout="column">
+                    <div class="mat-h2">Browser - {{ eusSessionName }}</div>
+
+                    <div *ngIf="eusSessionsGroupsVmafMap.has(eusSessionName)" fxLayout="row">
+                      <div fxFlex="47" fxFlex.gt-md="30" fxFlex.gt-lg="26">
+                        <mat-list class="listInfoToLeft">
+                          <mat-list-item>
+                            <h4>VMAF Average</h4>
+                            <p>{{ eusSessionsGroupsVmafMap.get(eusSessionName) }}</p>
+                          </mat-list-item>
+                          <mat-divider [inset]="true"></mat-divider>
+                        </mat-list>
+                      </div>
+                    </div>
+                  </div>
                   <div fxLayout="row">
                     <td-data-table
                       #browserFilesTable{{i}}
