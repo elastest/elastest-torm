@@ -1,4 +1,16 @@
 // Custom style for loading elements without height
+
+/* 
+   Main colors
+   #FFAC2F
+   #666666
+   #333333
+   #000000
+   #ffffff
+   #006572
+   #669a13
+*/
+
 .will-load {
   min-height: 80px;
 }
@@ -1579,4 +1591,21 @@ td-expansion-panel.accent > div.td-expansion-panel-header:hover mat-icon.td-expa
   background-color: #eeeeee !important;
   color: #000000de !important;
   font-weight: normal !important;
+}
+
+.highlightedInfo {
+  color: #ffffff !important;
+  background-color: #006572 !important;
+}
+
+.infoBoard {
+  border: dashed 1px #bbbbbb;
+}
+
+.boardTitle {
+  background: #666666;
+  color: #fff;
+  font-weight: bold !important;
+  padding: 8px 16px !important;
+  text-align: center !important;
 }

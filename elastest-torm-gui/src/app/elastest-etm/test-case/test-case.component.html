@@ -85,17 +85,20 @@
           <mat-tab label="Browsers Files" *ngIf="caseHasBrowserFiles()">
             <ng-template matTabContent>
               <div fxLayout="column" fxFlexFill>
+                <!-- Each session -->
                 <div
                   fxLayout="column"
+                  class="push-bottom-sm infoBoard"
                   *ngFor="let eusSessionName of eusSessionsNames; let i = index; let f = first; let l = last"
                 >
-                  <div class="push-left push-top push-bottom-xs" fxLayout="column">
-                    <div class="mat-h2">Browser - {{ eusSessionName }}</div>
+                  <!-- Info -->
+                  <div class="push-left-sm push-right-sm push-top push-bottom-xs" fxLayout="column">
+                    <div class="mat-h2 boardTitle pad-sm push-bottom-sm">Browser - {{ eusSessionName }}</div>
 
                     <div *ngIf="eusSessionsGroupsVmafMap.has(eusSessionName)" fxLayout="row">
                       <div fxFlex="47" fxFlex.gt-md="30" fxFlex.gt-lg="26">
                         <mat-list class="listInfoToLeft">
-                          <mat-list-item>
+                          <mat-list-item class="highlightedInfo">
                             <h4>VMAF Average</h4>
                             <p>{{ eusSessionsGroupsVmafMap.get(eusSessionName) }}</p>
                           </mat-list-item>
@@ -104,12 +107,14 @@
                       </div>
                     </div>
                   </div>
+
+                  <!-- Table -->
                   <div fxLayout="row">
                     <td-data-table
                       #browserFilesTable{{i}}
                       fxFlex
                       id="browserFilesTable{{ i }}"
-                      class="useMaxHeight"
+                      class="useMaxHeight browserFilesTable"
                       [data]="eusSessionsGroupsMap.get(eusSessionName)"
                       [columns]="filesColumns"
                       [resizableColumns]="true"
@@ -156,7 +161,6 @@
                       </ng-template>
                     </td-data-table>
                   </div>
-                  <mat-divider [inset]="true"></mat-divider>
                 </div>
               </div>
             </ng-template>
