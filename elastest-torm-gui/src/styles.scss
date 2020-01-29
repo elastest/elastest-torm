@@ -1598,6 +1598,20 @@ td-expansion-panel.accent > div.td-expansion-panel-header:hover mat-icon.td-expa
   background-color: #006572 !important;
 }
 
+.highlightedInfo mat-card-subtitle {
+  font-weight: bold;
+  color: #ffe933 !important;
+}
+
+.highlightedInfo h1,
+.highlightedInfo h2,
+.highlightedInfo h3,
+.highlightedInfo h4,
+.highlightedInfo h5,
+.highlightedInfo h6 {
+  color: #ffffff !important;
+}
+
 .infoBoard {
   border: dashed 1px #bbbbbb;
 }
@@ -1608,4 +1622,10 @@ td-expansion-panel.accent > div.td-expansion-panel-header:hover mat-icon.td-expa
   font-weight: bold !important;
   padding: 8px 16px !important;
   text-align: center !important;
+}
+
+.iconCircleInHighlight {
+  border-radius: 16px;
+  border: 1px solid #fff;
+  background-color: #fff;
 }

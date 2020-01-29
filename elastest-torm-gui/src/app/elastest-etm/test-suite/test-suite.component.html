@@ -3,10 +3,10 @@
     <auto-height-grid fxLayout="column">
       <normal-height-row>
         <mat-card tdMediaToggle="gt-xs">
-          <mat-card-content>
+          <mat-card-content class="highlightedInfo">
             <div fxLayout="row" fxLayoutAlign="start center">
               <span>
-                <mat-icon [style.color]="testSuite.getResultIcon().color" class="push-right-sm">{{
+                <mat-icon [style.color]="testSuite.getResultIcon().color" class="push-right-sm iconCircleInHighlight">{{
                   testSuite.getResultIcon().name
                 }}</mat-icon>
               </span>

@@ -88,15 +88,15 @@
                 <!-- Each session -->
                 <div
                   fxLayout="column"
-                  class="push-bottom-sm infoBoard"
+                  class="push-bottom infoBoard"
                   *ngFor="let eusSessionName of eusSessionsNames; let i = index; let f = first; let l = last"
                 >
                   <!-- Info -->
                   <div class="push-left-sm push-right-sm push-top push-bottom-xs" fxLayout="column">
-                    <div class="mat-h2 boardTitle pad-sm push-bottom-sm">Browser - {{ eusSessionName }}</div>
+                    <div class="mat-h2 boardTitle pad-sm push-bottom-sm">Browser session: {{ eusSessionName }}</div>
 
                     <div *ngIf="eusSessionsGroupsVmafMap.has(eusSessionName)" fxLayout="row">
-                      <div fxFlex="47" fxFlex.gt-md="30" fxFlex.gt-lg="26">
+                      <div fxFlex="47" fxFlex.gt-md="30" fxFlex.gt-lg="20">
                         <mat-list class="listInfoToLeft">
                           <mat-list-item class="highlightedInfo">
                             <h4>VMAF Average</h4>

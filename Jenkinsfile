@@ -1,4 +1,4 @@
-    node('elastest'){
+    node('dev-docker-64-slave-4') {
         
         stage "CI Container setup"
 
@@ -7,7 +7,7 @@
                 echo("the node is up")
                 def mycontainer = docker.image('elastest/ci-docker-compose-siblings:node11-npm6')
                 mycontainer.pull() // make sure we have the latest available from Docker Hub
-                mycontainer.inside("-u jenkins -p 37500:37500 -p 37501:37501 -p 37502:37502 -p 37503:37503 -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2 -v /home/ubuntu/.gnupg:/home/jenkins/.gnupg") {
+                mycontainer.inside("-u 0 -p 37500:37500 -p 37501:37501 -p 37502:37502 -p 37503:37503 -v /var/run/docker.sock:/var/run/docker.sock:rw -v ${WORKSPACE}:/home/jenkins/.m2 -v /home/ubuntu/.gnupg:/home/jenkins/.gnupg -v /var/lib/jenkins/caches/durable-task:/var/lib/jenkins/caches/durable-task:rw") {
                     def epmClientJavaDirectory = 'epm-client-java'
                     def eusJavaDirectory = 'eus-java'
 
@@ -21,6 +21,7 @@
                             echo 'There isn not EPM client directory'
                             sh 'mkdir ' + epmClientJavaDirectory
                         }
+                        sh 'chmod 777 ' + epmClientJavaDirectory
                         
                         dir(epmClientJavaDirectory) {
                             echo 'Existing files before cloning the git repository'
@@ -43,6 +44,7 @@
                             echo 'There isn not EUS directory'
                             sh 'mkdir ' + eusJavaDirectory
                         }
+                        sh 'chmod 777 ' + eusJavaDirectory
                         
                         dir(eusJavaDirectory) {
                             echo 'Existing files before cloning the git repository'
