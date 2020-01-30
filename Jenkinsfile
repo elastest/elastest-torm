@@ -87,9 +87,13 @@
                     stage "Upload coverage and quality reports"
                         echo ("Upload reports to SonarCloud and Codecov")
 
-                        sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=elastest -Dsonar.login=${TORM_SONARCLOUD_TOKEN}'
-                        sh "curl -s https://codecov.io/bash | bash -s - -t ${TORM_CODECOV_TOKEN} || echo 'Codecov did not collect coverage reports'"
-
+						try{
+		                    sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=${TORM_SONARCLOUD_ORGANIZATION} -Dsonar.login=${TORM_SONARCLOUD_TOKEN}'
+		                    sh "curl -s https://codecov.io/bash | bash -s - -t ${TORM_CODECOV_TOKEN} || echo 'Codecov did not collect coverage reports'"
+						} catch (err) {
+		 					def errString = err.toString()
+                    		echo 'Error on upload reports/coverage: ' + errString
+						}
 
                     stage "Create etm docker image"
                         echo ("Creating elastest/etm image..")                
