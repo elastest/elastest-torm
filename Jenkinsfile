@@ -88,7 +88,7 @@
                         echo ("Upload reports to SonarCloud and Codecov")
 
 						try{
-		                    sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=${TORM_SONARCLOUD_ORGANIZATION} -Dsonar.login=${TORM_SONARCLOUD_TOKEN}'
+		                    sh 'mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.projectKey=elastest_elastest-torm -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=${TORM_SONARCLOUD_ORGANIZATION} -Dsonar.login=${TORM_SONARCLOUD_TOKEN} -Dsonar.sources=.'
 		                    sh "curl -s https://codecov.io/bash | bash -s - -t ${TORM_CODECOV_TOKEN} || echo 'Codecov did not collect coverage reports'"
 						} catch (err) {
 		 					def errString = err.toString()
