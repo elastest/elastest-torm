@@ -1,4 +1,4 @@
-node('docker'){
+node('dev-docker-64-slave-4') {
     
     stage "Elastest-torm images build"
         try {
