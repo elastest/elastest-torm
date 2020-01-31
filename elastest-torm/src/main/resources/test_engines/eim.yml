@@ -1,7 +1,7 @@
 version: '3'
 services:
   eim:
-    image: elastest/eim:latest
+    image: elastest/eim:2.3.0
     stdin_open: true
     tty: true
     environment:
