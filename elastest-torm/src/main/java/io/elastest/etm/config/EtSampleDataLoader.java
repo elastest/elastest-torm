@@ -617,7 +617,7 @@ public class EtSampleDataLoader {
 			parameters.add(new Parameter("OPENVIDU_SECRET", "MY_SECRET"));
 			parameters.add(new Parameter("USERS_BY_SESSION", "3"));
 			parameters.add(new Parameter("MAX_SESSIONS", "2"));
-			parameters.add(new Parameter("ET_MON_LSHTTPS_API", "http://etm:5003"));
+			parameters.add(new Parameter("ET_MON_LSHTTPS_API", "http://etm:5003/api/monitoring/"));
 
 			this.printLog(pjName);
 			// Create Project
@@ -781,7 +781,7 @@ public class EtSampleDataLoader {
 			parameters.add(new Parameter("AWS_KEY_NAME", ""));
 			parameters.add(new Parameter("AWS_SECURITY_GROUPS", ""));
 			parameters.add(new Parameter("AWS_SSH_PRIVATE_KEY", ""));
-			parameters.add(new Parameter("ET_MON_LSHTTPS_API", "http://etm:5003"));
+			parameters.add(new Parameter("ET_MON_LSHTTPS_API", "http://etm:5003/api/monitoring/"));
 
 			this.printLog(pjName);
 			// Create Sut
