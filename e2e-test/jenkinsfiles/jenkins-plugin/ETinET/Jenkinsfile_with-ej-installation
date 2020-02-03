@@ -1,4 +1,4 @@
-node('et_in_et'){
+node(env.EXEC_NODE){
     try {
         elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: 8) {
             def elastest_url = ''
