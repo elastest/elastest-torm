@@ -17,10 +17,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 import io.elastest.etm.model.AggregationTree;
+import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
 import io.elastest.etm.model.TestCase;
 import io.elastest.etm.model.TimeRange;
+import io.elastest.etm.model.Trace;
 import io.elastest.etm.utils.DiffMatchPatch;
 import io.elastest.etm.utils.DiffMatchPatch.Diff;
 import io.elastest.etm.utils.UtilsService;
@@ -36,8 +38,7 @@ public abstract class AbstractMonitoringService {
     public AbstractMonitoringService() {
     }
 
-    public AbstractMonitoringService(TestSuiteService testSuiteService,
-            UtilsService utilsService) {
+    public AbstractMonitoringService(TestSuiteService testSuiteService, UtilsService utilsService) {
         this.utilsService = utilsService;
         this.testSuiteService = testSuiteService;
     }
@@ -52,11 +53,9 @@ public abstract class AbstractMonitoringService {
             for (String index : indices) {
                 try {
                     logger.debug("Deleting monitoring data of index {}", index);
-                    allDeleted = deleteMonitoringDataByExec(index)
-                            && allDeleted;
+                    allDeleted = deleteMonitoringDataByExec(index) && allDeleted;
                 } catch (Exception e) {
-                    logger.error("Error on delete monitoring data exec {}",
-                            index);
+                    logger.error("Error on delete monitoring data exec {}", index);
                     allDeleted = false;
                 }
             }
@@ -66,24 +65,21 @@ public abstract class AbstractMonitoringService {
     }
 
     /* *** Logs *** */
-    public abstract List<Map<String, Object>> searchAllByTerms(
-            MonitoringQuery monitoringQuery) throws Exception;
-
-    public abstract List<Map<String, Object>> searchAllLogs(
-            MonitoringQuery monitoringQuery) throws Exception;
-
-    public abstract List<String> searchAllLogsMessage(
-            MonitoringQuery monitoringQuery, boolean withTimestamp,
-            boolean timeDiff, boolean discardStartFinishTestTraces)
+    public abstract List<Map<String, Object>> searchAllByTerms(MonitoringQuery monitoringQuery)
             throws Exception;
 
-    public abstract List<String> searchAllLogsMessage(
-            MonitoringQuery monitoringQuery, boolean withTimestamp,
-            boolean timeInMillis) throws Exception;
+    public abstract List<Map<String, Object>> searchAllLogs(MonitoringQuery monitoringQuery)
+            throws Exception;
 
-    public List<List<String>> searchTestLogsMessage(
-            MonitoringQuery monitoringQuery, boolean withTimestamp,
-            boolean timeDiff, Long tJobExecId, boolean onlyFailed)
+    public abstract List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff, boolean discardStartFinishTestTraces)
+            throws Exception;
+
+    public abstract List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeInMillis) throws Exception;
+
+    public List<List<String>> searchTestLogsMessage(MonitoringQuery monitoringQuery,
+            boolean withTimestamp, boolean timeDiff, Long tJobExecId, boolean onlyFailed)
             throws Exception {
         List<List<String>> testsLogs = new ArrayList<>();
         if (tJobExecId != null) {
@@ -91,8 +87,7 @@ public abstract class AbstractMonitoringService {
 
             // If only failed tests
             if (onlyFailed) {
-                tCases = testSuiteService
-                        .getFailedTJobExecTestCases(tJobExecId);
+                tCases = testSuiteService.getFailedTJobExecTestCases(tJobExecId);
             } else {
                 tCases = testSuiteService.getTJobExecTestCases(tJobExecId);
             }
@@ -101,10 +96,9 @@ public abstract class AbstractMonitoringService {
                 for (TestCase currentCase : tCases) {
                     // If all tests or only failed tests
                     if (!onlyFailed || (onlyFailed && currentCase.isFailed())) {
-                        List<String> tcLogs = searchTestCaseLogsMessage(
-                                currentCase.getName(),
-                                currentCase.getTestSuite().getName(),
-                                monitoringQuery, withTimestamp, timeDiff);
+                        List<String> tcLogs = searchTestCaseLogsMessage(currentCase.getName(),
+                                currentCase.getTestSuite().getName(), monitoringQuery,
+                                withTimestamp, timeDiff);
                         if (tcLogs != null && tcLogs.size() > 0) {
                             testsLogs.add(tcLogs);
                         }
@@ -117,23 +111,18 @@ public abstract class AbstractMonitoringService {
     }
 
     public List<List<String>> searchTestLogsMessageBySuitesAndCasesNames(
-            MonitoringQuery monitoringQuery, boolean withTimestamp,
-            boolean timeDiff,
-            Map<String, List<String>> tCasesAndSuitesNamesMap)
-            throws Exception {
+            MonitoringQuery monitoringQuery, boolean withTimestamp, boolean timeDiff,
+            Map<String, List<String>> tCasesAndSuitesNamesMap) throws Exception {
         List<List<String>> testsLogs = new ArrayList<>();
-        if (tCasesAndSuitesNamesMap != null
-                && !tCasesAndSuitesNamesMap.isEmpty()) {
+        if (tCasesAndSuitesNamesMap != null && !tCasesAndSuitesNamesMap.isEmpty()) {
             for (HashMap.Entry<String, List<String>> currentCaseSuiteNamesEntry : tCasesAndSuitesNamesMap
                     .entrySet()) {
                 if (currentCaseSuiteNamesEntry != null
                         && currentCaseSuiteNamesEntry.getValue() != null) {
-                    for (String testCaseName : currentCaseSuiteNamesEntry
-                            .getValue()) {
-                        List<String> tcLogs = searchTestCaseLogsMessage(
-                                testCaseName,
-                                currentCaseSuiteNamesEntry.getKey(),
-                                monitoringQuery, withTimestamp, timeDiff);
+                    for (String testCaseName : currentCaseSuiteNamesEntry.getValue()) {
+                        List<String> tcLogs = searchTestCaseLogsMessage(testCaseName,
+                                currentCaseSuiteNamesEntry.getKey(), monitoringQuery, withTimestamp,
+                                timeDiff);
                         if (tcLogs != null && tcLogs.size() > 0) {
                             testsLogs.add(tcLogs);
                         }
@@ -144,16 +133,15 @@ public abstract class AbstractMonitoringService {
         return testsLogs;
     }
 
-    public List<String> searchTestCaseLogsMessage(String testCaseName,
-            String testSuiteName, MonitoringQuery monitoringQuery,
-            boolean withTimestamp, boolean timeDiff) throws Exception {
+    public List<String> searchTestCaseLogsMessage(String testCaseName, String testSuiteName,
+            MonitoringQuery monitoringQuery, boolean withTimestamp, boolean timeDiff)
+            throws Exception {
         List<String> tcLogs = new ArrayList<>();
 
         // If components list not empty, use list. Else, use unique
         // component
         List<String> testComponents = monitoringQuery.getComponents();
-        testComponents = testComponents != null && testComponents.size() > 0
-                ? testComponents
+        testComponents = testComponents != null && testComponents.size() > 0 ? testComponents
                 : Arrays.asList(monitoringQuery.getComponent());
 
         if (!testComponents.contains("test")) {
@@ -162,11 +150,9 @@ public abstract class AbstractMonitoringService {
         }
 
         Date startTestTrace = this.findFirstStartTestMsgAndGetTimestamp(
-                monitoringQuery.getIndicesAsString(), testSuiteName,
-                testCaseName, testComponents);
+                monitoringQuery.getIndicesAsString(), testSuiteName, testCaseName, testComponents);
         Date finishTestTrace = this.findFirstFinishTestMsgAndGetTimestamp(
-                monitoringQuery.getIndicesAsString(), testSuiteName,
-                testCaseName, testComponents);
+                monitoringQuery.getIndicesAsString(), testSuiteName, testCaseName, testComponents);
 
         if (startTestTrace != null && finishTestTrace != null) {
 
@@ -175,12 +161,10 @@ public abstract class AbstractMonitoringService {
             timeRange.setLte(finishTestTrace);
             monitoringQuery.setTimeRange(timeRange);
 
-            tcLogs = searchAllLogsMessage(monitoringQuery, withTimestamp,
-                    timeDiff, true);
+            tcLogs = searchAllLogsMessage(monitoringQuery, withTimestamp, timeDiff, true);
 
             if (tcLogs.size() > 0) {
-                String completeTestName = "<TEST>: " + testSuiteName + " -> "
-                        + testCaseName;
+                String completeTestName = "<TEST>: " + testSuiteName + " -> " + testCaseName;
                 List<String> aux = new ArrayList<>();
                 aux.add(completeTestName);
                 aux.addAll(tcLogs);
@@ -193,8 +177,8 @@ public abstract class AbstractMonitoringService {
     }
 
     @SuppressWarnings("unchecked")
-    public String compareLogsPair(MonitoringQuery body, String comparison,
-            String view, String timeout) throws Exception {
+    public String compareLogsPair(MonitoringQuery body, String comparison, String view,
+            String timeout) throws Exception {
         if (body != null && body.isPairOfIndices() && body.getExecsIds() != null
                 && body.getExecsIds().size() == 2) {
             float timeoutFloat = 0;
@@ -227,8 +211,7 @@ public abstract class AbstractMonitoringService {
             if (view != null && view.equals("failedtests")) {
                 // Map with key=Suitename and value List(TCasename1, ...)
                 failedTCasesAndSuitesNamesMap = testSuiteService
-                        .getFailedTJobExecsTestCasesAndSuitesNamesPair(
-                                body.getExecsIds());
+                        .getFailedTJobExecsTestCasesAndSuitesNamesPair(body.getExecsIds());
             }
 
             int pos = 0;
@@ -245,17 +228,15 @@ public abstract class AbstractMonitoringService {
                     switch (view) {
                     case "failedtests":
                         logsList = searchTestLogsMessageBySuitesAndCasesNames(newQuery,
-                                withTimestamp, timeDiff,
-                                failedTCasesAndSuitesNamesMap);
+                                withTimestamp, timeDiff, failedTCasesAndSuitesNamesMap);
                         break;
                     case "testslogs":
-                        logsList = searchTestLogsMessage(newQuery,
-                                withTimestamp, timeDiff, tJobExecId, false);
+                        logsList = searchTestLogsMessage(newQuery, withTimestamp, timeDiff,
+                                tJobExecId, false);
                         break;
                     case "complete":
                     default:
-                        logsList.add(searchAllLogsMessage(newQuery,
-                                withTimestamp, timeDiff));
+                        logsList.add(searchAllLogsMessage(newQuery, withTimestamp, timeDiff));
                         break;
                     }
                 }
@@ -263,8 +244,7 @@ public abstract class AbstractMonitoringService {
                     pairLogs[pos] = new ArrayList<>();
                     for (List<String> currentLogs : logsList) {
                         // Join with carriage return
-                        pairLogs[pos].add(StringUtils.join(currentLogs,
-                                String.format("%n")));
+                        pairLogs[pos].add(StringUtils.join(currentLogs, String.format("%n")));
                     }
                 }
                 pos++;
@@ -280,8 +260,8 @@ public abstract class AbstractMonitoringService {
                     } else {
                         firstConcat = false;
                     }
-                    htmlComparison += getDiffHtmlFromLogs(currentLog,
-                            pairLogs[1].get(pos), timeoutFloat);
+                    htmlComparison += getDiffHtmlFromLogs(currentLog, pairLogs[1].get(pos),
+                            timeoutFloat);
                     pos++;
                 }
             }
@@ -303,12 +283,11 @@ public abstract class AbstractMonitoringService {
         return html;
     }
 
-    public void compareLogsPairAsync(MonitoringQuery body, String comparison,
-            String view, String timeout, String processId) throws Exception {
+    public void compareLogsPairAsync(MonitoringQuery body, String comparison, String view,
+            String timeout, String processId) throws Exception {
         comparisonProcessMap.put(processId, processingComparationMsg);
         logger.debug("Async comparison with process ID {} starts", processId);
-        String comparisonString = this.compareLogsPair(body, comparison, view,
-                timeout);
+        String comparisonString = this.compareLogsPair(body, comparison, view, timeout);
         logger.debug("Async comparison with process ID {} ends", processId);
         comparisonProcessMap.put(processId, comparisonString);
     }
@@ -321,22 +300,23 @@ public abstract class AbstractMonitoringService {
         String comparation = comparisonProcessMap.get(processId);
 
         // Consume
-        if (comparation != null
-                && !comparation.equals(processingComparationMsg)) {
+        if (comparation != null && !comparation.equals(processingComparationMsg)) {
             comparisonProcessMap.remove(processId);
 
         }
         return comparation;
     }
 
-    public abstract List<Map<String, Object>> getLastLogs(
-            MonitoringQuery monitoringQuery, int size) throws Exception;
+    public abstract void saveTrace(Trace trace) throws Exception;
+
+    public abstract List<Map<String, Object>> getLastLogs(MonitoringQuery monitoringQuery, int size)
+            throws Exception;
 
     public abstract List<Map<String, Object>> getPreviousLogsFromTimestamp(
             MonitoringQuery monitoringQuery) throws Exception;
 
-    public abstract List<AggregationTree> searchLogsTree(
-            @Valid MonitoringQuery monitoringQuery) throws Exception;
+    public abstract List<AggregationTree> searchLogsTree(@Valid MonitoringQuery monitoringQuery)
+            throws Exception;
 
     public abstract List<AggregationTree> searchLogsLevelsTree(
             @Valid MonitoringQuery monitoringQuery) throws Exception;
@@ -344,36 +324,29 @@ public abstract class AbstractMonitoringService {
     public abstract Date findFirstMsgAndGetTimestamp(String index, String msg,
             List<String> components) throws Exception;
 
-    public Date findFirstStartTestMsgAndGetTimestamp(String index,
-            String testSuiteName, String testCaseName, List<String> components)
-            throws Exception {
-        String msg = utilsService.getTestSuiteAndTestCaseSuffix(testSuiteName,
-                testCaseName);
+    public Date findFirstStartTestMsgAndGetTimestamp(String index, String testSuiteName,
+            String testCaseName, List<String> components) throws Exception {
+        String msg = utilsService.getTestSuiteAndTestCaseSuffix(testSuiteName, testCaseName);
         if (msg == null) {
             msg = testCaseName;
         }
 
         msg = utilsService.getETTestStartPrefix() + msg;
 
-        Date startDate = this.findFirstMsgAndGetTimestamp(index, msg,
-                components);
+        Date startDate = this.findFirstMsgAndGetTimestamp(index, msg, components);
 
         // If startDate is null and testSuite name != null, retry with TestCase
         // only
-        if (startDate == null && testSuiteName != null
-                && !"".equals(testSuiteName)) {
-            return findFirstStartTestMsgAndGetTimestamp(index, null,
-                    testCaseName, components);
+        if (startDate == null && testSuiteName != null && !"".equals(testSuiteName)) {
+            return findFirstStartTestMsgAndGetTimestamp(index, null, testCaseName, components);
         } else {
             return startDate;
         }
     }
 
-    public Date findFirstFinishTestMsgAndGetTimestamp(String index,
-            String testSuiteName, String testCaseName, List<String> components)
-            throws Exception {
-        String msg = utilsService.getTestSuiteAndTestCaseSuffix(testSuiteName,
-                testCaseName);
+    public Date findFirstFinishTestMsgAndGetTimestamp(String index, String testSuiteName,
+            String testCaseName, List<String> components) throws Exception {
+        String msg = utilsService.getTestSuiteAndTestCaseSuffix(testSuiteName, testCaseName);
         if (msg == null) {
             msg = testCaseName;
         }
@@ -384,56 +357,58 @@ public abstract class AbstractMonitoringService {
 
         // If startDate is null and testSuite name != null, retry with TestCase
         // only
-        if (endDate == null && testSuiteName != null
-                && !"".equals(testSuiteName)) {
-            return findFirstFinishTestMsgAndGetTimestamp(index, null,
-                    testCaseName, components);
+        if (endDate == null && testSuiteName != null && !"".equals(testSuiteName)) {
+            return findFirstFinishTestMsgAndGetTimestamp(index, null, testCaseName, components);
         } else {
             return endDate;
         }
     }
 
     // first of all start
-    public Date findFirstStartTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception {
-        return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix(), components);
+    public Date findFirstStartTestMsgAndGetTimestamp(String index, List<String> components)
+            throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index, utilsService.getETTestStartPrefix(),
+                components);
     }
 
     // first of all finish
-    public Date findFirstFinishTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception {
-        return this.findFirstMsgAndGetTimestamp(index,
-                utilsService.getETTestFinishPrefix(), components);
+    public Date findFirstFinishTestMsgAndGetTimestamp(String index, List<String> components)
+            throws Exception {
+        return this.findFirstMsgAndGetTimestamp(index, utilsService.getETTestFinishPrefix(),
+                components);
     }
 
     public abstract Date findLastMsgAndGetTimestamp(String index, String msg,
             List<String> components) throws Exception;
 
-    public Date findLastStartTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception {
-        return this.findLastMsgAndGetTimestamp(index,
-                utilsService.getETTestStartPrefix(), components);
+    public Date findLastStartTestMsgAndGetTimestamp(String index, List<String> components)
+            throws Exception {
+        return this.findLastMsgAndGetTimestamp(index, utilsService.getETTestStartPrefix(),
+                components);
     }
 
-    public Date findLastFinishTestMsgAndGetTimestamp(String index,
-            List<String> components) throws Exception {
-        return this.findLastMsgAndGetTimestamp(index,
-                utilsService.getETTestFinishPrefix(), components);
+    public Date findLastFinishTestMsgAndGetTimestamp(String index, List<String> components)
+            throws Exception {
+        return this.findLastMsgAndGetTimestamp(index, utilsService.getETTestFinishPrefix(),
+                components);
+    }
+
+    public MonitoringStorageType getMonitoringStorageType() {
+        return utilsService.getMonitoringStorageType();
     }
 
     /* *** Metrics *** */
-    public abstract List<Map<String, Object>> searchAllMetrics(
-            MonitoringQuery monitoringQuery) throws Exception;
+    public abstract List<Map<String, Object>> searchAllMetrics(MonitoringQuery monitoringQuery)
+            throws Exception;
 
-    public abstract List<Map<String, Object>> getLastMetrics(
-            MonitoringQuery monitoringQuery, int size) throws Exception;
+    public abstract List<Map<String, Object>> getLastMetrics(MonitoringQuery monitoringQuery,
+            int size) throws Exception;
 
     public abstract List<Map<String, Object>> getPreviousMetricsFromTimestamp(
             MonitoringQuery monitoringQuery) throws Exception;
 
-    public abstract List<AggregationTree> searchMetricsTree(
-            @Valid MonitoringQuery monitoringQuery) throws Exception;
+    public abstract List<AggregationTree> searchMetricsTree(@Valid MonitoringQuery monitoringQuery)
+            throws Exception;
 
     /* *** Log Analyzer *** */
 

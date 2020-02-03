@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import io.elastest.etm.model.Enums.MonitoringStorageType;
+
 @Service
 public class UtilsService {
     final Logger logger = getLogger(lookup().lookupClass());
@@ -50,6 +52,27 @@ public class UtilsService {
     @Value("${et.enable.cloud.mode}")
     public boolean enableCloudMode;
 
+    @Value("${et.monitoring.service.type}")
+    public String etMonitoringServiceType;
+
+    @Value("${et.monitoring.service.url}")
+    public String etMonitoringServiceUrl;
+
+    @Value("${et.monitoring.service.user}")
+    public String etMonitoringServiceUser;
+
+    @Value("${et.monitoring.service.pass}")
+    public String etMonitoringServicePass;
+
+    @Value("${et.monitoring.service.path}")
+    public String etMonitoringServicePath;
+
+    public MonitoringStorageType monitoringStorageType;
+
+    /* ********************************* */
+    /* ************ Methods ************ */
+    /* ********************************* */
+
     public boolean isKubernetes() {
         return enableCloudMode;
     }
@@ -71,8 +94,7 @@ public class UtilsService {
     }
 
     public boolean isDefaultEtPublicHost() {
-        return ElastestConstants.DEFAULT_ET_PUBLIC_HOST
-                .equals(etPublicHostType);
+        return ElastestConstants.DEFAULT_ET_PUBLIC_HOST.equals(etPublicHostType);
     }
 
     public String getEtPublicHostType() {
@@ -82,6 +104,46 @@ public class UtilsService {
     public String getEtPublicHostValue() {
         return etPublicHost;
     }
+
+    /* ************************************** */
+    /* ********* Monitoring service ********* */
+    /* ************************************** */
+
+    public boolean isUsingDefaultMonitoringService() {
+        return "default".equals(etMonitoringServiceType);
+    }
+
+    public boolean isUsingElasticsearchMonitoringService() {
+        return "elasticsearch".equals(etMonitoringServiceType);
+    }
+
+    public String getMonitoringServiceUrl() {
+        return etMonitoringServiceUrl;
+    }
+
+    public String getMonitoringServiceUser() {
+        return etMonitoringServiceUser;
+    }
+
+    public String getMonitoringServicePass() {
+        return etMonitoringServicePass;
+    }
+
+    public String getMonitoringServicePath() {
+        return etMonitoringServicePath;
+    }
+
+    public void setMonitoringStorageType(MonitoringStorageType type) {
+        this.monitoringStorageType = type;
+    }
+
+    public MonitoringStorageType getMonitoringStorageType() {
+        return monitoringStorageType;
+    }
+    
+    /* *************************************** */
+    /* **************** Dates **************** */
+    /* *************************************** */
 
     public String getIso8601String() {
         return "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -99,8 +161,7 @@ public class UtilsService {
         return new SimpleDateFormat(getJavaDateString());
     }
 
-    public Date getJavaDateFromStr(String timestamp, TimeZone timezone)
-            throws ParseException {
+    public Date getJavaDateFromStr(String timestamp, TimeZone timezone) throws ParseException {
         DateFormat df = getJavaDateStringFormat();
         df.setTimeZone(timezone);
 
@@ -108,34 +169,29 @@ public class UtilsService {
     }
 
     public Date getJavaUTCDateFromStr(String timestamp) throws ParseException {
-        return this.getJavaDateFromStr(timestamp,
-                TimeZone.getTimeZone("GMT-0"));
+        return this.getJavaDateFromStr(timestamp, TimeZone.getTimeZone("GMT-0"));
     }
 
     public DateFormat getIso8601DateFormat() {
         return new SimpleDateFormat(getIso8601String());
     }
 
-    public Date getGMT0DateFromIso8601Str(String dateStr)
-            throws ParseException {
+    public Date getGMT0DateFromIso8601Str(String dateStr) throws ParseException {
         DateFormat df = getIso8601DateFormat();
         df.setTimeZone(TimeZone.getTimeZone("GMT-0"));
 
         return df.parse(dateStr);
     }
 
-    public Date getIso8601DateFromStr(String timestamp, TimeZone timezone)
-            throws ParseException {
+    public Date getIso8601DateFromStr(String timestamp, TimeZone timezone) throws ParseException {
         DateFormat df = getIso8601DateFormat();
         df.setTimeZone(timezone);
 
         return df.parse(timestamp);
     }
 
-    public Date getIso8601UTCDateFromStr(String timestamp)
-            throws ParseException {
-        return this.getIso8601DateFromStr(timestamp,
-                TimeZone.getTimeZone("GMT-0"));
+    public Date getIso8601UTCDateFromStr(String timestamp) throws ParseException {
+        return this.getIso8601DateFromStr(timestamp, TimeZone.getTimeZone("GMT-0"));
     }
 
     public String getIso8601UTCStrFromDate(Date date) throws ParseException {
@@ -200,8 +256,7 @@ public class UtilsService {
         try {
             if (difference != 0) {
                 // Received date is NOT in the same timezone
-                int differenceInHours = (new Double(difference / (1000 * 3600)))
-                        .intValue();
+                int differenceInHours = (new Double(difference / (1000 * 3600))).intValue();
                 int newHour = date.getHours() + differenceInHours;
                 date.setHours(newHour);
             }
@@ -235,29 +290,26 @@ public class UtilsService {
     /* *** Date conversion from LogAnalyzer Date (yyyy-MM-dd'T'HH:mm:ss) *** */
     /* ********************************************************************* */
 
-    public Date getDateUTCFromLogAnalyzerStrDate(String logAnalyzerDate)
-            throws ParseException {
+    public Date getDateUTCFromLogAnalyzerStrDate(String logAnalyzerDate) throws ParseException {
         try {
             DateFormat df = new SimpleDateFormat(getIso8601String(), Locale.UK);
 
             return df.parse(logAnalyzerDate);
         } catch (Exception e) {
             try {
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
-                        Locale.UK);
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.UK);
 
                 return df.parse(logAnalyzerDate);
             } catch (Exception e1) {
-                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm",
-                        Locale.UK);
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.UK);
 
                 return df.parse(logAnalyzerDate);
             }
         }
     }
 
-    public String getStrIso8601With6MillisUTCFromLogAnalyzerDateStr(
-            String logAnalyzerDate) throws ParseException {
+    public String getStrIso8601With6MillisUTCFromLogAnalyzerDateStr(String logAnalyzerDate)
+            throws ParseException {
         Date date = this.getDateUTCFromLogAnalyzerStrDate(logAnalyzerDate);
 
         try {
@@ -265,17 +317,15 @@ public class UtilsService {
 
             return df.format(date);
         } catch (Exception e) {
-            DateFormat df = new SimpleDateFormat(
-                    getIso8601With6MillisecondsString(), Locale.UK);
+            DateFormat df = new SimpleDateFormat(getIso8601With6MillisecondsString(), Locale.UK);
 
             return df.format(date);
         }
     }
 
-    public String getStrIso8601With6MillisUTCFromLogAnalyzerDate(
-            Date logAnalyzerDate) throws ParseException {
-        DateFormat df = new SimpleDateFormat(
-                getIso8601With6MillisecondsString(), Locale.UK);
+    public String getStrIso8601With6MillisUTCFromLogAnalyzerDate(Date logAnalyzerDate)
+            throws ParseException {
+        DateFormat df = new SimpleDateFormat(getIso8601With6MillisecondsString(), Locale.UK);
 
         return df.format(logAnalyzerDate);
     }
@@ -320,11 +370,9 @@ public class UtilsService {
         return suffixStr.split(" " + testSuiteTestCaseTraceSeparator + " ");
     }
 
-    public String getTestSuiteAndTestCaseSuffix(String testSuiteName,
-            String testCaseName) {
+    public String getTestSuiteAndTestCaseSuffix(String testSuiteName, String testCaseName) {
         if (testSuiteName != null && testCaseName != null) {
-            return testSuiteName + " " + testSuiteTestCaseTraceSeparator + " "
-                    + testCaseName;
+            return testSuiteName + " " + testSuiteTestCaseTraceSeparator + " " + testCaseName;
         }
         return null;
     }

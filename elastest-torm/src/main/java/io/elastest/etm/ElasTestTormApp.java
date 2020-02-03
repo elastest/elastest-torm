@@ -21,6 +21,7 @@ import io.elastest.epm.client.service.DockerComposeService;
 import io.elastest.epm.client.service.DockerService;
 import io.elastest.epm.client.service.K8sService;
 import io.elastest.etm.dao.TraceRepository;
+import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.platform.service.DockerServiceImpl;
 import io.elastest.etm.platform.service.K8ServiceImpl;
 import io.elastest.etm.platform.service.PlatformService;
@@ -97,9 +98,22 @@ public class ElasTestTormApp extends AsyncConfigurerSupport {
 
     @Bean
     public AbstractMonitoringService getMonitoringService() {
+        if (utilsService.isUsingElasticsearchMonitoringService()) {
+            System.out.println("Using External Elasticsearch");
+            utilsService.setMonitoringStorageType(MonitoringStorageType.ELASTICSEARCH);
+            return new ElasticsearchService(utilsService.getMonitoringServiceUrl(),
+                    utilsService.getMonitoringServiceUser(),
+                    utilsService.getMonitoringServicePass(),
+                    utilsService.getMonitoringServicePath(), utilsService, testSuiteService);
+        }
+
+        System.out.println("Using Default Monitoring Service");
+        // Default
         if (utilsService.isElastestMini()) {
+            utilsService.setMonitoringStorageType(MonitoringStorageType.MYSQL);
             return new TracesSearchService(traceRepository, testSuiteService, utilsService);
         } else {
+            utilsService.setMonitoringStorageType(MonitoringStorageType.ELASTICSEARCH);
             return new ElasticsearchService(utilsService, testSuiteService);
         }
     }

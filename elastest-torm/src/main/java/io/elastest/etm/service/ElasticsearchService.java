@@ -34,6 +34,8 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.main.MainResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -65,6 +67,9 @@ import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.elastest.etm.model.AggregationTree;
 import io.elastest.etm.model.LogAnalyzerQuery;
 import io.elastest.etm.model.MonitoringQuery;
@@ -88,13 +93,25 @@ public class ElasticsearchService extends AbstractMonitoringService {
 
     RestHighLevelClient esClient;
 
-    public ElasticsearchService(UtilsService utilsService,
-            TestSuiteService testSuiteService) {
+    private static boolean alreadyInit = false;
+
+    public ElasticsearchService(UtilsService utilsService, TestSuiteService testSuiteService) {
         super(testSuiteService, utilsService);
     }
 
-    public ElasticsearchService(String esApiUrl, String user, String pass,
-            String path, UtilsService utilsService) {
+    public ElasticsearchService(String esApiUrl, String user, String pass, String path,
+            UtilsService utilsService, TestSuiteService testSuiteService) {
+        super(testSuiteService, utilsService);
+        this.esApiUrl = esApiUrl;
+        this.utilsService = utilsService;
+        this.user = !"".equals(user) ? user : null;
+        this.pass = pass;
+        this.path = path;
+        init();
+    }
+
+    public ElasticsearchService(String esApiUrl, String user, String pass, String path,
+            UtilsService utilsService) {
         this.esApiUrl = esApiUrl;
         this.utilsService = utilsService;
         this.user = !"".equals(user) ? user : null;
@@ -104,7 +121,16 @@ public class ElasticsearchService extends AbstractMonitoringService {
     }
 
     @PostConstruct
+    private void postConstruct() {
+        if (!alreadyInit) {
+            init();
+        }
+    }
+
     private void init() {
+        logger.debug("Initializing Elasticsearch with url '{}', user '{}', pass '{}' and path '{}'",
+                this.esApiUrl, this.user, this.pass, this.path);
+
         URL url;
         try {
             url = new URL(this.esApiUrl);
@@ -129,17 +155,16 @@ public class ElasticsearchService extends AbstractMonitoringService {
                             public HttpAsyncClientBuilder customizeHttpClient(
                                     HttpAsyncClientBuilder httpClientBuilder) {
                                 return httpClientBuilder
-                                        .setDefaultCredentialsProvider(
-                                                credentialsProvider);
+                                        .setDefaultCredentialsProvider(credentialsProvider);
                             }
                         });
             }
 
             this.esClient = new RestHighLevelClient(builder);
 
+            this.alreadyInit = true;
         } catch (MalformedURLException e) {
-            logger.error("Cannot get Elasticsearch url by given: {}",
-                    this.esApiUrl);
+            logger.error("Cannot get Elasticsearch url by given: {}", this.esApiUrl);
         }
 
     }
@@ -179,8 +204,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
                     logger.info("Index {} created", index);
                 }
             } catch (ElasticsearchStatusException e) {
-                if (e.getMessage()
-                        .contains("resource_already_exists_exception")) {
+                if (e.getMessage().contains("resource_already_exists_exception")) {
                     logger.info("ES Index {} already exist!", index);
                 } else {
                     logger.error("Error creating index {}", index, e);
@@ -197,14 +221,13 @@ public class ElasticsearchService extends AbstractMonitoringService {
         }
     }
 
-    public CreateIndexRequest createIndexRequest(String index,
-            Map<String, String> mappings, String alias, String timeout) {
+    public CreateIndexRequest createIndexRequest(String index, Map<String, String> mappings,
+            String alias, String timeout) {
         CreateIndexRequest request = new CreateIndexRequest(index);
 
         if (mappings != null && !mappings.isEmpty()) {
             for (Map.Entry<String, String> entry : mappings.entrySet()) {
-                request.mapping(entry.getKey(), entry.getValue(),
-                        XContentType.JSON);
+                request.mapping(entry.getKey(), entry.getValue(), XContentType.JSON);
             }
         }
 
@@ -219,22 +242,17 @@ public class ElasticsearchService extends AbstractMonitoringService {
         return request;
     }
 
-    public CreateIndexResponse createIndexSync(String index,
-            Map<String, String> mappings, String alias, String timeout)
-            throws Exception {
-        CreateIndexRequest request = this.createIndexRequest(index, mappings,
-                alias, timeout);
+    public CreateIndexResponse createIndexSync(String index, Map<String, String> mappings,
+            String alias, String timeout) throws Exception {
+        CreateIndexRequest request = this.createIndexRequest(index, mappings, alias, timeout);
         return this.esClient.indices().create(request, RequestOptions.DEFAULT);
     }
 
-    public void createIndexAsync(ActionListener<CreateIndexResponse> listener,
-            String index, Map<String, String> mappings, String alias,
-            String timeout) throws IOException {
-        CreateIndexRequest request = this.createIndexRequest(index, mappings,
-                alias, timeout);
+    public void createIndexAsync(ActionListener<CreateIndexResponse> listener, String index,
+            Map<String, String> mappings, String alias, String timeout) throws IOException {
+        CreateIndexRequest request = this.createIndexRequest(index, mappings, alias, timeout);
 
-        this.esClient.indices().createAsync(request, RequestOptions.DEFAULT,
-                listener);
+        this.esClient.indices().createAsync(request, RequestOptions.DEFAULT, listener);
     }
 
     public List<String> getAllIndices() throws Exception {
@@ -258,15 +276,13 @@ public class ElasticsearchService extends AbstractMonitoringService {
 
     public ClusterHealthStatus getIndexHealth(String index) throws Exception {
         ClusterHealthRequest request = new ClusterHealthRequest(index);
-        ClusterHealthResponse response = esClient.cluster().health(request,
-                RequestOptions.DEFAULT);
+        ClusterHealthResponse response = esClient.cluster().health(request, RequestOptions.DEFAULT);
         Map<String, ClusterIndexHealth> indices = response.getIndices();
         ClusterIndexHealth indexHealth = indices.get(index);
         return indexHealth.getStatus();
     }
 
-    public List<String> getIndicesByHealth(ClusterHealthStatus health)
-            throws Exception {
+    public List<String> getIndicesByHealth(ClusterHealthStatus health) throws Exception {
         List<String> indicesWithHealth = new ArrayList<>();
 
         List<String> allIndices = getAllIndices();
@@ -289,14 +305,12 @@ public class ElasticsearchService extends AbstractMonitoringService {
         boolean deleted = false;
         try {
             DeleteIndexRequest request = new DeleteIndexRequest(index);
-            AcknowledgedResponse deleteIndexResponse = esClient.indices()
-                    .delete(request, RequestOptions.DEFAULT);
+            AcknowledgedResponse deleteIndexResponse = esClient.indices().delete(request,
+                    RequestOptions.DEFAULT);
             deleted = deleteIndexResponse.isAcknowledged();
         } catch (ElasticsearchException e) {
             if (e.status() == RestStatus.NOT_FOUND) {
-                logger.debug(
-                        "Index {} has not been removed because it has not been found",
-                        index);
+                logger.debug("Index {} has not been removed because it has not been found", index);
                 deleted = true;
             }
         }
@@ -318,8 +332,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
         return allDeleted;
     }
 
-    public boolean deleteIndicesByHealth(ClusterHealthStatus health)
-            throws Exception {
+    public boolean deleteIndicesByHealth(ClusterHealthStatus health) throws Exception {
         List<String> indices = getIndicesByHealth(health);
         return deleteGivenIndices(indices);
     }
@@ -337,8 +350,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(10000);
-        sourceBuilder
-                .sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
+        sourceBuilder.sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
         sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.ASC));
 
         return sourceBuilder;
@@ -350,21 +362,18 @@ public class ElasticsearchService extends AbstractMonitoringService {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.query(boolQueryBuilder);
         sourceBuilder.size(10000);
-        sourceBuilder
-                .sort(new FieldSortBuilder("@timestamp").order(SortOrder.DESC));
+        sourceBuilder.sort(new FieldSortBuilder("@timestamp").order(SortOrder.DESC));
         sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.DESC));
 
         return sourceBuilder;
     }
 
-    private BoolQueryBuilder getTimeRangeByMonitoringQuery(
-            MonitoringQuery monitoringQuery,
+    private BoolQueryBuilder getTimeRangeByMonitoringQuery(MonitoringQuery monitoringQuery,
             BoolQueryBuilder boolQueryBuilder) {
         TimeRange timeRange = monitoringQuery.getTimeRange();
         if (timeRange != null && !timeRange.isEmpty()) {
             // Range Time
-            RangeQueryBuilder timeRangeBuilder = new RangeQueryBuilder(
-                    "@timestamp");
+            RangeQueryBuilder timeRangeBuilder = new RangeQueryBuilder("@timestamp");
             if (timeRange.getLt() != null && timeRange.getLte() == null) {
                 timeRangeBuilder.lt(timeRange.getLt());
             }
@@ -387,12 +396,10 @@ public class ElasticsearchService extends AbstractMonitoringService {
     /* *** Search *** */
     /* ************** */
 
-    public List<SearchHit> searchAll(SearchRequest searchRequest)
-            throws IOException {
+    public List<SearchHit> searchAll(SearchRequest searchRequest) throws IOException {
         List<SearchHit> hits = new ArrayList<>();
 
-        SearchResponseHitsIterator hitsIterator = new SearchResponseHitsIterator(
-                searchRequest);
+        SearchResponseHitsIterator hitsIterator = new SearchResponseHitsIterator(searchRequest);
 
         while (hitsIterator.hasNext()) {
             List<SearchHit> currentHits = Arrays.asList(hitsIterator.next());
@@ -402,23 +409,19 @@ public class ElasticsearchService extends AbstractMonitoringService {
         return hits;
     }
 
-    public SearchResponse searchBySearchSourceBuilder(
-            SearchSourceBuilder searchSourceBuilder, String[] indices)
-            throws IOException {
+    public SearchResponse searchBySearchSourceBuilder(SearchSourceBuilder searchSourceBuilder,
+            String[] indices) throws IOException {
 
         SearchRequest searchRequest = new SearchRequest(indices);
         searchRequest.source(searchSourceBuilder);
-        searchRequest.indicesOptions(
-                IndicesOptions.fromOptions(true, false, false, false));
-        searchRequest.indicesOptions(
-                IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
         return this.esClient.search(searchRequest, RequestOptions.DEFAULT);
     }
 
     public List<SearchHit> searchAllHits(SearchRequest request) {
         List<SearchHit> hits = new ArrayList<>();
-        SearchResponseHitsIterator hitIterator = new SearchResponseHitsIterator(
-                request);
+        SearchResponseHitsIterator hitIterator = new SearchResponseHitsIterator(request);
 
         while (hitIterator.hasNext()) {
             List<SearchHit> currentHits = Arrays.asList(hitIterator.next());
@@ -433,27 +436,22 @@ public class ElasticsearchService extends AbstractMonitoringService {
 
         while (hitIterator.hasNext()) {
             SearchHit currentHit = hitIterator.next();
-            if (currentHit.getSortValues() != null
-                    && currentHit.getSortValues().length > 0) {
-                currentHit.getSourceAsMap().put("sort",
-                        currentHit.getSortValues());
+            if (currentHit.getSortValues() != null && currentHit.getSortValues().length > 0) {
+                currentHit.getSourceAsMap().put("sort", currentHit.getSortValues());
             }
             mapList.add(currentHit.getSourceAsMap());
         }
         return mapList;
     }
 
-    public List<Map<String, Object>> searchRequestAndGetSourceMapList(
-            SearchRequest request) throws IOException {
+    public List<Map<String, Object>> searchRequestAndGetSourceMapList(SearchRequest request)
+            throws IOException {
         List<Map<String, Object>> mapList = new ArrayList<>();
-        SearchResponse response = this.esClient.search(request,
-                RequestOptions.DEFAULT);
+        SearchResponse response = this.esClient.search(request, RequestOptions.DEFAULT);
 
-        if (response.getHits() != null
-                && response.getHits().getHits() != null) {
+        if (response.getHits() != null && response.getHits().getHits() != null) {
             for (SearchHit hit : response.getHits().getHits()) {
-                if (hit.getSortValues() != null
-                        && hit.getSortValues().length > 0) {
+                if (hit.getSortValues() != null && hit.getSortValues().length > 0) {
                     hit.getSourceAsMap().put("sort", hit.getSortValues());
                 }
                 mapList.add(hit.getSourceAsMap());
@@ -462,13 +460,11 @@ public class ElasticsearchService extends AbstractMonitoringService {
         return mapList;
     }
 
-    public List<SearchHit> searchByTimestamp(String[] indices,
-            BoolQueryBuilder boolQueryBuilder, String timestamp) {
-        boolQueryBuilder = (BoolQueryBuilder) UtilTools
-                .cloneObject(boolQueryBuilder);
+    public List<SearchHit> searchByTimestamp(String[] indices, BoolQueryBuilder boolQueryBuilder,
+            String timestamp) {
+        boolQueryBuilder = (BoolQueryBuilder) UtilTools.cloneObject(boolQueryBuilder);
 
-        TermQueryBuilder timestampTerm = QueryBuilders.termQuery("@timestamp",
-                timestamp);
+        TermQueryBuilder timestampTerm = QueryBuilders.termQuery("@timestamp", timestamp);
         boolQueryBuilder.must().add(timestampTerm);
 
         SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
@@ -476,8 +472,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
 
         SearchRequest searchRequest = new SearchRequest(indices);
         searchRequest.source(sourceBuilder);
-        searchRequest.indicesOptions(
-                IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
 
         return searchAllHits(searchRequest);
     }
@@ -485,21 +480,18 @@ public class ElasticsearchService extends AbstractMonitoringService {
     public List<SearchHit> getPreviousFromTimestamp(String[] indices,
             BoolQueryBuilder boolQueryBuilder, String timestamp) {
         // search all hits to find hit with given timestamp
-        List<SearchHit> hits = this.searchByTimestamp(indices, boolQueryBuilder,
-                timestamp);
+        List<SearchHit> hits = this.searchByTimestamp(indices, boolQueryBuilder, timestamp);
 
         if (hits.size() > 0) {
             // Inverse Search Source builder
             SearchSourceBuilder inverseSourceBuilder = getDefaultInverseSearchSourceBuilderByGivenBoolQueryBuilder(
                     boolQueryBuilder);
 
-            inverseSourceBuilder
-                    .searchAfter(hits.get(hits.size() - 1).getSortValues());
+            inverseSourceBuilder.searchAfter(hits.get(hits.size() - 1).getSortValues());
 
             SearchRequest searchRequest = new SearchRequest(indices);
             searchRequest.source(inverseSourceBuilder);
-            searchRequest.indicesOptions(
-                    IndicesOptions.fromOptions(true, false, false, false));
+            searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
 
             List<SearchHit> previousHits = this.searchAllHits(searchRequest);
             // Sort ASC
@@ -511,8 +503,8 @@ public class ElasticsearchService extends AbstractMonitoringService {
         }
     }
 
-    public List<SearchHit> getLast(String[] indices,
-            BoolQueryBuilder boolQueryBuilder, int size) throws Exception {
+    public List<SearchHit> getLast(String[] indices, BoolQueryBuilder boolQueryBuilder, int size)
+            throws Exception {
         // Inverse Search Source builder
         SearchSourceBuilder inverseSourceBuilder = getDefaultInverseSearchSourceBuilderByGivenBoolQueryBuilder(
                 boolQueryBuilder);
@@ -521,16 +513,12 @@ public class ElasticsearchService extends AbstractMonitoringService {
 
         SearchRequest searchRequest = new SearchRequest(indices);
         searchRequest.source(inverseSourceBuilder);
-        searchRequest.indicesOptions(
-                IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
 
-        SearchResponse response = this.esClient.search(searchRequest,
-                RequestOptions.DEFAULT);
+        SearchResponse response = this.esClient.search(searchRequest, RequestOptions.DEFAULT);
         List<SearchHit> lastHits = new ArrayList<>();
-        if (response.getHits() != null
-                && response.getHits().getHits() != null) {
-            List<SearchHit> currentHits = Arrays
-                    .asList(response.getHits().getHits());
+        if (response.getHits() != null && response.getHits().getHits() != null) {
+            List<SearchHit> currentHits = Arrays.asList(response.getHits().getHits());
             lastHits.addAll(currentHits);
             // Sort ASC
             Collections.reverse(lastHits);
@@ -538,13 +526,11 @@ public class ElasticsearchService extends AbstractMonitoringService {
         return lastHits;
     }
 
-    public BoolQueryBuilder getBoolQueryBuilderByMonitoringQuery(
-            MonitoringQuery monitoringQuery) {
+    public BoolQueryBuilder getBoolQueryBuilderByMonitoringQuery(MonitoringQuery monitoringQuery) {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
         for (String selectedTerm : monitoringQuery.getSelectedTerms()) {
-            TermQueryBuilder term = monitoringQuery
-                    .getAttributeTermByGivenName(selectedTerm);
+            TermQueryBuilder term = monitoringQuery.getAttributeTermByGivenName(selectedTerm);
             if (term != null) {
                 boolQueryBuilder.must(term);
             }
@@ -553,38 +539,31 @@ public class ElasticsearchService extends AbstractMonitoringService {
         return boolQueryBuilder;
     }
 
-    public List<Map<String, Object>> searchAllByTerms(
-            MonitoringQuery monitoringQuery) throws IOException {
-        BoolQueryBuilder boolQueryBuilder = getBoolQueryBuilderByMonitoringQuery(
-                monitoringQuery);
+    public List<Map<String, Object>> searchAllByTerms(MonitoringQuery monitoringQuery)
+            throws IOException {
+        BoolQueryBuilder boolQueryBuilder = getBoolQueryBuilderByMonitoringQuery(monitoringQuery);
 
-        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery,
-                boolQueryBuilder);
+        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery, boolQueryBuilder);
 
         SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
                 boolQueryBuilder);
-        SearchRequest searchRequest = new SearchRequest(
-                monitoringQuery.getIndicesAsArray());
+        SearchRequest searchRequest = new SearchRequest(monitoringQuery.getIndicesAsArray());
         searchRequest.source(sourceBuilder);
-        searchRequest.indicesOptions(
-                IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
 
         return this.searchAllByRequest(searchRequest);
     }
 
     /* *** Aggregations *** */
 
-    public List<Map<String, Object>> searchAllAggregationsByRequest(
-            SearchRequest request) {
+    public List<Map<String, Object>> searchAllAggregationsByRequest(SearchRequest request) {
         List<Map<String, Object>> mapList = new ArrayList<>();
         SearchHitIterator hitIterator = new SearchHitIterator(request);
 
         while (hitIterator.hasNext()) {
             SearchHit currentHit = hitIterator.next();
-            if (currentHit.getSortValues() != null
-                    && currentHit.getSortValues().length > 0) {
-                currentHit.getSourceAsMap().put("sort",
-                        currentHit.getSortValues());
+            if (currentHit.getSortValues() != null && currentHit.getSortValues().length > 0) {
+                currentHit.getSourceAsMap().put("sort", currentHit.getSortValues());
             }
             mapList.add(currentHit.getSourceAsMap());
         }
@@ -595,19 +574,18 @@ public class ElasticsearchService extends AbstractMonitoringService {
         AggregationBuilder aggregationBuilder = null;
         if (orderedFieldList.size() > 0) {
             String firstField = orderedFieldList.get(0);
-            aggregationBuilder = AggregationBuilders.terms(firstField + "s")
-                    .size(10000).field(firstField);
+            aggregationBuilder = AggregationBuilders.terms(firstField + "s").size(10000)
+                    .field(firstField);
             if (orderedFieldList.size() > 1) {
-                aggregationBuilder.subAggregation(this.createNestedAggs(
-                        orderedFieldList.subList(1, orderedFieldList.size())));
+                aggregationBuilder.subAggregation(this
+                        .createNestedAggs(orderedFieldList.subList(1, orderedFieldList.size())));
             }
         }
 
         return aggregationBuilder;
     }
 
-    public List<AggregationTree> getAggTreeList(Aggregations aggs,
-            List<String> fields) {
+    public List<AggregationTree> getAggTreeList(Aggregations aggs, List<String> fields) {
         List<AggregationTree> aggTreeList = new ArrayList<>();
 
         if (fields.size() > 0) {
@@ -618,9 +596,8 @@ public class ElasticsearchService extends AbstractMonitoringService {
                 for (Bucket bucket : buckets) {
                     AggregationTree aggObj = new AggregationTree();
                     aggObj.setName(bucket.getKeyAsString());
-                    aggObj.setChildren(
-                            this.getAggTreeList(bucket.getAggregations(),
-                                    fields.subList(1, fields.size())));
+                    aggObj.setChildren(this.getAggTreeList(bucket.getAggregations(),
+                            fields.subList(1, fields.size())));
                     aggTreeList.add(aggObj);
                 }
             }
@@ -638,35 +615,28 @@ public class ElasticsearchService extends AbstractMonitoringService {
                 boolQueryBuilder);
         sourceBuilder.aggregation(aggregationBuilder);
 
-        SearchRequest searchRequest = new SearchRequest(
-                monitoringQuery.getIndicesAsArray());
+        SearchRequest searchRequest = new SearchRequest(monitoringQuery.getIndicesAsArray());
         searchRequest.source(sourceBuilder);
-        searchRequest.indicesOptions(
-                IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
 
-        return esClient.search(searchRequest, RequestOptions.DEFAULT)
-                .getAggregations();
+        return esClient.search(searchRequest, RequestOptions.DEFAULT).getAggregations();
 
     }
 
-    public List<AggregationTree> getMonitoringTree(
-            MonitoringQuery monitoringQuery, boolean isMetric)
-            throws IOException {
+    public List<AggregationTree> getMonitoringTree(MonitoringQuery monitoringQuery,
+            boolean isMetric) throws IOException {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-        TermQueryBuilder streamTypeTerm = QueryBuilders.termQuery("stream_type",
-                "log");
+        TermQueryBuilder streamTypeTerm = QueryBuilders.termQuery("stream_type", "log");
 
         if (isMetric) {
             boolQueryBuilder.mustNot().add(streamTypeTerm);
 
-            TermQueryBuilder etTypeContainerTerm = QueryBuilders
-                    .termQuery("et_type", "container");
+            TermQueryBuilder etTypeContainerTerm = QueryBuilders.termQuery("et_type", "container");
             boolQueryBuilder.mustNot().add(etTypeContainerTerm);
         } else {
             boolQueryBuilder.must().add(streamTypeTerm);
         }
-        Aggregations aggs = this.getAggregationsTree(monitoringQuery,
-                boolQueryBuilder);
+        Aggregations aggs = this.getAggregationsTree(monitoringQuery, boolQueryBuilder);
         List<AggregationTree> aggregationTreeList = getAggTreeList(aggs,
                 monitoringQuery.getSelectedTerms());
         return aggregationTreeList;
@@ -691,11 +661,10 @@ public class ElasticsearchService extends AbstractMonitoringService {
     /* ****************** Logs ****************** */
     /* ****************************************** */
 
-    public BoolQueryBuilder getLogBoolQueryBuilder(List<String> components,
-            String stream, boolean underShould) {
+    public BoolQueryBuilder getLogBoolQueryBuilder(List<String> components, String stream,
+            boolean underShould) {
         BoolQueryBuilder componentStreamBoolBuilder = QueryBuilders.boolQuery();
-        TermsQueryBuilder componentsTerms = QueryBuilders
-                .termsQuery("component", components);
+        TermsQueryBuilder componentsTerms = QueryBuilders.termsQuery("component", components);
         TermQueryBuilder streamTerm = QueryBuilders.termQuery("stream", stream);
 
         componentStreamBoolBuilder.must(componentsTerms);
@@ -703,8 +672,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
 
         if (underShould) {
 
-            TermQueryBuilder streamTypeTerm = QueryBuilders
-                    .termQuery("stream_type", "log");
+            TermQueryBuilder streamTypeTerm = QueryBuilders.termQuery("stream_type", "log");
 
             BoolQueryBuilder shouldBoolBuilder = QueryBuilders.boolQuery();
             shouldBoolBuilder.should(componentStreamBoolBuilder);
@@ -719,14 +687,13 @@ public class ElasticsearchService extends AbstractMonitoringService {
         }
     }
 
-    public BoolQueryBuilder getLogBoolQueryBuilder(String component,
-            String stream, boolean underShould) {
-        return getLogBoolQueryBuilder(Arrays.asList(component), stream,
-                underShould);
+    public BoolQueryBuilder getLogBoolQueryBuilder(String component, String stream,
+            boolean underShould) {
+        return getLogBoolQueryBuilder(Arrays.asList(component), stream, underShould);
     }
 
-    public List<Map<String, Object>> searchAllLogs(
-            MonitoringQuery monitoringQuery) throws IOException {
+    public List<Map<String, Object>> searchAllLogs(MonitoringQuery monitoringQuery)
+            throws IOException {
 
         // If components list not empty, use list. Else, use unique component
         List<String> components = monitoringQuery.getComponents();
@@ -736,31 +703,26 @@ public class ElasticsearchService extends AbstractMonitoringService {
         BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(components,
                 monitoringQuery.getStream(), false);
 
-        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery,
-                boolQueryBuilder);
+        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery, boolQueryBuilder);
 
         SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
                 boolQueryBuilder);
-        SearchRequest searchRequest = new SearchRequest(
-                monitoringQuery.getIndicesAsArray());
+        SearchRequest searchRequest = new SearchRequest(monitoringQuery.getIndicesAsArray());
         searchRequest.source(sourceBuilder);
-        searchRequest.indicesOptions(
-                IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
 
         return this.searchAllByRequest(searchRequest);
     }
 
     @Override
-    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
-            boolean withTimestamp, boolean timeDiff) throws Exception {
-        return searchAllLogsMessage(monitoringQuery, withTimestamp, timeDiff,
-                false);
+    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery, boolean withTimestamp,
+            boolean timeDiff) throws Exception {
+        return searchAllLogsMessage(monitoringQuery, withTimestamp, timeDiff, false);
     }
 
     @Override
-    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery,
-            boolean withTimestamp, boolean timeDiff,
-            boolean modifyStartFinishTestTraces) throws Exception {
+    public List<String> searchAllLogsMessage(MonitoringQuery monitoringQuery, boolean withTimestamp,
+            boolean timeDiff, boolean modifyStartFinishTestTraces) throws Exception {
 
         List<String> logs = new ArrayList<>();
         List<Map<String, Object>> logTraces = searchAllLogs(monitoringQuery);
@@ -771,20 +733,15 @@ public class ElasticsearchService extends AbstractMonitoringService {
                 if (traceMap != null) {
                     String message = null;
                     try {
-                        Trace trace = (Trace) UtilTools
-                                .convertStringKeyMapToObj(traceMap,
-                                        Trace.class);
-                        trace.setTimestamp(
-                                utilsService.getIso8601UTCDateFromStr(
-                                        (String) traceMap.get("@timestamp")));
+                        Trace trace = (Trace) UtilTools.convertStringKeyMapToObj(traceMap,
+                                Trace.class);
+                        trace.setTimestamp(utilsService
+                                .getIso8601UTCDateFromStr((String) traceMap.get("@timestamp")));
                         message = trace.getMessage();
 
                         boolean isStartFinishTraceAndModifyActivated = modifyStartFinishTestTraces
-                                && (utilsService
-                                        .containsTCStartMsgPrefix(message)
-                                        || utilsService
-                                                .containsTCFinishMsgPrefix(
-                                                        message));
+                                && (utilsService.containsTCStartMsgPrefix(message)
+                                        || utilsService.containsTCFinishMsgPrefix(message));
 
                         boolean noContinue = false;
 
@@ -798,24 +755,20 @@ public class ElasticsearchService extends AbstractMonitoringService {
                         // }
                         // }
 
-                        if (!noContinue && withTimestamp
-                                && trace.getTimestamp() != null) {
+                        if (!noContinue && withTimestamp && trace.getTimestamp() != null) {
                             if (timeDiff) {
-                                long traceTimeDiff = trace.getTimestamp()
-                                        .getTime();
+                                long traceTimeDiff = trace.getTimestamp().getTime();
                                 // First is 0
                                 if (firstTrace == null) {
                                     traceTimeDiff = 0;
                                     firstTrace = trace;
                                 } else { // Others is diff with first
-                                    traceTimeDiff -= firstTrace.getTimestamp()
-                                            .getTime();
+                                    traceTimeDiff -= firstTrace.getTimestamp().getTime();
                                 }
 
                                 message = traceTimeDiff + " " + message;
                             } else {
-                                message = trace.getTimestamp().toString() + " "
-                                        + message;
+                                message = trace.getTimestamp().toString() + " " + message;
                             }
                         }
 
@@ -832,44 +785,39 @@ public class ElasticsearchService extends AbstractMonitoringService {
         return logs;
     }
 
-    public List<Map<String, Object>> getPreviousLogsFromTimestamp(
-            MonitoringQuery monitoringQuery) {
+    public List<Map<String, Object>> getPreviousLogsFromTimestamp(MonitoringQuery monitoringQuery) {
 
-        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
-                monitoringQuery.getComponent(), monitoringQuery.getStream(),
-                false);
+        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(monitoringQuery.getComponent(),
+                monitoringQuery.getStream(), false);
 
-        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery,
-                boolQueryBuilder);
+        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery, boolQueryBuilder);
 
-        List<SearchHit> hits = this.getPreviousFromTimestamp(
-                monitoringQuery.getIndicesAsArray(), boolQueryBuilder,
-                monitoringQuery.getTimestamp());
+        List<SearchHit> hits = this.getPreviousFromTimestamp(monitoringQuery.getIndicesAsArray(),
+                boolQueryBuilder, monitoringQuery.getTimestamp());
 
         return getTracesFromHitList(hits);
     }
 
-    public List<Map<String, Object>> getLastLogs(
-            MonitoringQuery monitoringQuery, int size) throws Exception {
-        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(
-                monitoringQuery.getComponent(), monitoringQuery.getStream(),
-                false);
+    public List<Map<String, Object>> getLastLogs(MonitoringQuery monitoringQuery, int size)
+            throws Exception {
+        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(monitoringQuery.getComponent(),
+                monitoringQuery.getStream(), false);
 
-        List<SearchHit> hits = this.getLast(monitoringQuery.getIndicesAsArray(),
-                boolQueryBuilder, size);
+        List<SearchHit> hits = this.getLast(monitoringQuery.getIndicesAsArray(), boolQueryBuilder,
+                size);
 
         return getTracesFromHitList(hits);
     }
 
     @Override
-    public List<AggregationTree> searchLogsTree(
-            @Valid MonitoringQuery monitoringQuery) throws Exception {
+    public List<AggregationTree> searchLogsTree(@Valid MonitoringQuery monitoringQuery)
+            throws Exception {
         return this.getMonitoringTree(monitoringQuery, false);
     }
 
     @Override
-    public List<AggregationTree> searchLogsLevelsTree(
-            @Valid MonitoringQuery monitoringQuery) throws Exception {
+    public List<AggregationTree> searchLogsLevelsTree(@Valid MonitoringQuery monitoringQuery)
+            throws Exception {
         return this.getMonitoringTree(monitoringQuery, false);
     }
 
@@ -881,8 +829,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
         MatchPhrasePrefixQueryBuilder messageMatchTerm = QueryBuilders
                 .matchPhrasePrefixQuery("message", msg);
 
-        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(components,
-                stream, true);
+        BoolQueryBuilder boolQueryBuilder = getLogBoolQueryBuilder(components, stream, true);
         boolQueryBuilder.must(messageMatchTerm);
 
         SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
@@ -890,26 +837,24 @@ public class ElasticsearchService extends AbstractMonitoringService {
 
         SearchRequest searchRequest = new SearchRequest(index);
         searchRequest.source(sourceBuilder);
-        searchRequest.indicesOptions(
-                IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
         return searchRequest;
     }
 
-    public SearchResponse findMessageSync(String index, String msg,
-            List<String> components) throws IOException {
-        SearchRequest searchRequest = this.getFindMessageSearchRequest(index,
-                msg, components, "default_log");
+    public SearchResponse findMessageSync(String index, String msg, List<String> components)
+            throws IOException {
+        SearchRequest searchRequest = this.getFindMessageSearchRequest(index, msg, components,
+                "default_log");
         return this.esClient.search(searchRequest, RequestOptions.DEFAULT);
     }
 
-    public Date findFirstMsgAndGetTimestamp(String index, String msg,
-            List<String> components) throws IOException, ParseException {
+    public Date findFirstMsgAndGetTimestamp(String index, String msg, List<String> components)
+            throws IOException, ParseException {
         SearchResponse response = this.findMessageSync(index, msg, components);
         SearchHits hits = response.getHits();
         if (hits != null && hits.getTotalHits() > 0) {
             SearchHit firstResult = hits.getAt(0);
-            String timestamp = firstResult.getSourceAsMap().get("@timestamp")
-                    .toString();
+            String timestamp = firstResult.getSourceAsMap().get("@timestamp").toString();
             Date date = utilsService.getIso8601UTCDateFromStr(timestamp);
 
             return date;
@@ -919,14 +864,13 @@ public class ElasticsearchService extends AbstractMonitoringService {
     }
 
     @Override
-    public Date findLastMsgAndGetTimestamp(String index, String msg,
-            List<String> components) throws Exception {
+    public Date findLastMsgAndGetTimestamp(String index, String msg, List<String> components)
+            throws Exception {
         SearchResponse response = this.findMessageSync(index, msg, components);
         SearchHits hits = response.getHits();
         if (hits != null && hits.getTotalHits() > 0) {
             SearchHit lastResult = hits.getAt((int) (hits.getTotalHits() - 1));
-            String timestamp = lastResult.getSourceAsMap().get("@timestamp")
-                    .toString();
+            String timestamp = lastResult.getSourceAsMap().get("@timestamp").toString();
             Date date = utilsService.getIso8601UTCDateFromStr(timestamp);
 
             return date;
@@ -939,12 +883,12 @@ public class ElasticsearchService extends AbstractMonitoringService {
     /* **************** Metrics **************** */
     /* ***************************************** */
 
-    public BoolQueryBuilder getMetricBoolQueryBuilder(
-            MonitoringQuery monitoringQuery, boolean underShould) {
+    public BoolQueryBuilder getMetricBoolQueryBuilder(MonitoringQuery monitoringQuery,
+            boolean underShould) {
         BoolQueryBuilder componentEtTypeBoolBuilder = QueryBuilders.boolQuery();
         if (monitoringQuery.getComponent() != null) {
-            TermQueryBuilder componentTerm = QueryBuilders
-                    .termQuery("component", monitoringQuery.getComponent());
+            TermQueryBuilder componentTerm = QueryBuilders.termQuery("component",
+                    monitoringQuery.getComponent());
             componentEtTypeBoolBuilder.must(componentTerm);
         }
         TermQueryBuilder etTypeTerm = QueryBuilders.termQuery("et_type",
@@ -952,8 +896,8 @@ public class ElasticsearchService extends AbstractMonitoringService {
         componentEtTypeBoolBuilder.must(etTypeTerm);
 
         if (underShould) {
-            TermQueryBuilder streamTypeTerm = QueryBuilders
-                    .termQuery("stream_type", "log"); // TODO fix
+            TermQueryBuilder streamTypeTerm = QueryBuilders.termQuery("stream_type", "log"); // TODO
+                                                                                             // fix
 
             BoolQueryBuilder shouldBoolBuilder = QueryBuilders.boolQuery();
             shouldBoolBuilder.should(componentEtTypeBoolBuilder);
@@ -968,32 +912,27 @@ public class ElasticsearchService extends AbstractMonitoringService {
         }
     }
 
-    public List<Map<String, Object>> searchAllMetrics(
-            MonitoringQuery monitoringQuery) throws IOException {
-        BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(
-                monitoringQuery, false);
+    public List<Map<String, Object>> searchAllMetrics(MonitoringQuery monitoringQuery)
+            throws IOException {
+        BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(monitoringQuery, false);
 
-        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery,
-                boolQueryBuilder);
+        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery, boolQueryBuilder);
 
         SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
                 boolQueryBuilder);
-        SearchRequest searchRequest = new SearchRequest(
-                monitoringQuery.getIndicesAsArray());
+        SearchRequest searchRequest = new SearchRequest(monitoringQuery.getIndicesAsArray());
         searchRequest.source(sourceBuilder);
-        searchRequest.indicesOptions(
-                IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
 
         return this.searchAllByRequest(searchRequest);
     }
 
-    public List<Map<String, Object>> getLastMetrics(
-            MonitoringQuery monitoringQuery, int size) throws Exception {
-        BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(
-                monitoringQuery, false);
+    public List<Map<String, Object>> getLastMetrics(MonitoringQuery monitoringQuery, int size)
+            throws Exception {
+        BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(monitoringQuery, false);
 
-        List<SearchHit> hits = this.getLast(monitoringQuery.getIndicesAsArray(),
-                boolQueryBuilder, size);
+        List<SearchHit> hits = this.getLast(monitoringQuery.getIndicesAsArray(), boolQueryBuilder,
+                size);
 
         return getTracesFromHitList(hits);
     }
@@ -1001,22 +940,19 @@ public class ElasticsearchService extends AbstractMonitoringService {
     public List<Map<String, Object>> getPreviousMetricsFromTimestamp(
             MonitoringQuery monitoringQuery) {
 
-        BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(
-                monitoringQuery, false);
+        BoolQueryBuilder boolQueryBuilder = getMetricBoolQueryBuilder(monitoringQuery, false);
 
-        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery,
-                boolQueryBuilder);
+        boolQueryBuilder = getTimeRangeByMonitoringQuery(monitoringQuery, boolQueryBuilder);
 
-        List<SearchHit> hits = this.getPreviousFromTimestamp(
-                monitoringQuery.getIndicesAsArray(), boolQueryBuilder,
-                monitoringQuery.getTimestamp());
+        List<SearchHit> hits = this.getPreviousFromTimestamp(monitoringQuery.getIndicesAsArray(),
+                boolQueryBuilder, monitoringQuery.getTimestamp());
 
         return getTracesFromHitList(hits);
     }
 
     @Override
-    public List<AggregationTree> searchMetricsTree(
-            @Valid MonitoringQuery monitoringQuery) throws Exception {
+    public List<AggregationTree> searchMetricsTree(@Valid MonitoringQuery monitoringQuery)
+            throws Exception {
         return this.getMonitoringTree(monitoringQuery, true);
     }
 
@@ -1024,35 +960,28 @@ public class ElasticsearchService extends AbstractMonitoringService {
     /* *** LogAnalyzer *** */
     /* ******************* */
 
-    public BoolQueryBuilder getLogAnalyzerQueryBuilder(
-            LogAnalyzerQuery logAnalyzerQuery) {
+    public BoolQueryBuilder getLogAnalyzerQueryBuilder(LogAnalyzerQuery logAnalyzerQuery) {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
-        BoolQueryBuilder componentsStreamsBoolBuilder = QueryBuilders
-                .boolQuery();
+        BoolQueryBuilder componentsStreamsBoolBuilder = QueryBuilders.boolQuery();
 
         // Components/streams
-        for (AggregationTree componentStream : logAnalyzerQuery
-                .getComponentsStreams()) {
+        for (AggregationTree componentStream : logAnalyzerQuery.getComponentsStreams()) {
             for (AggregationTree stream : componentStream.getChildren()) {
-                BoolQueryBuilder componentStreamBoolBuilder = QueryBuilders
-                        .boolQuery();
-                TermQueryBuilder componentTerm = QueryBuilders
-                        .termQuery("component", componentStream.getName());
-                TermQueryBuilder streamTerm = QueryBuilders.termQuery("stream",
-                        stream.getName());
+                BoolQueryBuilder componentStreamBoolBuilder = QueryBuilders.boolQuery();
+                TermQueryBuilder componentTerm = QueryBuilders.termQuery("component",
+                        componentStream.getName());
+                TermQueryBuilder streamTerm = QueryBuilders.termQuery("stream", stream.getName());
 
                 componentStreamBoolBuilder.must().add(componentTerm);
                 componentStreamBoolBuilder.must().add(streamTerm);
-                componentsStreamsBoolBuilder.should()
-                        .add(componentStreamBoolBuilder);
+                componentsStreamsBoolBuilder.should().add(componentStreamBoolBuilder);
             }
         }
 
         // Levels
         for (String level : logAnalyzerQuery.getLevels()) {
-            TermQueryBuilder levelTerm = QueryBuilders.termQuery("level",
-                    level);
+            TermQueryBuilder levelTerm = QueryBuilders.termQuery("level", level);
             boolQueryBuilder.must(levelTerm);
         }
 
@@ -1080,8 +1009,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
         }
 
         // Stream Type
-        TermQueryBuilder streamTypeTerm = QueryBuilders.termQuery("stream_type",
-                "log");
+        TermQueryBuilder streamTypeTerm = QueryBuilders.termQuery("stream_type", "log");
         boolQueryBuilder.must(streamTypeTerm);
 
         boolQueryBuilder.must(timeRange);
@@ -1092,10 +1020,9 @@ public class ElasticsearchService extends AbstractMonitoringService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Map<String, Object>> searchLogAnalyzerQuery(
-            LogAnalyzerQuery logAnalyzerQuery) throws IOException {
-        BoolQueryBuilder boolQueryBuilder = getLogAnalyzerQueryBuilder(
-                logAnalyzerQuery);
+    public List<Map<String, Object>> searchLogAnalyzerQuery(LogAnalyzerQuery logAnalyzerQuery)
+            throws IOException {
+        BoolQueryBuilder boolQueryBuilder = getLogAnalyzerQueryBuilder(logAnalyzerQuery);
 
         SearchSourceBuilder sourceBuilder = getDefaultSearchSourceBuilderByGivenBoolQueryBuilder(
                 boolQueryBuilder);
@@ -1107,17 +1034,15 @@ public class ElasticsearchService extends AbstractMonitoringService {
         if (logAnalyzerQuery.getSearchAfterTrace() != null
                 && logAnalyzerQuery.getSearchAfterTrace().get("sort") != null) {
 
-            ArrayList<Object> sort = (ArrayList<Object>) logAnalyzerQuery
-                    .getSearchAfterTrace().get("sort");
+            ArrayList<Object> sort = (ArrayList<Object>) logAnalyzerQuery.getSearchAfterTrace()
+                    .get("sort");
 
             sourceBuilder.searchAfter(sort.toArray());
         }
 
-        SearchRequest searchRequest = new SearchRequest(
-                logAnalyzerQuery.getIndicesAsArray());
+        SearchRequest searchRequest = new SearchRequest(logAnalyzerQuery.getIndicesAsArray());
         searchRequest.source(sourceBuilder);
-        searchRequest.indicesOptions(
-                IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
 
         // return this.searchAllByRequest(searchRequest); TODO get all option
         return this.searchRequestAndGetSourceMapList(searchRequest);
@@ -1126,13 +1051,11 @@ public class ElasticsearchService extends AbstractMonitoringService {
     /* ****************************** */
     /* *** External Elasticsearch *** */
     /* ****************************** */
-    public List<Map<String, Object>> searchTraces(String[] indices,
-            Date fromTime, Date toTime, Object[] searchAfter, int size,
-            List<MultiConfig> fieldFilters) throws Exception {
+    public List<Map<String, Object>> searchTraces(String[] indices, Date fromTime, Date toTime,
+            Object[] searchAfter, int size, List<MultiConfig> fieldFilters) throws Exception {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         sourceBuilder.size(size);
-        sourceBuilder
-                .sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
+        sourceBuilder.sort(new FieldSortBuilder("@timestamp").order(SortOrder.ASC));
         sourceBuilder.sort(new FieldSortBuilder("_id").order(SortOrder.ASC));
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -1142,15 +1065,13 @@ public class ElasticsearchService extends AbstractMonitoringService {
             RangeQueryBuilder timeRange = new RangeQueryBuilder("@timestamp");
             boolean filterByTime = false;
             if (fromTime != null) {
-                String fromTimeStr = utilsService
-                        .getIso8601UTCStrFromDate(fromTime);
+                String fromTimeStr = utilsService.getIso8601UTCStrFromDate(fromTime);
                 timeRange.gte(fromTimeStr);
                 filterByTime = true;
             }
 
             if (toTime != null) {
-                String toTimeStr = utilsService
-                        .getIso8601UTCStrFromDate(toTime);
+                String toTimeStr = utilsService.getIso8601UTCStrFromDate(toTime);
                 timeRange.lte(toTimeStr);
                 filterByTime = true;
             }
@@ -1161,16 +1082,12 @@ public class ElasticsearchService extends AbstractMonitoringService {
         }
         if (fieldFilters != null && fieldFilters.size() > 0) {
             for (MultiConfig fieldFilter : fieldFilters) {
-                if (fieldFilter.getName() != null
-                        && !fieldFilter.getName().isEmpty()
-                        && fieldFilter.getValues() != null
-                        && fieldFilter.getValues().size() > 0) {
+                if (fieldFilter.getName() != null && !fieldFilter.getName().isEmpty()
+                        && fieldFilter.getValues() != null && fieldFilter.getValues().size() > 0) {
                     TermsQueryBuilder fieldFilterTerm = QueryBuilders
-                            .termsQuery(fieldFilter.getName(),
-                                    fieldFilter.getValues());
+                            .termsQuery(fieldFilter.getName(), fieldFilter.getValues());
 
-                    BoolQueryBuilder shouldBoolBuilder = QueryBuilders
-                            .boolQuery();
+                    BoolQueryBuilder shouldBoolBuilder = QueryBuilders.boolQuery();
                     shouldBoolBuilder.should(fieldFilterTerm);
                     boolQueryBuilder.must(shouldBoolBuilder);
 
@@ -1190,10 +1107,45 @@ public class ElasticsearchService extends AbstractMonitoringService {
 
         SearchRequest searchRequest = new SearchRequest(indices);
         searchRequest.source(sourceBuilder);
-        searchRequest.indicesOptions(
-                IndicesOptions.fromOptions(true, false, false, false));
+        searchRequest.indicesOptions(IndicesOptions.fromOptions(true, false, false, false));
 
         return this.searchRequestAndGetSourceMapList(searchRequest);
+    }
+
+    public void saveTrace(Trace trace)
+            throws IOException, IllegalArgumentException, IllegalAccessException, ParseException {
+        IndexRequest request = new IndexRequest(trace.getExec());
+        request.type("_doc");
+
+        String source = etTraceToString(trace);
+        request.source(source, XContentType.JSON);
+        IndexResponse indexResponse = esClient.index(request, RequestOptions.DEFAULT);
+    }
+
+    public String etTraceToString(Trace trace) throws IllegalArgumentException,
+            IllegalAccessException, ParseException, JsonProcessingException {
+        Map<String, Object> traceMap = UtilTools.objectToMap(trace);
+
+        if (traceMap.containsKey("timestamp")) {
+            // rfc3339 | unix_timestamp
+            String timestampDateStr = utilsService.getIso8601UTCStrFromDate(trace.getTimestamp());
+            traceMap.put("@timestamp", timestampDateStr);
+            traceMap.remove("timestamp");
+        }
+
+        if (traceMap.containsKey("streamType")) {
+            // rfc3339 | unix_timestamp
+            traceMap.put("stream_type", traceMap.get("streamType"));
+            traceMap.remove("streamType");
+        }
+        
+        if (traceMap.containsKey("etType")) {
+            // rfc3339 | unix_timestamp
+            traceMap.put("et_type", traceMap.get("etType"));
+            traceMap.remove("etType");
+        }
+
+        return new ObjectMapper().writeValueAsString(traceMap);
     }
 
     /* ************** */
@@ -1225,14 +1177,11 @@ public class ElasticsearchService extends AbstractMonitoringService {
     /* *** Others *** */
     /* ************** */
 
-    public List<Map<String, Object>> getTracesFromHitList(
-            List<SearchHit> hits) {
+    public List<Map<String, Object>> getTracesFromHitList(List<SearchHit> hits) {
         List<Map<String, Object>> mapList = new ArrayList<>();
         for (SearchHit currentHit : hits) {
-            if (currentHit.getSortValues() != null
-                    && currentHit.getSortValues().length > 0) {
-                currentHit.getSourceAsMap().put("sort",
-                        currentHit.getSortValues());
+            if (currentHit.getSortValues() != null && currentHit.getSortValues().length > 0) {
+                currentHit.getSourceAsMap().put("sort", currentHit.getSortValues());
             }
             mapList.add(currentHit.getSourceAsMap());
         }
@@ -1254,20 +1203,17 @@ public class ElasticsearchService extends AbstractMonitoringService {
 
         @Override
         public boolean hasNext() {
-            if (currentPageResults == null
-                    || currentResultIndex + 1 >= currentPageResults.length) {
+            if (currentPageResults == null || currentResultIndex + 1 >= currentPageResults.length) {
 
                 // If is not first search
                 if (currentPageResponse != null) {
                     SearchSourceBuilder source = initialRequest.source();
                     if (currentPageResponse.getHits() != null
                             && currentPageResponse.getHits().getHits() != null
-                            && currentPageResponse.getHits()
-                                    .getHits().length > 0) {
+                            && currentPageResponse.getHits().getHits().length > 0) {
 
                         SearchHit hit = currentPageResponse.getHits()
-                                .getHits()[currentPageResponse.getHits()
-                                        .getHits().length - 1];
+                                .getHits()[currentPageResponse.getHits().getHits().length - 1];
 
                         source.searchAfter(hit.getSortValues());
                         initialRequest.source(source);
@@ -1275,8 +1221,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
                 }
 
                 try {
-                    currentPageResponse = esClient.search(initialRequest,
-                            RequestOptions.DEFAULT);
+                    currentPageResponse = esClient.search(initialRequest, RequestOptions.DEFAULT);
                 } catch (IOException e) {
                     return false;
                 }
@@ -1321,8 +1266,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
                         && currentPageResponse.getHits().getHits().length > 0) {
 
                     SearchHit hit = currentPageResponse.getHits()
-                            .getHits()[currentPageResponse.getHits()
-                                    .getHits().length - 1];
+                            .getHits()[currentPageResponse.getHits().getHits().length - 1];
 
                     source.searchAfter(hit.getSortValues());
                     initialRequest.source(source);
@@ -1330,8 +1274,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
             }
             SearchResponse response = null;
             try {
-                response = esClient.search(initialRequest,
-                        RequestOptions.DEFAULT);
+                response = esClient.search(initialRequest, RequestOptions.DEFAULT);
             } catch (IOException e) {
                 return false;
             }
@@ -1352,8 +1295,7 @@ public class ElasticsearchService extends AbstractMonitoringService {
             }
 
             try {
-                currentPageResponse = esClient.search(initialRequest,
-                        RequestOptions.DEFAULT);
+                currentPageResponse = esClient.search(initialRequest, RequestOptions.DEFAULT);
             } catch (IOException e) {
                 return new SearchHit[0];
             }

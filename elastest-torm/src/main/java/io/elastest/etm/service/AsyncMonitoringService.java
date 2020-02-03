@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.model.MonitoringQuery;
 
 @Service
@@ -25,11 +26,10 @@ public class AsyncMonitoringService {
     }
 
     @Async
-    public void compareLogsPairAsync(MonitoringQuery body, String comparison,
-            String view, String timeout, String processId) throws Exception {
+    public void compareLogsPairAsync(MonitoringQuery body, String comparison, String view,
+            String timeout, String processId) throws Exception {
         dbmanager.bindSession();
-        monitoringService.compareLogsPairAsync(body, comparison, view, timeout,
-                processId);
+        monitoringService.compareLogsPairAsync(body, comparison, view, timeout, processId);
         dbmanager.unbindSession();
     }
 
@@ -38,5 +38,9 @@ public class AsyncMonitoringService {
         dbmanager.bindSession();
         monitoringService.deleteMonitoringDataByIndices(indices);
         dbmanager.unbindSession();
+    }
+
+    public MonitoringStorageType getMonitoringStorageType() {
+        return monitoringService.getMonitoringStorageType();
     }
 }

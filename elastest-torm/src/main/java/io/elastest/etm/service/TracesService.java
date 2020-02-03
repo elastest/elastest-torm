@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 
-import io.elastest.etm.dao.TraceRepository;
 import io.elastest.etm.model.Enums.LevelEnum;
 import io.elastest.etm.model.Enums.StreamType;
 import io.elastest.etm.model.MultiConfig;
@@ -42,7 +41,7 @@ import io.krakens.grok.api.GrokCompiler;
 public class TracesService {
     final Logger logger = getLogger(lookup().lookupClass());
 
-    private final TraceRepository traceRepository;
+    private final AbstractMonitoringService monitoringService;
     private final QueueService queueService;
     private final UtilsService utilsService;
 
@@ -55,22 +54,20 @@ public class TracesService {
     String containerNameExpression = "%{CONTAINERNAME:containerName}";
     String monitoringExecExpression = "(\\d+|ext\\d+_e\\d+|s\\d+_e\\d+)";
     String componentExecAndComponentServiceExpression = "^(?<component>(test|sut|dynamic|k8s_test|k8s_sut|eus-browser-[^_]*(_|-)exec|k8s_eus-browser-[^_]*(_|-)exec))(_|-)?(?<exec>"
-            + monitoringExecExpression
-            + ")((_|-)(?<componentService>[^_]*(?=_\\d*)?))?";
+            + monitoringExecExpression + ")((_|-)(?<componentService>[^_]*(?=_\\d*)?))?";
 
     String cleanMessageExpression = "^([<]\\d*[>]\\d+(\\s\\S*){4}\\s)?(?>test_"
-            + monitoringExecExpression + "|sut_" + monitoringExecExpression
-            + "|dynamic_" + monitoringExecExpression
-            + ")\\D*(?>_exec)(\\[.*\\])?[\\s][-][\\s]";
+            + monitoringExecExpression + "|sut_" + monitoringExecExpression + "|dynamic_"
+            + monitoringExecExpression + ")\\D*(?>_exec)(\\[.*\\])?[\\s][-][\\s]";
 
     String startsWithTestOrSutExpression = "(^(test|sut|eus(_|-)browser(_|-).*_exec)(_)?(\\d*)(.*)?)|(^(k8s_test|k8s_sut|k8s_eus(_|-)browser(_|-).*(_|-)exec)(.*)?)";
 
     String dockbeatStream = "et_dockbeat";
 
     @Autowired
-    public TracesService(TraceRepository traceRepository,
-            QueueService queueService, UtilsService utilsService) {
-        this.traceRepository = traceRepository;
+    public TracesService(AbstractMonitoringService monitoringService, QueueService queueService,
+            UtilsService utilsService) {
+        this.monitoringService = monitoringService;
         this.queueService = queueService;
         this.utilsService = utilsService;
     }
@@ -80,13 +77,11 @@ public class TracesService {
         grokCompiler = GrokCompiler.newInstance();
         grokCompiler.registerDefaultPatterns();
 
-        InputStream inputStream = getClass()
-                .getResourceAsStream("/" + grokPatternsFilePath);
+        InputStream inputStream = getClass().getResourceAsStream("/" + grokPatternsFilePath);
         grokCompiler.register(inputStream, StandardCharsets.UTF_8);
     }
 
-    public Map<String, String> processGrokExpression(String message,
-            String expression) {
+    public Map<String, String> processGrokExpression(String message, String expression) {
         Grok compiledPattern = grokCompiler.compile(expression);
         Map<String, Object> map = compiledPattern.match(message).capture();
         Map<String, String> resultMap = new HashMap<>();
@@ -109,26 +104,22 @@ public class TracesService {
 
         // Change containerName and component dashes to underscores
         if (trace.getContainerName() != null) {
-            trace.setContainerName(
-                    trace.getContainerName().replaceAll("-", "_"));
+            trace.setContainerName(trace.getContainerName().replaceAll("-", "_"));
         }
         if (trace.getComponent() != null) {
             trace.setComponent(trace.getComponent().replaceAll("-", "_"));
         }
 
         if (trace.getComponentService() != null) {
-            trace.setComponentService(
-                    trace.getComponentService().replaceAll("-", "_"));
+            trace.setComponentService(trace.getComponentService().replaceAll("-", "_"));
         }
         return trace;
     }
 
-    public Trace matchesLevelAndContainerNameFromMessage(Trace trace,
-            String message) {
+    public Trace matchesLevelAndContainerNameFromMessage(Trace trace, String message) {
         if (message != null) {
             // Level
-            Map<String, String> levelMap = processGrokExpression(message,
-                    javaLogLevelExpression);
+            Map<String, String> levelMap = processGrokExpression(message, javaLogLevelExpression);
             try {
                 LevelEnum level = LevelEnum.fromValue(levelMap.get("level"));
                 trace.setLevel(level);
@@ -149,8 +140,8 @@ public class TracesService {
     public String getContainerNameFromMessage(String message) {
         if (message != null) {
             // Container Name
-            Map<String, String> containerNameMap = processGrokExpression(
-                    message, containerNameExpression);
+            Map<String, String> containerNameMap = processGrokExpression(message,
+                    containerNameExpression);
 
             return containerNameMap.get("containerName");
         } else {
@@ -159,8 +150,11 @@ public class TracesService {
     }
 
     public void saveTrace(Trace trace) {
-        synchronized (this.traceRepository) {
-            this.traceRepository.save(trace);
+        try {
+            monitoringService.saveTrace(trace);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
@@ -169,8 +163,7 @@ public class TracesService {
     /* *********** */
 
     public void processTcpTrace(String message, Date timestamp) {
-        logger.trace("Processing TCP trace {} with timestamp {}", message,
-                timestamp);
+        logger.trace("Processing TCP trace {} with timestamp {}", message, timestamp);
 
         if (message != null && !message.isEmpty()) {
             try {
@@ -180,33 +173,26 @@ public class TracesService {
                 trace.setStreamType(StreamType.LOG);
 
                 // Timestamp
-                trace.setTimestamp(
-                        utilsService.getIso8601UTCDateFromDate(timestamp));
+                trace.setTimestamp(utilsService.getIso8601UTCDateFromDate(timestamp));
 
                 // If message, set level and container name
-                trace = this.matchesLevelAndContainerNameFromMessage(trace,
-                        message);
+                trace = this.matchesLevelAndContainerNameFromMessage(trace, message);
 
                 // Exec, Component and Component Service
                 Map<String, String> componentExecAndComponentServiceMap = processGrokExpression(
-                        trace.getContainerName(),
-                        componentExecAndComponentServiceExpression);
+                        trace.getContainerName(), componentExecAndComponentServiceExpression);
                 if (componentExecAndComponentServiceMap != null
                         && !componentExecAndComponentServiceMap.isEmpty()) {
-                    trace.setExec(
-                            componentExecAndComponentServiceMap.get("exec"));
-                    trace.setComponent(componentExecAndComponentServiceMap
-                            .get("component"));
+                    trace.setExec(componentExecAndComponentServiceMap.get("exec"));
+                    trace.setComponent(componentExecAndComponentServiceMap.get("component"));
                     trace.setComponentService(
-                            componentExecAndComponentServiceMap
-                                    .get("componentService"));
+                            componentExecAndComponentServiceMap.get("componentService"));
                 }
 
                 trace = cleanCommonFields(trace, message);
 
                 if (trace.getComponentService() != null) {
-                    trace.setComponent(trace.getComponent() + "_"
-                            + trace.getComponentService());
+                    trace.setComponent(trace.getComponent() + "_" + trace.getComponentService());
                 }
 
                 logger.trace("Trace: {}", trace);
@@ -222,8 +208,7 @@ public class TracesService {
     /* *** Beats *** */
     /* ************* */
 
-    public Trace setInitialBeatTraceData(Map<String, Object> dataMap)
-            throws ParseException {
+    public Trace setInitialBeatTraceData(Map<String, Object> dataMap) throws ParseException {
         Trace trace = new Trace();
         trace.setComponent((String) dataMap.get("component"));
         trace.setComponentService((String) dataMap.get("componentService"));
@@ -234,8 +219,7 @@ public class TracesService {
         trace.setMessage((String) dataMap.get("message"));
         trace.setMetricName((String) dataMap.get("metricName"));
         trace.setStream((String) dataMap.get("stream"));
-        trace.setStreamType(
-                StreamType.fromValue((String) dataMap.get("stream_type")));
+        trace.setStreamType(StreamType.fromValue((String) dataMap.get("stream_type")));
 
         String timestampAsStr = (String) dataMap.get("@timestamp");
         if (timestampAsStr == null) {
@@ -266,8 +250,7 @@ public class TracesService {
     }
 
     @SuppressWarnings("unchecked")
-    public boolean processBeatTrace(Map<String, Object> dataMap,
-            boolean fromDockbeat) {
+    public boolean processBeatTrace(Map<String, Object> dataMap, boolean fromDockbeat) {
         boolean procesed = false;
         logger.trace("Processing BEATS trace {}", dataMap.toString());
 
@@ -282,8 +265,7 @@ public class TracesService {
                 }
 
                 // Ignore Packetbeat from EIM temporally
-                if (trace.getStream() != null
-                        && "et_packetbeat".equals(trace.getStream())) {
+                if (trace.getStream() != null && "et_packetbeat".equals(trace.getStream())) {
                     return false;
                 }
 
@@ -296,8 +278,7 @@ public class TracesService {
 
                 if (trace.getLevel() == null && dataMap.containsKey("level")) {
                     try {
-                        LevelEnum level = LevelEnum
-                                .fromValue(dataMap.get("level").toString());
+                        LevelEnum level = LevelEnum.fromValue(dataMap.get("level").toString());
                         trace.setLevel(level);
                     } catch (Exception e) {
                         logger.error("Error setting trace level");
@@ -308,17 +289,15 @@ public class TracesService {
                 String component = trace.getComponent();
 
                 // Docker
-                String[] containerNameTree = new String[] { "docker",
-                        "container", "name" };
-                String containerName = (String) UtilTools.getMapFieldByTreeList(
-                        dataMap, Arrays.asList(containerNameTree));
+                String[] containerNameTree = new String[] { "docker", "container", "name" };
+                String containerName = (String) UtilTools.getMapFieldByTreeList(dataMap,
+                        Arrays.asList(containerNameTree));
 
                 if (containerName == null) {
                     // Kubernetes
-                    containerNameTree = new String[] { "kubernetes",
-                            "container", "name" };
-                    containerName = (String) UtilTools.getMapFieldByTreeList(
-                            dataMap, Arrays.asList(containerNameTree));
+                    containerNameTree = new String[] { "kubernetes", "container", "name" };
+                    containerName = (String) UtilTools.getMapFieldByTreeList(dataMap,
+                            Arrays.asList(containerNameTree));
 
                     if (containerName != null) {
                         // test-NNN to test_NNN
@@ -337,8 +316,7 @@ public class TracesService {
                         if (component == null) {
                             // from etm filebeat, discard non sut/test
                             // containers
-                            if (!containerName
-                                    .matches(startsWithTestOrSutExpression)) {
+                            if (!containerName.matches(startsWithTestOrSutExpression)) {
                                 logger.error(
                                         "Filebeat trace without component and container name {} does not matches sut/test, discarding",
                                         containerName);
@@ -351,12 +329,10 @@ public class TracesService {
                         if (trace.getMessage() == null) {
                             if (dataMap.get("json") != null) {
 
-                                String[] jsonLogTree = new String[] { "json",
-                                        "log" };
+                                String[] jsonLogTree = new String[] { "json", "log" };
 
-                                String message = (String) UtilTools
-                                        .getMapFieldByTreeList(dataMap,
-                                                Arrays.asList(jsonLogTree));
+                                String message = (String) UtilTools.getMapFieldByTreeList(dataMap,
+                                        Arrays.asList(jsonLogTree));
 
                                 if (message != null) {
                                     trace.setMessage(message);
@@ -375,17 +351,13 @@ public class TracesService {
                 // Exec, Component and Component Service
                 if (trace.getContainerName() != null) {
                     Map<String, String> componentExecAndComponentServiceMap = processGrokExpression(
-                            trace.getContainerName(),
-                            componentExecAndComponentServiceExpression);
+                            trace.getContainerName(), componentExecAndComponentServiceExpression);
                     if (componentExecAndComponentServiceMap != null
                             && !componentExecAndComponentServiceMap.isEmpty()) {
-                        trace.setExec(componentExecAndComponentServiceMap
-                                .get("exec"));
-                        trace.setComponent(componentExecAndComponentServiceMap
-                                .get("component"));
+                        trace.setExec(componentExecAndComponentServiceMap.get("exec"));
+                        trace.setComponent(componentExecAndComponentServiceMap.get("component"));
                         trace.setComponentService(
-                                componentExecAndComponentServiceMap
-                                        .get("componentService"));
+                                componentExecAndComponentServiceMap.get("componentService"));
                     }
                 }
 
@@ -403,19 +375,17 @@ public class TracesService {
                     }
                     // Dockbeat
                     if (trace.getStream().equals(dockbeatStream)) {
-                        if (trace.getContainerName() != null
-                                && trace.getContainerName().matches(
-                                        startsWithTestOrSutExpression)) {
+                        if (trace.getContainerName() != null && trace.getContainerName()
+                                .matches(startsWithTestOrSutExpression)) {
                             trace.setStreamType(StreamType.COMPOSED_METRICS);
                             if (trace.getComponentService() != null) {
-                                trace.setComponent(trace.getComponent() + "_"
-                                        + trace.getComponentService());
+                                trace.setComponent(
+                                        trace.getComponent() + "_" + trace.getComponentService());
                             }
                             trace.setEtType((String) dataMap.get("type"));
                             trace.setMetricName(trace.getEtType());
                             trace.setContentFromLinkedHashMap(
-                                    (LinkedHashMap<Object, Object>) dataMap
-                                            .get(trace.getEtType()));
+                                    (LinkedHashMap<Object, Object>) dataMap.get(trace.getEtType()));
 
                         } else {
                             logger.trace(
@@ -425,34 +395,26 @@ public class TracesService {
                         }
                     } else {
                         if (dataMap.get("metricset") != null) {
-                            String[] metricsetModuleTree = new String[] {
-                                    "metricset", "module" };
-                            String metricsetModule = (String) UtilTools
-                                    .getMapFieldByTreeList(dataMap,
-                                            Arrays.asList(metricsetModuleTree));
+                            String[] metricsetModuleTree = new String[] { "metricset", "module" };
+                            String metricsetModule = (String) UtilTools.getMapFieldByTreeList(
+                                    dataMap, Arrays.asList(metricsetModuleTree));
 
-                            String[] metricsetNameTree = new String[] {
-                                    "metricset", "name" };
-                            String metricsetName = (String) UtilTools
-                                    .getMapFieldByTreeList(dataMap,
-                                            Arrays.asList(metricsetNameTree));
+                            String[] metricsetNameTree = new String[] { "metricset", "name" };
+                            String metricsetName = (String) UtilTools.getMapFieldByTreeList(dataMap,
+                                    Arrays.asList(metricsetNameTree));
 
-                            String metricName = metricsetModule + "_"
-                                    + metricsetName;
+                            String metricName = metricsetModule + "_" + metricsetName;
                             trace.setEtType(metricName);
                             trace.setMetricName(metricName);
 
-                            String[] contentTree = new String[] {
-                                    metricsetModule, metricsetName };
+                            String[] contentTree = new String[] { metricsetModule, metricsetName };
                             LinkedHashMap<Object, Object> content = (LinkedHashMap<Object, Object>) UtilTools
-                                    .getMapFieldByTreeList(dataMap,
-                                            Arrays.asList(contentTree));
+                                    .getMapFieldByTreeList(dataMap, Arrays.asList(contentTree));
 
                             trace.setContentFromLinkedHashMap(content);
 
                             if (trace.getStreamType() == null) {
-                                trace.setStreamType(
-                                        StreamType.COMPOSED_METRICS);
+                                trace.setStreamType(StreamType.COMPOSED_METRICS);
                             }
 
                         } else {
@@ -463,8 +425,7 @@ public class TracesService {
                                                 .get(trace.getEtType()));
                             } catch (ClassCastException cce) {
                                 try {
-                                    trace.setContent((String) dataMap
-                                            .get(trace.getEtType()));
+                                    trace.setContent((String) dataMap.get(trace.getEtType()));
                                 } catch (Exception e) {
                                 }
                             }
@@ -478,8 +439,8 @@ public class TracesService {
                     }
 
                     if (trace.getComponentService() != null) {
-                        trace.setComponent(trace.getComponent() + "_"
-                                + trace.getComponentService());
+                        trace.setComponent(
+                                trace.getComponent() + "_" + trace.getComponentService());
                     }
                 }
 
@@ -536,9 +497,8 @@ public class TracesService {
     /* ***** External Monitoring DB ***** */
     /* ********************************** */
 
-    public Map<String, Object> convertExternalMonitoringDBTrace(
-            Map<String, Object> dataMap, String contentFieldName,
-            List<String> streamFieldsList, StreamType streamType) {
+    public Map<String, Object> convertExternalMonitoringDBTrace(Map<String, Object> dataMap,
+            String contentFieldName, List<String> streamFieldsList, StreamType streamType) {
 
         if (dataMap != null && !dataMap.isEmpty()) {
             // Stream
@@ -591,15 +551,14 @@ public class TracesService {
                 // Level
                 if (dataMap.containsKey("severity")) {
                     dataMap.put("stream_type", streamType.toString());
-                    LevelEnum level = LevelEnum
-                            .fromValue(dataMap.get("severity").toString());
+                    LevelEnum level = LevelEnum.fromValue(dataMap.get("severity").toString());
                     if (level != null) {
                         dataMap.put("level", level.toString());
                     }
                 } else if (dataMap.containsKey("severity_unified")) {
                     dataMap.put("stream_type", streamType.toString());
-                    LevelEnum level = LevelEnum.fromValue(
-                            dataMap.get("severity_unified").toString());
+                    LevelEnum level = LevelEnum
+                            .fromValue(dataMap.get("severity_unified").toString());
                     if (level != null) {
                         dataMap.put("level", level.toString());
                     }
@@ -618,11 +577,9 @@ public class TracesService {
         return dataMap;
     }
 
-    public Map<String, Object> convertExternalElasticsearchLogTrace(
-            Map<String, Object> dataMap, String contentFieldName,
-            List<String> streamFieldsList) {
-        logger.trace("Converting external Elasticsearch Log trace {}",
-                dataMap.toString());
+    public Map<String, Object> convertExternalElasticsearchLogTrace(Map<String, Object> dataMap,
+            String contentFieldName, List<String> streamFieldsList) {
+        logger.trace("Converting external Elasticsearch Log trace {}", dataMap.toString());
 
         if (dataMap != null && !dataMap.isEmpty()) {
             // Add raw data
@@ -634,14 +591,13 @@ public class TracesService {
             }
         }
 
-        return convertExternalMonitoringDBTrace(dataMap, contentFieldName,
-                streamFieldsList, StreamType.LOG);
+        return convertExternalMonitoringDBTrace(dataMap, contentFieldName, streamFieldsList,
+                StreamType.LOG);
     }
 
     public List<Map<String, Object>> convertExternalPrometheusMetricTraces(
-            PrometheusQueryData labelTraces, String traceNameField,
-            List<String> streamFieldsList, Map<String, Object> additionalFields,
-            List<MultiConfig> fieldFilters) {
+            PrometheusQueryData labelTraces, String traceNameField, List<String> streamFieldsList,
+            Map<String, Object> additionalFields, List<MultiConfig> fieldFilters) {
         List<Map<String, Object>> traces = new ArrayList<>();
 
         if (labelTraces != null && labelTraces.getResultType() != null
@@ -652,16 +608,13 @@ public class TracesService {
                     boolean add = true;
                     if (fieldFilters != null && fieldFilters.size() > 0) {
                         for (MultiConfig fieldFilter : fieldFilters) {
-                            if (fieldFilter.getName() != null
-                                    && !fieldFilter.getName().isEmpty()
+                            if (fieldFilter.getName() != null && !fieldFilter.getName().isEmpty()
                                     && fieldFilter.getValues() != null
                                     && fieldFilter.getValues().size() > 0) {
-                                if (trace.getMetric()
-                                        .containsKey(fieldFilter.getName())) {
+                                if (trace.getMetric().containsKey(fieldFilter.getName())) {
                                     String value = (String) trace.getMetric()
                                             .get(fieldFilter.getName());
-                                    if (!fieldFilter.getValues()
-                                            .contains(value)) {
+                                    if (!fieldFilter.getValues().contains(value)) {
                                         add = false;
                                         break;
                                     }
@@ -677,26 +630,22 @@ public class TracesService {
 
                     if (add) {
                         // Init data Map
-                        Map<String, Object> auxTraceMap = UtilTools
-                                .convertObjToMap(trace);
+                        Map<String, Object> auxTraceMap = UtilTools.convertObjToMap(trace);
                         Map<String, Object> traceMetricFieldMap = UtilTools
                                 .convertObjToMap(auxTraceMap.get("metric"));
 
                         auxTraceMap.putAll(traceMetricFieldMap);
                         auxTraceMap.putAll(additionalFields);
 
-                        String traceName = (String) auxTraceMap
-                                .get(traceNameField);
+                        String traceName = (String) auxTraceMap.get(traceNameField);
 
                         // Default stream = original TraceName
                         String stream = traceName;
                         auxTraceMap.put("stream", stream);
 
                         // TraceName = combination of all metric fields
-                        for (HashMap.Entry<String, Object> pair : traceMetricFieldMap
-                                .entrySet()) {
-                            if (!pair.getKey().trim()
-                                    .equals(traceNameField.trim())
+                        for (HashMap.Entry<String, Object> pair : traceMetricFieldMap.entrySet()) {
+                            if (!pair.getKey().trim().equals(traceNameField.trim())
                                     && pair.getValue() != null) {
                                 traceName += "_" + pair.getValue();
                             }
@@ -708,30 +657,24 @@ public class TracesService {
                         auxTraceMap.put("metricName", traceName);
 
                         // A list of values for each metric
-                        if (labelTraces
-                                .getResultType() == PrometheusQueryDataResultType.MATRIX) {
+                        if (labelTraces.getResultType() == PrometheusQueryDataResultType.MATRIX) {
                             for (List<Object> valueObj : trace.getValues()) {
                                 // Convert individual trace/value
-                                traces.add(convertExternalPrometheusMetricTrace(
-                                        trace, auxTraceMap, traceName, valueObj,
-                                        streamFieldsList));
+                                traces.add(convertExternalPrometheusMetricTrace(trace, auxTraceMap,
+                                        traceName, valueObj, streamFieldsList));
                             }
                         } else
                         // Single value for each metric
-                        if (labelTraces
-                                .getResultType() == PrometheusQueryDataResultType.VECTOR) {
+                        if (labelTraces.getResultType() == PrometheusQueryDataResultType.VECTOR) {
                             List<Object> valueObj = trace.getValue();
                             // Convert individual trace/value
-                            traces.add(convertExternalPrometheusMetricTrace(
-                                    trace, auxTraceMap, traceName, valueObj,
-                                    streamFieldsList));
+                            traces.add(convertExternalPrometheusMetricTrace(trace, auxTraceMap,
+                                    traceName, valueObj, streamFieldsList));
 
                         }
                     }
                 } catch (IllegalArgumentException | ParseException e1) {
-                    logger.error(
-                            "Could not to process Prometheus Metric trace {}",
-                            trace, e1);
+                    logger.error("Could not to process Prometheus Metric trace {}", trace, e1);
                 }
 
             }
@@ -741,9 +684,8 @@ public class TracesService {
     }
 
     private Map<String, Object> convertExternalPrometheusMetricTrace(
-            PrometheusQueryDataResult trace, Map<String, Object> auxTraceMap,
-            String traceName, List<Object> valueObj,
-            List<String> streamFieldsList) throws ParseException {
+            PrometheusQueryDataResult trace, Map<String, Object> auxTraceMap, String traceName,
+            List<Object> valueObj, List<String> streamFieldsList) throws ParseException {
         Map<String, Object> traceMap = new HashMap<>();
         traceMap.putAll(auxTraceMap);
 
@@ -755,14 +697,12 @@ public class TracesService {
         } catch (Exception e) {
         }
 
-        traceMap = convertExternalMonitoringDBTrace(traceMap, "",
-                streamFieldsList, StreamType.ATOMIC_METRIC);
+        traceMap = convertExternalMonitoringDBTrace(traceMap, "", streamFieldsList,
+                StreamType.ATOMIC_METRIC);
 
         // rfc3339 | unix_timestamp
-        Long timestamp = Double.valueOf((double) valueObj.get(0) * 1000)
-                .longValue();
-        String timestampDateStr = utilsService
-                .getIso8601UTCStrFromDate(new Date(timestamp));
+        Long timestamp = Double.valueOf((double) valueObj.get(0) * 1000).longValue();
+        String timestampDateStr = utilsService.getIso8601UTCStrFromDate(new Date(timestamp));
 
         traceMap.put("@timestamp", timestampDateStr);
         traceMap.put(traceName, valueObj.get(1));
