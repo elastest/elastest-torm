@@ -1,4 +1,4 @@
-node {
+node(env.EXEC_NODE){
     result = 'SUCCESS'
     
     stage ('Execute etm-loganalyzer-e2e-test-elastest Job')
