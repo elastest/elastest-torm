@@ -45,8 +45,8 @@ node(env.EXEC_NODE){
                             git 'https://github.com/elastest/elastest-torm.git'
                         }
                         //git 'https://github.com/elastest/elastest-torm.git'
-                        elastest_url = 'http://nightly.elastest.io:37000'
-                        jenkins_url =  env.ET_SUT_PROTOCOL + '://' + env.ET_SUT_HOST + ':' + env.ET_SUT_PORT
+                        elastest_url = env.ET_SUT_PROTOCOL + '://' + env.ET_SUT_HOST + ':' + env.ET_SUT_PORT
+                        jenkins_url =  env.ET_SUT_PROTOCOL + '://' + env.ET_SUT_HOST + ':37092'
                     
                     stage ("Run tests")
                         try {                        
