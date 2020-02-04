@@ -3,7 +3,7 @@ node(env.EXEC_NODE){
         elastest(tss: ['EUS'], surefireReportsPattern: '**/target/surefire-reports/TEST-*.xml', project: 'ETinET', sut: env.SUT_ID) {
             def elastest_url = ''
             def jenkins_url = ''
-            def pluginPath = '/home/ubuntu/workspace/elastest-torm/e2e-tests/et_in_et/etm-plugin-with-installation-e2e-test-elastest/elastest-plugin/target/elastest.hpi'
+            def pluginHpiUrl = 'https://repo.jenkins-ci.org/releases/org/jenkins-ci/plugins/elastest/1.2.1/elastest-1.2.1.hpi'
             def pluginDirectory = 'elastest-plugin'
             def testRepositoryDirectory = 'elastest'
             
@@ -17,10 +17,10 @@ node(env.EXEC_NODE){
                     stage('build ElasTest plugin')
                     def pluginDirectoryExists = fileExists 'elastest-plugin'
                     if (pluginDirectoryExists) {
-                        echo 'The elastset-plugin exists'
+                        echo 'The elastest-plugin exists'
                     } else {
                         echo 'There is no elastset-plugin directory'
-                        sh 'mkdir elastest-plugin'
+                        sh 'mkdir ' + pluginDirectory
                     }
                     dir(pluginDirectory) {
                         git 'https://github.com/elastest/elastest-jenkins.git'
@@ -47,7 +47,7 @@ node(env.EXEC_NODE){
                     
                     stage ("Run tests")
                         try {                        
-                            sh "cd elastest/e2e-test; mvn -Dtest=EJWhitInstallEtInEtTest -DetEtmApi=" + elastest_url + " -DeUser=${DEV_USER} -DePass=${DEV_PASS} -DciUrl=" + jenkins_url + " -DePluginPath=" + pluginPath + " -B test"
+                            sh "cd elastest/e2e-test; curl -o elastest.hpi " + pluginHpiUrl + "; mvn -Dtest=EJWhitInstallEtInEtTest -DetEtmApi=" + elastest_url + " -DeUser=${DEV_USER} -DePass=${DEV_PASS} -DciUrl=" + jenkins_url + " -DePluginPath=${PWD}/elastest.hpi -B test"
                         } catch(err) {
                             def errString = err.toString()
                             currentBuild.result = getJobStatus(errString)
