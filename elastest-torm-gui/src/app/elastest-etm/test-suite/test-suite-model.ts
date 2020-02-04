@@ -54,4 +54,19 @@ export class TestSuiteModel {
 
     return icon;
   }
+
+  public isSkipped(): boolean {
+    return this.skipped !== undefined && this.skipped > 0;
+  }
+
+  public isFailed(): boolean {
+    return !this.isSkipped() && this.errors !== undefined && this.errors > 0;
+  }
+
+  public isSuccess(): boolean {
+    if (this.isFailed() || this.isSkipped()) {
+      return false;
+    }
+    return true;
+  }
 }

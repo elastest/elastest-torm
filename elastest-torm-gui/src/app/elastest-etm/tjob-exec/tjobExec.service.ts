@@ -454,17 +454,23 @@ export class TJobExecService {
   ): void {
     if (testSuites.length > 0) {
       let suite: TestSuiteModel = testSuites.shift();
-      console.log('Obtaining data from suite ' + (suite ? suite.name : undefined));
-      this.loadTestCasesInfoToDownload(tJobExec, [...suite.testCases], suite.name).subscribe(
-        (someTestCaseWithDate: boolean) => {
-          someTestSuiteWithDate = someTestSuiteWithDate || someTestCaseWithDate;
 
-          this.loadTestSuitesInfoToDownloadByGiven(tJobExec, testSuites, _suites, someTestSuiteWithDate);
-        },
-        (error: Error) => {
-          _suites.error(error);
-        },
-      );
+      if (!suite || suite.isSkipped()) {
+        // Next
+        this.loadTestSuitesInfoToDownloadByGiven(tJobExec, testSuites, _suites, someTestSuiteWithDate);
+      } else {
+        console.log('Obtaining data from suite ' + (suite ? suite.name : undefined));
+        this.loadTestCasesInfoToDownload(tJobExec, [...suite.testCases], suite.name).subscribe(
+          (someTestCaseWithDate: boolean) => {
+            someTestSuiteWithDate = someTestSuiteWithDate || someTestCaseWithDate;
+
+            this.loadTestSuitesInfoToDownloadByGiven(tJobExec, testSuites, _suites, someTestSuiteWithDate);
+          },
+          (error: Error) => {
+            _suites.error(error);
+          },
+        );
+      }
     } else {
       sleep(1000).then(() => {
         // because sometimes, next is fired before subscription
