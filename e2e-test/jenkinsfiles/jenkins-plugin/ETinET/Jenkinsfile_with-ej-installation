@@ -28,6 +28,7 @@ node(env.EXEC_NODE){
                         git 'https://github.com/elastest/elastest-jenkins.git'
                         echo 'Build ElasTest plugin'
                         sh 'pwd; ls -lrt; mvn clean package -B'
+                        sh 'ls -lrt'
                     }
                     
                     stage ('prepare test')
@@ -35,7 +36,7 @@ node(env.EXEC_NODE){
                         if (testDirectoryExists) {
                             echo 'The elastest directory exists'
                         } else {
-                            echo 'There is no elastset directory'
+                            echo 'There is no elastest directory'
                             sh 'mkdir elastest'
                         }
                         sh 'chmod 777 elastest'
