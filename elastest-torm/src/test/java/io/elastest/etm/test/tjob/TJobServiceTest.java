@@ -24,7 +24,6 @@ import io.elastest.etm.service.TJobService;
 import io.elastest.etm.service.TSSService;
 import io.elastest.etm.test.extensions.MockitoExtension;
 import io.elastest.etm.utils.EtmFilesService;
-import io.elastest.etm.utils.UtilsService;
 
 @ExtendWith(MockitoExtension.class)
 @TestInstance(Lifecycle.PER_CLASS)
@@ -50,7 +49,6 @@ public class TJobServiceTest {
             @Mock TJobRepository tJobRepo,
             @Mock TJobExecOrchestratorService epmIntegrationService,
             @Mock TJobExecRepository tJobExecRepo, @Mock TSSService esmService,
-            @Mock UtilsService utilsService,
             @Mock AsyncMonitoringService asyncMonitoringService,
             @Mock EtmTestResultService etmTestResultService,
             @Mock EtmFilesService etmFilesService,
@@ -58,7 +56,7 @@ public class TJobServiceTest {
         // TJob createdTJob =
         when(tJobRepo.save(tJob)).thenReturn(tJob);
         TJobService tJobService = new TJobService(tJobRepo, tJobExecRepo,
-                epmIntegrationService, utilsService, asyncMonitoringService,
+                epmIntegrationService, asyncMonitoringService,
                 etmTestResultService, etmFilesService, platformService);
         TJob tJob1 = tJobService.createTJob(tJob);
         System.out.println("ImageName:" + tJob1.getImageName());

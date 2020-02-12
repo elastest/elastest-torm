@@ -32,7 +32,6 @@ import org.xml.sax.SAXException;
 import io.elastest.etm.dao.TJobExecRepository;
 import io.elastest.etm.dao.TJobRepository;
 import io.elastest.etm.model.ElastestFile;
-import io.elastest.etm.model.Enums.MonitoringStorageType;
 import io.elastest.etm.model.Execution;
 import io.elastest.etm.model.MultiConfig;
 import io.elastest.etm.model.Parameter;
@@ -47,7 +46,6 @@ import io.elastest.etm.model.TJobExecution.TypeEnum;
 import io.elastest.etm.platform.service.PlatformService;
 import io.elastest.etm.utils.EtmFilesService;
 import io.elastest.etm.utils.TestResultParser;
-import io.elastest.etm.utils.UtilsService;
 
 @Service
 public class TJobService {
@@ -62,7 +60,6 @@ public class TJobService {
     private final TJobRepository tJobRepo;
     private final TJobExecRepository tJobExecRepositoryImpl;
     public final TJobExecOrchestratorService tJobExecOrchestratorService;
-    private UtilsService utilsService;
     private AsyncMonitoringService asyncMonitoringService;
 
     private EtmTestResultService etmTestResultService;
@@ -72,7 +69,7 @@ public class TJobService {
     Map<String, Future<Void>> asyncExecs = new HashMap<String, Future<Void>>();
 
     public TJobService(TJobRepository tJobRepo, TJobExecRepository tJobExecRepositoryImpl,
-            TJobExecOrchestratorService epmIntegrationService, UtilsService utilsService,
+            TJobExecOrchestratorService epmIntegrationService,
             AsyncMonitoringService asyncMonitoringService,
             EtmTestResultService etmTestResultService, EtmFilesService etmFilesService,
             PlatformService platformService) {
@@ -80,7 +77,6 @@ public class TJobService {
         this.tJobRepo = tJobRepo;
         this.tJobExecRepositoryImpl = tJobExecRepositoryImpl;
         this.tJobExecOrchestratorService = epmIntegrationService;
-        this.utilsService = utilsService;
         this.asyncMonitoringService = asyncMonitoringService;
         this.etmTestResultService = etmTestResultService;
         this.etmFilesService = etmFilesService;
@@ -94,11 +90,6 @@ public class TJobService {
 
     @PostConstruct
     private void init() {
-        //
-        // PrometheusService a = new
-        // PrometheusService("http://10.111.5.160:9090");
-        // a.getMetric("go_memstats_alloc_bytes_total");
-
         manageZombieJobs();
     }
 

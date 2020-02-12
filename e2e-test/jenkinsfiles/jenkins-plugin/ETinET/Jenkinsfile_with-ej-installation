@@ -28,7 +28,6 @@ node(env.EXEC_NODE){
                         git 'https://github.com/elastest/elastest-jenkins.git'
                         echo 'Build ElasTest plugin'
                         sh 'pwd; ls -lrt; mvn clean package -B'
-                        sh 'ls ' + pluginPath
                     }
                     
                     stage ('prepare test')
