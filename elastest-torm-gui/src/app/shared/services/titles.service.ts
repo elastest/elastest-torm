@@ -123,9 +123,13 @@ export class TitlesService {
         break;
       case 'tjob':
         if (this.isExternal) {
-          this.externalService.getExternalTJobById(+groupArr[1]).subscribe((exTJob: ExternalTJobModel) => {
+          if (exTJob && exTJob.name) {
             this.addExternalTJobToPathName(groupArr, exTJob);
-          });
+          } else {
+            this.externalService.getExternalTJobById(+groupArr[1]).subscribe((newExTJob: ExternalTJobModel) => {
+              this.addExternalTJobToPathName(groupArr, newExTJob);
+            });
+          }
         } else {
           if (tJob && tJob.name) {
             this.addTJobToPathName(groupArr, tJob);
@@ -206,12 +210,16 @@ export class TitlesService {
       case 'external':
         this.isExternal = true;
         if (groupArr[1] && groupArr[1] === 'projects') {
-          this.externalService.getExternalProjectById(groupArr[2]).subscribe(
-            (exProject: ExternalProjectModel) => {
-              this.addExternalProjectToPathName(groupArr, exProject);
-            },
-            (error: Error) => console.log(error),
-          );
+          if (exProject && exProject.name) {
+            this.addExternalProjectToPathName(groupArr, exProject);
+          } else {
+            this.externalService.getExternalProjectById(groupArr[2]).subscribe(
+              (exPj: ExternalProjectModel) => {
+                this.addExternalProjectToPathName(groupArr, exPj);
+              },
+              (error: Error) => console.log(error),
+            );
+          }
         }
         break;
 
