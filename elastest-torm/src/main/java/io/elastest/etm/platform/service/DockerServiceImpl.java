@@ -1046,7 +1046,7 @@ public class DockerServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getUniqPluginContainerName(String serviceName, String network) {
+    public String getUniquePluginContainerName(String serviceName, String network) {
         String currentContainerName = null;
         try {
             for (Container container : dockerComposeService.dockerService.getAllContainers()) {

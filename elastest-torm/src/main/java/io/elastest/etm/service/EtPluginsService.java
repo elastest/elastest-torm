@@ -620,7 +620,7 @@ public class EtPluginsService {
                     plugin.getInternalUrl());
             String url = "";
 
-            if (platformService.getUniqPluginContainerName(serviceName, serviceName) == null) {
+            if (platformService.getUniquePluginContainerName(serviceName, serviceName) == null) {
                 url = plugin.getBindedUrl();
             } else {
                 url = plugin.getInternalUrl() != null && !plugin.getInternalUrl().isEmpty()
@@ -786,7 +786,7 @@ public class EtPluginsService {
 
         String internalHost = null;
         try {
-            containerName = platformService.getUniqPluginContainerName(serviceName, network);
+            containerName = platformService.getUniquePluginContainerName(serviceName, network);
             internalHost = platformService.getContainerIp(containerName);
         } catch (Exception e) {
             logger.error("Error on get {} internal url", serviceName);

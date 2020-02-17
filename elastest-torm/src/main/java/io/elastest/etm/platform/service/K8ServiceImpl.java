@@ -231,7 +231,7 @@ public class K8ServiceImpl extends PlatformService {
     }
 
     @Override
-    public String getUniqPluginContainerName(String serviceName, String network) {
+    public String getUniquePluginContainerName(String serviceName, String network) {
         Map<String, String> labels = new HashMap<>();
         labels.put("io.elastest.service", serviceName);
         if (!k8sService.getPodsByLabels(labels, null).isEmpty()) {

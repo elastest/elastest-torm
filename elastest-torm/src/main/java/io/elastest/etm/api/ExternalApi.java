@@ -32,19 +32,16 @@ public interface ExternalApi extends EtmApiExternalRoot {
             + "name of the external Job received. The Project and the TJob that will be created will have the same name "
             + "as the one received as a parameter. If a Project or Job already exists with the received name, a new one will not be created.", response = ExternalJob.class, tags = {
                     "External", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = ExternalJob.class),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ExternalJob.class),
             @ApiResponse(code = 405, message = "Invalid input", response = ExternalJob.class) })
-    @RequestMapping(value = "/tjob", produces = {
-            "application/json" }, consumes = {
-                    "application/json" }, method = RequestMethod.POST)
+    @RequestMapping(value = "/tjob", produces = { "application/json" }, consumes = {
+            "application/json" }, method = RequestMethod.POST)
     ExternalJob execTJobFromExternalTJob(
             @ApiParam(value = "Object with the external Job Data (the name).", required = true) @Valid @RequestBody ExternalJob body);
 
     @ApiOperation(value = "Return an ExternalJob object with the necessary information to continue the external execution of the Job.", notes = "", response = ExternalJob.class, tags = {
             "External", })
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = ExternalJob.class),
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK", response = ExternalJob.class),
             @ApiResponse(code = 405, message = "Invalid input", response = ExternalJob.class) })
     @RequestMapping(value = "/tjob/{tJobExecId}", produces = {
             "application/json" }, method = RequestMethod.GET)
@@ -55,9 +52,8 @@ public interface ExternalApi extends EtmApiExternalRoot {
             "External", })
     @ApiResponses(value = { @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 405, message = "Invalid input") })
-    @RequestMapping(value = "/tjob", produces = {
-            "application/json" }, consumes = {
-                    "application/json" }, method = RequestMethod.PUT)
+    @RequestMapping(value = "/tjob", produces = { "application/json" }, consumes = {
+            "application/json" }, method = RequestMethod.PUT)
     void finishExternalJob(
             @ApiParam(value = "Object with the id of the TJob to update the state.", required = true) @Valid @RequestBody ExternalJob body);
 
@@ -133,9 +129,8 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "TJob Mofification Successful", response = ExternalTJob.class),
             @ApiResponse(code = 405, message = "Invalid input", response = ExternalTJob.class) })
-    @RequestMapping(value = "/extjob", produces = {
-            "application/json" }, consumes = {
-                    "application/json" }, method = RequestMethod.POST)
+    @RequestMapping(value = "/extjob", produces = { "application/json" }, consumes = {
+            "application/json" }, method = RequestMethod.POST)
     ResponseEntity<ExternalTJob> createExternalTJob(
             @ApiParam(value = "TJob object that needs to create.", required = true) @Valid @RequestBody ExternalTJob body);
 
@@ -144,9 +139,8 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "TJob Mofification Successful", response = ExternalTJob.class),
             @ApiResponse(code = 405, message = "Invalid input", response = ExternalTJob.class) })
-    @RequestMapping(value = "/extjob", produces = {
-            "application/json" }, consumes = {
-                    "application/json" }, method = RequestMethod.PUT)
+    @RequestMapping(value = "/extjob", produces = { "application/json" }, consumes = {
+            "application/json" }, method = RequestMethod.PUT)
     ResponseEntity<ExternalTJob> modifyExternalTJob(
             @ApiParam(value = "TJob object that needs to modify.", required = true) @Valid @RequestBody ExternalTJob body);
 
@@ -194,9 +188,8 @@ public interface ExternalApi extends EtmApiExternalRoot {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalTJobExecution.class),
             @ApiResponse(code = 405, message = "Invalid input"),
             @ApiResponse(code = 409, message = "Already exist") })
-    @RequestMapping(value = "tjobexec", produces = {
-            "application/json" }, consumes = {
-                    "application/json" }, method = RequestMethod.POST)
+    @RequestMapping(value = "tjobexec", produces = { "application/json" }, consumes = {
+            "application/json" }, method = RequestMethod.POST)
     ResponseEntity<ExternalTJobExecution> createExternalTJobExecution(
             @ApiParam(value = "Object with the External TJob Execution data to create.", required = true) @Valid @RequestBody ExternalTJobExecution body);
 
@@ -207,8 +200,7 @@ public interface ExternalApi extends EtmApiExternalRoot {
             @ApiResponse(code = 405, message = "Invalid input"),
             @ApiResponse(code = 409, message = "Already exist") })
     @RequestMapping(value = "extjob/{tJobId}/tjobexec", produces = {
-            "application/json" }, consumes = {
-                    "application/json" }, method = RequestMethod.POST)
+            "application/json" }, consumes = { "application/json" }, method = RequestMethod.POST)
     ResponseEntity<ExternalTJobExecution> createExternalTJobExecutionByExternalTJobId(
             @ApiParam(value = "Id of an External TJob.", required = true) @PathVariable("tJobId") Long tJobId,
             @ApiParam(value = "Base External TJob Exec", required = true) @Valid @RequestBody ExternalTJobExecution body);
@@ -229,9 +221,8 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "TJob Mofification Successful", response = ExternalTJobExecution.class),
             @ApiResponse(code = 405, message = "Invalid input", response = ExternalTJobExecution.class) })
-    @RequestMapping(value = "/tjobexec", produces = {
-            "application/json" }, consumes = {
-                    "application/json" }, method = RequestMethod.PUT)
+    @RequestMapping(value = "/tjobexec", produces = { "application/json" }, consumes = {
+            "application/json" }, method = RequestMethod.PUT)
     ResponseEntity<ExternalTJobExecution> modifyExternalTJobExecution(
             @ApiParam(value = "TJob Execution object that needs to modify.", required = true) @Valid @RequestBody ExternalTJobExecution body);
 
@@ -312,9 +303,8 @@ public interface ExternalApi extends EtmApiExternalRoot {
             @ApiResponse(code = 200, message = "Successful operation", response = ExternalTestExecution.class),
             @ApiResponse(code = 405, message = "Invalid input"),
             @ApiResponse(code = 409, message = "Already exist") })
-    @RequestMapping(value = "testexec", produces = {
-            "application/json" }, consumes = {
-                    "application/json" }, method = RequestMethod.POST)
+    @RequestMapping(value = "testexec", produces = { "application/json" }, consumes = {
+            "application/json" }, method = RequestMethod.POST)
     ResponseEntity<ExternalTestExecution> createExternalTestExecution(
             @ApiParam(value = "Object with the External Test Execution data to create.", required = true) @Valid @RequestBody ExternalTestExecution body);
 
@@ -323,9 +313,8 @@ public interface ExternalApi extends EtmApiExternalRoot {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Test Execution Mofificated Successfully", response = ExternalTestExecution.class),
             @ApiResponse(code = 405, message = "Invalid input", response = ExternalTJob.class) })
-    @RequestMapping(value = "testexec", produces = {
-            "application/json" }, consumes = {
-                    "application/json" }, method = RequestMethod.PUT)
+    @RequestMapping(value = "testexec", produces = { "application/json" }, consumes = {
+            "application/json" }, method = RequestMethod.PUT)
     ResponseEntity<ExternalTestExecution> modifyExternalTJob(
             @ApiParam(value = "ExternalTestExecution object that needs to modify.", required = true) @Valid @RequestBody ExternalTestExecution body);
 

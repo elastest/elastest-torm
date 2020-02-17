@@ -185,7 +185,7 @@ public abstract class PlatformService {
     public abstract String getContainerIp(String serviceId, EtPlugin serviceInstance)
             throws Exception;
 
-    public abstract String getUniqPluginContainerName(String serviceName, String network);
+    public abstract String getUniquePluginContainerName(String serviceName, String network);
 
     public abstract String getTSSInstanceContainerName(String... params);
 

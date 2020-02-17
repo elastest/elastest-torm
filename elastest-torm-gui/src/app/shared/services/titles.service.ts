@@ -97,7 +97,10 @@ export class TitlesService {
       case 'projects':
         this.projectService.getProject(groupArr[1], 'minimal').subscribe(
           (project: ProjectModel) => {
-            this.breadcrumbService.addFriendlyNameForRouteRegex('.*/projects/' + groupArr[1] + '$', '/ ' + project.name);
+            this.breadcrumbService.addFriendlyNameForRouteRegex(
+              '.*/projects/' + groupArr[1] + '$',
+              '/ ' + project.name,
+            );
           },
           (error: Error) => console.log(error),
         );
@@ -108,7 +111,7 @@ export class TitlesService {
             this.breadcrumbService.addFriendlyNameForRouteRegex('.*/tjob/' + groupArr[1] + '$', '/ ' + exTJob.name);
           });
         } else {
-          this.tJobService.getTJob(groupArr[1]).subscribe(
+          this.tJobService.getTJob(groupArr[1], 'minimal').subscribe(
             (tjob: TJobModel) => {
               this.breadcrumbService.addFriendlyNameForRouteRegex('.*/tjob/' + groupArr[1] + '$', '/ ' + tjob.name);
             },
@@ -117,14 +120,23 @@ export class TitlesService {
         }
         break;
       case 'tjob-exec':
-        this.breadcrumbService.addFriendlyNameForRouteRegex('.*/tjob-exec/' + groupArr[1] + '$', '/ Execution ' + groupArr[1]);
+        this.breadcrumbService.addFriendlyNameForRouteRegex(
+          '.*/tjob-exec/' + groupArr[1] + '$',
+          '/ Execution ' + groupArr[1],
+        );
         break;
       case 'exec':
-        this.breadcrumbService.addFriendlyNameForRouteRegex('.*/exec/' + groupArr[1] + '$', '/ Execution ' + groupArr[1]);
+        this.breadcrumbService.addFriendlyNameForRouteRegex(
+          '.*/exec/' + groupArr[1] + '$',
+          '/ Execution ' + groupArr[1],
+        );
         break;
       case 'testCase':
         this.testCaseService.getTestCaseById(+groupArr[1]).subscribe((testCase: TestCaseModel) => {
-          this.breadcrumbService.addFriendlyNameForRouteRegex('.*/testCase/' + groupArr[1] + '$', '/ Test Case ' + testCase.name);
+          this.breadcrumbService.addFriendlyNameForRouteRegex(
+            '.*/testCase/' + groupArr[1] + '$',
+            '/ Test Case ' + testCase.name,
+          );
         });
         break;
       case 'cases':
@@ -193,7 +205,10 @@ export class TitlesService {
           });
         } else if (Number(groupArr[0]) && groupArr[1] === 'execs') {
           this.testLinkService.getTestExecById(groupArr[0], groupArr[2]).subscribe((exec: TestCaseExecutionModel) => {
-            this.breadcrumbService.addFriendlyNameForRouteRegex('.*execs/' + groupArr[2] + '$', '/ Execution ' + exec.id);
+            this.breadcrumbService.addFriendlyNameForRouteRegex(
+              '.*execs/' + groupArr[2] + '$',
+              '/ Execution ' + exec.id,
+            );
           });
         }
         break;
