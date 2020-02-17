@@ -75,15 +75,24 @@ export class TitlesService {
     this._titleService.setTitle(title);
   }
 
-  setPathName(url: string, name?: string): void {
+  setPathNameByGiven(url: string, name: string): void {
     this.isExternal = false;
-    let groups: string[] = this.getGroups(url);
     if (name) {
       this.breadcrumbService.addFriendlyNameForRoute(url, name);
-    } else {
-      for (let group of groups) {
-        this.addPathName(group);
-      }
+    }
+  }
+
+  setPathName(
+    url: string,
+    project: ProjectModel = undefined,
+    tJob: TJobModel = undefined,
+    exProject: ExternalProjectModel = undefined,
+    exTJob: ExternalTJobModel = undefined,
+  ): void {
+    this.isExternal = false;
+    let groups: string[] = this.getGroups(url);
+    for (let group of groups) {
+      this.addPathName(group, project, tJob, exProject, exTJob);
     }
   }
 
@@ -91,32 +100,43 @@ export class TitlesService {
     return this._titleService;
   }
 
-  private addPathName(group: string): void {
+  private addPathName(
+    group: string,
+    project: ProjectModel = undefined,
+    tJob: TJobModel = undefined,
+    exProject: ExternalProjectModel = undefined,
+    exTJob: ExternalTJobModel = undefined,
+  ): void {
     let groupArr: string[] = group.split('/');
     switch (groupArr[0]) {
       case 'projects':
-        this.projectService.getProject(groupArr[1], 'minimal').subscribe(
-          (project: ProjectModel) => {
-            this.breadcrumbService.addFriendlyNameForRouteRegex(
-              '.*/projects/' + groupArr[1] + '$',
-              '/ ' + project.name,
-            );
-          },
-          (error: Error) => console.log(error),
-        );
+        if (project && project.name) {
+          this.addProjectToPathName(groupArr, project);
+        } else {
+          this.projectService.getProject(groupArr[1], 'minimal').subscribe(
+            (pj: ProjectModel) => {
+              this.addProjectToPathName(groupArr, pj);
+            },
+            (error: Error) => console.log(error),
+          );
+        }
         break;
       case 'tjob':
         if (this.isExternal) {
           this.externalService.getExternalTJobById(+groupArr[1]).subscribe((exTJob: ExternalTJobModel) => {
-            this.breadcrumbService.addFriendlyNameForRouteRegex('.*/tjob/' + groupArr[1] + '$', '/ ' + exTJob.name);
+            this.addExternalTJobToPathName(groupArr, exTJob);
           });
         } else {
-          this.tJobService.getTJob(groupArr[1], 'minimal').subscribe(
-            (tjob: TJobModel) => {
-              this.breadcrumbService.addFriendlyNameForRouteRegex('.*/tjob/' + groupArr[1] + '$', '/ ' + tjob.name);
-            },
-            (error: Error) => console.log(error),
-          );
+          if (tJob && tJob.name) {
+            this.addTJobToPathName(groupArr, tJob);
+          } else {
+            this.tJobService.getTJob(groupArr[1], 'minimal').subscribe(
+              (tjob: TJobModel) => {
+                this.addTJobToPathName(groupArr, tjob);
+              },
+              (error: Error) => console.log(error),
+            );
+          }
         }
         break;
       case 'tjob-exec':
@@ -173,10 +193,10 @@ export class TitlesService {
       case 'testlink':
         if (groupArr[1] && groupArr[1] === 'projects') {
           this.testLinkService.getProjectById(groupArr[2]).subscribe(
-            (project: TestProjectModel) => {
+            (testProject: TestProjectModel) => {
               this.breadcrumbService.addFriendlyNameForRouteRegex(
                 '.*/' + groupArr[0] + '/' + groupArr[1] + '/' + groupArr[2] + '$',
-                '/ ' + project.name,
+                '/ ' + testProject.name,
               );
             },
             (error: Error) => console.log(error),
@@ -188,10 +208,7 @@ export class TitlesService {
         if (groupArr[1] && groupArr[1] === 'projects') {
           this.externalService.getExternalProjectById(groupArr[2]).subscribe(
             (exProject: ExternalProjectModel) => {
-              this.breadcrumbService.addFriendlyNameForRouteRegex(
-                '.*/' + groupArr[0] + '/' + groupArr[1] + '/' + groupArr[2] + '$',
-                '/ ' + exProject.name,
-              );
+              this.addExternalProjectToPathName(groupArr, exProject);
             },
             (error: Error) => console.log(error),
           );
@@ -232,5 +249,23 @@ export class TitlesService {
       matches[0] = arr[0] + '/' + matches[0];
     }
     return matches;
+  }
+
+  private addProjectToPathName(groupArr: string[], project: ProjectModel): void {
+    this.breadcrumbService.addFriendlyNameForRouteRegex('.*/projects/' + groupArr[1] + '$', '/ ' + project.name);
+  }
+
+  private addTJobToPathName(groupArr: string[], tJob: TJobModel): void {
+    this.breadcrumbService.addFriendlyNameForRouteRegex('.*/tjob/' + groupArr[1] + '$', '/ ' + tJob.name);
+  }
+  private addExternalProjectToPathName(groupArr: string[], exProject: ExternalProjectModel): void {
+    this.breadcrumbService.addFriendlyNameForRouteRegex(
+      '.*/' + groupArr[0] + '/' + groupArr[1] + '/' + groupArr[2] + '$',
+      '/ ' + exProject.name,
+    );
+  }
+
+  private addExternalTJobToPathName(groupArr: string[], exTJob: ExternalTJobModel): void {
+    this.breadcrumbService.addFriendlyNameForRouteRegex('.*/tjob/' + groupArr[1] + '$', '/ ' + exTJob.name);
   }
 }

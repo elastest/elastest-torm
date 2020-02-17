@@ -70,7 +70,10 @@ export class TJobFormComponent implements OnInit, DoCheck {
             .switchMap((params: Params) => this.tJobService.getTJob(params['tJobId']))
             .subscribe((tJob: TJobModel) => {
               this.tJob = tJob;
-              this.titlesService.setPathName(this.router.routerState.snapshot.url, '/ Edit TJob ' + this.tJob.getRouteString());
+              this.titlesService.setPathNameByGiven(
+                this.router.routerState.snapshot.url,
+                '/ Edit TJob ' + this.tJob.getRouteString(),
+              );
               this.currentSut = tJob.sut.id > 0 ? tJob.sut.name : 'None';
               this.useImageCommand = !this.tJob.withCommands();
               for (let tJobEsmService of this.tJob.esmServices) {
@@ -78,9 +81,11 @@ export class TJobFormComponent implements OnInit, DoCheck {
                   if (tJobEsmService.selected && tJobEsmService.id === esmServiceToSelect.id) {
                     esmServiceToSelect.selected = true;
                     for (let singleTJobEsmConfigKey of tJobEsmService.getConfigKeys()) {
-                      let singleTJobEsmConfig: SupportServiceConfigModel = tJobEsmService.manifest.config[singleTJobEsmConfigKey];
+                      let singleTJobEsmConfig: SupportServiceConfigModel =
+                        tJobEsmService.manifest.config[singleTJobEsmConfigKey];
                       for (let singleEsmConfigKey of esmServiceToSelect.getConfigKeys()) {
-                        let singleEsmConfig: SupportServiceConfigModel = esmServiceToSelect.manifest.config[singleEsmConfigKey];
+                        let singleEsmConfig: SupportServiceConfigModel =
+                          esmServiceToSelect.manifest.config[singleEsmConfigKey];
                         if (singleTJobEsmConfig.value !== undefined && singleTJobEsmConfig.value !== null) {
                           singleEsmConfig.value = singleTJobEsmConfig.value;
                         }
@@ -128,7 +133,10 @@ export class TJobFormComponent implements OnInit, DoCheck {
     this.tJob.esmServices = this.esmServicesCatalog;
     console.log('Services ' + JSON.stringify(this.tJob.esmServices));
 
-    this.tJobService.createTJob(this.tJob, this.action).subscribe((tJob) => this.postSave(tJob), (error) => console.log(error));
+    this.tJobService.createTJob(this.tJob, this.action).subscribe(
+      tJob => this.postSave(tJob),
+      error => console.log(error),
+    );
   }
 
   postSave(tJob: any): void {

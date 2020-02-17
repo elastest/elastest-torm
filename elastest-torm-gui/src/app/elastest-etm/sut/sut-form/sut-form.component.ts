@@ -107,7 +107,10 @@ export class SutFormComponent implements OnInit, DoCheck {
           .switchMap((params: Params) => this.sutService.getSut(params['sutId']))
           .subscribe((sut: SutModel) => {
             this.sut = sut;
-            this.titlesService.setPathName(this.router.routerState.snapshot.url, '/ Edit SuT ' + this.sut.getRouteString());
+            this.titlesService.setPathNameByGiven(
+              this.router.routerState.snapshot.url,
+              '/ Edit SuT ' + this.sut.getRouteString(),
+            );
             this.initSutType();
             this.initInstrumentedBy();
             this.initInstrumentalized();

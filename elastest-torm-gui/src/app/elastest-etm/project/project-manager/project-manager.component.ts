@@ -39,7 +39,7 @@ export class ProjectManagerComponent implements OnInit {
           this.project = project;
           this.projectId = project.id.toString();
           this.titlesService.setHeadTitle(this.project.name);
-          this.titlesService.setPathName(this.router.routerState.snapshot.url);
+          this.titlesService.setPathName(this.router.routerState.snapshot.url, this.project);
         });
     }
   }
@@ -64,11 +64,11 @@ export class ProjectManagerComponent implements OnInit {
         if (accept) {
           this.deletingInProgress = true;
           this.projectService.deleteProject(this.project).subscribe(
-            (project) => {
+            project => {
               this.deletingInProgress = false;
               this.router.navigate(['/projects']);
             },
-            (error) => {
+            error => {
               this.deletingInProgress = false;
               console.log(error);
             },

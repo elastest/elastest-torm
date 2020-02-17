@@ -33,7 +33,10 @@ export class ProjectFormComponent implements OnInit, AfterViewInit {
           .switchMap((params: Params) => this.projectService.getProject(params['projectId']))
           .subscribe((project: ProjectModel) => {
             this.project = project;
-            this.titlesService.setPathName(this.router.routerState.snapshot.url, 'Edit: ' + this.project.getRouteString());
+            this.titlesService.setPathNameByGiven(
+              this.router.routerState.snapshot.url,
+              'Edit: ' + this.project.getRouteString(),
+            );
           });
       }
     }
@@ -48,7 +51,10 @@ export class ProjectFormComponent implements OnInit, AfterViewInit {
   }
 
   save(): void {
-    this.projectService.createProject(this.project).subscribe((project) => this.postSave(project), (error) => console.log(error));
+    this.projectService.createProject(this.project).subscribe(
+      project => this.postSave(project),
+      error => console.log(error),
+    );
   }
 
   postSave(project: any): void {

@@ -90,7 +90,7 @@ export class TjobManagerComponent implements OnInit {
         .subscribe((tJob: TJobModel) => {
           this.tJob = tJob;
           this.titlesService.setHeadTitle('TJob ' + this.tJob.name);
-          this.titlesService.setPathName(this.router.routerState.snapshot.url);
+          this.titlesService.setPathName(this.router.routerState.snapshot.url, this.tJob.project, this.tJob);
           if (this.tJob.sut.id === 0) {
             this.tJob.sut = this.sutEmpty;
           }
@@ -126,7 +126,7 @@ export class TjobManagerComponent implements OnInit {
         if (accept) {
           this.deletingInProgress = true;
           this.tJobExecService.deleteTJobExecution(this.tJob, tJobExec).subscribe(
-            (exec) => {
+            exec => {
               this.deletingInProgress = false;
               this.tJobExecService.popupService.openSnackBar(
                 'TJob Execution Nº' + tJobExec.id + ' has been removed successfully!',
@@ -156,7 +156,14 @@ export class TjobManagerComponent implements OnInit {
     } else {
       this.tJobExecService.runTJob(this.tJob.id, undefined, undefined, this.tJob.multiConfigurations).subscribe(
         (tjobExecution: TJobExecModel) => {
-          this.router.navigate(['/projects', this.tJob.project.id, 'tjob', this.tJob.id, 'tjob-exec', tjobExecution.id]);
+          this.router.navigate([
+            '/projects',
+            this.tJob.project.id,
+            'tjob',
+            this.tJob.id,
+            'tjob-exec',
+            tjobExecution.id,
+          ]);
         },
         (error: Error) => console.error('Error:' + error),
       );
@@ -191,7 +198,7 @@ export class TjobManagerComponent implements OnInit {
         if (accept) {
           this.deletingInProgress = true;
           this.tJobService.deleteTJob(this.tJob).subscribe(
-            (tJob) => {
+            tJob => {
               this.deletingInProgress = true;
               this.router.navigate(['/projects']);
             },
@@ -264,7 +271,9 @@ export class TjobManagerComponent implements OnInit {
                   let errorMsg: string = 'Error on delete execs with ids: ' + this.execIdsWithErrorOnDelete;
                   this.tJobExecService.popupService.openSnackBar(errorMsg);
                 } else {
-                  this.tJobExecService.popupService.openSnackBar('Executions ' + this.selectedExecsIds + ' has been removed!');
+                  this.tJobExecService.popupService.openSnackBar(
+                    'Executions ' + this.selectedExecsIds + ' has been removed!',
+                  );
                 }
 
                 this.deletingInProgress = false;
@@ -285,7 +294,10 @@ export class TjobManagerComponent implements OnInit {
     }
   }
 
-  removeMultipleExecutionsRecursively(selectedExecsIds: number[], _obs: Subject<any> = new Subject<any>()): Observable<boolean> {
+  removeMultipleExecutionsRecursively(
+    selectedExecsIds: number[],
+    _obs: Subject<any> = new Subject<any>(),
+  ): Observable<boolean> {
     let obs: Observable<any> = _obs.asObservable();
 
     if (selectedExecsIds.length > 0) {
@@ -337,6 +349,8 @@ export class TjobManagerComponent implements OnInit {
     // pages in backend starts at 0
     let page: number = this.currentExecsPage - 1;
 
-    return this.tJobExecService.getTJobExecsPageSinceId(this.tJob.id, page, this.execsPageSize, 'desc', true).toPromise();
+    return this.tJobExecService
+      .getTJobExecsPageSinceId(this.tJob.id, page, this.execsPageSize, 'desc', true)
+      .toPromise();
   }
 }

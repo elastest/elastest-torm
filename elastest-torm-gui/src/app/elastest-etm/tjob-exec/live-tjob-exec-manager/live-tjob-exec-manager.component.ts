@@ -109,7 +109,11 @@ export class LiveTjobExecManagerComponent implements OnInit, AfterViewInit, OnDe
     this.tJobExecService.getTJobExecutionByTJobId(this.tJobId, this.tJobExecId).subscribe((tJobExec: TJobExecModel) => {
       this.tJobExec = tJobExec;
       this.setTitle();
-      this.titlesService.setPathName(this.router.routerState.snapshot.url);
+      this.titlesService.setPathName(
+        this.router.routerState.snapshot.url,
+        this.tJobExec.tJob.project,
+        this.tJobExec.tJob,
+      );
       this.withSut = this.tJobExec.tJob.hasSut();
 
       if (this.tJobExec.parameters) {
@@ -198,7 +202,7 @@ export class LiveTjobExecManagerComponent implements OnInit, AfterViewInit, OnDe
     if (this.checkResultSubscription === null || this.checkResultSubscription === undefined) {
       this.checkResultSubscription = timer.subscribe(() => {
         this.tJobExecService.getResultStatusByTJob(this.tJob, this.tJobExec).subscribe(
-          (data) => {
+          data => {
             if (data.result !== this.tJobExec.result) {
               this.tJobExec.result = data.result;
             }

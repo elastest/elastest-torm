@@ -120,7 +120,11 @@ export class FinishedTjobExecManagerComponent implements OnInit {
     this.statusIcon = this.tJobExec.getResultIcon();
     this.setTitle();
     this.initElasTestMonitoringMarks();
-    this.titlesService.setPathName(this.router.routerState.snapshot.url);
+    this.titlesService.setPathName(
+      this.router.routerState.snapshot.url,
+      this.tJobExec.tJob.project,
+      this.tJobExec.tJob,
+    );
     if (this.tJobExec.parameters) {
       for (let param of this.tJobExec.parameters) {
         let parameter: ParameterModel = new ParameterModel(param);
