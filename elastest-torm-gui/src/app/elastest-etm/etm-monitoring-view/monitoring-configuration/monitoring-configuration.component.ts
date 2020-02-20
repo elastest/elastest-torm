@@ -5,6 +5,7 @@ import {
   MetricFieldGroupModel,
   getMetricBeatFieldGroupList,
   isMetricFieldGroup,
+  SubtypesObjectModel,
 } from '../../../shared/metrics-view/metrics-chart-card/models/all-metrics-fields-model';
 import { TreeComponent } from 'angular-tree-component/dist/components/tree.component';
 import { TJobExecModel } from '../../tjob-exec/tjobExec-model';
@@ -145,7 +146,10 @@ export class MonitoringConfigurationComponent implements OnInit {
         let streamPos: number = 0;
         for (let streamEtType of componentStreamEtType.children) {
           if (streamEtType.children) {
-            if (streamEtType.name !== defaultStreamMap.composed_metrics && streamEtType !== defaultStreamMap.atomic_metric) {
+            if (
+              streamEtType.name !== defaultStreamMap.composed_metrics &&
+              streamEtType !== defaultStreamMap.atomic_metric
+            ) {
               let newTypeList: any[] = [];
               for (let etType of streamEtType.children) {
                 let ettypeName: string = etType.name;
@@ -239,6 +243,9 @@ export class MonitoringConfigurationComponent implements OnInit {
           } else {
             if (streamTypesList.indexOf('composed_metrics') > -1) {
               // TODO add as subtype
+            } else if (streamTypesList.indexOf('atomic_metric') > -1) {
+              let subtypesObj: SubtypesObjectModel = new SubtypesObjectModel(etType, '');
+              currentMetricFieldGroupList = [new MetricFieldGroupModel(etType, [subtypesObj])];
             }
           }
 
