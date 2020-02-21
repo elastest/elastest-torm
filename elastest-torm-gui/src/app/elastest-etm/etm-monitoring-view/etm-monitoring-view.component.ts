@@ -66,7 +66,12 @@ export class EtmMonitoringViewComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  initView(tJob: AbstractTJobModel, tJobExec: AbstractTJobExecModel, customStartDate?: Date, customEndDate?: Date): void {
+  initView(
+    tJob: AbstractTJobModel,
+    tJobExec: AbstractTJobExecModel,
+    customStartDate?: Date,
+    customEndDate?: Date,
+  ): void {
     this.tJob = tJob;
     this.tJobExec = tJobExec;
 
@@ -324,7 +329,11 @@ export class EtmMonitoringViewComponent implements OnInit {
       } else {
         // Disable from tjob object before save
         let logField: LogFieldModel = new LogFieldModel(log.component, log.stream);
-        this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
+        this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(
+          logField.name,
+          logField.component,
+          logField.stream,
+        );
         // Remove
         this.removeLogCard(log);
       }
@@ -337,7 +346,12 @@ export class EtmMonitoringViewComponent implements OnInit {
     this.metricName = '';
     // Enable in tjob object before save
     let logField: LogFieldModel = new LogFieldModel(log.component, log.stream);
-    this.tJob.execDashboardConfigModel.allLogsTypes.addLogFieldToList(logField.name, logField.component, logField.stream, true);
+    this.tJob.execDashboardConfigModel.allLogsTypes.addLogFieldToList(
+      logField.name,
+      logField.component,
+      logField.stream,
+      true,
+    );
 
     this.addMore(showPopup, 'log');
   }
@@ -355,7 +369,11 @@ export class EtmMonitoringViewComponent implements OnInit {
       } else {
         // Disable from tjob object before save
         let logField: LogFieldModel = new LogFieldModel(log.component, log.stream);
-        this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(logField.name, logField.component, logField.stream);
+        this.tJob.execDashboardConfigModel.allLogsTypes.disableLogField(
+          logField.name,
+          logField.component,
+          logField.stream,
+        );
         // Remove
         this.removeLogComparisonTab(logField);
       }
@@ -369,9 +387,19 @@ export class EtmMonitoringViewComponent implements OnInit {
 
     // Enable in tjob object before save
     let logField: LogFieldModel = new LogFieldModel(log.component, log.stream);
-    this.tJob.execDashboardConfigModel.allLogsTypes.addLogFieldToList(logField.name, logField.component, logField.stream, true);
+    this.tJob.execDashboardConfigModel.allLogsTypes.addLogFieldToList(
+      logField.name,
+      logField.component,
+      logField.stream,
+      true,
+    );
 
-    let added: boolean = this.logsGroup.addMoreLogsComparisons(this.tJobExec, logField.name, this.stream, this.component);
+    let added: boolean = this.logsGroup.addMoreLogsComparisons(
+      this.tJobExec,
+      logField.name,
+      this.stream,
+      this.component,
+    );
 
     if (showPopup) {
       if (added) {
@@ -388,6 +416,7 @@ export class EtmMonitoringViewComponent implements OnInit {
 
   updateMetricsFromList(metricsList: any[]): void {
     this.activatedMetrics = [];
+    this.metricsGroup.qoeVmafMetrics = [];
 
     // First, remove all metrics pairs cards
     this.metricsGroup.removeAllMetricsPairs();
@@ -411,6 +440,8 @@ export class EtmMonitoringViewComponent implements OnInit {
         this.removeMetricCard(metric);
       }
     }
+
+    this.metricsGroup.initQoEVmafAverage();
   }
 
   updateMetric(metric: any, showPopup: boolean = false): void {
@@ -441,6 +472,9 @@ export class EtmMonitoringViewComponent implements OnInit {
     );
 
     this.addMore(showPopup, 'metric');
+
+    // If is qoe vmaf and is activated, add to list (for create average chart)
+    this.metricsGroup.storeMetricIfIsQoEVmafActivated(metricField);
   }
 
   removeMetricCard(metric: any): void {
@@ -481,7 +515,7 @@ export class EtmMonitoringViewComponent implements OnInit {
           }
         }
       })
-      .catch((e) => {
+      .catch(e => {
         this.waitForUnlock(functionsToExec, parentTJobExec);
       });
   }

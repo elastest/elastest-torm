@@ -6,6 +6,7 @@ import { ColorSchemeModel } from '../../models/color-scheme-model';
 import { ComplexMetricsModel } from './complex-metrics-model';
 import { defaultStreamMap } from '../../../defaultESData-model';
 import { MonitoringService } from '../../../services/monitoring.service';
+import { Observable, Subject } from 'rxjs';
 
 export class ESRabComplexMetricsModel extends ComplexMetricsModel {
   monitoringService: MonitoringService;
@@ -112,11 +113,19 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
       this.yAxisLabelLeft = this.getFormatedKnownLabel(this.leftChartUnit);
     }
 
-    if (this.rightChartOneChartUnit && this.yAxisLabelRightOne && this.rightChartOneChartUnit === this.yAxisLabelRightOne) {
+    if (
+      this.rightChartOneChartUnit &&
+      this.yAxisLabelRightOne &&
+      this.rightChartOneChartUnit === this.yAxisLabelRightOne
+    ) {
       this.yAxisLabelRightOne = this.getFormatedKnownLabel(this.rightChartOneChartUnit);
     }
 
-    if (this.rightChartTwoChartUnit && this.yAxisLabelRightTwo && this.rightChartTwoChartUnit === this.yAxisLabelRightTwo) {
+    if (
+      this.rightChartTwoChartUnit &&
+      this.yAxisLabelRightTwo &&
+      this.rightChartTwoChartUnit === this.yAxisLabelRightTwo
+    ) {
       this.yAxisLabelRightTwo = this.getFormatedKnownLabel(this.rightChartTwoChartUnit);
     }
   }
@@ -147,42 +156,60 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     this.yRightTwoAxisTickFormatting = yRightTwoAxisTickFormatting;
   }
 
-  getAllMetrics(onlyActivated: boolean = true): void {
+  getAllMetrics(onlyActivated: boolean = true): Observable<boolean> {
+    let _obs: Subject<boolean> = new Subject<boolean>();
+    let obs: Observable<boolean> = _obs.asObservable();
+
+    let candidates: MetricsFieldModel[] = [];
     for (let metric of this.allMetricsFields.fieldsList) {
       if (!onlyActivated || (onlyActivated && metric.activated)) {
-        this.monitoringService
-          .getAllMetrics(this.monitoringIndex, metric, undefined, this.startDate, this.endDate)
-          .subscribe((data: LineChartMetricModel[]) => {
-            switch (metric.unit) {
-              case this.rightChartOneChartUnit:
-                this.rightChartOneAllData = this.rightChartOneAllData.concat(data);
-                if (metric.activated) {
-                  this.rightChartOne = this.rightChartOne.concat(data);
-                }
-                break;
-              case this.leftChartUnit:
-                this.leftChartAllData = this.leftChartAllData.concat(data);
-                if (metric.activated) {
-                  this.leftChart = this.leftChart.concat(data);
-                }
-                break;
-              case this.rightChartTwoChartUnit:
-                this.rightChartTwoAllData = this.rightChartTwoAllData.concat(data);
-                if (metric.activated) {
-                  this.rightChartTwo = this.rightChartTwo.concat(data);
-                }
-                break;
-              default:
-                break;
-            }
-          });
-        // }
+        candidates.push(metric);
       }
     }
+    let total: number = candidates.length;
+
+    for (let metric of candidates) {
+      this.monitoringService
+        .getAllMetrics(this.monitoringIndex, metric, undefined, this.startDate, this.endDate)
+        .subscribe((data: LineChartMetricModel[]) => {
+          switch (metric.unit) {
+            case this.rightChartOneChartUnit:
+              this.rightChartOneAllData = this.rightChartOneAllData.concat(data);
+              if (metric.activated) {
+                this.rightChartOne = this.rightChartOne.concat(data);
+              }
+              break;
+            case this.leftChartUnit:
+              this.leftChartAllData = this.leftChartAllData.concat(data);
+              if (metric.activated) {
+                this.leftChart = this.leftChart.concat(data);
+              }
+              break;
+            case this.rightChartTwoChartUnit:
+              this.rightChartTwoAllData = this.rightChartTwoAllData.concat(data);
+              if (metric.activated) {
+                this.rightChartTwo = this.rightChartTwo.concat(data);
+              }
+              break;
+            default:
+              break;
+          }
+          total--;
+
+          if (total <= 0) {
+            _obs.next(true);
+          }
+        });
+    }
+    return obs;
   }
 
   updateData(trace: any): void {
-    let positionsList: number[] = this.allMetricsFields.getPositionsList(trace['et_type'], trace.component, trace.stream);
+    let positionsList: number[] = this.allMetricsFields.getPositionsList(
+      trace['et_type'],
+      trace.component,
+      trace.stream,
+    );
     for (let position of positionsList) {
       let metric: MetricsFieldModel = this.allMetricsFields.fieldsList[position];
       let parsedData: SingleMetricModel = this.monitoringService.convertToMetricTrace(trace, metric);
@@ -497,5 +524,46 @@ export class ESRabComplexMetricsModel extends ComplexMetricsModel {
     for (let metric of this.allMetricsFields.fieldsList) {
       // this.monitoringService.getLastMetricTraces(this.monitoringIndex, metric, size);
     } // TODO
+  }
+
+  // Chart with only left axis can be converted to average of his lines
+  convertChartToUniqueAxisAverage(lineName: string, timeRangeMs: number = 1000): void {
+    let averageLineChart: LineChartMetricModel = new LineChartMetricModel(lineName);
+    let currentTime: Date = this.startDate;
+    while (currentTime.getTime() <= this.endDate.getTime()) {
+      let nextTime: Date = new Date(currentTime.getTime() + timeRangeMs);
+
+      let newPoint: SingleMetricModel = new SingleMetricModel();
+      newPoint.name = currentTime;
+
+      let currentNewDateAverageSum: number = 0;
+      let currentNewDateAverageCandidates: number = 0;
+
+      for (let currentLineChart of this.leftChartAllData) {
+        for (let point of currentLineChart.series) {
+          let currentPointDate: Date = new Date(point.timestamp);
+
+          if (currentPointDate.getTime() >= currentTime.getTime()) {
+            if (currentPointDate.getTime() < nextTime.getTime()) {
+              currentNewDateAverageSum += point.value;
+              currentNewDateAverageCandidates++;
+            } else {
+              // Because points are sorted by time
+              break;
+            }
+          }
+        }
+      }
+
+      if (currentNewDateAverageCandidates > 0) {
+        newPoint.value = currentNewDateAverageSum / currentNewDateAverageCandidates;
+        averageLineChart.series.push(newPoint);
+      }
+
+      currentTime = nextTime;
+    }
+    this.clearData();
+    this.leftChartAllData = [averageLineChart];
+    this.leftChart = [averageLineChart];
   }
 }

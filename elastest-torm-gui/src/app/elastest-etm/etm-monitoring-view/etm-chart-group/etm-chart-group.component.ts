@@ -73,6 +73,9 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
   startDate: Date;
   endDate: Date;
 
+  qoeVmafAvgChartName: string = 'QoE VMAF Average';
+  qoeVmafMetrics: MetricsFieldModel[] = [];
+
   constructor(private monitoringService: MonitoringService, private elastestRabbitmqService: ElastestRabbitmqService) {}
 
   ngOnInit(): void {}
@@ -186,6 +189,8 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
       this.initAIO();
     }
 
+    this.qoeVmafMetrics = [];
+
     for (let metric of this.tJob.execDashboardConfigModel.allMetricsFields.fieldsList) {
       if (metric.activated) {
         let individualMetrics: ESRabComplexMetricsModel = this.initializeBasicAttrByMetric(metric);
@@ -238,14 +243,20 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
               );
           }
         }
+
+        this.storeMetricIfIsQoEVmafActivated(metric);
       }
     }
+
     this.createGroupedMetricList();
     this.firstTimeInitialized = true;
 
     if (this.tJob.execDashboardConfigModel.combineMetricsInPairs) {
       this.initMetricsPairs();
     }
+
+    // QoE Vmaf average chart
+    this.initQoEVmafAverage();
   }
 
   addChartToList(individualMetrics: ESRabComplexMetricsModel, isCombinedPair: boolean = false): number {
@@ -257,6 +268,7 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
       if (this.tJob.execDashboardConfigModel.combineMetricsInPairs) {
         this.initMetricsPairs();
       }
+
       return pos;
     }
   }
@@ -346,6 +358,62 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     individualMetrics.stream = metric.stream;
     individualMetrics.hidePrevBtn = !this.live;
     return individualMetrics;
+  }
+
+  // If is qoe vmaf and is activated, add to list (for create average chart)
+  storeMetricIfIsQoEVmafActivated(metric: MetricsFieldModel): void {
+    if (metric.etType === 'vmaf' && metric.activated) {
+      this.qoeVmafMetrics.push(metric);
+    }
+  }
+
+  initQoEVmafAverage(): void {
+    if (!this.live) {
+      let posIfExist: number = this.returnPositionIfExist(this.qoeVmafAvgChartName);
+      if (posIfExist > -1) {
+        this.removeAndUnsubscribeByListAndPos(posIfExist);
+      }
+
+      if (this.qoeVmafMetrics && this.qoeVmafMetrics.length > 1) {
+        let ignoreComponent: string = this.getIgnoreComponent();
+        let chart: ESRabComplexMetricsModel = new ESRabComplexMetricsModel(this.monitoringService, ignoreComponent);
+        chart.startDate = this.startDate;
+        chart.endDate = this.endDate;
+        chart.name = this.qoeVmafAvgChartName;
+        chart.hidePrevBtn = !this.live;
+
+        let monitoringIndex: string = this.tJobExec.monitoringIndex;
+
+        // If Multi Parent
+        if (this.tJobExec instanceof TJobExecModel && this.tJobExec.isParent()) {
+          monitoringIndex = this.tJobExec.getChildsMonitoringIndices();
+        }
+
+        chart.monitoringIndex = monitoringIndex;
+
+        for (let chartLine of this.qoeVmafMetrics) {
+          chartLine.unit = chartLine.unit ? chartLine.unit : '%';
+          chart.setUnits(chartLine.unit);
+
+          chart.allMetricsFields.addMetricsFieldToList(
+            chartLine,
+            chartLine.component,
+            chart.stream,
+            chartLine.streamType,
+            chartLine.activated,
+          );
+        }
+        chart.getAllMetrics().subscribe(
+          (loaded: boolean) => {
+            chart.convertChartToUniqueAxisAverage(this.qoeVmafAvgChartName);
+
+            this.addChartToList(chart);
+            this.createGroupedMetricList();
+          },
+          (error: Error) => console.log(error),
+        );
+      }
+    }
   }
 
   initMetricsPairs(): void {
@@ -541,13 +609,20 @@ export class EtmChartGroupComponent implements OnInit, AfterViewInit, AfterViewC
     return component + ' ' + stream + ' ' + etType;
   }
 
-  alreadyExist(name: string): boolean {
+  returnPositionIfExist(name: string): number {
+    let currentPos: number = 0;
     for (let metric of this.chartsList) {
-      if (metric.name === name) {
-        return true;
+      if (metric.name.trim() === name.trim()) {
+        return currentPos;
       }
+      currentPos++;
     }
-    return false;
+
+    return -1;
+  }
+
+  alreadyExist(name: string): boolean {
+    return this.returnPositionIfExist(name) > -1;
   }
 
   createGroupedMetricList(): void {

@@ -4,8 +4,8 @@ export class LineChartMetricModel implements MetricsDataModel {
   name: string;
   series: SingleMetricModel[];
 
-  constructor() {
-    this.name = '';
+  constructor(name: string = '') {
+    this.name = name;
     this.series = [];
   }
 }
