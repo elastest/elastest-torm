@@ -50,9 +50,11 @@ node {
                         sh 'mkdir elastest-plugin'
                     }
                     dir(pluginDirectory) {
-                        git 'https://github.com/elastest/elastest-jenkins.git'
+                    	// Due to https://issues.jenkins-ci.org/browse/JENKINS-30600 we cannot use git here
+                        sh 'git clone https://github.com/elastest/elastest-jenkins.git'
                         echo 'Build ElasTest plugin'
-                        sh 'pwd; ls -lrt; mvn clean package -B'
+                        // For the same reason we have to cd manually into the elastest-jenkins folder created by git
+                        sh 'cd elastest-jenkins; pwd; ls -lrt; mvn clean package -B'
                     }
                 
                 stage ('prepare test')
@@ -66,7 +68,7 @@ node {
                     
                     dir(testRepositoryDirectory) {
                         echo 'Existing files before cloning the git repository'
-                        git 'https://github.com/elastest/elastest-torm.git'
+                        sh 'git clone https://github.com/elastest/elastest-torm.git'
                     }
                 
                     echo 'Prepare network'
