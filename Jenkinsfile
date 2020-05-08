@@ -1,4 +1,4 @@
-    node('dev-docker-64-slave-4') {
+node(env.EXEC_NODE) {
         
         stage "CI Container setup"
 
