@@ -4,17 +4,17 @@ node(env.EXEC_NODE){
     // Some tests have been commented on. They correspond to functionalities that we do not need to test at the moment.
     
     stage ('Execute etm-loganalyzer-e2e-test-elastest Job')
-        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-loganalyzer-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: env.MAIL_LIST],[$class: 'StringParameterValue', name: 'SUT_ID', value: env.SUT_ID]], propagate: false).result
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-loganalyzer-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: env.MAIL_LIST],[$class: 'StringParameterValue', name: 'SUT_ID', value: env.SUT_ID],[$class: 'StringParameterValue', name: 'EXEC_NODE', value: env.EXEC_NODE]], propagate: false).result
         result = aux != 'SUCCESS' ? aux : result
         sleep 5
         
     stage ('Execute etm-logcomparator-e2e-test-elastest Job')
-        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-logcomparator-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: env.MAIL_LIST],[$class: 'StringParameterValue', name: 'SUT_ID', value: env.SUT_ID]], propagate: false).result
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-logcomparator-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: env.MAIL_LIST],[$class: 'StringParameterValue', name: 'SUT_ID', value: env.SUT_ID],[$class: 'StringParameterValue', name: 'EXEC_NODE', value: env.EXEC_NODE]], propagate: false).result
         result = aux != 'SUCCESS' ? aux : result
         sleep 5        
 
     stage ('Execute etm-plugin-e2e-test-elastest Job')
-        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-plugin-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: env.MAIL_LIST],[$class: 'StringParameterValue', name: 'SUT_ID', value: env.SUT_ID]], propagate: false).result
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-plugin-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: env.MAIL_LIST],[$class: 'StringParameterValue', name: 'SUT_ID', value: env.SUT_ID],[$class: 'StringParameterValue', name: 'EXEC_NODE', value: env.EXEC_NODE]], propagate: false).result
         result = aux != 'SUCCESS' ? aux : result
         sleep 5
         
@@ -29,7 +29,7 @@ node(env.EXEC_NODE){
         //sleep 5
     
     stage ('Execute etm-general-e2e-test-elastest Job')
-        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-general-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: env.MAIL_LIST],[$class: 'StringParameterValue', name: 'SUT_ID', value: env.SUT_ID]], propagate: false).result
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-general-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: env.MAIL_LIST],[$class: 'StringParameterValue', name: 'SUT_ID', value: env.SUT_ID],[$class: 'StringParameterValue', name: 'EXEC_NODE', value: env.EXEC_NODE]], propagate: false).result
         result = aux != 'SUCCESS' ? aux : result
         sleep 5
     
@@ -39,12 +39,12 @@ node(env.EXEC_NODE){
         //sleep 5
     
     stage ('Execute etm-tss-e2e-test-elastest Job')
-        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-tss-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: env.MAIL_LIST],[$class: 'StringParameterValue', name: 'SUT_ID', value: env.SUT_ID]], propagate: false).result
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-tss-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: env.MAIL_LIST],[$class: 'StringParameterValue', name: 'SUT_ID', value: env.SUT_ID],[$class: 'StringParameterValue', name: 'EXEC_NODE', value: env.EXEC_NODE]], propagate: false).result
         result = aux != 'SUCCESS' ? aux : result
         sleep 5
         
     stage ('Execute etm-demoprojects-e2e-test-elastest Job')
-        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-demoprojects-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: env.MAIL_LIST],[$class: 'StringParameterValue', name: 'SUT_ID', value: env.SUT_ID]], propagate: false).result
+        aux = build (job: 'elastest-torm/e2e-tests/et_in_et/etm-demoprojects-e2e-test-elastest', parameters: [[$class: 'StringParameterValue', name: 'SHARED_ELASTEST', value: 'false'],[$class: 'StringParameterValue', name: 'SA', value: '172.18.0.1'],[$class: 'StringParameterValue', name: 'NETWORK', value: 'elastest_elastest'],[$class: 'StringParameterValue', name: 'WITH_SA', value: 'true'],[$class: 'StringParameterValue', name: 'MAIL_LIST', value: env.MAIL_LIST],[$class: 'StringParameterValue', name: 'SUT_ID', value: env.SUT_ID],[$class: 'StringParameterValue', name: 'EXEC_NODE', value: env.EXEC_NODE]], propagate: false).result
         result = aux != 'SUCCESS' ? aux : result
         sleep 5        
 
