@@ -47,7 +47,7 @@
 		<!-- Other dependencies -->
 		<springfox-version>2.6.1</springfox-version>
 		<rest-assured.version>3.0.3</rest-assured.version>
-		<elasticsearch.version>6.6.1</elasticsearch.version>
+		<elasticsearch.version>6.8.15</elasticsearch.version>
 
 		<!-- Cross plugins settings -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
