@@ -55,7 +55,7 @@
     "@swimlane/ngx-charts": "10.0.0",
     "ag-grid-angular": "20.2.0",
     "ag-grid-community": "20.2.0",
-    "angular-tree-component": "7.0.2-beta1",
+    "angular-tree-component": "7.2.1",
     "core-js": "3.2.1",
     "d3": "5.7.0",
     "hammerjs": "^2.0.8",
